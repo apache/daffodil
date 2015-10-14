@@ -41,7 +41,6 @@ class TestDump {
 
   @Test def testDumpHexAndText1a() {
 
-    val thousandSpaces = " " * 0x3e8 // 1000
     val dateString = "Date 年月日=2003年08月27日"
     val dateStringLengthInBytes = dateString.getBytes("utf-8").length
     val bytes = dateString.getBytes("utf-8")

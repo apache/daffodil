@@ -74,7 +74,6 @@ object BasicDataOutputStream {
  * character-related methods.
  */
 private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixin {
-  import DataStreamCommon._
 
   protected def st: DataOutputStreamStateImplMixin
 
@@ -140,7 +139,6 @@ private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixi
 class BasicDataOutputStream private (realStream: java.io.OutputStream,
   protected final val st: BasicDataOutputStreamState = new BasicDataOutputStreamState)
   extends DataOutputStream with DataOutputStreamCharImplMixin {
-  import DataStreamCommon._
 
   private lazy val outStream = {
     if (areDebugging) {
@@ -195,7 +193,7 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     // must respect bitLimit0b if defined
     // must not get encoding errors until a char is being written to the output
     // otherwise we can't get precise encodingErrorPolicy='error' behavior.
-    // must handle non-byte-sized characters (e.g., 7-bit), so that bit-granularity positioning 
+    // must handle non-byte-sized characters (e.g., 7-bit), so that bit-granularity positioning
     // works.
     withLocalByteBuffer { lbb =>
       val nBytes = math.ceil(cb.remaining * st.encoder.maxBytesPerChar()).toLong
@@ -236,7 +234,7 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     true
   }
 
-  // Members declared in DataStreamCommon   
+  // Members declared in DataStreamCommon
   def bitLimit0b: MaybeULong = st.bitLimit0b
   def bitPos0b: Long = st.bitPos0b
   def setBitPos0b(bitPos0b: Long) = st.bitPos0b = bitPos0b
@@ -265,7 +263,7 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     true
   }
 
-  final private[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
+  final protected[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     st.bitLimit0b = savedBitLimit0b
   }
 

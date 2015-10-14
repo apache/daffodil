@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,12 +33,10 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors._
 import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 import scala.util.parsing.combinator.RegexParsers
@@ -58,10 +56,10 @@ import scala.util.parsing.combinator.RegexParsers
  * stuff as well.
  */
 class DFDLPathExpressionParser(
-  nodeInfoKind: NodeInfo.Kind,
-  namespaces: NamespaceBinding,
-  context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean) extends RegexParsers {
+    nodeInfoKind: NodeInfo.Kind,
+    namespaces: NamespaceBinding,
+    context: DPathCompileInfo,
+    isEvaluatedAbove: Boolean) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
@@ -167,7 +165,7 @@ class DFDLPathExpressionParser(
       case NoSuccess(msg, next) => {
         // blech - no easy way to just grab up to 30 chars from a Reader[Char]
         var nextRdr = next
-        var nextString = new StringBuilder()
+        val nextString = new StringBuilder()
         var i = 0
         while (!nextRdr.atEnd && i < 30) {
           nextString.append(nextRdr.first)

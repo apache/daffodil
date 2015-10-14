@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
 import java.io.File
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import java.net.URI
@@ -74,10 +73,10 @@ final class DFDLSchemaFile(val sset: SchemaSet,
    */
   override lazy val schemaDocument = {
     // the one containing the reference to the file
-    // Not the schema document in this file (that one is iiSchemaDocument).    
+    // Not the schema document in this file (that one is iiSchemaDocument).
     val res = iiParent.schemaDocument
     // the schemaDocument in this file is called iiSchemaDocument,
-    // but you may only be interested in its XML characteristics (namespace 
+    // but you may only be interested in its XML characteristics (namespace
     // for example), in which case you want iiXMLSchemaDocument
     res
   }
@@ -85,8 +84,6 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   override lazy val prettyName = schemaSource.uriForLoading.toString
 
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
-
-  private lazy val fakeURI = new File("tempFile.xsd").toURI
 
   lazy val schemaSource = schemaSourceArg
 
@@ -99,7 +96,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   def isValid: Boolean = {
     node // demanding this forces the load to happen
     val ld = validationDiagnostics
-    // warnings won't stop things. 
+    // warnings won't stop things.
     // TODO: options to control when validation warnings
     // should be escalated to errors.
     val res = !ld.exists { d =>
@@ -118,7 +115,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   }
 
   def error(exception: SAXParseException) = {
-    val ex = exception
+    // val ex = exception
     val sde = new SchemaDefinitionError(this.schemaFileLocation, "Error loading schema due to %s", exception)
     error(sde)
     validationDiagnostics_ :+= sde
@@ -131,7 +128,6 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   }
 
   private lazy val loader = new DaffodilXMLLoader(this)
-  private lazy val resolver = schemaSet.resolver
 
   private def loadedNode = LV('loadedNode) {
     def die(e: Throwable) = {
@@ -164,7 +160,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   private def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
     val sd = node match {
       case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
-        // top level is a schema. 
+        // top level is a schema.
 
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd

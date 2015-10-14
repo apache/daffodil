@@ -389,7 +389,8 @@ catalogs=testData_OnClassPath/testCatalog.xml
     })
 
     val src = new URISchemaSource(tmpDataFileName.toURI)
-    val elem = loader.load(src) // that should validate it.
+    // val elem = 
+      loader.load(src) // that should validate it.
     // println(elem)
     true // returned to indicate that things worked
   }

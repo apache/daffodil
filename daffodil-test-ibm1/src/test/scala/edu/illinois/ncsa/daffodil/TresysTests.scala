@@ -32,21 +32,16 @@
 
 package edu.illinois.ncsa.daffodil
 
-import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TresysTests {
 
   // Debug Template
-  // @Test def test_name() = Debugger.withDebugger { 
+  // @Test def test_name() = Debugger.withDebugger {
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  // runner.runOneTest("test_name") 
+  // runner.runOneTest("test_name")
   // }
 
   val testDir = "/test-suite/tresys-contributed/"
@@ -102,7 +97,7 @@ class TresysTests {
   // Fails, index out of bounds
   // @Test def test_nested_separator_delimited_nest1() { runnerNSD.runOneTest("nest1")}
   // Fails infinite loop
-  // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}    
+  // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}
   // Fails infinite loop
   // @Test def test_nested_separator_delimited_nest3() { runnerNSD.runOneTest("nest3")}
 
@@ -160,7 +155,7 @@ class TresysTests {
   lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
   @Test def test_AZ000() { runnerAZ.runOneTest("AZ000") } // escape schemes
 
-  // Jira DFDL-1392 
+  // Jira DFDL-1392
   //  val ba = testDir + "BA.tdml"
   //  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
   //  @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters

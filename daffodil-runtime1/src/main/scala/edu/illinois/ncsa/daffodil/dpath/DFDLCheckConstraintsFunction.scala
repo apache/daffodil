@@ -37,14 +37,12 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
 import java.util.HashMap
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
@@ -59,7 +57,6 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 object DFDLCheckConstraintsFunction {
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
   import util.control.Breaks._
-  import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType._
   /**
    * Used for validation purposes when ValidationMode is Limited or Full.
    *
@@ -84,9 +81,7 @@ object DFDLCheckConstraintsFunction {
 
   def executeCheck(currentElement: DISimple): Either[String, Unit] = {
     val e = currentElement.erd
-    import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
-    import util.control.Breaks._
-    import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType._
+
     val data =
       if (!currentElement.isNilled) currentElement.dataValueAsString
       else ""
@@ -225,7 +220,7 @@ object DFDLCheckConstraintsFunction {
 
   // TODO: Duplication of dateToBigDecimal in Types.scala, throw in a library?
   // Note there is also similar code in Conversions.scala used by the DPath
-  // runtime - lots of overlap between that and facet-checking code. 
+  // runtime - lots of overlap between that and facet-checking code.
   def dateToBigDecimal(date: String, format: String, eb: ElementRuntimeData): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
@@ -243,7 +238,7 @@ object DFDLCheckConstraintsFunction {
 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
   // Note there is also similar code in Conversions.scala used by the DPath
-  // runtime - lots of overlap between that and facet-checking code. 
+  // runtime - lots of overlap between that and facet-checking code.
   def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementRuntimeData): java.math.BigDecimal = {
     primType match {
       case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
@@ -319,7 +314,7 @@ object DFDLCheckConstraintsFunction {
         //     <pattern value="2"/>
         //   </restriction>
         // </SimpleType>
-        // 
+        //
         // <SimpleType name="B">
         //   <restriction base="int">
         //     <pattern value="3"/>
@@ -328,7 +323,7 @@ object DFDLCheckConstraintsFunction {
         // </SimpleType>
         //
         // Here facetPattern for SimpleType-A = "1|2" (OR'd)
-        val (facetName, facetPattern) = simpleType
+        val (_ /* facetName */ , facetPattern) = simpleType
 
         // All patterns between simpleTypes must match (AND'd)
         if (!data.matches(facetPattern.toString())) {
@@ -342,7 +337,7 @@ object DFDLCheckConstraintsFunction {
 
   def checkOccurrance(minOccurs: Int, maxOccurs: Int, position: Long): Boolean = {
     // A maxOccurs of -1 signifies unbounded
-    if ( // position > minOccurs && // DON"T CHECK MIN OCCURS. 
+    if ( // position > minOccurs && // DON"T CHECK MIN OCCURS.
     // That can't work. If minOccurs is 5 the first element at position 1 will fail this check.
     ((position <= maxOccurs) || (maxOccurs == -1))) { return true }
     return false

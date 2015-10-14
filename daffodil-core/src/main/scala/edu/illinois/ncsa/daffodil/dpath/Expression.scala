@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -534,7 +534,7 @@ case class WholeExpression(
   override def targetTypeForSubexpression(subExpr: Expression): NodeInfo.Kind = {
     //
     // Note: the subExpr might not be exactly our ifor child expression
-    // because if ifor was a function call, then the resulting function 
+    // because if ifor was a function call, then the resulting function
     // object will have been created and given this as its parent pointer.
     //
     Assert.invariant(subExpr == ifor | ifor.isInstanceOf[FunctionCallExpression])
@@ -572,7 +572,7 @@ case class IfExpression(ifthenelse: List[Expression])
   override lazy val inherentType = {
     // we need the type which is the generalization of the thenPart and
     // elsePart inherent types, but it's an error if they have no generalization.
-    // 
+    //
     NodeInfoUtils.generalize(thenPart, elsePart)
   }
 }
@@ -657,7 +657,7 @@ abstract class PathExpression()
     else steps.last.isArray &&
       !steps.last.pred.isDefined && // last cannot have a [N] pred
       steps.dropRight(1).forall {
-        // for all the prior steps 
+        // for all the prior steps
         // if they mention an array element, there
         // must be a [N] predicate.
         step =>
@@ -682,7 +682,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
         case Some(pt) => pt
         case None => {
           // this is the more common case. Only in unit tests will the
-          // root element be simple type. 
+          // root element be simple type.
           NodeInfo.Complex
         }
       }
@@ -726,7 +726,7 @@ case class RelativePathExpression(steps1: List[StepExpression], isEvaluatedAbove
       // not an absolute path.
       if (isEvaluatedAbove) {
         // in this case, the relative path must begin with ".." to be
-        // meaningful. 
+        // meaningful.
         Assert.invariant(steps2(0).isInstanceOf[Up])
         steps2.tail // trim off the UP move at the start.
       } else steps2
@@ -822,7 +822,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   lazy val isAbsolutePath = relPathParent.isAbsolutePath
 
   lazy val positionInStepsSequence = {
-    var steps = relPathParent.steps
+    val steps = relPathParent.steps
     steps.indexOf(this)
   }
 
@@ -864,7 +864,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     if (!isLastStep) NodeInfo.Complex
     else {
       if (stepElement.optPrimType.isDefined) {
-        // simple type, so 
+        // simple type, so
         val pt = stepElement.optPrimType.get
         pt
       } else {
@@ -885,7 +885,7 @@ case class Self(predArg: Option[PredicateExpression]) extends StepExpression(nul
 
   override lazy val stepElement: DPathElementCompileInfo =
     priorStep.map { _.stepElement }.getOrElse {
-      //  no prior step, so we're the first step 
+      //  no prior step, so we're the first step
       this.compileInfo.elementCompileInfo.getOrElse {
         relPathErr()
       }
@@ -907,7 +907,7 @@ case class Self2(s: String, predArg: Option[PredicateExpression])
 
   override lazy val stepElement: DPathElementCompileInfo = {
     val ci = priorStep.map { _.stepElement }.getOrElse {
-      //  no prior step, so we're the first step 
+      //  no prior step, so we're the first step
       this.compileInfo.elementCompileInfo.getOrElse {
         relPathErr()
       }
@@ -927,9 +927,8 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
   override lazy val stepElement: DPathElementCompileInfo = {
     if (isFirstStep) {
       Assert.invariant(!isAbsolutePath)
-      val rpe = this.relPathParent
       val sc = this.compileInfo
-      // if we are some component inside an element then we 
+      // if we are some component inside an element then we
       // need to get the element surrounding first, then go up one.
       val e = sc.elementCompileInfo
       val e1 = e.getOrElse {
@@ -941,7 +940,7 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
       }
       e3
     } else {
-      // not first, so 
+      // not first, so
       val ps = priorStep
       val ps2 = ps.map { _.stepElement }
       val ps3 = ps2.getOrElse {
@@ -971,9 +970,8 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
   override lazy val stepElement: DPathElementCompileInfo = {
     val ci = if (isFirstStep) {
       Assert.invariant(!isAbsolutePath)
-      val rpe = this.relPathParent
       val sc = this.compileInfo
-      // if we are some component inside an element then we 
+      // if we are some component inside an element then we
       // need to get the element surrounding first, then go up one.
       val e = sc.elementCompileInfo
       val e1 = e.getOrElse {
@@ -985,7 +983,7 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
       }
       e3
     } else {
-      // not first, so 
+      // not first, so
       val ps = priorStep
       val ps2 = ps.map { _.stepElement }
       val ps3 = ps2.getOrElse {
@@ -1203,7 +1201,7 @@ case class VariableRef(val qnameString: String)
 
 /*
  * Functions and operators that exist in tests as of 2014-08-05
- * 
+ *
  * fn:dateTime
  * xs:dateTime
  * xs:time
@@ -1225,7 +1223,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
   def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = {
     // This is called by the arguments to the function to get their target types.
     // However, this is not the right parent. They are arguments to the function object
-    // once the FunctionCallExpression creates that function object, so 
+    // once the FunctionCallExpression creates that function object, so
     // we delegate this back to the function object
     functionObject.targetTypeForSubexpression(childExpr)
   }
@@ -1542,13 +1540,13 @@ abstract class FunctionCallBase(functionQNameString: String,
 
   final def argCountTooFewErr(n: Int) = {
     //
-    // Digression: below illustrates what is a hard problem in internationalization 
+    // Digression: below illustrates what is a hard problem in internationalization
     // of software, which is called pluralization.
     //
     // See that "(s)" fudge here where we mean - add plural 's' if the number is not one.
     // Well there's no one consistent way to do that.
 
-    // Even consider zero. In English zero is plural. In French it is singular. 
+    // Even consider zero. In English zero is plural. In French it is singular.
 
     // In many languages there are different endings for 0, x1, x2, x3, etc.
     // Much the way ordinal numbers work in English where we have 1st (st ending)
@@ -1608,7 +1606,7 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
   override lazy val compiledDPath = {
     checkArgCount(1)
     subsetError("fn:exactly-one is not supported.")
-    new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNExactlyOne) ++ conversions)
+    //new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNExactlyOne) ++ conversions)
   }
 }
 
@@ -1790,13 +1788,13 @@ case class XSConverterExpr(nameAsParsed: String, fnQName: RefQName, args: List[E
 
   /*
    * By using the result type as the target for the expression, conversions will
-   * do the work of converting into that type. We don't need to put down any 
+   * do the work of converting into that type. We don't need to put down any
    * additional recipe operator to convert anything.
    */
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = resultType // NodeInfo.AnyType
 
   // TODO: this should work... why do we need to call an additional converter. The
-  // args(0).compiledDPath should already have taken into account converting into 
+  // args(0).compiledDPath should already have taken into account converting into
   // their target types which are the same as this conversion's output result type.
 
   override lazy val compiledDPath = {

@@ -822,7 +822,7 @@ object Main extends Logging {
             val dataSeq = files.map { filePath =>
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
-              var fileContent = new Array[Byte](dataSize.toInt)
+              val fileContent = new Array[Byte](dataSize.toInt)
               input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
               (filePath, fileContent, dataSize * 8)
             }
@@ -868,7 +868,7 @@ object Main extends Logging {
               val tasks = inputsWithIndex.map {
                 case (c, n) =>
                   val task: Future[(Int, Long, Boolean)] = Future {
-                    val (path, inData, len) = c
+                    val (_ /* path */ , inData, len) = c
                     val (time, result) = inData match {
                       case Left(xmlData) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, xmlData) })
                       case Right(channel) => Timer.getTimeResult({ processor.parse(channel, len) })
@@ -1103,7 +1103,7 @@ object Main extends Logging {
       case _ => {
         // This should never happen, this is caught by validation
         Assert.impossible()
-        1
+        // 1
       }
     }
 

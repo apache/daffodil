@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,15 +33,12 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import scala.xml.Node
-import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -51,7 +48,6 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -65,12 +61,12 @@ abstract class ProcessingError(
   kind: String,
   args: Any*)
   extends Exception with ThinThrowable with DiagnosticImplMixin {
-  override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = rd.toSeq
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
 
-  override def getDataLocations(): Seq[DataLocation] = loc.toSeq
+  override def getDataLocations: Seq[DataLocation] = loc.toSeq
 
   private lazy val schemaLocationsString = {
-    val strings = getLocationsInSchemaFiles().map { _.locationDescription }
+    val strings = getLocationsInSchemaFiles.map { _.locationDescription }
     val res = if (strings.length > 0)
       " " + strings.mkString(", ")
     else
@@ -81,7 +77,6 @@ abstract class ProcessingError(
   def componentText: String = ""
 
   override def toString = {
-    val args1 = args
     //
     // Right here is where we would lookup the symbolic error kind id, and
     // choose a locale-based message string.
@@ -133,7 +128,7 @@ class AltParseFailed(rd: SchemaFileLocation, state: PState,
   diags: Seq[Diagnostic])
   extends ParseError(One(rd), One(state.currentLocation), "All alternatives failed. Reason(s): %s", diags) {
 
-  override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
   override def getDataLocations: Seq[DataLocation] = {
     // all should have the same starting location if they are alternatives.
@@ -195,8 +190,7 @@ trait WithParseErrorThrowing {
    * This wrapper then implements the required behavior for parsers
    * that being returning a failed parser state.
    */
-  // TODO: Performance: make this inline or use a macro, so as to avoid allocating a closure for the function being passed.
-  def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
+  @inline final def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
     val saveCanThrowParseErrors = WithParseErrorThrowing.flag
     WithParseErrorThrowing.flag = true
     try body
@@ -214,25 +208,27 @@ trait WithParseErrorThrowing {
       //          res
       //        }
       //
-      case e: NumberFormatException => {
-        val ie = pstate.infoset.asInstanceOf[InfosetElement]
-        val msg =
-          if (e.getMessage() != null && e.getMessage() != "")
-            e.getMessage()
-          else Misc.getNameFromClass(e)
-        val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate.currentLocation), msg)
-        pstate.setFailed(pe)
-      }
+      case e: NumberFormatException => handleNumberFormatException(pstate, e)
       // Note: We specifically do not catch other exceptions here
       // On purpose. If those exist, then there's someplace that should have already caught them
       // and turned them into a thrown parse error, or a schema definition error.
       //
-      // Other kinds of spontaneous throws are bugs, and we don't want to mask them by 
-      // putting blanket catches in. 
+      // Other kinds of spontaneous throws are bugs, and we don't want to mask them by
+      // putting blanket catches in.
       //
     } finally {
       WithParseErrorThrowing.flag = saveCanThrowParseErrors
     }
+  }
+
+  final protected def handleNumberFormatException(pstate: PState, e: NumberFormatException) = {
+    val ie = pstate.infoset.asInstanceOf[InfosetElement]
+    val msg =
+      if (e.getMessage() != null && e.getMessage() != "")
+        e.getMessage()
+      else Misc.getNameFromClass(e)
+    val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate.currentLocation), msg)
+    pstate.setFailed(pe)
   }
 
   /**

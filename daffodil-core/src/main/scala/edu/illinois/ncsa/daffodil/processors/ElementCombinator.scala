@@ -37,12 +37,10 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.NamedGram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
@@ -102,7 +100,7 @@ class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gra
 abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAfter: Gram)
   extends NamedGram(context) {
 
-  // The order of things matters in some cases, so to be consistent we'll always use the 
+  // The order of things matters in some cases, so to be consistent we'll always use the
   // same order even when it doesn't matter
 
   // The order of evaluation of statements is:
@@ -116,11 +114,11 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
   // Note: above not needed as these are ALWAYS evaluated below.
 
-  lazy val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
-  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
-  lazy val pSetVar = context.setVariableStatements.map(_.gram.parser)
-  lazy val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
-  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
+  lazy val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
+  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
+  lazy val pSetVar = context.setVariableStatements.map(_.gram.parser).toArray
+  lazy val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
+  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
 
   lazy val eParser: Option[Parser] = if (eGram.isEmpty) None
   else Some(eGram.parser)
@@ -143,4 +141,3 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   def unparser: Unparser
 
 }
-

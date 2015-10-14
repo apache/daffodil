@@ -32,23 +32,20 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.processors.charset._
-import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
+import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Maybe.One
 
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
 
 abstract class ExpressionEvaluationUnparser(expr: CompiledExpression, rd: RuntimeData)
-    extends Unparser(rd) with WithParseErrorThrowing {
+  extends Unparser(rd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
 
@@ -62,7 +59,7 @@ abstract class ExpressionEvaluationUnparser(expr: CompiledExpression, rd: Runtim
 }
 
 class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
-    extends ExpressionEvaluationUnparser(expr, decl) {
+  extends ExpressionEvaluationUnparser(expr, decl) {
 
   def unparse(start: UState): Unit = {
     log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
@@ -83,7 +80,7 @@ class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
 
 class NewVariableInstanceStartUnparser(
   decl: RuntimeData)
-    extends Unparser(decl) {
+  extends Unparser(decl) {
   override lazy val childProcessors = Nil
 
   decl.notYetImplemented("newVariableInstance")
@@ -94,7 +91,7 @@ class NewVariableInstanceStartUnparser(
 
 class NewVariableInstanceEndUnparser(
   decl: RuntimeData)
-    extends Unparser(decl) {
+  extends Unparser(decl) {
   override lazy val childProcessors = Nil
 
   decl.notYetImplemented("newVariableInstance")

@@ -126,7 +126,6 @@ object Misc {
         //
         val contextURL = contextURI.toURL
         val completeURL = new URL(contextURL, resName)
-        val completeURI = completeURL.toURI
         val res = tryURL(completeURL)
         if (res.isDefined) return res
         //

@@ -32,27 +32,19 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 import scala.xml.NamespaceBinding
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
+import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
-import edu.illinois.ncsa.daffodil.dpath._
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.util.TransientParam
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.RefQName
 
 trait RuntimeData
   extends ImplementsThrowsSDE

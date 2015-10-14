@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,12 +34,8 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
-import org.junit.Test
 import org.junit.Test
 
 class TestDsomCompilerNew extends Logging {
@@ -78,7 +74,7 @@ class TestDsomCompilerNew extends Logging {
     val decl = declf.forRoot()
 
     assertEquals(1, decl.patternValues.length)
-    val (facetName, pattern) = decl.patternValues(0)
+    val (_, pattern) = decl.patternValues(0)
     assertEquals("1|2|3", pattern.toString())
   }
 
@@ -195,7 +191,7 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
@@ -286,7 +282,7 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
@@ -377,7 +373,7 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
@@ -467,7 +463,7 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
@@ -934,7 +930,7 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("three", three_1.name)
     assertEquals("four", four_1.name)
 
-    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl, one_subseq: Sequence) = oneCTSeq.groupMembers
+    val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl, _: Sequence) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
     val Seq(b_1: LocalElementBase, c_1: LocalElementBase, seqFollowingC_1: Sequence) = a.possibleNextTerms
@@ -1084,7 +1080,7 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("three", three_1.name)
     assertEquals("four", four_1.name)
 
-    val Seq(a: LocalElementDecl, b: LocalElementDecl, one_subseq: Sequence, c: LocalElementDecl) = oneCTSeq.groupMembers
+    val Seq(a: LocalElementDecl, b: LocalElementDecl, _: Sequence, c: LocalElementDecl) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
     val Seq(b_1: LocalElementBase, seqFollowingA: Sequence) = a.possibleNextTerms
@@ -1232,7 +1228,7 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("three", three_1.name)
     assertEquals("four", four_1.name)
 
-    val Seq(one_subseq: Sequence, a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
+    val Seq(_: Sequence, a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
     val Seq(b_2: LocalElementBase, c_2: LocalElementBase, two_2: LocalElementBase, three_2: LocalElementBase, seqFollowingThree_2: Sequence) = a.possibleNextTerms

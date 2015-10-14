@@ -34,26 +34,22 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.debugger._
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 abstract class StatementElementParserBase(
   rd: RuntimeData,
   name: String,
-  patDiscrimParser: Seq[Parser],
-  patAssertParser: Seq[Parser],
-  setVarParser: Seq[Parser],
-  testDiscrimParser: Seq[Parser],
-  testAssertParser: Seq[Parser],
+  patDiscrimParser: Array[Parser],
+  patAssertParser: Array[Parser],
+  setVarParser: Array[Parser],
+  testDiscrimParser: Array[Parser],
+  testAssertParser: Array[Parser],
   eParser: Option[Parser],
   eAfterParser: Option[Parser])
   extends Parser(rd) {
@@ -65,7 +61,13 @@ abstract class StatementElementParserBase(
   def parseBegin(pstate: PState): Unit
   def parseEnd(pstate: PState): Unit
 
-  override lazy val childProcessors = patDiscrimParser ++ patAssertParser ++ eParser.toSeq ++ setVarParser ++ testDiscrimParser ++ testAssertParser ++ eAfterParser
+  override lazy val childProcessors: Seq[Processor] = patDiscrimParser ++
+    patAssertParser ++
+    eParser.toSeq ++
+    setVarParser ++
+    testDiscrimParser ++
+    testAssertParser ++
+    eAfterParser.toSeq
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
@@ -89,7 +91,7 @@ abstract class StatementElementParserBase(
         log(LogLevel.Debug,
           "Validation failed for %s due to %s. The element value was %s.",
           context.toString, failureMessage, currentElement.toXML())
-        pstate.withValidationError("%s failed dfdl:checkConstraints due to %s",
+        pstate.reportValidationError("%s failed dfdl:checkConstraints due to %s",
           context.toString, failureMessage)
         currentElement.setValid(false)
         pstate
@@ -106,21 +108,33 @@ abstract class StatementElementParserBase(
       pstate.dataInputStream.discard(startingBitPos)
     }
 
-    patDiscrimParser.foreach(d => {
-      d.parse1(pstate)
-      // Pattern fails at the start of the Element
-      if (pstate.status != Success) { cleanup; return }
-    })
+    { // done as while loops to avoid allocation of closure objects
+      var i: Int = 0
+      while (i < patDiscrimParser.length) {
+        val d = patDiscrimParser(i)
+        i += 1
+        d.parse1(pstate)
+        // Pattern fails at the start of the Element
+        if (pstate.status != Success) { cleanup; return }
+      }
+    }
 
-    // now here we backup and run the pattern Asserts 
+    // now here we backup and run the pattern Asserts
     // against the data at the start of the element's representation again.
     pstate.dataInputStream.reset(startingBitPos)
     startingBitPos = pstate.dataInputStream.mark
-    patAssertParser.foreach(d => {
-      d.parse1(pstate)
-      // Pattern fails at the start of the Element
-      if (pstate.status != Success) { cleanup; return }
-    })
+
+    {
+      var i: Int = 0
+      while (i < patAssertParser.length) {
+        val d = patAssertParser(i)
+        i += 1
+
+        d.parse1(pstate)
+        // Pattern fails at the start of the Element
+        if (pstate.status != Success) { cleanup; return }
+      }
+    }
 
     // backup again. If all pattern discriminators and/or asserts
     // have passed, now we parse the element. But we backup
@@ -136,20 +150,22 @@ abstract class StatementElementParserBase(
       // debugger of this so it can do things like check for break points
       pstate.dataProc.startElement(pstate, this)
 
-      eParser.foreach { eParser =>
-        eParser.parse1(pstate)
-      }
+      if (eParser.isDefined)
+        eParser.get.parse1(pstate)
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
 
       if (pstate.status == Success) {
-        setVarParser.foreach { d =>
+        var i: Int = 0
+        while (i < setVarParser.length) {
+          val d = setVarParser(i)
+          i += 1
           d.parse1(pstate)
           if (pstate.status != Success) {
             setVarFailureDiags = pstate.diagnostics
-            // a setVariable statement may fail. But we want to continue to try 
+            // a setVariable statement may fail. But we want to continue to try
             // more of the setVariable statements, as they may be necessary
-            // to evaluate the test discriminator below, and some might 
+            // to evaluate the test discriminator below, and some might
             // be successful even if one fails, allowing the discriminator to be true.
             //
             // So it's a bit odd, but we're going to just keep parsing using this
@@ -158,16 +174,21 @@ abstract class StatementElementParserBase(
         }
       }
 
-      testDiscrimParser.foreach(d => {
-        d.parse1(pstate)
-        // Tests fail at the end of the Element
-        if (pstate.status != Success) { return }
-      })
+      {
+        var i: Int = 0
+        while (i < testDiscrimParser.length) {
+          val d = testDiscrimParser(i)
+          i += 1
+          d.parse1(pstate)
+          // Tests fail at the end of the Element
+          if (pstate.status != Success) { return }
+        }
+      }
 
-      // 
+      //
       // We're done with the discriminator, so now we revisit the set variable statements.
       // If a failure occurred there, then now we can fail out right here.
-      // 
+      //
       if (!setVarFailureDiags.isEmpty) {
         pstate.setFailed(setVarFailureDiags.head)
         return
@@ -176,15 +197,20 @@ abstract class StatementElementParserBase(
       // Element evaluation failed, return
       if (pstate.status != Success) { return }
 
-      testAssertParser.foreach(d => {
-        d.parse1(pstate)
-        // Tests fail at the end of the Element
-        if (pstate.status != Success) { return }
-      })
+      {
+        var i = 0
+        while (i < testAssertParser.length) {
+          val d = testAssertParser(i)
+          i += 1
 
-      eAfterParser.foreach { eAfterParser =>
-        eAfterParser.parse1(pstate)
+          d.parse1(pstate)
+          // Tests fail at the end of the Element
+          if (pstate.status != Success) { return }
+        }
       }
+
+      if (eAfterParser.isDefined)
+        eAfterParser.get.parse1(pstate)
 
       if (pstate.status != Success) return
     } finally {
@@ -198,11 +224,11 @@ abstract class StatementElementParserBase(
 class StatementElementParser(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Seq[Parser],
-  patAssert: Seq[Parser],
-  setVar: Seq[Parser],
-  testDiscrim: Seq[Parser],
-  testAssert: Seq[Parser],
+  patDiscrim: Array[Parser],
+  patAssert: Array[Parser],
+  setVar: Array[Parser],
+  testDiscrim: Array[Parser],
+  testAssert: Array[Parser],
   eParser: Option[Parser],
   eAfterParser: Option[Parser])
   extends StatementElementParserBase(
@@ -231,8 +257,8 @@ class StatementElementParser(
       case ct: DIComplex => ct.addChild(currentElement)
       case st: DISimple => {
         // don't add as a child. This corner case
-        // is just about tests where the root node is 
-        // a simple element. 
+        // is just about tests where the root node is
+        // a simple element.
       }
     }
     log(LogLevel.Debug, "priorElement = %s", priorElement)
@@ -249,15 +275,15 @@ class StatementElementParser(
         // Execute checkConstraints
         validate(pstate)
       }
-      if (priorElement.isDefined) pstate.setParent(priorElement.get)
+      if (priorElement ne null) pstate.setParent(priorElement)
       move(pstate)
     } else { // failure.
-      if (priorElement.isDefined) {
+      if (priorElement ne null) {
         // We set the context back to the parent infoset element here
-        // But we do not remove the child here. That's done at the 
-        // point of uncertainty when it restores the state of the 
+        // But we do not remove the child here. That's done at the
+        // point of uncertainty when it restores the state of the
         // element after a failure.
-        pstate.setParent(priorElement.get)
+        pstate.setParent(priorElement)
       }
     }
   }
@@ -266,11 +292,11 @@ class StatementElementParser(
 class StatementElementParserNoRep(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Seq[Parser],
-  patAssert: Seq[Parser],
-  setVar: Seq[Parser],
-  testDiscrim: Seq[Parser],
-  testAssert: Seq[Parser],
+  patDiscrim: Array[Parser],
+  patAssert: Array[Parser],
+  setVar: Array[Parser],
+  testDiscrim: Array[Parser],
+  testAssert: Array[Parser],
   eParser: Option[Parser],
   eAfterParser: Option[Parser])
   extends StatementElementParser(
@@ -285,8 +311,8 @@ class StatementElementParserNoRep(
     eAfterParser) {
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
-  // but we don't create anything new as far as the group is concerned, and we don't want 
-  // the group 'thinking' that there's a prior sibling inside the group and placing a 
+  // but we don't create anything new as far as the group is concerned, and we don't want
+  // the group 'thinking' that there's a prior sibling inside the group and placing a
   // separator after it. So in the case of NoRep, we don't advance group child, just element child.
   override def move(state: PState) {
     state.mpstate.moveOverOneElementChildOnly
@@ -296,11 +322,11 @@ class StatementElementParserNoRep(
 class ChoiceStatementElementParser(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Seq[Parser],
-  patAssert: Seq[Parser],
-  setVar: Seq[Parser],
-  testDiscrim: Seq[Parser],
-  testAssert: Seq[Parser],
+  patDiscrim: Array[Parser],
+  patAssert: Array[Parser],
+  setVar: Array[Parser],
+  testDiscrim: Array[Parser],
+  testAssert: Array[Parser],
   eParser: Option[Parser],
   eAfterParser: Option[Parser])
   extends StatementElementParserBase(
@@ -339,7 +365,7 @@ class ChoiceStatementElementParser(
     val priorElement = currentElement.parent
     // Note: interaction of unboxed Maybe[T] with pass by name args of log method
     // require us to call toScalaOption here.
-    log(LogLevel.Debug, "priorElement = %s", priorElement.toScalaOption)
+    log(LogLevel.Debug, "priorElement = %s", Maybe.toScalaOption(priorElement))
     move(pstate)
   }
 }

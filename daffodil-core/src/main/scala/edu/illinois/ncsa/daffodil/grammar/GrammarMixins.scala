@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.ComplexTypeBase
 import edu.illinois.ncsa.daffodil.dsom.GroupRef
-import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 
 trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
 

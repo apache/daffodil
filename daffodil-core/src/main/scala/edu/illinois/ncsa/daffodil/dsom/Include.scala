@@ -32,29 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import java.net.URL
 import scala.xml.Node
-import scala.xml.Elem
-import scala.xml.Attribute
-import scala.xml.Null
-import scala.collection.immutable.ListMap
-import org.apache.xerces.util.XMLResourceIdentifierImpl
-import java.io.IOException
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
+
 import edu.illinois.ncsa.daffodil.util._
 import IIUtils._
-import java.io.File
-import java.net.URI
-import scala.xml.NodeSeq
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
-import edu.illinois.ncsa.daffodil.util.Delay
-import java.net.URLDecoder
-import java.net.URLEncoder
 
 /**
  * enclosingGoalNS is None if this include
@@ -66,7 +48,7 @@ import java.net.URLEncoder
  * a targetNamespace.
  */
 final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
-    extends IIBase(xml, xsd, seenArg) {
+  extends IIBase(xml, xsd, seenArg) {
 
   protected final def mapPair = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.

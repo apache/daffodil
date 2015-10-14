@@ -6,8 +6,6 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
 trait DataOutputStream extends DataStreamCommon {
-  import DataStreamCommon._
-  import DataInputStream._
 
   def encoder: CharsetEncoder
   def setEncoder(encoder: CharsetEncoder): Unit

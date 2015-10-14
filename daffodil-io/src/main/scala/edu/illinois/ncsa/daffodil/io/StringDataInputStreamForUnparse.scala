@@ -18,7 +18,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
  * the data that need to be escaped, so we need to treat the
  * string data being unparsed as a DataInputStream.
  */
-class StringDataInputStreamForUnparse
+final class StringDataInputStreamForUnparse
   extends DataInputStream {
   import DataInputStream._
 
@@ -27,9 +27,9 @@ class StringDataInputStreamForUnparse
 
   private val utf8Decoder = StandardCharsets.UTF_8.newDecoder()
 
-  // TODO: Performance - we could keep a BBDIS around, and "reset" it by 
-  // putting it onto a byte buffer that we fill from the string. That way 
-  // we wouldn't have to allocate a BBDIS unless the string requires a bigger 
+  // TODO: Performance - we could keep a BBDIS around, and "reset" it by
+  // putting it onto a byte buffer that we fill from the string. That way
+  // we wouldn't have to allocate a BBDIS unless the string requires a bigger
   // byte buffer.
   //
   def reset(str: String) {
@@ -86,7 +86,7 @@ class StringDataInputStreamForUnparse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
   override def skip(nBits: Long): Boolean = doNotUse
   override def skipChars(nChars: Long): Boolean = getString(nChars).isDefined
-  override def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = doNotUse
   override def remainingBits: MaybeULong = doNotUse
+  override protected[io] def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
   override def validateFinalStreamState {} // does nothing
 }

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,7 +36,6 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
@@ -76,7 +75,8 @@ class TestCouldBeNextElement {
     val rootSeq = rootCT.sequence
     val Seq(choice1: Choice, barOpt: LocalElementBase, bar2: LocalElementBase) = rootSeq.groupMembers
     val Seq(choice1seq1: Sequence, choice1seq2: Sequence, bar1: LocalElementBase) = choice1.groupMembers
-    val Seq(choice1seq1seq1: Sequence) = choice1seq1.groupMembers
+    val Seq(gm: Sequence) = choice1seq1.groupMembers
+    assertNotNull(gm)
 
     assertEquals(0, root.possibleNextChildElementsInInfoset.length)
     assertEquals(3, root.possibleFirstChildElementsInInfoset.length)
@@ -88,7 +88,7 @@ class TestCouldBeNextElement {
     assertEquals(2, bar1.possibleNextChildElementsInInfoset.length)
     assertEquals("barOpt", bar1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
     assertEquals("bar2", bar1.possibleNextChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
-    
+
     assertEquals(0, barOpt.possibleFirstChildElementsInInfoset.length)
     assertEquals(1, barOpt.possibleNextChildElementsInInfoset.length)
     assertEquals("bar2", barOpt.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
@@ -122,7 +122,7 @@ class TestCouldBeNextElement {
                   <xs:element name="ch1" type="xs:string"/>
                   <xs:element name="ch2" type="xs:string"/>
                   <xs:element name="array" type="xs:string"/>
-                  <xs:sequence />
+                  <xs:sequence/>
                 </xs:choice>
               </xs:complexType>
             </xs:element>
@@ -214,6 +214,5 @@ class TestCouldBeNextElement {
 
     assertEquals(0, e3.possibleNextChildElementsInInfoset.length)
   }
-
 
 }

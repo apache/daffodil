@@ -21,11 +21,11 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /*
  * TODO:
- * 
+ *
  * Q: Do we want raw and must-be-aligned versions of the data-accessing methods? - i.e.,
- * that don't check for alignment to a proper byte boundary (but require it) and 
+ * that don't check for alignment to a proper byte boundary (but require it) and
  * that throw if not sufficient bits?
- * 
+ *
  * A: Only if we find this pattern of usage to be needed repeatedly. Another situation where we might want
  * these is if the existing methods, because they do not enforce alignment, end up having to do checking
  * that is undesirable for performance reasons.
@@ -214,7 +214,7 @@ trait DataStreamCommon extends LocalBufferMixin {
 
   /*
    * Note that when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
-   * then the bit order *is* used by the character decoding to determine which 
+   * then the bit order *is* used by the character decoding to determine which
    * side of a byte is first.
    */
   def setBitOrder(bitOrder: BitOrder): Unit
@@ -226,7 +226,7 @@ trait DataStreamCommon extends LocalBufferMixin {
    * <p>
    * Note that when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
    * then the byte order *is* used by the character decoding when a character
-   * code unit spans a byte boundary. 
+   * code unit spans a byte boundary.
    */
   def setByteOrder(byteOrder: ByteOrder): Unit
   def byteOrder: ByteOrder
@@ -283,8 +283,20 @@ trait DataStreamCommon extends LocalBufferMixin {
    * Note that length limits in lengthUnits Characters are not implemented
    * this way. See fillCharBuffer(cb) method.
    */
-  def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean
-  //TODO: Convert to a macro
+  @inline final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = {
+    val savedLengthLimit = bitLimit0b
+    if (!setBitLimit0b(MaybeULong(bitPos0b + lengthLimitInBits))) false
+    else {
+      try {
+        body
+      } finally {
+        resetBitLimit0b(savedLengthLimit)
+      }
+      true
+    }
+  }
+
+  protected[io] def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
   /**
    * Sets the bit limit to an absolute value and returns true.
@@ -371,13 +383,12 @@ trait DataStreamCommon extends LocalBufferMixin {
 
 trait DataInputStream
   extends DataStreamCommon {
-  import DataStreamCommon._
   import DataInputStream._
 
   /*
    * Setters for all the text and binary characteristics.
    * <p>
-   * These are set rather than passed to various operations because 
+   * These are set rather than passed to various operations because
    * they will, most often, be very slow changing relative to the
    * operations that actually perform data motion.
    * <p>
@@ -657,7 +668,7 @@ trait DataInputStream
   final def getSomeString(nChars: Long): Maybe[String] = {
     withLocalCharBuffer { lcb =>
       val cb = lcb.getBuf(nChars)
-      val gotAll = fillCharBufferLoop(cb)
+      fillCharBufferLoop(cb)
       if (cb.position() == 0) Nope
       else Maybe(cb.flip.toString)
     }

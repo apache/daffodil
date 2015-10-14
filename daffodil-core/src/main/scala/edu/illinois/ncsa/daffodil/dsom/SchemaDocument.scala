@@ -267,7 +267,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    */
   def getGlobalElementDecl(name: String) = {
     val geds = globalElementDecls
-    val res = globalElementDecls.find { _.name == name }
+    val res = geds.find { _.name == name }
     res
   }
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }

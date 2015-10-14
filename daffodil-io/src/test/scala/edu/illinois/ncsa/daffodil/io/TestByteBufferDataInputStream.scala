@@ -4,7 +4,6 @@ import org.junit.Test
 import org.junit.Assert._
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import passera.unsigned.ULong
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
@@ -270,7 +269,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testUnsignedLong1 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
-    var ml = dis.getUnsignedLong(32)
+    val ml = dis.getUnsignedLong(32)
     assertEqualsTyped[Long](32, dis.bitPos0b)
     val expected = ULong(0xC1C2C3C4L)
     assertEqualsTyped[ULong](expected, ml)
@@ -280,7 +279,7 @@ class TestByteBufferDataInputStream {
     val dis = ByteBufferDataInputStream(List(0xA5, 0xA5, 0xA5, 0xA5, 0xA5).map { _.toByte }.toArray)
     dis.getSignedLong(1)
     assertEqualsTyped[Long](1, dis.bitPos0b)
-    var ml = dis.getUnsignedLong(32)
+    val ml = dis.getUnsignedLong(32)
     assertEqualsTyped[Long](33, dis.bitPos0b)
     val expected = ULong(0x4b4b4b4bL)
     assertEqualsTyped[ULong](expected, ml)
@@ -288,7 +287,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testUnsignedLong3 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
-    var ml = dis.getUnsignedLong(1)
+    val ml = dis.getUnsignedLong(1)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = ULong(1)
     assertEqualsTyped[ULong](expected, ml)
@@ -296,7 +295,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testSignedBigInt1 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
-    var ml = dis.getSignedBigInt(1)
+    val ml = dis.getSignedBigInt(1)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = BigInt(1)
     assertTrue(expected =:= ml.get)
@@ -304,7 +303,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testSignedBigInt2 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
-    var ml = dis.getSignedBigInt(40)
+    val ml = dis.getSignedBigInt(40)
     assertEqualsTyped[Long](40, dis.bitPos0b)
     val expected = BigInt(0xFFFFFFC1C2C3C4C5L)
     assertEqualsTyped[BigInt](expected, ml.get)
@@ -312,7 +311,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testUnsignedBigInt1 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
-    var ml = dis.getUnsignedBigInt(2)
+    val ml = dis.getUnsignedBigInt(2)
     assertEqualsTyped(2, dis.bitPos0b)
     val expected = BigInt(3)
     assertEqualsTyped[BigInt](expected, ml.get)
@@ -320,7 +319,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testUnsignedBigInt2 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
-    var ml = dis.getUnsignedBigInt(40)
+    val ml = dis.getUnsignedBigInt(40)
     assertEqualsTyped(40, dis.bitPos0b)
     val expected = BigInt(0xC1C2C3C4C5L)
     assertEqualsTyped[BigInt](expected, ml.get)
@@ -462,7 +461,7 @@ class TestByteBufferDataInputStream {
     cb.flip
     assertTrue(ml.isDefined)
     assertEqualsTyped[Long](3, ml.get.toLong)
-    var str: String = Misc.csToString(cb)
+    val str: String = Misc.csToString(cb)
     assertEqualsTyped("abc", str)
     cb.clear
     val e = intercept[MalformedInputException] {
@@ -501,7 +500,7 @@ class TestByteBufferDataInputStream {
     sb + iter.next
     assertEqualsTyped("abc", sb.mkString)
     assertEqualsTyped[Long](24, dis.bitPos0b)
-    val e = intercept[MalformedInputException] {
+    intercept[MalformedInputException] {
       iter.hasNext
     }
     assertEqualsTyped[Long](24, dis.bitPos0b)
@@ -543,12 +542,12 @@ class TestByteBufferDataInputStream {
     assertTrue(hitEnd)
     requireEnd = m.requireEnd()
     assertTrue(!requireEnd)
-    var start = m.start
+    val start = m.start
     assertEqualsTyped[Long](0, start)
-    var end = m.end
+    val end = m.end
     // we want this to be 2. Bzzt. We were hoping it would be
     // because the matcher picked up where it left off and now
-    // has "aa" as the match. But the matchers just don't 
+    // has "aa" as the match. But the matchers just don't
     // work that way.
     assertEqualsTyped[Long](1, end)
   }
@@ -559,17 +558,17 @@ class TestByteBufferDataInputStream {
     val cb = CharBuffer.wrap("aaab")
     m.reset(cb)
     val sb = new StringBuilder
-    var isMatch = m.lookingAt()
+    val isMatch = m.lookingAt()
     assertTrue(isMatch)
-    var hitEnd = m.hitEnd
+    val hitEnd = m.hitEnd
     assertTrue(!hitEnd) // because we matched a b (not a b* or b+) we didn't have to look further so did not hit end.
-    var requireEnd = m.requireEnd()
+    val requireEnd = m.requireEnd()
     assertTrue(!requireEnd)
-    var start = m.start
+    val start = m.start
     assertEqualsTyped[Long](0, start)
-    var end = m.end
+    val end = m.end
     assertEqualsTyped[Long](4, end)
-    var group = m.group
+    val group = m.group
     assertEqualsTyped("aaab", group)
     sb + group
   }
@@ -608,7 +607,7 @@ class TestByteBufferDataInputStream {
     m.reset(cb)
     isMatch = m.lookingAt()
     assertTrue(isMatch)
-    var group = m.group
+    val group = m.group
     assertEqualsTyped("aaab", group)
     hitEnd = m.hitEnd
     assertTrue(!hitEnd)
@@ -689,7 +688,7 @@ class TestByteBufferDataInputStream {
   }
 
   @Test def testDotMatchesNewline1 {
-    val enc = "iso-8859-1"
+    // val enc = "iso-8859-1"
     val dataURI = Misc.getRequiredResource("iso8859.doc.dat")
     val dataInput = dataURI.toURL.openStream()
     val dis = ByteBufferDataInputStream(dataInput, 0)

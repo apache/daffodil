@@ -32,13 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
@@ -74,7 +68,7 @@ trait TermGrammarMixin
     newVarEnds.fold(mt) { _ ~ _ }
   }
 
-  // I am not sure we need to distinguish these two. 
+  // I am not sure we need to distinguish these two.
   final lazy val asTermInSequence = prod("asTermInSequence") {
     separatedForSequencePosition(termContentBody)
   }
@@ -115,11 +109,11 @@ trait TermGrammarMixin
     }
   }
 
-  // public for unit testing use. 
+  // public for unit testing use.
   final lazy val Some(es) = {
     //
     // Not sure how to assert this,
-    // but an invariant we're assuming here is that we are NOT the 
+    // but an invariant we're assuming here is that we are NOT the
     // root element, which has no enclosing sequence at all.
     //
     // The grammar rules shouldn't be asking for separated stuff
@@ -128,13 +122,13 @@ trait TermGrammarMixin
     // TODO: FIXME:
     // Also note: we can get away with just looking upward for nearest enclosing
     // sequence because we have restrictions on what can be inside a choice,
-    // and we disallow delimiters on choices. If one allows delimiters on 
+    // and we disallow delimiters on choices. If one allows delimiters on
     // choices... consider
     // <sequence dfdl:separator=",">
     //   <choice dfdl:initiator="[", terminator="]">
     //     <element ref="foo" maxOccurs="20"/>
     //     ...
-    // In this case, what separates the multiple occurrances of foo? I claim 
+    // In this case, what separates the multiple occurrances of foo? I claim
     // they are comma separated.
     // But data could be like this 'a, b, c,[foo1,foo2,foo3],d,e,f'
     //
@@ -189,4 +183,3 @@ trait TermGrammarMixin
   }
 
 }
-

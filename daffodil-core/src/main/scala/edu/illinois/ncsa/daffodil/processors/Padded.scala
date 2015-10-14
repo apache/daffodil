@@ -1,15 +1,14 @@
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ AlignmentUnits, LengthKind, TextTrimKind, TextNumberJustification, TextStringJustification, TextCalendarJustification, TextBooleanJustification }
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 trait Padded { self: Terminal =>

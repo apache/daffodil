@@ -33,9 +33,7 @@
 package edu.illinois.ncsa.daffodil.japi.logger
 
 import java.io.File
-import edu.illinois.ncsa.daffodil.japi.packageprivate._
 import scala.collection.JavaConversions._
-
 
 /**
  * Abstract log writer, which can be overridden to create a custom log writer.
@@ -100,7 +98,7 @@ abstract class LogWriter {
   }
 }
 
-/* 
+/*
  * These three classes are all empty and are not ever actually used. They are
  * just place holders. Whenever the Java API uses one of these, it is
  * translated to the appropriate Scala log writer. They are marked final so
@@ -109,25 +107,25 @@ abstract class LogWriter {
  * functionality. One must extend the LogWriter to create their own log writer.
  */
 
- /**
-  * [[LogWriter]] that writes log messages to stdout
-  */
+/**
+ * [[LogWriter]] that writes log messages to stdout
+ */
 final class ConsoleLogWriter extends LogWriter {
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
 
- /**
-  * [[LogWriter]] that drops all log messages
-  */
+/**
+ * [[LogWriter]] that drops all log messages
+ */
 final class NullLogWriter extends LogWriter {
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
 
- /**
-  * [[LogWriter]] that writes all log messages to a file.
-  *
-  * @param file the file to write log messages to
-  */
+/**
+ * [[LogWriter]] that writes all log messages to a file.
+ *
+ * @param file the file to write log messages to
+ */
 final class FileLogWriter(file: File) extends LogWriter {
   /**
    * Retrieve the file the log writer writes to
@@ -137,4 +135,3 @@ final class FileLogWriter(file: File) extends LogWriter {
   def getFile = file
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {}
 }
-

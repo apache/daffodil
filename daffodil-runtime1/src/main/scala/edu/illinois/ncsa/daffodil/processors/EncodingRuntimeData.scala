@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolic
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
@@ -225,4 +224,3 @@ final class EncodingRuntimeData(
     this.knownEncodingAlignmentInBits == termRuntimeData.alignmentValueInBits
   }
 }
-

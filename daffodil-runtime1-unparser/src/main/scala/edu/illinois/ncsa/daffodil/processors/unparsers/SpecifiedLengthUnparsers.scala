@@ -1,23 +1,11 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import java.util.regex.Pattern
-import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.io.ByteArrayOutputStream
-import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
-import java.nio.charset.CharsetEncoder
-import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
-import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 
 abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
@@ -38,7 +26,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
 
     val nBits = getBitLength(state)
     if (state.status ne Success) return
-    var dos = state.dataOutputStream
+    val dos = state.dataOutputStream
     val startingBitPos0b = dos.bitPos0b
     val isLimitOk = dos.withBitLengthLimit(nBits) {
       eUnparser.unparse1(state, erd)
@@ -49,8 +37,8 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
     }
     // at this point the recursive parse of the children is finished
     // so if we're still successful we need to advance the position
-    // to skip past any bits that the recursive child parse did not 
-    // consume at the end. That is, the specified length can be an 
+    // to skip past any bits that the recursive child parse did not
+    // consume at the end. That is, the specified length can be an
     // outer constraint, but the children may not use it all up, leaving
     // a section at the end.
     if (state.status != Success) return
@@ -138,7 +126,6 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
   protected def getCharLength(s: UState): Long
 
   override final def unparse(state: UState) {
-    import DataStreamCommon._
 
     setupEncoding(state, erd)
 
@@ -153,22 +140,22 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
         }
         val charsUnused = cb.remaining()
         //
-        // at this point, the char buffer has been filled in 
+        // at this point, the char buffer has been filled in
         // with at most nChars of data.
-        // 
+        //
         cb.flip
         val nCharsWritten = state.dataOutputStream.putCharBuffer(cb)
         //
         // Note: it's possible that nCharsWritten is less than nChars
-        // because this entire parser could be surrounded by some 
+        // because this entire parser could be surrounded by some
         // context that has a bit limit.
         //
         if (nCharsWritten < nChars) {
           //
           // cb might not be full, because the recursive unparse
           // might not use it all up.
-          // 
-          // In that case, we have to fill out any chars, if there is room 
+          //
+          // In that case, we have to fill out any chars, if there is room
           // for them, with fill bytes, which is what skip does.
           val encInfo = erd.encodingInfo
           val charset = state.dataOutputStream.encoder.charset

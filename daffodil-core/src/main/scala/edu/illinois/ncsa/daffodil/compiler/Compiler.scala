@@ -39,7 +39,6 @@ import java.nio.channels.Channels
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
@@ -85,9 +84,9 @@ object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
 class ProcessorFactory(val sset: SchemaSet)
-    extends SchemaComponentBase(<pf/>, sset)
-    with DFDL.ProcessorFactory
-    with HavingRootSpec {
+  extends SchemaComponentBase(<pf/>, sset)
+  with DFDL.ProcessorFactory
+  with HavingRootSpec {
 
   lazy val parser = LV('parser) {
     val par = rootElem.document.parser
@@ -146,7 +145,6 @@ class ProcessorFactory(val sset: SchemaSet)
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
       val p = if (rootElem.canProceed) parser else null
       val u = if (rootElem.canProceed) unparser else null
-      val d = this.diagnostics
       val ssrd = new SchemaSetRuntimeData(
         p,
         u,
@@ -193,9 +191,9 @@ trait HavingRootSpec extends Logging {
 class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 class Compiler(var validateDFDLSchemas: Boolean = true)
-    extends DFDL.Compiler
-    with Logging
-    with HavingRootSpec {
+  extends DFDL.Compiler
+  with Logging
+  with HavingRootSpec {
 
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 

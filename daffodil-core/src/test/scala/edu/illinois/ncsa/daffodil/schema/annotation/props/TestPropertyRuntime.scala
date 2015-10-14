@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,10 +35,8 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.util.Fakes
@@ -66,7 +64,7 @@ class TestPropertyRuntime {
 
   @Test
   def testConstructed() {
-    val myPropUser = new RealObject
+    // val myPropUser = new RealObject
     val av = MyProp.allValues
     val pv1 = MyProp.PropVal1
     val pv2 = MyProp.PropVal2
@@ -83,14 +81,14 @@ class TestPropertyRuntime {
   class HasMixin extends SchemaComponentBase(<dummy/>, null)
     with TheExamplePropMixin
     with LookupLocation {
-    // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile   
+    // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
     def columnDescription: String = ???
     def fileDescription: String = ???
     def lineDescription: String = ???
     def locationDescription: String = ???
-    // Members declared in edu.illinois.ncsa.daffodil.dsom.ResolvesQNames  
+    // Members declared in edu.illinois.ncsa.daffodil.dsom.ResolvesQNames
     def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
-    // Members declared in edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE  
+    // Members declared in edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
     def schemaFileLocation: edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation = ???
 
     def findPropertyOption(pname: String) =
@@ -108,7 +106,7 @@ class TestPropertyRuntime {
   def testMixin() {
     val m = new HasMixin
     assertTrue(m.initWasCalled)
-    val tep = m.theExampleProp
+    m.theExampleProp
     val s = m.verboseToString
     assertTrue(m.propToStringWasCalled)
     assertTrue(s.contains("theExampleProp='left'"))

@@ -36,11 +36,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Glob
-import edu.illinois.ncsa.daffodil.exceptions.Abort
-import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
@@ -138,7 +135,7 @@ object OOLAG extends Logging {
    * to be determined by its calculation have been recorded.
    */
   abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
-      extends Logging with WithDiagnostics {
+    extends Logging with WithDiagnostics {
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
@@ -368,7 +365,7 @@ object OOLAG extends Logging {
    * An OOLAG value is created as a val of an OOLAGHost class.
    */
   sealed abstract class OOLAGValueBase(val oolagContext: OOLAGHost, nameArg: String)
-      extends Logging {
+    extends Logging {
 
     Assert.usage(oolagContext != null)
 
@@ -380,7 +377,7 @@ object OOLAG extends Logging {
 
     protected final def wasTried = alreadyTriedThis
 
-    private def warn(th: Diagnostic): Unit = oolagContext.warn(th)
+    // private def warn(th: Diagnostic): Unit = oolagContext.warn(th)
     private def error(th: Diagnostic): Unit = oolagContext.error(th)
 
     private def thisThing = this.name + valuePart + "@" + this.hashCode()
@@ -427,8 +424,8 @@ object OOLAG extends Logging {
         //
         case ue: UnsuppressableException => {
           val ex = ue
-          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, this.getClass.getName, ue) // tell us which lazy attribute it was
-          toss(ue)
+          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, this.getClass.getName, ex) // tell us which lazy attribute it was
+          toss(ex)
         }
         //
         // These are OOLAGs own Throwables.
@@ -572,7 +569,7 @@ object OOLAG extends Logging {
   }
 
   final class OOLAGValue[T](ctxt: OOLAGHost, nameArg: String, body: => T)
-      extends OOLAGValueBase(ctxt, nameArg) {
+    extends OOLAGValueBase(ctxt, nameArg) {
 
     @inline final def valueAsAny: Any = value
 
@@ -645,7 +642,7 @@ case class ErrorsNotYetRecorded(diags: Seq[Diagnostic]) extends OOLAGRethrowExce
 }
 
 private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
-    extends OOLAGRethrowException {
+  extends OOLAGRethrowException {
   override def getMessage() = lv.toString
   override val cause1 = None
 }
@@ -657,7 +654,7 @@ private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
 // I'd like this package private, but they leak out due to compile time errors
 // that are not being seen until runtime.
 final case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAG.OOLAGValueBase)
-    extends Exception(th) with OOLAGRethrowException {
+  extends Exception(th) with OOLAGRethrowException {
   override val cause1 = Some(th)
 }
 

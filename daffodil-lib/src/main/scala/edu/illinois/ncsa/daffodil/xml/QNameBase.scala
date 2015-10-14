@@ -33,11 +33,8 @@
 package edu.illinois.ncsa.daffodil.xml
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.equality._
 import scala.language.reflectiveCalls
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 import java.net.URISyntaxException
 import java.net.URI
 import scala.util.Try
@@ -416,7 +413,7 @@ object QNameRegex {
   private val xC0_D6 = ("""\x{C0}-\x{D6}""")
   private val xD8_F6 = """\x{D8}-\x{F6}"""
   private val xF8_2FF = """\x{F8}-\x{2FF}"""
-  private val x370_37D = """\x{370}-\x{37D}"""
+  // private val x370_37D = """\x{370}-\x{37D}"""
   private val x37F_1FFF = """\x{37F}-\x{1FFF}"""
   private val x200C_200D = """\x{200c}|\x{200d}"""
   private val x2070_218F = """\x{2070}-\x{218F}"""
@@ -426,13 +423,16 @@ object QNameRegex {
   private val xFDF0_FFFD = """\x{FDF0}-\x{FFFD}"""
   private val x10000_EFFFF = """\x{10000}-\x{EFFFF}"""
   private val range0_9 = """0-9"""
-  private val xB7 = """\xB7"""
-  private val x0300_036F = """\x{0300}-\x{036F}"""
-  private val x203F_2040 = """\x{203F}-\x{2040}"""
+  //  private val xB7 = """\xB7"""
+  //  private val x0300_036F = """\x{0300}-\x{036F}"""
+  //  private val x203F_2040 = """\x{203F}-\x{2040}"""
 
-  private val ncNameStartChar = "A-Z_a-z" + xC0_D6 + xD8_F6 + xF8_2FF + x37F_1FFF + x200C_200D +
+  private val ncNameStartChar = "A-Z_a-z" + xC0_D6 + xD8_F6 + xF8_2FF +
+    // x370_37D + // TODO: why is this one is left out? Add comments please.
+    x37F_1FFF + x200C_200D +
     x2070_218F + x2C00_2FEF + x3001_D7FF + xF900_FDCF + xFDF0_FFFD + x10000_EFFFF
   private val ncNameChar = ncNameStartChar + "\\-" + "\\." + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
+  // TODO: why are the above left out? Add comments please.
   private val NCNameRegexString = "([" + ncNameStartChar + "](?:[" + ncNameChar + "])*)"
   private val QNameRegexString = "(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString
   lazy val NCName = NCNameRegexString.r

@@ -32,17 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.section06.namespaces
 
-import junit.framework.Assert._
-import org.junit.Test
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
 
 class TestNamespacesNew extends Logging {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"

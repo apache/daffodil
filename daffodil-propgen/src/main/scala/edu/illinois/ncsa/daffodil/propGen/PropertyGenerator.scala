@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -150,7 +150,7 @@ class PropertyGenerator(arg: Node) {
   def genSimpleType(st: Node): String = {
     val enumName = attr(st, "name").get
     val name = enumName.stripSuffix("Enum")
-    // val name = enumName // leave suffix on. 
+    // val name = enumName // leave suffix on.
     if (excludeType(name)) return ""
     if (excludedTypes.contains(name)) return ""
     val enumNodes = (st \\ "enumeration")
@@ -158,7 +158,7 @@ class PropertyGenerator(arg: Node) {
     val syms = symNodes.map(_.text)
     val res =
       if (syms.length == 0) {
-        // there were no enumerations for this type. 
+        // there were no enumerations for this type.
         // decide what to generate based on the base type.
         val baseTypeNameNodeSeq = (st \ "restriction" \ "@base")
         val baseTypeName = if (baseTypeNameNodeSeq.length >= 1) baseTypeNameNodeSeq(0).text else "not recognized"
@@ -237,10 +237,10 @@ class PropertyGenerator(arg: Node) {
         val name = if (isScalaKeyword(rawName)) rawName + "_" else rawName
         val qualifiedTypeName = attr(attrNode, "type").get
         // we still might have some enums here, because we exclude enums above that
-        // aren't matching the name of the attribute. (e.g., if we have an attribute which has type YesNo, then 
+        // aren't matching the name of the attribute. (e.g., if we have an attribute which has type YesNo, then
         // that will show up as a YesNoEnum here.
         val typeName = stripSuffix("Enum", stripDFDLPrefix(qualifiedTypeName))
-        // val typeName = stripDFDLPrefix(qualifiedTypeName) // leave suffix on. 
+        // val typeName = stripDFDLPrefix(qualifiedTypeName) // leave suffix on.
         List((name, typeName))
       }
     })
@@ -325,13 +325,13 @@ object Currency extends Enum[Currency] {
   def apply(name: String, context : ThrowsSDE) : Currency = stringToEnum("currency", name, context)
 }"""
   val templateMixin = """
-  
+
 trait CurrencyMixin extends PropertyMixin {
-    
+
   /**
    * get property value, or fail trying. Use this if you need
    * the property value.
-   * 
+   *
    * Also gets the schema component where the property was found
    * so that one can report errors/diagnostics relative to that
    * location, not the point of use of the property.
@@ -339,11 +339,11 @@ trait CurrencyMixin extends PropertyMixin {
   private def currencyLookup = cacheProperty("currency")
   final def currency = Currency(currencyLookup.value, this)
   final def currency_location = currencyLookup.location
-    
+
   /**
    * get Some(property value) or None if not defined in scope.
    *
-   * Mostly do not use this. Most code shouldn't need to test for 
+   * Mostly do not use this. Most code shouldn't need to test for
    * property existence. Just insist on the property you need by
    * using its name. E.g., if you need calendarTimeZone, just use
    * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
@@ -351,22 +351,22 @@ trait CurrencyMixin extends PropertyMixin {
   private def optionCurrencyLookup = cachePropertyOption("currency")
   final def optionCurrency = optionCurrencyLookup match { case Found(raw, _) => Some(Currency(raw, this)) ; case _ => None }
   final def optionCurrency_location = optionCurrencyLookup match { case Found(_, loc) => Some(loc) ; case _ => None }
-    
+
   /**
    * This will print the property value if the property has any value
    * in scope. This is mostly for debugging purposes.
-   */   
+   */
   final def currencyToString() = {
     optionCurrency match {
       case None => "" // empty string if not present
       case Some(currency) =>  "currency='" + currency + "' "
     }
   }
-    
+
   final def currencyInit() = {
     registerToStringFunction(currencyToString)
   }
-    
+
   currencyInit() // call at object creation to initialize
 }
 
@@ -509,7 +509,7 @@ object Currency {
     val extendsClause = "extends PropertyMixin" + traitNames.foldLeft("")(_ + "\n  with " + _)
     val mixinName = traitName + "Mixin"
     val start = "trait " + mixinName + " " + extendsClause + " {\n"
-    val (enumAttrList, nonEnumAttrList) = pgList.partition {
+    val (_ /* enumAttrList */ , nonEnumAttrList) = pgList.partition {
       case (attrName, _) => {
         isEnumQName(attrName)
       }
@@ -547,7 +547,7 @@ object Currency {
     val nonEnumInit = generateNonEnumStringInit(pgName, initToStringFuncs)
 
     val end = "}\n\n"
-    val res = start + ( // enumAttribsList ++ // those are done via mixins now. 
+    val res = start + ( // enumAttribsList ++ // those are done via mixins now.
       primAttribsList ++ nonPrimAttribsList).foldLeft("")(_ + _) + nonEnumInit + end
     res
   }
@@ -589,7 +589,7 @@ object Currency {
   // you'd be stuck.
   //
   // So this generator depends on as little as possible
-  // 
+  //
 
   def stripQuotes(s: String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
@@ -625,22 +625,21 @@ object PropertyGenerator {
   def preamble = "package " + generatedCodePackage + """
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // Generated Code - Do not hand modify!
 //
-// This file is entirely generated code created from the 
+// This file is entirely generated code created from the
 // XML Schema files that describe DFDL Annotation syntax.
-// 
+//
 // Don't edit this. Go fix the generator to create what you need instead.
-//  
+//
 ////////////////////////////////////////////////////////////////////////////////////////////
-
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.Found
-import edu.illinois.ncsa.daffodil.dsom.NotFound  
-    
+import edu.illinois.ncsa.daffodil.dsom.NotFound
+
 """
 
   def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter) {
@@ -688,7 +687,7 @@ import edu.illinois.ncsa.daffodil.dsom.NotFound
   // you'd be stuck.
   //
   // So this generator depends on as little as possible
-  // 
+  //
   /**
    * Takes care of using the resource built-in to the jar, or
    * if we're just running interactively in eclipse, doesn't use the jar.

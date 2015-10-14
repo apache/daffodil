@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,20 +32,14 @@
 
 package edu.illinois.ncsa.daffodil
 
-import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util.Misc
-import scala.xml._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TresysTests2 {
   val testDir = "/test-suite/tresys-contributed/"
 
-  // This test passes now. Left this here to cut/paste for running other tests.    
+  // This test passes now. Left this here to cut/paste for running other tests.
   //  val ai = testDir + "AI.tdml"
   //  lazy val runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
   //
@@ -62,10 +56,10 @@ class TresysTests2 {
 
   val ae = testDir + "AE.tdml"
   lazy val runnerAE = new DFDLTestSuite(Misc.getRequiredResource(ae))
-  @Test def test_AE000() { runnerAE.runOneTest("AE000") } // needs newVariableInstance 
+  @Test def test_AE000() { runnerAE.runOneTest("AE000") } // needs newVariableInstance
 
   // Commented out as we have no plans to make this run yet,
-  // and there is no check for recursion, so they die slowly with stack 
+  // and there is no check for recursion, so they die slowly with stack
   // overflow
   //
   //  val ao = testDir + "AO.tdml"
@@ -87,7 +81,7 @@ class TresysTests2 {
 
   val au = testDir + "AU.tdml"
   lazy val runnerAU = new DFDLTestSuite(Misc.getRequiredResource(au))
-  @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd 
+  @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd
 
   val bb = testDir + "BB.tdml"
   lazy val runnerBB = new DFDLTestSuite(Misc.getRequiredResource(bb))

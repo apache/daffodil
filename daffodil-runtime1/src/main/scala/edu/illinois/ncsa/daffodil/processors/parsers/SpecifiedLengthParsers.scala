@@ -8,7 +8,6 @@ import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
@@ -36,7 +35,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
 
     val nBits = getBitLength(pState)
     if (pState.status ne Success) return
-    var dis = pState.dataInputStream
+    val dis = pState.dataInputStream
 
     val startingBitPos0b = dis.bitPos0b
     val isLimitOk = dis.withBitLengthLimit(nBits) {
@@ -49,8 +48,8 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
     }
     // at this point the recursive parse of the children is finished
     // so if we're still successful we need to advance the position
-    // to skip past any bits that the recursive child parse did not 
-    // consume at the end. That is, the specified length can be an 
+    // to skip past any bits that the recursive child parse did not
+    // consume at the end. That is, the specified length can be an
     // outer constraint, but the children may not use it all up, leaving
     // a section at the end.
     if (pState.status != Success) return
@@ -78,7 +77,7 @@ class SpecifiedLengthPatternParser(
     val dis = s.dataInputStream
     val mark = dis.markPos
     withMatcher { m =>
-      val isMatch = dis.lookingAt(m)
+      dis.lookingAt(m)
 
       // That matched or it didn't. We don't care. We care that
       // the lookingAt call advanced the bitPos to after the match

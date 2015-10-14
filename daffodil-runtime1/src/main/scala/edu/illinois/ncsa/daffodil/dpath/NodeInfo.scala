@@ -32,19 +32,18 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
+import scala.BigDecimal
+import scala.BigInt
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
+import edu.illinois.ncsa.daffodil.util.Enum
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -81,9 +80,9 @@ sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
 }
 
 /*
- * Used to define primitive type objects. We often need to 
- * deal with just the primitive types exclusive of all the abstract 
- * types (like AnyAtomic, or AnyDateTimeType) that surround them. 
+ * Used to define primitive type objects. We often need to
+ * deal with just the primitive types exclusive of all the abstract
+ * types (like AnyAtomic, or AnyDateTimeType) that surround them.
  */
 sealed abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
   extends TypeNode(parent, childrenArg) with NodeInfo.PrimType
@@ -125,8 +124,6 @@ sealed abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNo
  * if your match-case exhausts all possibilities and warn you if it does not.
  */
 object NodeInfo extends Enum {
-
-  import PrimType._
 
   // Primitives are not "global" because they don't appear in any schema document
   sealed trait PrimType
@@ -171,7 +168,7 @@ object NodeInfo extends Enum {
       //
       // FIXME this is a temporary workaround so not all the property tests
       // will fail - mostly the properties that take expressions
-      // take NonEmptyString, but we don't have a conversion 
+      // take NonEmptyString, but we don't have a conversion
       // yet
       //
       if (this eq other) true
@@ -323,7 +320,7 @@ object NodeInfo extends Enum {
     type Kind = AnyDateTimeKind
   }
 
-  // One might think these can be def, but scala insists on "stable identifier" 
+  // One might think these can be def, but scala insists on "stable identifier"
   // where these are used in case matching.
   val String = PrimType.String
   val Int = PrimType.Int
@@ -520,7 +517,6 @@ object NodeInfo extends Enum {
     }
   }
 
-  import PrimType._
   //
   // The below must be lazy vals because of the recursion between this
   // list and the definition of these type objects above.
@@ -528,7 +524,7 @@ object NodeInfo extends Enum {
   private lazy val allAbstractTypes = List(
     AnyType, Nillable, AnySimpleType, AnyAtomic, Exists,
     Numeric, SignedNumeric, UnsignedNumeric, SignedInteger,
-    // There is no UnsignedInteger because the concrete type 
+    // There is no UnsignedInteger because the concrete type
     // NonNegativeInteger plays that role.
     Opaque, AnyDateTime, Nothing)
   private lazy val allDFDLTypes = List(

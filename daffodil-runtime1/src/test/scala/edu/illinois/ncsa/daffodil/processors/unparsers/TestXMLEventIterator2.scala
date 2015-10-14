@@ -48,7 +48,7 @@ class TestXMLEventIterator2 {
   def verify(iterator: Iterator[XMLInfosetEvent]) {
     assertTrue(iterator.hasNext)
     var ev = iterator.next
-    val StartComplex("http://example.com", "bar") = ev
+    ev match { case StartComplex("http://example.com", "bar") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     var stop: Boolean = false
     while (iterator.hasNext && !stop) {

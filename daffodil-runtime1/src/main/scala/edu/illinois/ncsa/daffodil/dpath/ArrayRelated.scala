@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors.DINode
-
 case object FNCount extends RecipeOp {
   override def run(dstate: DState) {
     dstate.setCurrentValue(dstate.arrayLength)
@@ -55,7 +53,7 @@ case object FNExactlyOne extends RecipeOp {
     //    if (hasExactlyOne) {
     //      val array = dstate.currentArray
     //      val item = array.getOccurrence(1).asInstanceOf[DINode]
-    //     
+    //
     //      dstate.setCurrentNode(item)
     //    }
     //    else { throw new Exception("fn:exactly-one called with a sequence containing zero or more than one item.") }

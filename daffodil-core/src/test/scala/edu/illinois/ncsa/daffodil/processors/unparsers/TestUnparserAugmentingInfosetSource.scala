@@ -4,10 +4,9 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarnU2 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.processors.DataProcessor

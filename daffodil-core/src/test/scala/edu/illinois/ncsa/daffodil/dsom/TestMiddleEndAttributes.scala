@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,12 +33,8 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
 import org.junit.Test
 
@@ -205,7 +201,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f, e2f) = sd.globalElementDecls
+    val Seq(_, e2f) = sd.globalElementDecls
     val e2 = e2f.forRoot()
     val e2ct = e2.elementComplexType
     val seq = e2ct.sequence
@@ -251,7 +247,7 @@ class TestMiddleEndAttributes {
     val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
-    val Seq(e1f, e2f) = sd.globalElementDecls
+    val Seq(e1f, _) = sd.globalElementDecls
     val e1 = e1f.forRoot()
     val e1ct = e1.elementComplexType
     val e1seq = e1ct.sequence
@@ -268,7 +264,7 @@ class TestMiddleEndAttributes {
     val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
     // Sequence inside an element doesn't have an immediately enclosing model group
     assertEquals(None, e3seqImmediatelyEnclosingModelGroup)
-    // Global element instance appears inside the group that immediately contains the 
+    // Global element instance appears inside the group that immediately contains the
     // element reference.
     assertEquals(Some(eMsgChoice), e3.immediatelyEnclosingModelGroup)
     // element reference also contained inside same

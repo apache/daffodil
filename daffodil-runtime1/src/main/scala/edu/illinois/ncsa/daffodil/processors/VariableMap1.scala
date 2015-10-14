@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -72,9 +72,7 @@ package edu.illinois.ncsa.daffodil.processors
 import scala.collection.mutable.Set
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import javax.xml.namespace.QName
-import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import util.control.Breaks._
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -151,8 +149,6 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
     }
   }
 
-  private var currentPState: Maybe[PState] = Nope
-
   lazy val context = Assert.invariantFailed("unused.")
 
   private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
@@ -194,19 +190,15 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
             // Fix DFDL-766
             val msg = "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
             // Runtime error:
-            if (currentPState.isDefined) currentPState.get.SDE(msg, varQName)
-            // Compile time error:
-            else referringContext.SDE(msg, varQName)
+            referringContext.SDE(msg, varQName)
           }
         }
 
       case Some(Nil) => Assert.invariantFailed()
 
       case None => {
-        // Runtime error:
-        if (currentPState.isDefined) currentPState.get.SDE("Variable map (runtime): unknown variable %s", varQName)
         // Compile time error:
-        else referringContext.SDE("Variable map (compilation): unknown variable %s", varQName)
+        referringContext.SDE("Variable map (compilation): unknown variable %s", varQName)
       }
     }
   }

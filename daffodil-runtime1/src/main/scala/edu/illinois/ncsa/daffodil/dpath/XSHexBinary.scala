@@ -34,8 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 trait HexBinaryKind {
 
-  private val conversionErrMsg: String = "%s could not be represented as a long."
-
   /**
    * http://travisdazell.blogspot.com/2012/11/converting-hex-string-to-byte-array-in.html
    */

@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil
 
 import scala.annotation.implicitNotFound
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Strongly typed equality operators
@@ -48,7 +49,11 @@ import scala.annotation.implicitNotFound
  */
 package object equality {
 
-  // Convertible types - strongly typed equality 
+  def EqualitySuppressUnusedImportWarning() = {
+    if (scala.math.random.isNaN) Assert.impossible()
+  }
+
+  // Convertible types - strongly typed equality
 
   implicit class ViewEqual[L](val left: L) extends AnyVal {
     def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =

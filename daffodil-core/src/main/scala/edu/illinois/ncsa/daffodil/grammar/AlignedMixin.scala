@@ -32,12 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
@@ -55,12 +51,12 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   // TODO: make this actually do the position analysis - that however, requires computing
   // known alignment information based on the starting known alignment and known length
   // of prior things (recursively). I.e., it's a bit tricky.
-  private lazy val isKnownPreAligned = {
-    val res = self.isScannable || // if we are scannable, then mandatory text alignment takes care of this alignment. 
-      (alignment == 1 && alignmentUnits == AlignmentUnits.Bits) // if we are 1-bit alignment, we're always aligned.
-    // useful place for a breakpoint to watch this optimization
-    res
-  }
+  //  private lazy val isKnownPreAligned = {
+  //    val res = self.isScannable || // if we are scannable, then mandatory text alignment takes care of this alignment.
+  //      (alignment == 1 && alignmentUnits == AlignmentUnits.Bits) // if we are 1-bit alignment, we're always aligned.
+  //    // useful place for a breakpoint to watch this optimization
+  //    res
+  //  }
 
   final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
     if (alignmentValueInBits == 1) {
@@ -81,7 +77,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   //  lazy val initiatorAlign = Prod("initiatorAlign", this, !isInitiatorPreAligned, TextAlign(mandatoryAlignment))
   //  lazy val terminatorAlign = Prod("terminatorAlign", this, !isTerminatorPreAligned, TextAlign(mandatoryAlignment))
   //  lazy val separatorAlign = Prod("separatorAlign", this, !isSeparatorPreAligned, TextAlign(mandatoryAlignment))
-  //  
+  //
   //  lazy val isInitiatorPreAligned = {
   //    if (!hasInitiator) true
   //    else {
@@ -92,4 +88,3 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   final lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
 
 }
-

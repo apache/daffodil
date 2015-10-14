@@ -80,7 +80,7 @@ object ExecutionMode {
   final def usingRuntimeMode[S] = executionMode.withValue[S](RuntimeMode) _
   final def usingUnrestrictedMode[S] = executionMode.withValue[S](UnrestrictedMode) _
 
-  private final def isCompilerMode = executionMode.value == CompileMode
+  // private final def isCompilerMode = executionMode.value == CompileMode
   private final def isRuntimeMode = executionMode.value == RuntimeMode
   private final def isUnknownMode = executionMode.value == UnknownMode
   private final def isUnrestrictedMode = executionMode.value == UnrestrictedMode

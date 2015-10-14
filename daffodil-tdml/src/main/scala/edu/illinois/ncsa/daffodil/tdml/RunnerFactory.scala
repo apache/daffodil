@@ -25,14 +25,14 @@ object Runner {
  * Note however, that each thread will get its own copy of the DFDLTestSuite
  */
 class Runner private (dir: String, file: String,
-  validateTDMLFile: Boolean = true,
-  validateDFDLSchemas: Boolean = true,
-  compileAllTopLevel: Boolean = false) {
+    validateTDMLFile: Boolean,
+    validateDFDLSchemas: Boolean,
+    compileAllTopLevel: Boolean) {
 
   private def getTS = {
     if (ts == null) {
       // This is ok to be a hard-wired "/" because these are resource identifiers, which
-      // are not file-system paths that have to be made platform-specific. 
+      // are not file-system paths that have to be made platform-specific.
       // In other words, we don't need to use "\\" for windows here. "/" works there as well.
       val d = if (dir.endsWith("/")) dir else dir + "/"
       tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel))

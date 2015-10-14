@@ -32,11 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.externalvars
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
-import scala.util.Success
-import scala.util.Failure
 
 class Binding(val varQName: RefQName, val varValue: String) {
 

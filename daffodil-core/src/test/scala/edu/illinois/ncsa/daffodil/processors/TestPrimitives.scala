@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,13 +34,10 @@ package edu.illinois.ncsa.daffodil.processors
 
 import junit.framework.Assert._
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+
 import edu.illinois.ncsa.daffodil.util.TestUtils
-import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 
 class TestPrimitives {
@@ -54,7 +51,7 @@ class TestPrimitives {
     val areTracing = false
     val actual = TestUtils.testString(sch, "abcdefgh", areTracing)
     assertTrue(actual.canProceed)
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1>efgh</e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -67,7 +64,7 @@ class TestPrimitives {
       </xs:element>)
     val areTracing = false
     val actual = TestUtils.testString(sch, "abcdefgh", areTracing)
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1>abcd</e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -86,7 +83,7 @@ class TestPrimitives {
       </xs:element>)
     val areTracing = false
     val actual = TestUtils.testString(sch, "abcd,efgh", areTracing)
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -106,7 +103,7 @@ class TestPrimitives {
       </xs:element>)
     val areTracing = false
     val actual = TestUtils.testString(sch, "abcd,efgh", areTracing)
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -125,7 +122,7 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "abcd  \\\n  efgh")
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -152,7 +149,7 @@ class TestPrimitives {
       </xs:element>)
     val areTracing = false
     val actual = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
-    val actualString = actual.result.toString
+    actual.result.toString
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
@@ -188,7 +185,7 @@ class TestPrimitives {
       </xs:element>)
     val areTracing = false
     val actual = TestUtils.testString(sch, "{a,b,c./d}//::", areTracing)
-    val actualString = actual.result.toString
+    actual.result.toString
 
     // <root><e1></e1><e2></e2><e3><e3_1></e3_1><e3_2></e3_2></e3></root>
     // a,b,c./d//::
@@ -211,7 +208,7 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "abcd\u0000efgh")
-    val actualString = actual.result.toString
+    actual.result.toString
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
@@ -226,7 +223,7 @@ class TestPrimitives {
       </xs:element>)
     val actual = TestUtils.testString(sch, "\u0000efgh")
     assertTrue(actual.canProceed)
-    val actualString = actual.result.toString
+    actual.result.toString
 
     val expected: Node = <e1>efgh</e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
@@ -240,7 +237,7 @@ class TestPrimitives {
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
       </xs:element>)
     val actual = TestUtils.testString(sch, "abcd\u0000")
-    val actualString = actual.result.toString
+    actual.result.toString
 
     val expected: Node = <e1>abcd</e1>
     TestUtils.assertEqualsXMLElements(expected, actual.result)

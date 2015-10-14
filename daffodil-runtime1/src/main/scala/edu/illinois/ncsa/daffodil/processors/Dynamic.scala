@@ -97,7 +97,7 @@ trait Dynamic {
   }
 
   def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, oe: List[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): List[A] = {
-    var state = s
+    val state = s
     val listE = oe.map(e => {
       val exp = evalWithConversion[A](state, e)(conv)
       exp

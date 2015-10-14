@@ -72,7 +72,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
 
     fieldReg.reset(input, blockEnd +: delims)
 
-    val initialCharPos = 0
+    // val initialCharPos = 0
 
     var stillSearching: Boolean = true
     var stateNum: Int = 0 // initial state is 0
@@ -173,7 +173,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 actionNum = dfaStatus.actionNum + 1 // goto next rule
                 stateNum = dfaStatus.currentStateNum
               } else {
-                val (matchedDelim, matchedReg) = longestMatch(successes).get
+                val (_, matchedReg) = longestMatch(successes).get
                 val delim = matchedReg.delimString
                 delim.foreach(fieldReg.appendToField(_)) // the delim just becomes field content, because we already had an escape block start.
                 successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
@@ -222,8 +222,6 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     val fieldReg: Registers = TLRegistersPool.getFromPool()
 
     fieldReg.reset(input, delims)
-
-    val initialCharPos = 0
 
     var stillSearching: Boolean = true
     var stateNum: Int = 0 // initial state is 0

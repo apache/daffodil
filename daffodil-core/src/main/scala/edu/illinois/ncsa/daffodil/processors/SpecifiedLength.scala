@@ -37,10 +37,7 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
@@ -50,7 +47,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsFixedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesFixedUnparser
-import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersFixedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersUnparser
@@ -201,4 +197,3 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.length)
 }
-

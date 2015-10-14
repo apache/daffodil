@@ -12,13 +12,13 @@ import passera.unsigned.ULong
  * toLong of that if you want a plain Long.
  */
 final class MaybeULong private (val __rep: Long) extends AnyVal {
-  @inline def get: Long = if (isDefined) __rep else noneGet
-  @inline def getULong: ULong = ULong(__rep)
-  @inline def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
-  @inline def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
+  @inline final def get: Long = if (isDefined) __rep else noneGet
+  @inline final def getULong: ULong = ULong(__rep)
+  @inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
+  @inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __rep != MaybeULong.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __rep != MaybeULong.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -30,7 +30,7 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
 
 object MaybeULong {
   private val undefValue = -1L
-  @inline def apply(v: Long) = {
+  @inline final def apply(v: Long) = {
     Assert.usage(v >= 0)
     new MaybeULong(v)
   }

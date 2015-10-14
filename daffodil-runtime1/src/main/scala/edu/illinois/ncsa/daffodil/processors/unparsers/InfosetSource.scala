@@ -2,20 +2,11 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetDocument
-import edu.illinois.ncsa.daffodil.processors.DIDocument
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import scala.collection.mutable.Buffer
-import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.util.IteratorWithPeek
 
@@ -71,4 +62,3 @@ sealed abstract class InfosetEvent(val node: DINode) {
  */
 case class End(override val node: DINode) extends InfosetEvent(node)
 case class Start(override val node: DINode) extends InfosetEvent(node)
-

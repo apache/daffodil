@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -126,7 +126,7 @@ class TestTDMLRunner {
                 <documentPart replaceDFDLEntities="true" type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%%#IGNORED;</documentPart>
               </document>
     val doc = new Document(xml, null)
-    val docPart = doc.documentParts(0)
+    doc.documentParts(0)
     val bytes = doc.documentBytes
     assertEquals(22, bytes.length)
     val orig = new String(bytes.toArray, "UTF8")
@@ -150,7 +150,7 @@ class TestTDMLRunner {
     val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
-    val docPart = doc.documentParts(0)
+    doc.documentParts(0)
     val bb = java.nio.ByteBuffer.allocate(11)
     doc.data.read(bb)
     val bytes = bb.array()
@@ -174,7 +174,7 @@ class TestTDMLRunner {
     val ts = new DFDLTestSuite(xml)
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
-    val docPart = doc.documentParts(0)
+    doc.documentParts(0)
     val bb = java.nio.ByteBuffer.allocate(4)
     doc.data.read(bb)
     val bytes = bb.array()
@@ -571,7 +571,7 @@ class TestTDMLRunner {
 
   @Test def testBits() {
     val doc = new Document(<document><documentPart type="bits">111</documentPart></document>, null)
-    val bits = doc.documentParts(0)
+    // val bits = doc.documentParts(0)
     val bytes = doc.documentBytes.toList
     assertEquals(-32, bytes(0))
     assertEquals(3, doc.nBits)
@@ -638,22 +638,22 @@ class TestTDMLRunner {
           <tdml:document>
             <!-- leave out the characters for &, ", < and > because they cause us trouble in constructing the expected string result. -->
             <tdml:documentPart type="byte"><![CDATA[
-00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f              
-10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 
-20 21    23 24 25    27 28 29 2a 2b 2c 2d 2e 2f 
-30 31 32 33 34 35 36 37 38 39 3a 3b    3d    3f 
-40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f 
-50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f 
-60 61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f 
-70 71 72 73 74 75 76 77 78 79 7a 7b 7c 7d 7e 7f 
-80 81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f 
-90 91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f 
-a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af 
-b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 ba bb bc bd be bf 
-c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb cc cd ce cf 
-d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 da db dc dd de df 
-e0 e1 e2 e3 e4 e5 e6 e7 e8 e9 ea eb ec ed ee ef 
-f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff  
+00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
+10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f
+20 21    23 24 25    27 28 29 2a 2b 2c 2d 2e 2f
+30 31 32 33 34 35 36 37 38 39 3a 3b    3d    3f
+40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f
+50 51 52 53 54 55 56 57 58 59 5a 5b 5c 5d 5e 5f
+60 61 62 63 64 65 66 67 68 69 6a 6b 6c 6d 6e 6f
+70 71 72 73 74 75 76 77 78 79 7a 7b 7c 7d 7e 7f
+80 81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f
+90 91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f
+a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 aa ab ac ad ae af
+b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 ba bb bc bd be bf
+c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 ca cb cc cd ce cf
+d0 d1 d2 d3 d4 d5 d6 d7 d8 d9 da db dc dd de df
+e0 e1 e2 e3 e4 e5 e6 e7 e8 e9 ea eb ec ed ee ef
+f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
 ]]></tdml:documentPart>
           </tdml:document>
@@ -750,8 +750,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
 
     val doc = new Document(xml, null)
-    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
-    val firstPart = dp(0)
+    doc.documentParts.collect { case x: BitsDocumentPart => x }
     val actual = doc.documentBytes.toList
     val expected = List(0x02).map { _.toByte }
     assertEquals(expected, actual)
@@ -763,8 +762,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
 
     val doc = new Document(xml, null)
-    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
-    val firstPart = dp(0)
+    doc.documentParts.collect { case x: TextDocumentPart => x }
     val actual = doc.documentBytes.toList
     val expected = List(0x31).map { _.toByte }
     assertEquals(expected, actual)
@@ -776,8 +774,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
 
     val doc = new Document(xml, null)
-    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
-    val firstPart = dp(0)
+    doc.documentParts.collect { case x: TextDocumentPart => x }
     val actual = doc.documentBytes.toList
     val expected = List(0x31).map { _.toByte }
     assertEquals(expected, actual)
@@ -789,8 +786,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
 
     val doc = new Document(xml, null)
-    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
-    val firstPart = dp(0)
+    doc.documentParts.collect { case x: TextDocumentPart => x }
     val actual = doc.documentBytes.toList
     val expected = List(0x31, 0x19).map { _.toByte }
     assertEquals(expected, actual)
@@ -802,8 +798,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
 
     val doc = new Document(xml, null)
-    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
-    val firstPart = dp(0)
+    doc.documentParts.collect { case x: BitsDocumentPart => x }
     val actual = doc.documentBytes.toList
     val expected = List(0x33, 0x6).map { _.toByte }
     assertEquals(expected, actual)
@@ -816,7 +811,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
     val exc = intercept[Exception] {
       val doc = new Document(xml, null)
-      val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+      doc.documentParts.collect { case x: BitsDocumentPart => x }
     }
     assertTrue(exc.getMessage().contains("bitOrder"))
   }
@@ -865,7 +860,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
               </document>
     val exc = intercept[Exception] {
       val doc = new Document(xml, null)
-      val dp = doc.documentParts.collect { case x: DocumentPart => x }
+      doc.documentParts.collect { case x: DocumentPart => x }
     }
     assertTrue(exc.getMessage().contains("bitOrder"))
   }

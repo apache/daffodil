@@ -80,21 +80,18 @@ class TestXMLEventIterator {
   }
 
   @Test def testIsNil1() {
-    import scala.xml.Elem
     val e = <foo xsi:nil="true"/>
     val p = new XMLEventIterator(null).isNil(e.attributes, e.scope)
     assertTrue(p)
   }
 
   @Test def testIsNil2() {
-    import scala.xml.Elem
     val e = <foo xmlns:foobar={ XMLUtils.XSI_NAMESPACE.toString } foobar:nil="true"/>
     val p = new XMLEventIterator(null).isNil(e.attributes, e.scope)
     assertTrue(p)
   }
 
   @Test def testIsNil3() {
-    import scala.xml.Elem
     val e = <foo/>
     val p = new XMLEventIterator(null).isNil(e.attributes, e.scope)
     assertFalse(p)
@@ -143,7 +140,7 @@ class TestXMLEventIterator {
     val reader = new XMLPullParser(source)
     val iterator = new XMLEventIterator(reader)
     assertTrue(iterator.hasNext)
-    val Simple(null, "foo", "Hello&World") = iterator.next
+    iterator.next match { case Simple(null, "foo", "Hello&World") => /* ok */ ; case _ => fail() }
     assertFalse(iterator.hasNext)
   }
 
@@ -153,13 +150,13 @@ class TestXMLEventIterator {
     val iterator = new XMLEventIterator(reader)
     assertTrue(iterator.hasNext)
     var ev = iterator.next
-    val StartComplex(null, "foo") = ev
+    ev match { case StartComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val Simple(null, "bar", "") = ev
+    ev match { case Simple(null, "bar", "") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val EndComplex(null, "foo") = ev
+    ev match { case EndComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertFalse(iterator.hasNext)
   }
 
@@ -171,13 +168,13 @@ class TestXMLEventIterator {
     val iterator = new XMLEventIterator(reader)
     assertTrue(iterator.hasNext)
     var ev = iterator.next
-    val StartComplex(null, "foo") = ev
+    ev match { case StartComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val Simple(null, "bar", "") = ev
+    ev match { case Simple(null, "bar", "") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val EndComplex(null, "foo") = ev
+    ev match { case EndComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertFalse(iterator.hasNext)
   }
 
@@ -190,16 +187,16 @@ class TestXMLEventIterator {
     val iterator = new XMLEventIterator(reader)
     assertTrue(iterator.hasNext)
     var ev = iterator.next
-    val StartComplex(null, "foo") = ev
+    ev match { case StartComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val Simple(null, "bar", "") = ev
+    ev match { case Simple(null, "bar", "") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val Simple(null, "baz", "Hello&World") = ev
+    ev match { case Simple(null, "baz", "Hello&World") => /* ok */ ; case _ => fail() }
     assertTrue(iterator.hasNext)
     ev = iterator.next
-    val EndComplex(null, "foo") = ev
+    ev match { case EndComplex(null, "foo") => /* ok */ ; case _ => fail() }
     assertFalse(iterator.hasNext)
   }
 
@@ -216,7 +213,7 @@ class TestXMLEventIterator {
     val iterator = new XMLEventIterator(reader)
     val e = intercept[scala.xml.parsing.FatalError] {
       assertTrue(iterator.hasNext)
-      val ev = iterator.next
+      iterator.next
     }
     assertFalse(iterator.hasNext)
     val msg = e.toString
@@ -230,7 +227,7 @@ class TestXMLEventIterator {
     val iterator = new XMLEventIterator(reader)
     val e = intercept[scala.xml.parsing.FatalError] {
       assertTrue(iterator.hasNext)
-      val ev = iterator.next
+      iterator.next
     }
     assertFalse(iterator.hasNext)
     val msg = e.toString

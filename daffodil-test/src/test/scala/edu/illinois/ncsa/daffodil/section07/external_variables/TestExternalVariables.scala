@@ -32,11 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section07.external_variables
 
-import edu.illinois.ncsa.daffodil.xml._
-import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -45,8 +41,8 @@ object TestExternalVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
   val runner = Runner(testDir, "external_variables.tdml")
 
-  @AfterClass def tearDown() { 
-    runner.reset 
+  @AfterClass def tearDown() {
+    runner.reset
   }
 
 }

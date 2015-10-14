@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,11 +34,7 @@ package edu.illinois.ncsa.daffodil.parsing
 
 import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import junit.framework.Assert.assertEquals
 import java.io.File
@@ -68,7 +64,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("<tns:e1>strng</tns:e1>"))
 
@@ -88,7 +84,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("<e1>strng</e1>"))
 
@@ -109,7 +105,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo 0| %s parse -s %s -r row -D\"{http://example.com}var1=99\" -c %s", Util.binPath, testSchemaFile, testConfigFile)
+      val cmd = String.format("echo 0| %s parse -s %s -r row -D\"{http://example.com}var1=99\" -c %s", Util.binPath, testSchemaFile, testConfigFile)
       shell.sendLine(cmd)
       shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>99</cell>"))
@@ -261,7 +257,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output9))
       shell.sendLine("exit")
@@ -294,7 +290,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
       shell.expect(contains(output10))
@@ -693,7 +689,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate on", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate on", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -710,7 +706,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -727,7 +723,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate limited", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate limited", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -744,7 +740,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate off", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate off", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -761,7 +757,7 @@ class TestCLIparsing {
     val shell = Util.start("", true)
 
     try {
-      var cmd = String.format("echo 0,1,2| %s parse --validate FooBar -s %s -r matrix", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse --validate FooBar -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("FooBar"))
       shell.sendLine("exit")
@@ -777,7 +773,7 @@ class TestCLIparsing {
     val cmd = "echo unacceptable| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_08.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_08.dfdl.xsd --root bElem2\n"
     val shell = Util.start(cmd)
     shell.expect(contains("Parse Error: Assertion failed. Assertion failed for dfdl:checkConstraints(.)"))
-    
+
     shell.send("exit\n")
     shell.expect(eof)
     shell.close()
@@ -807,7 +803,6 @@ class TestCLIparsing {
 
     val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
 
-    var x = 0
     for (x <- 1 to 10) {
       val shell = Util.start("")
 

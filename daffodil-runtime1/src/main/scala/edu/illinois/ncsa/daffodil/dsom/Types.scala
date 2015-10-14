@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 trait TypeBase
 
-// TODO: consolidate this with dpath/Conversions.scala or NodeInfo.scala 
+// TODO: consolidate this with dpath/Conversions.scala or NodeInfo.scala
 // we have too many ways we're converting that do the same things really.
 object TypeConversions extends TypeChecks {
 
@@ -349,7 +349,7 @@ trait TypeChecks {
   protected def isInNegativeIntegerRange(value: java.math.BigDecimal, context: ThrowsSDE): Boolean = {
     // TODO: NegativeInteger not supported in DFDL v1.0
     val min = new java.math.BigDecimal(Int.MinValue.toString())
-    val max = new java.math.BigDecimal(Int.MaxValue.toString())
+    // val max = new java.math.BigDecimal(Int.MaxValue.toString())
     val isNegative = value.signum == -1
     if (!isNegative) context.SDE("Expected a negative integer for this value.")
     val checkMin = value.compareTo(min)
@@ -358,14 +358,14 @@ trait TypeChecks {
   }
   protected def isInNonNegativeIntegerRange(value: java.math.BigDecimal): Boolean = {
     // Should be treated as unsigned Integer (unbounded)
-    val min = java.math.BigDecimal.ZERO
+    // val min = java.math.BigDecimal.ZERO
     val isNegative = value.signum == -1
     if (isNegative) return false
     true
   }
   protected def isInUnsignedXXXRange(value: java.math.BigDecimal, numBits: Int, typeName: String): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
-    val min = java.math.BigDecimal.ZERO
+    // val min = java.math.BigDecimal.ZERO
     val max = new java.math.BigDecimal(BigInteger.ONE.shiftLeft(numBits)).subtract(new java.math.BigDecimal(1))
     val isNegative = value.signum == -1
     if (isNegative) return false

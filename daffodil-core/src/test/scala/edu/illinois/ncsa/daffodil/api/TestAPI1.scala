@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,12 +35,9 @@ package edu.illinois.ncsa.daffodil.api
 import junit.framework.Assert._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
 
 class TestDFDLParser {
 
@@ -64,7 +61,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "5").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>5</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -81,7 +78,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "56").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>5</s1><s2>6</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -97,7 +94,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "567").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -113,7 +110,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "5,6,7").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -145,7 +142,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "55.001")
+      TestUtils.testString(sch, "55.001")
     }
     assertTrue(e.getMessage().contains("xs:int"))
   }
@@ -176,7 +173,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "70,000")
+      TestUtils.testString(sch, "70,000")
     }
     // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:short"))
@@ -235,7 +232,7 @@ class TestDFDLParser {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="needs-square-root" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "-3")
+      TestUtils.testString(sch, "-3")
     }
     assertTrue(e.getMessage().contains("xs:unsignedLong"))
   }
@@ -246,7 +243,7 @@ class TestDFDLParser {
       <xs:element name="world-population" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
     val e = intercept[Exception] {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
-      val actual = TestUtils.testString(sch, "7,018,631,476")
+      TestUtils.testString(sch, "7,018,631,476")
     }
     assertTrue(e.getMessage().contains("xs:unsignedInt"))
   }
@@ -256,7 +253,7 @@ class TestDFDLParser {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="last-element-indicator" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "-1")
+      TestUtils.testString(sch, "-1")
     }
     assertTrue(e.getMessage().contains("xs:unsignedShort"))
   }
@@ -266,7 +263,7 @@ class TestDFDLParser {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="bits" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "256")
+      TestUtils.testString(sch, "256")
     }
     assertTrue(e.getMessage().contains("xs:unsignedByte"))
   }
@@ -282,7 +279,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "55555555555555555555")
+      TestUtils.testString(sch, "55555555555555555555")
     }
     assertTrue(e.getMessage().contains("xs:int"))
   }
@@ -298,7 +295,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -314,7 +311,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val actual = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -324,7 +321,7 @@ class TestDFDLParser {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
     val e = intercept[Exception] {
-      val actual = TestUtils.testString(sch, "A").result
+      TestUtils.testString(sch, "A").result
     }
     assertTrue(e.getMessage().contains("xs:int"))
   }
@@ -536,4 +533,3 @@ class TestDFDLParser {
   }
 
 }
-

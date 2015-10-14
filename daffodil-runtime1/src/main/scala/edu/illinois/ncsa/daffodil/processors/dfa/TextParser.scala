@@ -80,7 +80,7 @@ class TextParser(
           One(r.delimString.toString)
         }
         val lookingFor = dfa.lookingFor
-        val totalNumCharsRead = r.numCharsRead
+        // val totalNumCharsRead = r.numCharsRead
 
         One(new ParseResult(Nope, delim, lookingFor))
       }

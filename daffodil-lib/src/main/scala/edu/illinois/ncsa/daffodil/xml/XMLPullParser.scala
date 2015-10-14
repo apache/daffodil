@@ -5,7 +5,6 @@ import scala.xml.parsing.MarkupParser
 import scala.io.Source
 import scala.xml._
 import scala.xml.pull.XMLEvent
-import edu.illinois.ncsa.daffodil.util.Coroutine
 import edu.illinois.ncsa.daffodil.util.InvertControl
 import scala.xml.parsing.ExternalSources
 

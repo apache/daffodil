@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,11 +34,7 @@ package edu.illinois.ncsa.daffodil.unparsing
 
 import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import junit.framework.Assert.assertEquals
 import java.io.File
@@ -58,7 +54,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("%s unparse -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
+      val cmd = String.format("%s unparse -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
@@ -79,7 +75,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("%s unparse -s %s --root e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      val cmd = String.format("%s unparse -s %s --root e3 %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("[1,2]"))
 
@@ -100,7 +96,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("cat %s | %s unparse -s %s --root e3", testInputFile, Util.binPath, testSchemaFile)
+      val cmd = String.format("cat %s | %s unparse -s %s --root e3", testInputFile, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("[1,2]"))
 
@@ -120,7 +116,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1""", Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1""", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
@@ -140,7 +136,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1 -""", Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1 -""", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
@@ -161,7 +157,7 @@ class TestCLIunparsing {
 
     try {
       val input = """'<tns:file xmlns:tns="http://www.example.org/example1/"><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>'"""
-      var cmd = String.format("echo %s | %s unparse -s %s --root file", input, Util.binPath, testSchemaFile)
+      val cmd = String.format("echo %s | %s unparse -s %s --root file", input, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("1,2,3"))
       shell.expect(contains("4,5,6"))
@@ -186,7 +182,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("%s unparse -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
+      val cmd = String.format("%s unparse -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("[0]"))
 
@@ -208,7 +204,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("%s unparse -s %s -r row -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
+      val cmd = String.format("%s unparse -s %s -r row -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("[0]"))
 
@@ -314,7 +310,7 @@ class TestCLIunparsing {
     val shell = Util.start("")
 
     try {
-      var cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s""", Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s""", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 
@@ -357,7 +353,7 @@ class TestCLIunparsing {
     val shell = Util.start("", true)
 
     try {
-      var cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate on """, Util.binPath, testSchemaFile)
+      val cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate on """, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
       shell.expect(contains("[warning] Validation Error: element.validation_check failed"))

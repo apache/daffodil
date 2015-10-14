@@ -32,6 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.util
 
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+
 /**
  *  Using Scala 2.10's Value Classes to make a Some/None style option type
  *  which does not allocate a boxed object.
@@ -45,7 +47,7 @@ package edu.illinois.ncsa.daffodil.util
  *  Maybe(null) = Nope
  *  One(null) == Nope // can't construct a Maybe type containing null.
  */
-final class Maybe[+T <: AnyRef] @inline private (val v: Any) extends AnyVal {
+final class Maybe[+T <: AnyRef] /* @inline */ private (val v: Any) extends AnyVal {
   import Maybe._
   @inline final def get: T = if (isDefined) value else noneGet
   @inline private final def value: T = v.asInstanceOf[T]
@@ -62,16 +64,16 @@ final class Maybe[+T <: AnyRef] @inline private (val v: Any) extends AnyVal {
   @inline final def toList: List[T] = if (isEmpty) List() else new ::(get, Nil)
   @inline final def toSeq: Seq[T] = toList
   @inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
-  final def orNull[U >: T](implicit ev: Null <:< U): U = get
-  final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
-  final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
-  final def withFilter(f: T => Boolean): Maybe[T] = filter(f)
-  final def map[U <: AnyRef](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
-  final def flatMap[U <: AnyRef](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
-  final def foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
-  final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
-  final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
-  final def toScalaOption: scala.Option[T] = if (isEmpty) scala.None else scala.Some(get)
+  @inline final def orNull[U >: T](implicit ev: Null <:< U): U = get
+  @inline final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
+  @inline final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
+  @inline final def withFilter(f: T => Boolean): Maybe[T] = filter(f)
+  @inline final def map[U <: AnyRef](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
+  @inline final def flatMap[U <: AnyRef](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
+  @inline final def foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
+  @inline final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
+  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
+  @inline final def toScalaOption: scala.Option[T] = if (isEmpty) scala.None else scala.Some(get)
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 }
 
@@ -100,7 +102,8 @@ object Maybe {
   @inline
   final def some[T <: AnyRef](value: T) = new Maybe[T](value)
 
-  def empty[T] = Nope
+  @inline
+  final def empty[T] = Nope
 
   val Nope = new Maybe[Nothing](NopeValue)
 
@@ -111,12 +114,32 @@ object Maybe {
     final def apply[T <: AnyRef](value: T) = Maybe(value)
 
     // If the pattern matching is going to box an object then this is hardly
-    // worth using. 
+    // worth using.
     //
     // def unapply[T](value: Maybe[T]) = if (value.isDefined) scala.Some(value.get) else scala.None
   }
   private object NopeValue extends Serializable {
     override def toString = "Nope"
+  }
+
+  /**
+   * Use to do Maybe-like things using object vs. null.
+   *
+   * Done to avoid allocation of Maybe objects.
+   */
+  @inline final def isDefined[T <: AnyRef](thing: T): Boolean = {
+    if (thing eq null) false
+    else if (thing eq NopeValue) Assert.usageError("Maybe.isDefined not for use on Maybe[T] objects, but T (or null) objects.")
+    else true
+  }
+
+  @inline final def get[T <: AnyRef](thing: T): T = {
+    if (!isDefined(thing)) throw new NoSuchElementException("get on undefined value: " + thing)
+    else thing
+  }
+
+  final def toScalaOption[T <: AnyRef](thing: T): Option[T] = {
+    if (thing eq null) None else Some(thing)
   }
 }
 

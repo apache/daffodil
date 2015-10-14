@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -41,18 +41,13 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.xml.Node
-import scala.collection.JavaConversions._
 import scala.collection.immutable.Queue
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dpath._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
@@ -276,7 +271,7 @@ class DPathElementCompileInfo(
    */
   final def noMatchError(step: StepQName) = {
     //
-    // didn't find a exact match. 
+    // didn't find a exact match.
     // So all the rest of this is about providing a meaningful
     // and helpful diagnostic message.
     //
@@ -293,7 +288,7 @@ class DPathElementCompileInfo(
     // If the local name matched, then perhaps the user just forgot
     // to put on a prefix.
     //
-    // We want to suggest use of a prefix that is bound to the 
+    // We want to suggest use of a prefix that is bound to the
     // desired namespace already.. that is from within our current scope
     //
     val withStepsQNamePrefixes =

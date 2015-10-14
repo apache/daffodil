@@ -4,7 +4,6 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.equality._
@@ -78,8 +77,8 @@ class TestUnparserAugmentingInfosetSourceDebug {
     val (rootERD, is) = infosetRootERDAndSource(sch, infosetXML)
     val Seq(_, ovc1ERD) = rootERD.childERDs
     val Start(root_s: DIComplex) = is.next
-    val Start(before1_s: DISimple) = is.next
-    val End(before1_e: DISimple) = is.next
+    val Start(before1_s: DISimple) = is.next; assertNotNull(before1_s)
+    val End(before1_e: DISimple) = is.next; assertNotNull(before1_e)
     val Start(ovc1_s: DISimple) = is.next
     val End(ovc1_e: DISimple) = is.next
     val End(root_e: DIComplex) = is.next
@@ -88,10 +87,11 @@ class TestUnparserAugmentingInfosetSourceDebug {
     assertTrue(root_s.runtimeData =:= rootERD)
     assertTrue(ovc1_s eq ovc1_e)
     assertTrue(ovc1_s.runtimeData =:= ovc1ERD)
-    val OutputValueCalcEvaluationException(`ovc1ERD`) =
+    val e @ OutputValueCalcEvaluationException(`ovc1ERD`) =
       intercept[OutputValueCalcEvaluationException] {
         assertTrue(ovc1_s.dataValue.isInstanceOf[String])
       }
+    assertNotNull(e)
     val Some(ovcExpr) = ovc1ERD.outputValueCalcExpr
     assertTrue(!ovcExpr.isConstant)
     assertEquals("{ ../ex:before1 }", ovcExpr.prettyExpr)

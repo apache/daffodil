@@ -9,7 +9,6 @@ import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.Implicits._
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
@@ -136,7 +135,7 @@ class TestByteBufferDataInputStream6 {
     assertEquals('月', cb.get(1))
     assertEquals(8 * 6, dis.bitPos0b)
     cb.clear()
-    val ml2 = dis.fillCharBuffer(cb) // ask for next character 
+    val ml2 = dis.fillCharBuffer(cb) // ask for next character
     assertEquals(MaybeULong.Nope, ml2)
   }
 
@@ -152,13 +151,13 @@ class TestByteBufferDataInputStream6 {
     assertEquals('月', cb.get(1))
     assertEquals(8 * 6, dis.bitPos0b)
     cb.clear()
-    val ml2 = dis.fillCharBuffer(cb) // ask for next character 
+    val ml2 = dis.fillCharBuffer(cb) // ask for next character
     //
     // because it has 1 more byte available, it doesn't stop the attempt to decode
     // and that attempt fails and we replace it.
     //
     // Note that if there aren't enough bits for a single byte, then
-    // we won't even decode at all. It will just return Nope. 
+    // we won't even decode at all. It will just return Nope.
     //
     assertEquals(MaybeULong(1), ml2)
     assertEquals(this.unicodeReplacementCharacter, cb.get(0))
@@ -210,7 +209,7 @@ class TestByteBufferDataInputStream6 {
     dis.skip(1)
     assertTrue(iter.hasNext) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
-    dis.skip(1) // this skip should invalidate the character cached by hasNext. 
+    dis.skip(1) // this skip should invalidate the character cached by hasNext.
     assertEquals(2, dis.bitPos0b)
     assertTrue(iter.hasNext)
     assertEquals(2, dis.bitPos0b)

@@ -32,10 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import junit.framework.Assert._
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
-
 class TestDFDLExpressionCompiler {
 
   //  @Test def test_single_path_expression() = {

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import javax.xml.xpath._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
@@ -41,7 +40,6 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors._
 import scala.xml.Node
-import scala.collection.JavaConversions._
 import scala.collection.immutable.Queue
 import edu.illinois.ncsa.daffodil.dsom._
 import com.ibm.icu.util.Calendar
@@ -60,14 +58,14 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
 
   override def targetType = tt
 
-  // TODO: fix this check below. There is a unierse of target types which is 
+  // TODO: fix this check below. There is a unierse of target types which is
   // muuch smaller than the set of all types, so some check is useful to be sure
   // we stay within the subset of types that are actually used as target types.
   //  Assert.usage(targetType == NodeInfo.AnyType // used by debugger eval stmt
   //    || targetType == NodeInfo.NonEmptyString // string-valued properties
   //    || targetType == NodeInfo.Long // length and occurs expressions
   //    || targetType == NodeInfo.Boolean // assert/discriminator test expressions
-  //    || targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind] // inputValueCalc, outputValueCalc, 
+  //    || targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind] // inputValueCalc, outputValueCalc,
   //    // setVariable, defineVariable (default expressions), newVariableInstance
   //    , "not an accepted targetType")
 
@@ -123,7 +121,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
                 s.dataValue
               } catch {
                 case ovc: OutputValueCalcEvaluationException => {
-                  // 
+                  //
                   // This is thrown when the infoset node is an element for an outputValueCalc which had
                   // an expression that potentially reached into the future of the infoset.
                   //
@@ -149,17 +147,17 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
         //
         // Here we catch exceptions that indicate something went wrong with the
         // expression, but by that we mean legal evaluation of a compiled expression
-        // produced an error such as divide by zero or string having wrong format for 
+        // produced an error such as divide by zero or string having wrong format for
         // conversion to another type. I.e., things te DFDL schema author could get
         // wrong that some data inputs would exacerbate.
         //
         // This should not catch things that indicate a Daffodil code problem e.g.,
-        // class cast exceptions. 
+        // class cast exceptions.
         //
         // Of course some things that are daffodil code bugs can hide - if for example
-        // there is an arithmetic error in daffodil code, this catch can't distinguish 
-        // that error (which should be an abort, from an arithmetic exception 
-        // due to an expression dividing by zero say. 
+        // there is an arithmetic error in daffodil code, this catch can't distinguish
+        // that error (which should be an abort, from an arithmetic exception
+        // due to an expression dividing by zero say.
         case e: InfosetNoSuchChildElementException => doSDE(e, state)
         case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, state)
         case e: IllegalArgumentException => doPE(e, state)
@@ -212,7 +210,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
             Assert.invariant(value.isInstanceOf[Array[Byte]])
             value
           }
-          case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number 
+          case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number
             // and date types as well.
             value
         }

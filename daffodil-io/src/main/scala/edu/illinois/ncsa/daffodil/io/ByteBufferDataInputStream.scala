@@ -319,7 +319,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   /*
    * Package private for unit test purposes. Otherwise would be protected.
    */
-  final private[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
+  final protected[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     // threadCheck()
     //Assert.invariant(savedBitLimit0b.isDefined)
     val newBitLimit = savedBitLimit0b.get
@@ -433,7 +433,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           data.limit(savedDataLimit)
           bb.put(finalByte)
           i += 1
-          // however, we consume only the partial byte's available bits, 
+          // however, we consume only the partial byte's available bits,
           // not the entire final byte.
           setBitPos0b(bitPos0b + bitLimOffset)
         }
@@ -453,17 +453,17 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (tgt.remaining() == 0) return MaybeInt.Nope // nothing to do
     //
     // Bit Order sensitive since the first byte will be unaligned to a byte boundary
-    // which bits of that byte we take are specific to bitOrder. Ditto for last byte. 
+    // which bits of that byte we take are specific to bitOrder. Ditto for last byte.
     // Also which bits are shifted from one byte to another in the final result byte buffer
     // depends on bit order also.
     //
-    // At some complexity this could be made faster by some low-level coding trickery, 
+    // At some complexity this could be made faster by some low-level coding trickery,
     // Such as grabbing the data in chunks of 64 bits instead of one byte at a time.
     //
     val nBytesTransferred = {
       var priorSrcByte: Int = if (src.remaining > 0) Bits.asUnsignedByte(src.get()) else return MaybeInt.Nope
       var countBytesTransferred: Int = 0
-      val mask = ((1 << numFragmentBits) - 1) & 0xFF
+      // val mask = ((1 << numFragmentBits) - 1) & 0xFF
       var done = false
       var aaa = 0
       var bbbbb = 0
@@ -510,14 +510,14 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
     //Assert.invariant(bitLimit0b.isDefined)
     //
-    // Important detail: the bitPos after this method may be shorter than 8 * number of bytes 
+    // Important detail: the bitPos after this method may be shorter than 8 * number of bytes
     // transferred, because the data may end in the middle of a byte. If so the final partial
     // byte may be delivered, including bits which are technically past the end
-    // of the available data. 
+    // of the available data.
     //
-    // However, the bitPos after this method does not reflect that these additional 
-    // bits beyond the final partial byte are consumed. 
-    // 
+    // However, the bitPos after this method does not reflect that these additional
+    // bits beyond the final partial byte are consumed.
+    //
     setBitPos0b(math.min(initialBitPos0b + (8 * nBytesTransferred), bitLimit0b.get))
     MaybeInt(nBytesTransferred)
   }
@@ -598,7 +598,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def getUnsignedLong(bitLengthFrom1To64: Int): ULong = {
     val s = getSignedLong(bitLengthFrom1To64)
-    // 
+    //
     // we need to ignore sign (and sign extension) bits
     //
     val u = unSignExtend(s, bitLengthFrom1To64)
@@ -615,10 +615,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     } else {
       val nBytesNeeded = computeNBytesNeeded(bitLengthFrom1, 0)
       if (data.remaining() < nBytesNeeded) return Nope
-      val savedDataLimit = data.limit()
+      // val savedDataLimit = data.limit()
       // data.limit(data.position() + nBytesNeeded) // Not necessary since we're allocating the rawBytes array below.
       val rawBytes = ByteBuffer.allocate(nBytesNeeded) // FIXME: Performance, no need to allocate this. Can re-use a max-sized one.
-      val maybeN = fillByteBuffer(rawBytes)
+      fillByteBuffer(rawBytes)
       //Assert.invariant(maybeN.isDefined)
       //Assert.invariant(maybeN.get == nBytesNeeded)
       // at this point we have the bytes we need. The last byte may contain a fragment of a byte
@@ -635,9 +635,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           //Assert.invariant(javaByteOrder =:= java.nio.ByteOrder.LITTLE_ENDIAN)
           Bits.reverseBytes(allBytes)
           if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
-            // if the last byte was a fragment, now the first byte is the fragment. 
+            // if the last byte was a fragment, now the first byte is the fragment.
             // But the first byte's content are in the most significant bits of the byte. The
-            // unused part of the first byte is in the least significant bits of the byte. So 
+            // unused part of the first byte is in the least significant bits of the byte. So
             // we have to shift the first byte so that the bits in use are in the least significant
             // bits of the byte.
             val msb = allBytes(0)
@@ -647,7 +647,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           //
           // In the case of BitOrder LSB First, reverse the bytes is sufficient. The bits of the last fragment byte
           // now occupy the least significant bits of the first byte, and that is correct.
-          // This seems simple but that is because the fillByteBuffer call above already dealt with the 
+          // This seems simple but that is because the fillByteBuffer call above already dealt with the
           // shifting of the data if there is an initial bit offset.
           //
           BigInt(allBytes)
@@ -693,8 +693,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     true
     //    val n = nBits.toInt
     //    if (n <= 64) {
-    //      // 
-    //      // skip is defined in terms of getSignedLong because 
+    //      //
+    //      // skip is defined in terms of getSignedLong because
     //      // that way we don't have to worry about bitOrder and other
     //      // issues, or fragments of a byte and such. We have that code
     //      // in only one place, not both there and here.
@@ -776,19 +776,19 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     //
     if (st.maybeCharWidthInBits.isEmpty) {
       // we don't have a character width in bits
-      // that would be because the encoding is variable width 
+      // that would be because the encoding is variable width
       // like utf-8 or utf-16BE/LE with dfdl:utf16Width='variable', or shift-JIS
-      // 
+      //
       // In all these cases, we assume that the mandatory alignment is 8,
       // and the character codes are decoded/encoded to one or more 8-bit bytes.
-      // 
+      //
       // Hence, we can determine the number of bits consumed by way of the
       // number of bytes consumed.
       8 * nBytesConsumed
     } else {
       val charWidthInBits = st.maybeCharWidthInBits.get
       // we have a character width in bits, and it is fixed
-      // 
+      //
       // Hence, we can determine the number of bits consumed by way of
       // the number of characters
       charWidthInBits * nCharsTransferred
@@ -816,12 +816,12 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (cbRemainingBefore == 1 && nCharsTransferred == 0 && nBytesConsumed == 0 && cr.isOverflow()) {
       //Assert.invariant(bbRemainingBefore >= 4)
       //Assert.invariant(st.decoder.charset() == StandardCharsets.UTF_8)
-      val firstByte = data.get(data.position())
+      // val firstByte = data.get(data.position())
       //Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
       //
-      // What's painful is that we have to detect this because any time F0 appears in 
+      // What's painful is that we have to detect this because any time F0 appears in
       // bad data that is UTF-8, we don't get an error unless we have room for 2
-      // characters in the char buffer. 
+      // characters in the char buffer.
       //
       // The most common case is that F0 means there's broken data.
       //
@@ -850,7 +850,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         //
         // We know that this situation can only arise if the substitution
         // occurred for a 4-byte UTF-8 character, and it had to be broken at the 4th byte
-        // 
+        //
         data.position(data.position - 1) // back up 1 byte.
         cb.put(0xFFFD.toChar)
         st.resetUTF8SurrogatePairCapture
@@ -867,7 +867,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         cb.put(leadingSurrogate)
       } else {
         //Assert.invariant(cr.isError)
-        // error case - 
+        // error case -
         st.resetUTF8SurrogatePairCapture
       }
     }
@@ -921,9 +921,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     nBytesConsumed = bbRemainingBefore - data.remaining()
 
     //
-    // Note that while we have been advancing through the bytes in 
-    // the data byte buffer, that doesn't tell us how much 
-    // data has been consumed because we could have stopped 
+    // Note that while we have been advancing through the bytes in
+    // the data byte buffer, that doesn't tell us how much
+    // data has been consumed because we could have stopped
     // in the middle of a byte.
     //
     if (cr.isError) {
@@ -931,14 +931,14 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // The way we deal with decode errors here is very important
       // Suppose we are decoding along and start reaching some
       // binary data. That is likely to cause a decode error.
-      // 
+      //
       // Perhaps we are just pre-filling a buffer of characters
       // and thereafter we will test if it matches a regular expression.
-      // Well, what if the match could have been successful 
+      // Well, what if the match could have been successful
       // on just the data prior to the decode error, and can't be
       // lost based on yet more characters. In that case it would
       // be a shame to decode characters past the decode error, because
-      // it would just be wasting time. 
+      // it would just be wasting time.
       //
       // So we have a soft-stop at a decode error. This method
       // will return as if it had not encountered the decode error,
@@ -1012,7 +1012,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (bufPos < existingLimit) {
       // we didn't fill the buffer with data last time
       // we can just try again and fillCharBuffer may
-      // deliver more. 
+      // deliver more.
       return false // we are not done.
     }
     val existingCapacity = regexMatchBuffer.capacity
@@ -1048,12 +1048,12 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     while (!isMatchDone) {
       //
       // a new or resized buffer means we have to reset the matcher
-      // 
+      //
       // Unfortunately, there appears to be no way to restart a matcher
       // part way through a match of a regex. The match succeeds or fails.
       // Resuming matchers is for find() where you then proceed to find
       // another match, not for resuming part way through a match.
-      // 
+      //
       // This means the matcher will have to start from position 0 of the buffer again
       // however, we don't have to fillCharBuffer again starting from
       // position 0, we can add more characters to the enlarged buffer.
@@ -1070,7 +1070,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       regexMatchBuffer.position(0)
       regexMatchBuffer.limit(bufPosAfter)
       if (!ml.isDefined) {
-        // no more data can be had. 
+        // no more data can be had.
         // so this iteration gets the final answer.
         isMatchDone = true // it will be done after this iteration.
       } else {
@@ -1131,7 +1131,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           // but this time we know how many characters to stop it at,
           // (length of the match), and then we can compare bitPos
           // to find out how long that was in bits.
-          // 
+          //
           // We use a different char buffer for this, because the regexMatchBuffer
           // is currently holding things like the groups of the match, we don't want
           // to mess with its position.
@@ -1141,21 +1141,21 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           setBitPos0b(initialBitPos0b)
           //
           // looping call to fill this lengthDeterminationBuffer is
-          // needed because fillCharBuffer stops on decode errors even if it 
+          // needed because fillCharBuffer stops on decode errors even if it
           // will just replace them with the unicode replacement character on the next
           // call. That's an efficiency hack to enable matching to not scan ahead the full
           // size of the regex match buffer while just crashing into and substituting for tons
           // of what really is binary data. If the format forces it to do that it will,
           // but it first returns shy of having substituted unicode replacement characters
           // for decode errors so as to give things like lookingAt a chance to match against the data up to that
-          // point, which might be successful, and thereby eliminate the need to 
+          // point, which might be successful, and thereby eliminate the need to
           // push forward into filling the buffer with unicode replacement characters corresponding
           // to decode errors that are only encountered because the regex match buffer is big.
           //
-          // In other words, if hitEnd is false after an attempted match, then we don't need to 
+          // In other words, if hitEnd is false after an attempted match, then we don't need to
           // keep pushing ahead decoding (and substituting for errors) into the data.
           //
-          val isFilled = fillCharBufferLoop(lengthDeterminationBuffer)
+          fillCharBufferLoop(lengthDeterminationBuffer)
           //Assert.invariant(isFilled)
           val nbits = bitPos0b - initialBitPos0b
           nbits
@@ -1249,7 +1249,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
       //Assert.invariant(dis.bitPos0b =#= dataBitPosBefore0b)
       return false
     }
-    // got 1 character 
+    // got 1 character
     val dataBitPosAfter0b = dis.bitPos0b
     ist.deltaBits = (dataBitPosAfter0b - dataBitPosBefore0b).toInt
     dis.setBitPos0b(dataBitPosBefore0b) // restore data position so we aren't advancing if called by hasNext
@@ -1268,7 +1268,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     // threadCheck()
     if (!hasNext) return -1.toChar
     val m = dis.markPos
-    val c1 = next()
+    next()
     val c2 =
       if (!hasNext) -1.toChar
       else next()
@@ -1276,7 +1276,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     c2
   }
 
-  def hasNext(): Boolean = {
+  override def hasNext: Boolean = {
     // threadCheck()
     val ist = st.charIteratorState
     if (ist.bitPos0bAtLastFetch != dis.bitPos0b) {
@@ -1306,7 +1306,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     }
     if (!ist.isFetched) ist.isFetched = fetch()
     if (!ist.isFetched) throw new NoSuchElementException()
-    val dataBitPosBefore0b = dis.bitPos0b
+    // val dataBitPosBefore0b = dis.bitPos0b
     val c = ist.cb.get(0)
     ist.isFetched = false
     val newBitPos0b = dis.bitPos0b + ist.deltaBits
@@ -1375,7 +1375,6 @@ private class Converter_BE_MSBFirst extends LongConverter {
       val numBitsInLastByte = (dis.bitPos0b + bitLengthFrom1To64) % 8
       val lastByteShift = if (numBitsInLastByte == 0) 0 else 8 - numBitsInLastByte
       Bits.shiftRight(smallBuf, lastByteShift.toInt)
-      val lim = smallBuf.limit
       val numBitsInFirstByte = math.max(8 - dis.st.bitOffset0b - lastByteShift, 0)
       //
       // The shift above, if done, may have shifted all the bits
@@ -1405,7 +1404,7 @@ private class Converter_LE_MSBFirst extends LongConverter {
   final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long = {
     val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
     if (maybeNBytesNeeded.isEmpty) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
-    val nBytesNeeded = maybeNBytesNeeded.get
+    // val nBytesNeeded = maybeNBytesNeeded.get
     val result = {
       //
       // smallBuf now contains the bytes we need to create the value
@@ -1416,7 +1415,7 @@ private class Converter_LE_MSBFirst extends LongConverter {
         // only 1 byte holds the entire representation
         //
         // It is worth special case code for this, because many bit fields
-        // are just one or a small handful of bits, so many will live in 
+        // are just one or a small handful of bits, so many will live in
         // just one byte.
         //
         val bitLimitOffset0b = (dis.bitPos0b + bitLengthFrom1To64) % 8
@@ -1428,7 +1427,7 @@ private class Converter_LE_MSBFirst extends LongConverter {
         wrapUp(bitLengthFrom1To64, result, dis)
       } else {
         //
-        // There are two or more bytes holding the representation. 
+        // There are two or more bytes holding the representation.
         //
         // The bits of interest start somewhere in the first byte of smallBuf
         // (bitOffset0b tells us exactly where)
@@ -1436,10 +1435,10 @@ private class Converter_LE_MSBFirst extends LongConverter {
         // of smallBuf. (bitOffset0b + bitLengthFrom1To64) tell us exactly where
         // it ends and how far away that is.
         //
-        // The order of bytes in smallBuf is exactly as those bytes appeared in 
+        // The order of bytes in smallBuf is exactly as those bytes appeared in
         // the data stream.
-        // 
-        // Per the DFDL spec, the start position cannot affect the value. So 
+        //
+        // Per the DFDL spec, the start position cannot affect the value. So
         // we can shift left (because bit order is MSBFirst) until the first bit
         // is the most significant bit of the first byte.
         //
@@ -1454,17 +1453,17 @@ private class Converter_LE_MSBFirst extends LongConverter {
           if (m == 0) 8 else m
         }
         if (dis.st.bitOffset0b >= numBitsInLastByte) {
-          // the shift left above will leave no bits in the final byte. 
+          // the shift left above will leave no bits in the final byte.
           //Assert.invariant(smallBuf.limit() > 1)
           smallBuf.limit(smallBuf.limit - 1) // shorten it by 1 byte.
         }
         //
         Bits.reverseBytes(smallBuf)
         //
-        // now bytes of smallBuf are such that the most significant bits are in 
+        // now bytes of smallBuf are such that the most significant bits are in
         // the first byte, and least significant are in the last byte.
-        // 
-        // However, the most significant byte has the problem that the bits in it 
+        //
+        // However, the most significant byte has the problem that the bits in it
         // are now in the most-significant end of that byte. They need to be shifted right
         // to occupy the least significant bit locations of that byte.
         //
@@ -1484,7 +1483,7 @@ private class Converter_LE_MSBFirst extends LongConverter {
           smallBuf.put(0, newFirstByte.toByte)
         }
         //
-        // Now the smallBuf bytes contain our big-endian value, 
+        // Now the smallBuf bytes contain our big-endian value,
         //
         bigEndianBytesToSignedLong(smallBuf, smallBuf.remaining(), 0, bitLengthFrom1To64, dis)
       }
@@ -1506,18 +1505,18 @@ private class Converter_LE_LSBFirst extends LongConverter {
       // and at this point we know we will successfully create a value.
       //
       // The bits of interest start somewhere in the first byte of smallBuf
-      // (bitOffset0b tells us exactly where, though because bit order is 
+      // (bitOffset0b tells us exactly where, though because bit order is
       // LSBFirst, those bits occupy the most-significant bits of that first byte
-      // 
+      //
       // and end also in that byte or in some later byte at farthest in the 9th byte
       // of smallBuf. (bitOffset0b + bitLengthFrom1To64) tell us exactly where
       // it ends and how far away that is, again bit order tells us that
       // those bits in the last byte are in the least significant bits of that byte
       //
-      // The order of bytes in smallBuf is exactly as those bytes appeared in 
+      // The order of bytes in smallBuf is exactly as those bytes appeared in
       // the data stream.
       //
-      // in order to be able to shift the bits around we must reverse the bits 
+      // in order to be able to shift the bits around we must reverse the bits
       // within the bytes
       Bits.reverseBitsWithinBytes(smallBuf)
       //
@@ -1535,7 +1534,7 @@ private class Converter_LE_LSBFirst extends LongConverter {
         if (m == 0) 8 else m
       }
       val numUnusedBitsInLastByteInitially = 8 - numBitsInLastByteInitially
-      // 
+      //
       // The left shift above, if done, may have shifted all the bits
       // out of the right-most byte of the smallBuf. If so we
       // don't want to include that byte in computing the value
@@ -1567,4 +1566,3 @@ private class Converter_LE_LSBFirst extends LongConverter {
     result
   }
 }
-

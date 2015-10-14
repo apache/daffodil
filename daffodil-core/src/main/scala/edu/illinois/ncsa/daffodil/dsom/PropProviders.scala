@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 /**
@@ -64,7 +63,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
  * format annotations together.
  */
 trait LeafPropProvider
-    extends LookupLocation with PropTypes with Logging {
+  extends LookupLocation with PropTypes with Logging {
 
   /**
    * for debug/test only
@@ -117,7 +116,7 @@ trait LeafPropProvider
  * be the default formats being chained together.
  */
 class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
-    extends Logging with PropTypes {
+  extends Logging with PropTypes {
 
   /**
    * for debug/test only

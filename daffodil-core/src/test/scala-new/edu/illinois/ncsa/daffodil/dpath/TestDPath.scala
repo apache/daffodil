@@ -32,9 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.TestUtils
 
@@ -57,8 +56,8 @@ class TestDPath {
       </xs:complexType>
     </xs:element>)
 
-  @Test def test_twoUpwardSteps() = {
-    val actual = TestUtils.testString(testSchemaNoRef, "")
+  @Test def test_twoUpwardSteps() {
+    TestUtils.testString(testSchemaNoRef, "")
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
@@ -79,8 +78,8 @@ class TestDPath {
       </xs:complexType>
     </xs:element>)
 
-  @Test def test_twoUpwardStepsAcrossElementReference() = {
-    val actual = TestUtils.testString(testSchema, "")
+  @Test def test_twoUpwardStepsAcrossElementReference() {
+    TestUtils.testString(testSchema, "")
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchemaUnqualified(
@@ -95,8 +94,8 @@ class TestDPath {
     </xs:element>
     <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>)
 
-  @Test def test_oneUpwardStepsAcrossElementReference() = {
-    val actual = TestUtils.testString(testSchema2, "")
+  @Test def test_oneUpwardStepsAcrossElementReference() {
+    TestUtils.testString(testSchema2, "")
   }
 
 }

@@ -53,7 +53,6 @@ import scala.xml.Null
 import scala.util.DynamicVariable
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
@@ -158,14 +157,14 @@ sealed trait DIElement extends DINode with InfosetElement {
   final def isHidden: Boolean = erd.isHidden
 
   final def runtimeData = erd
-  protected final var _parent: Maybe[InfosetComplexElement] = Nope
+  protected final var _parent: InfosetComplexElement = null
   protected final var _isNilled: Boolean = false
   protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
 
   override def parent = _parent
-  def diParent = _parent.asInstanceOf[Maybe[DIComplex]]
+  def diParent = _parent.asInstanceOf[DIComplex]
   override def setParent(p: InfosetComplexElement) {
-    _parent = One(p)
+    _parent = p
   }
 
   override def isNilled: Boolean = _isNilled
@@ -212,11 +211,11 @@ final class DIArray(val arrayElementInfo: DPathElementCompileInfo, val parent: D
   def namedQName = arrayElementInfo.namedQName
 
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
-  //TODO: really this needs to be adaptive, and resize upwards reasonably. 
+  //TODO: really this needs to be adaptive, and resize upwards reasonably.
   //A non-copying thing - list like, may be better, but we do need access to be
-  //constant time. 
+  //constant time.
   // FIXME: for streaming behavior, arrays are going to get elements removed from
-  // them when no longer needed. However, the array itself would still be growing 
+  // them when no longer needed. However, the array itself would still be growing
   // without bound. So, replace this with a mutable map so that it can shrink
   // as well as grow.
   protected final val _contents = new ArrayBuffer[InfosetElement](initialSize)
@@ -298,9 +297,9 @@ sealed class DISimple(val erd: ElementRuntimeData)
         // it by parsing it as a textual number. It then overwrites
         // the value with the value of the number type.
         //
-        // This comment code block is here because it is such a useful 
+        // This comment code block is here because it is such a useful
         // place to put a breakpoint for debugging.
-        // 
+        //
         // TODO: chase down places that a string is being put in the infoset
         // but as the representation of a type, not as a temporary thing
         // that is to be immediately converted to the 'real' type by the
@@ -310,7 +309,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
     }
     _isNilled = false
     _isDefaulted = false
-    _validity = MaybeBoolean.Nope // we have not tested this new value. 
+    _validity = MaybeBoolean.Nope // we have not tested this new value.
     _value = x
   }
 
@@ -407,21 +406,21 @@ sealed class DISimple(val erd: ElementRuntimeData)
           erd.nilledXML.get
         } else if (_value != null) {
           val s = remapped
-          // At this point s contains only legal XML characters. 
-          // However, since we're going to create actual XML documents here, 
+          // At this point s contains only legal XML characters.
+          // However, since we're going to create actual XML documents here,
           // we have to do escaping. There are two ways to do escaping.
           // One is to convert &, <, >, and " to &amp; &lt; &gt; &quot;.
           // The other is to wrap the contents in <![CDATA[ ...]]> brackets.
-          // For strings longer than a certain size, or with a large number of 
+          // For strings longer than a certain size, or with a large number of
           // the characters requiring escaping,... CDATA is preferred.
           //
           // TODO: add some tunable option to control (a) PUA mapping or not
           // (b) CDATA or escapify, or CDATA for things of some size, or we
           // can put Daffodil specific annotations on the ERD e.g., daf:xmlEscapePolicy
-          // with options for single chars, CDATA, or and generate always or 
-          // generate when needed. etc. 
+          // with options for single chars, CDATA, or and generate always or
+          // generate when needed. etc.
           //
-          // Anyway... Constructing a Text node seems to automatically escapeify 
+          // Anyway... Constructing a Text node seems to automatically escapeify
           // the supplied content.
           val textNode = new scala.xml.Text(s)
           scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true, textNode)
@@ -480,57 +479,59 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   final override def isEmpty: Boolean = false
 
-  // the DIDocument overrides number of slots to 1. 
+  // the DIDocument overrides number of slots to 1.
   def nSlots = erd.nChildSlots
   protected final def slots = _slots
 
   private lazy val _slots = {
-    val slots = new Array[Maybe[DINode]](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
+    val slots = new Array[DINode](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
 
     // initialize slots to Nope
     var i = 0
     while (i < slots.length) {
-      slots(i) = Nope
+      slots(i) = null
       i = i + 1
     }
     slots
   }
 
-  override def children = _slots.map { _.toScalaOption }.flatten.toStream
+  override def children = _slots.map { s => if (Maybe.isDefined(s)) Some(s) else None }.flatten.toStream
 
   final override def getChild(erd: ElementRuntimeData): InfosetElement = {
     val res = getChildMaybe(erd)
-    if (res.isEmpty) throw new InfosetNoSuchChildElementException(erd)
-    res.get
+    if (res eq null) throw new InfosetNoSuchChildElementException(erd)
+    res
   }
 
-  final override def getChildMaybe(erd: ElementRuntimeData): Maybe[InfosetElement] =
+  final override def getChildMaybe(erd: ElementRuntimeData): InfosetElement =
     getChildMaybe(erd.slotIndexInParent)
 
   final def getChild(slot: Int, namedQName: NamedQName): InfosetElement = {
     val res = getChildMaybe(slot)
-    if (res.isEmpty) throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
-    res.get
+    if (res eq null) throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
+    res
   }
 
-  final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
-    _slots(slot).map { _.asInstanceOf[InfosetElement] }
+  final def getChildMaybe(slot: Int): InfosetElement = {
+    val s = _slots(slot)
+    s.asInstanceOf[InfosetElement]
+  }
 
   final override def getChildArray(erd: ElementRuntimeData) = getChildArray(erd.dpathElementCompileInfo)
 
-  final def getChildArray(info: DPathElementCompileInfo): Maybe[InfosetArray] = {
+  final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
     Assert.usage(info.isArray)
     val slot = info.slotIndexInParent
     val slotVal = _slots(slot)
-    if (slotVal.isDefined)
-      slotVal.get match {
-        case arr: DIArray => slotVal.asInstanceOf[Maybe[DIArray]]
+    if (slotVal ne null)
+      slotVal match {
+        case arr: DIArray => slotVal.asInstanceOf[DIArray]
         case _ => Assert.usageError("not an array")
       }
     else {
-      // slot is Nope. There isn't even an array object yet.
+      // slot is null. There isn't even an array object yet.
       // create one (it will have zero entries)
-      val ia = One(new DIArray(info, this))
+      val ia = new DIArray(info, this)
       // no array there yet. So we have to create one.
       setChildArray(slot, ia)
       ia
@@ -538,44 +539,44 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   }
 
   final override def setChildArray(erd: ElementRuntimeData, arr: InfosetArray) {
-    setChildArray(erd.slotIndexInParent, One(arr.asInstanceOf[DIArray]))
+    setChildArray(erd.slotIndexInParent, arr.asInstanceOf[DIArray])
   }
 
-  final def setChildArray(slot: Int, arr: Maybe[DIArray]) {
+  final def setChildArray(slot: Int, arr: DIArray) {
     _slots(slot) = arr
   }
 
   override def addChild(e: InfosetElement): Unit = {
     if (e.runtimeData.isArray) {
       //
-      // make sure there is an array to accept 
-      // the child 
+      // make sure there is an array to accept
+      // the child
       var ia: InfosetArray = null
       val arr = getChildArray(e.runtimeData)
-      if (!arr.isDefined) {
+      if (arr eq null) {
         ia = new DIArray(e.runtimeData.dpathElementCompileInfo, this)
         // no array there yet. So we have to create one.
         setChildArray(e.runtimeData, ia)
       } else {
-        ia = arr.get
+        ia = arr
       }
       // At this point there IS an array
       ia.append(e)
     } else {
-      _slots(e.runtimeData.slotIndexInParent) = One(e.asInstanceOf[DINode])
+      _slots(e.runtimeData.slotIndexInParent) = e.asInstanceOf[DINode]
     }
     e.setParent(this)
   }
 
   final override def removeChild(e: InfosetElement): Unit = {
-    _slots(e.runtimeData.slotIndexInParent) = Nope
+    _slots(e.runtimeData.slotIndexInParent) = null
   }
 
   final override def removeHiddenElements(): InfosetElement = {
     var i = 0
     while (i < erd.nChildSlots) {
       val isH = erd.childERDs(i).isHidden
-      if (isH) _slots(i) = Nope
+      if (isH) _slots(i) = null
       i = i + 1
     }
     this
@@ -594,18 +595,18 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     var i = 0
     while (i < si.length) {
       si(i) match {
-        case DIComplexState.NOT_DEFINED => _slots(i) = Nope
+        case DIComplexState.NOT_DEFINED => _slots(i) = null
         case DIComplexState.DEFINED_ONEONLY => {
-          Assert.invariant(_slots(i).isDefined)
+          Assert.invariant(_slots(i) ne null)
           // TODO: is this ok? Do we have to know what the value in fact was?
           // Or is it sufficient to just know it had a value and still does.
         }
         case arrayLength => {
-          val arr = _slots(i).get.asInstanceOf[DIArray]
+          val arr = _slots(i).asInstanceOf[DIArray]
           if (arr.length > arrayLength) {
-            // 
-            // we must shorten the array. 
-            // 
+            //
+            // we must shorten the array.
+            //
             arr.trimEnd(arr.length.toInt - arrayLength)
           }
         }
@@ -616,6 +617,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val slotsInfo: Array[Int])
     extends InfosetElementState
+
   object DIComplexState {
 
     val NOT_DEFINED = -1
@@ -629,7 +631,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
      * If -2 then the actual slot was One(IE) for a non-array IE
      * if N >=0, then the slot was One(Arr) and Arr was of length N.
      */
-    def slotsInfo(slots: Array[Maybe[DINode]]) = {
+    def slotsInfo(slots: Array[DINode]) = {
       val slotsInfo = new Array[Int](slots.length)
       var i = 0
       val NOT_DEFINED = -1
@@ -637,9 +639,9 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       //  non-negative values mean an array with N children
       while (i < slots.length) {
         slotsInfo(i) =
-          if (!slots(i).isDefined) NOT_DEFINED
+          if (slots(i) eq null) NOT_DEFINED
           else {
-            val ie = slots(i).get
+            val ie = slots(i)
             ie match {
               case ab: DIArray => ab.length.toInt
               case _ => DEFINED_ONEONLY
@@ -650,7 +652,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       slotsInfo
     }
 
-    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: Array[Maybe[DINode]]) =
+    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: Array[DINode]) =
       new DIComplexState(isNilled, validity, slotsInfo(slots))
   }
 
@@ -669,20 +671,25 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   }
 
   override def writeContents(writer: java.io.Writer, removeHidden: Boolean) {
-    _slots.foreach { _ foreach { slot => slot.toWriter(writer, removeHidden) } }
+    _slots.foreach { slot => if (slot ne null) slot.toWriter(writer, removeHidden) }
   }
 
   override def totalElementCount: Long = {
     if (erd.nilledXML.isDefined && isNilled) return 1L
     var a: Long = 1
-    _slots.foreach { _ foreach { slot => a += slot.totalElementCount } }
+    var i = 0
+    while (i < _slots.length) {
+      val slot = _slots(i)
+      i += 1
+      if (slot ne null) a += slot.totalElementCount
+    }
     a
   }
 }
 
 /*
- * Making this extend DIComplex eliminates a bunch of boundary 
- * conditions having to do with the document root element. 
+ * Making this extend DIComplex eliminates a bunch of boundary
+ * conditions having to do with the document root element.
  */
 final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
   with InfosetDocument {
@@ -696,7 +703,7 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
   }
 
   override def addChild(child: InfosetElement) {
-    slots(0) = One(child.asInstanceOf[DINode])
+    slots(0) = child.asInstanceOf[DINode]
     child.setParent(this)
     root = child.asInstanceOf[DIElement]
   }
@@ -716,8 +723,6 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
 }
 
 object Infoset {
-
-  import NodeInfo.PrimType._
 
   def newElement(erd: ElementRuntimeData): InfosetElement = {
     if (erd.isSimpleType) new DISimple(erd)
@@ -913,18 +918,18 @@ object Infoset {
         //
         case (Seq(onlyOne), childERD) if (!childERD.isArray) => {
           //
-          // isolated uniquely named child (not an array) 
+          // isolated uniquely named child (not an array)
           // goes into this slot.
-          // 
+          //
           val childInfosetElem = elem2Infoset(childERD, onlyOne)
           ie.addChild(childInfosetElem.asInstanceOf[DIElement])
         }
         case (list, childERD) if (childERD.isArray) => {
           //
           // run of one to many identically named children
-          // 
-          // In this case, the current slot must be filled in with 
-          // a DIArray 
+          //
+          // In this case, the current slot must be filled in with
+          // a DIArray
           val diComplex = ie.asInstanceOf[DIComplex]
           val arr = new DIArray(childERD.dpathElementCompileInfo, diComplex)
           val c = ie.asInstanceOf[DIComplex]
@@ -940,7 +945,7 @@ object Infoset {
         }
         // FIXME: this case could happen if a DFDL schema actually has
         // two scalar elements with the same name back-to-back. That's
-        // allowed in XSD, but it's not a very good idea. 
+        // allowed in XSD, but it's not a very good idea.
         case (list, childERD) if list.length > 1 && !childERD.isArray => Assert.usageError(
           "more than one occurrence, but element is not an array")
         case _ => Assert.invariantFailed("no other cases")
@@ -957,14 +962,14 @@ object Infoset {
         // the .text method removes XML escaping.
         // so if the node has &amp; in it, an & character will be produced.
         // Also if the node has <![CDATA[...]]> it will be removed.
-        // (Different XML Loader may have converted the CDATA into a 
-        // scala.xml.PCData node, or may have converted it into 
+        // (Different XML Loader may have converted the CDATA into a
+        // scala.xml.PCData node, or may have converted it into
         // escapified text. Either way the .text method gets us
         // to "real" data)
-        // The .text method similarly concatenates all the children of 
+        // The .text method similarly concatenates all the children of
         // a node. Wierd that node.child produces a NodeSeq of children
-        // which are Text or PCData or ...? nodes. But .text does the 
-        // right thing with them. 
+        // which are Text or PCData or ...? nodes. But .text does the
+        // right thing with them.
         val value = node.child.text
         val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(value)
         convertToInfosetRepType(primType, remapped, erd)

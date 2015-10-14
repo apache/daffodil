@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml._
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -88,13 +87,13 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         // dstate.setCurrentValue(v) // side effect nulls out the current node
         true
       } catch {
-        // 
-        // We use IllegalStateException to indicate that the DState was manipulated 
-        // in a way that is not consistent with a constant expression. Such as trying to do 
-        // anything with the infoset other than saving and restoring current position in the infoset. 
+        //
+        // We use IllegalStateException to indicate that the DState was manipulated
+        // in a way that is not consistent with a constant expression. Such as trying to do
+        // anything with the infoset other than saving and restoring current position in the infoset.
         case e: java.lang.IllegalStateException =>
           false // useful place for breakpoint
-        // if the expression is all literals, but illegal such as xs:int("foobar") then 
+        // if the expression is all literals, but illegal such as xs:int("foobar") then
         // all the pieces are constant, but evaluating will throw NumberFormatException
         // or dfdl:length='{ 5 / 0 }' - contrived yes, but in larger expressions misakes like this
         // are typically typographical errors so it is good to pick them up here.
@@ -122,7 +121,6 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
 abstract class RecipeOp
   extends Serializable {
-  import AsIntConverters._
 
   def run(dstate: DState): Unit
 
@@ -295,4 +293,3 @@ case object StringToNonEmptyString extends RecipeOp {
       throw new IllegalArgumentException("String value may not be empty.")
   }
 }
-

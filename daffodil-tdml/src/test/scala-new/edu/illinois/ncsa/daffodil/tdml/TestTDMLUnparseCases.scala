@@ -13,7 +13,6 @@ import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.fail
-import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
@@ -47,11 +46,11 @@ class TestTDMLUnparseCases {
     lazy val ts = new DFDLTestSuite(testSuite)
     val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.name == "test1" }.get
     // println(tc)
-    val doc = tc.document
+    tc.document
     val is = tc.inputInfoset
     // println(is)
     val bar = is.dfdlInfoset.rawContents
-    val scala.xml.Elem(pre, label, _, _, child) = bar
+    val scala.xml.Elem(pre, label, _, _, _) = bar
     assertEquals("ex", pre)
     assertEquals("bar", label)
     // ts.trace

@@ -33,14 +33,12 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -86,7 +84,7 @@ abstract class StatementElementUnparserBase(
     //        log(LogLevel.Debug,
     //          "Validation failed for %s due to %s. The element value was %s.",
     //          context.toString, failureMessage, currentElement.toXML())
-    //        state.withValidationError("%s failed dfdl:checkConstraints due to %s",
+    //        state.reportValidationError("%s failed dfdl:checkConstraints due to %s",
     //          context.toString, failureMessage)
     //        currentElement.setValid(false)
     //      }
@@ -142,8 +140,8 @@ class StatementElementUnparser(
         // When the infoset events are being advanced, the currentInfosetNodeStack
         // is pushing and popping to match the events. This provides the proper
         // context for evaluation of expressions.
-        // 
-        state.currentInfosetNodeStack.pushMaybe(One(infoElement))
+        //
+        state.currentInfosetNodeStack.pushMaybe(infoElement)
       }
       case _ => UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
     }
@@ -179,12 +177,11 @@ class StatementElementUnparserNoRep(
   override lazy val childProcessors = setVar ++ eUnparser ++ eAfterUnparser
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
-  // but we don't create anything new as far as the group is concerned, and we don't want 
-  // the group 'thinking' that there's a prior sibling inside the group and placing a 
+  // but we don't create anything new as far as the group is concerned, and we don't want
+  // the group 'thinking' that there's a prior sibling inside the group and placing a
   // separator after it. So in the case of NoRep, we don't advance group child, just element child.
   override def move(state: UState) {
     val childIndex = state.childIndexStack.pop()
     state.childIndexStack.push(childIndex + 1)
   }
 }
-

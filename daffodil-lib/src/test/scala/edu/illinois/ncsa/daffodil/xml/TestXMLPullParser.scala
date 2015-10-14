@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.xml
 import org.junit.Test
 import org.junit.Assert._
 import scala.xml.pull._
-import edu.illinois.ncsa.daffodil.Implicits._
 import scala.io.Source
 import scala.xml.pull._
 
@@ -19,29 +18,29 @@ class TestXMLPullParser {
     val reader = new XMLPullParser(source)
     assertTrue(reader.hasNext)
     var ev = reader.next
-    val EvProcInstr("instruction", "custom value=\"customvalue\"") = ev
+    ev match { case EvProcInstr("instruction", "custom value=\"customvalue\"") => /* ok */ }
     println(ev)
     ev = reader.next
     val EvText(s) = ev
     assertTrue(WS.reset(s).matches)
     ev = reader.next
-    val EvElemStart(null, "foo", _, _) = ev
+    ev match { case EvElemStart(null, "foo", _, _) => /* ok */ }
     println(ev)
     ev = reader.next
-    val EvText("Hello") = ev
+    ev match { case EvText("Hello") => /* ok */ }
     ev = reader.next
-    val EvComment(" this is a comment ") = ev
+    ev match { case EvComment(" this is a comment ") => /* ok */ }
     ev = reader.next
-    val EvElemStart(null, "bar", _, _) = ev
+    ev match { case EvElemStart(null, "bar", _, _) => /* ok */ }
     ev = reader.next
-    val EvEntityRef("gt") = ev
+    ev match { case EvEntityRef("gt") => /* ok */ }
     ev = reader.next
-    val EvElemEnd(null, "bar") = ev
+    ev match { case EvElemEnd(null, "bar") => /* ok */ }
     ev = reader.next
     val EvText(s2) = ev
     assertTrue(WS.reset(s2).matches)
     ev = reader.next
-    val EvElemEnd(null, "foo") = ev
+    ev match { case EvElemEnd(null, "foo") => /* ok */ }
     assertFalse(reader.hasNext)
   }
 }

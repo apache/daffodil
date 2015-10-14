@@ -5,11 +5,11 @@ package edu.illinois.ncsa.daffodil.util
  * can reserve a value to represent Nope.
  */
 final case class MaybeInt private (__v: Long) extends AnyVal {
-  @inline def get: Int = if (isDefined) __v.toInt else noneGet
-  @inline def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
+  @inline final def get: Int = if (isDefined) __v.toInt else noneGet
+  @inline final def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __v != MaybeInt.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __v != MaybeInt.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "MaybeInt(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -22,17 +22,17 @@ final case class MaybeInt private (__v: Long) extends AnyVal {
 object MaybeInt {
   private val undefValue = Long.MaxValue
 
-  @inline def apply(v: Int) = new MaybeInt(v)
+  @inline final def apply(v: Int) = new MaybeInt(v)
 
   val Nope = new MaybeInt(undefValue)
 }
 
 final case class MaybeChar private (__v: Int) extends AnyVal {
-  @inline def get: Char = if (isDefined) __v.toChar else noneGet
-  @inline def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
+  @inline final def get: Char = if (isDefined) __v.toChar else noneGet
+  @inline final def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __v != MaybeChar.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __v != MaybeChar.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "MaybeChar(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -45,17 +45,17 @@ final case class MaybeChar private (__v: Int) extends AnyVal {
 object MaybeChar {
   private val undefValue = -1
 
-  @inline def apply(v: Char) = new MaybeChar(v)
+  @inline final def apply(v: Char) = new MaybeChar(v)
 
   val Nope = new MaybeChar(undefValue)
 }
 
 final case class MaybeBoolean private (__v: Int) extends AnyVal {
-  @inline def get: Boolean = if (isEmpty) noneGet else __v == 1
-  @inline def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
+  @inline final def get: Boolean = if (isEmpty) noneGet else __v == 1
+  @inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __v != MaybeBoolean.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __v != MaybeBoolean.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "MaybeBoolean(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -68,7 +68,7 @@ final case class MaybeBoolean private (__v: Int) extends AnyVal {
 object MaybeBoolean {
   private val undefValue = -1
 
-  @inline def apply(v: Boolean) = new MaybeBoolean(if (v) 1 else 0)
+  @inline final def apply(v: Boolean) = new MaybeBoolean(if (v) 1 else 0)
 
   val Nope = new MaybeBoolean(undefValue)
 }

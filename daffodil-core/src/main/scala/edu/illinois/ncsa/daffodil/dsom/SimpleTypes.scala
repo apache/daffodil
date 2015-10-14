@@ -163,8 +163,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   }
 
   final lazy val combinedBaseFacets: Seq[FacetValue] = {
-    val localF = localBaseFacets
-    val remoteF = remoteBaseFacets
+//    val localF = localBaseFacets
+//    val remoteF = remoteBaseFacets
 
     val combined: Queue[FacetValue] = Queue.empty
 
@@ -258,6 +258,7 @@ final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   lazy val baseType = {
     val res = if (baseName == "") None
     else notYetImplemented("local simpleType with base attribute.") // should go find the global simple type here
+    res
   }
 
 }

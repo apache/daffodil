@@ -31,15 +31,11 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
@@ -121,7 +117,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
     (separatedContentAtMostNWithoutTrailingEmpties // FIXME: We don't know whether we can absorb trailing separators or not here.
     // We don't know if this repeating thing is in trailing position, or in the middle
     // of a sequence. There is also ambiguity if the enclosing sequence and this sequence
-    // have the same separator. 
+    // have the same separator.
     //      ~
     //      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
     )
@@ -156,7 +152,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   }
 
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
-  // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals. 
+  // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals.
 
   private val UNB = -1 // UNBOUNDED
   private val ZERO = 0 // ZERO
@@ -190,7 +186,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
       case (Fixed_____, min_, max) if (min_ != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min_, max)
       case (Fixed_____, ____, max) => separatedContentExactlyN(max)
       case (Implicit__, ZERO, UNB) => contentUnbounded // same as parsed
-      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
+      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs
       case (Implicit__, ____, __2) => separatedContentAtMostN // uses min and maxOccurs
       case (Parsed____, ____, __2) => contentUnbounded
       case (StopValue_, ____, __2) => contentUnbounded
@@ -216,7 +212,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
       case (Trailing___, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (Trailing___, Implicit__, UNB, min) => separatedContentWithMinUnbounded
       case (Trailing___, Implicit__, max, min) if min > 0 => separatedContentWithMinAndMax
-      case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
+      case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position
       case (TrailingStr, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (TrailingStr, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
@@ -229,4 +225,3 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
     res
   }
 }
-

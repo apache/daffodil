@@ -1,9 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import org.junit.Test
-import scala.collection.mutable.ArrayStack
-import Maybe._
-
 /**
  * Compare MStack performance to ArrayStack. It should be faster for primitives
  */

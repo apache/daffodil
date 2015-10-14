@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -146,7 +146,9 @@ class TestXMLUtils {
 
   @Test def testWalkUnicodeString2() {
     val s = ""
-    val Seq() = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+    XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n)) match {
+      case Seq() => // ok
+    }
   }
 
   @Test def testRemoveAttributes1() {
@@ -183,11 +185,11 @@ class TestXMLUtils {
   @Test def testScalaLiteralXMLCoalesceText() {
     val xml = <foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>
     assertEquals(5, xml.child.length)
-    assertTrue(xml.child(0).isInstanceOf[Text] )
-    assertTrue(xml.child(1).isInstanceOf[PCData] )
-    assertTrue(xml.child(2).isInstanceOf[Text] )
-    assertTrue(xml.child(3).isInstanceOf[Text] )
-    assertTrue(xml.child(4).isInstanceOf[Text] )
+    assertTrue(xml.child(0).isInstanceOf[Text])
+    assertTrue(xml.child(1).isInstanceOf[PCData])
+    assertTrue(xml.child(2).isInstanceOf[Text])
+    assertTrue(xml.child(3).isInstanceOf[Text])
+    assertTrue(xml.child(4).isInstanceOf[Text])
 
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
     assertEquals(3, res.length)
@@ -210,10 +212,10 @@ class TestXMLUtils {
     // and literal XML in scala program text, converts
     // PCData to Text nodes (removing the bracket glop)
     //
-    // We use this in the TDML runner because we can 
+    // We use this in the TDML runner because we can
     // preserve whitespace robustly inside CDATA bracketing.
     // Other ways of loading XML all treat whitespace as
-    // somewhat fungible. 
+    // somewhat fungible.
     //
     val parser = ConstructingParser.fromSource(
       scala.io.Source.fromString(xmlRaw), true)
@@ -237,7 +239,7 @@ class TestXMLUtils {
     println(xml.text)
     println(xml.toString)
     //
-    // Scala's scala.xml.XML.loaders do a good job 
+    // Scala's scala.xml.XML.loaders do a good job
     // coalescing adjacent Texts (of all Atom kinds)
     //
     assertEquals(1, xml.child.length)
@@ -252,7 +254,7 @@ class TestXMLUtils {
     import scala.xml.parsing.ConstructingParser
     //
     //see testConstructingParserCoalesceText
-    //for a relevant comment about this use of the 
+    //for a relevant comment about this use of the
     //Constructing parser.
     //
     val parser = ConstructingParser.fromSource(

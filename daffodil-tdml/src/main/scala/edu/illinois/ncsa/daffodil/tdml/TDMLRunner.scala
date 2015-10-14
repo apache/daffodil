@@ -134,7 +134,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false)
-    extends Logging with HasSetDebugger {
+  extends Logging with HasSetDebugger {
 
   System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -177,7 +177,6 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
    * our loader here accumulates load-time errors here on the
    * test suite object.
    */
-  private val augmentExistingLocationInfo = true
   val loader = new DaffodilXMLLoader(errorHandler)
   loader.setValidation(validateTDMLFile)
 
@@ -191,7 +190,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
       tmpDir.mkdirs()
 
       val src = new UnitTestSchemaSource(tsNode, "", Some(tmpDir))
-      val origNode = loader.load(src)
+      loader.load(src)
       //
       (tsNode, src.uriForLoading)
     }
@@ -267,7 +266,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
       val nBytes = runOneTestWithDataVolumes(testName, schema)
       bytesProcessed = nBytes
     })
-    val takeonsThisRun = ns / Tak.takeons
+    // val takeonsThisRun = ns / Tak.takeons
     val bpns = ((bytesProcessed * 1.0) / ns)
     val kbps = bpns * 1000000
     val callsPerByte = 1 / (Tak.takeons * bpns)
@@ -278,8 +277,6 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler)
 
   final var optDebugger: Option[Debugger] = None
-
-  private def areTracing: Boolean = optDebugger.isDefined
 
   def trace = {
     setDebugging(true)
@@ -371,7 +368,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 }
 
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
-    extends Logging {
+  extends Logging {
 
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
@@ -549,7 +546,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-    extends TestCase(ptc, parentArg) {
+  extends TestCase(ptc, parentArg) {
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
@@ -703,7 +700,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        val uActual = processor.unparse(output, actual.result)
+        // val uActual =
+        processor.unparse(output, actual.result)
         output.close()
 
         try {
@@ -726,7 +724,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-    extends TestCase(ptc, parentArg) {
+  extends TestCase(ptc, parentArg) {
 
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
@@ -1346,7 +1344,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     Assert.invariant(coderResult == CoderResult.UNDERFLOW)
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
-    val bitsAsString = bytes2Bits(res.toArray)
+    // val bitsAsString = bytes2Bits(res.toArray)
     val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoderDecoder]
     val nBits = s.length * enc.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
@@ -1362,8 +1360,8 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     Assert.invariant(coderResult == CoderResult.UNDERFLOW)
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
-    val bitsAsString = bytes2Bits(res.toArray)
-    val nBits = bb.limit() * 8
+    // val bitsAsString = bytes2Bits(res.toArray)
+    // val nBits = bb.limit() * 8
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     bitStrings
   }
@@ -1457,7 +1455,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
  * Base class for all document parts that contain data directly expressed in the XML
  */
 sealed abstract class DataDocumentPart(part: Node, parent: Document)
-    extends DocumentPart(part, parent) {
+  extends DocumentPart(part, parent) {
 
   def dataBits: Seq[String]
 
@@ -1596,21 +1594,21 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 }
 
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
 }
 
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
 
 }
 
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
@@ -1673,7 +1671,7 @@ object UTF8Encoder {
       val h = leadingSurrogate.toInt // aka 'h for high surrogate'
       val l = trailingSurrogate.toInt // aka 'l for low surrogate'
       val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
-      val byte1 = (cp >> 24) & 0xFF
+      // val byte1 = (cp >> 24) & 0xFF
       val byte2 = (cp >> 16) & 0xFF
       val byte3 = (cp >> 8) & 0xFF
       val byte4 = cp & 0xFF

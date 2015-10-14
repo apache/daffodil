@@ -1,11 +1,9 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.processors.charset._
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.PreSerialization
@@ -19,7 +17,7 @@ abstract class AssertPatternParserBase(
   rd: TermRuntimeData,
   testPattern: String,
   message: String)
-    extends PrimParser(rd) {
+  extends PrimParser(rd) {
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -57,7 +55,7 @@ class AssertPatternParser(
   rd: TermRuntimeData,
   testPattern: String,
   message: String)
-    extends AssertPatternParserBase(eName, kindString, rd, testPattern, message) {
+  extends AssertPatternParserBase(eName, kindString, rd, testPattern, message) {
 
   def afterParse(start: PState, isMatch: Boolean, matcher: Matcher) {
     if (isMatch) {
@@ -76,7 +74,7 @@ class DiscriminatorPatternParser(
   kindString: String,
   rd: TermRuntimeData,
   message: String)
-    extends AssertPatternParserBase(eName, kindString, rd, testPattern, message) {
+  extends AssertPatternParserBase(eName, kindString, rd, testPattern, message) {
 
   def afterParse(start: PState, isMatch: Boolean, matcher: Matcher) {
     if (isMatch) {

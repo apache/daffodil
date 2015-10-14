@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.section07.external_variables
 
-import edu.illinois.ncsa.daffodil.xml._
-import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._

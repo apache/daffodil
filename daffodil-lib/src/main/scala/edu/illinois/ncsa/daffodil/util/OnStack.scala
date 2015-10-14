@@ -36,12 +36,18 @@ import scala.collection.mutable
 import java.util.regex.Matcher
 
 sealed abstract class LocalStackBase[T](
-  constructorFunc: => T,
-  optionalResetFunc: (T => Unit)) {
+    constructorFunc: => T,
+    optionalResetFunc: (T => Unit)) {
 
   protected def stack: mutable.ArrayStack[T]
 
-  def apply[R](body: T => R): R = {
+  /**
+   * This must be inlined to achieve what we're trying to achieve with OnStack/LocalStack.
+   * If not inlined, then this will cause a closure to get allocated corresponding to the passed
+   * function. The whole point of this is NOT to allocate objects. I.e., one uses OnStack to avoid
+   * allocation of "little crud objects".
+   */
+  @inline final def apply[R](body: T => R): R = {
     val thing =
       if (stack.isEmpty) constructorFunc
       else stack.pop()
@@ -63,8 +69,8 @@ sealed abstract class LocalStackBase[T](
  * (which the DFDL compiler IS most definitely)
  */
 class OnStack[T](
-  constructorFunc: => T,
-  optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+    constructorFunc: => T,
+    optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
 
   /**
    * Can specify just the allocator, or you can
@@ -97,8 +103,8 @@ class OnStack[T](
  * what you want to do with the local object.
  */
 class LocalStack[T](
-  constructorFunc: => T,
-  optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+    constructorFunc: => T,
+    optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
 
   /**
    * Can specify just the allocator, or you can
@@ -129,7 +135,7 @@ private[util] object An_example_of_OnStack_use {
 
   def foo(str: String) {
     withMatcher { m =>
-      // 
+      //
       // we reset it here in our own code
       // because in case of a matcher, the reset needs an argument
       //

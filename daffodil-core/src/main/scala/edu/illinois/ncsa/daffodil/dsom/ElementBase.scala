@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,8 +42,6 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.dsom.Facet._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
@@ -269,7 +267,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           // Note: no remapping PUA chars or otherwise messing with the text of the default value
           // because this must be a regular XSD default value so that Xerces validation
           // will work.
-          // 
+          //
           val str = defaultValueAsString
           val value = Infoset.convertToInfosetRepType(
             primType,
@@ -279,8 +277,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       Some(dv)
     } else None
   }
-
-  private lazy val isRequiredNonDefaultable: Boolean = !isDefaultable
 
   /**
    * There is a subtle distinction between the NextElementResolver and an InfosetAugmenter.
@@ -339,11 +335,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val ee = enclosingElement
     //
-    // Must be lazy below, because we are defining the elementRuntimeData in terms of 
-    // the elementRuntimeData of its enclosing element. This backpointer must be 
-    // constructed lazily so that we first connect up all the erds to their children, 
+    // Must be lazy below, because we are defining the elementRuntimeData in terms of
+    // the elementRuntimeData of its enclosing element. This backpointer must be
+    // constructed lazily so that we first connect up all the erds to their children,
     // and only subsequently ask for these parents to be elaborated.
-    // 
+    //
     lazy val optERD = ee.map { enc =>
       Assert.invariant(this != enc)
       enc.elementRuntimeData
@@ -351,7 +347,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     createElementRuntimeData(optERD)
   }.value
 
-  def erd = elementRuntimeData // just an abbreviation 
+  def erd = elementRuntimeData // just an abbreviation
 
   /**
    * Everything needed at runtime about the element
@@ -362,7 +358,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
     //
     // I got sick of initialization time problems, so this mutual recursion
-    // defines the tree of ERDs. 
+    // defines the tree of ERDs.
     //
     // This works because of deferred arguments and lazy evaluation
     //
@@ -654,7 +650,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   final lazy val fixedLength = {
-    if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
+    if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength
   }
 
   /**
@@ -705,18 +701,18 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     ((isDefinedNilLit && (hasNilValueInitiator || hasNilValueTerminator)) ||
       (isDefinedNilLit && !hasESNilValue) ||
       (isDefinedNilValue && (hasInitiator || hasTerminator)) ||
-      // below is the case of string or hexbinary and nilKind logicalValue. A logical value of ES can 
-      // cause a nil value to be created. 
+      // below is the case of string or hexbinary and nilKind logicalValue. A logical value of ES can
+      // cause a nil value to be created.
       (isDefinedNilValue && (isSimpleType && (simpleType.primitiveType =:= PrimType.String || simpleType.primitiveType =:= PrimType.HexBinary) && !hasESNilValue)))
 
   final lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
   final lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
-  // See how this function takes the prop: => Any that is pass by name (aka lazy pass). 
+  // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
   // That allows us to not require the property to exist at all if
-  // expr.isKnownNotEmpty turns out to be false. 
+  // expr.isKnownNotEmpty turns out to be false.
   private def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
-    // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for 
+    // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
     // prop's value at all unless the first test is true.
     if (expr.isKnownNonEmpty)
       if (prop == true1 || prop == true2) true
@@ -765,7 +761,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   //    // or another way to think of it is
   //    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
   //    // last member. Plus any inscope terminating markup from what it is encapsulated in.
-  //    // 
+  //    //
   //    // an element has its terminator
   //    //
   //    // Note: if we are potentially the last item (not required, but no downstream required siblings)
@@ -874,7 +870,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * and case dispatch that would otherwise have to be repeated.
    */
   final lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) = computeMinMaxLength
-  // TODO: why are we using java.math.BigDecimal, when scala has a much 
+  // TODO: why are we using java.math.BigDecimal, when scala has a much
   // nicer decimal class?
   private val zeroBD = new java.math.BigDecimal(0)
   private val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
@@ -888,8 +884,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           prim.name)
         //
         // We handle text numbers by getting a stringValue first, then
-        // we convert to the number type. 
-        // 
+        // we convert to the number type.
+        //
         // This means we cannot check and SDE here on incorrect simple type.
         return (zeroBD, unbBD)
       }
@@ -929,8 +925,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   // TODO: see code above that computes minLength, maxLength
   // simultaneously to avoid redundant check code.
-  // 
-  // Same thing applies to the other paired facets where there is lots of 
+  //
+  // Same thing applies to the other paired facets where there is lots of
   // common logic associated with checking.
   private lazy val minInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
@@ -1035,12 +1031,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  private lazy val allFacets: Seq[FacetValue] = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.combinedBaseFacets
-    } else scala.collection.mutable.Seq.empty
-  }
+  //  private lazy val allFacets: Seq[FacetValue] = {
+  //    if (isSimpleType && !isPrimType) {
+  //      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+  //      st.combinedBaseFacets
+  //    } else scala.collection.mutable.Seq.empty
+  //  }
 
   /**
    * Does the element have a default value?

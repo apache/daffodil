@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -38,11 +38,9 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
@@ -60,14 +58,11 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DState
-import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import java.io.StringReader
 import org.apache.commons.io.input.ReaderInputStream
-import edu.illinois.ncsa.daffodil.events.EventHandler
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.Charset
 import scala.collection.mutable
@@ -256,14 +251,14 @@ abstract class ParseOrUnparseState(
   final def bitLimit1b = if (bitLimit0b.isDefined) MaybeULong(bitLimit0b.get + 1) else MaybeULong.Nope
   final def whichBit0b = bitPos0b % 8
 
-  // TODO: many off-by-one errors due to not keeping strong separation of 
+  // TODO: many off-by-one errors due to not keeping strong separation of
   // one-based and zero-based indexes.
-  // 
+  //
   // We could separate these with the type system.
   //
   // So implement a OneBasedBitPos and ZeroBasedBitPos value class with
   // operations that convert between them, allow adding & subtracting only
-  // in sensible ways, etc. 
+  // in sensible ways, etc.
   final def bitPos = bitPos0b
   final def bytePos = bytePos0b
   // def charPos: Long
@@ -358,7 +353,7 @@ final class PState private (
 
   override def dataStream: DataStreamCommon = dataInputStream
 
-  def withDelimitedText(foundText: String, originalRepresentation: String) {
+  def saveDelimitedText(foundText: String, originalRepresentation: String) {
     // threadCheck()
     val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation) // TODO: Performance - allocates every time
     this.foundDelimiter = One(newDelimiter)
@@ -441,13 +436,13 @@ final class PState private (
     this.variableMap = variableMap.setVariable(varQName, newValue, referringContext)
   }
 
-  def withValidationError(msg: String, args: Any*) {
+  def reportValidationError(msg: String, args: Any*) {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
     diagnostics = vde :: diagnostics
   }
 
-  def withValidationErrorNoContext(msg: String, args: Any*) {
+  def reportValidationErrorNoContext(msg: String, args: Any*) {
     val vde = new ValidationError(None, this, msg, args: _*)
     diagnostics = vde :: diagnostics
   }
@@ -620,4 +615,3 @@ object PState {
   }
 
 }
-

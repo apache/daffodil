@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,23 +32,14 @@
 
 package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
-import junit.framework.Assert._
 import org.junit._
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
 
-  // I'm not sure these belong in section23, but there is no section of the spec that 
+  // I'm not sure these belong in section23, but there is no section of the spec that
   // is about all these properties together, yet, since there is common mechanism here
   // I really think their tests should not be scattered all over to the sections where each
   // property is defined.
@@ -215,7 +206,7 @@ class TestDFDLExpressions {
   @Test def test_expressionRules06() { runner.runOneTest("expressionRules06") }
 
   // uses lengthUnits bytes with utf-8 and lengthKind Explicit
-  // @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") } 
+  // @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
 
   @Test def test_lke1_rel() { runner.runOneTest("lke1_rel") }
   @Test def test_lke1_abs() { runner.runOneTest("lke1_abs") }
@@ -282,7 +273,7 @@ class TestDFDLExpressions {
   @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
 
   // Test removed including TDML for it. DPath no longer will even execution expressions that have
-  // type errors, and type errors at runtime cause SDE so you can't if-then-else them into 
+  // type errors, and type errors at runtime cause SDE so you can't if-then-else them into
   // some usable thing.
   // @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
   @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
@@ -561,7 +552,7 @@ class TestDFDLExpressions {
   @Test def test_lowercase_04() { runner2_utf8.runOneTest("lowercase_04") }
   @Test def test_uppercase_04() { runner2_utf8.runOneTest("uppercase_04") }
   @Test def test_uppercase_05() { runner2_utf8.runOneTest("uppercase_05") }
-  //DFDL-1078 - fails on build server 
+  //DFDL-1078 - fails on build server
   //@Test def test_lowercase_05() { runner2_utf8.runOneTest("lowercase_05") }
 
   @Test def test_contains_01() { runner2.runOneTest("contains_01") }

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,13 +46,11 @@ import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerBase
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
@@ -240,7 +238,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   }
 
   override def afterRepetition(after: PState, processor: Parser) {
-    val (before, beforeParser) = parseStack.pop
+    val (_, beforeParser) = parseStack.pop
     Assert.invariant(beforeParser eq processor)
     // debugStep(before.get, after, processor, false)
   }
@@ -288,7 +286,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
   private def evaluateBooleanExpression(expression: String, state: ParseOrUnparseState, processor: Processor): Boolean = {
     val context = state.getContext()
-    val namespaces = context.namespaces
     try {
       val compiledExpr = try {
         eCompiler.compile(
@@ -917,7 +914,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       override lazy val short = "ev"
       val longDesc = """|Usage: ev[al] <dfdl_expression>
                         |
-                        |Evaluate a DFDL expression. 
+                        |Evaluate a DFDL expression.
                         |
                         |Example: eval dfdl:occursIndex()""".stripMargin
 
@@ -942,7 +939,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         // this adjustment is so that automatic display of ".." doesn't fail
         // for the root element.
         val adjustedExpression =
-          if (!element.parent.isDefined && (expression == "..")) "."
+          if ((element.parent eq null) && (expression == "..")) "."
           else expression
         val context = state.getContext()
         val namespaces = context.namespaces
@@ -1194,7 +1191,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         val longDesc = desc
 
         def printData(rep: Option[Representation], l: Int, prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor) {
-          val length = if (l <= 0) Int.MaxValue - 1 else l
+          // val length = if (l <= 0) Int.MaxValue - 1 else l
           val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
           val lines = dataLoc.dump(rep, prestate.currentLocation, state)
           debugPrintln(lines, "  ")
@@ -1330,8 +1327,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
               var tmpNode = currentNode.asInstanceOf[DIElement]
               var parent = tmpNode.diParent
-              while (parent.isDefined) {
-                tmpNode = parent.get
+              while (parent ne null) {
+                tmpNode = parent
                 parent = tmpNode.diParent
               }
               tmpNode

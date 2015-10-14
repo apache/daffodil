@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -260,7 +260,6 @@ final class SchemaSet(
         val onlyObj = seq.map { case (ns, name, kind, obj) => obj }
         if (onlyObj.length > 1) {
           val (ns, name, kind) = idFields
-          val obj = onlyObj.head
           val locations = onlyObj.asInstanceOf[Seq[LookupLocation]] // don't like this downcast
           SDEButContinue("multiple definitions for %s  {%s}%s.\n%s", kind.toString, ns, name,
             locations.map { _.locationDescription }.mkString("\n"))
@@ -325,13 +324,6 @@ final class SchemaSet(
   }
 
   /**
-   * Cache of whatever the rootElem decision was
-   */
-  private var rootElemOpt: Option[GlobalElementDecl] = None
-
-  private var rootSpecFromPF: Option[RootSpec] = None
-
-  /**
    * Since the root element can be specified by an API call on the
    * Compiler class, or by an API call on the ProcessorFactory, this
    * method reconciles the two. E.g., you can't specify the root both
@@ -342,7 +334,6 @@ final class SchemaSet(
    * to use as the root.
    */
   def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): GlobalElementDecl = {
-    rootSpecFromPF = rootSpecFromProcessorFactory
     val rootSpecFromCompiler = rootSpec
     val re =
       (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
@@ -368,7 +359,6 @@ final class SchemaSet(
         }
         case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
-    rootElemOpt = Some(re)
     re
   }
 
@@ -458,14 +448,14 @@ final class SchemaSet(
     // OOLAG no longer catches broad classes of exceptions like index out of bounds
     //
     // This avoids OOLAG masking what are coding errors and disguising them as some sort of
-    // error in the DFDL schema; however, it also requires that attributes that are 
+    // error in the DFDL schema; however, it also requires that attributes that are
     // evaluated to determine if there is an error in an object (and to force gathering of diagnostics)
     // cannot assume that other data structures are correct.
     //
     // In this case, if the schema document isn't valid, then there won't even be
     // any schemas or schemaDocuments, so we'll index-out-of-bounds, and OOLAG
-    // won't suppress that. So we code defensively. 
-    // 
+    // won't suppress that. So we code defensively.
+    //
     assuming(schemas.length > 0)
     assuming(schemas(0).schemaDocuments.length > 0)
     this.schemas(0).schemaDocuments(0)
@@ -494,7 +484,7 @@ final class SchemaSet(
    * @return A list of external variables updated with any found namespaces.
    */
   private def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
-    var finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
+    val finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
 
     val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)
 

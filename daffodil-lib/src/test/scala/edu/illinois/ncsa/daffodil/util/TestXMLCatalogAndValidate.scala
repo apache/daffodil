@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -94,7 +94,7 @@ class TestXMLCatalogAndValidate {
 
   // In this test, the schema says the data must be an int.
   // The data is 'abc' so this should fail to validate.
-  // But that will only happen if we in fact are resolving the URN for example 
+  // But that will only happen if we in fact are resolving the URN for example
   // to a file that it is able to load.
   //
   def tempFileName(suffix: String): File = {
@@ -142,7 +142,7 @@ class TestXMLCatalogAndValidate {
       }
 
       val loader = XMLLoaderFactory()
-      val elem = loader.loadFile(tmpDataFileName) // that should validate it.
+      loader.loadFile(tmpDataFileName) // that should validate it.
       val excs = loader.exceptionList
 
       val hasErroneousData = excs.exists { _.getMessage().contains("abc") }
@@ -214,7 +214,7 @@ class TestXMLCatalogAndValidate {
       }
 
       val loader = XMLLoaderFactory()
-      val elem = loader.loadFile(tmpDataFileName) // that should validate it.
+      loader.loadFile(tmpDataFileName) // that should validate it.
       val excs = loader.exceptionList
 
       val hasErroneousData = excs.exists { _.getMessage().contains("abc") }
@@ -257,7 +257,7 @@ class TestXMLCatalogAndValidate {
       }
 
       val loader = XMLLoaderFactory()
-      val elem = loader.loadFile(tmpDataFileName) // that should validate it.
+      loader.loadFile(tmpDataFileName) // that should validate it.
       val excs = loader.exceptionList
 
       val hasErroneousData = excs.exists { _.getMessage().contains("foobar") }
@@ -287,7 +287,8 @@ class TestXMLCatalogAndValidate {
       }
 
       val loader = XMLLoaderFactory()
-      val elem = loader.loadFile(tmpDataFileName) // that should validate it.
+      // val elem =
+      loader.loadFile(tmpDataFileName) // that should validate it.
       val excs = loader.exceptionList
       // println("Element = " + elem)
       // println("Exception List = " + excs)
@@ -319,7 +320,7 @@ object XMLLoaderFactory {
 // From http://stackoverflow.com/questions/1627111/how-does-one-validate-the-schema-of-an-xml-file-using-scala
 
 class SchemaAwareFactoryAdapter()
-  extends NoBindingFactoryAdapter {
+    extends NoBindingFactoryAdapter {
 
   var fileName: String = ""
 
@@ -373,7 +374,7 @@ class SchemaAwareFactoryAdapter()
     val alreadyHasFile = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
 
     // If there is already a _line_ attribute, then we're reloading something
-    // that was probably converted back into a string and written out. 
+    // that was probably converted back into a string and written out.
     // The original line numbers are therefore the ones wanted, not any new
     // line numbers, so we don't displace any line numbers that already existed.
 
@@ -486,10 +487,10 @@ class SchemaAwareFactoryAdapter()
  * uris/urns to files.
  */
 class MyResolver()
-  extends org.apache.xerces.xni.parser.XMLEntityResolver
-  with org.w3c.dom.ls.LSResourceResolver
-  with org.xml.sax.EntityResolver
-  with org.xml.sax.ext.EntityResolver2 {
+    extends org.apache.xerces.xni.parser.XMLEntityResolver
+    with org.w3c.dom.ls.LSResourceResolver
+    with org.xml.sax.EntityResolver
+    with org.xml.sax.ext.EntityResolver2 {
   val cm = new CatalogManager()
   val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
   // println("catalog files: " + catFiles)

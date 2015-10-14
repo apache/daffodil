@@ -48,7 +48,7 @@ class DataDumper {
   protected sealed trait RTL extends Direction // used with least-signif-bit first data like mil-std-2045
   protected sealed trait LTR extends Direction
   // case object HexLTR extends HexKind with LTR
-  // case object BitsLTR extends BitsKind with LTR 
+  // case object BitsLTR extends BitsKind with LTR
   // case object HexRTL extends HexKind with RTL
   case class TextOnly(override val optCharset: Option[String] = None) extends TextKind(optCharset)
   case class MixedHexLTR(override val optCharset: Option[String] = None) extends TextKind(optCharset) with HexKind with LTR
@@ -98,7 +98,7 @@ class DataDumper {
   def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteSource: ByteSource, maxLineLength: Int = defaultMaxLineLength,
     includeHeadingLine: Boolean = true,
     indicatorInfo: Option[(Long, Int)] = None): Seq[String] = {
-    val (shamStartByteAddress0b, lengthInBytes, endByteAddress0b) = convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
+    val (shamStartByteAddress0b, lengthInBytes, _) = convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
     val indicatorInfoInBytes = indicatorInfo.map {
       case (indStartBits0b, indLenBits) =>
         val (indStartByteAddress0b, indLengthInBytes, _) = convertBitsToBytesUnits(indStartBits0b, indLenBits)
@@ -121,7 +121,7 @@ class DataDumper {
   }
 
   //
-  // These vars are used by the txt dump when the multiple bytes of a 
+  // These vars are used by the txt dump when the multiple bytes of a
   // character wrap from one line to the next.
   //
   var paddingFromPriorLine = ""
@@ -162,7 +162,7 @@ class DataDumper {
         }
       paddingFromPriorLine = padByteRep * 2 * nBytesPastEnd
       nPadBytesFromPriorLine = nBytesPastEnd
-      // 
+      //
       // Adjust padding downward if the character is double wide.
       //
       val padding = padByteRep * ((nBytesConsumed, width) match {
@@ -237,14 +237,14 @@ class DataDumper {
     var limit0b = 15 // except for last row it will be shortened. Inclusive limit.
 
     //
-    // These vars are used by the txt dump when the multiple bytes of a 
+    // These vars are used by the txt dump when the multiple bytes of a
     // character wrap from one line to the next.
     //
     paddingFromPriorLine = ""
     nPadBytesFromPriorLine = 0
 
     firstLeftAddress to lastLeftAddress by 16 foreach {
-      // 
+      //
       // for each line/row, we assemble the address part, the hex part, and the text part
       //
       addr =>
@@ -310,14 +310,14 @@ class DataDumper {
   }
 
   // indicators over these dumps are of maximum length 16 bytes.
-  // 
+  //
   // like this:
   //    ├─────────────────────────────────────═  ├──────────────═
   //    0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
-  // or 
+  // or
   //    ├─────────────────────────────────────┤  ├──────────────┤
   //    0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
-  // 
+  //
   // but they can also be shorter than 16 bytes if the region starts further
   // in from the left.
   //
@@ -467,10 +467,10 @@ class DataDumper {
           // An overflow means that we got our one character, but there were more bytes available that could
           // be decoded. We're not interested in those.
           //
-          // An underflow means that we got our one character, but the bytes were exactly used up 
+          // An underflow means that we got our one character, but the bytes were exactly used up
           // by constructing that one character.
           //
-          // Either way, we got our one character          
+          // Either way, we got our one character
           // how many bytes did it consume?
           val nConsumedBytes = bb.position
           Assert.invariant(nConsumedBytes > 0)
@@ -531,7 +531,7 @@ class DataDumper {
             val nDashes = (n - 2).toInt
             val closeOrOpenEnd =
               if (lengthInBytesRequested <= maxLineLength) {
-                // the number of characters displayed will be shorter than 
+                // the number of characters displayed will be shorter than
                 // the max width
                 if (indicatorEndLength <= lengthInBytesRequested) "┤" // indicator ends at or before the data
                 else "═" // indicator indicates past the end. This shouldn't really happen.
@@ -549,7 +549,7 @@ class DataDumper {
     }
 
     val endByteAddress0b = math.max(startByteAddress0b + lengthInBytes - 1, 0)
-    val cs = optEncodingName.map { Charset.forName(_) }
+    // val cs = optEncodingName.map { Charset.forName(_) }
     val decoder = getReplacingDecoder(optEncodingName)
     var i = startByteAddress0b
     val sb = new StringBuilder

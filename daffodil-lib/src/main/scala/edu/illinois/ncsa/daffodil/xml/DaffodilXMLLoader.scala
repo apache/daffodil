@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -74,7 +74,6 @@ import java.io.Reader
 import java.io.FileInputStream
 import org.xml.sax.ext.DefaultHandler2
 import javax.xml.transform.sax.SAXSource
-import scala.collection.JavaConversions._
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -115,15 +114,15 @@ class DFDLCatalogResolver private ()
     cm.setIgnoreMissingProperties(true)
     cm.setRelativeCatalogs(true)
     //
-    // Note: don't edit code to turn this on and off. You can 
+    // Note: don't edit code to turn this on and off. You can
     // create CatalogManager.properties file (don't commit/push it tho)
     // and put one line in it 'verbosity=4' and it will do the same
     // as this next line.
     // cm.setVerbosity(4)
     //
     // The user might specify catalogs using the CatalogManager.properties
-    // file. So to insure that our catalog "wins" any conflicts with the user's 
-    // catalogs, we take any user-specified catalogs and explicitly put 
+    // file. So to insure that our catalog "wins" any conflicts with the user's
+    // catalogs, we take any user-specified catalogs and explicitly put
     // our catalog first in the catalog list, and then set it again.
     //
     val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
@@ -232,7 +231,7 @@ class DFDLCatalogResolver private ()
       } else if (resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(systemId)))) {
         resolvedUri
       } else
-        null // We were unable to resolve the file based on the URI or systemID, so we will return null. 
+        null // We were unable to resolve the file based on the URI or systemID, so we will return null.
     }
 
     val result = (resolvedId, systemId) match {
@@ -350,8 +349,8 @@ class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
   with SchemaAwareLoaderMixin
   //
   // We really want a whole XML Stack that is based on SAX2 DefaultHandler2 so that
-  // we can handle CDATA elements right (we need events for them so we can 
-  // create PCData objects from them directly. 
+  // we can handle CDATA elements right (we need events for them so we can
+  // create PCData objects from them directly.
   //
   // The above is the only reason the TDML runner has to use the ConstructingParser
   // instead of calling this loader.
@@ -368,7 +367,7 @@ class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
   override def loadFile(f: File) = load(f.toURI)
 
   // We disallow any of these except ones where we can definitely get an associated
-  // identifier or name from it. 
+  // identifier or name from it.
   private def noWay = Assert.usageError("Operation is not supported. Use load(uri) or loadFile(file)")
   override def loadFile(fd: java.io.FileDescriptor): Node = noWay
   override def loadFile(name: String): Node = loadFile(new File(name))
@@ -377,7 +376,7 @@ class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
   override def load(sysID: String): Node = noWay
 
   //
-  // This is the common routine called by all the load calls to actually 
+  // This is the common routine called by all the load calls to actually
   // carry out the loading of the schema.
   //
   override def loadXML(source: InputSource, p: SAXParser): Node = {
@@ -418,7 +417,7 @@ trait SchemaAwareLoaderMixin {
       f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
       f.setFeature("http://apache.org/xml/features/validation/schema", true)
       f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-      //      f.setValidating(true) // old style API? 
+      //      f.setValidating(true) // old style API?
     }
     val parser = f.newSAXParser()
     val xr = parser.getXMLReader()
@@ -528,7 +527,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
 
   //
   // Controls whether we setup Xerces for validation or not.
-  // 
+  //
   final var doValidation: Boolean = true
 
   def setValidation(flag: Boolean) {
@@ -544,7 +543,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
       xercesNode = xercesAdapter.load(source.newInputSource()) // validates
       if (xercesNode == null) return null
       // Note: we don't call xercesAdapter.validateSchema(source)
-      // here, because this is an XML loader, not necessarily 
+      // here, because this is an XML loader, not necessarily
       // just a DFDL schema loader. So for example the doValidation flag
       // above could be telling us to validate a TDML file or not.
     }

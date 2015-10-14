@@ -2,9 +2,8 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import org.junit.Test
 import org.junit.Assert._
-import scala.xml.pull._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.equality._
 import scala.io.Source
 import edu.illinois.ncsa.daffodil.util.TestUtils
@@ -50,42 +49,42 @@ class TestInfosetSourceFromXMLEventReader2 {
   @Test def testStreamingBehavior1() {
     val count = 100
     val is = infosetUnlimitedSource(count)
-    val e1 @ Start(bar_s: DIComplex) = is.next
-    val e2 @ Start(foo_arr_s: DIArray) = is.next
+    val Start(bar_s: DIComplex) = is.next
+    val Start(foo_arr_s: DIArray) = is.next
     1 to count foreach { i =>
-      val e3 @ Start(foo_1_s: DISimple) = is.next
-      val e4 @ End(foo_1_e: DISimple) = is.next
+      val Start(foo_1_s: DISimple) = is.next
+      val End(foo_1_e: DISimple) = is.next
       assertTrue(foo_1_s eq foo_1_e)
       assertTrue(foo_1_s.dataValue.isInstanceOf[String])
       assertTrue(foo_1_s.dataValueAsString =:= "Hello")
     }
-    val e5 @ End(foo_arr_e: DIArray) = is.next
-    val e6 @ End(bar_e: DIComplex) = is.next
+    val End(foo_arr_e: DIArray) = is.next
+    val End(bar_e: DIComplex) = is.next
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
   }
 
-  // @Test // uncomment to watch storage on jvisualvm to convince self of non-leaking. 
+  // @Test // uncomment to watch storage on jvisualvm to convince self of non-leaking.
   def testStreamingBehavior2() {
     val count = 10000000
     val is = infosetUnlimitedSource(count)
-    val e1 @ Start(bar_s: DIComplex) = is.next
-    val e2 @ Start(foo_arr_s: DIArray) = is.next
+    val Start(bar_s: DIComplex) = is.next
+    val Start(foo_arr_s: DIArray) = is.next
     1 to count foreach { i =>
-      val e3 @ Start(foo_1_s: DISimple) = is.next
-      val e4 @ End(foo_1_e: DISimple) = is.next
+      val Start(foo_1_s: DISimple) = is.next
+      val End(foo_1_e: DISimple) = is.next
       assertTrue(foo_1_s eq foo_1_e)
       assertTrue(foo_1_s.dataValue.isInstanceOf[String])
       assertTrue(foo_1_s.dataValueAsString =:= "Hello")
-      val arr = bar_s.getChildArray(foo_1_s.runtimeData).get
+      val arr = bar_s.getChildArray(foo_1_s.runtimeData)
       if (arr.length % 10000L =#= 0L) {
         println("array length is " + arr.length)
       }
       arr.asInstanceOf[DIArray].children
     }
-    val e5 @ End(foo_arr_e: DIArray) = is.next
-    val e6 @ End(bar_e: DIComplex) = is.next
+    val End(foo_arr_e: DIArray) = is.next
+    val End(bar_e: DIComplex) = is.next
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)

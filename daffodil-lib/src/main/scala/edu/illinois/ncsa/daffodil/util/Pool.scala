@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import scala.reflect.ClassTag
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 

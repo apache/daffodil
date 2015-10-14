@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
@@ -204,7 +203,7 @@ abstract class BinaryNumberBaseParser[T](
     val nBits = getBitLength(start).toInt
     val computedByteOrder = getByteOrder(start)
     val dis = start.dataInputStream
-    // 
+    //
     // The byte order is set now using the ByteOrderChange parser/unparser
     // so we don't need to set this here anymore.
     Assert.invariant(computedByteOrder =:= dis.byteOrder)
@@ -215,7 +214,6 @@ abstract class BinaryNumberBaseParser[T](
       return
     }
     val value = maybeValue.get
-    val newPos = start.bitPos + nBits
     val convertedValue: T = convertValue(value, nBits)
     start.simpleElement.setDataValue(convertedValue)
   }

@@ -32,7 +32,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
 
     val localDelimNode = state.localDelimiters
 
-    val (delimDFAOpt, location) = {
+    val (delimDFAOpt, _ /* location */) = {
       if (delimiterType == DelimiterTextType.Initiator) (localDelimNode.initiator, localDelimNode.initiatorLoc)
       else if (delimiterType == DelimiterTextType.Separator) (localDelimNode.separator, localDelimNode.separatorLoc)
       else (localDelimNode.terminator, localDelimNode.terminatorLoc)

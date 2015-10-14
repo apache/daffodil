@@ -32,19 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section14.sequence_groups
 
-import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.debugger._
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -73,7 +61,7 @@ class TestSequenceGroupsDebug {
 
   //DFDL-284
   @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
-  
+
   //DFDL-598
   @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
 

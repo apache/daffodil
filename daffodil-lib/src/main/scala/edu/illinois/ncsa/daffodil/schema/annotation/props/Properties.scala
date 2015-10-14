@@ -117,7 +117,7 @@ abstract class Enum[A] extends EnumBase {
 
   def toPropName(prop: A) = prop.toString
 
-  private var _values = mutable.ArrayBuffer.empty[Tuple2[String, A]]
+  private val _values = mutable.ArrayBuffer.empty[Tuple2[String, A]]
   def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE): A = {
     var i: Int = 0
     while (i < _values.size) {
@@ -149,10 +149,10 @@ abstract class Enum[A] extends EnumBase {
  *
  */
 trait PropertyMixin
-    extends FindPropertyMixin
-    with ThrowsSDE
-    with SavesErrorsAndWarnings
-    with Logging {
+  extends FindPropertyMixin
+  with ThrowsSDE
+  with SavesErrorsAndWarnings
+  with Logging {
 
   //  /**
   //   * Only for testing purposes

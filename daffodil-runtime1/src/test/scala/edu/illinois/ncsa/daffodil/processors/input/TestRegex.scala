@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -58,7 +58,7 @@ class TestRegex extends RegexParsers {
     //
     // Step 1:
     //	Remove escapeEscapeCharacters preceding escapeBlockEnd
-    val blockStart = "T"
+    // val blockStart = "T"
     val blockEnd = "N"
     val escapeEscape = "E"
     val rRemoveEscape = """(%1$s$)|(%1$s(?=%2$s))""" // Replace escape at end of line OR replace escapeEscape preceding escapeBlockEnd
@@ -92,9 +92,9 @@ class TestRegex extends RegexParsers {
     //	1.	Remove escape characters not preceded by escapeEscape
     //	2.	Remove escapeEscape characters
     val escape = "E"
-    val escapeEscape = "E"
-    val rRemoveSingleEscapes = """(?<!(%s%s)+)%s(?!(%s+))""" // (?<!(EE+))E(?!E+)
-    // used to cleanup escape characters 
+    // val escapeEscape = "E"
+    // val rRemoveSingleEscapes = """(?<!(%s%s)+)%s(?!(%s+))""" // (?<!(EE+))E(?!E+)
+    // used to cleanup escape characters
     val ERSplit = """(.*?)%1$s(.)(.*)""".format(escape).r
 
     def removeActiveEscapes(str: String): String = {
@@ -136,7 +136,7 @@ class TestRegex extends RegexParsers {
     //	2.	Remove escapeEscape characters that precede escapes
     val escape = "E"
     val escapeEscape = "S"
-    val rRemoveEscape = """(%1$s$)|(%1$s(?=%2$s))""" // Replace escape at end of line OR replace escapeEscape preceding escapeBlockEnd
+    // val rRemoveEscape = """(%1$s$)|(%1$s(?=%2$s))""" // Replace escape at end of line OR replace escapeEscape preceding escapeBlockEnd
     //val rRemoveUnescapedEscapes = """((?<!S)E)"""
     val rRemoveUnescapedEscapes = """((?<!%1$s)%2$s)"""
     val removeUnescapedEscapes = rRemoveUnescapedEscapes.format(escapeEscape, escape)
@@ -211,16 +211,16 @@ class TestRegex extends RegexParsers {
     val rBefore = """(.*?)(?=(%1$s+(%2$s))|(%1$s+\z)|(%2$s)|(\z))"""
     val pBefore: Parser[String] = rBefore.format(padChar, delim).r
     val pDelims: Parser[String] = """D""".r ||| """DD""".r
-    val pEOF: Parser[String] = """\z""".r
+    //    val pEOF: Parser[String] = """\z""".r
 
     val paddedContent = pPadChar ~ pBefore ~ pPadChar ^^ { case (lp ~ c ~ rp) => Vector(lp, c, rp) }
     val leftPaddedContent = pPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp, c) }
     val rightPaddedContent = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp) }
 
-    val content = pBefore ~ (pDelims | pEOF) ^^ { case (c ~ d) => (Vector(c), d) }
-    val contentLeft = rightPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
-    val contentRight = leftPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
-    val contentCenter = paddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    //    val content = pBefore ~ (pDelims | pEOF) ^^ { case (c ~ d) => (Vector(c), d) }
+    //    val contentLeft = rightPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    //    val contentRight = leftPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    //    val contentCenter = paddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
 
     val contentDelimReq = pBefore ~ pDelims ^^ { case (c ~ d) => (Vector(c), d) }
     val contentLeftDelimReq = rightPaddedContent ~ pDelims ^^ { case (c ~ d) => (c, d) }
@@ -285,34 +285,34 @@ class TestRegex extends RegexParsers {
     val rBefore = """(.*?)(?=(%4$s+%3$s)|((?<!(?<!%1$s)%2$s)%3$s)|(%4$s*\z))"""
     val pBefore: Parser[String] = rBefore.format(escapeEscape, escape, delim, padChar).r
 
-    val rBeforeIgnoreTrailingPadding = """(.*?)(?=(?:(?<!(?<!%1$s)%2$s)%3$s)|\z)"""
-    val pBeforeIgnoreTrailingPadding: Parser[String] = rBeforeIgnoreTrailingPadding.format(escapeEscape, escape, delim).r
-
+    //    val rBeforeIgnoreTrailingPadding = """(.*?)(?=(?:(?<!(?<!%1$s)%2$s)%3$s)|\z)"""
+    //    val pBeforeIgnoreTrailingPadding: Parser[String] = rBeforeIgnoreTrailingPadding.format(escapeEscape, escape, delim).r
+    //
     val pDelims: Parser[String] = """D""".r ||| """DD""".r
     val pEscape: Parser[String] = """E""".r
     val pEscapeEscape: Parser[String] = """S""".r
-    val pEscapedEscape = pEscapeEscape ~ pEscape
+    //        val pEscapedEscape = pEscapeEscape ~ pEscape
     val pUnescapedDelims = ((pEscapeEscape ~ pEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | (pEscapeEscape ~> pDelims) | pDelims
-
-    // Here ^^ { case(b ~ d) => (b -> d) } changes the output of a successful parse to a Tuple2 of String (before, delimiter)
+    //
+    //    // Here ^^ { case(b ~ d) => (b -> d) } changes the output of a successful parse to a Tuple2 of String (before, delimiter)
     val paddedContent: Parser[Vector[String]] = pLeftPadChar ~ pBefore ~ pPadChar ^^ { case (lp ~ c ~ rp) => Vector(lp, c, rp) }
-    val leftPaddedContent: Parser[Vector[String]] = pLeftPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp, c) }
-    val rightPaddedContent: Parser[Vector[String]] = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp) }
+    //    val leftPaddedContent: Parser[Vector[String]] = pLeftPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp, c) }
+    //    val rightPaddedContent: Parser[Vector[String]] = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp) }
 
-    val content: Parser[(Vector[String], String)] = (pBeforeIgnoreTrailingPadding ~ (pUnescapedDelims | pEOF)) ^^ { case (b ~ d) => (Vector(b) -> d) }
+    //    val content: Parser[(Vector[String], String)] = (pBeforeIgnoreTrailingPadding ~ (pUnescapedDelims | pEOF)) ^^ { case (b ~ d) => (Vector(b) -> d) }
     val contentCenter: Parser[(Vector[String], String)] = paddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
-    val contentLeft: Parser[(Vector[String], String)] = rightPaddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
-    val contentRight: Parser[(Vector[String], String)] = leftPaddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
-
-    val contentDelimReq: Parser[(Vector[String], String)] = pBeforeIgnoreTrailingPadding ~ pUnescapedDelims ^^ { case (b ~ d) => (Vector(b) -> d) }
-    val contentCenterDelimReq: Parser[(Vector[String], String)] = paddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
-    val contentLeftDelimReq: Parser[(Vector[String], String)] = rightPaddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
-    val contentRightDelimReq: Parser[(Vector[String], String)] = leftPaddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
+    //    val contentLeft: Parser[(Vector[String], String)] = rightPaddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    //    val contentRight: Parser[(Vector[String], String)] = leftPaddedContent ~ (pUnescapedDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    //
+    //    val contentDelimReq: Parser[(Vector[String], String)] = pBeforeIgnoreTrailingPadding ~ pUnescapedDelims ^^ { case (b ~ d) => (Vector(b) -> d) }
+    //    val contentCenterDelimReq: Parser[(Vector[String], String)] = paddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
+    //    val contentLeftDelimReq: Parser[(Vector[String], String)] = rightPaddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
+    //    val contentRightDelimReq: Parser[(Vector[String], String)] = leftPaddedContent ~ pUnescapedDelims ^^ { case (c ~ d) => (c, d) }
 
     // NOTE: At this point we've left the escapes in the content
     // we can probably go a step further and execute a regex replace on
     // the escape characters.  But order will likely matter.
-    // 
+    //
     // 1. Escapes should be removed unless preceded by an escapeEscape
     // 2. EscapeEscapes should be removed when they precede an escape.
 
@@ -384,29 +384,29 @@ class TestRegex extends RegexParsers {
 
     val pDelims: Parser[String] = """D""".r ||| """DDD""".r
 
-    val pEscape: Parser[String] = escapeEscape.r
-    val pBlockStart: Parser[String] = blockStart.r
-    val pBlockEnd: Parser[String] = blockEnd.r
+    //    val pEscape: Parser[String] = escapeEscape.r
+    //    val pBlockStart: Parser[String] = blockStart.r
+    //    val pBlockEnd: Parser[String] = blockEnd.r
     val pEOF: Parser[String] = """\z""".r
 
     val blockedContent: Parser[Vector[String]] = pUnescapedBlockStart ~ pBeforeUnescapedBlockEnd ~ pUnescapedBlockEnd ^^ { case (bs ~ c ~ be) => Vector(bs, c, be) }
 
     // Here the ^^ { case (b ~ d) => (b -> d) } statements allow us to control the output of a successful parse
     // in this particular case we want the output to be a Tuple2 of String (blockedContent, delimiter)
-    val content: Parser[(Vector[String], String)] = blockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
-    val contentDelimReq: Parser[(Vector[String], String)] = blockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
+    //    val content: Parser[(Vector[String], String)] = blockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
+    //    val contentDelimReq: Parser[(Vector[String], String)] = blockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
 
     val paddedBlockedContent: Parser[Vector[String]] = pPadChar ~ blockedContent ~ pPadChar ^^ { case (lp ~ bc ~ rp) => Vector(lp) ++ bc ++ Vector(rp) }
     val contentCenter: Parser[(Vector[String], String)] = paddedBlockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
-    val contentCenterDelimReq: Parser[(Vector[String], String)] = paddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
+    //    val contentCenterDelimReq: Parser[(Vector[String], String)] = paddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
 
-    val leftPaddedBlockedContent: Parser[Vector[String]] = pPadChar ~ blockedContent ^^ { case (lp ~ bc) => Vector(lp) ++ bc }
-    val contentRight: Parser[(Vector[String], String)] = leftPaddedBlockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
-    val contentRightDelimReq: Parser[(Vector[String], String)] = leftPaddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
+    //    val leftPaddedBlockedContent: Parser[Vector[String]] = pPadChar ~ blockedContent ^^ { case (lp ~ bc) => Vector(lp) ++ bc }
+    //    val contentRight: Parser[(Vector[String], String)] = leftPaddedBlockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
+    //    val contentRightDelimReq: Parser[(Vector[String], String)] = leftPaddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
 
-    val rightPaddedBlockedContent: Parser[Vector[String]] = blockedContent ~ pPadChar ^^ { case (bc ~ rp) => bc ++ Vector(rp) }
-    val contentLeft: Parser[(Vector[String], String)] = rightPaddedBlockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
-    val contentLeftDelimReq: Parser[(Vector[String], String)] = rightPaddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
+    //    val rightPaddedBlockedContent: Parser[Vector[String]] = blockedContent ~ pPadChar ^^ { case (bc ~ rp) => bc ++ Vector(rp) }
+    //    val contentLeft: Parser[(Vector[String], String)] = rightPaddedBlockedContent ~ (pDelims | pEOF) ^^ { case (bc ~ d) => (bc -> d) }
+    //    val contentLeftDelimReq: Parser[(Vector[String], String)] = rightPaddedBlockedContent ~ pDelims ^^ { case (bc ~ d) => (bc -> d) }
 
     //    val contentCenter: Parser[(String, String)] = (pPadChar ~> blockedContent <~ pPadChar) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
     //    val contentCenterDelimReq: Parser[(String, String)] = (pPadChar ~> blockedContent <~ pPadChar) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
@@ -466,9 +466,9 @@ class TestRegex extends RegexParsers {
 
     val pDelims: Parser[String] = """D""".r ||| """DDD""".r
 
-    val pEscape: Parser[String] = escapeEscape.r
-    val pBlockStart: Parser[String] = blockStart.r
-    val pBlockEnd: Parser[String] = blockEnd.r
+    //    val pEscape: Parser[String] = escapeEscape.r
+    //    val pBlockStart: Parser[String] = blockStart.r
+    //    val pBlockEnd: Parser[String] = blockEnd.r
     val pEOF: Parser[String] = """\z""".r
 
     val blockedContent: Parser[String] = pUnescapedBlockStart ~> pBeforeUnescapedBlockEnd <~ pUnescapedBlockEnd
@@ -478,14 +478,14 @@ class TestRegex extends RegexParsers {
     val contentCenter: Parser[(String, String)] = (pPadChar ~> blockedContent <~ pPadChar) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
     val contentCenterDelimReq: Parser[(String, String)] = (pPadChar ~> blockedContent <~ pPadChar) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
 
-    val contentLeft: Parser[(String, String)] = (blockedContent <~ pPadChar) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
-    val contentLeftDelimReq: Parser[(String, String)] = (blockedContent <~ pPadChar) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
+    //    val contentLeft: Parser[(String, String)] = (blockedContent <~ pPadChar) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
+    //    val contentLeftDelimReq: Parser[(String, String)] = (blockedContent <~ pPadChar) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
 
-    val contentRight: Parser[(String, String)] = (pPadChar ~> blockedContent) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
-    val contentRightDelimReq: Parser[(String, String)] = (pPadChar ~> blockedContent) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
+    //    val contentRight: Parser[(String, String)] = (pPadChar ~> blockedContent) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
+    //    val contentRightDelimReq: Parser[(String, String)] = (pPadChar ~> blockedContent) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
 
     val content: Parser[(String, String)] = (blockedContent) ~ (pDelims | pEOF) ^^ { case (b ~ d) => (b -> d) }
-    val contentDelimReq: Parser[(String, String)] = (blockedContent) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
+    //    val contentDelimReq: Parser[(String, String)] = (blockedContent) ~ pDelims ^^ { case (b ~ d) => (b -> d) }
 
     // Testing Center justification
     assertEquals(Some("beforeafter", ""), test(contentCenter, "PPPTbeforeafterNPPP"))
@@ -791,8 +791,8 @@ class TestRegex extends RegexParsers {
     val pDelims: Parser[String] = """D""".r ||| """DD""".r
     val pEscape: Parser[String] = """E""".r
     val pEscapeEscape: Parser[String] = """S""".r
-    val pEscapedEscape = pEscapeEscape ~ pEscape
-    val pEscapedDelims = not(pEscapedEscape) ~> (pEscape ~> pDelims)
+    //    val pEscapedEscape = pEscapeEscape ~ pEscape
+    //    val pEscapedDelims = not(pEscapedEscape) ~> (pEscape ~> pDelims)
     val pUnescapedDelims = ((pEscapeEscape ~ pEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | (pEscapeEscape ~> pDelims) | pDelims
 
     // Here ^^ { case(b ~ d) => (b -> d) } changes the output of a successful parse to a Tuple2 of String (before, delimiter)
@@ -801,7 +801,7 @@ class TestRegex extends RegexParsers {
     val contentLeft = ((pBefore <~ pPadChar) ~ (pUnescapedDelims | pEOF)) ^^ { case (b ~ d) => (b -> d) }
     val contentRight = ((pLeftPadChar ~> pBeforeIgnoreTrailingPadding) ~ (pUnescapedDelims | pEOF)) ^^ { case (b ~ d) => (b -> d) }
 
-    val contentDelimReq = (pBeforeIgnoreTrailingPadding ~ pUnescapedDelims) ^^ { case (b ~ d) => (b -> d) }
+    //    val contentDelimReq = (pBeforeIgnoreTrailingPadding ~ pUnescapedDelims) ^^ { case (b ~ d) => (b -> d) }
     val contentCenterDelimReq = (((pLeftPadChar ~> pBefore) <~ pPadChar) ~ pUnescapedDelims) ^^ { case (b ~ d) => (b -> d) }
     val contentLeftDelimReq = ((pBefore <~ pPadChar) ~ pUnescapedDelims) ^^ { case (b ~ d) => (b -> d) }
     val contentRightDelimReq = ((pLeftPadChar ~> pBeforeIgnoreTrailingPadding) ~ pUnescapedDelims) ^^ { case (b ~ d) => (b -> d) }
@@ -809,7 +809,7 @@ class TestRegex extends RegexParsers {
     // NOTE: At this point we've left the escapes in the content
     // we can probably go a step further and execute a regex replace on
     // the escape characters.  But order will likely matter.
-    // 
+    //
     // 1. Escapes should be removed unless preceded by an escapeEscape
     // 2. EscapeEscapes should be removed when they precede an escape.
 
@@ -1365,7 +1365,7 @@ class TestRegex extends RegexParsers {
     a match {
       // We need 'ending' here, not 'end'
       case (("b e f o r e " ~ "___;___") ~ " a f t e r") => {
-        // we're ok 
+        // we're ok
       }
       case _ => fail("not expected result: " + a)
     }
@@ -1395,7 +1395,7 @@ class TestRegex extends RegexParsers {
     a match {
       // We need 'ending' here, not 'end'
       case ("___ending___" ~ "more") => {
-        // we're ok 
+        // we're ok
       }
       case _ => fail("not expected result: " + a)
     }
@@ -1434,7 +1434,7 @@ class TestRegex extends RegexParsers {
   }
 
   /*
-   * Next we have tests that handle complexities of escape schemes of the 
+   * Next we have tests that handle complexities of escape schemes of the
    * escape character kind and block escape kind.
    */
 
@@ -1465,10 +1465,10 @@ class TestRegex extends RegexParsers {
       //
       // Putting that all together
       //  (.*)(?=(?<!(?<!S)E)D)
-      // matches data followed by an unescaped delimiter D. 
-      //   Note that looking ahead doesn't consume anything. 
+      // matches data followed by an unescaped delimiter D.
+      //   Note that looking ahead doesn't consume anything.
       //   We're left before the lookahead part of the match.
-      // followed by delimiter, 
+      // followed by delimiter,
       // followed by anything leftover
       val str =
         """(?:%4$s*)""" + // trim pad char. aka right or center justified.
@@ -1479,7 +1479,7 @@ class TestRegex extends RegexParsers {
       val ContentPattern = str.format(escapeEscape, escape, delim, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
 
-      // used to cleanup active escape characters 
+      // used to cleanup active escape characters
       val EDSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, delim).r
 
       /**
@@ -1496,7 +1496,7 @@ class TestRegex extends RegexParsers {
           Some((before1, delim, after))
         }
         case z => {
-          // println("no match: " + z); 
+          // println("no match: " + z);
           None
         }
       }
@@ -1534,7 +1534,7 @@ class TestRegex extends RegexParsers {
 
     assertEquals(Some(("before", "D", "after")), test("PPPbeforePPPDafter"))
 
-    // Notice how (.*?) is non-greedy matching. SO we don't get "before_", we get "before" 
+    // Notice how (.*?) is non-greedy matching. SO we don't get "before_", we get "before"
     assertEquals(Some(("before", "_D_", "after")), test("PPPbefore_D_after"))
 
     assertEquals(Some(("beforeE", "__D_", "after")), test("PPPbeforeSE__D_after"))
@@ -1578,7 +1578,7 @@ class TestRegex extends RegexParsers {
       // Let D be the delimiter
       // Let P be the pad char
       //
-      // (?<!E)((?:EE)*)P matches unescaped pad characters 
+      // (?<!E)((?:EE)*)P matches unescaped pad characters
 
       val str =
         """(?<!%1$s)((?:%1$s%1$s)*)(?:%3$s*)""" + // trim unescaped pad char. aka right or center justified.
@@ -1592,7 +1592,7 @@ class TestRegex extends RegexParsers {
       val ContentPattern = str.format(escape, delimiter, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
 
-      // used to cleanup escape characters 
+      // used to cleanup escape characters
       val ERSplit = """(.*?)%1$s(.)(.*)""".format(escape).r
 
       /**
@@ -1615,7 +1615,7 @@ class TestRegex extends RegexParsers {
           Some((before1, delim1, after))
         }
         case z => {
-          // println("no match: " + z); 
+          // println("no match: " + z);
           None
         }
       }
@@ -1700,7 +1700,7 @@ class TestRegex extends RegexParsers {
         """(?<!(?<!%1$s)%2$s)(%3$s)""" + // unescaped delimiter (delim)
         """(.*)""" + // trailing stuff (after)
         """|""" +
-        // Second alternative is if the start is NOT a block start, in which case we are looking 
+        // Second alternative is if the start is NOT a block start, in which case we are looking
         // for an unescaped delimiter at the end.
         """(?:%6$s*)""" + // trim padChar off. Aka right or center justified.
         """(?<!%4$s)""" + // not a block start
@@ -1713,7 +1713,7 @@ class TestRegex extends RegexParsers {
       val ContentPattern = str.format(escapeEscape, escape, delim, bStart, bEnd, padChar).r
       // println("Pattern = " + ContentPattern.pattern)
 
-      // used to cleanup active escape characters 
+      // used to cleanup active escape characters
       val EDSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, delim).r
       val ENSplit = """(.*)%1$s(%2$s)(.*)""".format(escape, bEnd).r
 
@@ -1731,7 +1731,7 @@ class TestRegex extends RegexParsers {
           Some((before1, delim, after))
         }
         case z => {
-          // println("no match: " + z); 
+          // println("no match: " + z);
           None
         }
       }

@@ -57,7 +57,7 @@ class TestDecoder {
     val decoder = originalDecoder
     //
     // This byte sequence "needs" the fourth byte. The first 3 bytes are consistent
-    // with the 4-byte utf-8 bytes. However, the last byte here is not a valid 
+    // with the 4-byte utf-8 bytes. However, the last byte here is not a valid
     // last byte of a 4-byte representation.
     //
     val bytes = Seq(0xf0, 0x90, 0x87, 0x67).map { _.toByte }
@@ -76,20 +76,20 @@ class TestDecoder {
     // running out of data wasn't the issue.
     //
     // It appears Java's decoder for utf-8 is deciding that it WILL need
-    // to create two characters (a surrogate pair) becuase that first utf-8 byte of 0xF0 
+    // to create two characters (a surrogate pair) becuase that first utf-8 byte of 0xF0
     // indicates 4 bytes.
-    // 
+    //
     // At that point it checks if there is room for the two surrogate code units,
     // finds that there is not, and returns OVERFLOW.
     //
-    // Note: It isn't legal for a utf-8 decoder to return only 1 half of a 
+    // Note: It isn't legal for a utf-8 decoder to return only 1 half of a
     // surrogate pair, because what bytes would it indicate were consumed in that case?
-    // It can't say zero, because then there is no forward progress. It can't say 
-    // any of them were consumed, because then they won't be there to decode 
-    // in order to figure out the other half of the surrogate pair. 
+    // It can't say zero, because then there is no forward progress. It can't say
+    // any of them were consumed, because then they won't be there to decode
+    // in order to figure out the other half of the surrogate pair.
     //
     // It *could* have decided to check if the 4-bytes actually decoded correctly or not
-    // and then even though there was only room for 1 half of the surrogate pair, then 
+    // and then even though there was only room for 1 half of the surrogate pair, then
     // issued the Malformed[3]. It doesn't do that though.
     //
     var flushCR = decoder.flush(cb)
@@ -123,7 +123,7 @@ class TestDecoder {
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val decoder = originalDecoder
     //
-    // That initial 0xF0 tells the UTF-8 decoder that 
+    // That initial 0xF0 tells the UTF-8 decoder that
     // it should expect a 4-byte character. That means it
     // is going to try to create a surrogate pair (if it
     // decodes correctly.)
@@ -139,8 +139,8 @@ class TestDecoder {
     assertEquals(CoderResult.OVERFLOW, decodeCR)
     assertEquals(0, cb.position())
     assertEquals(0, bb.position())
-    // 
-    // 
+    //
+    //
     val tempCB = CharBuffer.allocate(2)
     decodeCR = decoder.decode(bb, tempCB, true)
 
@@ -148,7 +148,7 @@ class TestDecoder {
     assertEquals(0, tempCB.position)
     assertEquals(0, bb.position)
 
-    var flushCR = decoder.flush(cb)
+    val flushCR = decoder.flush(cb)
     assertEquals(0, tempCB.position)
     assertEquals(0, bb.position)
 
@@ -218,9 +218,9 @@ class TestDecoder {
   //    val cb = CharBuffer.allocate(1) // allow room for exactly one character.
   //    val decodeCR = decoder.decode(bb, cb, true)
   //    //
-  //    // If all available bytes are used up, then we get an UNDERFLOW even if 
+  //    // If all available bytes are used up, then we get an UNDERFLOW even if
   //    // every location in the output is filled in. Because until we get more bytes,
-  //    // we can't be overflowing the input buffer. 
+  //    // we can't be overflowing the input buffer.
   //    //
   //    assertEquals(CoderResult.UNDERFLOW, decodeCR)
   //    val flushCR = decoder.flush(cb)

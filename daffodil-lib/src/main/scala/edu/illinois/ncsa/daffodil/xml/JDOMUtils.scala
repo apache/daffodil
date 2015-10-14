@@ -54,7 +54,7 @@ object JDOMUtils {
 
   def elem2Element(node: scala.xml.Node): org.jdom2.Element = {
     val jdomNode = new org.jdom2.Element(node.label, node.prefix, node.namespace)
-    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+    val Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
 
     XMLUtils.namespaceBindings(nsBinding).foreach { ns =>
       {

@@ -66,7 +66,7 @@ trait StringCompareOp extends CompareOpBase {
 }
 
 abstract class CompareOp
-    extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp with BinaryOpMixin {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -84,7 +84,7 @@ abstract class CompareOp
 }
 
 case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPath)
-    extends CompareOp {
+  extends CompareOp {
 
   def compare(op: String, v1: Any, v2: Any): Boolean = {
     (op, v1, v2) match {
@@ -98,7 +98,7 @@ case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPa
 }
 
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
-    extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp with BinaryOpMixin {
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
@@ -120,7 +120,6 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
 }
 case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
-    val savedNode = dstate.currentNode
     recipe.run(dstate)
     val value = dstate.currentValue match {
       case i: Int => i * -1
@@ -137,7 +136,7 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
 }
 
 abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends RecipeOpWithSubRecipes(recipe) {
+  extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     val arg = dstate.currentValue
@@ -150,7 +149,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNTwoArgs(recipes: List[CompiledDPath])
-    extends RecipeOpWithSubRecipes(recipes) {
+  extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val List(recipe1, recipe2) = recipes

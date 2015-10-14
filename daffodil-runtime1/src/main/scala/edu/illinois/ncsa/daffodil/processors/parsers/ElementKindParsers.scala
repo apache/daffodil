@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import scala.collection.mutable.Queue
@@ -50,7 +49,6 @@ import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicTextParser
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryStatic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
@@ -268,11 +266,11 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
         val occurrence = actualOccurs - 1
 
         if (isUnbounded && occurrence < minOccurs)
-          start.withValidationError("%s occurred '%s' times when it was expected to be a " +
+          start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
             "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
             occurrence, minOccurs)
         else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
-          start.withValidationError("%s occurred '%s' times when it was expected to be a " +
+          start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
             "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
             occurrence, minOccurs, maxOccurs)
         else {
@@ -288,4 +286,3 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
 class OptionalCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends ArrayCombinatorParser(erd, bodyParser) {
   override def nom = "Optional"
 }
-

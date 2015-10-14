@@ -42,10 +42,9 @@ import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
-import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.xml.StepQName
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
@@ -162,6 +161,6 @@ class TestDFDLExpressionEvaluation extends Parsers {
         </xs:complexType>
       </xs:element>)
 
-    val res = TestUtils.testString(schema, "")
+    TestUtils.testString(schema, "")
   }
 }

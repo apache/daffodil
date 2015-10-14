@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -178,12 +178,12 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3"/>
     }
-    val s1 = source_no_ns.tempSchemaFile.toString
+    source_no_ns.tempSchemaFile.toString
 
     val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
-    val s2 = source.tempSchemaFile.toString
+    source.tempSchemaFile.toString
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
@@ -203,7 +203,7 @@ class TestExternalVariablesNew {
 
     val sset = pf.sset
 
-    val finalVars = sset.variableMap.variables
+    sset.variableMap.variables
 
     // var1's namespace was htp://example.com, so we expect to find it
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")
@@ -243,14 +243,14 @@ class TestExternalVariablesNew {
 
     val variables = ExternalVariablesLoader.getVariables(vars)
 
-    val c = new Compiler()
+    val c = new Compiler
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
     val pf = c.compileSource(source)
     val sset = pf.sset
 
-    val finalVars = sset.variableMap.variables
+    val _ = sset.variableMap.variables
 
     // var1's namespace was htp://example.com, so we expect to find it
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")

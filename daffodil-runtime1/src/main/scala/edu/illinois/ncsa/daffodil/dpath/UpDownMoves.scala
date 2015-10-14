@@ -42,8 +42,8 @@ case object ToRoot extends RecipeOp {
   override def run(dstate: DState) {
     var now = dstate.currentElement
     var parent = now.diParent
-    while (parent.isDefined) {
-      now = parent.get
+    while (parent ne null) {
+      now = parent
       parent = now.diParent
     }
     dstate.setCurrentNode(now)
@@ -61,8 +61,8 @@ case object UpMove extends RecipeOp {
   override def run(dstate: DState) {
     val now = dstate.currentElement
     val n = {
-      Assert.invariant(now.diParent.isDefined) // UpMove past root. Should never happen since an expression like that won't typecheck statically.
-      now.diParent.get
+      Assert.invariant(now.diParent ne null) // UpMove past root. Should never happen since an expression like that won't typecheck statically.
+      now.diParent
     }
     dstate.setCurrentNode(n)
   }
@@ -97,7 +97,7 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     indexRecipe.run(dstate)
     val index = dstate.index
     val arr = savedCurrentElement.getChildArray(info)
-    val occurrence = arr.get.getOccurrence(index) // will throw on out of bounds
+    val occurrence = arr.getOccurrence(index) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
@@ -115,8 +115,8 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
   override def run(dstate: DState) {
     val now = dstate.currentComplex
     val arr = now.getChildArray(info)
-    Assert.invariant(arr.isDefined)
-    dstate.setCurrentNode(arr.get.asInstanceOf[DIArray])
+    Assert.invariant(arr ne null)
+    dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
 
   override def toXML = {
@@ -131,7 +131,7 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     val arr = now.getChildArray(info)
 
-    if (!arr.isDefined || arr.get.length == 0) throw new InfosetNoSuchChildElementException("Array does not exist.")
+    if ((arr eq null) || arr.length == 0) throw new InfosetNoSuchChildElementException("Array does not exist.")
   }
 
   override def toXML = {

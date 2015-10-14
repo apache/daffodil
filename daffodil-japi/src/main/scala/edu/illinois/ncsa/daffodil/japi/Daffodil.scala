@@ -90,7 +90,10 @@ object Daffodil {
    *
    * @return new object to compile DFDL schemas
    */
-  def compiler(): Compiler = new Compiler()
+  def compiler(): Compiler = {
+    new Daffodil // silence warning about unused private constructor
+    new Compiler()
+  }
 
   /**
    * Set the LogWriter to use to capture logging messages from Daffodil
@@ -282,7 +285,7 @@ class Compiler private[japi] () {
  * Instead, use [[Compiler#compileFile(java.io.File)]]
  */
 class ProcessorFactory private[japi] (pf: SProcessorFactory)
-  extends WithDiagnostics(pf) {
+    extends WithDiagnostics(pf) {
 
   /**
    * Specify a global element to be the root of DFDL Schema to start parsing
@@ -432,7 +435,7 @@ class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
 class DataProcessor private[japi] (dp: SDataProcessor)
-  extends WithDiagnostics(dp) {
+    extends WithDiagnostics(dp) {
 
   /**
    * Enable/disable debugging.
@@ -541,7 +544,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
  * location
  */
 class ParseResult private[japi] (pr: SParseResult)
-  extends WithDiagnostics(pr) {
+    extends WithDiagnostics(pr) {
 
   /**
    * Get the resulting infoset as a jdom2 Document

@@ -48,9 +48,9 @@ import java.nio.ByteOrder
 class GrowableByteBuffer(private var bbuf: ByteBuffer) {
 
   private def grow(addCap: Int) {
-    var newSize = bbuf.capacity + addCap
-    var newBytes = new Array[Byte](newSize)
-    var oldPos = bbuf.position
+    val newSize = bbuf.capacity + addCap
+    val newBytes = new Array[Byte](newSize)
+    val oldPos = bbuf.position
     bbuf.rewind
     bbuf.get(newBytes, 0, oldPos)
     bbuf = ByteBuffer.wrap(newBytes)

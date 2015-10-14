@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,8 +40,6 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
@@ -51,10 +49,8 @@ import Maybe._
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dsom.TypeConversions
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
@@ -64,7 +60,7 @@ trait Processor
   extends ToBriefXMLImpl
   with Logging
   with Serializable {
-  // things common to both unparser and parser go here. 
+  // things common to both unparser and parser go here.
   def context: RuntimeData
 }
 
@@ -120,8 +116,6 @@ abstract class Parser(override val context: RuntimeData)
 
   protected def parserName = Misc.getNameFromClass(this)
 
-  import TypeConversions._
-
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*))
   }
@@ -142,8 +136,8 @@ abstract class Parser(override val context: RuntimeData)
 
 }
 
-// No-op, in case an optimization lets one of these sneak thru. 
-// TODO: make this fail, and test optimizer sufficiently to know these 
+// No-op, in case an optimization lets one of these sneak thru.
+// TODO: make this fail, and test optimizer sufficiently to know these
 // do NOT get through.
 //class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
 //  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
@@ -212,7 +206,6 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
     while (i < numChildParsers) {
       val parser = childParsers(i)
 
-      val handlers = pstate.dataProc.handlers
       // val beforeParse = pstate.dataInputStream.mark
       parser.parse1(pstate)
       //Assert.invariant(pstate.dataProc.handlers == handlers)
@@ -252,10 +245,10 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => { pstate.discard(pBefore); throw u }
           case rsde: RuntimeSchemaDefinitionError => { pstate.discard(pBefore); throw rsde }
-          // Don't catch very general exception classes. Only very specific 
-          // ones. Otherwise it makes it 
+          // Don't catch very general exception classes. Only very specific
+          // ones. Otherwise it makes it
           // hard to debug whatever caused the exception (e.g., class casts)
-          // because they're getting caught and converted into rSDEs which makes them 
+          // because they're getting caught and converted into rSDEs which makes them
           // look to be DFDL Schema or parser issues when they are code problems.
         }
         if (pstate.status == Success) {
@@ -268,8 +261,8 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
         log(LogLevel.Debug, "Choice alternative failed: %s", parser)
         //
         //
-        // Unwind any side effects on the Infoset 
-        // 
+        // Unwind any side effects on the Infoset
+        //
         pstate.restoreInfosetElementState(cloneNode)
         //
         // capture diagnostics
@@ -295,7 +288,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
         // Which means we just go around the loop
       }
     }
-    // Out of alternatives. All of them failed. 
+    // Out of alternatives. All of them failed.
 
     pstate.reset(pBefore)
     val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
@@ -313,4 +306,3 @@ case class DummyParser(rd: RuntimeData) extends Parser(null) {
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
 }
-

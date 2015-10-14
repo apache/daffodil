@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -12,7 +11,6 @@ import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
@@ -42,8 +40,8 @@ import edu.illinois.ncsa.daffodil.util.MStack
  * unparse method call.
  */
 class InfosetSourceFromXMLEventReader(
-  xer: Iterator[scala.xml.pull.XMLEvent],
-  rootElementInfo: ElementRuntimeData) extends InfosetSource {
+    xer: Iterator[scala.xml.pull.XMLEvent],
+    rootElementInfo: ElementRuntimeData) extends InfosetSource {
 
   private lazy val xmlIterator = new XMLEventIterator(xer)
 
@@ -64,7 +62,7 @@ class InfosetSourceFromXMLEventReader(
    * the old null vs. regular object reference.
    */
   private val arrayStack = new MStack.OfMaybe[DIArray]
-  arrayStack.pushMaybe(Nope)
+  arrayStack.pushMaybe(null)
 
   private var nextElementResolver: NextElementResolver = initialNextElementResolver
 
@@ -101,8 +99,8 @@ class InfosetSourceFromXMLEventReader(
       case EndComplex(ns, local) => {
         val node = nodeStack.pop
         val arr = arrayStack.popMaybe
-        if (arr.isDefined)
-          accumulatedEvents += End(arr.get)
+        if (Maybe.isDefined(arr))
+          accumulatedEvents += End(arr)
         nextElementResolver = node.runtimeData.nextElementResolver // FIXME: Not strict enough. This will accept children after the element.....
         accumulatedEvents.append(End(node))
       }
@@ -112,7 +110,7 @@ class InfosetSourceFromXMLEventReader(
 
         val arr = arrayStack.topMaybe
 
-        var thisERD = nextElementResolver.nextElement(local, ns)
+        val thisERD = nextElementResolver.nextElement(local, ns)
 
         def erdNS = thisERD.namedQName.namespace.toStringOrNullIfNoNS
         def erdLocal = thisERD.namedQName.local
@@ -148,7 +146,7 @@ class InfosetSourceFromXMLEventReader(
             //
             // This case comes up when a complexType has only an array child
             // and that array has zero elements. The non-schema-aware
-            // XML stuff can't tell the difference between this and an 
+            // XML stuff can't tell the difference between this and an
             // element with simple content
             //
             nextElementResolver = thisERD.nextElementResolver
@@ -168,7 +166,7 @@ class InfosetSourceFromXMLEventReader(
         }
 
         val Start(node: DIElement) = accumulatedEvents.head
-        (thisERD.isArray, arr.toScalaOption) match {
+        (thisERD.isArray, Maybe.toScalaOption(arr)) match {
           case (true, Some(diArray)) => {
             Assert.invariant(diArray.totalElementCount > 0)
             if (diArray(1).runtimeData =:= thisERD) {
@@ -176,9 +174,9 @@ class InfosetSourceFromXMLEventReader(
               // so do nothing
             } else {
               // end one array and start another immediately (adjacent array elements)
-              val newDIArray: DIArray = node.parent.get.getChildArray(thisERD).get.asInstanceOf[DIArray]
+              val newDIArray: DIArray = node.parent.getChildArray(thisERD).asInstanceOf[DIArray]
               arrayStack.popMaybe
-              arrayStack.pushMaybe(One(newDIArray))
+              arrayStack.pushMaybe(newDIArray)
               accumulatedEvents.insert(0, End(diArray))
               accumulatedEvents.insert(1, Start(newDIArray))
             }
@@ -186,9 +184,9 @@ class InfosetSourceFromXMLEventReader(
           case (true, None) => {
             // prior was not an array (or there is no prior - first in group)
             // so start an array
-            val newDIArray: DIArray = node.parent.get.getChildArray(thisERD).get.asInstanceOf[DIArray]
+            val newDIArray: DIArray = node.parent.getChildArray(thisERD).asInstanceOf[DIArray]
             arrayStack.popMaybe
-            arrayStack.pushMaybe(One(newDIArray))
+            arrayStack.pushMaybe(newDIArray)
             accumulatedEvents.insert(0, Start(newDIArray))
           }
           case (false, None) => {
@@ -197,13 +195,13 @@ class InfosetSourceFromXMLEventReader(
           }
           case (false, Some(diArray)) => {
             arrayStack.popMaybe
-            arrayStack.pushMaybe(Nope)
+            arrayStack.pushMaybe(null)
             accumulatedEvents.insert(0, End(diArray))
           }
         }
 
         if (xmlEvent.isInstanceOf[StartComplex]) {
-          arrayStack.pushMaybe(Nope)
+          arrayStack.pushMaybe(null)
         }
       }
     }

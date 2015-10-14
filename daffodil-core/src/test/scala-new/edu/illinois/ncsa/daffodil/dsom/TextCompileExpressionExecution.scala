@@ -32,14 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.compiler._
-import junit.framework.Assert._
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 class TextCompileExpressionExecution {
   val xsd = XMLUtils.XSD_NAMESPACE

@@ -32,14 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.processors.ByteOrderChange
@@ -80,8 +75,7 @@ trait ByteOrderMixin extends GrammarMixin { self: Term =>
         (isArray && !hasUniformByteOrderThroughout)) { // need to change because of repetition
         // (when we start next iteration, it's not the same as when we started first iteration)
         // THis will SDE if there is no byte order defined for the array element (might only be byteOrder on things within the array)
-        // So we're artificially requiring byte order on all arrays that do not have a uniform byte order. 
+        // So we're artificially requiring byte order on all arrays that do not have a uniform byte order.
         ByteOrderChange(this)
       }
 }
-

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,31 +32,22 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
+import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.api._
-import java.nio._
-import java.nio.charset._
-import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.processors.Infoset
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends Parser(context) {
@@ -104,7 +95,7 @@ object Rep {
       pstate.dataProc.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, iParser)
-      if (pstate.status != Success) return // fail if we don't get them all 
+      if (pstate.status != Success) return // fail if we don't get them all
       pstate.mpstate.moveOverOneArrayIndexOnly
     }
   }
@@ -138,10 +129,10 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   def parseAllRepeats(initialState: PState): Unit = {
     val startState = initialState.mark
     var priorState = initialState.mark
-    var pstate = initialState
+    val pstate = initialState
     while (pstate.mpstate.arrayPos <= intN) {
       // Since each one could fail, each is a new point of uncertainty.
-      // 
+      //
       // save the state of the infoset
       //
       val cloneNode = pstate.captureInfosetElementState
@@ -154,13 +145,13 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
       pstate.dataProc.afterRepetition(pstate, this)
 
       if (pstate.status != Success) {
-        // 
+        //
         // Did not succeed
-        // 
+        //
         // Was a discriminator set?
-        // 
+        //
         if (pstate.discriminator == true) {
-          // we fail the whole RepUnbounded, because there was a discriminator set 
+          // we fail the whole RepUnbounded, because there was a discriminator set
           // before the failure.
           // pstate.popDiscriminator // pop happens when we reset.
           pstate.reset(startState)
@@ -173,7 +164,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         pstate.restoreInfosetElementState(cloneNode)
         pstate.reset(priorState)
         pstate.discard(startState)
-        return // success at prior state. 
+        return // success at prior state.
       }
       //
       // Success
@@ -206,7 +197,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   def parseAllRepeats(initialState: PState): Unit = {
     Assert.invariant(initialState.status =:= Success)
     val startState = initialState.mark
-    var pstate = initialState
+    val pstate = initialState
     var priorState = initialState.mark
 
     while (pstate.status == Success) {
@@ -217,7 +208,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       //          erd.minOccurs.foreach { minOccurs =>
       //            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
       //              // Is required element
-      //              // Need to trigger default value creation 
+      //              // Need to trigger default value creation
       //              // in right situations (like the element is defaultable)
       //              // This is relatively easy for simple types
       //              // for complex types, defaulting is trickier as one
@@ -237,19 +228,19 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, this)
       if (pstate.status != Success) {
-        // 
+        //
         // Did not succeed
-        // 
+        //
         // Was a discriminator set?
-        // 
+        //
         if (pstate.discriminator == true) {
-          // we fail the whole RepUnbounded, because there was a discriminator set 
+          // we fail the whole RepUnbounded, because there was a discriminator set
           // before the failure.
           pstate.popDiscriminator
           pstate.reset(startState)
           return
         }
-        // 
+        //
         // no discriminator, so suppress the failure. Loop terminated with prior element.
         //
         pstate.infoset = infosetElement
@@ -262,7 +253,6 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       // Success
       // Need to check for forward progress
       if (pstate.bitPos =#= priorState.bitPos0b) {
-        val bytePos = pstate.bytePos
         pstate.discard(priorState) // didn't move, but might have assigned variables.
         pstate.discard(startState)
         PE(pstate,

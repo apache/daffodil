@@ -46,7 +46,7 @@ class TestUtil {
 
   @Test def testGetRequiredResourceFails() {
     val e = intercept[Exception] {
-      val res = Misc.getRequiredResource("/xsd/NotAResourceName.foo")
+      Misc.getRequiredResource("/xsd/NotAResourceName.foo")
     }
     assertTrue(e.getMessage().contains("NotAResourceName"))
   }

@@ -45,11 +45,8 @@ import edu.illinois.ncsa.daffodil.sapi.debugger._
 import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
 import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
-import scala.collection.JavaConversions._
 
 private[sapi] object LoggingConversions {
 
@@ -125,7 +122,7 @@ private[sapi] class JavaLogWriter(logWriter: LogWriter)
 private[sapi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
     extends SInteractiveDebuggerRunner {
   def init(id: SInteractiveDebugger): Unit = dr.init
-  def getCommand(): String = dr.getCommand
+  def getCommand: String = dr.getCommand
   def lineOutput(line: String): Unit = dr.lineOutput(line)
   def fini(): Unit = dr.fini
 }

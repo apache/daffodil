@@ -37,9 +37,8 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
@@ -73,7 +72,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
@@ -244,14 +243,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       p.parse1(state)
       this.endElement(state, p)
     } catch {
-      // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
-      // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
+      // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure"
+      // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an
       // exception handling construct.
       //
       // But we might not catch everything inside...
       //
       case pe: ParseError => {
-        // if we get one here, then someone threw instead of returning a status. 
+        // if we get one here, then someone threw instead of returning a status.
         Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
       }
       case procErr: ProcessingError => {
@@ -366,13 +365,13 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
         validateWithXerces(state)
       } catch {
         case (spe: SAXParseException) =>
-          state.withValidationErrorNoContext(spe.getMessage)
+          state.reportValidationErrorNoContext(spe.getMessage)
 
         case (se: SAXException) =>
-          state.withValidationErrorNoContext(se.getMessage)
+          state.reportValidationErrorNoContext(se.getMessage)
 
         case (ve: ValidationException) =>
-          state.withValidationErrorNoContext(ve.getMessage)
+          state.reportValidationErrorNoContext(ve.getMessage)
       }
     }
   }
@@ -421,7 +420,11 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
 
   override def resultState = ustate
 
-  private def maybeEncodingInfo = ustate.currentInfosetNode.map { _.asInstanceOf[DIElement].runtimeData.encodingInfo }
+  private def maybeEncodingInfo =
+    if (Maybe.isDefined(ustate.currentInfosetNode))
+      One(ustate.currentInfosetNode.asInstanceOf[DIElement].runtimeData.encodingInfo)
+    else
+      Nope
 
   private def encodingInfo = maybeEncodingInfo.getOrElse(dp.ssrd.elementRuntimeData.encodingInfo)
 

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.parser
 
-import scala.xml._
 import junit.framework.Assert._
 import java.io._
 import java.nio._
@@ -121,7 +120,7 @@ class TestUnicodeErrorTolerance {
    * Scala, like Java, tolerates isolated broken surrogate halves.
    */
   @Test def testScalaAllowsBadUnicode() {
-    val exp = "@@@\udcd0@@@" // that's the 2nd half of a surrogate pair for U+1d4d0 sandwiched between @@@ 
+    val exp = "@@@\udcd0@@@" // that's the 2nd half of a surrogate pair for U+1d4d0 sandwiched between @@@
     val codepoint = exp.charAt(3)
     assertEquals(0xdcd0, codepoint)
   }
@@ -131,17 +130,17 @@ class TestUnicodeErrorTolerance {
    * isolated.
    */
   @Test def testUTF8Decode3ByteSurrogateIsMalformed() {
-    val exp = "\udcd0" // that's the trailing surrogate in the surrogate pair for U+1d4d0
+    //    val exp = "\udcd0" // that's the trailing surrogate in the surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
-    val inBuf = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0                   
+    val inBuf = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0
       0xED, 0xB3, 0x90)
     val input = new ByteArrayInputStream(inBuf);
 
     val exc = intercept[MalformedInputException] {
-      val act = Converter.parse(input, decoder)
+      Converter.parse(input, decoder)
     }
     val badLength = exc.getInputLength()
     assertEquals(3, badLength)
@@ -164,7 +163,7 @@ class TestUnicodeErrorTolerance {
   @Test def testUTF8Encode3ByteSurrogateReplacement() {
     val s = "\ud800"
     val act = replaceBadCharactersEncoding(s)
-    val exp = Array[Int](0xEF, 0xBF, 0xBD) // the 3-byte UTF-8 replacement sequence 
+    val exp = Array[Int](0xEF, 0xBF, 0xBD) // the 3-byte UTF-8 replacement sequence
     // which is just the UTF-8 encoding of the Unicode replacement character U+FFFD.
     for ((e, a) <- exp zip act) {
       assertEquals(e, a)
@@ -187,8 +186,8 @@ class TestUnicodeErrorTolerance {
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
     val encoder = cs.newEncoder()
-    val exp: Array[Byte] = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0                   
-      0xED, 0xB3, 0x90)
+    //    val exp: Array[Byte] = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0
+    //      0xED, 0xB3, 0x90)
     val output = new ByteArrayOutputStream();
 
     val exc = intercept[MalformedInputException] {
@@ -207,7 +206,7 @@ class TestUnicodeErrorTolerance {
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
     val inBuf: Array[Byte] = Array[Int](
-      // 4 byte encoding of U+010000 (that's hex) which is the first character that requires a surrogate pair.                  
+      // 4 byte encoding of U+010000 (that's hex) which is the first character that requires a surrogate pair.
       0xF0, 0x90, 0x80, 0x80)
     val input = new ByteArrayInputStream(inBuf);
     val act = Converter.parse(input, decoder)
@@ -227,13 +226,13 @@ class TestUnicodeErrorTolerance {
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
     val inBuf: Array[Byte] = Array[Int](
-      // 6 byte encoding of \x7FFFFFFF                
+      // 6 byte encoding of \x7FFFFFFF
       0xFD, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF)
     val input = new ByteArrayInputStream(inBuf);
     val e = intercept[MalformedInputException] {
       Converter.parse(input, decoder)
     }
-    assertEquals(1, e.getInputLength()) // However, it doesn't say there are 6 bad bytes here. 
+    assertEquals(1, e.getInputLength()) // However, it doesn't say there are 6 bad bytes here.
   }
 
   @Test def testUTF8Extreme4ByteToSurrogatePair() {
@@ -242,7 +241,7 @@ class TestUnicodeErrorTolerance {
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
     val inBuf: Array[Byte] = Array[Int](
-      // 4 byte encoding of \x110000                
+      // 4 byte encoding of \x110000
       0xF4, 0x90, 0x80, 0x80)
     val input = new ByteArrayInputStream(inBuf);
     val e = intercept[MalformedInputException] { // fails to convert because there is no possible surrogate-pair rep for this.
@@ -256,7 +255,7 @@ class TestUnicodeErrorTolerance {
    * accepting them if they are properly matched even.
    */
   @Test def testUTF8Decode6ByteSurrogatePairIsMalformed() {
-    val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
+    // val exp = "\ud4d0" // that's the 2nd half of a surrogate pair for U+1d4d0
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
     assertEquals("UTF-8", dn)
@@ -269,7 +268,7 @@ class TestUnicodeErrorTolerance {
     val input = new ByteArrayInputStream(inBuf);
 
     val exc = intercept[MalformedInputException] {
-      val act = Converter.parse(input, decoder)
+      Converter.parse(input, decoder)
     }
     val badLength = exc.getInputLength()
     assertEquals(3, badLength)
@@ -325,7 +324,7 @@ class TestUnicodeErrorTolerance {
     val decoder = cs.newDecoder()
 
     val input = new ByteArrayInputStream(inBuf);
-    val act = try {
+    try {
       Converter.parse(input, decoder)
     } catch {
       case e: MalformedInputException => {
@@ -376,7 +375,6 @@ class TestUnicodeErrorTolerance {
   def replaceBadCharacters(inBuf: Array[Byte]): String = {
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
-    var counter: Int = 0
     assertEquals("UTF-8", dn)
     val decoder = cs.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPLACE)
@@ -388,7 +386,6 @@ class TestUnicodeErrorTolerance {
   def replaceBadCharactersEncoding(s: String): Array[Byte] = {
     val cs = Charset.forName("utf-8")
     val dn = cs.displayName()
-    var counter: Int = 0
     assertEquals("UTF-8", dn)
     val encoder = cs.newEncoder()
     encoder.onMalformedInput(CodingErrorAction.REPLACE)
@@ -425,7 +422,7 @@ class TestUnicodeErrorTolerance {
   @Test def testHowManyReplacements5() {
     // That's character U+10FFFF, but with an error
     // a bad 4-byte sequence, 2nd byte doesn't go with first.
-    // 2nd and 3rd bytes go together, but fourth is illegal on its own. 
+    // 2nd and 3rd bytes go together, but fourth is illegal on its own.
     // so 2 errors
     val inBuf = Array[Int](0xF4, 0xCF, 0xBF, 0xBF)
     val act = replaceBadCharacters(inBuf)
@@ -434,7 +431,7 @@ class TestUnicodeErrorTolerance {
 
   @Test def testHowManyReplacements6() {
     // Gibberish. 1st byte of a 3-byte sequence, 2nd byte doesn't go with it,
-    // but the sequence of 2nd and 3rd byte is valid (U+03FF). 4th byte invalid alone. 
+    // but the sequence of 2nd and 3rd byte is valid (U+03FF). 4th byte invalid alone.
     val inBuf = Array[Int](0xE2, 0xCF, 0xBF, 0xBF) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\u03ff\uFFFD", act)

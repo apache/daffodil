@@ -31,17 +31,13 @@
  */
 
 package edu.illinois.ncsa.daffodil.usertests
-import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.Implicits._
 
 class TestLeaks {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
@@ -72,6 +68,6 @@ class TestLeaks {
   @Test def testLeak2() { volumeRunner(test_leak2()) } // no leak - runtime error
 
   @Test def testLeak3() { volumeRunner(test_leak3()) } // no leak - compilation error
-  @Test def testLeak4() { volumeRunner(test_leak4()) } // leaks horribly 
+  @Test def testLeak4() { volumeRunner(test_leak4()) } // leaks horribly
 
 }

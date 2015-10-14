@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.Parser
-import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.Nada
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent

@@ -32,10 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn3 { ImplicitsSuppressUnusedImportWarning() }
 
 //trait TextReader extends Logging {
 //

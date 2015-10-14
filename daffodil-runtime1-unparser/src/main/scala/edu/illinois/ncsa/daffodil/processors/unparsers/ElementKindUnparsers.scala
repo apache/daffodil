@@ -344,7 +344,7 @@ class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser
     ustate.arrayIndexStack.push(1L) // one-based indexing
     ustate.occursBoundsStack.push(1L)
 
-    var event = ustate.peek
+    val event = ustate.peek
     Assert.invariant(event.isInstanceOf[Start] && !event.node.isInstanceOf[DIArray])
 
     bodyUnparser.unparse1(ustate, erd)

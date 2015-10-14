@@ -1,20 +1,18 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleEmptyOrValueUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.SimpleEmptyOrValueParser
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 
-case class DefaultablePhysicalOrComputed(ctxt: ElementBase, 
-    scalarDefaultablePhysical: Gram, 
-    inputValueCalcElement: Gram, 
-    outputValueCalcElement: Gram, 
-    defaultableElement: Gram) 
-extends Terminal(ctxt, true) {
+case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
+  scalarDefaultablePhysical: Gram,
+  inputValueCalcElement: Gram,
+  outputValueCalcElement: Gram,
+  defaultableElement: Gram)
+  extends Terminal(ctxt, true) {
   //Assert.invariant(!scalarDefaultablePhysical.isEmpty)
   //Assert.invariant(!inputValueCalcElement.isEmpty)
   //Assert.invariant(!outputValueCalcElement.isEmpty)
@@ -29,7 +27,7 @@ extends Terminal(ctxt, true) {
   lazy val defaultableElementUnparser = defaultableElement.unparser
 
   override def parser = {
-    (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match  {
+    (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match {
       case (_: NotFound, _: Found) => scalarDefaultablePhysicalParser // outputValueCalc element is just a regular physical element for parser
       case (_: Found, _: NotFound) => inputValueCalcElementParser
       case _ => Assert.impossibleCase()
@@ -41,7 +39,7 @@ extends Terminal(ctxt, true) {
     val ovcOpt = ctxt.outputValueCalcOption
     (ivcOpt, ovcOpt) match {
       case (_: NotFound, _: Found) => outputValueCalcElementUnparser
-      // when unparsing, inputValueCalc elements don't contribute to the data. 
+      // when unparsing, inputValueCalc elements don't contribute to the data.
       // They may get referenced from outputValueCalc or other expressions so their
       // element values may need to be in the infoset
       case (_: Found, _: NotFound) => defaultableElementUnparser

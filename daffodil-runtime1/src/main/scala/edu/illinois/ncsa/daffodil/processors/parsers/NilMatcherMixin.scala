@@ -21,7 +21,7 @@ trait NilMatcherMixin {
    * delimList.
    */
   private def buildDelims(delimList: Set[String]): Array[String] = {
-    var delimsRegex: Queue[String] = Queue.empty
+    val delimsRegex: Queue[String] = Queue.empty
 
     // We probably always want delims ordered:
     // Multi-char delims containing WSP+/*, WSP+, WSP*, multi-char delims, WSP, single-char delims
@@ -90,7 +90,7 @@ trait NilMatcherMixin {
   object withFieldNilMatcher extends OnStack[Matcher](newMatcher(), (m: Matcher) => m.reset(""))
 
   // TODO: does this handle %ES; or do we have to have outside separate checks for that?
-  // There is a separate check right now in LiteralNilDelimitedOrEndOfData. 
+  // There is a separate check right now in LiteralNilDelimitedOrEndOfData.
   final def isFieldNilLiteral(field: String): Boolean = {
     withFieldNilMatcher { matcher =>
       matcher.reset(field)
@@ -99,4 +99,3 @@ trait NilMatcherMixin {
     }
   }
 }
-

@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-
 /**
  * Base trait for all error, warning, info, and other sorts of objects
  * that capture diagnostic information.

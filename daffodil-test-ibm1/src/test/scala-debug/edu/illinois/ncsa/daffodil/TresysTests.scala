@@ -32,10 +32,6 @@
 
 package edu.illinois.ncsa.daffodil
 
-import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import scala.xml._
-import org.junit.Test
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -43,9 +39,9 @@ import edu.illinois.ncsa.daffodil.util.Misc
 class TresysTestsDebug {
 
   // Debug Template
-  // @Test def test_name() = Debugger.withDebugger { 
+  // @Test def test_name() = Debugger.withDebugger {
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  // runner.runOneTest("test_name") 
+  // runner.runOneTest("test_name")
   // }
 
   val testDir = "/test-suite/tresys-contributed/"
@@ -59,7 +55,7 @@ class TresysTestsDebug {
   lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
   runnerMD.setCheckAllTopLevel(true)
 
-  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start. 
+  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
   // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
   val ba = testDir + "BA.tdml"
   lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))

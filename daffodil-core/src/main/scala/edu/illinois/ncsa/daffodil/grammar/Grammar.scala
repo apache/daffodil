@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,13 +34,12 @@ package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.SeqCompUnparser
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.Nada
 import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
-import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
@@ -178,7 +177,7 @@ object ErrorGram extends Gram(null) with HasNoUnparser {
 
 abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
   // Note: keep the toString really simple.
-  // It causes much grief if toString uses complicated things that can fail or 
+  // It causes much grief if toString uses complicated things that can fail or
   // that end up needing the name of this NamedGram again.
   override def toString = name // + "(" + context.scPath.last + ")" //+ (if (isEmpty) "(Empty)" else "")
 
@@ -200,4 +199,3 @@ abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
   final def SDW(str: String, args: Any*): Unit = realSC.SDW(str, args: _*)
 
 }
-

@@ -67,18 +67,18 @@ class UnparserAugmentingInfosetSource(
           //
           // So no augmentation to do. Even if the item is defaultable, we're not
           // defaulting here, because this event will carry the value.
-          //            
+          //
         }
         case Start(a: DIArray) => // ok
         case End(s: DISimple) => // ok
         case _ => {
-          // 
+          //
           // all other cases we have to at least consider augmenting.
           //
           // for an array with minOccurs > 0, we may or may not augment
           // on an End(a: DIArray) event, depending on the arrayPos0b.
           //
-          // The compiler will choose an augmenter object based on 
+          // The compiler will choose an augmenter object based on
           // whether this is defaultable, computed, defaultable array, etc.
           //
           val augmenter =
@@ -112,8 +112,8 @@ class UnparserAugmentingInfosetSource(
         advanceArrayPos // even if incoming is a scalar element, advancing this won't hurt anything
         //
         // if augmentation inserted an element start/end for
-        // a dfdl:outputValueCalc element. That element will be considered 
-        // in turn as anchor and so any insertible element between that OVC element and 
+        // a dfdl:outputValueCalc element. That element will be considered
+        // in turn as anchor and so any insertible element between that OVC element and
         // a later sibling or end-of-element are handled during the next
         // call to this method.
         //
@@ -250,7 +250,7 @@ abstract class InsertableAugmenterBase(
     if (shouldAugmentParentOfIndicator) {
       // indicator was a later sibling
       val Start(node: DIElement) = indicatorEvent
-      node.parent.get.asInstanceOf[DIComplex]
+      node.parent.asInstanceOf[DIComplex]
     } else {
       val End(node: DIComplex) = indicatorEvent
       node

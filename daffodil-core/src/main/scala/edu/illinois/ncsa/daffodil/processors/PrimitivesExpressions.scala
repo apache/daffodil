@@ -45,8 +45,6 @@ import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceStartParser
 import edu.illinois.ncsa.daffodil.processors.parsers.AssertExpressionEvaluationParser
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
@@ -69,7 +67,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
-    extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
+  extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
 
   def this(
     decl: AnnotatedSchemaComponent,
@@ -102,13 +100,13 @@ abstract class AssertBooleanPrimBase(
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase)
-    extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
+  extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
 }
 
 case class DiscriminatorBooleanPrim(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase)
-    extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
+  extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
 // TODO: performance wise, initiated content is supposed to be faster
 // than evaluating an expression. There should be a better way to say
@@ -116,16 +114,16 @@ case class DiscriminatorBooleanPrim(
 // an XPath evaluator that runs fn:true() expression.
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
-    extends AssertBase(decl,
-      "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
-      // always true. We're just an assertion that says an initiator was found.
-      "initiatedContent. This message should not be used.",
-      true,
-      "initiatedContent") {
+  extends AssertBase(decl,
+    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
+    // always true. We're just an assertion that says an initiator was found.
+    "initiatedContent. This message should not be used.",
+    true,
+    "initiatedContent") {
 }
 
 case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-    extends ExpressionEvaluatorBase(decl) {
+  extends ExpressionEvaluatorBase(decl) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
 
@@ -140,18 +138,18 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-    extends Terminal(decl, true) {
+  extends Terminal(decl, true) {
 }
 
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-    extends NewVariableInstanceBase(decl, stmt) {
+  extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
   override def unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-    extends NewVariableInstanceBase(decl, stmt) {
+  extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
   override def unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
@@ -187,7 +185,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 }
 
 abstract class ValueCalcBase(e: ElementBase)
-    extends ExpressionEvaluatorBase(e) {
+  extends ExpressionEvaluatorBase(e) {
 
   def exprProp: Found
   override lazy val exprText = exprProp.value
@@ -203,7 +201,7 @@ case class ValueCalc(
   override val baseName: String,
   e: ElementBase,
   property: PropertyLookupResult)
-    extends ValueCalcBase(e) {
+  extends ValueCalcBase(e) {
 
   val exprProp = property.asInstanceOf[Found]
 
@@ -214,7 +212,7 @@ case class ValueCalc(
 }
 
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
-    extends Terminal(decl, true) {
+  extends Terminal(decl, true) {
 
   lazy val eName = decl.prettyName
   lazy val testPattern = {
@@ -230,7 +228,7 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
 }
 
 case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
-    extends AssertPatternPrimBase(decl, stmt) {
+  extends AssertPatternPrimBase(decl, stmt) {
 
   val kindString = "AssertPatternPrim"
 
@@ -241,7 +239,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 }
 
 case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
-    extends AssertPatternPrimBase(decl, stmt) {
+  extends AssertPatternPrimBase(decl, stmt) {
 
   val kindString = "DiscriminatorPatternPrim"
 

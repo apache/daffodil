@@ -124,7 +124,7 @@ abstract class TextDelimitedParserBase(
             val fieldNoPadding = trimByJustification(str)
             One(fieldNoPadding)
           }
-          val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
+          // val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
           One(new ParseResult(fieldValue, Nope, ""))
         }
       } else {
@@ -252,14 +252,14 @@ class TextDelimitedParserWithEscapeBlock(
 
       //Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
       val dfaStatus = fieldEsc.run(stateNum, fieldRegister, actionNum)
-      beforeDelimiter = input.markPos // at this point the input is one past the end of the field. 
+      beforeDelimiter = input.markPos // at this point the input is one past the end of the field.
       actionNum = 0
 
       dfaStatus.status match {
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
-          // Pick up where field left off, we are looking for 
+          // Pick up where field left off, we are looking for
           // the blockEnd.
           val endBlockRegister = TLRegistersPool.getFromPool()
           endBlockRegister.reset(input, delims) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
@@ -299,8 +299,8 @@ class TextDelimitedParserWithEscapeBlock(
               // a block start, (because we're in parseRemainder)
               // and we halted scanning because we found the start of a block end
               // However, it turns out not to be an entire block end.
-              // 
-              // So we keep going. But we have to accumulate the 
+              //
+              // So we keep going. But we have to accumulate the
               // characters we were scrutinizing as the possible block end
               // into the field.
               //
@@ -333,7 +333,7 @@ class TextDelimitedParserWithEscapeBlock(
         if (foundBlockEnd && isDelimRequired) Nope
         else if (!foundBlockEnd) Nope
         else {
-          // 
+          //
           // In this case we found a block end, and no delimiter is required
           // so we have enough to be done with the field
           //
@@ -355,7 +355,7 @@ class TextDelimitedParserWithEscapeBlock(
           One(r.delimString.toString)
         }
         val lookingFor = dfa.lookingFor
-        // 
+        //
         // Note: we have not consumed the delimiter from
         // the input. That's an invariant. When a parser ends,
         // any delimiter is NOT consumed. It gets consumed

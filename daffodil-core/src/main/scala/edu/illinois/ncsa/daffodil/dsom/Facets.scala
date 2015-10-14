@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,6 @@ import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 trait Facets { self: SimpleTypeDefBase =>
-  import Facet._
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
   private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
@@ -160,12 +159,12 @@ trait Facets { self: SimpleTypeDefBase =>
   final lazy val totalDigitsValue: java.math.BigDecimal = getFacetValue(localTotalDigitsValue, Facet.totalDigits, hasTotalDigits)
   final lazy val fractionDigitsValue: java.math.BigDecimal = getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
 
-  private def errorOnLocalLessThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
-    if (local < base) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ", theFacetType, local, theFacetType, base)
-  }
-  private def errorOnLocalGreaterThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
-    if (local > base) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ", theFacetType, local, theFacetType, base)
-  }
+  //  private def errorOnLocalLessThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
+  //    if (local < base) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ", theFacetType, local, theFacetType, base)
+  //  }
+  //  private def errorOnLocalGreaterThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
+  //    if (local > base) context.SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ", theFacetType, local, theFacetType, base)
+  //  }
   private def errorOnLocalLessThanBaseFacet(local: BigInteger,
     base: BigInteger, theFacetType: Facet.Type) = {
     val res = local.compareTo(base)
@@ -191,13 +190,13 @@ trait Facets { self: SimpleTypeDefBase =>
       theFacetType, local, theFacetType, base)
   }
 
-  private def getRemoteFacets(theFacetType: Facet.Type): Seq[FacetValueR] = {
-    val remoteValues = remoteBaseFacets.filter { case (f, _) => f == theFacetType }
-    if (remoteValues.size > 0) {
-      val res: Seq[FacetValueR] = remoteValues.map { case (f, v) => (f, v.r) }
-      res
-    } else Seq.empty
-  }
+  //  private def getRemoteFacets(theFacetType: Facet.Type): Seq[FacetValueR] = {
+  //    val remoteValues = remoteBaseFacets.filter { case (f, _) => f == theFacetType }
+  //    if (remoteValues.size > 0) {
+  //      val res: Seq[FacetValueR] = remoteValues.map { case (f, v) => (f, v.r) }
+  //      res
+  //    } else Seq.empty
+  //  }
 
   private def getRemoteFacetValues(theFacetType: Facet.Type): Seq[FacetValue] = {
     val res = remoteBaseFacets.filter { case (f, _) => f == theFacetType }
@@ -214,15 +213,15 @@ trait Facets { self: SimpleTypeDefBase =>
     "" // Indicates the facet doesn't exist
   }
 
-  private def evaluateFacet(check: (Long, Long, Facet.Type) => Unit, theFacetType: Facet.Type, theLocalFacet: Long) = {
-    val remoteFacetValues = getRemoteFacetValues(theFacetType)
-    if (remoteFacetValues.size > 0) {
-      val (_, remoteValues) = remoteFacetValues(0)
-      val theRemoteFacet = remoteValues(0).toLong
-      check(theLocalFacet, theRemoteFacet, theFacetType)
-    }
-    theLocalFacet
-  }
+  //  private def evaluateFacet(check: (Long, Long, Facet.Type) => Unit, theFacetType: Facet.Type, theLocalFacet: Long) = {
+  //    val remoteFacetValues = getRemoteFacetValues(theFacetType)
+  //    if (remoteFacetValues.size > 0) {
+  //      val (_, remoteValues) = remoteFacetValues(0)
+  //      val theRemoteFacet = remoteValues(0).toLong
+  //      check(theLocalFacet, theRemoteFacet, theFacetType)
+  //    }
+  //    theLocalFacet
+  //  }
 
   private def getFacetValue(theLocalValue: String, theRemoteValue: String, theType: Facet.Type, exists: Boolean): java.math.BigDecimal = {
     if (!exists) context.SDE("The facet %s was not found.", theType)
@@ -449,11 +448,11 @@ trait Facets { self: SimpleTypeDefBase =>
   private def isFacetInLongRange(facet: java.math.BigDecimal): Boolean = self.isInLongRange(facet)
   private def isFacetInDoubleRange(facet: java.math.BigDecimal): Boolean = self.isInDoubleRange(facet)
   private def isFacetInFloatRange(facet: java.math.BigDecimal): Boolean = self.isInFloatRange(facet)
-  private def isFacetInDecimalRange(facet: java.math.BigDecimal): Boolean = {
-    // BigDecimal is unbounded? So nothing outside of its range?
-    true
-  }
-  private def isFacetInNegativeIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInNonNegativeIntegerRange(facet)
+  //  private def isFacetInDecimalRange(facet: java.math.BigDecimal): Boolean = {
+  //     BigDecimal is unbounded? So nothing outside of its range?
+  //    true
+  //  }
+  //  private def isFacetInNegativeIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInNonNegativeIntegerRange(facet)
   private def isFacetInNonNegativeIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInNonNegativeIntegerRange(facet)
   private def isFacetInUnsignedLongRange(facet: java.math.BigDecimal): Boolean =
     isInUnsignedLongRange(facet)
@@ -474,7 +473,7 @@ trait Facets { self: SimpleTypeDefBase =>
     // Can likely do narrowing checks here
     //
     // BigInt use compareTo
-    //  a negative number, zero, or a positive number as this BigInteger is numerically less than, 
+    //  a negative number, zero, or a positive number as this BigInteger is numerically less than,
     //  equal to, or greater than o, which must be a BigInteger.
     facetType match {
       case Facet.minLength | Facet.maxLength | Facet.fractionDigits => {

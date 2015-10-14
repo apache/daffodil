@@ -91,7 +91,7 @@ case class URISchemaSource(fileOrResource: URI) extends DaffodilSchemaSource {
   }
 
   override def newInputSource() = {
-    val modTime = fileModTime // demand this so we have it recorded
+    fileModTime // demand this so we have it recorded
     val is = new InputSource(url.openStream())
     is.setSystemId(fileOrResource.toString)
     is

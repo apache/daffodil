@@ -35,13 +35,13 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
+
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
 import edu.illinois.ncsa.daffodil.util.{ Misc, Logging }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
+import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
@@ -58,7 +58,7 @@ class TestDsomCompiler extends Logging {
 
   // The below is lazy for a reason.
   // It defers evaluation until used. This is nice because suppose there is a bug
-  // in the Fakes stuff. Then you want tests that use that to fail. But lots of 
+  // in the Fakes stuff. Then you want tests that use that to fail. But lots of
   // these tests don't use this. If you make this an eager val, then if there
   // is any problem in the Fakes, the whole class can't be constructed, and None
   // of the tests will run. Lazy lets this class be constructed no matter what.
@@ -81,7 +81,7 @@ class TestDsomCompiler extends Logging {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
 
-    val df = schemaDoc.defaultFormat
+    schemaDoc.defaultFormat
     val tnr = schemaDoc.textNumberRep
     assertEquals(TextNumberRep.Standard, tnr)
     val tnr2 = decl.textNumberRep
@@ -190,7 +190,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
-    val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
+    decl.formatAnnotation.asInstanceOf[DFDLElement]
     assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
     //    fa.alignmentUnits match {
     //      case AlignmentUnits.Bits => println("was bits")
@@ -199,7 +199,7 @@ class TestDsomCompiler extends Logging {
   }
 
   /* @Test def testXsomMultifile(){
-   
+
     val parser = new XSOMParser()
     val apf = new DomAnnotationParserFactory()
     parser.setAnnotationParser(apf)
@@ -211,7 +211,7 @@ class TestDsomCompiler extends Logging {
     val sset = parser.getResult()
     val sds = parser.getDocuments().toList
     assertTrue(sds.size() >= 2)
-  
+
     // sds.map{sd => println(sd.getSystemId)}
   }*/
 
@@ -237,7 +237,7 @@ class TestDsomCompiler extends Logging {
     val sset = Compiler().compileNode(w).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(decl) = schemaDoc.globalElementDecls
+    val geds @ Seq(_) = schemaDoc.globalElementDecls; assertNotNull(geds)
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
 
@@ -250,19 +250,19 @@ class TestDsomCompiler extends Logging {
 
   @Test def test3 {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
-    val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
     // No annotations
-    val Seq(ct) = sd.globalComplexTypeDefs
+    val Seq(gct) = sd.globalComplexTypeDefs
+    assertNotNull(gct)
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
+    val Seq(e1f, e2f, e3f, _, _) = sd.globalElementDecls // there are 3 factories
     val e1 = e1f.forRoot()
-    val e2 = e2f.forRoot()
+    e2f.forRoot()
     val e3 = e3f.forRoot()
     assertEquals(
       ByteOrder.BigEndian.toString.toLowerCase(),
@@ -272,27 +272,28 @@ class TestDsomCompiler extends Logging {
     assertEquals("implicit", a1.asInstanceOf[DFDLElement].getProperty("occursCountKind"))
     // Explore local complex type def
     val seq = e1.sequence //... which is a sequence
-    val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
+    seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
     val Seq(e1a: DFDLElement) = e1.annotationObjs
     assertEquals("UTF-8", e1a.getProperty("encoding"))
 
     // Explore global simple type defs
-    val Seq(st1, st2, st3, st4) = sd.globalSimpleTypeDefs // there are two.
-    val Seq(b1, b2, b3, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
+    val Seq(st1, _, _, _) = sd.globalSimpleTypeDefs // there are two.
+    val Seq(b1, b2, _, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getProperty("alignmentUnits")) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
     assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // fourth is an assert with yadda message
 
     // Explore define formats
-    val Seq(df1, df2) = sd.defineFormats // there are two
+    val Seq(df1, _) = sd.defineFormats // there are two
     val def1 = df1.asInstanceOf[DFDLDefineFormat]
     assertEquals("def1", def1.name) // first is named "def1"
     assertEquals(Representation.Text.toString.toLowerCase, def1.formatAnnotation.getProperty("representation")) // has representation="text"
 
     // Explore define variables
-    val Seq(dv1, dv2) = sd.defineVariables // there are two
+    val Seq(dv1, _) = sd.defineVariables // there are two
+    assertNotNull(dv1)
     //assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
 
     // Explore define escape schemes
@@ -301,11 +302,11 @@ class TestDsomCompiler extends Logging {
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
-    val Seq(gr1, gr2, gr3, gr4, gr5) = sd.globalGroupDefs // there are two
+    val Seq(gr1, gr2, _, _, _) = sd.globalGroupDefs // there are two
     val seq1 = gr1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
 
     //Explore LocalSimpleTypeDef
-    val Seq(gr2c1, gr2c2, gr2c3) = gr2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[ModelGroup].groupMembers
+    val Seq(gr2c1, _, gr2c3) = gr2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[ModelGroup].groupMembers
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     assertEquals("tns:aType", ist.baseName)
 
@@ -316,7 +317,8 @@ class TestDsomCompiler extends Logging {
     assertEquals("{ $myVar1 eq (+47 mod 4) }", leda.asInstanceOf[DFDLDiscriminator].testBody.get)
 
     // Explore sequence
-    val Seq(seq1a: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
+    val Seq(ann: DFDLSequence) = seq1.annotationObjs // one format annotation with a property
+    assertNotNull(ann)
     assertEquals(SeparatorPosition.Infix, seq1.separatorPosition)
     val Seq(seq1e1, seq1s1) = seq1.groupMembers // has an element and a sub-sequence as its children.
     assertEquals(2, seq1e1.asInstanceOf[ElementRef].maxOccurs)
@@ -326,18 +328,17 @@ class TestDsomCompiler extends Logging {
 
   @Test def test4 {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
-    val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(gd1, gd2f, gd3, gd4, gd5) = sd.globalGroupDefs // Obtain Group nodes
+    val Seq(_, gd2f, _, _, _) = sd.globalGroupDefs // Obtain Group nodes
     val gd2 = gd2f.forGroupRef(dummyGroupRef, 1)
     val ch1 = gd2.modelGroup.asInstanceOf[Choice] // Downcast child-node of group to Choice
-    val Seq(cd1, cd2, cd3) = ch1.groupMembers // Children nodes of Choice-node, there are 3
+    val Seq(_, cd2, _) = ch1.groupMembers // Children nodes of Choice-node, there are 3
 
-    val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
+    // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
 
     assertEquals(AlignmentType.Implicit, ch1.alignment)
@@ -355,12 +356,11 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val compiler = Compiler()
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(ge1f, _, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     val Seq(a1: DFDLElement) = ge1.annotationObjs
 
@@ -376,13 +376,11 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val compiler = Compiler()
-
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(_, ge2, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
 
     val x = ge2.forRoot().typeDef.asInstanceOf[LocalSimpleTypeDef]
 
@@ -395,13 +393,11 @@ class TestDsomCompiler extends Logging {
         Misc.getRequiredResource(
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
-    val compiler = Compiler()
-
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(ge1f, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
+    val Seq(_, ge2f, ge3f, ge4f, ge5f, ge6f) = sd.globalElementDecls // Obtain global element nodes
 
     val ge2 = ge2f.forRoot()
     val ge3 = ge3f.forRoot()
@@ -447,7 +443,7 @@ class TestDsomCompiler extends Logging {
     val ge1 = ge1f.forRoot()
     val ct = ge1.elementComplexType
     val sq = ct.group.asInstanceOf[Sequence]
-    val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
+    val Seq(s1, _) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
     val s1tm = s1.terminatingMarkup
     val Seq(ce) = s1tm
     assertTrue(ce.isConstant)
@@ -488,22 +484,22 @@ class TestDsomCompiler extends Logging {
 
   @Test def test_simpleType_base_combining {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
-    val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
     // No annotations
-    val Seq(ct) = sd.globalComplexTypeDefs
+    val Seq(gct) = sd.globalComplexTypeDefs
+    assertNotNull(gct)
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
+    val Seq(e1f, e2f, e3f, _, _) = sd.globalElementDecls // there are 3 factories
     val e1 = e1f.forRoot()
-    val e2 = e2f.forRoot()
-    val e3 = e3f.forRoot()
+    e2f.forRoot()
+    e3f.forRoot()
 
-    val Seq(gs1f, gs2f, gs3f, gs4f) = sd.globalSimpleTypeDefs
+    val Seq(gs1f, _, gs3f, _) = sd.globalSimpleTypeDefs
 
     val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
 
@@ -537,17 +533,17 @@ class TestDsomCompiler extends Logging {
 
   @Test def test_group_references {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
-    val compiler = Compiler()
 
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
     // No annotations
-    val Seq(ct) = sd.globalComplexTypeDefs
+    val Seq(g) = sd.globalComplexTypeDefs;
+    assertNotNull(g)
 
     // Explore global element decl
-    val Seq(e1f, e2f, e3f, e4f, e5f) = sd.globalElementDecls // there are 3 factories
+    val Seq(_, _, _, e4f, e5f) = sd.globalElementDecls // there are 3 factories
 
     // GroupRefTest
     val e4 = e4f.forRoot() // groupRefTest
@@ -589,7 +585,8 @@ class TestDsomCompiler extends Logging {
     val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
 
     val myGlobal3 = e5ctgref.groupDef
-    val myGlobal3Seq = myGlobal3.modelGroup.asInstanceOf[Sequence]
+    // val myGlobal3Seq =
+    myGlobal3.modelGroup.asInstanceOf[Sequence]
 
     // Tests overlapping properties
     assertTrue(e5ctgref.isError)
@@ -604,7 +601,6 @@ class TestDsomCompiler extends Logging {
   @Test def test_ibm_7132 {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
-    val compiler = Compiler()
     val sset = new SchemaSet(ibm7132Schema)
     // val Seq(sch) = sset.schemas
     val Seq(sd) = sset.allSchemaDocuments
@@ -624,7 +620,7 @@ class TestDsomCompiler extends Logging {
     val ct = ge1.elementComplexType
     val seq = ct.sequence
 
-    val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
+    val Seq(e1: ElementBase, _: ElementBase) = seq.groupMembers
 
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
     //
@@ -637,7 +633,7 @@ class TestDsomCompiler extends Logging {
     e1.lengthKind
   }
 
-  @Test def testDfdlRef = {
+  @Test def testDfdlRef() {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
@@ -648,7 +644,7 @@ class TestDsomCompiler extends Logging {
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    val props = ge1.formatAnnotation.properties
+    ge1.formatAnnotation.properties
 
     // println(props)
     //assertEquals(":", ge1.initiatorRaw)
@@ -684,15 +680,13 @@ class TestDsomCompiler extends Logging {
               </bar>
 
     val scope = (xml \ "quux")(0).scope
-    // println(scope)
-    val newElem = scala.xml.Elem("dfdl", "element", scala.xml.Null, scope, true)
-    // println(newElem)
+    scala.xml.Elem("dfdl", "element", scala.xml.Null, scope, true)
   }
 
   @Test def test_delim_inheritance {
     val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml").toURL)
 
-    val compiler = Compiler()
+    // val compiler = Compiler()
     val sset = new SchemaSet(delimiterInheritance)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
@@ -702,7 +696,7 @@ class TestDsomCompiler extends Logging {
 
     val seq = ge1.sequence
 
-    val Seq(e1: LocalElementDecl, e2: ElementBase, e3: ElementBase) = seq.groupMembers
+    val Seq(e1: LocalElementDecl, _ /* e2 */ : ElementBase, e3: ElementBase) = seq.groupMembers
 
     //    println(e1.properties)
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
@@ -762,7 +756,7 @@ class TestDsomCompiler extends Logging {
     val seq = ge1.sequence
 
     val Seq(e1: LocalElementDecl, e2: LocalElementDecl) = seq.groupMembers
-    val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
+    e1.formatAnnotation.asInstanceOf[DFDLElement]
     // val props = e1.properties
 
     val e1f_esref = e1.getProperty("escapeSchemeRef")
@@ -772,7 +766,7 @@ class TestDsomCompiler extends Logging {
 
     // Should have escapeCharacter and escapeKind
 
-    val e2f = e2.formatAnnotation.asInstanceOf[DFDLElement]
+    e2.formatAnnotation.asInstanceOf[DFDLElement]
     val e2f_esref = e2.getProperty("escapeSchemeRef")
     // escapeBlockStart/End escapeBlockKind (NOTHING ELSE)
     assertEquals("cStyleComment", e2f_esref)
@@ -786,15 +780,15 @@ class TestDsomCompiler extends Logging {
     val Seq(sd) = sch.schemaDocuments
 
     // No annotations
-    val Seq(ct) = sd.globalComplexTypeDefs
+    // val Seq(ct) = sd.globalComplexTypeDefs
 
     // g1.name == "gr"
-    val Seq(g1: GlobalGroupDefFactory, g2, g3, g4, g5) = sd.globalGroupDefs
+    val Seq(g1: GlobalGroupDefFactory, _, _, _, _) = sd.globalGroupDefs
 
     val seq1 = g1.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[Sequence]
 
     // e1.ref == "ex:a"
-    val Seq(e1r: ElementRef, s1: Sequence) = seq1.groupMembers
+    val Seq(e1r: ElementRef, _: Sequence) = seq1.groupMembers
     val e1 = e1r.referencedElement
     assertEquals(2, e1r.maxOccurs)
     assertEquals(1, e1r.minOccurs)
@@ -826,7 +820,7 @@ class TestDsomCompiler extends Logging {
 
     val seq = ge1.sequence
 
-    val Seq(s1, s2, s3) = seq.groupMembers
+    val Seq(_, _, s3) = seq.groupMembers
     val s3s = s3.asInstanceOf[Sequence]
     val Seq(es) = s3s.groupMembers
     val ese = es.asInstanceOf[LocalElementDecl]
@@ -835,4 +829,3 @@ class TestDsomCompiler extends Logging {
   }
 
 }
-

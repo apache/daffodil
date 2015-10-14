@@ -4,7 +4,10 @@ organization in ThisBuild := "edu.illinois.ncsa"
 
 scalaVersion in ThisBuild := "2.11.7"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings", "-Xxml:-coalescing", "-language:experimental.macros")
+// incOptions := incOptions.value.withNameHashing(true) // 2.11 experimental incremental compilation improvements (perhaps not working right?)
+
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings", "-Xxml:-coalescing", "-language:experimental.macros", "-Ybackend:GenBCode", "-Yopt-warnings", 
+ "-Ywarn-inaccessible", "-Ywarn-unused-import", "-Ywarn-unused", "-Ywarn-infer-any", "-Ywarn-nullary-override", "-Ydead-code" )
 
 // parallelExecution in ThisBuild := false
 

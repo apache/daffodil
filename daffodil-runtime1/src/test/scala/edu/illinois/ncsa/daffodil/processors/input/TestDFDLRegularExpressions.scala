@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,11 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.input
 
 import junit.framework.Assert._
-import scala.util.parsing.combinator._
-import java.io.StringReader
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-
 import edu.illinois.ncsa.daffodil.processors.DFDLRegularExpressions
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
 
@@ -396,7 +392,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -434,7 +430,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -476,7 +472,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -484,7 +480,7 @@ class TestDFDLRegularExpressions {
 
     // Because this is Left justified the padding at the start of the field is actually
     // considered to be content.  This breaks the normal behavior of the blockstart and blockend
-    // because it is required that blockstart must occur at the very beginning of the content. 
+    // because it is required that blockstart must occur at the very beginning of the content.
 
     // no blockstart/end
     assertEquals(Some(("PPPbefore", "D", "after")), test("PPPbeforePPPDafter"))
@@ -522,7 +518,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -530,7 +526,7 @@ class TestDFDLRegularExpressions {
 
     // Because this is Left justified the padding at the start of the field is actually
     // considered to be content.  This breaks the normal behavior of the blockstart and blockend
-    // because it is required that blockstart must occur at the very beginning of the content. 
+    // because it is required that blockstart must occur at the very beginning of the content.
 
     // no blockstart/end
     assertEquals(Some(("PPPbefore", "D", "after")), test2("PPPbeforePPPDafter"))
@@ -572,7 +568,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -615,7 +611,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -663,7 +659,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }
@@ -701,7 +697,7 @@ class TestDFDLRegularExpressions {
         Some((before, delim, after))
       }
       case z => {
-        // println("no match: " + z); 
+        // println("no match: " + z);
         None
       }
     }

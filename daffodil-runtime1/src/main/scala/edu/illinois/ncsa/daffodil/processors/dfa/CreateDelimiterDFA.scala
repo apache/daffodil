@@ -52,7 +52,7 @@ object CreateDelimiterDFA {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val initialState = buildTransitions(delimiter, allStates)
+      buildTransitions(delimiter, allStates)
 
     val unparseValue = delimiter.map { _.unparseValue(outputNewLine) }.mkString
     new DFADelimiterImplUnparse(allStates.reverse.toArray, delimiterStr, unparseValue)
@@ -66,7 +66,7 @@ object CreateDelimiterDFA {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val initialState = buildTransitions(delimiter, allStates)
+     buildTransitions(delimiter, allStates)
 
     new DFADelimiterImpl(allStates.reverse.toArray, delimiterStr)
   }

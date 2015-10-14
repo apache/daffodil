@@ -8,16 +8,13 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.processors.DataLoc
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.Failure
@@ -29,12 +26,11 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.dpath.UnparseMode
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.LocalStack
@@ -71,7 +67,7 @@ class UState(
 
   def setMode(dstate: DState) = dstate.setMode(UnparseMode)
 
-  def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
+  @inline final def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
     val savedDOS = dataOutputStream
     try {
       dataOutputStream = temp
@@ -96,7 +92,7 @@ class UState(
   }
 
   private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope
-  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) Nope else currentInfosetNodeStack.topMaybe
+  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) null else currentInfosetNodeStack.topMaybe
   def currentInfosetEvent = currentInfosetEvent_
 
   def setCurrentInfosetEvent(ev: Maybe[InfosetEvent]) {
@@ -116,15 +112,15 @@ class UState(
     val ev = infosetSource.next
     currentInfosetEvent_ = One(ev)
     if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.popMaybe
-    currentInfosetNodeStack.pushMaybe(One(ev.node))
+    currentInfosetNodeStack.pushMaybe(ev.node)
     ev
   }
 
-  override def hasInfoset = currentInfosetNode.isDefined
+  override def hasInfoset = Maybe.isDefined(currentInfosetNode)
 
   override def infoset = {
-    Assert.invariant(currentInfosetNode.isDefined)
-    currentInfosetNode.get match {
+    Assert.invariant(Maybe.isDefined(currentInfosetNode))
+    currentInfosetNode match {
       case a: DIArray => {
         a.getOccurrence(arrayPos)
       }
@@ -133,8 +129,8 @@ class UState(
   }
 
   override def thisElement: InfosetElement = {
-    Assert.usage(currentInfosetNode.isDefined)
-    val curNode = currentInfosetNode.get
+    Assert.usage(Maybe.isDefined(currentInfosetNode))
+    val curNode = currentInfosetNode
     curNode match {
       case e: DIElement => e
       case a: DIArray => a.parent
@@ -148,9 +144,9 @@ class UState(
   val unparseResult = new UnparseResult(dataProcArg, this)
 
   private def maybeCurrentInfosetElement: Maybe[DIElement] = {
-    if (!currentInfosetNode.isDefined) Nope
+    if (!Maybe.isDefined(currentInfosetNode)) Nope
     else {
-      currentInfosetNode.get match {
+      currentInfosetNode match {
         case e: DIElement => One(e)
         case a: DIArray => Nope
       }
@@ -162,7 +158,7 @@ class UState(
    * elements are retained; hence, the unparser is free to delete them, clobber
    * them or whatever it wants.
    */
-  var removeUnneededInfosetElements = false // set from API of top level Unparser call. 
+  var removeUnneededInfosetElements = false // set from API of top level Unparser call.
 
   def currentLocation: DataLocation = {
     new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),

@@ -32,9 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import scala.util.parsing.input.Reader
-import org.junit.Test
-
 class TestDFDLReaders {
 
   //  var dr : DFDLCharReader = null

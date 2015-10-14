@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -39,10 +39,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Bits
 import scala.language.postfixOps
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
@@ -135,20 +133,17 @@ object USASCII7BitPackedCharset
  */
 class USASCII7BitPackedDecoder
   extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.charsPerByte, // average 
+    USASCII7BitPackedCharset.charsPerByte, // average
     USASCII7BitPackedCharset.charsPerByte) // maximum
   with USASCII7BitPackedEncoderDecoderMixin {
 
   override def implReset() {
     // println("Reset")
     resetStartBit()
-    buf = null
     hasPriorByte = false
     priorByte = 0
     priorByteBitCount = 0
   }
-
-  private var buf: ByteBuffer = _
 
   private var priorByte = 0
   private var hasPriorByte = false
@@ -188,7 +183,7 @@ class USASCII7BitPackedDecoder
     while (true) {
 
       (hasPriorByte, priorByteBitCount, in.hasRemaining(), out.hasRemaining()) match {
-        // 
+        //
         // Fresh start, and also every 56 bits we hit a clean
         // byte boundary again
         //
@@ -215,7 +210,7 @@ class USASCII7BitPackedDecoder
         case (NoPrior, 0, _, NoSpace) => return CoderResult.OVERFLOW
         case (NoPrior, n, YesData, _) => {
           // This happens if we're starting the decode loop at a startBitOffset that is non-zero.
-          // we basically grab one byte and pretend it's the prior byte. 
+          // we basically grab one byte and pretend it's the prior byte.
           priorByte = Bits.asUnsignedByte(in.get())
           hasPriorByte = true
         }
@@ -304,7 +299,7 @@ class USASCII7BitPackedEncoder
     USASCII7BitPackedCharset.bytesPerChar) // maximum
   with USASCII7BitPackedEncoderDecoderMixin {
 
-  // TODO: make this efficient. Right now it is inflating things to 
+  // TODO: make this efficient. Right now it is inflating things to
   // strings of "0" and "1". However, the only use is TDML currently.
   def encodeLoop(cb: CharBuffer, bb: ByteBuffer): CoderResult = {
     val bits =
@@ -325,10 +320,9 @@ class USASCII7BitPackedEncoder
     // This is specific to bitOrder leastSignificantBitFirst
     //
     val bitsAsFullBytes = (bits.map { _.reverse }.mkString + padBits).reverse
-    // 
+    //
     val bytes = bitsAsFullBytes.sliding(8, 8).map { Integer.parseInt(_, 2).toByte }.toArray.reverse
     bb.put(bytes)
     CoderResult.UNDERFLOW
   }
 }
-

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -148,7 +148,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   /*
    * Anything non-annotated always returns property not found
-   * 
+   *
    * Override in annotated components
    */
   def findPropertyOption(pname: String): PropertyLookupResult = {
@@ -156,7 +156,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     NotFound(Nil, Nil)
   }
   // Q: not sure why non-annotated schema components need to have findProperty
-  // on them at all. Who would call it polymorphically, not knowing whether they 
+  // on them at all. Who would call it polymorphically, not knowing whether they
   // have an annotated schema component or not?
   // A: DFDLAnnotation - the annotation objects themselves - aren't annotated
   // schema components - they have a relationship to an annotated schema component
@@ -285,7 +285,7 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
   override def targetNamespace: NS = namespace
 
   override lazy val enclosingComponent = None
-  override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on Schema")
+  override lazy val schemaDocument: SchemaDocument = Assert.usageError("schemaDocument should not be called on Schema")
 
   override lazy val schemaSet = schemaSetArg
 

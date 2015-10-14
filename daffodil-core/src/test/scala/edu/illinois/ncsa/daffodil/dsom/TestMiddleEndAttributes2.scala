@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.TestUtils
@@ -66,9 +65,9 @@ class TestMiddleEndAttributes2 {
     val seq1 = e1ct.sequence
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems
-    val seq2 = t1.asInstanceOf[Sequence]
+    t1.asInstanceOf[Sequence]
     val actual = TestUtils.testString(testSchema, "/5").result
-    val actualString = actual.toString
+    actual.toString
     val expected = <e1><x>5</x></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

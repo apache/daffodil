@@ -1,9 +1,8 @@
 package edu.illinois.ncsa.daffodil.util
 
 import scala.collection.AbstractIterator
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
+// import edu.illinois.ncsa.daffodil.equality._ // TODO: Scala compiler bug - can't use =#= in this file (scalac 2.11.7) because we get a spurious compile error (unable to find ViewEquality in package equality.)
 import scala.collection.AbstractIterable
 
 object MStack {
@@ -33,21 +32,21 @@ object MStack {
     private val delegate = new Of[T]
     private val nullT = null.asInstanceOf[T]
 
-    @inline def popMaybe: Maybe[T] = Maybe(delegate.pop)
+    @inline final def popMaybe: T = delegate.pop
 
-    @inline def pushMaybe(m: Maybe[T]) {
-      if (m.isDefined) delegate.push(m.get)
+    @inline final def pushMaybe(m: T) {
+      if (m ne null) delegate.push(m)
       else delegate.push(nullT)
     }
 
-    @inline def topMaybe: Maybe[T] = Maybe(delegate.top)
+    @inline final def topMaybe: T = delegate.top
 
-    @inline def isEmpty = delegate.isEmpty
+    @inline final def isEmpty = delegate.isEmpty
 
     def clear() = delegate.clear()
     def toListMaybe = delegate.toList.map {
-      x: AnyRef => Maybe(x).asInstanceOf[AnyRef] // Scala compiler bug without this cast
-    }.asInstanceOf[List[Maybe[T]]]
+      x: AnyRef => Maybe(x) // Scala compiler bug without this cast
+    }
   }
 
   /**
@@ -63,19 +62,19 @@ object MStack {
    * an object reference or null, and call Maybe(thing) explicitly outside the
    * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
    */
-  class Of[T <: AnyRef] {
+  final class Of[T <: AnyRef] {
 
     private val delegate = new MStack[AnyRef](
       (n: Int) => new Array[AnyRef](n),
       null.asInstanceOf[T])
 
-    @inline def mark = delegate.mark
-    @inline def reset(m: MStack.Mark) = delegate.reset(m)
+    @inline final def mark = delegate.mark
+    @inline final def reset(m: MStack.Mark) = delegate.reset(m)
 
-    @inline def push(t: T) = delegate.push(t)
-    @inline def pop: T = delegate.pop.asInstanceOf[T]
-    @inline def top: T = delegate.top.asInstanceOf[T]
-    @inline def isEmpty = delegate.isEmpty
+    @inline final def push(t: T) = delegate.push(t)
+    @inline final def pop: T = delegate.pop.asInstanceOf[T]
+    @inline final def top: T = delegate.top.asInstanceOf[T]
+    @inline final def isEmpty = delegate.isEmpty
     def clear() = delegate.clear()
     def toList = delegate.toList
 
@@ -96,7 +95,7 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
 
   private var index = 0
   private var table = arrayAllocator(32)
-  private var currentIteratorIndex = -1
+  // private var currentIteratorIndex = -1
 
   private def growArray(x: Array[T]) = {
     val y = arrayAllocator(math.max(x.length * 2, 1))
@@ -111,24 +110,24 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
    * mark, so long as you don't pop before push, and don't pop more times than push,
    * it will restore the stack to the contents it had.
    */
-  @inline def mark = MStack.Mark(index)
+  @inline final def mark = MStack.Mark(index)
 
   /**
    *  resets stack top to where it was when mark was called.
    */
-  @inline def reset(m: MStack.Mark) {
+  @inline final def reset(m: MStack.Mark) {
     index = m.v
   }
 
   /** The number of elements in the stack */
-  @inline def length = index
+  @inline final def length = index
 
   /**
    * Push an element onto the stack.
    *
    *  @param x The element to push
    */
-  @inline def push(x: T) {
+  @inline final def push(x: T) {
     if (index == table.length) table = growArray(table)
     table(index) = x
     index += 1
@@ -139,7 +138,7 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
    *
    *  @return the element on top of the stack
    */
-  @inline def pop(): T = {
+  @inline final def pop(): T = {
     if (index == 0) Assert.usageError("Stack empty")
     index -= 1
     val x = table(index)
@@ -155,9 +154,9 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
    *
    *  @return the element on top of the stack.
    */
-  @inline def top: T = table(index - 1).asInstanceOf[T]
+  @inline final def top: T = table(index - 1).asInstanceOf[T]
 
-  @inline def isEmpty: Boolean = index == 0
+  @inline final def isEmpty: Boolean = index == 0
 
   def clear() = {
     index = 0
@@ -171,7 +170,7 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
    */
   def iterator: Iterator[T] = new Iterator[T] {
     private var currentIndex = index
-    private val initialIndex = index
+    // private val initialIndex = index
 
     def hasNext = currentIndex > 0
     def next() = {

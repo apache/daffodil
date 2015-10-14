@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import java.nio.charset.StandardCharsets
 import java.nio.charset.Charset
@@ -25,10 +24,10 @@ trait DataStreamCommonState {
   //
   // These are for dealing with 4-byte UTF-8 codepoints
   // that require 2 16-bit charaters.
-  // 
+  //
   // This only comes up in an incredibly obscure case
   // when fillCharBuffer is called with a char buffer having
-  // room for only a single 16-bit codepoint, and the 
+  // room for only a single 16-bit codepoint, and the
   // data's first byte is 0xF0, which indicates 4-bytes
   // need to be consumed, to create two 16 bit code units
   // aka a surrogate-pair.
@@ -58,7 +57,6 @@ trait DataStreamCommonState {
 }
 
 trait DataStreamCommonImplMixin extends DataStreamCommon {
-  import DataStreamCommon._
 
   protected def cst: DataStreamCommonState
 
@@ -71,21 +69,6 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
   //  final override def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit = { cst.maybeCharWidthInBits = charWidthInBits }
   //  final override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = { cst.encodingMandatoryAlignmentInBits = bitAlignment }
   final override def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = { cst.maybeUTF16Width = maybeUTF16Width }
-
-  final override def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = {
-    val savedLengthLimit = bitLimit0b
-    if (!setBitLimit0b(MaybeULong(bitPos0b + lengthLimitInBits))) false
-    else {
-      try {
-        body
-      } finally {
-        resetBitLimit0b(savedLengthLimit)
-      }
-      true
-    }
-  }
-
-  private[io] def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
   final override def remainingBits: MaybeULong = {
     if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get - bitPos0b)

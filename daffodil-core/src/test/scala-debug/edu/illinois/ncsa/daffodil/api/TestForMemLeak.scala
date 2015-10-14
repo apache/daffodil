@@ -31,14 +31,11 @@
  */
 
 package edu.illinois.ncsa.daffodil.api
-import junit.framework.Assert._
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnAPI1 { ImplicitsSuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import edu.illinois.ncsa.daffodil.util.TestUtils
 
 //object Fakes {
 //  lazy val sch = <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">

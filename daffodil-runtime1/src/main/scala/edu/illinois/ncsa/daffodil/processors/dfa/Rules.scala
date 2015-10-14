@@ -36,10 +36,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.processors.WSP
 import edu.illinois.ncsa.daffodil.processors.NL
-import edu.illinois.ncsa.daffodil.processors.DelimBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
@@ -116,14 +114,14 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
     val res =
       if (pTerm0.isInstanceOf[WSPStarState]) {
         val wspStar = pTerm0.asInstanceOf[WSPStarState]
-        if (wspStar.checkMatch(charIn)) { true } // Was a space 
+        if (wspStar.checkMatch(charIn)) { true } // Was a space
         else if (wspStar.nextState == DFA.FinalState) {
           // WSP* is not allowed to appear by itself as a terminator
           // or separator.
           //
           Assert.impossibleCase
         } else {
-          // Wasn't a space, this is OK because it can be optional. 
+          // Wasn't a space, this is OK because it can be optional.
           // The character must match the next state in order for it to
           // be the start of a delimiter.
           //
@@ -142,8 +140,8 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
 // The compiler could create rule objects and add them to the rules. This is what
 // we would expect when compiling a delimiter, which can mean any terminating markup
 // each of which is specified as a list of individual delimiters. Each of those
-// can have char class entities like WSP+ in it, and so on. 
-// 
+// can have char class entities like WSP+ in it, and so on.
+//
 
 /**
  * Ambiguity Truth Table
@@ -476,8 +474,8 @@ class EECState(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: MaybeC
 
   val stateName = "EECState"
   val rules = ArrayBuffer(
-    // Because this is about EC and EEC we can 
-    // just write these rules down statically. 
+    // Because this is about EC and EEC we can
+    // just write these rules down statically.
     // The real delim compiler would generate a flock of rules
     // based on what the actual delimiters are.
     //
@@ -519,8 +517,8 @@ class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val E
 
   val stateName = "EECState"
   val rules = ArrayBuffer(
-    // Because this is about EC and EEC we can 
-    // just write these rules down statically. 
+    // Because this is about EC and EEC we can
+    // just write these rules down statically.
     // The real delim compiler would generate a flock of rules
     // based on what the actual delimiters are.
     //

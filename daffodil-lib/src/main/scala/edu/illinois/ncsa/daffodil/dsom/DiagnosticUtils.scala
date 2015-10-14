@@ -78,10 +78,10 @@ object DiagnosticUtils {
 }
 
 trait DiagnosticImplMixin
-    extends Diagnostic {
-  def getSomeCause() = DiagnosticUtils.getSomeCause(this)
-  def getSomeMessage() = DiagnosticUtils.getSomeMessage(this)
-  def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = Nil
-  def getDataLocations(): Seq[DataLocation] = Nil
+  extends Diagnostic {
+  def getSomeCause = DiagnosticUtils.getSomeCause(this)
+  def getSomeMessage = DiagnosticUtils.getSomeMessage(this)
+  def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = Nil
+  def getDataLocations: Seq[DataLocation] = Nil
   def isError = true
 }

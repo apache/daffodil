@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,10 +37,7 @@ import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
@@ -49,11 +46,9 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 import edu.illinois.ncsa.daffodil.xml.RefQName
@@ -123,15 +118,15 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       qns.map {
         case qn =>
           // first we have to adjust the namespace
-          // because a file with no target namespace, 
-          // can reference something in another file, which also has no target 
-          // namespace. The files can collectively or by nesting, be 
+          // because a file with no target namespace,
+          // can reference something in another file, which also has no target
+          // namespace. The files can collectively or by nesting, be
           // included in a third file that has a namespace, and in that
-          // case all the format definitions being created as those 
+          // case all the format definitions being created as those
           // files are loaded will be in that third namespace.
           // so just because we had <dfdl:format ref="someFormat"/> and the
-          // ref has no namespace prefix on it, doesn't mean that the 
-          // defineFormat we're seeking is in no namespace. 
+          // ref has no namespace prefix on it, doesn't mean that the
+          // defineFormat we're seeking is in no namespace.
           val adjustedNS = adjustNamespace(qn.namespace)
           val adjustedQN = RefQName(None, qn.local, adjustedNS)
           val notSeenIt = seen.get(adjustedQN) == None
@@ -148,7 +143,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
           moreRefs
       }.getOrElse({
         lazy val seenStrings = seen.map {
-          case (qn, v) => qn.local // + " is " + v.xml 
+          case (qn, v) => qn.local // + " is " + v.xml
         }.toSeq
         log(LogLevel.Debug, "Property sources are: %s", seenStrings.mkString("\n"))
         seen
@@ -172,12 +167,12 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * Don't need the map anymore, and we put ourselves highest
    * priority meaning at the front of the list.
    */
-  private lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
-    val fmts = formatRefMap.map { case (_, fmt) => fmt }
-    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
-    val seq = Seq(this) ++ fmts
-    seq
-  }
+  //  private lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
+  //    val fmts = formatRefMap.map { case (_, fmt) => fmt }
+  //    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
+  //    val seq = Seq(this) ++ fmts
+  //    seq
+  //  }
 
   private lazy val shortFormProperties: Set[PropItem] = {
     // shortForm properties should be prefixed by dfdl
@@ -197,7 +192,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
     //
     // TODO: This strips away any qualified attribute
-    // That won't work when we add extension attributes 
+    // That won't work when we add extension attributes
     // like daffodil:asAttribute="true"
     //
     val kvPairs = xml.attributes.asAttrMap.collect {
@@ -259,4 +254,3 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   }.value
 
 }
-

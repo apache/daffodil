@@ -33,28 +33,11 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.processors._
-import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.LocalStack
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-import scala.math.BigDecimal.RoundingMode
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import java.text.ParsePosition
-import com.ibm.icu.util.SimpleTimeZone
-import com.ibm.icu.util.TimeZone
-import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 
 sealed trait ParseOrUnparseMode
 case object ParseMode extends ParseOrUnparseMode
@@ -175,10 +158,10 @@ case class DState() {
   }
 
   // These exists so we can override it in our fake DState we use when
-  // checking expressions to see if they are constants. SelfMove 
-  // for real is a no-op, but when we're evaluating an expression to see if 
-  // it is a constant, the expression "." aka self, isn't constant. 
-  // Similarly, if you call fn:exists(....) and the contents are not gong to 
+  // checking expressions to see if they are constants. SelfMove
+  // for real is a no-op, but when we're evaluating an expression to see if
+  // it is a constant, the expression "." aka self, isn't constant.
+  // Similarly, if you call fn:exists(....) and the contents are not gong to
   // exist at constnat fold time. But we don't want fn:exists to say the result
   // is always a constant (false) because at constant folding time, hey, nothing
   // exists... this hook lets us change behavior for constant folding to throw.

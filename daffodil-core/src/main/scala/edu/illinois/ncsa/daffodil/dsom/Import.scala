@@ -51,7 +51,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
 import java.net.URLDecoder
@@ -69,7 +68,7 @@ import java.net.URLEncoder
  * is different from this imported schema's goalNamespace.
  */
 final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
-    extends IIBase(importNode, xsd, seenArg) {
+  extends IIBase(importNode, xsd, seenArg) {
 
   final def mapPair = LV('mapPair) {
     val mpOpt = importElementNS.map { ieNS => (ieNS, resolvedLocation) }

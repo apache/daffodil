@@ -32,13 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.section14.unordered_sequences
 
-import junit.framework.Assert._
-import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TestUnorderedSequencesNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/unordered_sequences/"

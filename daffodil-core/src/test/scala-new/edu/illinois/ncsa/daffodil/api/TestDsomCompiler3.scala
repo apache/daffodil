@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,10 +35,8 @@ package edu.illinois.ncsa.daffodil.api
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import java.io.File
@@ -77,10 +75,10 @@ class TestDsomCompiler3 {
     try {
       tmpDir.mkdirs
       val sset = Compiler().compileNode(sc, Some(tmpDir)).sset
-      
+
       val list = tmpDir.list()
       assertEquals(1, list.length)
-      
+
       val fileName = list(0)
       assertTrue(fileName.contains(".dfdl.xsd"))
 
@@ -93,7 +91,7 @@ class TestDsomCompiler3 {
       val Seq(ct) = schemaDoc.globalComplexTypeDefs
       assertEquals("example1", ct.name)
 
-      val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
+      decl.formatAnnotation.asInstanceOf[DFDLElement]
       assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
     } finally {
       if (tmpDir.exists) {
@@ -102,7 +100,7 @@ class TestDsomCompiler3 {
       }
     }
   }
-  
+
   @Test def testSlots1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -148,7 +146,7 @@ class TestDsomCompiler3 {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
-    val Seq(w, x) = decl.elementChildren
+    val Seq(w, _) = decl.elementChildren
     val wSlot = w.slotIndexInParent
     assertEquals(2, decl.nChildSlots)
     assertEquals(0, wSlot)

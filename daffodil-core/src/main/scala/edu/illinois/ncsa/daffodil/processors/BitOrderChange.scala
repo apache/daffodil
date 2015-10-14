@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.processors.unparsers.BitOrderChangeUnparser
 
 /**
@@ -42,8 +41,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.BitOrderChangeUnparser
  */
 
 case class BitOrderChange(t: Term) extends Terminal(t, true) {
-
-  private val littleEndian = ByteOrder.LittleEndian.toString
 
   override lazy val parser = new BitOrderChangeParser(t.runtimeData, t.defaultBitOrder, t.byteOrder)
 

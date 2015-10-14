@@ -2,10 +2,9 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import org.junit.Test
 import org.junit.Assert._
-import scala.xml.pull._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarnU1 { EqualitySuppressUnusedImportWarning() }
 import scala.io.Source
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
@@ -44,8 +43,6 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    var dataSize: Long = 0
-
     val xmlEventReader = new XMLPullParser(source)
 
     val rootERD = u.ssrd.elementRuntimeData
@@ -53,11 +50,15 @@ class TestInfosetSourceFromXMLEventReader3 {
     val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
 
     val Start(bar_s: DIComplex) = is.next
+    assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
     val End(foo_e: DISimple) = is.next
+    assertNotNull(foo_e)
     val Start(afterFoo_s: DISimple) = is.next
     val End(afterFoo_e: DISimple) = is.next
+    assertNotNull(afterFoo_e)
     val End(bar_e: DIComplex) = is.next
+    assertNotNull(bar_e)
 
     assertEquals("abcde", foo_s.dataValue)
     assertEquals("Hello", afterFoo_s.dataValue)
@@ -88,20 +89,18 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    var dataSize: Long = 0
-
     val xmlEventReader = new XMLPullParser(source)
 
     val rootERD = u.ssrd.elementRuntimeData
 
     val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
 
-    val Start(bar_s: DIComplex) = is.next
+    val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
+    val End(foo_e: DISimple) = is.next; assertNotNull(foo_e)
     val Start(afterFoo_s: DISimple) = is.next
-    val End(afterFoo_e: DISimple) = is.next
-    val End(bar_e: DIComplex) = is.next
+    val End(afterFoo_e: DISimple) = is.next; assertNotNull(afterFoo_e)
+    val End(bar_e: DIComplex) = is.next; assertNotNull(bar_e)
 
     assertTrue(foo_s.asInstanceOf[DISimple].hasValue) // has a value because expression is a constant
     assertTrue(foo_s.runtimeData.outputValueCalcExpr.isDefined)
@@ -134,20 +133,18 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    var dataSize: Long = 0
-
     val xmlEventReader = new XMLPullParser(source)
 
     val rootERD = u.ssrd.elementRuntimeData
 
     val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
 
-    val Start(bar_s: DIComplex) = is.next
+    val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
+    val End(foo_e: DISimple) = is.next; assertNotNull(foo_e)
     val Start(afterFoo_s: DISimple) = is.next
-    val End(afterFoo_e: DISimple) = is.next
-    val End(bar_e: DIComplex) = is.next
+    val End(afterFoo_e: DISimple) = is.next; assertNotNull(afterFoo_e)
+    val End(bar_e: DIComplex) = is.next; assertNotNull(bar_e)
 
     assertTrue(foo_s.asInstanceOf[DISimple].hasValue) // has a value because expression is a constant
     assertEquals("abcde", foo_s.dataValue)
@@ -182,22 +179,20 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    var dataSize: Long = 0
-
     val xmlEventReader = new XMLPullParser(source)
 
     val rootERD = u.ssrd.elementRuntimeData
 
     val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
 
-    val Start(bar_s: DIComplex) = is.next
+    val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
+    val End(foo_e: DISimple) = is.next; assertNotNull(foo_e)
     val Start(foo2_s: DISimple) = is.next
-    val End(foo2_e: DISimple) = is.next
+    val End(foo2_e: DISimple) = is.next; assertNotNull(foo2_e)
     val Start(afterFoo_s: DISimple) = is.next
-    val End(afterFoo_e: DISimple) = is.next
-    val End(bar_e: DIComplex) = is.next
+    val End(afterFoo_e: DISimple) = is.next; assertNotNull(afterFoo_e)
+    val End(bar_e: DIComplex) = is.next; assertNotNull(bar_e)
 
     assertEquals("foo2", foo2_s.erd.namedQName.local)
     assertEquals("fghij", foo2_s.dataValueAsString)

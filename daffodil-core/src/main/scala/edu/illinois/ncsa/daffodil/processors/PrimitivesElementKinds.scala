@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
@@ -55,7 +54,6 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeStackParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
@@ -65,7 +63,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
 import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.TermUnparser
 import scala.collection.mutable.ArraySeq
 
@@ -124,7 +122,7 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 }
 
 case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
-    extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
+  extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
 
   private val mt: Gram = EmptyGram
   lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
@@ -138,7 +136,7 @@ case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
 }
 
 case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
-    extends UnimplementedPrimitive(s, false) {
+  extends UnimplementedPrimitive(s, false) {
   // stub for now. These are not implemented currently.
 }
 
@@ -164,7 +162,7 @@ case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !b
  */
 case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
   def parser: DaffodilParser = {
-    var folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
+    val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
     new ChoiceCombinatorParser(ch.runtimeData, folded.parser)
   }
 

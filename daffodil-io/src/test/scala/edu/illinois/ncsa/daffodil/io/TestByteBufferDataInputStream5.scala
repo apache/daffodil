@@ -2,10 +2,8 @@ package edu.illinois.ncsa.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.util.Misc
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestByteBufferDataInputStream5 {

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.DataLoc
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
@@ -62,7 +61,7 @@ trait ComputesValueFoundInstead {
   // and cannot be avoided every time we backtrack due to a non-found delimiter.
   //
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    val ei = state.getContext().encodingInfo
+    // val ei = state.getContext().encodingInfo
     val foundInstead = state.dataInputStream.getSomeString(maxDelimiterLength)
     val result = if (foundInstead.isDefined) foundInstead.get else ""
     result
@@ -176,12 +175,12 @@ class DelimiterTextParser(
       // We are going to scan for delimiter text.
       //
       // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the separator
-      // cannot be relevant, or if we're in the middle of a group with required elements following so 
+      // cannot be relevant, or if we're in the middle of a group with required elements following so
       // the terminator cannot be relevant.
       //
       // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
       // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
-      // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of 
+      // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
       // these things at run time.
       //
       val delims = {
@@ -208,10 +207,10 @@ class DelimiterTextParser(
 
       if (!result.isDefined) {
         //
-        // Did not find delimiter. 
+        // Did not find delimiter.
         //
         // Still can be ok if ES is a delimiter. That's allowed when we're not lengthKind='delimited'
-        // That is, it is allowed if the delimiter is just part of the data syntax, but is not being 
+        // That is, it is allowed if the delimiter is just part of the data syntax, but is not being
         // used to determine length.
         //
         if (hasLocalES(start)) {
@@ -223,7 +222,7 @@ class DelimiterTextParser(
           return
         } else if (hasRemoteES(start)) {
           // has remote but not local (PE)
-          val (remoteDelimValue, remoteElemName, remoteElemPath) =
+          val (remoteDelimValue, _, remoteElemPath) =
             getMatchedDelimiterInfo("%ES;", start)
 
           PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
@@ -250,14 +249,14 @@ class DelimiterTextParser(
         val res = result.get
 
         if (!isLocalText(res.originalDelimiterRep, start)) {
-          // 
+          //
           // It was a remote delimiter but we should have found a local one.
           //
           // ??? Do not understand why we know it should have been a local one.
-          // An element that is last in a group can be terminated by the terminator of some enclosing 
+          // An element that is last in a group can be terminated by the terminator of some enclosing
           // parent group that is not even the immediate parent.
           //
-          val (remoteDelimValue, remoteElemName, remoteElemPath) =
+          val (remoteDelimValue, _, remoteElemPath) =
             getMatchedDelimiterInfo(res.originalDelimiterRep, start)
 
           PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
@@ -265,9 +264,9 @@ class DelimiterTextParser(
             kindString, delims.mkString(" "), rd.path, positionalInfo)
           return
         }
-        // 
+        //
         // It was a local delimiter.
-        // 
+        //
         val nChars = res.matchedDelimiterValue.get.length
         val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
         Assert.invariant(wasDelimiterTextSkipped)
@@ -278,14 +277,14 @@ class DelimiterTextParser(
       //
       // A delimiter was found and cached as part of parsing a previous term.
       // We will not scan for a delimiter. We will check that the cached one matches
-      // what we expect. 
+      // what we expect.
       //
       // An invariant here is that the input stream has NOT been advanced yet
       // past the delimiter. So we have to advance it here.
       //
       val found = start.foundDelimiter.get
       if (!isLocalText(found.originalRepresentation, start)) {
-        val (remoteDelimValue, remoteElemName, remoteElemPath) =
+        val (remoteDelimValue, _ /* remoteElemName */ , remoteElemPath) =
           getMatchedDelimiterInfo(found.originalRepresentation, start)
         PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s for %s %s",
           this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath, localDelimsCooked.mkString(" "), this.context.path, positionalInfo)

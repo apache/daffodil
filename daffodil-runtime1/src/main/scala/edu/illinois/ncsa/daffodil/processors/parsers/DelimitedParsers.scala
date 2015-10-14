@@ -35,18 +35,13 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.dfa
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -56,10 +51,8 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
 import java.nio.charset.CharsetDecoder
-import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
@@ -80,7 +73,7 @@ class StringDelimitedParser(
       val field = result.field.getOrElse("")
       state.simpleElement.setDataValue(field)
       if (result.matchedDelimiterValue.isDefined)
-        state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
     }
 
   }
@@ -92,11 +85,11 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val (textParser, delims, delimsCooked, fieldDFA, scheme) = pf.getParser(start)
+    val (textParser, delims, _ /* delimsCooked */ , fieldDFA, scheme) = pf.getParser(start)
 
-    val bytePos = (start.bitPos >> 3).toInt
-
-    val hasDelim = delimsCooked.length > 0
+    //    val bytePos = (start.bitPos >> 3).toInt
+    //
+    //    val hasDelim = delimsCooked.length > 0
 
     start.clearDelimitedText
 
@@ -151,11 +144,11 @@ class LiteralNilDelimitedEndOfDataParser(
       if (isFieldEmpty && !isEmptyAllowed && !isNilLiteral) {
         doPE(state)
         return
-      } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
+      } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
         isNilLiteral) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
-        if (result.matchedDelimiterValue.isDefined) state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        if (result.matchedDelimiterValue.isDefined) state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         return
       } else {
         doPE(state)
@@ -191,11 +184,11 @@ class HexBinaryDelimitedParser(
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")
-      val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
-      val endBitPos = state.bitPos + numBits
+      // val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
+      // val endBitPos = state.bitPos + numBits
       val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
       state.simpleElement.setDataValue(hexStr)
-      if (result.matchedDelimiterValue.isDefined) state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+      if (result.matchedDelimiterValue.isDefined) state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
       return
     }
   }

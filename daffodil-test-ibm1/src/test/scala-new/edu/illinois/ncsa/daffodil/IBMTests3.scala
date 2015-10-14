@@ -34,8 +34,6 @@ package edu.illinois.ncsa.daffodil
 
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
-import org.junit.Test
-import org.junit.Test
 
 class IBMTestsThatPass2 {
 
@@ -46,4 +44,3 @@ class IBMTestsThatPass2 {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
 }
-

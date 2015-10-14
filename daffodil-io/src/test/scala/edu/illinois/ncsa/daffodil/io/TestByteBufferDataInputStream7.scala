@@ -9,9 +9,7 @@ import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.Implicits._
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedEncoder
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
@@ -49,7 +47,7 @@ object Bitte {
     Assert.invariant(coderResult == CoderResult.UNDERFLOW)
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
-    val bitsAsString = Misc.bytes2Bits(res.toArray)
+    // val bitsAsString = Misc.bytes2Bits(res.toArray)
     val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoderDecoder]
     val nBits = s.length * enc.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
@@ -86,7 +84,7 @@ class TestByteBufferDataInputStream7 {
     val bytesList = Bitte.rtl(someBits, moreBits)
     val bytes = Bitte.toBytes(bytesList)
     assertEquals(7, bytes.length)
-    val bytesAsHex = Misc.bytes2Hex(bytes)
+    // val bytesAsHex = Misc.bytes2Hex(bytes)
     val bytesAsBits = Misc.bytes2Bits(bytes).sliding(8, 8).toList
     val chunks = bytesAsBits.map { _.reverse }.mkString.reverse.sliding(7, 7).toList
     assertEquals(List("0111000", "0110111", "0110110", "0110101", "0110100", "0110011", "0110010", "0110001"),
@@ -246,7 +244,7 @@ class TestByteBufferDataInputStream7 {
     // Problem. We have 42 bits, so it *should* be letting us get the last character.
     // However, it is not, because we're not being allowed to get the next byte (the whole next byte isn't available)
     // But if it allowed us to get as far as bit 42, which is available, then we could get the character.
-    // 
+    //
     // This is a bug in the 7-bit decoder decodeLoop - if it cannot get another byte it needs to check if the
     // data needed can be satisfied from the current fragment.
     //

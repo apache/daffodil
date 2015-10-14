@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,10 +36,8 @@ import java.io.FileInputStream
 import java.io.File
 import java.io.InputStream
 import org.jdom2.input.SAXBuilder
-import scala.collection.JavaConversions._
 import scala.xml._
 import java.io.{ OutputStream, PrintWriter, StringWriter }
-import java.lang.management._
 import java.util.regex.Pattern
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
@@ -48,9 +46,7 @@ import java.io.StringReader
 import edu.illinois.ncsa.daffodil.util.Misc
 import javax.xml.namespace.{ QName => JQName }
 import javax.xml.XMLConstants
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom._
-import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.io.IOUtils
 
@@ -228,11 +224,11 @@ object XMLUtils {
 
   /*
    * This is needed for equality comparison of XML.
-   * 
-   * Ex: "foo&#x221;bar" is 3 nodes, not one string node. 
+   *
+   * Ex: "foo&#x221;bar" is 3 nodes, not one string node.
    * But appears to be one string when serialized as XML.
-   * 
-   * Once the XML has been read into XML objects, the 3 objects 
+   *
+   * Once the XML has been read into XML objects, the 3 objects
    * are just 3 adjacent text nodes, so adjacent text nodes
    * can be coalesced for use in the DFDL Infoset, or for comparing
    * trees of XML that may have been created different ways.
@@ -255,12 +251,12 @@ object XMLUtils {
     }
     val ab = ArrayBuilder.make[Node]
     var i = 0
-    // 
+    //
     // invariant: either the tn node is null
     // or the stringbuilder is null or empty
     //
     // They never both have content.
-    // 
+    //
     var tn: Node = null
     var sb: StringBuilder = null
     def processText = {
@@ -452,7 +448,7 @@ object XMLUtils {
       val NamespaceBinding(pre, uri, moreBindings) = local
       val outerURI = outer.getURI(pre)
       if (outerURI == uri) {
-        // same binding for this prefix in the outer, so we don't need 
+        // same binding for this prefix in the outer, so we don't need
         // this binding from the local scope.
         combineScopes(moreBindings, outer)
       } else if (outerURI == null) {
@@ -465,9 +461,9 @@ object XMLUtils {
         // in the chain ... and things fail
         //
         // The problem this creates is that it un-shares all the sub-structure
-        // of the scopes, and so we no longer have contained elements 
-        // that share scopes with enclosing parents. That may mean that 
-        // lots of xmlns:pre="ns" proliferate again even though they're 
+        // of the scopes, and so we no longer have contained elements
+        // that share scopes with enclosing parents. That may mean that
+        // lots of xmlns:pre="ns" proliferate again even though they're
         // unnecessary.
         //
         val outerWithoutDuplicate = removeBindings(NamespaceBinding(pre, uri, TopScope), outer)
@@ -484,7 +480,7 @@ object XMLUtils {
     if (nb == TopScope) scope
     else if (scope == TopScope) scope
     else {
-      val NamespaceBinding(pre, uri, more) = scope
+      val NamespaceBinding(pre, _, more) = scope
       if (nb.getURI(pre) != null) {
         // the scope has a binding for this prefix
         // so irrespective of the uri, we remove it.
@@ -619,7 +615,7 @@ object XMLUtils {
     res
   }
 
-  private def removeAttributes1(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): NodeSeq = {
+  private def removeAttributes1(n: Node, ns: Seq[NS], parentScope: Option[NamespaceBinding]): NodeSeq = {
     val res = n match {
 
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
@@ -640,13 +636,13 @@ object XMLUtils {
 
         val newChildren: NodeSeq = children.flatMap { removeAttributes1(_, ns, Some(newScope)) }
 
-        // Important to merge adjacent text. Otherwise when comparing 
+        // Important to merge adjacent text. Otherwise when comparing
         // two structuers that print out the same, they might not be equal
-        // because they have different length lists of text nodes 
+        // because they have different length lists of text nodes
         //
         // Ex: <foo>A&#xE000;</foo> creates an element containing TWO
         // text nodes. But coming from the Daffodil Infoset, a string like
-        // that would be just one text node. 
+        // that would be just one text node.
         // Similarly <foo>abc<![CDATA[def]]>ghi</foo> has 3 child nodes.
         // The middle one is PCData. The two around it are Text.
         // Both Text and PCData are Atom[String].
@@ -691,9 +687,9 @@ object XMLUtils {
         if (diffs.length > 0) {
           throw new Exception("""
 Comparison failed.
-Expected 
+Expected
           %s
-Actual 
+Actual
           %s
 Differences were (path, expected, actual):
  %s""".format(
@@ -815,7 +811,7 @@ Differences were (path, expected, actual):
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
     //
-    // Note: we use our own pretty printer here because 
+    // Note: we use our own pretty printer here because
     // Scala library one doesn't preserve/print CDATA properly.
     //
     val pp = new edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter(200, 2)
@@ -905,9 +901,9 @@ trait GetAttributesMixin extends ThrowsSDE {
 class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
   extends Exception("Prefix " + pre + " not found in scope. Location: " + loc.toString)
 
-// Commented out for now, but we may reactivate this to 
-// do more validation stuff in the TDMLRunner. So keeping in the 
-// source like this. 
+// Commented out for now, but we may reactivate this to
+// do more validation stuff in the TDMLRunner. So keeping in the
+// source like this.
 //
 //object XMLSchemaUtils {
 //  /**
@@ -925,7 +921,7 @@ class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
 //    // However, we don't want to validate using the XML Schema for XML Schema (which would be the usual interpretation
 //    // of validating an XML Schema), instead we want to use the schema for the DFDL Subset of XML Schema.
 //    //
-//    // So, the hack here, is we're going to textually substitute the URIs, so that the validator doesn't have to be 
+//    // So, the hack here, is we're going to textually substitute the URIs, so that the validator doesn't have to be
 //    // modified to do this switch, and we don't have to lie in the DFDL Subset schema, and claim it is realizing the
 //    // XML Schema URI.
 //    //

@@ -52,7 +52,7 @@ class TextPaddingParser(val padChar: Char,
 
     paddingReg.reset(input, delims)
 
-    val dfaStatus = paddingDFA.run(0, paddingReg, 0) // Will always succeed.
+    paddingDFA.run(0, paddingReg, 0) // Will always succeed.
 
     val paddingValue = One(paddingReg.resultString.toString)
 

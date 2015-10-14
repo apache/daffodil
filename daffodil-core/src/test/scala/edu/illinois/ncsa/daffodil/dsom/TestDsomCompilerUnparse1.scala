@@ -6,7 +6,6 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.compiler._
 
 class TestDsomCompilerUnparse1 {
 

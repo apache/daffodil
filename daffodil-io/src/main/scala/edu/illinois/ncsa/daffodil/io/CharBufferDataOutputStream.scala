@@ -1,23 +1,9 @@
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.StandardCharsets
-import java.nio.charset.CodingErrorAction
 import passera.unsigned.ULong
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.CoderResult
-import java.nio.channels.Channels
-import java.io.ByteArrayOutputStream
-import org.apache.commons.io.output.TeeOutputStream
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
@@ -28,7 +14,6 @@ private[io] class CharBufferDataOutputStreamState extends DataOutputStreamStateI
  */
 class CharBufferDataOutputStream
   extends DataOutputStream with DataOutputStreamCharImplMixin {
-  import DataStreamCommon._
 
   private var target: CharBuffer = null
 
@@ -60,7 +45,7 @@ class CharBufferDataOutputStream
   override def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = notToBeUsed
-  private[io] override def resetBitLimit0b(saved: MaybeULong): Unit = notToBeUsed
+  protected[io] override def resetBitLimit0b(saved: MaybeULong): Unit = notToBeUsed
   override def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed
   override def byteOrder: ByteOrder = notToBeUsed
   override def validateFinalStreamState { /* do nothing */ }

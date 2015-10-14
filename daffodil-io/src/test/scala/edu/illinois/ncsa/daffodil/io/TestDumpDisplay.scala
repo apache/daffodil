@@ -22,7 +22,7 @@ class TestDumpDisplay {
    */
   @Test def testAllPrintableChars() = {
 
-    val bytes = 0 to 255 map { _.toByte }
+    // val bytes = 0 to 255 map { _.toByte }
     val bb = ByteBuffer.allocate(256)
     0 to 255 foreach { n => bb.put(n, n.toByte) }
     val cb = CharBuffer.allocate(256)

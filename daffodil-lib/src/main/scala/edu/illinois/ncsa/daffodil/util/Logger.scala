@@ -241,7 +241,7 @@ trait Logging extends Identity {
    * Call with no log level argument to turn it off (when done debugging). That way you
    * can leave it sitting there.
    */
-  final def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S): Unit = macro LoggerMacros.withLoggingLevelMacro
+  def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S): Unit = macro LoggerMacros.withLoggingLevelMacro
 
 }
 

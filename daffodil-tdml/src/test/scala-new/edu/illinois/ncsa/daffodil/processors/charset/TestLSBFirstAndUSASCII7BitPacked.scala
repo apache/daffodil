@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,9 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.charset
 
 import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.tdml.Document
 
@@ -87,7 +85,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit12345678() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
@@ -97,7 +95,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit123456789() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="us-ascii-7-bit-packed"><![CDATA[123456789]]></documentPart>
@@ -107,7 +105,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit1234567899() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
@@ -117,7 +115,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit1234567899RTL() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
@@ -129,7 +127,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit1234567899RTLHex() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="byte" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
@@ -171,7 +169,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit12345678LSBFirst() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
@@ -181,7 +179,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
   }
 
   @Test def testEncode7Bit123456789LSBFirst() {
-    val enc = USASCII7BitPackedCharset.newEncoder()
+    USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
@@ -198,7 +196,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[1011]]></documentPart>
       </document>, null)
     val doc1bits = doc.documentBits.mkString
-    val lengthInBits = doc1bits.length
+    doc1bits.length
     val doc2 = new Document(
       <document>
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
@@ -236,7 +234,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" byteOrder="RTL">URN XXXX00000 00000000 00000000 011X XXXX</documentPart>
       </document>, null)
     val doc1bits = doc.documentBits
-    val lengthInBits = doc1bits.length
+    doc1bits.length
     val doc2 = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="byte"><![CDATA[
@@ -264,7 +262,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" byteOrder="RTL">URN XXXX00000 00000000 00000000 011X XXXX</documentPart>
       </document>, null)
     val doc1bits = doc.documentBits
-    val lengthInBits = doc1bits.length
+    doc1bits.length
     val doc2 = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="byte"><![CDATA[

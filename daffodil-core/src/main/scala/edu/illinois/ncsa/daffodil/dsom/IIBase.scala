@@ -50,7 +50,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
 import java.net.URLDecoder
@@ -150,7 +149,7 @@ object IIUtils {
  * Include/Import = "II" for short
  */
 abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMap)
-    extends SchemaComponent(xml, xsdArg) {
+  extends SchemaComponent(xml, xsdArg) {
 
   /**
    * An import/include requires only that we can access the
@@ -193,7 +192,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
   protected final def isValidURI(uri: String): Boolean = {
-    try { val res = new URI(uri) } catch { case ex: URISyntaxException => return false }
+    try { new URI(uri) } catch { case ex: URISyntaxException => return false }
     true
   }
 

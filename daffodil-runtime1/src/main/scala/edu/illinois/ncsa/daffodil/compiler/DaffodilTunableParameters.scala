@@ -59,7 +59,7 @@ object DaffodilTunableParameters {
   }
 
   //FIXME: These tunables need to be changable per compilation hence
-  //stored on the ProcessorFactory, not global like this. 
+  //stored on the ProcessorFactory, not global like this.
 
   //Some - like time limits, are settable on the processor, not the PF or Compiler.
   //TODO: make tunable via setter call on PF.

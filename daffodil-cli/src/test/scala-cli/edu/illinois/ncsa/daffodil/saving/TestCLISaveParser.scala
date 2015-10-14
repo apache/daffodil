@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,14 +36,10 @@ import junit.framework.Assert._
 import org.junit.Test
 import org.junit.Before
 import org.junit.After
-import scala.xml._
 import scala.sys.process._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.CLI.Util
-import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import junit.framework.Assert.assertEquals
 import java.io.File
@@ -77,7 +73,7 @@ class TestCLISaveParser {
     try {
       String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
 
-      var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
+      val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -90,10 +86,10 @@ class TestCLISaveParser {
   @Test def test_3018_CLI_Saving_SaveParser_stdout() {
 
     val shell = Util.startIncludeErrors("")
-    var savedParser = "external_variables.dfdl.xsd.bin"
+    val savedParser = "external_variables.dfdl.xsd.bin"
     val parserFile = new File(savedParser)
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    var saveCmd = String.format("%s -v save-parser -s %s > %s\n",
+    val saveCmd = String.format("%s -v save-parser -s %s > %s\n",
       Util.binPath,
       (if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile),
       savedParser)
@@ -102,7 +98,7 @@ class TestCLISaveParser {
       shell.send(saveCmd)
       shell.expectIn(1, (contains("[info] Time")))
       assertTrue("save-parser failed", parserFile.exists())
-      var parseCmd = String.format("echo 0,1,2| %s parse --parser %s\n", Util.binPath, savedParser)
+      val parseCmd = String.format("echo 0,1,2| %s parse --parser %s\n", Util.binPath, savedParser)
       shell.send(parseCmd)
       shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>0</cell>"))
@@ -127,7 +123,7 @@ class TestCLISaveParser {
 
     try {
       String.format("%s save-parser -s %s -r row2 -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParserFile.getName()) !
-      var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
+      val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
       shell.expect(contains(output12))
 
@@ -149,7 +145,7 @@ class TestCLISaveParser {
     try {
       String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
 
-      var cmd = String.format("%s parse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      val cmd = String.format("%s parse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains(output6))
 
@@ -169,7 +165,7 @@ class TestCLISaveParser {
     try {
       String.format("%s save-parser -s %s -r matrix -p / %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
 
-      var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
+      val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
       shell.expect(contains(output1))
       shell.sendLine("exit")
@@ -187,7 +183,7 @@ class TestCLISaveParser {
     val shell = Util.start("", true)
 
     try {
-      var cmd = String.format("%s save-parser -s %s -s %s %s", Util.binPath, testSchemaFile1, testSchemaFile2, savedParserFile.getName())
+      val cmd = String.format("%s save-parser -s %s -s %s %s", Util.binPath, testSchemaFile1, testSchemaFile2, savedParserFile.getName())
       shell.sendLine(cmd)
 
       shell.expect(contains("Bad arguments for option 'schema'"))
@@ -227,10 +223,10 @@ class TestCLISaveParser {
 
   // See DFDL-1016
   /*@Test def test_3038_CLI_Saving_SaveParser_namespaceNoRoot() {
-    
-    var cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {http://www.example.org/example1/} savedParser.xml\n"
+
+    val cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {http://www.example.org/example1/} savedParser.xml\n"
     val shell = Util.start(cmd, true)
-    
+
     // Error message needs to be updated with actual message
     shell.expect(contains("Error - Root is required if namespace is given"))
 
@@ -323,9 +319,9 @@ class TestCLISaveParser {
   // See DFDL-1147
   /*@Test def test_3063_CLI_Saving_SaveParser_validate() {
 
-    var cmd = Util.binPath + " save-parser --validate on -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    val cmd = Util.binPath + " save-parser --validate on -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
-    
+
     var cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
@@ -333,7 +329,7 @@ class TestCLISaveParser {
 
     cmd = Util.binPath + " save-parser --validate -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
-    
+
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
@@ -341,14 +337,14 @@ class TestCLISaveParser {
 
     cmd = Util.binPath + " save-parser --validate limited -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
-    
+
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
 
     cmd = Util.binPath + " save-parser --validate off -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
-    
+
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
 
@@ -360,9 +356,9 @@ class TestCLISaveParser {
   // See DFDL-1141
   /*@Test def test_3036_CLI_Saving_SaveParser_debug() {
 
-    var cmd = Util.binPath + " -d save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
+    val cmd = Util.binPath + " -d save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     val shell = Util.start(cmd)
-    
+
     val cmd2 = Util.binPath + " parse --parser savedParser.xml daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
     shell.send(cmd2)
     shell.expect(contains("(debug)"))
@@ -376,9 +372,9 @@ class TestCLISaveParser {
 
   @Test def test_3037_CLI_Saving_SaveParser_trace() {
 
-    var cmd = Util.binPath + " -t save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd savedParser.xml\n"
+    val cmd = Util.binPath + " -t save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd savedParser.xml\n"
     val shell = Util.start(cmd)
-    
+
     val cmd2 = "echo test| " + Util.binPath + " parse --parser savedParser.xml\n"
     shell.send(cmd2)
     shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
@@ -398,7 +394,7 @@ class TestCLISaveParser {
     try {
       String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
 
-      var cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("0,1,2"))
       shell.sendLine("exit")
@@ -420,7 +416,7 @@ class TestCLISaveParser {
     try {
       String.format("%s save-parser -s %s -r e1 %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
 
-      var cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("Hello"))
 

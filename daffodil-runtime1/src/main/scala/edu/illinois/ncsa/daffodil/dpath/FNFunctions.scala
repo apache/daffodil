@@ -36,10 +36,8 @@ import edu.illinois.ncsa.daffodil.processors._
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
@@ -89,7 +87,7 @@ case class FNConcat(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
 }
 
 // No such function in DFDL v1.0
-// But leave this here because we probably will want to add it as a 
+// But leave this here because we probably will want to add it as a
 // daffodil extension function and then eventually hope it gets into DFDL1.1
 //case class FNStringJoin(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 //  override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
@@ -103,7 +101,7 @@ trait SubstringKind {
 
   protected def substr(sourceString: String, startPos: Int, endPos: Int): String = {
     //
-    // Essentially we want to return all characters whose indices >= startingPos 
+    // Essentially we want to return all characters whose indices >= startingPos
     // and indices < endPos
     //
     if (startPos >= endPos) return ""
@@ -118,7 +116,7 @@ trait SubstringKind {
 
   protected def substr(sourceString: String, startPos: Int): String = {
     //
-    // Essentially we want to return all characters whose indices >= startingPos 
+    // Essentially we want to return all characters whose indices >= startingPos
     //
     if (startPos >= sourceString.length) return ""
     //
@@ -399,8 +397,8 @@ trait FNRoundHalfToEvenKind {
   private def unrounded(value: Any): BigDecimal = {
     val result = value match {
       //
-      // Not converting Float to string first causes precision issues 
-      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999. 
+      // Not converting Float to string first causes precision issues
+      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999.
       // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
       //
       // The solution is to do BigDecimal(float.toString).  This has been corrected in asBigDecimal.
@@ -433,7 +431,7 @@ trait FNRoundHalfToEvenKind {
       case _: Float => value.toFloat // xs:float
       case _: Double => value.toDouble // xs:double
       case _: BigDecimal => value //xs:decimal
-      case _: BigInt | _: Long | _: Int | _: Byte | _: Short => value.toBigInt // xs:integer 
+      case _: BigInt | _: Long | _: Int | _: Byte | _: Short => value.toBigInt // xs:integer
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
     }
     result
@@ -589,7 +587,7 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
     //
     val origState = dstate
 
-    // Execute the recipe/expression which should 
+    // Execute the recipe/expression which should
     // return a node/element whose local-name we want.
     //
     recipe.run(dstate)
@@ -824,7 +822,7 @@ case class FNStartsWith(recipes: List[CompiledDPath])
     // If the value of \$arg2 is the zero-length string, then the function returns true.
     if (prefixString.isEmpty()) return true
 
-    // If the value of \$arg1 is the zero-length string and the value 
+    // If the value of \$arg1 is the zero-length string and the value
     // of \$arg2 is not the zero-length string, then the function returns false.
     if (sourceString.isEmpty()) return false
 
@@ -846,7 +844,7 @@ case class FNEndsWith(recipes: List[CompiledDPath])
     // If the value of \$arg2 is the zero-length string, then the function returns true.
     if (postfixString.isEmpty()) return true
 
-    // If the value of \$arg1 is the zero-length string and the value of \$arg2 
+    // If the value of \$arg1 is the zero-length string and the value of \$arg2
     // is not the zero-length string, then the function returns false.
     if (sourceString.isEmpty()) return false
 
@@ -854,4 +852,3 @@ case class FNEndsWith(recipes: List[CompiledDPath])
     res
   }
 }
-

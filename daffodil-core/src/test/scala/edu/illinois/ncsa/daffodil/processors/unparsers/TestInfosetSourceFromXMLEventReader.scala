@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import org.junit.Test
 import org.junit.Assert._
-import scala.xml.pull._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.equality._
@@ -109,7 +108,7 @@ class TestInfosetSourceFromXMLEventReader {
     val Start(foo_s: DISimple) = is.next
     val End(foo_e: DISimple) = is.next
     val Start(baz_s: DISimple) = is.next
-    val End(baz_e: DISimple) = is.next
+    val End(baz_e: DISimple) = is.next; assertNotNull(baz_e)
     val End(bar_e: DIComplex) = is.next
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
@@ -156,13 +155,13 @@ class TestInfosetSourceFromXMLEventReader {
     val Start(foo1_s: DISimple) = is.next
     val End(foo1_e: DISimple) = is.next
     val Start(baz1_s: DISimple) = is.next
-    val End(baz1_e: DISimple) = is.next
+    val End(baz1_e: DISimple) = is.next; assertNotNull(baz1_e)
     val End(bar1_e: DIComplex) = is.next
     val Start(bar2_s: DIComplex) = is.next
     val Start(foo2_s: DISimple) = is.next
     val End(foo2_e: DISimple) = is.next
     val Start(baz2_s: DISimple) = is.next
-    val End(baz2_e: DISimple) = is.next
+    val End(baz2_e: DISimple) = is.next; assertNotNull(baz2_e)
     val End(bar2_e: DIComplex) = is.next
     val End(quux_e: DIComplex) = is.next
     assertFalse(is.hasNext)
@@ -236,6 +235,7 @@ class TestInfosetSourceFromXMLEventReader {
     val End(foo_arr_e: DIArray) = is.next
     val Start(baz_s: DISimple) = is.next
     val End(baz_e: DISimple) = is.next
+    assertNotNull(baz_e)
     val End(bar_e: DIComplex) = is.next
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
@@ -267,6 +267,7 @@ class TestInfosetSourceFromXMLEventReader {
     val Start(bar_s: DIComplex) = is.next
     val Start(baz_s: DISimple) = is.next
     val End(baz_e: DISimple) = is.next
+    assertNotNull(baz_e)
     val Start(foo_arr_s: DIArray) = is.next
     val Start(foo_1_s: DISimple) = is.next
     val End(foo_1_e: DISimple) = is.next
@@ -306,6 +307,7 @@ class TestInfosetSourceFromXMLEventReader {
     val Start(baz_arr_s: DIArray) = is.next
     val Start(baz_s: DISimple) = is.next
     val End(baz_e: DISimple) = is.next
+    assertNotNull(baz_e)
     val End(baz_arr_e: DIArray) = is.next
     val Start(foo_arr_s: DIArray) = is.next
     val Start(foo_1_s: DISimple) = is.next
@@ -384,14 +386,14 @@ class TestInfosetSourceFromXMLEventReader {
     val is = infosetSource(sch, infosetXML)
     val Start(e: DIComplex) = is.next
     val Start(as: DIArray) = is.next
-    val Start(s1: DIComplex) = is.next
+    val Start(s1: DIComplex) = is.next; assertNotNull(s1)
     val Start(c1: DISimple) = is.next
-    val End(c1e: DISimple) = is.next
-    val End(s1e: DIComplex) = is.next
-    val Start(s2: DIComplex) = is.next
+    val End(c1e: DISimple) = is.next; assertNotNull(c1e)
+    val End(s1e: DIComplex) = is.next; assertNotNull(s1e)
+    val Start(s2: DIComplex) = is.next; assertNotNull(s2)
     val Start(c2: DISimple) = is.next
-    val End(c2e: DISimple) = is.next
-    val End(s2e: DIComplex) = is.next
+    val End(c2e: DISimple) = is.next; ; assertNotNull(c2e)
+    val End(s2e: DIComplex) = is.next; assertNotNull(s2e)
     val End(ase: DIArray) = is.next
     val End(ee: DIComplex) = is.next
     assertFalse(is.hasNext)

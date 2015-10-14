@@ -67,7 +67,7 @@ object Timer extends Logging {
   }
 
   def getTime[A](message: String, f: => A): Long = {
-    val (nanos, result) = getTimeResult(f)
+    val (nanos, _) = getTimeResult(f)
     printTime(message, nanos, "ms")
     nanos
   }
@@ -77,7 +77,7 @@ object Timer extends Logging {
   }
 
   def getTimeNS[A](message: String, f: => A): Long = {
-    val (nanos, result) = getTimeResult(f)
+    val (nanos, _) = getTimeResult(f)
     printTime(message, nanos, "ns")
     nanos
   }

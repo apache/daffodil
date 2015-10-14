@@ -166,7 +166,7 @@ class TestOOLAG {
     val h = new MyHost
     OOLAG.keepGoing() {
       // println("ask host for the LV")
-      val a2v = h.a2
+      h.a2
       //    catch {
       //      case e : Throwable => println("got exception " + e)
       //    }
@@ -217,7 +217,7 @@ class TestOOLAG {
     var e: Exception = null
     OOLAG.keepGoing() {
       e = intercept[Exception] {
-        val c1 = h.circ1
+        h.circ1
         fail()
       }
     }
@@ -243,7 +243,7 @@ class TestOOLAG {
 
   @Test def testThrowToTopLevel() {
     val h = new MyHost
-    val e = intercept[Abort] {
+    intercept[Abort] {
       OOLAG.keepGoing() {
         h.abortInside // should print useful lazy val nest messages to log
       }
@@ -256,7 +256,7 @@ class TestOOLAG {
     // println("done constructing MyHost")
     h.a1
     h.subHostCreator
-    val e = intercept[Exception] {
+    intercept[Exception] {
       OOLAG.keepGoing() {
         h.divZero
       }

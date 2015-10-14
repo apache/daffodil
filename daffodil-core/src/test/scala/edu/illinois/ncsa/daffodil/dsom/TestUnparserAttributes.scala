@@ -4,7 +4,6 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util._
-import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.processors.unparsers.GeneralAugmenter
@@ -87,13 +86,15 @@ class TestUnparserAttributes {
     val fet = root.sequence.followingElementTree
     val Ord(Seq(Leaf(opt1_), Leaf(opt2_), Leaf(ovc1_))) = ept
 
-    val Ord(Seq(Cho(Seq(Leaf(opt1__), Leaf(opt2__))), Leaf(ovc1__))) = fet
+    val Ord(Seq(Cho(Seq(Leaf(l1), Leaf(_))), Leaf(_))) = fet
+    assertNotNull(l1)
 
     assertEquals(ovc1, ovc1_)
     assertEquals(opt1_, opt1)
     assertEquals(opt2_, opt2)
 
-    val Seq() = ovc1.siblingIndicators.map { _.namedQName.local }
+    val sis @ Seq() = ovc1.siblingIndicators.map { _.namedQName.local }
+    assertNotNull(sis)
 
   }
 
@@ -118,11 +119,14 @@ class TestUnparserAttributes {
 
     val ept = root.sequence.elementPossibilityTree
     val fet = root.sequence.followingElementTree
-    val Ord(Seq(Leaf(`opt1`), Leaf(`opt2`), Leaf(`ovc1`), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    val eptPat @ Ord(Seq(Leaf(`opt1`), Leaf(`opt2`), Leaf(`ovc1`), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    assertNotNull(eptPat)
 
-    val Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    val fetPat @ Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    assertNotNull(fetPat)
 
-    val Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    val sis @ Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    assertNotNull(sis)
 
   }
 
@@ -169,16 +173,20 @@ class TestUnparserAttributes {
     val Seq(ovc1: LocalElementBase) = seq3.groupMembers
     val Seq(seq4: Sequence, seq5: Sequence) = seq1.groupMembers
     val Seq(seq6: Sequence, postOpt2: LocalElementBase) = seq4.groupMembers
-    val Seq() = seq5.groupMembers
+    val gms @ Seq() = seq5.groupMembers
+    assertNotNull(gms)
     val Seq(postOpt1: LocalElementBase) = seq6.groupMembers
 
     val ept = root.sequence.elementPossibilityTree
     val fet = root.sequence.followingElementTree
-    val Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    val eptPat @ Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    assertNotNull(eptPat)
 
-    val Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    val fetPat @ Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Leaf(`ovc1`), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    assertNotNull(fetPat)
 
-    val Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    val sis @ Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    assertNotNull(sis)
 
   }
 
@@ -226,29 +234,35 @@ class TestUnparserAttributes {
     val Seq(ovc1: LocalElementBase, ovc2: LocalElementBase) = choice3.groupMembers
     val Seq(seq4: Sequence, seq5: Sequence) = seq1.groupMembers
     val Seq(seq6: Sequence, postOpt2: LocalElementBase) = seq4.groupMembers
-    val Seq() = seq5.groupMembers
+    val gms @ Seq() = seq5.groupMembers
+    assertNotNull(gms)
     val Seq(postOpt1: LocalElementBase) = seq6.groupMembers
 
     val ept = root.sequence.elementPossibilityTree
     val fet = root.sequence.followingElementTree
 
-    val Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Cho(Seq(Leaf(`ovc1`), Leaf(`ovc2`))), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    val eptPat @ Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Cho(Seq(Leaf(`ovc1`), Leaf(`ovc2`))), Leaf(`postOpt1`), Leaf(`postOpt2`))) = ept
+    assertNotNull(eptPat)
 
-    val Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Cho(Seq(Leaf(`ovc1`), Leaf(`ovc2`))), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    val fetPat @ Ord(Seq(Cho(Seq(Leaf(`opt1`), Leaf(`opt2`))), Cho(Seq(Leaf(`ovc1`), Leaf(`ovc2`))), Cho(Seq(Leaf(`postOpt1`), Leaf(`postOpt2`))))) = fet
+    assertNotNull(fetPat)
 
-    val Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    val sis1 @ Seq("postOpt1", "postOpt2") = ovc1.siblingIndicators.map { _.namedQName.local }
+    assertNotNull(sis1)
 
-    val Seq("postOpt1", "postOpt2") = ovc2.siblingIndicators.map { _.namedQName.local }
+    val sis2 @ Seq("postOpt1", "postOpt2") = ovc2.siblingIndicators.map { _.namedQName.local }
+    assertNotNull(sis2)
 
-    val Seq(`ovc1`, `ovc2`) = root.possibleFirstChildInsertables
+    val pfciPat @ Seq(`ovc1`, `ovc2`) = root.possibleFirstChildInsertables
+    assertNotNull(pfciPat)
 
     val augMap = root.maybeChildInfosetAugmenter.get.asInstanceOf[GeneralAugmenter].augmenterMap
 
-    val map @ Seq((nqn1, aug1: OutputValueCalcAugmenter), (nqn2, aug2: OutputValueCalcAugmenter)) = augMap.toList
+    val Seq((nqn1, aug1: OutputValueCalcAugmenter), (nqn2, aug2: OutputValueCalcAugmenter)) = augMap.toList
     assertEquals("postOpt2", nqn1.local)
     assertEquals("postOpt1", nqn2.local)
 
-    // So the above schema is ambiguous. There are two OVCs alone in a choice. 
+    // So the above schema is ambiguous. There are two OVCs alone in a choice.
     // That means only the first one will ever be unparsed, so all these are ovc1.
     //
     assertTrue(ovc1.erd =:= aug1.erd)
@@ -270,9 +284,9 @@ class TestUnparserAttributes {
       </xs:element>)
 
     val root = compileToRoot(sch)
-    val Ord(Seq(Leaf(before), Leaf(ovc), Leaf(after))) = root.childrenFollowingElementTree
-    val Seq(`ovc`) = root.possibleFirstChildInsertables
-    val Seq(`after`) = ovc.siblingIndicators
+    val Ord(Seq(Leaf(_), Leaf(ovc), Leaf(after))) = root.childrenFollowingElementTree
+    val pfci @ Seq(`ovc`) = root.possibleFirstChildInsertables; assertNotNull(pfci)
+    val sis @ Seq(`after`) = ovc.siblingIndicators; assertNotNull(sis)
   }
 
   @Test def testUnparserDefaultable1() {
@@ -289,8 +303,8 @@ class TestUnparserAttributes {
 
     val root = compileToRoot(sch)
     val Ord(Seq(Leaf(defaultable))) = root.childrenFollowingElementTree
-    val Seq(`defaultable`) = root.possibleFirstChildInsertables
-    val Seq() = defaultable.siblingIndicators
+    val pfci @ Seq(`defaultable`) = root.possibleFirstChildInsertables; assertNotNull(pfci)
+    val sis @ Seq() = defaultable.siblingIndicators; assertNotNull(sis)
   }
 
   @Test def testUnparserDefaultable2() {
@@ -308,8 +322,8 @@ class TestUnparserAttributes {
 
     val root = compileToRoot(sch)
     val Ord(Seq(Leaf(defaultable), Leaf(after))) = root.childrenFollowingElementTree
-    val Seq(`defaultable`) = root.possibleFirstChildInsertables
-    val Seq(`after`) = defaultable.siblingIndicators
+    val pfci @ Seq(`defaultable`) = root.possibleFirstChildInsertables; assertNotNull(pfci)
+    val sis @ Seq(`after`) = defaultable.siblingIndicators; assertNotNull(sis)
   }
 
   @Test def testUnparserDefaultable3() {
@@ -326,13 +340,13 @@ class TestUnparserAttributes {
 
     val root = compileToRoot(sch)
     val Ord(Seq(Leaf(before1), Leaf(ovc1))) = root.childrenFollowingElementTree
-    val Seq() = root.possibleFirstChildInsertables
-    val Seq(`ovc1`) = before1.possibleFirstSiblingInsertables
+    val pfci1 @ Seq() = root.possibleFirstChildInsertables; assertNotNull(pfci1)
+    val pfci2 @ Seq(`ovc1`) = before1.possibleFirstSiblingInsertables; assertNotNull(pfci2)
     val maybeRootCAug = root.maybeChildInfosetAugmenter
     assertTrue(maybeRootCAug.isDefined)
     assertTrue(before1.maybeChildInfosetAugmenter.isEmpty)
     assertTrue(before1.maybeLaterSiblingInfosetAugmenter.isDefined)
-    val Seq(`ovc1`) = before1.possibleFirstSiblingInsertables
-    val Seq() = ovc1.siblingIndicators
+    val pfci @ Seq(`ovc1`) = before1.possibleFirstSiblingInsertables; assertNotNull(pfci)
+    val sis @ Seq() = ovc1.siblingIndicators; assertNotNull(sis)
   }
 }

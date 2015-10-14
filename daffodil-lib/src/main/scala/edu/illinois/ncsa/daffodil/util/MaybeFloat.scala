@@ -1,8 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-
 /**
  * Uses a Long to store the bits of a Double so that we can compare
  * to a single specific bit-pattern NaN as the Nope indicator.
@@ -15,13 +12,13 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * bits are those of this distinguished NaN value.
  */
 final case class MaybeDouble private (__rep: Long) extends AnyVal {
-  @inline def get: Double = if (isDefined) java.lang.Double.longBitsToDouble(__rep) else noneGet
-  @inline def getOrElse(alternate: Double): Double = if (isDefined) get else alternate
+  @inline final def get: Double = if (isDefined) java.lang.Double.longBitsToDouble(__rep) else noneGet
+  @inline final def getOrElse(alternate: Double): Double = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __rep != MaybeDouble.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __rep != MaybeDouble.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "MaybeDouble(" + get + ")"
-  @inline def map(f: Double => Double): MaybeDouble = if (isEmpty) MaybeDouble.Nope else MaybeDouble(f(get))
+  @inline final def map(f: Double => Double): MaybeDouble = if (isEmpty) MaybeDouble.Nope else MaybeDouble(f(get))
 }
 
 object MaybeDouble {
@@ -35,7 +32,7 @@ object MaybeDouble {
     result
   }
 
-  @inline def apply(v: Double) = new MaybeDouble(java.lang.Double.doubleToRawLongBits(v))
+  @inline final def apply(v: Double) = new MaybeDouble(java.lang.Double.doubleToRawLongBits(v))
 
   val Nope = new MaybeDouble(undefValue)
 }
@@ -45,11 +42,11 @@ object MaybeDouble {
  * can reserve a value to represent Nope.
  */
 final case class MaybeFloat private (__rep: Long) extends AnyVal {
-  @inline def get: Float = if (isDefined) java.lang.Float.intBitsToFloat(__rep.toInt) else noneGet
-  @inline def getOrElse(alternate: Float): Float = if (isDefined) get else alternate
+  @inline final def get: Float = if (isDefined) java.lang.Float.intBitsToFloat(__rep.toInt) else noneGet
+  @inline final def getOrElse(alternate: Float): Float = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline def isDefined = __rep != MaybeFloat.undefValue
-  @inline def isEmpty = !isDefined
+  @inline final def isDefined = __rep != MaybeFloat.undefValue
+  @inline final def isEmpty = !isDefined
   override def toString = if (isEmpty) "Nope" else "MaybeFloat(" + get + ")"
 }
 
@@ -57,7 +54,7 @@ object MaybeFloat {
 
   private val undefValue = -1L
 
-  @inline def apply(v: Float) = new MaybeFloat(java.lang.Float.floatToRawIntBits(v).toLong)
+  @inline final def apply(v: Float) = new MaybeFloat(java.lang.Float.floatToRawIntBits(v).toLong)
 
   val Nope = new MaybeFloat(undefValue)
 }

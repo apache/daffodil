@@ -165,13 +165,13 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * Returns true if this term either cannot conflict because it has no textual
    * aspects, or if it couldHaveText then the encoding must be same.
    */
-  private def hasCompatibleEncoding(t2: Term): Boolean = {
-    Assert.usage(isKnownEncoding)
-    Assert.usage(t2.isKnownEncoding)
-    if (!couldHaveText) true
-    else if (!t2.couldHaveText) true
-    else this.knownEncodingCharset == t2.knownEncodingCharset
-  }
+//  private def hasCompatibleEncoding(t2: Term): Boolean = {
+//    Assert.usage(isKnownEncoding)
+//    Assert.usage(t2.isKnownEncoding)
+//    if (!couldHaveText) true
+//    else if (!t2.couldHaveText) true
+//    else this.knownEncodingCharset == t2.knownEncodingCharset
+//  }
 
   /**
    * no alignment properties that would explicitly create

@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.mutable
 

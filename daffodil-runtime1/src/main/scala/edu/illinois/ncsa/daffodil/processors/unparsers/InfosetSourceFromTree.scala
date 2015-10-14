@@ -3,14 +3,9 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetDocument
 import edu.illinois.ncsa.daffodil.processors.DIDocument
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.Infoset
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 /**
  * Iterates an infoset tree, handing out elements one by one in response to pull calls.

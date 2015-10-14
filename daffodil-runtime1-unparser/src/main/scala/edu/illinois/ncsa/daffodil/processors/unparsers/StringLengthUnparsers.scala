@@ -62,7 +62,8 @@ class StringOfSpecifiedLengthUnparser(
   val unparsingPadChar: MaybeChar,
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
-  isForString: Boolean) extends PrimUnparser(erd)
+  isForString: Boolean)
+  extends PrimUnparser(erd)
   with StringLengthMixin {
 
   final override def justificationTrim = justificationPad
@@ -77,7 +78,7 @@ class StringOfSpecifiedLengthUnparser(
     }
   }
 
-  protected def contentString(state: UState) = state.currentInfosetNode.get.asSimple.dataValueAsString
+  protected def contentString(state: UState) = state.currentInfosetNode.asSimple.dataValueAsString
 
   override def unparse(state: UState) {
     val maybeAvailableLengthInBits = {
@@ -89,11 +90,11 @@ class StringOfSpecifiedLengthUnparser(
     // Now the problem is, we don't know how much to pad (or truncate) the string
     // because until we know how many bits the string's value will take up, we
     // can't figure out how many of the available bits will be remaining to be
-    // padded, and/or filled by fillByte. 
+    // padded, and/or filled by fillByte.
     //
     // We have to stage the bits of the value just so as to be able to count them
     // Then we can figure out the number of padChars to add because a padChar must
-    // be a minimum-width character. 
+    // be a minimum-width character.
     //
     val dos = state.dataOutputStream
     val valueString = contentString(state)
@@ -110,7 +111,7 @@ class StringOfSpecifiedLengthUnparser(
         // If a limit is set, then we're supposed to fill it.
         //
         val availableLengthInBits = maybeAvailableLengthInBits.get
-        val (nBits, nChars) = getLengthInBits(valueString, state)
+        val (nBits, _ /* nChars */ ) = getLengthInBits(valueString, state)
         val nBitsToPadOrFill = availableLengthInBits - nBits // can be negative if we need to truncate
         val cs = erd.encodingInfo.getEncoder(state).charset
         val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(cs)

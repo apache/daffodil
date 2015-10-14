@@ -3,13 +3,10 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -35,7 +32,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(erd)
 
-  protected def theString(state: UState) = state.currentInfosetNode.get.asSimple.dataValueAsString
+  protected def theString(state: UState) = state.currentInfosetNode.asSimple.dataValueAsString
 
   override val padToLength: Int = {
     if (erd.minLength.isDefined) { erd.minLength.get.intValue() } else { 0 }
@@ -65,11 +62,11 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
           state.withUnparserDataInputStream { dis =>
             val inscopeDelimiters =
               if (state.delimiterStack.isEmpty) {
-                // no delimiters. 
+                // no delimiters.
                 // This is a bit of a corner case, but if unparsing a string that is delimited, but that has
                 // no delimiters specified (so must be end-of-something, e.g., very last thing in the data perhaps)
                 //
-                // We can still end up needing to escape-ify the data however, if it happens to contain 
+                // We can still end up needing to escape-ify the data however, if it happens to contain
                 // an escapeBlockEnd, or an escapeCharacter (depending on the escapeScheme).
                 //
                 Seq()
@@ -130,7 +127,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
       // Characters in infoset element cannot be encoded without error.
       //
       // This won't actually be thrown until encodingErrorPolicy='error' is
-      // implemented. 
+      // implemented.
       //
       case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
     }
@@ -149,4 +146,3 @@ class LiteralNilDelimitedEndOfDataUnparser(
   final override def theString(ustate: UState) = outputNilValue.evaluate(ustate)
 
 }
-

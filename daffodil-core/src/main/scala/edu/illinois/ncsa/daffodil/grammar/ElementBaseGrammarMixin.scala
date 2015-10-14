@@ -35,11 +35,8 @@ package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.util._
 import java.math.BigInteger
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
@@ -61,11 +58,11 @@ trait ElementBaseGrammarMixin
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
    */
   protected def allowedValue: Gram
-  // 
+  //
   // This silly redundancy where the variable name has to also be passed as a string,
   // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
-  // turn it into a type/class, object, def, or val/var name, as well as a string, etc. 
-  // 
+  // turn it into a type/class, object, def, or val/var name, as well as a string, etc.
+  //
 
   private lazy val parsedNil = prod("parsedNil", NYI && isNillable && nilKind == NilKind.LogicalValue) {
     nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator
@@ -202,7 +199,7 @@ trait ElementBaseGrammarMixin
   //
   // We could now break it down by lengthKind, and have specialized primitives
   // depending on the length kind.
-  // 
+  //
   private lazy val standardTextInteger = prod("standardTextInteger",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntegerPrim(this)) }
   private lazy val standardTextDecimal = prod("standardTextDecimal",
@@ -232,11 +229,11 @@ trait ElementBaseGrammarMixin
     standardTextDouble || zonedTextDouble
   }
 
-  private lazy val ibm390HexBinaryRepDouble = prod("ibm390HexBinaryRepDouble",
-    binaryFloatRep.isConstant &&
-      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString) {
-      subsetError("ibm390Hex not supported")
-    }
+  //  private lazy val ibm390HexBinaryRepDouble = prod("ibm390HexBinaryRepDouble",
+  //    binaryFloatRep.isConstant &&
+  //      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString) {
+  //      subsetError("ibm390Hex not supported")
+  //    }
 
   private lazy val standardTextDouble = prod("standardTextDouble",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDoublePrim(this)) }
@@ -301,27 +298,27 @@ trait ElementBaseGrammarMixin
     BinaryFloatRep(binaryFloatRep.constantAsString, this)
   }
 
-  private lazy val binary = {
-    subset(lengthKind == LengthKind.Explicit, "Currently only lengthKind='explicit' is supported.")
-    LengthKind(lengthKind.toString, this)
-  }
+  //  private lazy val binary = {
+  //    subset(lengthKind == LengthKind.Explicit, "Currently only lengthKind='explicit' is supported.")
+  //    LengthKind(lengthKind.toString, this)
+  //  }
 
   val bin = BinaryNumberRep.Binary // shorthands for table dispatch
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
 
-  private lazy val zero = new BigInteger("0")
-  private lazy val two = new BigInteger("2")
-  private lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
+  //  private lazy val zero = new BigInteger("0")
+  //  private lazy val two = new BigInteger("2")
+  //  private lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
 
   private lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
 
-    // We have to dispatch carefully here. We cannot force evaluation of properties 
+    // We have to dispatch carefully here. We cannot force evaluation of properties
     // that may not be necessary. E.g., float does not need property binaryNumberRep, so
     // if our dispatch table uses that, it will create a false dependency on the property
-    // being defined. 
-    // The DFDL spec has a section where it gives the precedence order of properties. 
+    // being defined.
+    // The DFDL spec has a section where it gives the precedence order of properties.
     // This is in the spirit of that section.
     val res: Gram = primType match {
 
@@ -417,10 +414,10 @@ trait ElementBaseGrammarMixin
       RestoreInputStream(this) ~ emptyElementTerminator
   }
 
-  private lazy val emptyDefaulted = prod("emptyDefaulted",
-    isDefaultable && emptyIsAnObservableConcept) {
-      empty ~ TheDefaultValue(this)
-    }
+  //  private lazy val emptyDefaulted = prod("emptyDefaulted",
+  //    isDefaultable && emptyIsAnObservableConcept) {
+  //      empty ~ TheDefaultValue(this)
+  //    }
 
   private lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { Initiator(this) }
   private lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { Terminator(this) }
@@ -575,8 +572,8 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  // Note: there is no such thing as defaultable complex content because you can't have a 
-  // default value for a complex type element.... 
+  // Note: there is no such thing as defaultable complex content because you can't have a
+  // default value for a complex type element....
   // NOT TRUE: a defaultable complex type is one where everything within it is
   // recursively defaultable and has no syntax. So you could recursively "parse"
   // it, get default values for simple type elements in the complex type structure,
@@ -616,7 +613,7 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  // TODO: implement defaulting. This should generate a unparser that fills in the 
+  // TODO: implement defaulting. This should generate a unparser that fills in the
   // infoset value if it is not present in the infoset already.
   private lazy val defaultableValue = prod("defaultableValue", NYI) { EmptyGram }
 
@@ -655,4 +652,3 @@ trait ElementBaseGrammarMixin
   }
 
 }
-

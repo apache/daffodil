@@ -58,7 +58,7 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
     }
 
     val minLengthInBytes = getLength(state)
-    var nFillBytes = minLengthInBytes - value.length
+    val nFillBytes = minLengthInBytes - value.length
     if (nFillBytes > 0) {
       dos.setFillByte(erd.fillByteValue)
       val ret = dos.skip(nFillBytes * 8)
