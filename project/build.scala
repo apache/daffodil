@@ -46,7 +46,7 @@ import com.typesafe.sbt.pgp.PgpSettings._
 
 object DaffodilBuild extends Build {
 
-  var s = Defaults.defaultSettings
+  var s = Defaults.coreDefaultSettings
   lazy val nopub = Seq(publish := {}, publishLocal := {}, packagedArtifacts := Map.empty )
 
   var cliOnlySettings = packageArchetype.java_application
@@ -255,13 +255,10 @@ object DaffodilBuild extends Build {
 
   // creates 'sbt debug' task, which is essentially an alias for 'sbt debug:test'
   lazy val debugTask = TaskKey[Unit]("debug", "Executes all debug tests")
-  lazy val debugTaskSettings = debugTask <<= (executeTests in DebugTest, streams in DebugTest, resolvedScoped in DebugTest, state in DebugTest) map {
-    (results, s, scoped, state) => {
-      val display = Project.showContextKey(state)
-      Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
-    }
-  }
-  s ++= Seq(debugTaskSettings)
+  lazy val debugTaskSettings = Seq(
+    debugTask <<= Keys.test in DebugTest
+  )
+  s ++= debugTaskSettings
 
   // creates 'sbt new:*' tasks, using src/test/scala-new as the source directory
   lazy val NewTest = config("new") extend(Test)
@@ -277,13 +274,10 @@ object DaffodilBuild extends Build {
 
   // creates 'sbt new' task, which is essentially an alias for 'sbt new:test'
   lazy val newTask = TaskKey[Unit]("new", "Executes all new tests")
-  lazy val newTaskSettings = newTask <<= (executeTests in NewTest, streams in NewTest, resolvedScoped in NewTest, state in NewTest) map {
-    (results, s, scoped, state) => {
-      val display = Project.showContextKey(state)
-      Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
-    }
-  }
-  s ++= Seq(newTaskSettings)
+  lazy val newTaskSettings = Seq(
+    newTask <<= Keys.test in NewTest
+  )
+  s ++= newTaskSettings
 
   // add scala-new as a source test directory for the 'sbt test' commands
   lazy val buildNewWithTestSettings = unmanagedSourceDirectories in Test <++= baseDirectory { base =>
@@ -305,13 +299,10 @@ object DaffodilBuild extends Build {
 
   // creates 'sbt cli' task, which is essentially an alias for 'sbt cli:test'
   lazy val cliTask = TaskKey[Unit]("cli", "Executes all CLI tests")
-  lazy val cliTaskSettings = cliTask <<= (executeTests in CliTest, streams in CliTest, resolvedScoped in CliTest, state in CliTest) map {
-    (results, s, scoped, state) => {
-      val display = Project.showContextKey(state)
-      Tests.showResults(s.log, results, "No tests to run for " + display(scoped))
-    }
-  }
-  s ++= Seq(cliTaskSettings)
+  lazy val cliTaskSettings = Seq(
+    cliTask <<= Keys.test in CliTest
+  )
+  s ++= cliTaskSettings
 
   // license report configuration
   val licenseSettings = Seq(
