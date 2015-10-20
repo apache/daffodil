@@ -61,11 +61,15 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, examples, japi, sapi)
+                    .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, examples, japi, sapi)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
-  lazy val macroLib = Project(id = "daffodil-macro-lib", base = file("daffodil-macro-lib"), settings = s ++ nopub)
+  // Note: Removed nopub from macroLib - not sure why macrolib should be needed after scala compilation
+  // but data-formats projects that require daffodil-tdml module are failing to build because they are missing macroLib.
+  // Issue parked as JIRA DFDL-1430
+
+  lazy val macroLib = Project(id = "daffodil-macro-lib", base = file("daffodil-macro-lib"), settings = s)
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
