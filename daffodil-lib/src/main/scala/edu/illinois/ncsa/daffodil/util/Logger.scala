@@ -209,8 +209,10 @@ trait Logging extends Identity {
     else className
   }
 
-  private var logWriter: Maybe[LogWriter] = Nope
-  protected var logLevel: Maybe[LogLevel.Type] = Nope
+  // Note: below can't be private or protected because macro expansions refer to them,
+  // and they would be unreachable from the location of the expansion of the macro.
+  var logWriter: Maybe[LogWriter] = Nope
+  var logLevel: Maybe[LogLevel.Type] = Nope
 
   def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
 
@@ -229,9 +231,12 @@ trait Logging extends Identity {
   protected def doLogging(lvl: LogLevel.Type, msg: String, args: Seq[Any]) =
     getLogWriter.log(lvl, logID, msg, args)
 
-  // TODO: Convert this into a macro so we don't end up allocating closures
-  // for these by-name args.
   final def log(lvl: LogLevel.Type, msg: String, args: Any*): Unit = macro LoggerMacros.logMacro
+  //    {
+  //      val l = level.lvl
+  //      if (getLoggingLevel().lvl >= l)
+  //        doLogging(level, msg, args.toSeq)
+  //    }
 
   /**
    * Use to make debug printing over small code regions convenient. Turns on

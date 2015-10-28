@@ -505,8 +505,9 @@ object OOLAG extends Logging {
 
     protected final def oolagFinalize = {
       setIndent(indent - 2)
-      // log(LogLevel.OOLAGDebug, " " * indent + "pop:  " + thisThing))
-      oolagContext.currentOVList = oolagContext.currentOVList.tail
+      log(LogLevel.OOLAGDebug, " " * indent + "pop:  " + thisThing)
+      if (oolagContext.currentOVList.nonEmpty)
+        oolagContext.currentOVList = oolagContext.currentOVList.tail
     }
 
     final def hasError = alreadyTriedThis && !hasValue
@@ -581,6 +582,7 @@ object OOLAG extends Logging {
           oolagAfterValue(v.asInstanceOf[AnyRef])
           v
         } catch {
+          case npe: NullPointerException => throw npe
           case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => throw u
           case e: Error => throw e

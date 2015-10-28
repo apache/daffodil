@@ -671,6 +671,9 @@ trait DataInputStream
       fillCharBufferLoop(cb)
       if (cb.position() == 0) Nope
       else Maybe(cb.flip.toString)
+      // TODO: Performance - we need to copy here. Consider return type of Maybe[StringBuilder]
+      // as that will allow for non-copying trim and other manipulations of the string
+      // without further copyies.
     }
   }
 

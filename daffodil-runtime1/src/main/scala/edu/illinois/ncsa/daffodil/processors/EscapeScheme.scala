@@ -35,7 +35,7 @@ case class EscapeSchemeBlockParserHelper(private val escEscChar: Maybe[String],
 }
 
 sealed abstract class EscapeSchemeUnparserHelper {
-  def lookingFor: Seq[DFADelimiter]
+  def lookingFor: Array[DFADelimiter]
 }
 case class EscapeSchemeCharUnparserHelper(private val escChar: Maybe[String], private val escEscChar: Maybe[String], private val extraEscChar: Maybe[Seq[String]])
   extends EscapeSchemeUnparserHelper {
@@ -50,10 +50,10 @@ case class EscapeSchemeCharUnparserHelper(private val escChar: Maybe[String], pr
   //
   val escCharDFA: DFADelimiter = CreateDelimiterDFA(escChar.get)
   val escEscCharDFA: Maybe[DFADelimiter] = if (escEscChar.isDefined) One(CreateDelimiterDFA(escEscChar.get)) else Nope
-  val extraEscCharsDFAs: Seq[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
 
   override val lookingFor = {
-    val res: Seq[DFADelimiter] =
+    val res: Array[DFADelimiter] =
       if (escEscCharDFA.isDefined) escCharDFA +: escCharDFA +: escEscCharDFA.get +: escEscCharDFA.get +: extraEscCharsDFAs
       else escCharDFA +: escCharDFA +: extraEscCharsDFAs
     res
@@ -79,7 +79,7 @@ case class EscapeSchemeBlockUnparserHelper(private val escEscChar: Maybe[String]
   val blockEndDFA: DFADelimiter = CreateDelimiterDFA(blockEnd)
   val blockStartDFA: DFADelimiter = CreateDelimiterDFA(blockStart)
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
-  val extraEscCharsDFAs: Seq[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
 
   override val lookingFor = blockStartDFA +: extraEscCharsDFAs
 

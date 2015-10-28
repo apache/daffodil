@@ -167,14 +167,15 @@ case class MPState() {
         Assert.invariant(dsNode != null)
         dsNode.getTerminatingMarkup
       }
-  }.toList.toSeq // use list here because toSeq creates a lazy stream from an iterator
+  }.toArray
+
   def getAllDelimitersWithPos = delimiterStack.iterator.flatMap {
     dsNode =>
       {
         Assert.invariant(dsNode != null)
         dsNode.getDelimitersWithPos
       }
-  }.toList.toSeq
+  }.toArray
 }
 
 /**

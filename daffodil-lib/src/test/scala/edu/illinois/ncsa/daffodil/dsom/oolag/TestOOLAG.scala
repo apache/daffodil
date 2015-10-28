@@ -49,7 +49,7 @@ class MyException(msg: String)
   with OOLAGDiagnosticMixin
 
 abstract class MyBase(parentArg: MyBase)
-    extends OOLAGHost(parentArg) {
+  extends OOLAGHost(parentArg) {
 
   def a1 = a1_.value
   def a1_ = LV('a1) {
@@ -73,7 +73,7 @@ abstract class MyBase(parentArg: MyBase)
 }
 
 class MySubHost(name: String, parent: MyBase)
-    extends MyBase(parent) {
+  extends MyBase(parent) {
   requiredEvaluations(a1)
 }
 
@@ -216,13 +216,13 @@ class TestOOLAG {
     val h = new MyHost
     var e: Exception = null
     OOLAG.keepGoing() {
-      e = intercept[Exception] {
+      e = intercept[CircularDefinition] {
         h.circ1
         fail()
       }
     }
     val msg = e.getMessage()
-    // println(e)
+    println(e)
     assertTrue(msg.toLowerCase().contains("circ1"))
   }
 

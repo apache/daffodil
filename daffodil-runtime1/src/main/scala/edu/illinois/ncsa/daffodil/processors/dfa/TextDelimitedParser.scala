@@ -60,7 +60,7 @@ abstract class TextDelimitedParserBase(
   private lazy val padCharInfo = if (parsingPadChar.isDefined) parsingPadChar.toString else "NONE"
   lazy val info: String = "justification='" + justificationTrim + "', padChar='" + padCharInfo + "'"
 
-  def parse(input: DataInputStream, field: DFAField, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+  final def parse(input: DataInputStream, field: DFAField, delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
 
@@ -70,16 +70,14 @@ abstract class TextDelimitedParserBase(
     fieldReg.reset(input, delims) // Initialization
 
     var stillSearching: Boolean = true
-    var stateNum: Int = 0 // initial state is 0
-    var actionNum: Int = 0
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
       Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
-      val dfaStatus = field.run(stateNum, fieldReg, actionNum)
+      field.run(fieldReg)
       beforeDelimiter = input.markPos
-      actionNum = 0
-      dfaStatus.status match {
+
+      fieldReg.status match {
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
@@ -89,8 +87,8 @@ abstract class TextDelimitedParserBase(
             beforeDelimiter = input.markPos
             val delimReg: Registers = TLRegistersPool.getFromPool()
             delimReg.reset(input, delims)
-            val delimStatus = d.run(0, delimReg)
-            delimStatus.status match {
+            d.run(delimReg)
+            delimReg.status match {
               case StateKind.Succeeded => successes += (d -> delimReg)
               case _ => {
                 // nothing. Just try the other delims
@@ -102,10 +100,28 @@ abstract class TextDelimitedParserBase(
           else {
             // resume field parse
             // TODO: Please explain here why this is the way one resumes the field dfa?
-            input.resetPos(beforeDelimiter) // reposition input to where we were trying to find a delimiter
+            // TODO: The above assignment to the actionNum is the only reason that actionNum can't just
+            // be a local variable in the run-the-rules loop.
+            //
+            // I'd like this code better if the flow was different.
+            //
+            // Right now: When scanning to isolate a field, when we hit a character that could be the first
+            // character of some delimiter, we return with status PAUSED, which means PAUSE to see if there is
+            // a complete delimiter.
+            // If so then we're done with the field. If not, however, then we go around the loop and resume ...
+            // and the rub is we resume in the middle of the rules for the current state. This is subtle, and
+            // error prone.
+            //
+            // A better flow would (a) encapsulate all this redundant code better (b) on encountering the
+            // first character of a delimiter, transition to a state that represents that we found a possible
+            // first character of a delimiter. Then that
+            // state's rules would be guarded by finding the longest match delimiter. If found transition to a
+            // state indicating a field has been isolated. If the delimiter is not found, then accumulate the character
+            // as a constituent of the field, and transition to the start state.
+            //
+            input.resetPos(beforeDelimiter) // reposition input to where we were trying to find a delimiter (but did not)
             beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
-            actionNum = dfaStatus.actionNum + 1 // but force it to goto next rule so it won't just retry what it just did.
-            stateNum = dfaStatus.currentStateNum
+            fieldReg.actionNum = fieldReg.actionNum + 1 // but force it to goto next rule so it won't just retry what it just did.
             stillSearching = true
           }
         }
@@ -121,6 +137,10 @@ abstract class TextDelimitedParserBase(
         else {
           val fieldValue: Maybe[String] = {
             val str = fieldReg.resultString.toString
+            // TODO: Performance - avoid this copying of the string. We should be able to trim
+            // on a CharSequence which is a base of both String and StringBuilder
+            // Difficulty is the only common base to String and StringBuilder is CharSequence which is
+            // pretty sparse.
             val fieldNoPadding = trimByJustification(str)
             One(fieldNoPadding)
           }
@@ -129,8 +149,10 @@ abstract class TextDelimitedParserBase(
         }
       } else {
         val (dfa, r) = lm.get
+        // TODO: Performance - Use of a tuple here implies allocation when longestMatch is called.
+        // Try to avoid an allocated structure here. Likely it can be part of the PState.
         val fieldValue: Maybe[String] = {
-          val str = fieldReg.resultString.toString
+          val str = fieldReg.resultString.toString // TODO: Performance see above.
           val fieldNoPadding = trimByJustification(str)
           One(fieldNoPadding)
         }
@@ -193,37 +215,38 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def removeLeftPadding(input: DataInputStream, delims: Seq[DFADelimiter]): Unit = {
+  protected def removeLeftPadding(input: DataInputStream, delims: Array[DFADelimiter]): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => {
         val leftPaddingRegister = TLRegistersPool.getFromPool()
         leftPaddingRegister.reset(input, delims)
-        leftPadding.run(0, leftPaddingRegister)
+        leftPadding.run(leftPaddingRegister)
         TLRegistersPool.returnToPool(leftPaddingRegister)
       }
       case _ => // No left padding
     }
   }
 
-  protected def removeRightPadding(input: DataInputStream, delims: Seq[DFADelimiter]): Unit = {
+  protected def removeRightPadding(input: DataInputStream, delims: Array[DFADelimiter]): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => {
         val rightPaddingRegister = TLRegistersPool.getFromPool()
         rightPaddingRegister.reset(input, delims)
-        rightPadding.run(0, rightPaddingRegister)
+        rightPadding.run(rightPaddingRegister)
         TLRegistersPool.returnToPool(rightPaddingRegister)
       }
       case _ => // No right padding
     }
   }
 
-  protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delims: Seq[DFADelimiter]): Boolean = {
+  protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delims: Array[DFADelimiter]): Boolean = {
     val startBlockRegister = TLRegistersPool.getFromPool()
     startBlockRegister.reset(input, delims)
 
-    val startStatus = startBlock.run(0, startBlockRegister) // find the block start, fail otherwise
+    startBlock.run(startBlockRegister) // find the block start, fail otherwise
+    val startStatus = startBlockRegister.status
     TLRegistersPool.returnToPool(startBlockRegister)
-    startStatus.status match {
+    startStatus match {
       case StateKind.Succeeded => true // continue
       case _ => false // Failed
     }
@@ -236,7 +259,7 @@ class TextDelimitedParserWithEscapeBlock(
   protected def parseRemainder(input: DataInputStream,
     fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
-    delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+    delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
 
@@ -244,18 +267,17 @@ class TextDelimitedParserWithEscapeBlock(
     fieldRegister.reset(input, delims)
 
     var stillSearching: Boolean = true
-    var stateNum: Int = 0 // initial state is 0
-    var actionNum: Int = 0
     var foundBlockEnd: Boolean = false
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
       //Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
-      val dfaStatus = fieldEsc.run(stateNum, fieldRegister, actionNum)
+      fieldEsc.run(fieldRegister)
+      val dfaStatus = fieldRegister.status
       beforeDelimiter = input.markPos // at this point the input is one past the end of the field.
-      actionNum = 0
+      fieldRegister.actionNum = 0
 
-      dfaStatus.status match {
+      dfaStatus match {
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
@@ -264,10 +286,11 @@ class TextDelimitedParserWithEscapeBlock(
           val endBlockRegister = TLRegistersPool.getFromPool()
           endBlockRegister.reset(input, delims) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
 
-          val endBlockStatus = endBlock.run(0, endBlockRegister)
+          endBlock.run(endBlockRegister)
+          val endBlockStatus = endBlockRegister.status
           TLRegistersPool.returnToPool(endBlockRegister)
 
-          endBlockStatus.status match {
+          endBlockStatus match {
             case StateKind.Succeeded => {
               // Found the unescaped block end, now we need to
               // find any padding.
@@ -281,8 +304,9 @@ class TextDelimitedParserWithEscapeBlock(
                 beforeDelimiter = input.markPos
                 delimRegister.reset(input, delims)
 
-                val delimStatus = d.run(0, delimRegister)
-                delimStatus.status match {
+                d.run(delimRegister)
+                val delimStatus = delimRegister.status
+                delimStatus match {
                   case StateKind.Succeeded => successes += (d -> delimRegister)
                   case _ => {
                     // No delimiter found
@@ -314,8 +338,7 @@ class TextDelimitedParserWithEscapeBlock(
               // This assumes that the field dfa will resume properly using
               // it's existing state, so long as the input is repositioned properly.
               //
-              actionNum = dfaStatus.actionNum + 1 // goto next rule
-              stateNum = dfaStatus.currentStateNum
+              fieldRegister.actionNum = fieldRegister.actionNum + 1 // goto next rule
             }
           }
         }
@@ -372,7 +395,7 @@ class TextDelimitedParserWithEscapeBlock(
 
   def parse(input: DataInputStream, field: DFAField, fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
-    delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+    delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     //Assert.invariant(delims != null)
     //Assert.invariant(fieldEsc != null)
     //Assert.invariant(field != null)
@@ -428,6 +451,6 @@ case class TextDelimitedParserFactory(
     (preConstructedParser, delims, delimsCooked, fieldDFA, scheme)
   }
 
-  def getParser(state: PState): (TextDelimitedParserBase, Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = constructParser(state)
+  def getParser(state: PState): (TextDelimitedParserBase, Array[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = constructParser(state)
 
 }

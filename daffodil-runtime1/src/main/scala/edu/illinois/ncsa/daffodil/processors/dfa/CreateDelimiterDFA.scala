@@ -52,7 +52,7 @@ object CreateDelimiterDFA {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-      buildTransitions(delimiter, allStates)
+    buildTransitions(delimiter, allStates)
 
     val unparseValue = delimiter.map { _.unparseValue(outputNewLine) }.mkString
     new DFADelimiterImplUnparse(allStates.reverse.toArray, delimiterStr, unparseValue)
@@ -66,7 +66,7 @@ object CreateDelimiterDFA {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-     buildTransitions(delimiter, allStates)
+    buildTransitions(delimiter, allStates)
 
     new DFADelimiterImpl(allStates.reverse.toArray, delimiterStr)
   }
@@ -81,7 +81,7 @@ object CreateDelimiterDFA {
     val db = d.delimBuf
     apply(db, delimiterStr)
   }
-  
+
   /**
    * Converts a String to a DFA representing
    * that string
@@ -97,8 +97,8 @@ object CreateDelimiterDFA {
    * Converts a Seq of String to a Seq of
    * DFA's representing each String.
    */
-  def apply(delimiters: Seq[String]): Seq[DFADelimiter] = {
-    delimiters.map(d => apply(d))
+  def apply(delimiters: Seq[String]): Array[DFADelimiter] = {
+    delimiters.map(d => apply(d)).toArray
   }
 
   /**

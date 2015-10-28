@@ -47,10 +47,10 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *  Maybe(null) = Nope
  *  One(null) == Nope // can't construct a Maybe type containing null.
  */
-final class Maybe[+T <: AnyRef] /* @inline */ private (val v: Any) extends AnyVal {
+final class Maybe[+T <: AnyRef](val v: Any) extends AnyVal {
   import Maybe._
   @inline final def get: T = if (isDefined) value else noneGet
-  @inline private final def value: T = v.asInstanceOf[T]
+  @inline final def value: T = v.asInstanceOf[T]
   final def noneGet = throw new NoSuchElementException("Nope.get")
 
   @inline final def isEmpty: Boolean = NopeValue eq v.asInstanceOf[AnyRef]
@@ -118,7 +118,7 @@ object Maybe {
     //
     // def unapply[T](value: Maybe[T]) = if (value.isDefined) scala.Some(value.get) else scala.None
   }
-  private object NopeValue extends Serializable {
+  object NopeValue extends Serializable {
     override def toString = "Nope"
   }
 

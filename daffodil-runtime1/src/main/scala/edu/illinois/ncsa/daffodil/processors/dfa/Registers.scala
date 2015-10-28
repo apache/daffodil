@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
 
-
 private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
   override def initialValue = new RegistersPool()
 
@@ -19,7 +18,6 @@ private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
 private[dfa] class RegistersPool() extends Pool[Registers] {
   override def allocate = new Registers()
 }
-
 
 // This is the block of mutable things
 // including the source of characters.
@@ -36,9 +34,11 @@ class Registers() extends Serializable {
 
   var charIterator: DataInputStream.CharIterator = null //dataInputStream.asIteratorChar
 
+  var actionNum: Int = 0
+  var state: Int = -1
   var nextState: Int = -1 // used to determine the next state to go to, should only be used when status == StateKind.Parsing
   var status: StateKind.Value = StateKind.Parsing
-  var delimiters: Seq[DFADelimiter] = Nil
+  var delimiters: Array[DFADelimiter] = null
 
   /**
    * Very important. We don't want to create these
@@ -49,7 +49,7 @@ class Registers() extends Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(input: DataInputStream, delims: Seq[DFADelimiter], m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
+  def reset(input: DataInputStream, delims: Array[DFADelimiter], m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
     if (m !=:= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
     resetChars
@@ -61,6 +61,9 @@ class Registers() extends Serializable {
     Registers.this.matchStartPos = matchStartPos
     matchedAtLeastOnce = false
     charIterator = dataInputStream.asIteratorChar
+    actionNum = 0
+    state = 0
+    nextState = 0
     status = StateKind.Parsing
     delimiters = delims
   }
@@ -140,27 +143,40 @@ class Registers() extends Serializable {
     commitOneChar
     charsReadUntilDelim.append(c)
     resultString.append(c)
-    incCharsRead
-    incCharsReadUntilDelim
+    incCharsRead()
+    incCharsReadUntilDelim()
+  }
+
+  def appendToField(cs: CharSequence): Unit = {
+    var i: Int = 0
+    val nChars = cs.length()
+    while (i < nChars) {
+      i += 1
+      commitOneChar
+    }
+    charsReadUntilDelim.append(cs)
+    resultString.append(cs)
+    incCharsRead(nChars)
+    incCharsReadUntilDelim(nChars)
   }
 
   def appendToDelim(c: Char): Unit = {
     commitOneChar
     delimString.append(c)
-    incCharsRead
+    incCharsRead()
   }
 
   def dropChar(c: Char): Unit = {
     commitOneChar
     charsReadUntilDelim.append(c)
-    incCharsRead
-    incCharsReadUntilDelim
-    incCharsDropped
+    incCharsRead()
+    incCharsReadUntilDelim()
+    incCharsDropped()
   }
 
-  def incCharsRead(): Unit = numCharsRead += 1
-  def incCharsReadUntilDelim(): Unit = numCharsReadUntilDelim += 1
-  def incCharsDropped: Unit = numCharsDropped += 1
+  def incCharsRead(incr: Int = 1): Unit = numCharsRead += incr
+  def incCharsReadUntilDelim(incr: Int = 1): Unit = numCharsReadUntilDelim += incr
+  def incCharsDropped(incr: Int = 1): Unit = numCharsDropped += incr
 
   override def toString(): String = {
     "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(resultString.toString, delimString.toString, numCharsRead)

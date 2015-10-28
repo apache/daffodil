@@ -74,6 +74,7 @@ object Implicits {
       body
       None
     } catch {
+      case npe: NullPointerException => throw npe
       case s: scala.util.control.ControlThrowable => throw s
       case u: Throwable => {
         if (!clazz.isAssignableFrom(u.getClass)) {

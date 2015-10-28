@@ -23,7 +23,7 @@ trait EvaluatesStaticDynamicTextCommon { self: Processor =>
     }
   }
 
-  def combineStaticAndDynamic(static: Seq[DFADelimiter], dynamic: Seq[DFADelimiter]) = {
+  def combineStaticAndDynamic(static: Array[DFADelimiter], dynamic: Array[DFADelimiter]) = {
     val res = static ++ dynamic
     res
   }
@@ -34,7 +34,7 @@ trait EvaluatesStaticDynamicTextParser
 
   def getStaticAndDynamicText(ceOpt: Option[CompiledExpression],
     context: RuntimeData,
-    errorOnWSPStar: Boolean = false): (Seq[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean = false): (Array[DFADelimiter], Option[CompiledExpression]) = {
 
     val res = if (ceOpt.isDefined) {
       val ce = ceOpt.get
@@ -49,7 +49,7 @@ trait EvaluatesStaticDynamicTextParser
 
   def getStaticAndDynamicText(ce: CompiledExpression,
     context: RuntimeData,
-    errorOnWSPStar: Boolean): (Seq[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean): (Array[DFADelimiter], Option[CompiledExpression]) = {
 
     val (staticRawOpt, dynamicRawOpt) = {
       if (ce.isConstant) {
@@ -59,7 +59,9 @@ trait EvaluatesStaticDynamicTextParser
     }
     val staticCooked: Queue[String] = new Queue
     if (staticRawOpt.isDefined) {
-      staticRawOpt.get.foreach(x => staticCooked.enqueue(EntityReplacer { _.replaceAll(x, Some(context)) }))
+      EntityReplacer { er =>
+        staticRawOpt.get.foreach(x => staticCooked.enqueue(er.replaceAll(x, Some(context))))
+      }
     }
     if (errorOnWSPStar) errorIfDelimsHaveWSPStar(staticCooked, context)
     val staticDFAs = CreateDelimiterDFA(staticCooked)
@@ -70,7 +72,7 @@ trait EvaluatesStaticDynamicTextParser
   def evaluateDynamicText(dynamic: Option[CompiledExpression],
     start: PState,
     context: RuntimeData,
-    errorOnWSPStar: Boolean): Seq[DFADelimiter] = {
+    errorOnWSPStar: Boolean): Array[DFADelimiter] = {
 
     if (dynamic.isDefined) {
       val res = dynamic.get.evaluate(start)
@@ -81,7 +83,7 @@ trait EvaluatesStaticDynamicTextParser
       val dfas = CreateDelimiterDFA(finalValueCooked)
 
       dfas
-    } else { Seq.empty }
+    } else { Array.empty }
   }
 }
 

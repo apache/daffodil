@@ -45,7 +45,7 @@ class TextParser(
   lazy val name: String = "TextParser"
   lazy val info: String = "" // Nothing additional to add here
 
-  def parse(input: DataInputStream, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(input: DataInputStream, delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     //val initialCharPos = input.characterPos
 
@@ -54,8 +54,9 @@ class TextParser(
       val reg = TLRegistersPool.getFromPool()
       reg.reset(input, delims, m)
       m = input.markPos
-      val dfaStatus = d.run(0, reg)
-      dfaStatus.status match {
+      d.run(reg)
+      val dfaStatus = reg.status
+      dfaStatus match {
         case StateKind.Succeeded => successes += (d -> reg)
         case _ => {
           // Continue

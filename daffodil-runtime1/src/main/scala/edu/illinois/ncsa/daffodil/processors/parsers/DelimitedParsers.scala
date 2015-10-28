@@ -86,6 +86,7 @@ class StringDelimitedParser(
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
     val (textParser, delims, _ /* delimsCooked */ , fieldDFA, scheme) = pf.getParser(start)
+    // TODO: Performance. Allocates a tuple
 
     //    val bytePos = (start.bitPos >> 3).toInt
     //
@@ -96,8 +97,13 @@ class StringDelimitedParser(
     val result = try {
       if (scheme.isDefined) {
         scheme.get match {
-          case s: EscapeSchemeBlockParserHelper =>
-            textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+          case s: EscapeSchemeBlockParserHelper => {
+            textParser match {
+              case textParser: TextDelimitedParserWithEscapeBlock =>
+                textParser.parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+              case _ => Assert.invariantFailed("EscapeSchemeBlockParserHelper goes with TextDelimitedParserWithEscapeBlock")
+            }
+          }
           case s: EscapeSchemeCharParserHelper =>
             textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
         }

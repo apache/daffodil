@@ -117,9 +117,9 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
     val dynamicSepsSeq = evaluateDynamicText(dynamicSeps, start, context, isLengthKindDelimited)
     val dynamicTermsSeq = evaluateDynamicText(dynamicTerms, start, context, isLengthKindDelimited)
 
-    val allInits: Seq[DFADelimiter] = combineStaticAndDynamic(staticInits, dynamicInitsSeq)
-    val allSeps: Seq[DFADelimiter] = combineStaticAndDynamic(staticSeps, dynamicSepsSeq)
-    val allTerms: Seq[DFADelimiter] = combineStaticAndDynamic(staticTerms, dynamicTermsSeq)
+    val allInits: Array[DFADelimiter] = combineStaticAndDynamic(staticInits, dynamicInitsSeq)
+    val allSeps: Array[DFADelimiter] = combineStaticAndDynamic(staticSeps, dynamicSepsSeq)
+    val allTerms: Array[DFADelimiter] = combineStaticAndDynamic(staticTerms, dynamicTermsSeq)
 
     val node = DelimiterStackNode(allInits,
       allSeps,

@@ -8,16 +8,18 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
 object EmptyDelimiterStackNode {
-  val node = new DelimiterStackNode(Seq.empty, Seq.empty, Seq.empty, Nope, Nope, Nope)
+
+  private val mt = null // Array.empty[DFADelimiter] // mutable, so use null to avoid subtle bugs.
+  val node = new DelimiterStackNode(mt, mt, mt, Nope, Nope, Nope)
   def apply() = node
 }
 
 object DelimiterStackNode {
 
   def apply(
-    initiators: Seq[DFADelimiter],
-    separators: Seq[DFADelimiter],
-    terminators: Seq[DFADelimiter],
+    initiators: Array[DFADelimiter],
+    separators: Array[DFADelimiter],
+    terminators: Array[DFADelimiter],
     initiatorLoc: Maybe[(String, String)],
     separatorLoc: Maybe[(String, String)],
     terminatorLoc: Maybe[(String, String)]): DelimiterStackNode = {
@@ -28,9 +30,9 @@ object DelimiterStackNode {
 }
 
 class DelimiterStackNode(
-  initiators: Seq[DFADelimiter],
-  separators: Seq[DFADelimiter],
-  terminators: Seq[DFADelimiter],
+  initiators: Array[DFADelimiter],
+  separators: Array[DFADelimiter],
+  terminators: Array[DFADelimiter],
   initiatorLoc: Maybe[(String, String)],
   separatorLoc: Maybe[(String, String)],
   terminatorLoc: Maybe[(String, String)]) {

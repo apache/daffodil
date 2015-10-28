@@ -39,6 +39,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 trait Dynamic {
 
+  // TODO: Performance - we should consider avoiding using an Either object here since they are
+  // allocated every time this is called.
+
   type CachedDynamic[A] = Either[CompiledExpression, A]
 
   // Returns an Either, with Right being the value of the constant, and the
@@ -55,7 +58,12 @@ trait Dynamic {
     }
   }
 
-  def cacheConstantExpression[A](oe: Maybe[CompiledExpression])(conv: (Any) => A): Maybe[CachedDynamic[A]] = {
+  // Note: These method names used to be just overloads without the "Maybe" suffix.
+  // We don't really need them to be overloads, and some permutation of the Maybe[T] class
+  // with lots of inlining resulted in errors here because a Maybe[T] is an AnyVal aka
+  // value class. At compile time Maybe[Foo] and just Foo aren't distinguishable to resolve
+  // the overloading. So keep it simple, and just don't overload the names.
+  def cacheConstantExpressionMaybe[A](oe: Maybe[CompiledExpression])(conv: (Any) => A): Maybe[CachedDynamic[A]] = {
     //oe.map { e => cacheConstantExpression[A](e)(conv) }
     if (oe.isDefined) One(cacheConstantExpression[A](oe.get)(conv))
     else Nope
@@ -89,7 +97,7 @@ trait Dynamic {
     }
   }
 
-  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
+  def evalWithConversionMaybe[A <: AnyRef](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
     if (oe.isDefined) {
       val a = evalWithConversion[A](s, oe.get)(conv)
       One(a)
@@ -116,7 +124,7 @@ trait Dynamic {
     }
   }
 
-  def getStatic[A <: AnyRef](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
+  def getStaticMaybe[A <: AnyRef](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
     if (oe.isDefined) getStatic(oe.get)
     else Nope
   }

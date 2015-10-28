@@ -628,12 +628,12 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   with Dynamic {
 
   val decimalSepListCached: Maybe[CachedDynamic[List[Char]]] =
-    cacheConstantExpression(decimalSepExp) {
+    cacheConstantExpressionMaybe(decimalSepExp) {
       (a: Any) => getDecimalSepList(a.asInstanceOf[String], staticContext)
     }
 
   val groupingSepCached: Maybe[CachedDynamic[Character]] =
-    cacheConstantExpression(groupingSepExp) {
+    cacheConstantExpressionMaybe(groupingSepExp) {
       (a: Any) => getGroupingSep(a.asInstanceOf[String], staticContext)
     }
 
@@ -642,8 +642,8 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       (a: Any) => getExponentRep(a.asInstanceOf[String], staticContext)
     }
 
-  checkUnique(getStatic(decimalSepListCached),
-    getStatic(groupingSepCached),
+  checkUnique(getStaticMaybe(decimalSepListCached),
+    getStaticMaybe(groupingSepCached),
     getStatic(exponentRepCached),
     infRep,
     nanRep,
@@ -654,14 +654,14 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
 
-    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
+    val decimalSepList = evalWithConversionMaybe(state, decimalSepListCached) {
       (s: ParseOrUnparseState, c: Any) =>
         {
           getDecimalSepList(c.asInstanceOf[String], s)
         }
     }
 
-    val groupingSep = evalWithConversion(state, groupingSepCached) {
+    val groupingSep = evalWithConversionMaybe(state, groupingSepCached) {
       (s: ParseOrUnparseState, c: Any) =>
         {
           getGroupingSep(c.asInstanceOf[String], s)

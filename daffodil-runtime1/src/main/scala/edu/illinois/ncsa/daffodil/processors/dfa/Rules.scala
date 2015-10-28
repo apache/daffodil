@@ -59,23 +59,24 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
    * if rules(n).test() evaluates to true, then take
    * action by rules(n).act().
    */
-  def run(actNum: Int, r: Registers): DFAStatus = {
-    var actionNum = actNum //0
-    while (actionNum < rules.length) {
-      val rule = rules(actionNum)
+  def run(r: Registers): Unit = {
+    Assert.invariant(r.state == stateNum)
+    runRules(rules, r)
+  }
+
+  final protected def runRules(rules: ArrayBuffer[Rule], r: Registers): Unit = {
+    while (r.actionNum < rules.length) {
+      val rule = rules(r.actionNum)
       val useThisRule = rule.test(r)
       if (useThisRule) {
         rule.act(r)
-        if (r.status == StateKind.Parsing) {
-          return null
-        } else {
-          return new DFAStatus(stateNum, actionNum, r.status)
-        }
+        // if (r.status == StateKind.Parsing) {
+        return
+        //}
       }
-      actionNum = actionNum + 1
+      r.actionNum = r.actionNum + 1
     }
     r.status = StateKind.Failed
-    new DFAStatus(stateNum, actionNum, StateKind.Failed)
   }
 
   def findState(name: String): Int = {
@@ -92,9 +93,16 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
   def printStr(): String = states.mkString
   override def toString(): String = stateName + "_" + stateNum
 
-  def couldBeFirstChar(charIn: Char, delims: Seq[DFADelimiter]): Boolean = {
-    // looking at data0
-    delims.exists(couldBeFirstChar(charIn, _))
+  def couldBeFirstChar(charIn: Char, delims: Array[DFADelimiter]): Boolean = {
+    var i: Int = 0
+    val limit = delims.length
+    while (i < limit) {
+      if (couldBeFirstChar(charIn, delims(i))) {
+        return true
+      }
+      i += 1
+    }
+    false
   }
 
   /**
@@ -222,9 +230,10 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
 class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
   val stateName: String = "StartState"
+  val arrayBlockEnd = Array(blockEnd)
 
   val rules = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, Seq(blockEnd)) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, arrayBlockEnd) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
     Rule { (r: Registers) => true } { (r: Registers) =>
@@ -361,28 +370,18 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
    * if rules(n).test() evaluates to true, then take
    * action by rules(n).act().
    */
-  override def run(actNum: Int, r: Registers): DFAStatus = {
-    var actionNum = actNum //0
-    val rules = getRules(r.delimiters)
-    while (actionNum < rules.length) {
-      if (rules(actionNum).test(r)) {
-        rules(actionNum).act(r)
-        if (r.status == StateKind.Parsing) {
-          return null
-        } else {
-          return new DFAStatus(stateNum, actionNum, r.status)
-        }
-      }
-      actionNum = actionNum + 1
-    }
-    r.status = StateKind.Failed
-    new DFAStatus(stateNum, actionNum, StateKind.Failed)
+  override def run(r: Registers): Unit = {
+    val rules = getRules(r.delimiters) // TODO: Performance - this should be determined at schema-compilation time.
+    // even though the specific delimiters may be runtime determined, there are guaranteed to be delimiters, escape chars etc.
+    // such that we can choose the right DFA based on what is defined even if the specific character(s) we're using
+    // come later.
+    runRules(rules, r)
   }
 
   /**
    * Determines what rules to execute based on combinations of EC/EEC
    */
-  def getRules(delims: Seq[DFADelimiter]): ArrayBuffer[Rule] = {
+  def getRules(delims: Array[DFADelimiter]): ArrayBuffer[Rule] = {
 
     val result = {
       if (!EEC.isDefined) {
@@ -515,6 +514,7 @@ class EECState(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: MaybeC
 class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
+  val arrayBlockEnd = Array(blockEnd)
   val stateName = "EECState"
   val rules = ArrayBuffer(
     // Because this is about EC and EEC we can
@@ -524,10 +524,10 @@ class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val E
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, Seq(blockEnd)) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, arrayBlockEnd) } {
       (r: Registers) => r.status = StateKind.Paused //PTERMState
     },
-    Rule { (r: Registers) => couldBeFirstChar(r.data1, Seq(blockEnd)) } { (r: Registers) =>
+    Rule { (r: Registers) => couldBeFirstChar(r.data1, arrayBlockEnd) } { (r: Registers) =>
       {
         // EEC followed by possible blockEnd
         r.dropChar(r.data0)
@@ -581,7 +581,11 @@ class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, v
 
   stateName = "CharState(" + char + ")"
   val rulesToThisState = ArrayBuffer(
-    Rule { (r: Registers) => { r.data0 == char } } { (r: Registers) =>
+    Rule { (r: Registers) =>
+      {
+        r.data0 == char
+      }
+    } { (r: Registers) =>
       {
         r.appendToDelim(r.data0)
         r.advance

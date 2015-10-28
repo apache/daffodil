@@ -8,9 +8,10 @@ object LoggerMacros {
     import c.universe._
     q"""
     {
-      val l = $lvl
-      if (getLoggingLevel() >= l)
-        doLogging(l, $msg, Seq(..$args))
+      val level = $lvl
+      val l = level.lvl
+      if (getLoggingLevel().lvl >= l)
+        doLogging(level, $msg, Seq(..$args))
     }
     """
   }

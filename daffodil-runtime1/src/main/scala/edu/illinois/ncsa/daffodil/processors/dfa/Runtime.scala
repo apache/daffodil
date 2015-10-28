@@ -67,42 +67,46 @@ trait DFA {
    * some state has an action that transitions
    * to the final state.
    *
-   * Returning Right(num) means that this current state was satisfied, we
-   * now need to check the next state.
-   * Returning Left(status) means that we've either Failed, Succeeded,
+   * Results are "returned" by way of side-effecting the dfaStatus member
+   * of the Registers object.
+   * The results convey that we've either Failed, Succeeded,
    * encountered EndOfData or we need to Pause and make a determination of
    * what follows us before we can continue. It's needed because of this
    * whole idea of 'pausing' and 'resuming' for back tracking.
    */
-  def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
-    var stateNum = initialState
+  def run(r: Registers): Unit
+
+  final protected def runLoop(r: Registers, terminateLoopOnState: Int, finalStatus: StateKind.StateKind) {
+    Assert.invariant(r.actionNum >= 0)
     r.status = StateKind.Parsing
-    while (stateNum != DFA.FinalState) {
-      val state = states(stateNum)
-      val runResult = state.run(actionNum, r)
-      if (r.status!= StateKind.Parsing) {
-        return runResult
+    while (r.state != terminateLoopOnState) { // Terminates on FinalState
+      val state = states(r.state)
+      state.run(r)
+      if (r.status != StateKind.Parsing) {
+        return
       }
-      stateNum = r.nextState
+      r.actionNum = 0
+      r.state = r.nextState
     }
-    new DFAStatus(stateNum, 0, StateKind.Succeeded) // Performance: every return allocates a DFAStatus object. Should store this information in the state.
+    r.status = finalStatus
   }
+
 }
 
-class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
+final class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
   extends DFADelimiter
   with Serializable {
 
   def unparseValue: String = Assert.invariantFailed("Parser should not ask for unparseValue")
 
 }
-class DFADelimiterImplUnparse(val states: Array[State], val lookingFor: String, val unparseValue: String)
+final class DFADelimiterImplUnparse(val states: Array[State], val lookingFor: String, val unparseValue: String)
   extends DFADelimiter
   with Serializable {
 
 }
 
-class DFAFieldImpl(val states: Array[State])
+final class DFAFieldImpl(val states: Array[State])
   extends DFAField
   with Serializable {
 
@@ -117,23 +121,13 @@ class DFAFieldImpl(val states: Array[State])
  * succeeded and matched.
  * Paused - We encountered something that could be a delimiter
  * (only applicable to DFAField). We need to make a determination of
- * what comes next before we can continue/resume.
+ * what comes next (the longest match of a whole delimiter?). If it's not a whole delimiter
+ * then we will add the character to the field and continue/resume.
  */
 object StateKind extends Enumeration {
   type StateKind = Value
   val EndOfData, Failed, Succeeded, Paused, Parsing = Value
 }
-
-import StateKind._
-/**
- * DFAStatus contains information pertaining to the status of the DFA.
- *
- * currentStateNum - The current state index number at the time this status was returned.
- * actionNum - The action number we were executing at the time this status was returned.
- * status - Whether we encountered EndOfData, we Failed, Succeeded or Paused.
- *
- */
-case class DFAStatus(val currentStateNum: Int, val actionNum: Int, val status: StateKind)
 
 trait DFAField extends DFA {
   /**
@@ -141,32 +135,14 @@ trait DFAField extends DFA {
    * some state has an action that transitions
    * to the final state.
    */
-  override def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
-    var stateNum = initialState
-    var resume: Boolean = actionNum > 0
-    r.status = StateKind.Parsing
-    while (stateNum != DFA.EndOfData) {
-      val state = states(stateNum)
-      val res = if (resume) {
-        resume = false
-        state.run(actionNum, r)
-      } else {
-        state.run(0, r)
-      }
-      if (r.status!= StateKind.Parsing) {
-        return res
-      } else {
-        stateNum = r.nextState
-      }
-    }
-    new DFAStatus(stateNum, 0, StateKind.EndOfData) // Performance: allocates. Should provide this result via the state.
-  }
-
+  final override def run(r: Registers): Unit = runLoop(r, DFA.EndOfData, StateKind.EndOfData)
 }
 
 trait DFADelimiter extends DFA {
   def lookingFor: String
   override def toString(): String = "<DFA lookingFor='%s' />".format(lookingFor)
+
+  final override def run(r: Registers): Unit = runLoop(r, DFA.FinalState, StateKind.Succeeded)
 
   def unparseValue: String
 }
@@ -182,7 +158,7 @@ trait DFADelimiter extends DFA {
  * is a guard/test and an action. Only one
  * rule "fires" for each state, and the action
  * modifies the register state and returns the
- * identifying integer for the next state, if successful.
+ * identifying integer for the next state (in r.nextState), if successful.
  * Otherwise, a status is returned indicating whether or not
  * we Succeeded, Failed, reached EndOfData, or need to Pause
  * to gather further information.
@@ -197,6 +173,9 @@ trait Rule extends Serializable {
  * <p>
  * Can write things like `Rule { r.data0 == EC } { r.resultString.append(...)...}
  * Examples in other file.
+ *
+ * TODO: Get rid of all the anonymous Rule objects. No reason these can't be ordinary
+ * classes with test and act methods.
  */
 object Rule {
   def apply(testBody: Registers => Boolean)(actionBody: Registers => Unit) = {
