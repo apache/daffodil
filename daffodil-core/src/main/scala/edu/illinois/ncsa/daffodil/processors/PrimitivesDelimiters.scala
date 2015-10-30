@@ -53,17 +53,6 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
 import java.nio.charset.StandardCharsets
 
-trait ComputesValueFoundInstead {
-  def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    // val ei = state.getContext().encodingInfo
-    // val cs = if (ei.isKnownEncoding) ei.knownEncodingCharset.charset else StandardCharsets.UTF_8 // guess utf8
-    val dis = state.dataInputStream
-    val maybeFoundInstead = dis.getSomeString(maxDelimiterLength)
-    val foundInstead = maybeFoundInstead.getOrElse("")
-    foundInstead
-  }
-}
-
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
 
   lazy val oes = {
@@ -175,7 +164,7 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
 // NOTE: LiteralNil still uses this as it can only be Static/Constant
 //
 abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
-  extends Text(e, eb, guard) with ComputesValueFoundInstead {
+  extends Text(e, eb, guard) {
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
@@ -185,7 +174,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 }
 
 abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression, e: Term, eb: Term, guard: Boolean = true)
-  extends Text(e, eb, guard) with ComputesValueFoundInstead {
+  extends Text(e, eb, guard) {
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
