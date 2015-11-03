@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -126,7 +127,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
     case EscapeKind.EscapeBlock => EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd, this.optionExtraEscapedCharacters, this.generateEscapeBlock)
-    case EscapeKind.EscapeCharacter => EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None, this.optionExtraEscapedCharacters, this.generateEscapeBlock)
+    case EscapeKind.EscapeCharacter => EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None, this.optionExtraEscapedCharacters, GenerateEscape.WhenNeeded)
   }
 
   //

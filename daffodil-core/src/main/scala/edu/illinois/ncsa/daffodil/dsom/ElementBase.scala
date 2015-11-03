@@ -401,7 +401,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       nChildSlots,
       slotIndexInParent,
       isNillable,
-      defaultValue,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
       isRequired, // must have at least 1 occurrence
@@ -411,6 +410,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       alignmentValueInBits,
       hasNoSkipRegions,
       impliedRepresentation,
+      optIgnoreCase,
+      defaultValue,
       //
       // unparser specific items
       //

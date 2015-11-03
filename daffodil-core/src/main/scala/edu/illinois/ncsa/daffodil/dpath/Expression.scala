@@ -1056,11 +1056,11 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         rootElement
       } else {
         // since we're first we start from the element, or nearest enclosing
-        val e = compileInfo.elementCompileInfo.map { ci =>
-          val nc = ci.findNamedChild(stepQName)
+        val nc = compileInfo.elementCompileInfo.getOrElse{
+          // happens for example if you have defaultValue="false" since false looks like a path step, but is really illegal. should be fn:false().
+          compileInfo.SDE("The expression path step '%s' has no defined enclosing element.", s)
+        }.findNamedChild(stepQName)
           nc
-        }.getOrElse(die)
-        e
       }
     } else {
       // not first step so we are extension of prior step

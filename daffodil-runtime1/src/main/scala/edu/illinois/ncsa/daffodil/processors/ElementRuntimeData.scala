@@ -52,6 +52,8 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetAugmenter
 import edu.illinois.ncsa.daffodil.util.TransientParam
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
@@ -106,7 +108,6 @@ class ElementRuntimeData(
   val nChildSlots: Int,
   override val slotIndexInParent: Int,
   val isNillable: Boolean,
-  val defaultValue: Option[Any],
   val isArray: Boolean, // can have more than 1 occurrence
   val isOptional: Boolean, // can have only 0 or 1 occurrence
   val isRequired: Boolean, // must have at least 1 occurrence
@@ -124,6 +125,8 @@ class ElementRuntimeData(
   alignmentValueInBits: Int,
   hasNoSkipRegions: Boolean,
   val impliedRepresentation: Representation,
+  optIgnoreCase: Option[YesNo],
+  val optDefaultValue: Option[Any],
   //
   // Unparser-specific arguments
   //
@@ -138,8 +141,8 @@ class ElementRuntimeData(
   val outputValueCalcExpr: Option[CompiledExpression],
   val maybeChildInfosetAugmenter: Maybe[InfosetAugmenter],
   val maybeLaterSiblingInfosetAugmenter: Maybe[InfosetAugmenter])
-  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue,
-    defaultBitOrder)
+  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions,
+    fillByteValue, defaultBitOrder, optIgnoreCase)
   with HasSlotIndexInParent {
 
   lazy val children = childrenArg
@@ -169,15 +172,12 @@ class ElementRuntimeData(
   private def schemaURIStringsForFullValidation1: Seq[String] = (schemaFileLocation.uriString +:
     childERDs.flatMap { _.schemaURIStringsForFullValidation1 })
 
-  def isDefaultable = defaultValue.isDefined
-
   def isComplexType = !isSimpleType
 
-  // note: these nil xml things are constant chunks of XML.  
+  // note: these nil xml things are constant chunks of XML.
   val nilledXML: Maybe[scala.xml.Elem] = {
     if (!isNillable) Nope
     else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, minimizedScope, true))
   }
 
 }
-

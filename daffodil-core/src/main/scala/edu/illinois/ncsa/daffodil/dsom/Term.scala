@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -59,6 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 
 /////////////////////////////////////////////////////////////////
@@ -74,6 +75,14 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with InitiatedTerminatedMixin
   with TermEncodingMixin
   with UnparserAugmentedInfosetTermMixin {
+
+  def optIgnoreCase: Option[YesNo] = {
+    val ic = cachePropertyOption("ignoreCase")
+    ic match {
+      case Found(value, location) => Some(YesNo(value, location))
+      case _ => None
+    }
+  }
 
   override final def term = this
 
@@ -127,10 +136,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final val tID = UUID.randomUUID()
 
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
-  // and then having an explicit val/lazy val which has the 'real' name is 
-  // highly recommended. Lots of time wasted because a val constructor parameter can be 
+  // and then having an explicit val/lazy val which has the 'real' name is
+  // highly recommended. Lots of time wasted because a val constructor parameter can be
   // accidently hidden if a derived class uses the same name as one of its own parameters.
-  // These errors just seem easier to deal with if you use the fooArg style. 
+  // These errors just seem easier to deal with if you use the fooArg style.
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
@@ -193,7 +202,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case ct: GlobalComplexTypeDef => {
         // Since we are a term directly inside a global complex type def,
         // our nearest enclosing sequence is the one enclosing the element that
-        // has this type. 
+        // has this type.
         //
         // However, that element might be local, or might be global and be referenced
         // from an element ref.
@@ -282,13 +291,13 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
     val thisTerm = this match {
       case eRef: ElementRef => eRef.referencedElement
-      // case gd: GlobalGroupDef => gd.thisTermNoRefs // TODO: scala 2.10 compiler says this line is impossible. 
+      // case gd: GlobalGroupDef => gd.thisTermNoRefs // TODO: scala 2.10 compiler says this line is impossible.
       case gb: GroupBase if gb.enclosingTerm.isDefined => {
         // We're a group.  We need to determine what we're enclosed by.
         gb.enclosingTerm.get match {
           case encGRef: GroupRef => {
             // We're enclosed by a GroupRef.  We need to retrieve
-            // what encloses that GroupRef 
+            // what encloses that GroupRef
 
             val res = encGRef.enclosingTerm match {
               case None => encGRef.group
@@ -349,8 +358,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case gdd: GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
       case ct: ComplexTypeBase => {
         None
-        // The above formerly was ct.element.immediatelyEnclosingModelGroup, 
-        // but if we have a CT as our parent, the group around the element whose type 
+        // The above formerly was ct.element.immediatelyEnclosingModelGroup,
+        // but if we have a CT as our parent, the group around the element whose type
         // that is, isn't "immediately enclosing".
       }
       case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + "with parent " + parent)

@@ -78,7 +78,7 @@ sealed trait DINode {
  */
 class InfosetNoSuchChildElementException(msg: String) extends ProcessingError("Error", Nope, Nope, msg) {
   def this(erd: ElementRuntimeData) = this("Child element %s does not exist.".format(erd.prettyName))
-  // def this(slot: Int) = this("Child element with slot position %s does not exist.".format(slot))
+
   def this(name: String, namespace: NS, slot: Int) = this("Child named '" + name +
     (if (namespace == NoNamespace) "' " else "' in namespace '%s' ".format(namespace)) +
     "(slot " + slot + ") does not exist.")
@@ -320,8 +320,8 @@ sealed class DISimple(val erd: ElementRuntimeData)
    */
   override def dataValue = {
     if (_value == null)
-      if (erd.isDefaultable) {
-        val defaultVal = erd.defaultValue.get
+      if (erd.optDefaultValue.isDefined) {
+        val defaultVal = erd.optDefaultValue.get
         _value = defaultVal
         _isDefaulted = true
       } else if (erd.outputValueCalcExpr.isDefined) {
@@ -499,17 +499,36 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   final override def getChild(erd: ElementRuntimeData): InfosetElement = {
     val res = getChildMaybe(erd)
-    if (res eq null) throw new InfosetNoSuchChildElementException(erd)
-    res
+    if (res ne null) res
+    else {
+      if (erd.optDefaultValue.isDefined) {
+        val dv = erd.optDefaultValue.get
+        val dis = new DISimple(erd)
+        dis.setDefaultedDataValue(dv)
+        dis
+      } else {
+        throw new InfosetNoSuchChildElementException(erd)
+      }
+    }
   }
 
   final override def getChildMaybe(erd: ElementRuntimeData): InfosetElement =
     getChildMaybe(erd.slotIndexInParent)
 
-  final def getChild(slot: Int, namedQName: NamedQName): InfosetElement = {
+  final def getChild(slot: Int, info: DPathElementCompileInfo): InfosetElement = {
     val res = getChildMaybe(slot)
-    if (res eq null) throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
-    res
+    if (res ne null) res
+    else {
+      if (erd.optDefaultValue.isDefined) {
+        val dv = erd.optDefaultValue.get
+        val dis = new DISimple(erd)
+        dis.setDefaultedDataValue(dv)
+        dis
+      } else {
+        val namedQName = info.namedQName
+        throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
+      }
+    }
   }
 
   final def getChildMaybe(slot: Int): InfosetElement = {

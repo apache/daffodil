@@ -171,7 +171,7 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
   val zeroRepListRaw = zeroRep.filter { _ != "" }
   val zeroRepList = zeroRepListRaw.map { zr =>
     val d = new Delimiter()
-    d.compile(zr)
+    d.compileDelimiter(zr)
     // add '^' and '$' to require the regular expression to match the entire
     // string as a zero rep instead of just part of it
     val regex = ("^" + d.delimRegExParseDelim + "$").r

@@ -280,6 +280,7 @@
       <xsd:enumeration value="packed" />
       <xsd:enumeration value="bcd" />
       <xsd:enumeration value="binary" />
+      <xsd:enumeration value="ibm4690Packed"/>
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -362,6 +363,7 @@
       <xsd:enumeration value="bcd" />
       <xsd:enumeration value="binarySeconds" />
       <xsd:enumeration value="binaryMilliseconds" />
+      <xsd:enumeration value="ibm4690Packed"/>
     </xsd:restriction>
   </xsd:simpleType>
 

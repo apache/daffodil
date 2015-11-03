@@ -141,4 +141,58 @@ class TestUnparserAugmentingInfosetSourceDebug {
     TestUtils.testUnparsing(sch, infosetXML, "HelloHello")
   }
 
+  // DFDL-1414
+  @Test def testUnparsingDefaultSDEFixedLength1 {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="root" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <!-- below is an error because explicit length 5 cannot have a default value because it can never be empty -->
+            <xs:element name="defaultable" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" default="hello"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val infosetXML = <root xmlns={ XMLUtils.EXAMPLE_NAMESPACE }></root>
+    val x = intercept[Exception] {
+      TestUtils.testUnparsing(sch, infosetXML, "hello")
+    }
+    //
+    // Test temporarily broken, because the SDE it is looking for was changed to SDW temporarily
+    // (for IBM compatibility)
+    //
+    val expectedText = "cannot have XSD default='hello'"
+    val Some(msgs) = DiagnosticUtils.getSomeMessage(x)
+    println(msgs)
+    assertTrue(msgs.toLowerCase.contains(expectedText.toLowerCase))
+  }
+
+  // DFDL-1414
+  @Test def testUnparsingDefaultSDEImplicitStringLength1 {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="root" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <!-- below is an error because implicit length string maxLength 5 can never be empty -->
+            <xs:element name="defaultable" dfdl:lengthKind="implicit" default="hello">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="5"/>
+                  <xs:minLength value="5"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val infosetXML = <root xmlns={ XMLUtils.EXAMPLE_NAMESPACE }></root>
+    val x = intercept[Exception] {
+      TestUtils.testUnparsing(sch, infosetXML, "hello")
+    }
+    val expectedText = "cannot have XSD default='hello'"
+    val Some(msgs) = DiagnosticUtils.getSomeMessage(x)
+    println(msgs)
+    assertTrue(msgs.toLowerCase.contains(expectedText.toLowerCase))
+  }
 }

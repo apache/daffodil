@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
@@ -74,7 +75,8 @@ abstract class TermRuntimeData(
   val alignmentValueInBits: Int,
   val hasNoSkipRegions: Boolean,
   val fillByteValue: Int,
-  val defaultBitOrder: BitOrder)
+  val defaultBitOrder: BitOrder,
+  val optIgnoreCase: Option[YesNo])
   extends RuntimeData
   with Serializable
   with PreSerialization {
@@ -140,8 +142,10 @@ class ModelGroupRuntimeData(
   couldHaveText: Boolean,
   alignmentValueInBits: Int,
   hasNoSkipRegions: Boolean,
-  fillByteValue: Int)
-  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue, defaultBitOrder) {
+  fillByteValue: Int,
+  optIgnoreCase: Option[YesNo])
+  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue,
+    defaultBitOrder, optIgnoreCase) {
 
   override lazy val variableMap = variableMapArg
 

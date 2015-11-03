@@ -211,8 +211,8 @@ trait ElementDeclMixin
       if (!isRepresented) false
       else if (!hasDefaultValue) false
       else {
-        schemaDefinitionUnless(emptyIsAnObservableConcept,
-          "Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
+        if (!emptyIsAnObservableConcept)
+          SDW("Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
         if (isArray && !isRequiredArrayElement) {
           (optMinOccurs, occursCountKind) match {

@@ -77,7 +77,7 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    dstate.setCurrentNode(now.getChild(info.slotIndexInParent, info.namedQName).asInstanceOf[DIElement])
+    dstate.setCurrentNode(now.getChild(info.slotIndexInParent, info).asInstanceOf[DIElement])
   }
 
   override def toXML = {

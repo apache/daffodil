@@ -42,7 +42,7 @@ object CreatePaddingDFA {
    * looks for padChar.
    */
   def apply(padChar: Char): DFADelimiter = {
-    // TODO: In the future we will need to change this because the padChar isn't necessarily a char. 
+    // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
@@ -59,7 +59,7 @@ object CreatePaddingDFA {
    * looks for padChar.
    */
   def apply(padChar: Char, outputNewLine: String): DFADelimiter = {
-    // TODO: In the future we will need to change this because the padChar isn't necessarily a char. 
+    // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
@@ -69,7 +69,7 @@ object CreatePaddingDFA {
     allStates.insert(0, startState)
 
     val d = new Delimiter()
-    d.compile(padChar.toString)
+    d.compileDelimiter(padChar.toString)
 
     val unparseValue = d.delimBuf.map { _.unparseValue("") }.mkString
 

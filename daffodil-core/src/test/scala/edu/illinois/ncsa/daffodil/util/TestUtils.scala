@@ -104,7 +104,7 @@ object TestUtils {
     runSchemaOnData(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
   }
 
-  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false) {
+  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false): Seq[Diagnostic] = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -133,6 +133,7 @@ object TestUtils {
     //    System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparseTo, unparsed)
+    actual.getDiagnostics
   }
 
   def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {

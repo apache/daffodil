@@ -299,7 +299,7 @@ final class DefaultableScalarAugmenter(
   extends InsertableAugmenterBase(erd, shouldAugmentParentOfIndicator) {
 
   override def setNodeValue(insertableNode: DISimple) {
-    val dv = erd.defaultValue.get
+    val dv = erd.optDefaultValue.get
     if (dv =:= UseNilForDefault) {
       Assert.invariant(erd.nilledXML.isDefined)
       insertableNode.setNilled()

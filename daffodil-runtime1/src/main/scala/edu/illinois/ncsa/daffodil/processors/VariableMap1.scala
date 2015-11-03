@@ -206,7 +206,7 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData): VariableMap = {
+  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData, pstate: ParseOrUnparseState): VariableMap = {
     variables.get(varQName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", varQName)
@@ -230,7 +230,10 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
+            // referringContext.SDE
+            pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.globalQName, VariableSet, v.get)
+            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            mkVMap(newVar, firstTier, enclosingScopes)
           }
 
           case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)

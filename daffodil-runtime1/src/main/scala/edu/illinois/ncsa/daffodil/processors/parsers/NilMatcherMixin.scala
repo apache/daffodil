@@ -28,7 +28,7 @@ trait NilMatcherMixin {
 
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
-      d.compile(str)
+      d.compileDelimiter(str)
       delimsRegex.enqueue(d.delimRegExParseDelim) // The regex representing the actual delimiter
     })
     delimsRegex.toArray

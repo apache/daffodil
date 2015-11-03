@@ -75,7 +75,7 @@ class Delimiter {
 
   // Must call to create the necessary structures
   //
-  def compile(pDelimiter: String): Unit = {
+  def compileDelimiter(pDelimiter: String): Unit = {
     delimiterStr = pDelimiter
     delimBuf = buildDelimBuf(delimiterStr)
 

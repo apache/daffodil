@@ -57,9 +57,10 @@ import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
  * containing QNames). That is, you can't interpret a QName without
  * the scope from the XML where it was written.
  */
-sealed abstract class PropertyLookupResult
+sealed abstract class PropertyLookupResult extends Serializable
 case class Found(value: String, location: LookupLocation) extends PropertyLookupResult
-case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation]) extends PropertyLookupResult
+case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation])
+  extends PropertyLookupResult
 
 /**
  * A lookup location is where we indicate a property binding

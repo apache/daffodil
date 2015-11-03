@@ -422,6 +422,11 @@ object OOLAG extends Logging {
         // to isolate bugs harder. You just end up converting them into unsuppressible,
         // but with loss of context.
         //
+        case ue: IllegalArgumentException => {
+          val ex = ue
+          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, this.getClass.getName, ex) // tell us which lazy attribute it was
+          toss(ex)
+        }
         case ue: UnsuppressableException => {
           val ex = ue
           log(LogLevel.OOLAGDebug, " " * indent + catchMsg, this.getClass.getName, ex) // tell us which lazy attribute it was

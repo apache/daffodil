@@ -205,7 +205,7 @@ class DPathCompileInfo(
    * If this is an element we're done. If not we move outward
    * until we reach an enclosing element.
    */
-  final def elementCompileInfo: Option[DPathElementCompileInfo] = this match {
+  final lazy val elementCompileInfo: Option[DPathElementCompileInfo] = this match {
     case e: DPathElementCompileInfo => Some(e)
     case d: DPathCompileInfo => {
       val eci = d.immediateEnclosingCompileInfo

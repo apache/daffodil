@@ -433,8 +433,8 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData) {
-    this.variableMap = variableMap.setVariable(varQName, newValue, referringContext)
+  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData, pstate: PState) {
+    this.variableMap = variableMap.setVariable(varQName, newValue, referringContext, pstate)
   }
 
   def reportValidationError(msg: String, args: Any*) {

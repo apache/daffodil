@@ -77,7 +77,7 @@ object CreateDelimiterDFA {
    */
   def apply(delimiterStr: String): DFADelimiter = {
     val d = new Delimiter()
-    d.compile(delimiterStr)
+    d.compileDelimiter(delimiterStr)
     val db = d.delimBuf
     apply(db, delimiterStr)
   }
@@ -88,7 +88,7 @@ object CreateDelimiterDFA {
    */
   def apply(delimiterStr: String, outputNewLine: String = ""): DFADelimiter = {
     val d = new Delimiter()
-    d.compile(delimiterStr)
+    d.compileDelimiter(delimiterStr)
     val db = d.delimBuf
     apply(db, delimiterStr, outputNewLine)
   }

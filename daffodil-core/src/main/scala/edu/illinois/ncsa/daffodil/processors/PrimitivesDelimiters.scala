@@ -168,6 +168,20 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
+  /*
+   * Properties affected by ignoreCase
+   *
+   * initiator
+   * separator
+   * terminator
+   * nilValue
+   * textBooleanTrueRep
+   * textBooleanFalseRep
+   * textStandardExponentRep
+   * textStandardInfinityRep
+   * textStandardNaNRep
+   * textStandardZeroRep
+   */
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
   lazy val textParser = new TextParser(e.termRuntimeData)

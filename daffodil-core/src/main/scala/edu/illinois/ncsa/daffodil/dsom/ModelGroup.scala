@@ -136,7 +136,8 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      fillByteValue)
+      fillByteValue,
+      optIgnoreCase)
   }
 
   final lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }

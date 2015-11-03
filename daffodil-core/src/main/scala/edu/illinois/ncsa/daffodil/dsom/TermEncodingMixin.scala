@@ -165,13 +165,13 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * Returns true if this term either cannot conflict because it has no textual
    * aspects, or if it couldHaveText then the encoding must be same.
    */
-//  private def hasCompatibleEncoding(t2: Term): Boolean = {
-//    Assert.usage(isKnownEncoding)
-//    Assert.usage(t2.isKnownEncoding)
-//    if (!couldHaveText) true
-//    else if (!t2.couldHaveText) true
-//    else this.knownEncodingCharset == t2.knownEncodingCharset
-//  }
+  //  private def hasCompatibleEncoding(t2: Term): Boolean = {
+  //    Assert.usage(isKnownEncoding)
+  //    Assert.usage(t2.isKnownEncoding)
+  //    if (!couldHaveText) true
+  //    else if (!t2.couldHaveText) true
+  //    else this.knownEncodingCharset == t2.knownEncodingCharset
+  //  }
 
   /**
    * no alignment properties that would explicitly create
@@ -213,9 +213,9 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       case Binary | NoText | Mixed => {
         if (isKnownEncoding) fillByteForCharacterKnownEncoding(knownEncodingName, cookedFillByte)
         else schemaDefinitionError("Illegal value for fillByte property: '%s'." +
-          "Data with binary representation, or with a mixture of text and binary representations," +
+          "\nData with binary representation, or with a mixture of text and binary representations," +
           " but with no dfdl:encoding property must have dfdl:fillByte specified using a DFDL Byte Value Entity" +
-          " For example: %#rHH; where H is a hex digit 0-9 A-F.", fillByte)
+          " For example: %%#rHH; where H is a hex digit 0-9 A-F.", fillByte)
       }
     }
   }
@@ -234,7 +234,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         schemaDefinitionError("The fillByte property cannot be specified as a character ('%s') when the dfdl:encoding property is '%s' because that encoding is not a single-byte character set.", fillByte, encName)
       }
     } else {
-      // not fixed width. 
+      // not fixed width.
       val bytes = fillByteChar.getBytes(encName)
       if (bytes.length > 1) {
         schemaDefinitionError("The fillByte must be a single-byte character, for encoding '%s', but the specified character '%s' occupies %n bytes", encName, fillByteChar, bytes.length)
