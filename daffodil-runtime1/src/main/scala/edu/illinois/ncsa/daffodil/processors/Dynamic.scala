@@ -82,14 +82,11 @@ trait Dynamic {
       case Right(r) => r
       case Left(l) => {
         val aAsAny = l.evaluate(s)
-        s.status match {
-          case Success => // nothing
-          case f: Failure => {
-            // evaluation failed
-            // we can't continue this code path
-            // have to throw out of here
-            throw f.cause
-          }
+        if (s.status ne Success) {
+          // evaluation failed
+          // we can't continue this code path
+          // have to throw out of here
+          throw s.status.asInstanceOf[Failure].cause
         }
         val a: A = conv(s, aAsAny)
         a

@@ -67,7 +67,7 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
         log(LogLevel.Debug, "This is %s", toString)
         val currentElement: InfosetSimpleElement = start.simpleElement
         val res = eval(start)
-        if (start.status != Success) return
+        if (start.status ne Success) return
         currentElement.setDataValue(res)
       }
     }
@@ -133,10 +133,8 @@ class AssertExpressionEvaluationParser(
         // Assert.invariant(!start.status.isInstanceOf[Failure])
         //
         // Assert.invariant(res != null)
-        start.status match {
-          case Success => // ok
-          case f: Failure => return
-        }
+        if (start.status ne Success) return
+
         val testResult = res.asInstanceOf[Boolean]
         if (testResult) {
           start.setDiscriminator(discrim)

@@ -53,7 +53,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
     // consume at the end. That is, the specified length can be an
     // outer constraint, but the children may not use it all up, leaving
     // a section at the end.
-    if (pState.status != Success) return
+    if (pState.status ne Success) return
     val finalEndPos0b = startingBitPos0b + nBits
     Assert.invariant(dis eq pState.dataInputStream)
     val bitsToSkip = finalEndPos0b - dis.bitPos0b

@@ -229,6 +229,6 @@ object DFDL {
     def addDiagnostic(d: Diagnostic) {
       diagnostics = d +: diagnostics
     }
-    lazy val isError = resultState.status != Success
+    lazy val isError = resultState.status ne Success
   }
 }

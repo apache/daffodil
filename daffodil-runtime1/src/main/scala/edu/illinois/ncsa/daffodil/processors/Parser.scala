@@ -209,7 +209,7 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
       // val beforeParse = pstate.dataInputStream.mark
       parser.parse1(pstate)
       //Assert.invariant(pstate.dataProc.handlers == handlers)
-      if (pstate.status != Success) {
+      if (pstate.status ne Success) {
         // pstate.dataInputStream.reset(beforeParse)
         return
       } else {
@@ -251,7 +251,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           // because they're getting caught and converted into rSDEs which makes them
           // look to be DFDL Schema or parser issues when they are code problems.
         }
-        if (pstate.status == Success) {
+        if (pstate.status eq Success) {
           log(LogLevel.Debug, "Choice alternative success: %s", parser)
           pstate.popDiscriminator
           pstate.discard(pBefore)

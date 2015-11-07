@@ -253,31 +253,30 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
     bodyParser.parse1(start)
-    if (start.status != Success) return
+    if (start.status ne Success) return
 
     val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
 
     val actualOccurs = start.mpstate.arrayIndexStack.pop()
     start.mpstate.occursBoundsStack.pop()
 
-    (erd.minOccurs, erd.maxOccurs) match {
-      case (Some(minOccurs), Some(maxOccurs)) if shouldValidate => {
-        val isUnbounded = maxOccurs == -1
-        val occurrence = actualOccurs - 1
+    if (shouldValidate && erd.minOccurs.isDefined && erd.maxOccurs.isDefined) {
+      val minO = erd.minOccurs.get
+      val maxO = erd.maxOccurs.get
+      val isUnbounded = maxO == -1
+      val occurrence = actualOccurs - 1
 
-        if (isUnbounded && occurrence < minOccurs)
-          start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
-            occurrence, minOccurs)
-        else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
-          start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
-            occurrence, minOccurs, maxOccurs)
-        else {
-          //ok
-        }
+      if (isUnbounded && occurrence < minO)
+        start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
+          "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
+          occurrence, minO)
+      else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
+        start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
+          "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
+          occurrence, minO, maxO)
+      else {
+        //ok
       }
-      case _ => //ok
     }
   }
 }

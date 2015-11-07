@@ -167,7 +167,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
       }
     value match {
       case null => {
-        Assert.invariant(state.status != Success)
+        Assert.invariant(state.status ne Success)
         return null
       }
       case _ => {

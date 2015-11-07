@@ -69,6 +69,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 
 /**
@@ -80,7 +81,12 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
  */
 sealed abstract class ProcessorResult;
 
-case object Success extends ProcessorResult
+case object Success extends ProcessorResult {
+  override def equals(that: Any): Boolean = {
+    Assert.usageError("Must use reference equalty when checking for success")
+  }
+}
+
 //case object Last extends ProcessorResult
 //case object LastEmpty extends ProcessorResult
 class Failure(val cause: Throwable) extends ProcessorResult {

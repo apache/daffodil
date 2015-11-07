@@ -42,7 +42,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
     // consume at the end. That is, the specified length can be an
     // outer constraint, but the children may not use it all up, leaving
     // a section at the end.
-    if (state.status != Success) return
+    if (state.status ne Success) return
     val finalEndPos0b = startingBitPos0b + nBits
     val bitsToSkip = finalEndPos0b - dos.bitPos0b
     Assert.invariant(bitsToSkip >= 0)

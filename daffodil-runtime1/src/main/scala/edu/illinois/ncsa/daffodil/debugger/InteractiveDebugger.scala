@@ -158,7 +158,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   def debugStep(before: StateForDebugger, after: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean) {
     ExecutionMode.usingUnrestrictedMode {
       debugState = debugState match {
-        case _ if (after.status != Success && DebuggerConfig.breakOnFailure) => DebugState.Pause
+        case _ if ((after.status ne Success) && DebuggerConfig.breakOnFailure) => DebugState.Pause
         case DebugState.Continue | DebugState.Trace if !ignoreBreakpoints => {
           findBreakpoint(after, processor) match {
             case Some(bp) => {
@@ -175,7 +175,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       if (debugState == DebugState.Pause || debugState == DebugState.Trace) {
         DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, processor) }
 
-        if (after.status != Success) {
+        if (after.status ne Success) {
           debugPrintln("failure:")
           debugPrintln("%s".format(after.diagnostics.head.getMessage), "  ")
         }

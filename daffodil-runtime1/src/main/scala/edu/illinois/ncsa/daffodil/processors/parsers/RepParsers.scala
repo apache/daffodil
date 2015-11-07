@@ -95,7 +95,7 @@ object Rep {
       pstate.dataProc.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, iParser)
-      if (pstate.status != Success) return // fail if we don't get them all
+      if (pstate.status ne Success) return // fail if we don't get them all
       pstate.mpstate.moveOverOneArrayIndexOnly
     }
   }
@@ -111,7 +111,7 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
       pstate.dataProc.beforeRepetition(pstate, rParser)
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, rParser)
-      if (pstate.status != Success) {
+      if (pstate.status ne Success) {
         val cause = pstate.status.asInstanceOf[Failure].cause
         PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s). Cause: %s.",
           context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n,
@@ -144,7 +144,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, this)
 
-      if (pstate.status != Success) {
+      if (pstate.status ne Success) {
         //
         // Did not succeed
         //
@@ -184,7 +184,7 @@ class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeDa
   def parseAllRepeats(pstate: PState): Unit = {
     Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
 
-    if (pstate.status != Success) {
+    if (pstate.status ne Success) {
       PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
         context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
     }
@@ -200,7 +200,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
     val pstate = initialState
     var priorState = initialState.mark
 
-    while (pstate.status == Success) {
+    while (pstate.status eq Success) {
 
       //      erd.maxOccurs.foreach { maxOccurs =>
       //        if ((occursCountKind == OccursCountKind.Implicit) &&
@@ -227,7 +227,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       pstate.dataProc.beforeRepetition(pstate, this)
       rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, this)
-      if (pstate.status != Success) {
+      if (pstate.status ne Success) {
         //
         // Did not succeed
         //
@@ -312,7 +312,7 @@ class RepAtMostOccursCountParser(rParser: Parser, intN: Long, erd: ElementRuntim
     // repeat either n times, or occursCount times if that's less than n.
     val n = math.min(pstate.mpstate.occursBounds, erd.minOccurs.get)
     Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
-    if (pstate.status != Success) {
+    if (pstate.status ne Success) {
       PE(pstate, "Failed to populate %s:%s[%s].  Expected at most %s items.",
         erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
       return
@@ -325,7 +325,7 @@ class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
   def parseAllRepeats(pstate: PState): Unit = {
     val ocInt = pstate.mpstate.occursBounds.toInt
     Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
-    if (pstate.status != Success) {
+    if (pstate.status ne Success) {
       PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
         erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
       return

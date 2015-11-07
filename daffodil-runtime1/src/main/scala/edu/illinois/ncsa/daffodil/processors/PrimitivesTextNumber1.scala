@@ -66,7 +66,7 @@ case class ConvertTextCombinatorParser(
 
   def parse(start: PState): Unit = {
     valueParser.parse1(start)
-    if (start.status != Success) {
+    if (start.status ne Success) {
       return
     }
     converterParser.parse1(start)

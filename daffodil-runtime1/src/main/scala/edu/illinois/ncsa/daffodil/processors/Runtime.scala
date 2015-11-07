@@ -344,7 +344,7 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
    * Xerces validation.
    */
   private def validateWithXerces(state: PState): Unit = {
-    if (state.status == Success) {
+    if (state.status eq Success) {
       val schemaURIStrings = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
       Validator.validateXMLSources(schemaURIStrings, result)
     } else {
@@ -392,14 +392,14 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   }
 
   lazy val result =
-    if (resultState.status == Success) {
+    if (resultState.status eq Success) {
       resultAsScalaXMLElement
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 
   lazy val resultAsScalaXMLElement =
-    if (resultState.status == Success) {
+    if (resultState.status eq Success) {
       val xmlClean = {
         val nodeSeq = resultState.infoset.toXML()
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)

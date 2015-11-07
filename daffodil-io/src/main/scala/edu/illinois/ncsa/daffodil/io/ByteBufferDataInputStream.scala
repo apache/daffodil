@@ -362,26 +362,31 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     st.decoder.onMalformedInput(st.codingErrorAction)
     st.decoder.onUnmappableCharacter(st.codingErrorAction)
     val cs = decoder.charset()
-    val (mCharWidthInBits: MaybeInt, mandatoryAlignInBits) = {
-      if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE)
-        if (st.maybeUTF16Width.isDefined && st.maybeUTF16Width.get == UTF16Width.Fixed) (MaybeInt(16), 8)
-        else (MaybeInt.Nope, 8)
-      else {
-        cs match {
-          case decoderWithBits: NonByteSizeCharsetEncoderDecoder =>
-            (MaybeInt(decoderWithBits.bitWidthOfACodeUnit), 1)
-          case _ => {
-            val encoder = cs.newEncoder()
-            val maxBytes = encoder.maxBytesPerChar()
-            if (maxBytes == encoder.averageBytesPerChar())
-              (MaybeInt((maxBytes * 8).toInt), 8)
-            else (MaybeInt.Nope, 8)
+    if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE) {
+      st.encodingMandatoryAlignmentInBits = 8
+      if (st.maybeUTF16Width.isDefined && st.maybeUTF16Width.get == UTF16Width.Fixed) {
+        st.maybeCharWidthInBits = MaybeInt(16)
+      } else {
+        st.maybeCharWidthInBits = MaybeInt.Nope
+      }
+    } else {
+      cs match {
+        case decoderWithBits: NonByteSizeCharsetEncoderDecoder => {
+          st.encodingMandatoryAlignmentInBits = 1
+          st.maybeCharWidthInBits = MaybeInt(decoderWithBits.bitWidthOfACodeUnit)
+        }
+        case _ => {
+          st.encodingMandatoryAlignmentInBits = 8
+          val encoder = cs.newEncoder()
+          val maxBytes = encoder.maxBytesPerChar()
+          if (maxBytes == encoder.averageBytesPerChar()) {
+            st.maybeCharWidthInBits = MaybeInt((maxBytes * 8).toInt)
+          } else {
+            st.maybeCharWidthInBits = MaybeInt.Nope
           }
         }
       }
     }
-    st.maybeCharWidthInBits = mCharWidthInBits
-    st.encodingMandatoryAlignmentInBits = mandatoryAlignInBits
   }
 
   def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = {
@@ -1378,14 +1383,8 @@ private class Converter_BE_MSBFirst extends LongConverter {
       // out of the left-most byte of the smallBuf. If so we
       // don't want to include that byte in computing the value
       //
-      val (numBytesRemaining, offset) =
-        if (numBitsInFirstByte > 0) {
-          // we didn't shift every bit out of the first byte
-          (nBytesNeeded, 0)
-        } else {
-          // we shifted every bit out of the first byte
-          (nBytesNeeded - 1, 1)
-        }
+      val numBytesRemaining = if (numBitsInFirstByte > 0) nBytesNeeded else nBytesNeeded - 1
+      val offset = if (numBitsInFirstByte > 0) 0 else 1
       //
       // Now we just accumulate the bytes into the result value.
       //

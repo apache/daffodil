@@ -104,10 +104,6 @@ abstract class StatementElementParserBase(
 
     var startingBitPos = pstate.dataInputStream.mark
 
-    def cleanup {
-      pstate.dataInputStream.discard(startingBitPos)
-    }
-
     { // done as while loops to avoid allocation of closure objects
       var i: Int = 0
       while (i < patDiscrimParser.length) {
@@ -115,7 +111,10 @@ abstract class StatementElementParserBase(
         i += 1
         d.parse1(pstate)
         // Pattern fails at the start of the Element
-        if (pstate.status != Success) { cleanup; return }
+        if (pstate.status ne Success) {
+          pstate.dataInputStream.discard(startingBitPos)
+          return
+        }
       }
     }
 
@@ -132,7 +131,10 @@ abstract class StatementElementParserBase(
 
         d.parse1(pstate)
         // Pattern fails at the start of the Element
-        if (pstate.status != Success) { cleanup; return }
+        if (pstate.status ne Success) {
+          pstate.dataInputStream.discard(startingBitPos)
+          return
+        }
       }
     }
 
@@ -144,7 +146,7 @@ abstract class StatementElementParserBase(
     parseBegin(pstate)
     try {
 
-      if (pstate.status != Success) return
+      if (pstate.status ne Success) return
 
       // We just successfully created the element in the infoset. Notify the
       // debugger of this so it can do things like check for break points
@@ -155,13 +157,13 @@ abstract class StatementElementParserBase(
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
 
-      if (pstate.status == Success) {
+      if (pstate.status eq Success) {
         var i: Int = 0
         while (i < setVarParser.length) {
           val d = setVarParser(i)
           i += 1
           d.parse1(pstate)
-          if (pstate.status != Success) {
+          if (pstate.status ne Success) {
             setVarFailureDiags = pstate.diagnostics
             // a setVariable statement may fail. But we want to continue to try
             // more of the setVariable statements, as they may be necessary
@@ -181,7 +183,7 @@ abstract class StatementElementParserBase(
           i += 1
           d.parse1(pstate)
           // Tests fail at the end of the Element
-          if (pstate.status != Success) { return }
+          if (pstate.status ne Success) { return }
         }
       }
 
@@ -195,7 +197,7 @@ abstract class StatementElementParserBase(
       }
 
       // Element evaluation failed, return
-      if (pstate.status != Success) { return }
+      if (pstate.status ne Success) { return }
 
       {
         var i = 0
@@ -205,18 +207,18 @@ abstract class StatementElementParserBase(
 
           d.parse1(pstate)
           // Tests fail at the end of the Element
-          if (pstate.status != Success) { return }
+          if (pstate.status ne Success) { return }
         }
       }
 
       if (eAfterParser.isDefined)
         eAfterParser.get.parse1(pstate)
 
-      if (pstate.status != Success) return
+      if (pstate.status ne Success) return
     } finally {
       parseEnd(pstate)
       pstate.dataProc.endElement(pstate, this)
-      cleanup
+      pstate.dataInputStream.discard(startingBitPos)
     }
   }
 }
@@ -269,7 +271,7 @@ class StatementElementParser(
     val currentElement = pstate.thisElement
     val priorElement = currentElement.parent
 
-    if (pstate.status == Success) {
+    if (pstate.status eq Success) {
       val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints
