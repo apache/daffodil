@@ -42,11 +42,14 @@ class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: Resolv
     val sqn = StepQName(None, local, NS(namespace))
     UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but no element is expected.", resolverType.name, sqn)
   }
+  
+  override def toString() = "NoNextElement"
 
 }
 
 class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)
   extends NextElementResolver {
+  
   override def nextElement(local: String, namespace: String): ElementRuntimeData = {
     val nqn = nextERD.namedQName
     val sqn = StepQName(None, local, NS(namespace))
@@ -55,6 +58,8 @@ class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, n
     }
     nextERD
   }
+  
+  override def toString() = "OnlyOne(" + nextERD.namedQName + ")"
 }
 
 /**
@@ -87,4 +92,6 @@ class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Ma
     }
     res
   }
+  
+  override def toString() = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
 }

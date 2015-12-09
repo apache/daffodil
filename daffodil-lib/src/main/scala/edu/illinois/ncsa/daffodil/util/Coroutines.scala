@@ -1,11 +1,9 @@
 package edu.illinois.ncsa.daffodil.util
 
 import java.util.concurrent.ArrayBlockingQueue
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import Maybe._
 
 /**
  * General purpose Co-routines.
@@ -15,11 +13,20 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
  *
  * Definition of Coroutine - separate stacks, but NO CONCURRENCY. Only one
  * of a set of coroutines is running at any given time.
+ *
+ * Note: T cannot be derived from Throwable.
  */
-trait Coroutine[T] {
+trait Coroutine[T <: AnyRef] extends CoroutineAny {
+
+  def waitForResume: T = waitForResumeAny.asInstanceOf[T]
+  def resume(toResume: CoroutineAny, in: T): T = resumeAny(toResume, in).asInstanceOf[T]
+  def resumeFinal(toResume: CoroutineAny, in: T): T = resumeAnyFinal(toResume, in).asInstanceOf[T]
+}
+
+trait CoroutineAny {
 
   private val queueCapacity: Int = 1
-  private val inboundQueue = new ArrayBlockingQueue[Try[T]](queueCapacity)
+  private val inboundQueue = new ArrayBlockingQueue[AnyRef](queueCapacity)
 
   private val self = this
 
@@ -35,7 +42,7 @@ trait Coroutine[T] {
 
   private var thread_ : Option[Thread] = None
 
-  private final def init {
+  protected def init {
     if (!isMain && thread_.isEmpty) {
       val thr = new Thread {
         override def run() = self.run()
@@ -49,28 +56,50 @@ trait Coroutine[T] {
    * Call when a co-routine resumes another (to provide a result of some sort)
    * and then terminates. The coroutine calling this must return from the run()
    * method immediately after calling this.
+   *
+   * Pass a throwable as the value of the in argument, to cause the resumed thread
+   * to throw.
    */
-  final def resumeFinal(coroutine: Coroutine[T], in: Try[T]): Unit = {
+  final def resumeAnyFinal(coroutine: CoroutineAny, in: AnyRef): Unit = {
     coroutine.init
     val q = coroutine.inboundQueue
-    q.put(in) // allows other to run  final 
+    q.put(in) // allows other to run  final
   }
 
   /**
-   * Call when one co-routine wants to resume another, tranmitting a
+   * Call when one co-routine wants to resume another, transmitting a
    * argument value to it.
+   *
+   * If the argument is Throwable, it will be thrown by the resumed co-routine.
    *
    * The current co-routine will be suspended until it is resumed later.
    */
-  final def resume(coroutine: Coroutine[T], in: Try[T]): Try[T] = {
-    resumeFinal(coroutine, in)
-    val res = waitForResume // blocks until it is resumed
+  final def resumeAny(coroutine: CoroutineAny, in: AnyRef): AnyRef = {
+    resumeAnyFinal(coroutine, in)
+    val res = waitForResumeAny // blocks until it is resumed
     res
   }
 
-  final def waitForResume: Try[T] = {
+  private var thrown: Throwable = null
+
+  protected def wasTerminatedByThrow = thrown != null
+
+  private def throwFailure(x: AnyRef) = {
+    Assert.invariant(x ne null)
+    x match {
+      case th: Throwable => {
+        thrown = th
+        throw th
+      }
+      case _ => // ok
+    }
+  }
+
+  final def waitForResumeAny: AnyRef = {
     val q = this.inboundQueue
-    q.take
+    val obj = q.take
+    throwFailure(obj)
+    obj
   }
 
   protected def run(): Unit
@@ -103,16 +132,13 @@ trait Coroutine[T] {
  * this co-routine.
  */
 
-final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[S] {
-
-  private object EndMarker extends Throwable
-  private val EndOfData = Failure(EndMarker)
+final class InvertControl[S <: AnyRef](body: => Unit) extends IteratorWithPeek[S] with Coroutine[S] {
 
   /**
    * The producer will run the body function, and from within it,
-   * calls to setNext() will
+   * calls to setNext(value) will
    * produce the values for the consumer. The consumer (main thread)
-   * just uses ordinary next/hasNext calls to get the values.
+   * just uses ordinary Iterator hasNext/next calls to get the values.
    *
    * After the last value is produced, the consumer is resumed with EndOfData
    * and the producer terminates.
@@ -122,20 +148,21 @@ final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[S
       try {
         waitForResume
         body
-        resumeFinal(consumer, EndOfData)
+        resumeAnyFinal(consumer, endOfData)
       } catch {
-        case s: scala.util.control.ControlThrowable => throw s
-        case u: UnsuppressableException => throw u
-        case r: RuntimeException => {
-          resumeFinal(consumer, Failure(r))
-          // throw r
-        }
-        case e: Exception => resumeFinal(consumer, Failure(e))
+        case s: scala.util.control.ControlThrowable =>
+          throw s
+        case u: UnsuppressableException =>
+          throw u
+        case r: RuntimeException =>
+          resumeAnyFinal(consumer, r)
+        case e: Exception =>
+          resumeAnyFinal(consumer, e)
       }
     }
 
     final def setNext(e: S) {
-      resume(consumer, Success(e))
+      resume(consumer, e)
     }
   }
 
@@ -146,31 +173,38 @@ final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[S
 
   override final def isMain = true
 
-  private var failed = false
+  private case object endOfData { override def toString = "endOfData" }
+  private case object request { override def toString = "request" }
 
-  private val dummy: Try[S] = Success(null.asInstanceOf[S])
+  private var currentItem: Maybe[AnyRef] = Nope
 
-  private def gen: Stream[S] = {
-    val x = resume(producer, dummy) // producer isn't sent anything. It's just resumed to get another value.
-    x match {
-      case EndOfData => Stream.Empty
-      case Success(v) => v #:: gen
-      case Failure(e) => {
-        failed = true
-        throw e
-      }
-    }
+  private def isFetched: Boolean = currentItem.isDefined
+
+  private def fetch {
+    if (isFetched || wasTerminatedByThrow) return
+    currentItem = Nope
+    val x = resumeAny(producer, request) // producer isn't sent anything. It's just resumed to get another value.
+    if (x != endOfData)
+      currentItem = One(x.asInstanceOf[AnyRef])
   }
-
-  private lazy val iterator = gen.toIterator
 
   override def hasNext = {
-    if (failed) false
-    else iterator.hasNext
+    fetch
+    isFetched
   }
+
   override def next = {
-    if (failed) throw new IllegalStateException()
-    else iterator.next
+    fetch
+    if (!isFetched) throw new NoSuchElementException()
+    val res = currentItem.get.asInstanceOf[S]
+    currentItem = None
+    res
+  }
+
+  override def peek = {
+    fetch
+    if (!isFetched) throw new NoSuchElementException()
+    currentItem.get.asInstanceOf[S]
   }
 
   override def run() {

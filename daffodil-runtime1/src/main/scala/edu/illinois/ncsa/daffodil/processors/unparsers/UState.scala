@@ -4,6 +4,8 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.util.Cursor
+import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
@@ -46,7 +48,7 @@ class UState(
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
-  with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
+  with Cursor[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def dataStream: DataStreamCommon = dataOutputStream
 
@@ -82,17 +84,30 @@ class UState(
     status_ = new Failure(ue)
   }
 
+  override def advance: Boolean = infosetSource.advance
+  override def advanceAccessor: InfosetEvent = infosetSource.advanceAccessor
+  override def inspect: Boolean = infosetSource.inspect
+  override def inspectAccessor: InfosetEvent = infosetSource.inspectAccessor
+
+  //  private lazy val iter = new IteratorFromCursor(infosetSource, (ie: InfosetEvent) => ie)
+  //  def hasNext = iter.hasNext
+  //  def next() = iter.next()
+  //  def peek = iter.peek
+  //
   def peekArrayEnd = {
-    val p = peek
-    val res = p match {
-      case End(a: DIArray) => true
-      case _ => false
+    if (!inspect) false
+    else {
+      val p = inspectAccessor
+      val res = p match {
+        case End(a: DIArray) => true
+        case _ => false
+      }
+      res
     }
-    res
   }
 
   private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope
-  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) null else currentInfosetNodeStack.topMaybe
+  def currentInfosetNode: DINode = if (currentInfosetNodeStack.isEmpty) null else currentInfosetNodeStack.topMaybe
   def currentInfosetEvent = currentInfosetEvent_
 
   def setCurrentInfosetEvent(ev: Maybe[InfosetEvent]) {
@@ -103,18 +118,19 @@ class UState(
   //    infosetSource = newIS
   //  }
 
-  def hasNext = infosetSource.hasNext
-
-  def peek = infosetSource.peek // we depend on the infosetSource.peek method to check hasNext.
-
-  def next = {
-    Assert.usage(hasNext)
-    val ev = infosetSource.next
-    currentInfosetEvent_ = One(ev)
-    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.popMaybe
-    currentInfosetNodeStack.pushMaybe(ev.node)
-    ev
-  }
+  //  private lazy val iter = infosetSource.toIteratorWithPeek
+  //  def hasNext = iter.hasNext
+  //
+  //  def peek = iter.peek // we depend on the infosetSource.peek method to check hasNext.
+  //
+  //  def next = {
+  //    Assert.usage(hasNext)
+  //    val ev = infosetSource.next
+  //    currentInfosetEvent_ = One(ev)
+  //    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.popMaybe
+  //    currentInfosetNodeStack.pushMaybe(ev.node)
+  //    ev
+  //  }
 
   override def hasInfoset = Maybe.isDefined(currentInfosetNode)
 

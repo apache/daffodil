@@ -169,7 +169,7 @@ class TestRegex extends RegexParsers {
       if (result.isEmpty) { None }
       else {
         val (c, delim) = result.get
-        System.err.println(c)
+        // System.err.println(c)
         val res = (isPadLeft -> isPadRight) match {
           case (true, true) => {
             // Pad ~ content ~ pad
@@ -1604,8 +1604,8 @@ class TestRegex extends RegexParsers {
        */
       def test(x: String) = x match {
         case ContentPattern(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
-          println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
-            x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
+//          println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
+//            x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
           val before1 = removeActiveEscapes(
             (if (ee1s == null) "" else ee1s) +
               before +

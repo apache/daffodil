@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import java.nio.channels.ReadableByteChannel
 import org.junit.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
@@ -118,12 +118,12 @@ object TestUtils {
     }
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val xmlEventReader = XMLUtils.nodeToXMLEventReader(infosetXML)
+    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
     if (areTracing) {
       u.setDebugger(builtInTracer)
       u.setDebugging(true)
     }
-    val actual = u.unparse(out, xmlEventReader)
+    val actual = u.unparse(out, xmlEventCursor)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -142,8 +142,8 @@ object TestUtils {
     val u = pf.onPath("/")
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val xmlEventReader = XMLUtils.nodeToXMLEventReader(infoset)
-    val actual = u.unparse(out, xmlEventReader)
+    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infoset)
+    val actual = u.unparse(out, xmlEventCursor)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -238,7 +238,7 @@ class Fakes private () {
     def getVariables(): VariableMap = EmptyVariableMap
     def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
     def parse(file: File): DFDL.ParseResult = null
-    def unparse(output: DFDL.Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): DFDL.UnparseResult = null
+    def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty

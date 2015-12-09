@@ -73,7 +73,7 @@ import edu.illinois.ncsa.daffodil.util.Misc.hex2Bits
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
@@ -772,8 +772,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val output = java.nio.channels.Channels.newChannel(outStream)
     val infosetXML = inputInfoset.dfdlInfoset.rawContents
 
-    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infosetXML)
-    val actual = processor.unparse(output, xmlStreamReader)
+    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
+    val actual = processor.unparse(output, xmlEventCursor)
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
@@ -834,8 +834,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
         val infoset = inputInfoset.dfdlInfoset.rawContents
-        val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infoset)
-        val actual = processor.unparse(output, xmlStreamReader)
+        val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infoset)
+        val actual = processor.unparse(output, xmlEventCursor)
         output.close()
 
         // Verify that some partial output has shown up in the bytes.

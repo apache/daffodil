@@ -89,7 +89,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   }
 
   def parse(start: PState): Unit = {
-    val node: InfosetSimpleElement = start.simpleElement
+    val node = start.simpleElement
     val str = node.dataValueAsString
 
     Assert.invariant(str != null)
@@ -126,7 +126,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
       case _ => Assert.impossibleCase
     }
 
-    node.setDataValue(newCal)
+    node.overwriteDataValue(newCal)
 
   }
 }

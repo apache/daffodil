@@ -127,7 +127,7 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
   final override lazy val unparser = {
     if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)
     else if (unparserChildren.length == 1) unparserChildren(0)
-    else new SeqCompUnparser(context.runtimeData, unparserChildren)
+    else new SeqCompUnparser(context.runtimeData, unparserChildren.toArray)
   }
 }
 

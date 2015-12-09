@@ -13,17 +13,16 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
-/**
- * All these tests were written for iterator style.
- * Now that we're doing Cursor style, need an adapter. otherwise we have to edit them all.
- */
-case class Adapter(isrc: InfosetSource)
-  extends IteratorFromCursor[InfosetEvent, InfosetEvent](isrc, (ie: InfosetEvent) => ie)
+import edu.illinois.ncsa.daffodil.processors.Infoset
 
-class TestInfosetSourceFromXMLEventReader {
+class TestInfosetCursorFromTree {
 
-  def infosetSource(testSchema: scala.xml.Node, infosetXML: scala.xml.Node) = {
+  /**
+   * Compiles the schema to runtime data, then converts the infosetXML (our XML representation
+   * of a Daffodil infoset) into an actual InfosetDocument object (Daffodil's native data structure),
+   * and then creates an InfosetCursor which can be used to read out those nodes in-order.
+   */
+  def infosetCursor(testSchema: scala.xml.Node, infosetXML: scala.xml.Node) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -35,46 +34,65 @@ class TestInfosetSourceFromXMLEventReader {
       val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
-    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
     val rootERD = u.ssrd.elementRuntimeData
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
-    is
+    val infoset = Infoset.elem2InfosetDocument(rootERD, infosetXML)
+    val infosetCursor = InfosetSource.fromInfosetTree(infoset)
+    infosetCursor
   }
 
-  @Test def testUnparseFixedLengthString1() {
+  @Test def testInfosetCursorFromSimpleValue1() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
-    TestUtils.testUnparsing(sch, infosetXML, "Hello")
+    val ic = infosetCursor(sch, infosetXML)
+
+    val aacc = ic.advanceAccessor
+    val iacc = ic.inspectAccessor
+
+    assertTrue(ic.advance)
+    val Start(foo: DISimple) = aacc
+    assertEquals("Hello", foo.dataValueAsString)
+
+    assertTrue(ic.inspect)
+    val End(ifoo: DISimple) = iacc
+    assertTrue(foo eq ifoo)
+
+    assertTrue(ic.advance)
+    val End(foo_e: DISimple) = aacc
+    assertTrue(foo eq foo_e)
+
+    assertFalse(ic.inspect)
+    assertFalse(ic.advance)
   }
 
-  @Test def testInfosetSource1() {
-    val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
-    val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
-    val is = infosetSource(sch, infosetXML).toStream.toList
-    val List(Start(s: DISimple), End(e: DISimple)) = is
-    assertTrue(s eq e) // exact same object
-    assertTrue(s.dataValue.isInstanceOf[String])
-    assertTrue(s.dataValueAsString =:= "Hello")
-    assertEquals(s.toXML(), infosetXML)
-  }
-
-  @Test def testInfosetSourceNil1() {
+  @Test def testInfosetCursorFromTreeNil() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
-    val is = infosetSource(sch, infosetXML).toStream.toList
-    val List(Start(s: DISimple), End(e: DISimple)) = is
-    assertTrue(s eq e) // exact same object
-    assertTrue(s.isNilled)
-    assertEquals(s.toXML(), infosetXML)
+    val ic = infosetCursor(sch, infosetXML)
+
+    val aacc = ic.advanceAccessor
+    val iacc = ic.inspectAccessor
+
+    assertTrue(ic.advance)
+    val Start(foo: DISimple) = aacc
+    assertTrue(foo.isNilled)
+
+    assertTrue(ic.inspect)
+    val End(ifoo: DISimple) = iacc
+    assertTrue(foo eq ifoo)
+
+    assertTrue(ic.advance)
+    val End(foo_e: DISimple) = aacc
+    assertTrue(foo eq foo_e)
+
+    assertFalse(ic.inspect)
+    assertFalse(ic.advance)
   }
 
-  @Test def testInfosetComplex1() {
+  @Test def testInfosetCursorFromTreeComplex1() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
@@ -85,17 +103,33 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(foo_s: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
-    assertTrue(bar_s eq bar_e) // exact same object
-    assertTrue(foo_s eq foo_e)
-    assertTrue(foo_s.dataValue.isInstanceOf[String])
-    assertTrue(foo_s.dataValueAsString =:= "Hello")
-    assertEquals(bar_s.toXML(), infosetXML)
+
+    val ic = infosetCursor(sch, infosetXML)
+
+    val aacc = ic.advanceAccessor
+    val iacc = ic.inspectAccessor
+
+    assertTrue(ic.advance)
+    val Start(bar: DIComplex) = aacc
+
+    assertTrue(ic.advance)
+    val Start(foo: DISimple) = aacc
+    assertEquals("Hello", foo.dataValue)
+
+    assertTrue(ic.inspect)
+    val End(ifoo: DISimple) = iacc
+    assertTrue(foo eq ifoo)
+
+    assertTrue(ic.advance)
+    val End(foo_e: DISimple) = aacc
+    assertTrue(foo eq foo_e)
+
+    assertTrue(ic.advance)
+    val End(bar_e: DIComplex) = aacc
+    assertTrue(bar eq bar_e)
+
+    assertFalse(ic.inspect)
+    assertFalse(ic.advance)
   }
 
   @Test def testInfosetComplex2() {
@@ -110,14 +144,15 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(foo_s: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
-    val Start(baz_s: DISimple) = is.next
-    val End(baz_e: DISimple) = is.next; assertNotNull(baz_e)
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz_e)
+    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_s eq foo_e)
     assertTrue(foo_s.dataValue.isInstanceOf[String])
@@ -156,22 +191,23 @@ class TestInfosetSourceFromXMLEventReader {
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
-    val is = infosetSource(sch, infosetXML)
-    val Start(quux_s: DIComplex) = is.next
-    val Start(bar1_s: DIComplex) = is.next
-    val Start(foo1_s: DISimple) = is.next
-    val End(foo1_e: DISimple) = is.next
-    val Start(baz1_s: DISimple) = is.next
-    val End(baz1_e: DISimple) = is.next; assertNotNull(baz1_e)
-    val End(bar1_e: DIComplex) = is.next
-    val Start(bar2_s: DIComplex) = is.next
-    val Start(foo2_s: DISimple) = is.next
-    val End(foo2_e: DISimple) = is.next
-    val Start(baz2_s: DISimple) = is.next
-    val End(baz2_e: DISimple) = is.next; assertNotNull(baz2_e)
-    val End(bar2_e: DIComplex) = is.next
-    val End(quux_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(quux_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(bar1_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(baz1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz1_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz1_e)
+    val End(bar1_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(bar2_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(baz2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz2_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz2_e)
+    val End(bar2_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val End(quux_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar1_s eq bar1_e) // exact same object
     assertTrue(foo1_s eq foo1_e)
     assertTrue(foo1_s.dataValue.isInstanceOf[String])
@@ -199,16 +235,17 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(foo_arr_s: DIArray) = is.next
-    val Start(foo_1_s: DISimple) = is.next
-    val End(foo_1_e: DISimple) = is.next
-    val Start(foo_2_s: DISimple) = is.next
-    val End(foo_2_e: DISimple) = is.next
-    val End(foo_arr_e: DIArray) = is.next
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
@@ -232,19 +269,20 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(foo_arr_s: DIArray) = is.next
-    val Start(foo_1_s: DISimple) = is.next
-    val End(foo_1_e: DISimple) = is.next
-    val Start(foo_2_s: DISimple) = is.next
-    val End(foo_2_e: DISimple) = is.next
-    val End(foo_arr_e: DIArray) = is.next
-    val Start(baz_s: DISimple) = is.next
-    val End(baz_e: DISimple) = is.next
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
@@ -270,20 +308,21 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(baz_s: DISimple) = is.next
-    val End(baz_e: DISimple) = is.next
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
-    val Start(foo_arr_s: DIArray) = is.next
-    val Start(foo_1_s: DISimple) = is.next
-    val End(foo_1_e: DISimple) = is.next
-    val Start(foo_2_s: DISimple) = is.next
-    val End(foo_2_e: DISimple) = is.next
-    val End(foo_arr_e: DIArray) = is.next
+    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
 
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(foo_1_s eq foo_1_e)
@@ -309,21 +348,22 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next
-    val Start(baz_arr_s: DIArray) = is.next
-    val Start(baz_s: DISimple) = is.next
-    val End(baz_e: DISimple) = is.next
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(baz_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
     assertNotNull(baz_e)
-    val End(baz_arr_e: DIArray) = is.next
-    val Start(foo_arr_s: DIArray) = is.next
-    val Start(foo_1_s: DISimple) = is.next
-    val End(foo_1_e: DISimple) = is.next
-    val Start(foo_2_s: DISimple) = is.next
-    val End(foo_2_e: DISimple) = is.next
-    val End(foo_arr_e: DIArray) = is.next
-    val End(bar_e: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val End(baz_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(foo_arr_s: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_arr_e: DIArray) = { assertTrue(ic.advance); aacc }
+    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
     assertTrue(baz_arr_s eq baz_arr_e)
@@ -349,17 +389,19 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val is = infosetSource(sch, infosetXML)
-    val Start(bar_s1: DIComplex) = is.peek
-    val Start(bar_s2: DIComplex) = is.peek
-    val Start(bar_s3: DIComplex) = is.next
-    val Start(foo_s1: DISimple) = is.peek
-    val Start(foo_s2: DISimple) = is.next
-    val End(foo_e: DISimple) = is.next
-    val End(bar_e1: DIComplex) = is.peek
-    assertTrue(is.hasNext)
-    val End(bar_e2: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val iacc = ic.inspectAccessor
+    val Start(bar_s1: DIComplex) = { assertTrue(ic.inspect); iacc }
+    val Start(bar_s2: DIComplex) = { assertTrue(ic.inspect); iacc }
+    val Start(bar_s3: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(foo_s1: DISimple) = { assertTrue(ic.inspect); iacc }
+    val Start(foo_s2: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(bar_e1: DIComplex) = { assertTrue(ic.inspect); iacc }
+    assertTrue(ic.inspect)
+    val End(bar_e2: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(bar_s1 eq bar_s2)
     assertTrue(bar_s2 eq bar_s3)
     assertTrue(bar_e1 eq bar_e2)
@@ -389,20 +431,21 @@ class TestInfosetSourceFromXMLEventReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
-    val is = infosetSource(sch, infosetXML)
-    val Start(e: DIComplex) = is.next
-    val Start(as: DIArray) = is.next
-    val Start(s1: DIComplex) = is.next; assertNotNull(s1)
-    val Start(c1: DISimple) = is.next
-    val End(c1e: DISimple) = is.next; assertNotNull(c1e)
-    val End(s1e: DIComplex) = is.next; assertNotNull(s1e)
-    val Start(s2: DIComplex) = is.next; assertNotNull(s2)
-    val Start(c2: DISimple) = is.next
-    val End(c2e: DISimple) = is.next; ; assertNotNull(c2e)
-    val End(s2e: DIComplex) = is.next; assertNotNull(s2e)
-    val End(ase: DIArray) = is.next
-    val End(ee: DIComplex) = is.next
-    assertFalse(is.hasNext)
+    val ic = infosetCursor(sch, infosetXML)
+    val aacc = ic.advanceAccessor
+    val Start(e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val Start(as: DIArray) = { assertTrue(ic.advance); aacc }
+    val Start(s1: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1)
+    val Start(c1: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(c1e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(c1e)
+    val End(s1e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1e)
+    val Start(s2: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2)
+    val Start(c2: DISimple) = { assertTrue(ic.advance); aacc }
+    val End(c2e: DISimple) = { assertTrue(ic.advance); aacc }; ; assertNotNull(c2e)
+    val End(s2e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2e)
+    val End(ase: DIArray) = { assertTrue(ic.advance); aacc }
+    val End(ee: DIComplex) = { assertTrue(ic.advance); aacc }
+    assertFalse(ic.inspect)
     assertTrue(as eq ase) // exact same object
     assertTrue(e eq ee)
     assertTrue(c1.dataValue.isInstanceOf[String])
@@ -410,4 +453,5 @@ class TestInfosetSourceFromXMLEventReader {
     assertTrue(c2.dataValue.isInstanceOf[String])
     assertTrue(c2.dataValueAsString =:= "World")
   }
+
 }

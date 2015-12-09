@@ -54,10 +54,10 @@ object PatternChecker {
     try {
       val pat = Pattern.compile(pattern)
       val m1 = pat.matcher("")
-      val m2 = pat.matcher("\uFFFE") // obscure enough? 
+      val m2 = pat.matcher("\uFFFE") // obscure enough?
       if (m1.matches() && m2.lookingAt() && m2.group().length() == 0) {
         // the pattern will match with zero length, anything or nothing
-        // This is a flawed pattern for an assert and dubious 
+        // This is a flawed pattern for an assert and dubious
         // generally. The pattern should have to match something.
         val needCDATA =
           if (pattern.startsWith("(?x)") &&
@@ -75,7 +75,7 @@ object PatternChecker {
       }
     } catch {
       case e: PatternSyntaxException => {
-        println(e.getMessage)
+        // println(e.getMessage)
         context.SDE("Invalid regular expression pattern '%s'.\nReason: %s.", pattern, DiagnosticUtils.getSomeMessage(e).get)
       }
     }

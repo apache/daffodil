@@ -408,7 +408,7 @@ final class PState private (
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
 
-  def simpleElement: InfosetSimpleElement = {
+  def simpleElement: DISimple = {
     val res = infoset match {
       case s: DISimple => s
       case _ => Assert.usageError("not a simple element")
@@ -416,7 +416,7 @@ final class PState private (
     res
   }
 
-  def complexElement: InfosetComplexElement = {
+  def complexElement: DIComplex = {
     val res = infoset match {
       case c: DIComplex => c
       case _ => Assert.usageError("not a complex element.")

@@ -845,9 +845,9 @@ Differences were (path, expected, actual):
   }
 
   /**
-   * Converts a scala XML node into an XMLStreamReader
+   * Converts a scala XML node into an XMLEventCursor
    */
-  def nodeToXMLEventReader(node: scala.xml.Node): Iterator[scala.xml.pull.XMLEvent] = {
+  def nodeToXMLEventCursor(node: scala.xml.Node): XMLEventCursor = {
     //
     // We're going to serialize the input infoset to a string, then
     // create an XML event source from that.
@@ -855,8 +855,8 @@ Differences were (path, expected, actual):
     //
     val src = scala.io.Source.fromString(node.toString)
 
-    val xpp = new XMLPullParser(src)
-    xpp
+    val cursor = new XMLEventCursorFromInput(src)
+    cursor
   }
 }
 

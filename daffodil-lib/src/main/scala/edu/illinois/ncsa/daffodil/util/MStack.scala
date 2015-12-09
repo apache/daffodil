@@ -29,8 +29,12 @@ object MStack {
    */
   final class OfMaybe[T <: AnyRef] {
 
+    override def toString = delegate.toString
+
     private val delegate = new Of[T]
     private val nullT = null.asInstanceOf[T]
+
+    @inline final def length = delegate.length
 
     @inline final def popMaybe: T = delegate.pop
 
@@ -64,6 +68,10 @@ object MStack {
    */
   final class Of[T <: AnyRef] {
 
+    override def toString = delegate.toString
+
+    @inline final def length = delegate.length
+
     private val delegate = new MStack[AnyRef](
       (n: Int) => new Array[AnyRef](n),
       null.asInstanceOf[T])
@@ -79,6 +87,7 @@ object MStack {
     def toList = delegate.toList
 
     def iterator = delegate.iterator.asInstanceOf[Iterator[T]]
+
   }
 
 }
@@ -93,8 +102,13 @@ object MStack {
  */
 protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => Array[T], nullValue: T) {
 
+  override def toString: String = {
+    val stackContents = table.take(index).reverse.mkString(", ")
+    "MStack(top=" + stackContents + ")"
+  }
+
   private var index = 0
-  private var table = arrayAllocator(32)
+  private var table: Array[T] = arrayAllocator(32)
   // private var currentIteratorIndex = -1
 
   private def growArray(x: Array[T]) = {

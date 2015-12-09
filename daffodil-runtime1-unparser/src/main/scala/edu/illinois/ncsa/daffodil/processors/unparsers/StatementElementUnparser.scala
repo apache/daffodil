@@ -132,7 +132,7 @@ class StatementElementUnparser(
   }
 
   def unparseBegin(state: UState): Unit = {
-    val event: InfosetEvent = state.next()
+    val event: InfosetEvent = { Assert.invariant(state.advance)  ;   state.advanceAccessor  }
     event match {
       case Start(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
@@ -148,7 +148,7 @@ class StatementElementUnparser(
   }
 
   def unparseEnd(state: UState): Unit = {
-    val event: InfosetEvent = state.next()
+    val event: InfosetEvent = { Assert.invariant(state.advance)  ;   state.advanceAccessor  }
     event match {
       case End(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)

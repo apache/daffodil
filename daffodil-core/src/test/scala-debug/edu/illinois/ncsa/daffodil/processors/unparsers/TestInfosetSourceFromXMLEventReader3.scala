@@ -6,15 +6,13 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarnU1 { EqualitySuppressUnusedImportWarning() }
 import scala.io.Source
-import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.XMLPullParser
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
 
 class TestInfosetSourceFromXMLEventReader3 {
 
@@ -43,11 +41,10 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    val xmlEventReader = new XMLPullParser(source)
-
+    val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next
     assertNotNull(bar_s)
@@ -89,11 +86,10 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    val xmlEventReader = new XMLPullParser(source)
-
+    val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
@@ -133,11 +129,10 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    val xmlEventReader = new XMLPullParser(source)
-
+    val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
@@ -179,11 +174,10 @@ class TestInfosetSourceFromXMLEventReader3 {
 
     val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
 
-    val xmlEventReader = new XMLPullParser(source)
-
+    val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next

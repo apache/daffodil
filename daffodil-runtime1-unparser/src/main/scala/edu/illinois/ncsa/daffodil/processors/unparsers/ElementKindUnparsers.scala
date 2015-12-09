@@ -76,8 +76,8 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
   Assert.invariant(childUnparsers.length > 0)
 
   // Since some of the grammar terms might have folded away to EmptyGram,
-  // the number of unparsers here may be different from the number of 
-  // children of the sequence group. 
+  // the number of unparsers here may be different from the number of
+  // children of the sequence group.
   Assert.invariant(rdArg.groupMembers.length >= childUnparsers.length)
 
   override lazy val childProcessors: Seq[Processor] = childUnparsers
@@ -99,8 +99,8 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
         case erd: ElementRuntimeData if !erd.isRequired => {
           // it's not a required element, so we check to see if we have a matching
           // incoming infoset event
-          if (start.hasNext) {
-            val ev = start.peek
+          if (start.inspect) {
+            val ev = start.inspectAccessor
             ev match {
               case Start(diNode) => {
 
@@ -110,7 +110,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
                 }
               }
               case End(c: DIComplex) => {
-                //ok. We've peeked ahead and found the end of the complex element 
+                //ok. We've peeked ahead and found the end of the complex element
                 //that this sequence is the model group of.
                 val optParentRD = termRuntimeData.immediateEnclosingRuntimeData
                 optParentRD match {
@@ -135,13 +135,13 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
         childUnparser.unparse1(start, childRD)
       }
       index += 1
-      // 
+      //
       // Note: the invariant is that unparsers move over 1 within their group themselves
       // we do not do the moving over here as we are the caller of the unparser.
       //
     }
     start.groupIndexStack.pop()
-    // 
+    //
     // this is establishing the invariant that unparsers (in this case the sequence unparser)
     // moves over within its containing group. The caller of an unparser does not do this move.
     //
@@ -158,10 +158,10 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
 
   def unparse(start: UState): Unit = {
 
-    val event: InfosetEvent = start.peek
+    val event: InfosetEvent = { Assert.invariant(start.inspect); start.inspectAccessor }
     val key: ChoiceBranchEvent = event match {
       //
-      // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a 
+      // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a
       // hash-table lookup for a cached value. This avoids constructing these
       // objects over and over again.
       //
@@ -296,24 +296,24 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyUnparser)
 
-  def unparse(ustate: UState) {
-    ustate.arrayIndexStack.push(1L) // one-based indexing
-    ustate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
+  def unparse(state: UState) {
+    state.arrayIndexStack.push(1L) // one-based indexing
+    state.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
-    var event = ustate.next()
-    Assert.invariant(event.isInstanceOf[Start] && event.node.isInstanceOf[DIArray])
+    var event = { Assert.invariant(state.advance); state.advanceAccessor }
+    Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
 
-    bodyUnparser.unparse1(ustate, erd)
+    bodyUnparser.unparse1(state, erd)
 
-    event = ustate.next()
-    if (!(event.isInstanceOf[End] && event.node.isInstanceOf[DIArray])) {
-      UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Needed end of array, but found %s.", event)
+    event = { Assert.invariant(state.advance); state.advanceAccessor }
+    if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Needed end of array, but found %s.", event)
     }
 
-    val shouldValidate = ustate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = state.dataProc.getValidationMode != ValidationMode.Off
 
-    val actualOccurs = ustate.arrayIndexStack.pop()
-    ustate.occursBoundsStack.pop()
+    val actualOccurs = state.arrayIndexStack.pop()
+    state.occursBoundsStack.pop()
 
     if (shouldValidate) {
       (erd.minOccurs, erd.maxOccurs) match {
@@ -321,11 +321,11 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
           val isUnbounded = maxOccurs == -1
           val occurrence = actualOccurs - 1
           if (isUnbounded && occurrence < minOccurs)
-            ustate.validationError("%s occurred '%s' times when it was expected to be a " +
+            state.validationError("%s occurred '%s' times when it was expected to be a " +
               "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
               occurrence, minOccurs)
           else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
-            ustate.validationError("%s occurred '%s' times when it was expected to be a " +
+            state.validationError("%s occurred '%s' times when it was expected to be a " +
               "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
               occurrence, minOccurs, maxOccurs)
         }
@@ -339,18 +339,17 @@ class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser
   override def nom = "Optional"
   override lazy val childProcessors = Seq(bodyUnparser)
 
-  def unparse(ustate: UState) {
+  def unparse(state: UState) {
 
-    ustate.arrayIndexStack.push(1L) // one-based indexing
-    ustate.occursBoundsStack.push(1L)
+    state.arrayIndexStack.push(1L) // one-based indexing
+    state.occursBoundsStack.push(1L)
 
-    val event = ustate.peek
-    Assert.invariant(event.isInstanceOf[Start] && !event.node.isInstanceOf[DIArray])
+    val event = { Assert.invariant(state.inspect); state.inspectAccessor }
+    Assert.invariant(event.isStart && !event.node.isInstanceOf[DIArray])
 
-    bodyUnparser.unparse1(ustate, erd)
+    bodyUnparser.unparse1(state, erd)
 
-    ustate.arrayIndexStack.pop()
-    ustate.occursBoundsStack.pop()
+    state.arrayIndexStack.pop()
+    state.occursBoundsStack.pop()
   }
 }
-

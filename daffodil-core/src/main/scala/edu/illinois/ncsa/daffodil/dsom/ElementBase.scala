@@ -89,8 +89,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin
-  with RealTermMixin
-  with UnparserAugmentedInfosetElementMixin {
+  with RealTermMixin //with UnparserAugmentedInfosetElementMixin
+  {
 
   ElementBase.count += 1 // how many elements in this schema.
 
@@ -418,9 +418,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       notReferencedByExpressions,
       fillByteValue,
       optTruncateSpecifiedLengthString,
-      if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
-      maybeChildInfosetAugmenter,
-      maybeLaterSiblingInfosetAugmenter)
+      if (isOutputValueCalc) Some(ovcCompiledExpression) else None //      ,
+      //      maybeChildInfosetAugmenter,
+      //      maybeLaterSiblingInfosetAugmenter
+      )
     newERD
   }
 

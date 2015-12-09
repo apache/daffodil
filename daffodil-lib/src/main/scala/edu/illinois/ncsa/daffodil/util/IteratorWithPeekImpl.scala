@@ -1,7 +1,6 @@
 package edu.illinois.ncsa.daffodil.util
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.collection.mutable
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 trait IteratorWithPeek[+T] extends Iterator[T] {
   def peek: T
@@ -10,28 +9,40 @@ trait IteratorWithPeek[+T] extends Iterator[T] {
 /**
  * Stateful, not thread safe.
  */
-class IteratorWithPeekImpl[T](originalIterator: Iterator[T], addedItems: mutable.ArrayBuffer[T]) extends IteratorWithPeek[T] {
+class IteratorWithPeekImpl[T <: AnyRef](originalIterator: Iterator[T]) extends IteratorWithPeek[T] {
+
+  private var peekedItem: Maybe[T] = Nope
 
   def peek = {
-    Assert.usage(hasNext)
-    addedItems(0)
+    if (peekedItem.isDefined) {
+      val result = peekedItem.get
+      result
+    } else {
+      val result = originalIterator.next()
+      peekedItem = One(result)
+      result
+    }
   }
 
   def next = {
-    Assert.usage(hasNext)
-    val result = addedItems.head
-    addedItems.remove(0)
-    result
+    if (peekedItem.isDefined) {
+      val result = peekedItem.get
+      peekedItem = Nope
+      result
+    } else {
+      val result = originalIterator.next()
+      result
+    }
   }
 
   /**
    * Postcondition is that if hasNext is true, addedItems contains 1 or more items.
    */
   def hasNext = {
-    if (!addedItems.isEmpty) true
-    else if (originalIterator.hasNext) {
-      addedItems += originalIterator.next()
-      true
-    } else false
+    if (peekedItem.isDefined) true
+    else {
+      val res = originalIterator.hasNext
+      res
+    }
   }
 }

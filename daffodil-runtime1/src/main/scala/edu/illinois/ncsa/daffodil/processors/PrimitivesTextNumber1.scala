@@ -80,7 +80,7 @@ case class ConvertTextNumberParser[S](
   override def toString = "to(xs:" + helper.xsdType + ")"
 
   def parse(start: PState): Unit = withParseErrorThrowing(start) {
-    val node: InfosetSimpleElement = start.simpleElement
+    val node: DISimple = start.simpleElement
     val str = node.dataValueAsString
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
@@ -153,7 +153,7 @@ case class ConvertTextNumberParser[S](
     }
 
     Assert.invariant(!numValue.isInstanceOf[String])
-    node.setDataValue(numValue)
+    node.overwriteDataValue(numValue)
 
   }
 }

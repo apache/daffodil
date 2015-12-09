@@ -33,9 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.JDOMUtils
-import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom._
@@ -80,6 +78,7 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.xml.XMLEvent
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -277,9 +276,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     }
   }
 
-  def unparse(output: DFDL.Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): DFDL.UnparseResult = {
+  def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = {
     val rootERD = ssrd.elementRuntimeData
-    val infosetSource = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    val infosetSource = InfosetSource.fromXMLSource(xmlEventCursor, rootERD)
     unparse(output, infosetSource)
   }
 

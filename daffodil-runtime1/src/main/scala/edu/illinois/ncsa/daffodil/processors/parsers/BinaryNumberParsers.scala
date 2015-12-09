@@ -215,7 +215,7 @@ abstract class BinaryNumberBaseParser[T](
     }
     val value = maybeValue.get
     val convertedValue: T = convertValue(value, nBits)
-    start.simpleElement.setDataValue(convertedValue)
+    start.simpleElement.overwriteDataValue(convertedValue)
   }
 
 }

@@ -48,7 +48,7 @@ import org.rogach.scallop
 import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Timer
-import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
@@ -153,7 +153,7 @@ object TDMLLogWriter extends CLILogPrefix {
 }
 
 class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
-    with Logging {
+  with Logging {
 
   /**
    * This is used when the flag is optional and so is its
@@ -834,8 +834,8 @@ object Main extends Logging {
               val inData = performanceOpts.unparse() match {
                 case true => {
                   val input = Source.fromBytes(data)
-                  val xmlEventReader = new XMLEventReader(input)
-                  Left(xmlEventReader)
+                  val xmlEventCursor = new XMLEventCursorFromInput(input)
+                  Left(xmlEventCursor)
                 }
                 case false => {
                   val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
@@ -947,13 +947,14 @@ object Main extends Logging {
           case Some("-") | None => Source.createBufferedSource(System.in)
           case Some(fileName) => Source.fromFile(new File(fileName))
         }
-        val xmlReader = new XMLEventReader(source)
+
+        val xmlEventCursor = new XMLEventCursorFromInput(source)
 
         val rc = processor match {
           case None => 1
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
-            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, xmlReader))
+            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, xmlEventCursor))
             output.close()
             displayDiagnostics(unparseResult)
             if (unparseResult.isError) 1 else 0

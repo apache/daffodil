@@ -25,7 +25,7 @@ class ElementOutputValueCalcUnparser(erd: ElementRuntimeData)
     // Once we get here, then we're ready to evaluate the expression
     //
     val value = expr.evaluate(ustate)
-    ustate.currentInfosetNode.asInstanceOf[DISimple].setDataValue(value)
+    ustate.currentInfosetNode.asInstanceOf[DISimple].overwriteDataValue(value)
 
     // Now that we have the value, some other unparser will end up
     // unparsing this value. Not here.

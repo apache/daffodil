@@ -17,7 +17,7 @@ class TestPrimitives2 {
       <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string" dfdl:nilValue="%WSP;nil%NL; foobar" dfdl:outputNewline="%LF;"/>,
       elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example } xsi:nil="true"/>
+    val infoset = <ex:e1 xmlns:ex={ example } xmlns:xsi={ XMLUtils.XSI_NAMESPACE.toString() } xsi:nil="true"/>
     TestUtils.testUnparsing(sch, infoset, " nil\u000a")
   }
 
@@ -26,7 +26,7 @@ class TestPrimitives2 {
       <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:nilValue="start%WSP;bla%%WSP;;;;foo%WSP*;bar%WSP+;baz%ES;quux%NL;boo%%baz%%NL;end" dfdl:outputNewline="%LF;" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string"/>,
       elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example } xsi:nil="true"/>
+    val infoset = <ex:e1 xmlns:ex={ example } xmlns:xsi={ XMLUtils.XSI_NAMESPACE.toString() } xsi:nil="true"/>
     TestUtils.testUnparsing(sch, infoset, "start bla%WSP;;;;foobar bazquux\u000aboo%baz%NL;end")
   }
 

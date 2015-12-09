@@ -116,19 +116,20 @@ class ErrorUnparser(context: RuntimeData = null) extends Unparser(context) {
   override def toString = "Error Unparser"
 }
 
-class SeqCompUnparser(context: RuntimeData, val childUnparsers: Seq[Unparser])
+class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
   extends Unparser(context)
   with ToBriefXMLImpl {
 
-  override val childProcessors = childUnparsers
+  override val childProcessors = childUnparsers.toSeq
 
   override def nom = "seq"
 
   def unparse(ustate: UState): Unit = {
-    childUnparsers.foreach { unparser =>
-      {
-        unparser.unparse1(ustate, context)
-      }
+    var i = 0
+    while (i < childUnparsers.length) {
+      val unparser = childUnparsers(i)
+      i += 1
+      unparser.unparse1(ustate, context)
     }
   }
 

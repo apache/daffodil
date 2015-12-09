@@ -164,7 +164,7 @@ class TestXMLUtils {
                 <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
               </test:bar>
     val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), XMLUtils.INT_NS))
-    println(res)
+    // println(res)
     assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
   }
 
@@ -172,7 +172,7 @@ class TestXMLUtils {
     val xml = <foo xsi:nil="true"/>
 
     val res = XMLUtils.removeAttributes(xml)
-    println(res)
+    // println(res)
     assertEquals(<foo xsi:nil="true"/>, Utility.trim(res))
   }
 
@@ -220,13 +220,13 @@ class TestXMLUtils {
     val parser = ConstructingParser.fromSource(
       scala.io.Source.fromString(xmlRaw), true)
     val xml = parser.document.docElem
-    println(xml.text)
-    println(xml.toString)
+    //    println(xml.text)
+    //    println(xml.toString)
     assertEquals(5, xml.child.length)
     assertFalse(xml.child.forall { _.isInstanceOf[Text] })
     assertTrue(xml.child(1).isInstanceOf[PCData])
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
-    println(res)
+    //println(res)
     assertEquals(3, res.length)
     assertEquals("abc<![CDATA[&&&]]>def" + 0xE000.toChar + "ghi", res.mkString)
     assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
@@ -236,8 +236,8 @@ class TestXMLUtils {
     val xmlRaw = """<foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>"""
     // This is the way we load XML for DFDL Schemas
     val xml = scala.xml.XML.loadString(xmlRaw)
-    println(xml.text)
-    println(xml.toString)
+    //println(xml.text)
+    // println(xml.toString)
     //
     // Scala's scala.xml.XML.loaders do a good job
     // coalescing adjacent Texts (of all Atom kinds)
@@ -260,12 +260,12 @@ class TestXMLUtils {
     val parser = ConstructingParser.fromSource(
       scala.io.Source.fromString(xmlRaw), true)
     val xml = parser.document.docElem
-    println(xml.text)
-    println(xml.toString)
+    //println(xml.text)
+    //println(xml.toString)
     assertEquals(1, xml.child.length)
     assertTrue(xml.child(0).isInstanceOf[PCData])
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
-    println(res)
+    //println(res)
     assertEquals(1, res.length)
     assertTrue(res(0).isInstanceOf[PCData])
     assertEquals("<![CDATA[&&&]]>", res(0).toString)

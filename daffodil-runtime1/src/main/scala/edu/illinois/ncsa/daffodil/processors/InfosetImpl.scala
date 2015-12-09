@@ -60,6 +60,7 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import scala.collection.IndexedSeq
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
@@ -69,6 +70,14 @@ sealed trait DINode {
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
   def totalElementCount: Long
   def namedQName: NamedQName
+
+  /**
+   * Can treat any DINode, even simple ones, as a container of other nodes.
+   * This simplifies walking an infoset.
+   */
+  def filledSlots: IndexedSeq[DINode]
+  final def numChildren = filledSlots.length
+
 }
 
 /**
@@ -137,7 +146,7 @@ final class FakeDINode extends DISimple(null) {
  * minOccurs 0, maxOccurs 1)
  */
 sealed trait DIElement extends DINode with InfosetElement {
-  protected def erd: ElementRuntimeData
+  def erd: ElementRuntimeData
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
@@ -164,12 +173,14 @@ sealed trait DIElement extends DINode with InfosetElement {
   override def parent = _parent
   def diParent = _parent.asInstanceOf[DIComplex]
   override def setParent(p: InfosetComplexElement) {
+    Assert.invariant(_parent eq null)
     _parent = p
   }
 
   override def isNilled: Boolean = _isNilled
   override def setNilled(): Unit = {
     Assert.invariant(erd.isNillable)
+    Assert.invariant(!_isNilled)
     _isNilled = true
   }
 
@@ -206,7 +217,12 @@ sealed trait DIElement extends DINode with InfosetElement {
 // code, rather than letting all sorts of map/flatmap compositions,
 // which may or may not be optimized effectively.
 //
-final class DIArray(val arrayElementInfo: DPathElementCompileInfo, val parent: DIComplex) extends DINode with InfosetArray {
+final class DIArray(
+  val arrayElementInfo: DPathElementCompileInfo, // TODO: Why not an ERD? - look in daffodil-core... compilation issue?
+  val parent: DIComplex)
+  extends DINode with InfosetArray {
+
+  override def toString = "DIArray(" + namedQName + "," + _contents + ")"
 
   def namedQName = arrayElementInfo.namedQName
 
@@ -218,7 +234,7 @@ final class DIArray(val arrayElementInfo: DPathElementCompileInfo, val parent: D
   // them when no longer needed. However, the array itself would still be growing
   // without bound. So, replace this with a mutable map so that it can shrink
   // as well as grow.
-  protected final val _contents = new ArrayBuffer[InfosetElement](initialSize)
+  protected final val _contents = new ArrayBuffer[DIElement](initialSize)
 
   override def children = _contents.toStream.asInstanceOf[Stream[DINode]]
   /**
@@ -228,15 +244,21 @@ final class DIArray(val arrayElementInfo: DPathElementCompileInfo, val parent: D
     _contents.trimEnd(n)
   }
 
-  def getOccurrence(occursIndex: Long) = {
-    if (occursIndex > length || occursIndex < 1) throw new InfosetArrayIndexOutOfBoundsException(namedQName.local, namedQName.namespace, occursIndex, length)
-    _contents(occursIndex.toInt - 1)
+  override def filledSlots: IndexedSeq[DINode] = _contents
+
+  /**
+   * Note that occursIndex argument starts at position 1.
+   */
+  def getOccurrence(occursIndex1b: Long) = {
+    if (occursIndex1b > length || occursIndex1b < 1)
+      throw new InfosetArrayIndexOutOfBoundsException(namedQName.local, namedQName.namespace, occursIndex1b, length)
+    _contents(occursIndex1b.toInt - 1)
   }
 
-  def apply(occursIndex: Long) = getOccurrence(occursIndex)
+  @inline final def apply(occursIndex1b: Long) = getOccurrence(occursIndex1b)
 
   def append(ie: InfosetElement): Unit = {
-    _contents += ie
+    _contents += ie.asInstanceOf[DIElement]
   }
 
   final def length: Long = _contents.length
@@ -270,6 +292,10 @@ case class OutputValueCalcEvaluationException(val erd: ElementRuntimeData)
 sealed class DISimple(val erd: ElementRuntimeData)
   extends DIElement
   with InfosetSimpleElement {
+
+  private val mt: IndexedSeq[DINode] = IndexedSeq.empty
+  def filledSlots: IndexedSeq[DINode] = mt
+
   protected var _isDefaulted: Boolean = false
 
   private var _value: Any = null
@@ -281,7 +307,17 @@ sealed class DISimple(val erd: ElementRuntimeData)
     _isDefaulted = true
   }
 
+  override def setNilled() {
+    Assert.invariant(!hasValue)
+    _isNilled = true
+  }
+
   override def setDataValue(x: Any) {
+    Assert.invariant(!hasValue) // Might get us in trouble with conversions for text numbers.
+    overwriteDataValue(x)
+  }
+
+  def overwriteDataValue(x: Any) {
     Assert.invariant(x != null)
     Assert.invariant(!x.isInstanceOf[(Any, Any)])
     //
@@ -485,15 +521,16 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   private lazy val _slots = {
     val slots = new Array[DINode](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
-
-    // initialize slots to Nope
-    var i = 0
-    while (i < slots.length) {
-      slots(i) = null
-      i = i + 1
-    }
+    //    // initialize slots to Nope
+    //    var i = 0
+    //    while (i < slots.length) {
+    //      slots(i) = null
+    //      i = i + 1
+    //    }
     slots
   }
+
+  override lazy val filledSlots: IndexedSeq[DINode] = slots.filter { _ ne null }
 
   override def children = _slots.map { s => if (Maybe.isDefined(s)) Some(s) else None }.flatten.toStream
 
@@ -539,7 +576,6 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final override def getChildArray(erd: ElementRuntimeData) = getChildArray(erd.dpathElementCompileInfo)
 
   final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
-    Assert.usage(info.isArray)
     val slot = info.slotIndexInParent
     val slotVal = _slots(slot)
     if (slotVal ne null)
@@ -562,6 +598,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   }
 
   final def setChildArray(slot: Int, arr: DIArray) {
+    Assert.invariant(_slots(slot) eq null)
     _slots(slot) = arr
   }
 
@@ -570,17 +607,18 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       //
       // make sure there is an array to accept
       // the child
-      var ia: InfosetArray = null
+      //      var ia: InfosetArray = null
       val arr = getChildArray(e.runtimeData)
-      if (arr eq null) {
-        ia = new DIArray(e.runtimeData.dpathElementCompileInfo, this)
-        // no array there yet. So we have to create one.
-        setChildArray(e.runtimeData, ia)
-      } else {
-        ia = arr
-      }
+      Assert.invariant(arr ne null)
+      //      if (arr eq null) {
+      //        ia = new DIArray(e.runtimeData.dpathElementCompileInfo, this)
+      //        // no array there yet. So we have to create one.
+      //        setChildArray(e.runtimeData, ia)
+      //      } else {
+      //        ia = arr
+      //       }
       // At this point there IS an array
-      ia.append(e)
+      arr.append(e)
     } else {
       _slots(e.runtimeData.slotIndexInParent) = e.asInstanceOf[DINode]
     }
@@ -650,7 +688,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
      * If -2 then the actual slot was One(IE) for a non-array IE
      * if N >=0, then the slot was One(Arr) and Arr was of length N.
      */
-    def slotsInfo(slots: Array[DINode]) = {
+    def slotsInfo(slots: IndexedSeq[DINode]) = {
       val slotsInfo = new Array[Int](slots.length)
       var i = 0
       val NOT_DEFINED = -1
@@ -671,7 +709,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       slotsInfo
     }
 
-    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: Array[DINode]) =
+    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: IndexedSeq[DINode]) =
       new DIComplexState(isNilled, validity, slotsInfo(slots))
   }
 
@@ -918,17 +956,20 @@ object Infoset {
       ie.setNilled()
       return
     }
-    val runs = groupRuns(node.child).map { _.toSeq }
+    val runs = groupRuns(node.child.filter { _.isInstanceOf[Elem] }).map { _.toSeq }
     //
     // There is one run per slot
     //
     val erds = runs.map {
       case Seq(hd, _*) =>
         val label = hd.label
-        val childERD = erd.childERDs.find { _.name == label }.getOrElse(
-          Assert.usageError(
-            "Declared element '%s' does not have child named '%s'.".format(erd.name, label)))
-        childERD
+        // must ignore whitespace nodes here.
+        val children = erd.childERDs.filter { _.name == label }
+        if (children.isEmpty) {
+          Assert.usageError("Declared element '%s' does not have child named '%s'.".format(erd.name, label))
+        }
+        Assert.invariant(children.length =#= 1)
+        children(0)
     }
     (runs zip erds) foreach { pair =>
       pair match {

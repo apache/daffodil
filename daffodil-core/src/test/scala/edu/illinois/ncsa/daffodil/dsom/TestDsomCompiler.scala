@@ -137,7 +137,7 @@ class TestDsomCompiler extends Logging {
     val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
-    println(msg)
+    // println(msg)
     val hasErrorText = msg.contains("bar");
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }

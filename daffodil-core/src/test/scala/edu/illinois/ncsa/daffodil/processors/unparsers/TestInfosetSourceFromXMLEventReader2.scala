@@ -2,7 +2,7 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.equality._
 import scala.io.Source
@@ -38,12 +38,12 @@ class TestInfosetSourceFromXMLEventReader2 {
       val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
-
-    val xmlEventReader = new FakeXMLEventReader(size)
+    val advanceAccessor = new XMLAccessor
+    val xmlEventCursor = new FakeXMLEventCursor(size, advanceAccessor)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val infosetSource = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
-    infosetSource
+    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    is
   }
 
   @Test def testStreamingBehavior1() {

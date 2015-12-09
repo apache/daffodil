@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.dsom.TypeConversions
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
   extends PrimUnparser(erd) {
@@ -46,7 +47,7 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
 
   final def unparse(state: UState): Unit = {
 
-    val event: InfosetEvent = state.peek
+    val event: InfosetEvent = { Assert.invariant(state.inspect); state.inspectAccessor }
     val node = event.node.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
 

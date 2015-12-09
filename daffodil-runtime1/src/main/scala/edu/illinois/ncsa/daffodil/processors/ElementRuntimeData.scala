@@ -50,7 +50,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetAugmenter
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
@@ -138,9 +137,9 @@ class ElementRuntimeData(
   val notReferencedByExpressions: Boolean,
   fillByteValue: Int,
   val optTruncateSpecifiedLengthString: Option[Boolean],
-  val outputValueCalcExpr: Option[CompiledExpression],
-  val maybeChildInfosetAugmenter: Maybe[InfosetAugmenter],
-  val maybeLaterSiblingInfosetAugmenter: Maybe[InfosetAugmenter])
+  val outputValueCalcExpr: Option[CompiledExpression] // val maybeChildInfosetAugmenter: Maybe[InfosetAugmenter],
+  // val maybeLaterSiblingInfosetAugmenter: Maybe[InfosetAugmenter]
+  )
   extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions,
     fillByteValue, defaultBitOrder, optIgnoreCase)
   with HasSlotIndexInParent {
