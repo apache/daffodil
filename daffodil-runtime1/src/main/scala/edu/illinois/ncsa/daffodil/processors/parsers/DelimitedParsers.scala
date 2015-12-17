@@ -85,7 +85,22 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val (textParser, delims, _ /* delimsCooked */ , fieldDFA, scheme) = pf.getParser(start)
+    pf.getParser(start)
+    
+    // Must check that currentParser and currentFieldDFA are populated.
+    // currentParser, currentFieldDFA should always be populated by the
+    // TextDelimitedParser and FieldFactory code.
+    //
+    // This is a performance optimization to replace the tuple returned
+    // previously.
+    //
+    if (!start.mpstate.currentParser.isDefined) Assert.invariantFailed("currentParser was not populated.")
+    if (!start.mpstate.currentFieldDFA.isDefined) Assert.invariantFailed("currentFieldDFA was not populated.")
+    
+    val textParser = start.mpstate.currentParser.get 
+    val delims = start.mpstate.getAllTerminatingMarkup
+    val fieldDFA = start.mpstate.currentFieldDFA.get
+    val scheme = start.mpstate.currentEscapeScheme
     // TODO: Performance. Allocates a tuple
 
     //    val bytePos = (start.bitPos >> 3).toInt

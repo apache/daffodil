@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -446,11 +445,11 @@ case class TextDelimitedParserFactory(
   }
 
   protected def constructParser(state: PState) = {
-    val (delims, delimsCooked, fieldDFA, scheme) = fieldFact.getFieldDFA(state)
-
-    (preConstructedParser, delims, delimsCooked, fieldDFA, scheme)
+    fieldFact.getFieldDFA(state)
+    
+    state.mpstate.currentParser = One(preConstructedParser)
   }
 
-  def getParser(state: PState): (TextDelimitedParserBase, Array[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = constructParser(state)
+  def getParser(state: PState) = constructParser(state)
 
 }

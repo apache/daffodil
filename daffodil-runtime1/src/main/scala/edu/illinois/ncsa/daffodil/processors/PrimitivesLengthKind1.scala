@@ -45,8 +45,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
@@ -74,7 +72,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 sealed abstract class FieldFactoryBase(ef: Option[EscapeSchemeFactoryBase],
   context: ThrowsSDE) extends Serializable {
 
-  def getFieldDFA(state: PState): (Array[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper])
+  def getFieldDFA(state: PState)
 }
 
 case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryBase], context: ThrowsSDE)
@@ -96,11 +94,12 @@ case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryBase], context: Thro
   }
 
   def getFieldDFA(start: PState) = {
-    val scheme = if (ef.isDefined) start.mpstate.currentEscapeScheme else Nope
+
     val delimDFAs = start.mpstate.getAllTerminatingMarkup
     val delimsCooked = delimDFAs.map(d => d.lookingFor).toList
-
-    (delimDFAs, delimsCooked, fieldDFA, scheme)
+    
+    start.mpstate.currentFieldDFA = One(fieldDFA)
+    start.mpstate.currentDelimsCooked = One(delimsCooked)
   }
 }
 
@@ -108,7 +107,7 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
   context: ThrowsSDE)
   extends FieldFactoryBase(ef, context) {
 
-  def getFieldDFA(start: PState): (Array[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = {
+  def getFieldDFA(start: PState) = {
 
     val scheme = start.mpstate.currentEscapeScheme
     val delimDFAs = start.mpstate.getAllTerminatingMarkup
@@ -125,8 +124,9 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
       } else {
         CreateFieldDFA()
       }
-
-    (delimDFAs, delimsCooked, fieldDFA, scheme)
+    
+    start.mpstate.currentFieldDFA = One(fieldDFA)
+    start.mpstate.currentDelimsCooked = One(delimsCooked)
   }
 }
 

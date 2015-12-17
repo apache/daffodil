@@ -75,6 +75,8 @@ import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.dpath.ParseMode
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
 
 object MPState {
   class Mark {
@@ -144,6 +146,9 @@ case class MPState() {
   def occursBounds = occursBoundsStack.top
 
   var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
+  var currentDelimsCooked : Maybe[List[String]] = Nope
+  var currentFieldDFA: Maybe[DFAField] = Nope
+  var currentParser: Maybe[TextDelimitedParserBase] = Nope
 
   val delimiterStack = new MStack.Of[DelimiterStackNode]
   def pushDelimiters(node: DelimiterStackNode) = {
