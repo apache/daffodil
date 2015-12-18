@@ -1,6 +1,7 @@
 .cache-main
 .cache-tests
 target
+target/
 lib_managed
 src_managed
 resource_managed
