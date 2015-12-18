@@ -78,8 +78,7 @@ class StringOfSpecifiedLengthUnparser(
     }
   }
 
-  protected def contentString(state: UState) =
-    state.currentInfosetNode.asSimple.dataValueAsString
+  protected def contentString(state: UState) = state.currentInfosetNode.asSimple.dataValueAsString
 
   override def unparse(state: UState) {
     val maybeAvailableLengthInBits = {

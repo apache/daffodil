@@ -99,7 +99,6 @@ bbbbb
       </xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     val xmlString = pp.format(fragment)
-    //println(xmlString)
     assertTrue(xmlString.contains("""<xxxxx>
   <yyyyy>
     <zzzzz>
@@ -121,7 +120,6 @@ bbbbb
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata }</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     val xmlString = pp.format(fragment)
-    //println(xmlString)
     //
     // This verifies that our modified pretty printer does the right thing
     // with PCData nodes.
@@ -146,7 +144,6 @@ bbbbb ]]></zzzzz>
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata } xyzzy { pcdata }</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     var xmlString = pp.format(fragment)
-    //println(xmlString)
     //
     // This verifies that our modified pretty printer does the right thing
     // with PCData nodes.

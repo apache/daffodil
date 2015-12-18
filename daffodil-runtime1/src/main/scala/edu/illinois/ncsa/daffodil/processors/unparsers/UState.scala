@@ -89,12 +89,7 @@ class UState(
   override def inspect: Boolean = infosetSource.inspect
   override def inspectAccessor: InfosetEvent = infosetSource.inspectAccessor
 
-  //  private lazy val iter = new IteratorFromCursor(infosetSource, (ie: InfosetEvent) => ie)
-  //  def hasNext = iter.hasNext
-  //  def next() = iter.next()
-  //  def peek = iter.peek
-  //
-  def peekArrayEnd = {
+  def isInspectArrayEnd = {
     if (!inspect) false
     else {
       val p = inspectAccessor
@@ -113,24 +108,6 @@ class UState(
   def setCurrentInfosetEvent(ev: Maybe[InfosetEvent]) {
     currentInfosetEvent_ = ev
   }
-
-  //  def setInfosetSource(newIS: InfosetSource) {
-  //    infosetSource = newIS
-  //  }
-
-  //  private lazy val iter = infosetSource.toIteratorWithPeek
-  //  def hasNext = iter.hasNext
-  //
-  //  def peek = iter.peek // we depend on the infosetSource.peek method to check hasNext.
-  //
-  //  def next = {
-  //    Assert.usage(hasNext)
-  //    val ev = infosetSource.next
-  //    currentInfosetEvent_ = One(ev)
-  //    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.popMaybe
-  //    currentInfosetNodeStack.pushMaybe(ev.node)
-  //    ev
-  //  }
 
   override def hasInfoset = Maybe.isDefined(currentInfosetNode)
 

@@ -14,7 +14,20 @@ import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
 
-class TestInfosetSourceFromXMLEventReader3 {
+/*
+ * These are all tests of default-value insertion.
+ * But I determined that the approach to defaulting,
+ * which was a schema-aware separate pass, can't really work
+ * and isn't worth a whole pass on its own.
+ *
+ * So these tests will have to be revisited someday when we
+ * have defaulting working.
+ *
+ * The way these tests work is broken. They are assuming that
+ * defaulting is being inserted by the XMLEventCursor. It will
+ * not be there. Defaulting will be done as part of Unparsing.
+ */
+class TestInfosetDefaultingInUnparser {
 
   @Test def testDefaultable = {
     val sch = SchemaUtils.dfdlTestSchema(

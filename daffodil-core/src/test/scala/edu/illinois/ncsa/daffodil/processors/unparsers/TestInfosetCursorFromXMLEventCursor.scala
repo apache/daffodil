@@ -21,7 +21,7 @@ import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
 case class Adapter(isrc: InfosetSource)
   extends IteratorFromCursor[InfosetEvent, InfosetEvent](isrc, (ie: InfosetEvent) => ie)
 
-class TestInfosetSourceFromXMLEventReader {
+class TestInfosetCursorFromXMLEventCursor1 {
 
   def infosetSource(testSchema: scala.xml.Node, infosetXML: scala.xml.Node) = {
     val compiler = Compiler()

@@ -137,9 +137,7 @@ class ElementRuntimeData(
   val notReferencedByExpressions: Boolean,
   fillByteValue: Int,
   val optTruncateSpecifiedLengthString: Option[Boolean],
-  val outputValueCalcExpr: Option[CompiledExpression] // val maybeChildInfosetAugmenter: Maybe[InfosetAugmenter],
-  // val maybeLaterSiblingInfosetAugmenter: Maybe[InfosetAugmenter]
-  )
+  val outputValueCalcExpr: Option[CompiledExpression])
   extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions,
     fillByteValue, defaultBitOrder, optIgnoreCase)
   with HasSlotIndexInParent {

@@ -73,8 +73,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin
-  with UnparserAugmentedInfosetTermMixin {
+  with TermEncodingMixin {
 
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")

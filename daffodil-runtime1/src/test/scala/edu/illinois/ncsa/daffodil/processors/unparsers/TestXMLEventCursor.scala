@@ -73,7 +73,7 @@ class FakeXMLEventCursor(nRepeats: Long,
   override def getXMLErrorInfo(pos: Int, str: String): String = ???
 }
 
-class TestXMLEventIterator2 {
+class TestXMLEventCursor {
 
   @Test def testFakeXMLEventCursor1 {
     val n = 100

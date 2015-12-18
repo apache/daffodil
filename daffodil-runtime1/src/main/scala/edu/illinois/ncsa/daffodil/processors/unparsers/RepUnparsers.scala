@@ -107,10 +107,10 @@ class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeD
   extends RepUnparser(n, rUnparser, erd, "AtMostTotalN") {
 
   def unparseAllRepeats(ustate: UState): Unit = {
-    while (ustate.arrayPos <= intN && !ustate.peekArrayEnd) {
+    while (ustate.arrayPos <= intN && !ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
       rUnparser.unparse1(ustate, context)
-      if (ustate.peekArrayEnd) return
+      if (ustate.isInspectArrayEnd) return
       // Debugger.afterRepetition(ustate, this)
       ustate.moveOverOneArrayIndexOnly
     }
@@ -141,7 +141,7 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
 
   def unparseAllRepeats(ustate: UState) {
     Assert.invariant(Maybe.isDefined(ustate.currentInfosetNode))
-    while (!ustate.peekArrayEnd) {
+    while (!ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
       rUnparser.unparse1(ustate, erd)
       // Debugger.afterRepetition(ustate, this)

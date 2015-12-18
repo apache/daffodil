@@ -22,13 +22,8 @@ object InvalidInfosetXML {
     UnparseError(One(info.schemaFileLocation), Nope, errStr)
   }
 
-  def textInElementOnlyContent(info: DPathElementCompileInfo, xmlCursor: XMLEventCursor, accessorXMLEvent: XMLEvent): Nothing = err(info, xmlCursor, accessorXMLEvent, "Non-whitespace text found in element-only context: '%s'", accessorXMLEvent)
-  def xsiNilPrefixUnbound(info: DPathElementCompileInfo, xmlCursor: XMLEventCursor, accessorXMLEvent: XMLEvent): Nothing =
-    err(info, xmlCursor, accessorXMLEvent, "xsi:nil='true' found, but the prefix 'xsi' is not associated with a namespace.\n" +
-      "it should have namespace " + XMLUtils.XSI_NAMESPACE.toString)
-  def xsiNilPrefixIncorrect(info: DPathElementCompileInfo, xmlCursor: XMLEventCursor, accessorXMLEvent: XMLEvent, xsiNS: String): Nothing =
-    err(info, xmlCursor, accessorXMLEvent, "xsi:nil='true' found, but the prefix 'xsi' is bound to %s.\n" +
-      "It should have namespace " + XMLUtils.XSI_NAMESPACE.toString, xsiNS)
+  def textInElementOnlyContent(info: DPathElementCompileInfo, xmlCursor: XMLEventCursor, accessorXMLEvent: XMLEvent): Nothing =
+    err(info, xmlCursor, accessorXMLEvent, "Non-whitespace text found in element-only context: '%s'", accessorXMLEvent)
   def endTagNotForExpectedElement(eev: XMLElementEvent, nodeERD: ElementRuntimeData, thisERD: ElementRuntimeData): Nothing = ???
   def elementFoundInSimpleContent(accessorXMLEvent: XMLEvent): Nothing = ???
 }

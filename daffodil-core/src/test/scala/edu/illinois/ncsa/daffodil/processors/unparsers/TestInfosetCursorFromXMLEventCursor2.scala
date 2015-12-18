@@ -15,7 +15,7 @@ import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-class TestInfosetSourceFromXMLEventReader2 {
+class TestInfosetCursorFromXMLEventCursor2 {
 
   def infosetUnlimitedSource(size: Long) = {
     val sch = SchemaUtils.dfdlTestSchema(

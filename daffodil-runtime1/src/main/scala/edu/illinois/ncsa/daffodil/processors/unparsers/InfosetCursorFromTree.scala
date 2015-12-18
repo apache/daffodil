@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.processors.InfosetDocument
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.Infoset
-import edu.illinois.ncsa.daffodil.util.IteratorWithPeekImpl
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 

@@ -143,7 +143,6 @@ class LiteralNilDelimitedEndOfDataUnparser(
   isDelimRequired: Boolean)
   extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired) {
 
-  final override def theString(ustate: UState) =
-    outputNilValue.evaluate(ustate)
+  final override def theString(ustate: UState) = outputNilValue.evaluate(ustate)
 
 }

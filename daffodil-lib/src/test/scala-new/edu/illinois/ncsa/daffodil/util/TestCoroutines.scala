@@ -10,9 +10,16 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 private class TestInvertControl {
 
+  /**
+   * We need JInt because Int is not subtype of AnyRef
+   * but Coroutines requires T <: AnyRef
+   */
   type JInt = java.lang.Integer
 
   def sprintln(s: String) = {
+    /*
+     * Uncomment this for verbose dumps
+     */
     // println(s)
   }
 
