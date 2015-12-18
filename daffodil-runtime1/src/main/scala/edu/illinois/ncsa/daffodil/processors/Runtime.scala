@@ -67,7 +67,7 @@ import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
@@ -278,17 +278,17 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = {
     val rootERD = ssrd.elementRuntimeData
-    val infosetSource = InfosetSource.fromXMLSource(xmlEventCursor, rootERD)
-    unparse(output, infosetSource)
+    val infosetCursor = InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD)
+    unparse(output, infosetCursor)
   }
 
   def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = {
     val rootERD = ssrd.elementRuntimeData
-    val is = InfosetSource.fromXMLNode(infosetXML, rootERD)
+    val is = InfosetCursor.fromXMLNode(infosetXML, rootERD)
     unparse(output, is)
   }
 
-  def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = {
+  def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
     val out = BasicDataOutputStream(output)
     out.setBitOrder(BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0
@@ -296,7 +296,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       UState.createInitialUState(
         out,
         this,
-        infosetSource) // TODO also want to pass here the externally set variables, other flags/settings.
+        infosetCursor) // TODO also want to pass here the externally set variables, other flags/settings.
     try {
       if (areDebugging) {
         Assert.invariant(optDebugger.isDefined)

@@ -19,8 +19,7 @@ import edu.illinois.ncsa.daffodil.util.InvertControl
 import scala.xml.parsing.ExternalSources
 
 /**
- * Very much like scala.xml.pull package's XMLEvent except
- * these are mutable for use in Cursor/Accessor pattern, where
+ * These are mutable for use in Cursor/Accessor pattern, where
  * they're not being allocated and returned, but rather
  * preexisting ones that are part of a Cursor are being filled in.
  */
@@ -193,8 +192,6 @@ class XMLEventCursorFromInput(
 
   private var level: Int = 0
 
-  object reply { override def toString = "reply" }
-
   private val scopeStack = new MStack.Of[NamespaceBinding]
 
   override def elemStart(pos: Int, pre: String, label: String, attrs: MetaData, scope: NamespaceBinding) {
@@ -207,7 +204,7 @@ class XMLEventCursorFromInput(
     start.label = label
     start.attrs = attrs
     start.scope = scope
-    iter.setNext(reply)
+    iter.setNext(accessor)
   }
   override def elemEnd(pos: Int, pre: String, label: String) {
     val scope = scopeStack.pop
@@ -218,14 +215,14 @@ class XMLEventCursorFromInput(
     end.label = label
     end.scope = scope
     level -= 1
-    iter.setNext(reply)
+    iter.setNext(accessor)
   }
 
   def text(pos: Int, txt: String): NodeSeq = {
     accessor.event = accessor.text
     accessor.text.pos = pos
     accessor.text.text = txt
-    iter.setNext(reply)
+    iter.setNext(accessor)
     NodeSeq.Empty
   }
 
@@ -233,7 +230,7 @@ class XMLEventCursorFromInput(
     accessor.event = accessor.entityRef
     accessor.entityRef.pos = pos
     accessor.entityRef.entity = entity
-    iter.setNext(reply)
+    iter.setNext(accessor)
     NodeSeq.Empty
   }
 
@@ -243,7 +240,7 @@ class XMLEventCursorFromInput(
       accessor.procInstr.pos = pos
       accessor.procInstr.target = target
       accessor.procInstr.text = txt
-      iter.setNext(reply)
+      iter.setNext(accessor)
     }
     NodeSeq.Empty
   }
@@ -253,7 +250,7 @@ class XMLEventCursorFromInput(
       accessor.event = accessor.comment
       accessor.comment.pos = pos
       accessor.comment.text = txt
-      iter.setNext(reply)
+      iter.setNext(accessor)
     }
     NodeSeq.Empty
   }
@@ -269,16 +266,20 @@ class XMLEventCursorFromInput(
    * are explicitly filling in the accessors, so the XML information moves by
    * side-effect on the accessors.
    */
-  private lazy val iter = new InvertControl[AnyRef]({
+  private lazy val iter: InvertControl[XMLAccessor] = new InvertControl[XMLAccessor]({
     curInput = input // this is how you give a MarkupParser access to the data source. Ugh.
     try {
       this.initialize.document() // and... away we go. This does the SAX parse that starts the calling back.
     } catch {
+      case e: scala.xml.SAXException =>
+        iter.setFinal(e) // send SAXExceptions over to the consumer side.
       case th: Throwable =>
         throw th // good place for a breakpoint
-    }
-    if (syntaxErrCount > 0) {
-      throw new scala.xml.SAXException("XML Syntax Errors: " + this.syntaxErrStream.toString())
+    } finally {
+      if (syntaxErrCount > 0) {
+        val e = new scala.xml.SAXException("XML Syntax Errors: " + this.syntaxErrStream.toString())
+        iter.setFinal(e)
+      }
     }
   })
 

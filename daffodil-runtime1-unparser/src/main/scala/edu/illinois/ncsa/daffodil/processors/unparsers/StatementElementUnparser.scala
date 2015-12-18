@@ -132,28 +132,28 @@ class StatementElementUnparser(
   }
 
   def unparseBegin(state: UState): Unit = {
-    val event: InfosetEvent = { Assert.invariant(state.advance)  ;   state.advanceAccessor  }
+    val event: InfosetAccessor = state.advanceOrError
     event match {
-      case Start(infoElement: DIElement) => {
-        Assert.invariant(infoElement.runtimeData == erd)
+      case e if e.isStart && e.isElement => {
+        Assert.invariant(e.asElement.runtimeData == erd)
         //
         // When the infoset events are being advanced, the currentInfosetNodeStack
         // is pushing and popping to match the events. This provides the proper
         // context for evaluation of expressions.
         //
-        state.currentInfosetNodeStack.pushMaybe(infoElement)
+        state.currentInfosetNodeStack.push(One(e.asElement))
       }
       case _ => UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
     }
   }
 
   def unparseEnd(state: UState): Unit = {
-    val event: InfosetEvent = { Assert.invariant(state.advance)  ;   state.advanceAccessor  }
+    val event: InfosetAccessor = state.advanceOrError
     event match {
-      case End(infoElement: DIElement) => {
-        Assert.invariant(infoElement.runtimeData == erd)
+      case e if e.isEnd && e.isElement => {
+        Assert.invariant(e.asElement.runtimeData == erd)
 
-        state.currentInfosetNodeStack.popMaybe
+        state.currentInfosetNodeStack.pop
       }
       case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event, but received: %s.", event)
     }

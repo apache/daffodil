@@ -2,7 +2,7 @@ package edu.illinois.ncsa.daffodil.util
 
 import java.util.concurrent.ArrayBlockingQueue
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import Maybe._
 
 /**
@@ -64,6 +64,7 @@ trait CoroutineAny {
     coroutine.init
     val q = coroutine.inboundQueue
     q.put(in) // allows other to run  final
+    // no wait for anything here. We just carry on to where we should exit the thread
   }
 
   /**
@@ -87,7 +88,13 @@ trait CoroutineAny {
   private def throwFailure(x: AnyRef) = {
     Assert.invariant(x ne null)
     x match {
+      case ce: CoroutineException => {
+        // Indicates that the other coroutine exited abnormally.
+        Assert.invariantFailed("Other coroutine exited abnormally: " +
+          DiagnosticUtils.getSomeMessage(ce).getOrElse("an unknown error"))
+      }
       case th: Throwable => {
+        // Passed us an object to rethrow on this side.
         thrown = th
         throw th
       }
@@ -112,7 +119,9 @@ trait CoroutineAny {
  * Uses Coroutines to run the callback-generator on a separate 'thread', so this
  * will allocate a thread. However, there is no concurrency here.
  *
- * Exceptions are reported on the thread doing the pulling, aka the consumer.
+ * To get exceptions reported on the consuming thread (which is generally the main thread),
+ * you must catch any created by the producer, and send them over to the consumer using
+ * the setFinal(AnyRef) method.
  *
  * Rules that this design requires/enforces/allows:
  * (1) It is assumed that you have no access to the thing that generates call-backs other than
@@ -150,24 +159,30 @@ final class InvertControl[S <: AnyRef](body: => Unit) extends IteratorWithPeek[S
         body
         resumeAnyFinal(consumer, endOfData)
       } catch {
-        case s: scala.util.control.ControlThrowable =>
-          throw s
-        case u: UnsuppressableException =>
-          throw u
-        case r: RuntimeException =>
-          resumeAnyFinal(consumer, r)
-        case e: Exception =>
-          resumeAnyFinal(consumer, e)
+        case th: Throwable => {
+          // tell consumer we're exiting via a throw
+          // but not to rethrow it necessarily.
+          val ce = new CoroutineException(th)
+          setFinal(ce)
+          throw th
+        }
       }
     }
 
     final def setNext(e: S) {
       resume(consumer, e)
     }
+
+    final def setFinal(e: AnyRef) {
+      resumeAnyFinal(consumer, e)
+    }
   }
 
   final def setNext(s: S) =
     producer.setNext(s)
+
+  final def setFinal(s: AnyRef) =
+    producer.setFinal(s)
 
   private val producer = new Producer(this)
 
@@ -212,3 +227,5 @@ final class InvertControl[S <: AnyRef](body: => Unit) extends IteratorWithPeek[S
   }
 
 }
+
+private[util] class CoroutineException(cause: Throwable) extends Exception(cause)

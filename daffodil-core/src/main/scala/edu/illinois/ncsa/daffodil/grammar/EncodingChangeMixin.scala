@@ -49,7 +49,7 @@ trait EncodingChangeMixin extends GrammarMixin { self: Term =>
       val thisEncoding = encoding
       val otherEncoding = encodingBefore
       if (thisEncoding.isConstant && otherEncoding.isConstant &&
-        thisEncoding.constant =:= otherEncoding.constant)
+        thisEncoding.constant =#= otherEncoding.constant)
         true
       else
         false

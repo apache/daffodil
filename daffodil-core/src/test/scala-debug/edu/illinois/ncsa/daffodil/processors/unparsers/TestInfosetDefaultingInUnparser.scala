@@ -57,7 +57,7 @@ class TestInfosetDefaultingInUnparser {
     val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next
     assertNotNull(bar_s)
@@ -102,7 +102,7 @@ class TestInfosetDefaultingInUnparser {
     val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
@@ -145,7 +145,7 @@ class TestInfosetDefaultingInUnparser {
     val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next
@@ -190,7 +190,7 @@ class TestInfosetDefaultingInUnparser {
     val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
 
     val Start(bar_s: DIComplex) = is.next; assertNotNull(bar_s)
     val Start(foo_s: DISimple) = is.next

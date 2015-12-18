@@ -73,7 +73,7 @@ abstract class TextDelimitedParserBase(
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
-      Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
+      Assert.invariant(beforeDelimiter =#= DataInputStream.MarkPos.NoMarkPos)
       field.run(fieldReg)
       beforeDelimiter = input.markPos
 

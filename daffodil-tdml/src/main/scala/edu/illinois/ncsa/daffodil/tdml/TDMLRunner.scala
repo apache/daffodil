@@ -89,7 +89,7 @@ import scala.language.postfixOps
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.{ Infoset => RealInfoset }
 import javax.xml.stream.XMLInputFactory
 import edu.illinois.ncsa.daffodil.equality._
@@ -407,7 +407,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
   final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val res = schemaSource match {
-      case uss: URISchemaSource if parent.checkAllTopLevel =:= true =>
+      case uss: URISchemaSource if parent.checkAllTopLevel =#= true =>
         SchemaDataProcessorCache.compileAndCache(uss) {
           compileProcessor(uss, useSerializedProcessor)
         }

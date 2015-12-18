@@ -10,13 +10,10 @@ import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 
 /**
  * Iterates an infoset tree, handing out elements one by one in response to pull calls.
- *
- * Assumes that arrays have already been recognized and turned into DIArray nodes.
  */
-
-class InfosetSourceFromTree(doc: InfosetDocument)
-  extends InfosetSource
-  with CursorImplMixin[InfosetEvent] {
+private[unparsers] class InfosetCursorFromTree(doc: InfosetDocument)
+  extends InfosetCursor
+  with CursorImplMixin[InfosetAccessor] {
 
   private val nodeStack = new MStack.Of[DINode]
   private val indexStack0b = new MStack.OfInt
@@ -26,6 +23,14 @@ class InfosetSourceFromTree(doc: InfosetDocument)
   nodeStack.push(doc.getRootElement().asInstanceOf[DINode])
   indexStack0b.push(0)
 
+  /**
+   * In-order traversal of the nodes of an Infoset tree.
+   *
+   * State is kept in a nodeStack, and a corresponding indexStack0b. These
+   * are always pushed and popped together - (two non-allocating stacks instead of one stack of 2-tuple)
+   *
+   * Note how the visitKind flag is used to keep track of order of arrival.
+   */
   override def fill: Boolean = {
     if (nodeStack.isEmpty) return false
     val c = nodeStack.top

@@ -20,6 +20,8 @@ import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 import XMLEvent._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.util.InvertControl
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.processors.ProcessingError
 
 /**
  * The primary goal for this converter is
@@ -43,18 +45,9 @@ import edu.illinois.ncsa.daffodil.util.InvertControl
  * call must construct its own instance of this object for the thread running that
  * unparse method call.
  */
-class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo: ElementRuntimeData)
-  extends InfosetSource
-  with CursorImplMixin[InfosetEvent] {
-
-  /**
-   * Dummy object we pass back and forth to transfer control
-   * between producer and consumer.
-   *
-   * The actual data moves via side-effects on shared data structures,
-   * the accessors.
-   */
-  private object reply { override def toString = "reply" }
+private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo: ElementRuntimeData)
+  extends InfosetCursor
+  with CursorImplMixin[InfosetAccessor] {
 
   /**
    * Fills current accessor with next infoset event.
@@ -93,11 +86,16 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
   //    println(this)
   //  }
 
-  private lazy val iter = new InvertControl[AnyRef]({
-    nodeStack.push(diDoc)
-    recursivelyCreateTreeFromXMLEvents(nodeStack)
-    Assert.invariant(nodeStack.length == 1)
-    Assert.invariant(nodeStack.top == diDoc)
+  private lazy val iter: InvertControl[InfosetAccessor] = new InvertControl[InfosetAccessor]({
+    try {
+      nodeStack.push(diDoc)
+      recursivelyCreateTreeFromXMLEvents(nodeStack)
+      Assert.invariant(nodeStack.length == 1)
+      Assert.invariant(nodeStack.top == diDoc)
+    } catch {
+      case rsde: RuntimeSchemaDefinitionError => iter.setFinal(rsde)
+      case pe: ProcessingError => iter.setFinal(pe)
+    }
   })
 
   @tailrec
@@ -165,9 +163,9 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
       }
       case _ if text.matches("\\s*") => // ok. Absorb whitespace between elements
       case e: DIElement =>
-        InvalidInfosetXML.textInElementOnlyContent(e.erd.dpathElementCompileInfo, xmlCursor, ev)
+        InvalidInfosetXML.textInElementOnlyContent(e.erd, xmlCursor, ev)
       case a: DIArray =>
-        InvalidInfosetXML.textInElementOnlyContent(a.arrayElementInfo, xmlCursor, ev)
+        InvalidInfosetXML.textInElementOnlyContent(a.erd, xmlCursor, ev)
     }
   }
 
@@ -225,7 +223,7 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
   private def handleEventDuringArray(erd: ElementRuntimeData, arr: DIArray, ev: XMLEvent, parents: NodeStack) {
     ev match {
       // Another element of same array
-      case evStart: EvStart if erd.isArray && (arr.arrayElementInfo eq erd.dpathElementCompileInfo) => {
+      case evStart: EvStart if erd.isArray && (arr.erd _eq_ erd) => {
         val e = makeElement(erd, evStart)
         arr.parent.addChild(e) // we go up to the parent of the array, and do this add, which navigates back down to the array location.
         if (e.erd.isComplexType) start(e)
@@ -233,7 +231,7 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
         nextElementResolver = if (erd.isSimpleType) erd.nextElementResolver else erd.childElementResolver
       }
       // incoming occurrence for an array, but not same array
-      case evStart: EvStart if erd.isArray && (arr.arrayElementInfo ne erd.dpathElementCompileInfo) => {
+      case evStart: EvStart if erd.isArray && (arr.erd _ne_ erd) => {
         end(arr)
         parents.pop
         handleEvStart(evStart, parents) // recursively
@@ -245,7 +243,7 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
         handleEvStart(evStart, parents)
       }
       // incoming event is end of the enclosing parent of the array
-      case evEnd: EvEnd if (arr.arrayElementInfo ne erd.dpathElementCompileInfo) => {
+      case evEnd: EvEnd if (arr.erd _eq_ erd) => {
         Assert.invariant(erd eq arr.parent.erd)
         end(arr)
         parents.pop
@@ -259,13 +257,13 @@ class InfosetSourceFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo
   private def start(node: DINode) {
     accessor.kind = StartKind
     accessor.node = node
-    iter.setNext(reply)
+    iter.setNext(accessor)
   }
 
   private def end(node: DINode) {
     accessor.kind = EndKind
     accessor.node = node
-    iter.setNext(reply)
+    iter.setNext(accessor)
   }
 
   private def makeElement(erd: ElementRuntimeData, ev: EvStart) = {

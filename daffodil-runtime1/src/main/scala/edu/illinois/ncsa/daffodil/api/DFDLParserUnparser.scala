@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.xml.XMLEventCursor
 
 /**
@@ -168,7 +168,7 @@ object DFDL {
      */
     def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): UnparseResult
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): UnparseResult
-    def unparse(output: DFDL.Output, infosetSource: InfosetSource): UnparseResult
+    def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): UnparseResult
     /**
      * Returns an object which contains the result, and/or diagnostic information.
      *

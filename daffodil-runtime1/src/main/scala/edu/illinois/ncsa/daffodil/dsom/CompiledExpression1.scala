@@ -144,6 +144,34 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
 /**
  * This class is to contain only things that are needed to do
  * DPath Expression Compilation. Nothing else.
+ *
+ * This exists because some things have to be compiled (e.g., DPath expressions)
+ * which then become part of the runtime data for elements or other.
+ *
+ * It becomes circular if all the information is bundled together on the
+ * RuntimeData or ElementRuntimeData objects. So we split out
+ * everything needed to compile expressions will get computed separately
+ * (first), and kept on this object, and then subsequently ERD data
+ * structures are created which reference these.
+ *
+ * In other words, it's just necessary layering of the different
+ * phases of computation.
+ *
+ * Some of this dependency is artificial. If every individual attribute was
+ * computed separately, none bundled together in common data structures,
+ * AND everything was computed lazily, then this would probably all
+ * just sort itself out and not be circular. What makes the circularity
+ * is that the runtime data structures (ElementRuntimeData in particular),
+ * are not lazy. Everything part of them is forced to be evaluated when those are
+ * constructed. So anything that needs even one member of an ERD
+ * is artificially dependent on *everything* in the ERD.
+ *
+ * Similarly these DPath compiler data structures.... anything that depends on them
+ * is artificially dependent on ALL of their members's values.
+ *
+ * So the separation of DPath compiler info from runtime data structures is
+ * really as close as we get in Daffodil to organizing the compilation of schemas
+ * into "passes".
  */
 class DPathCompileInfo(
   @TransientParam parentArg: => Option[DPathCompileInfo],
@@ -224,6 +252,15 @@ class DPathCompileInfo(
 /**
  * This class is to contain only things that are needed to do
  * DPath Expression Compilation. Nothing else.
+ *
+ * This exists because some things have to be compiled (e.g., DPath expressions)
+ * which then become part of the runtime data for elements or other.
+ *
+ * It becomes circular if all the information is bundled together on the
+ * RuntimeData or ElementRuntimeData objects. So we split out
+ * everything needed to compile expressions will get computed separately
+ * (first), and kept on this object, and then subsequently ERD data
+ * structures are created which reference these.
  */
 class DPathElementCompileInfo(
   @TransientParam parentArg: => Option[DPathCompileInfo],

@@ -71,7 +71,7 @@ case class ConvertTextNumberUnparser[S](
 
   def unparse(state: UState): Unit = {
 
-    val event: InfosetEvent = { Assert.invariant(state.inspect); state.inspectAccessor }
+    val event: InfosetAccessor = state.inspectOrError
     val node = event.node.asSimple
     val value = node.dataValue
 

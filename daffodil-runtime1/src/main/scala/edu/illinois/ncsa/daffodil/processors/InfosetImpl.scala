@@ -58,7 +58,6 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
 
@@ -70,6 +69,7 @@ sealed trait DINode {
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
   def totalElementCount: Long
   def namedQName: NamedQName
+  def erd: ElementRuntimeData
 
   /**
    * Can treat any DINode, even simple ones, as a container of other nodes.
@@ -146,7 +146,6 @@ final class FakeDINode extends DISimple(null) {
  * minOccurs 0, maxOccurs 1)
  */
 sealed trait DIElement extends DINode with InfosetElement {
-  def erd: ElementRuntimeData
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
@@ -218,13 +217,13 @@ sealed trait DIElement extends DINode with InfosetElement {
 // which may or may not be optimized effectively.
 //
 final class DIArray(
-  val arrayElementInfo: DPathElementCompileInfo, // TODO: Why not an ERD? - look in daffodil-core... compilation issue?
+  override val erd: ElementRuntimeData,
   val parent: DIComplex)
   extends DINode with InfosetArray {
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
 
-  def namedQName = arrayElementInfo.namedQName
+  def namedQName = erd.namedQName
 
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
   //TODO: really this needs to be adaptive, and resize upwards reasonably.
@@ -289,7 +288,7 @@ final class DIArray(
 case class OutputValueCalcEvaluationException(val erd: ElementRuntimeData)
   extends Exception with ThinThrowable
 
-sealed class DISimple(val erd: ElementRuntimeData)
+sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement
   with InfosetSimpleElement {
 
@@ -510,7 +509,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
  * One[DIArray] means the slot is for a recurring element which can have 2+ instances.
  * The DIArray object's length gives the number of occurrences.
  */
-sealed class DIComplex(val erd: ElementRuntimeData)
+sealed class DIComplex(override val erd: ElementRuntimeData)
   extends DIElement with InfosetComplexElement {
 
   final override def isEmpty: Boolean = false
@@ -521,12 +520,6 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   private lazy val _slots = {
     val slots = new Array[DINode](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
-    //    // initialize slots to Nope
-    //    var i = 0
-    //    while (i < slots.length) {
-    //      slots(i) = null
-    //      i = i + 1
-    //    }
     slots
   }
 
@@ -552,7 +545,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final override def getChildMaybe(erd: ElementRuntimeData): InfosetElement =
     getChildMaybe(erd.slotIndexInParent)
 
-  final def getChild(slot: Int, info: DPathElementCompileInfo): InfosetElement = {
+  final def getChild(slot: Int): InfosetElement = {
     val res = getChildMaybe(slot)
     if (res ne null) res
     else {
@@ -562,21 +555,27 @@ sealed class DIComplex(val erd: ElementRuntimeData)
         dis.setDefaultedDataValue(dv)
         dis
       } else {
-        val namedQName = info.namedQName
+        val namedQName = erd.childERDs(slot).namedQName
         throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
       }
     }
   }
 
+  /**
+   * Returns null if there is no child element in that slot
+   */
   final def getChildMaybe(slot: Int): InfosetElement = {
     val s = _slots(slot)
     s.asInstanceOf[InfosetElement]
   }
 
-  final override def getChildArray(erd: ElementRuntimeData) = getChildArray(erd.dpathElementCompileInfo)
-
-  final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
+  final def getChildArray(info: ElementRuntimeData): InfosetArray = {
+    Assert.usage(info.isArray)
     val slot = info.slotIndexInParent
+    getChildArray(slot)
+  }
+
+  final def getChildArray(slot: Int): InfosetArray = {
     val slotVal = _slots(slot)
     if (slotVal ne null)
       slotVal match {
@@ -584,6 +583,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
         case _ => Assert.usageError("not an array")
       }
     else {
+      val info = erd.childERDs(slot)
       // slot is null. There isn't even an array object yet.
       // create one (it will have zero entries)
       val ia = new DIArray(info, this)
@@ -594,6 +594,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   }
 
   final override def setChildArray(erd: ElementRuntimeData, arr: InfosetArray) {
+    Assert.usage(erd.isArray)
     setChildArray(erd.slotIndexInParent, arr.asInstanceOf[DIArray])
   }
 
@@ -607,17 +608,9 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       //
       // make sure there is an array to accept
       // the child
-      //      var ia: InfosetArray = null
-      val arr = getChildArray(e.runtimeData)
+      //
+      val arr = getChildArray(e.runtimeData) // creates if it doesn't exist
       Assert.invariant(arr ne null)
-      //      if (arr eq null) {
-      //        ia = new DIArray(e.runtimeData.dpathElementCompileInfo, this)
-      //        // no array there yet. So we have to create one.
-      //        setChildArray(e.runtimeData, ia)
-      //      } else {
-      //        ia = arr
-      //       }
-      // At this point there IS an array
       arr.append(e)
     } else {
       _slots(e.runtimeData.slotIndexInParent) = e.asInstanceOf[DINode]
@@ -991,7 +984,7 @@ object Infoset {
           // In this case, the current slot must be filled in with
           // a DIArray
           val diComplex = ie.asInstanceOf[DIComplex]
-          val arr = new DIArray(childERD.dpathElementCompileInfo, diComplex)
+          val arr = new DIArray(childERD, diComplex)
           val c = ie.asInstanceOf[DIComplex]
           c.setChildArray(childERD, arr)
 

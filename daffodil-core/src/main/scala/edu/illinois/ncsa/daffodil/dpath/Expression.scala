@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import scala.util.{ Success, Failure }
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -777,14 +778,14 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
 
   // Note: all instances are distinct regardless of contents.
   override def equals(x: Any) = x match {
-    case ar: AnyRef => this eq ar
+    case ar: AnyRef => this _eq_ ar
     case _ => false
   }
 
   override def hashCode() = super.hashCode()
 
   override def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
-    stepElement == elem
+    stepElement =:= elem
   }
 
   lazy val stepQName = {

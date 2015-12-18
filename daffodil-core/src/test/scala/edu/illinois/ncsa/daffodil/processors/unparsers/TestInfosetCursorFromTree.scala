@@ -36,7 +36,7 @@ class TestInfosetCursorFromTree {
     }
     val rootERD = u.ssrd.elementRuntimeData
     val infoset = Infoset.elem2InfosetDocument(rootERD, infosetXML)
-    val infosetCursor = InfosetSource.fromInfosetTree(infoset)
+    val infosetCursor = InfosetCursor.fromInfosetTree(infoset)
     infosetCursor
   }
 

@@ -128,7 +128,7 @@ trait LocalElementMixin
         case Some(s) => {
           val allRequired = s.groupMembersNoRefs.filter(_.isRequired)
           val lastDeclaredRequired = allRequired.last
-          if (lastDeclaredRequired eq this) true
+          if (lastDeclaredRequired _eq_ this) true
           else false
         }
       }

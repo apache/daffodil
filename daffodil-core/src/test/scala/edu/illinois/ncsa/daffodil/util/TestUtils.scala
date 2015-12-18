@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.debugger._
 
@@ -240,7 +240,7 @@ class Fakes private () {
     def parse(file: File): DFDL.ParseResult = null
     def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
-    def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = null
+    def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError
     def isError: Boolean = false

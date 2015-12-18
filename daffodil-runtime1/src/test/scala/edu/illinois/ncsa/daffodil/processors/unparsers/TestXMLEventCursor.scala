@@ -9,6 +9,17 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml._
 import XMLEvent._
 import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
+import edu.illinois.ncsa.daffodil.processors.DINode
+
+object Start {
+  def apply(node: DINode) = InfosetAccessor(StartKind, node)
+  def unapply(ev: InfosetAccessor) = if (ev.kind eq StartKind) Some(ev.node) else None
+}
+
+object End {
+  def apply(node: DINode) = InfosetAccessor(EndKind, node)
+  def unapply(ev: InfosetAccessor) = if (ev.kind eq EndKind) Some(ev.node) else None
+}
 
 class FakeXMLEventCursor(nRepeats: Long,
   override val advanceAccessor: XMLAccessor) extends XMLEventCursor {

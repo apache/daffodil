@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 case object ToRoot extends RecipeOp {
   override def run(dstate: DState) {
@@ -77,7 +78,7 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    dstate.setCurrentNode(now.getChild(info.slotIndexInParent, info).asInstanceOf[DIElement])
+    dstate.setCurrentNode(now.getChild(info.slotIndexInParent).asInstanceOf[DIElement])
   }
 
   override def toXML = {
@@ -92,11 +93,14 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
 case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(indexRecipe) {
 
+  val childSlot = info.slotIndexInParent
+
   override def run(dstate: DState) {
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
-    val arr = savedCurrentElement.getChildArray(info)
+    val childArrayElementERD: ElementRuntimeData = savedCurrentElement.erd.childERDs(childSlot)
+    val arr = savedCurrentElement.getChildArray(childArrayElementERD)
     val occurrence = arr.getOccurrence(index) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
@@ -114,7 +118,7 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info)
+    val arr = now.getChildArray(info.slotIndexInParent)
     Assert.invariant(arr ne null)
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
@@ -129,7 +133,7 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info)
+    val arr = now.getChildArray(info.slotIndexInParent)
 
     if ((arr eq null) || arr.length == 0) throw new InfosetNoSuchChildElementException("Array does not exist.")
   }

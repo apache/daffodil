@@ -17,6 +17,7 @@ import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.equality._
 
 abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
   erd: ElementRuntimeData)
@@ -34,7 +35,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
   final def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
 
     val nBits = getBitLength(pState)
-    if (pState.status ne Success) return
+    if (pState.status _ne_ Success) return
     val dis = pState.dataInputStream
 
     val startingBitPos0b = dis.bitPos0b

@@ -75,7 +75,6 @@ object PatternChecker {
       }
     } catch {
       case e: PatternSyntaxException => {
-        // println(e.getMessage)
         context.SDE("Invalid regular expression pattern '%s'.\nReason: %s.", pattern, DiagnosticUtils.getSomeMessage(e).get)
       }
     }

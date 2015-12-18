@@ -90,16 +90,20 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(io)
+                             .dependsOn(lib % "test->test") // need a utility in lib's tests
 
   lazy val runtime1Unparser    = Project(id = "daffodil-runtime1-unparser", base = file("daffodil-runtime1-unparser"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(runtime1)
+                             .dependsOn(lib % "test->test") // need a utility in lib's tests
+                             .dependsOn(runtime1 % "test->test") // need a utility in runtime1's tests
 
   lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(runtime1Unparser)
+                             .dependsOn(lib % "test->test") // need a utility in lib's tests
                              .dependsOn(runtime1 % "test->test") // need a utility in runtime1's tests
 
   lazy val japi    = Project(id = "daffodil-japi", base = file("daffodil-japi"), settings = s ++ genJavaDocSettings)

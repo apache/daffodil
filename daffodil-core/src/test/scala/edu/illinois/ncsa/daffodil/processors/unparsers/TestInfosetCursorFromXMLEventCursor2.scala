@@ -42,7 +42,7 @@ class TestInfosetCursorFromXMLEventCursor2 {
     val xmlEventCursor = new FakeXMLEventCursor(size, advanceAccessor)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetSource.fromXMLSource(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
     is
   }
 

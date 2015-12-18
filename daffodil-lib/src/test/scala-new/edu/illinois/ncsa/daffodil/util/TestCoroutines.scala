@@ -7,6 +7,9 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.Implicits._
+
+private class TestException(e: String) extends Exception(e)
 
 private class TestInvertControl {
 
@@ -18,7 +21,7 @@ private class TestInvertControl {
 
   def sprintln(s: String) = {
     /*
-     * Uncomment this for verbose dumps
+     * Uncomment this for verbose messsaging so you can see what is going on.
      */
     // println(s)
   }
@@ -102,9 +105,18 @@ private class TestInvertControl {
     // Wrap the initial call that starts the library in the
     // InvertControl class.
     //
-    val iter = new InvertControl[JInt]({
+    lazy val iter: InvertControl[JInt] = new InvertControl[JInt]({
       // this argument is the code to call to run the library
-      cb.doIt(List(1, 2, 3)) // not executed until we start iterating
+      var wasThrown = false
+      try {
+        cb.doIt(List(1, 2, 3)) // not executed until we start iterating
+      } catch {
+        case e: TestException =>
+          iter.setFinal(e)
+          wasThrown = true
+      }
+      assertTrue(wasThrown)
+      sprintln("NotThreadSafeLibrary exiting")
     })
 
     //
@@ -117,7 +129,7 @@ private class TestInvertControl {
       // instance
       //
       if (i == 3) {
-        val e = new Exception("you had to give me a three?")
+        val e = new TestException("you had to give me a three?")
         sprintln("NotThreadSafeLibrary throwing :" + e)
         throw e
       }
@@ -137,13 +149,13 @@ private class TestInvertControl {
     sprintln("got second element")
     assertEquals(2, i)
     sprintln("asking for third element")
-    try {
+    val e = intercept[TestException] {
       i = iter.next()
       fail()
-    } catch {
-      case e: Exception =>
-        sprintln("consumer caught exception: " + e)
     }
+    sprintln("consumer caught exception: " + e)
+    val msg = e.getMessage()
+    assertTrue(msg.contains("you had to give me a three?"))
     assertFalse(iter.hasNext)
     sprintln("consumer done")
   }

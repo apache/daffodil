@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Cursor
-import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
@@ -42,13 +41,13 @@ import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class UState(
-  private val infosetSource: InfosetSource,
+  private val infosetCursor: InfosetCursor,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
-  with Cursor[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
+  with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def dataStream: DataStreamCommon = dataOutputStream
 
@@ -84,28 +83,51 @@ class UState(
     status_ = new Failure(ue)
   }
 
-  override def advance: Boolean = infosetSource.advance
-  override def advanceAccessor: InfosetEvent = infosetSource.advanceAccessor
-  override def inspect: Boolean = infosetSource.inspect
-  override def inspectAccessor: InfosetEvent = infosetSource.inspectAccessor
+  override def advance: Boolean = infosetCursor.advance
+  override def advanceAccessor: InfosetAccessor = infosetCursor.advanceAccessor
+  override def inspect: Boolean = infosetCursor.inspect
+  override def inspectAccessor: InfosetAccessor = infosetCursor.inspectAccessor
+
+  /**
+   * Use this so if there isn't an event we get a clean diagnostic message saying
+   * that is what has gone wrong.
+   */
+  def inspectOrError = {
+    val m = inspectMaybe
+    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    m.get
+  }
+
+  def advanceOrError = {
+    val m = advanceMaybe
+    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    m.get
+  }
 
   def isInspectArrayEnd = {
     if (!inspect) false
     else {
       val p = inspectAccessor
       val res = p match {
-        case End(a: DIArray) => true
+        case e if e.isEnd && e.isArray => true
         case _ => false
       }
       res
     }
   }
 
-  private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope
-  def currentInfosetNode: DINode = if (currentInfosetNodeStack.isEmpty) null else currentInfosetNodeStack.topMaybe
+  private var currentInfosetEvent_ : Maybe[InfosetAccessor] = Nope
+  def currentInfosetNode: DINode =
+    if (currentInfosetNodeMaybe.isEmpty) null
+    else currentInfosetNodeMaybe.get
+
+  def currentInfosetNodeMaybe: Maybe[DINode] =
+    if (currentInfosetNodeStack.isEmpty) Nope
+    else currentInfosetNodeStack.top
+
   def currentInfosetEvent = currentInfosetEvent_
 
-  def setCurrentInfosetEvent(ev: Maybe[InfosetEvent]) {
+  def setCurrentInfosetEvent(ev: Maybe[InfosetAccessor]) {
     currentInfosetEvent_ = ev
   }
 
@@ -221,7 +243,7 @@ object UState {
   def createInitialUState(
     out: DataOutputStream,
     dataProc: DFDL.DataProcessor,
-    docSource: InfosetSource): UState = {
+    docSource: InfosetCursor): UState = {
 
     val variables = dataProc.getVariables
     val diagnostics = Nil

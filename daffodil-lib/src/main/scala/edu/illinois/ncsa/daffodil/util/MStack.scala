@@ -4,6 +4,7 @@ import scala.collection.AbstractIterator
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 // import edu.illinois.ncsa.daffodil.equality._ // TODO: Scala compiler bug - can't use =#= in this file (scalac 2.11.7) because we get a spurious compile error (unable to find ViewEquality in package equality.)
 import scala.collection.AbstractIterable
+import Maybe._
 
 object MStack {
   final case class Mark(val v: Int) extends AnyVal
@@ -36,14 +37,22 @@ object MStack {
 
     @inline final def length = delegate.length
 
-    @inline final def popMaybe: T = delegate.pop
-
-    @inline final def pushMaybe(m: T) {
-      if (m ne null) delegate.push(m)
+    @inline final def push(m: Maybe[T]) = {
+      if (m.isDefined) delegate.push(m.get)
       else delegate.push(nullT)
     }
 
-    @inline final def topMaybe: T = delegate.top
+    @inline final def pop: Maybe[T] = {
+      val m = delegate.pop
+      if (m eq null) Nope
+      else One(m)
+    }
+
+    @inline final def top: Maybe[T] = {
+      val m = delegate.top
+      if (m eq null) Nope
+      else One(m)
+    }
 
     @inline final def isEmpty = delegate.isEmpty
 

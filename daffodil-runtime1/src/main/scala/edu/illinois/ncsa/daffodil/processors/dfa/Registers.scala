@@ -51,7 +51,7 @@ class Registers() extends Serializable {
    */
   def reset(input: DataInputStream, delims: Array[DFADelimiter], m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
-    if (m !=:= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
+    if (m !=#= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
     resetChars
     resultString.clear()
     delimString.clear()

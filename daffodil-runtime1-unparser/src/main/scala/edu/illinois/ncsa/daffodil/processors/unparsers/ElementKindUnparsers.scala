@@ -58,11 +58,9 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(start: UState): Unit = {
-    // start.currentInfosetNodeStack.pushMaybe(Nope) // save
     start.childIndexStack.push(1L) // one-based indexing
     bodyUnparser.unparse1(start, rd)
     start.childIndexStack.pop()
-    // start.currentInfosetNodeStack.popMaybe // restore
   }
 }
 
@@ -101,28 +99,25 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
           // incoming infoset event
           if (start.inspect) {
             val ev = start.inspectAccessor
-            ev match {
-              case Start(diNode) => {
-
-                val eventNQN = diNode.namedQName
-                if (eventNQN =:= erd.namedQName) {
-                  doUnparser = true
-                }
+            if (ev.isStart) {
+              val eventNQN = ev.node.namedQName
+              if (eventNQN =:= erd.namedQName) {
+                doUnparser = true
               }
-              case End(c: DIComplex) => {
-                //ok. We've peeked ahead and found the end of the complex element
-                //that this sequence is the model group of.
-                val optParentRD = termRuntimeData.immediateEnclosingRuntimeData
-                optParentRD match {
-                  case Some(e: ElementRuntimeData) =>
-                    Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
-                  case _ =>
-                    Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
-                      ev, optParentRD))
-                }
+            } else if (ev.isEnd && ev.isComplex) {
+              val c = ev.asComplex
+              //ok. We've peeked ahead and found the end of the complex element
+              //that this sequence is the model group of.
+              val optParentRD = termRuntimeData.immediateEnclosingRuntimeData
+              optParentRD match {
+                case Some(e: ElementRuntimeData) =>
+                  Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
+                case _ =>
+                  Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
+                    ev, optParentRD))
               }
-              case _ =>
-                Assert.invariantFailed("Not a start event: " + ev)
+            } else {
+              Assert.invariantFailed("Not a start event: " + ev)
             }
           }
         }
@@ -156,26 +151,26 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
 
   override lazy val childProcessors: Seq[Processor] = eventUnparserMap.map { case (k, v) => v }.toSeq
 
-  def unparse(start: UState): Unit = {
+  def unparse(state: UState): Unit = {
 
-    val event: InfosetEvent = { Assert.invariant(start.inspect); start.inspectAccessor }
+    val event: InfosetAccessor = state.inspectOrError
     val key: ChoiceBranchEvent = event match {
       //
       // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a
       // hash-table lookup for a cached value. This avoids constructing these
       // objects over and over again.
       //
-      case Start(diNode: DIElement) => ChoiceBranchStartEvent(diNode.runtimeData.namedQName)
-      case End(diNode: DIElement) => ChoiceBranchEndEvent(diNode.runtimeData.namedQName)
-      case Start(diArray: DIArray) => ChoiceBranchStartEvent(diArray.arrayElementInfo.namedQName)
-      case End(diArray: DIArray) => ChoiceBranchEndEvent(diArray.arrayElementInfo.namedQName)
+      case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.asElement.runtimeData.namedQName)
+      case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.asElement.runtimeData.namedQName)
+      case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.asArray.erd.namedQName)
+      case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.asArray.erd.namedQName)
     }
 
     val childUnparser = eventUnparserMap.get(key).getOrElse {
-      UnparseError(One(mgrd.schemaFileLocation), One(start.currentLocation), "Encountered event %s. Expected one of %s.",
+      UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation), "Encountered event %s. Expected one of %s.",
         key, eventUnparserMap.keys.mkString(", "))
     }
-    childUnparser.unparse1(start, mgrd)
+    childUnparser.unparse1(state, mgrd)
   }
 }
 
@@ -207,11 +202,11 @@ class DelimiterStackUnparser(outputNewLine: CompiledExpression,
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
 
-  def unparse(start: UState): Unit = {
+  def unparse(state: UState): Unit = {
     // Evaluate Delimiters
-    val init = if (staticInits.isDefined) staticInits else evaluateDynamicText(dynamicInits, outputNewLine, start, context, false)
-    val sep = if (staticSeps.isDefined) staticSeps else evaluateDynamicText(dynamicSeps, outputNewLine, start, context, isLengthKindDelimited)
-    val term = if (staticTerms.isDefined) staticTerms else evaluateDynamicText(dynamicTerms, outputNewLine, start, context, isLengthKindDelimited)
+    val init = if (staticInits.isDefined) staticInits else evaluateDynamicText(dynamicInits, outputNewLine, state, context, false)
+    val sep = if (staticSeps.isDefined) staticSeps else evaluateDynamicText(dynamicSeps, outputNewLine, state, context, isLengthKindDelimited)
+    val term = if (staticTerms.isDefined) staticTerms else evaluateDynamicText(dynamicTerms, outputNewLine, state, context, isLengthKindDelimited)
 
     val node = DelimiterStackUnparseNode(init,
       sep,
@@ -220,11 +215,11 @@ class DelimiterStackUnparser(outputNewLine: CompiledExpression,
       separatorLocOpt,
       { if (!term.isDefined) Nope else One(terminatorLoc) })
 
-    start.pushDelimiters(node)
+    state.pushDelimiters(node)
 
-    bodyUnparser.unparse1(start, rd)
+    bodyUnparser.unparse1(state, rd)
 
-    start.popDelimiters
+    state.popDelimiters
   }
 }
 
@@ -255,18 +250,18 @@ class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeDat
       theScheme
     }
 
-  def unparse(start: UState): Unit = {
+  def unparse(state: UState): Unit = {
     // Evaluate
-    val escScheme = scheme.getEscapeSchemeUnparser(start)
+    val escScheme = scheme.getEscapeSchemeUnparser(state)
 
     // Set Escape Scheme
-    start.currentEscapeScheme = One(escScheme)
+    state.currentEscapeScheme = One(escScheme)
 
     // Unparse
-    bodyUnparser.unparse1(start, rd)
+    bodyUnparser.unparse1(state, rd)
 
     // Clear EscapeScheme
-    start.currentEscapeScheme = Nope
+    state.currentEscapeScheme = Nope
   }
 }
 
@@ -278,16 +273,16 @@ class EscapeSchemeNoneStackUnparser(
 
   override lazy val childProcessors = Seq(bodyUnparser)
 
-  def unparse(start: UState): Unit = {
+  def unparse(state: UState): Unit = {
 
     // Clear Escape Scheme
-    start.currentEscapeScheme = Nope
+    state.currentEscapeScheme = Nope
 
     // Unparse
-    bodyUnparser.unparse1(start, rd)
+    bodyUnparser.unparse1(state, rd)
 
     // Clear EscapeScheme
-    start.currentEscapeScheme = Nope
+    state.currentEscapeScheme = Nope
 
   }
 }
@@ -300,12 +295,12 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
     state.arrayIndexStack.push(1L) // one-based indexing
     state.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
-    var event = { Assert.invariant(state.advance); state.advanceAccessor }
+    var event = state.advanceOrError
     Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
 
     bodyUnparser.unparse1(state, erd)
 
-    event = { Assert.invariant(state.advance); state.advanceAccessor }
+    event = state.advanceOrError
     if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
       UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Needed end of array, but found %s.", event)
     }
@@ -344,7 +339,7 @@ class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser
     state.arrayIndexStack.push(1L) // one-based indexing
     state.occursBoundsStack.push(1L)
 
-    val event = { Assert.invariant(state.inspect); state.inspectAccessor }
+    val event = state.inspectOrError
     Assert.invariant(event.isStart && !event.node.isInstanceOf[DIArray])
 
     bodyUnparser.unparse1(state, erd)

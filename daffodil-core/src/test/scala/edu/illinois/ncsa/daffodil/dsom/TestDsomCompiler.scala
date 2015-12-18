@@ -137,7 +137,6 @@ class TestDsomCompiler extends Logging {
     val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
-    // println(msg)
     val hasErrorText = msg.contains("bar");
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
@@ -157,7 +156,6 @@ class TestDsomCompiler extends Logging {
     val sset = Compiler().compileNode(s).sset
     sset.isError // forces compilation
     val diags = sset.getDiagnostics
-    // diags.foreach { println(_) }
     val msg = diags.toString
     assertTrue(sset.isError)
     val hasErrorText = msg.contains("invalidValue");
@@ -192,28 +190,7 @@ class TestDsomCompiler extends Logging {
 
     decl.formatAnnotation.asInstanceOf[DFDLElement]
     assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
-    //    fa.alignmentUnits match {
-    //      case AlignmentUnits.Bits => println("was bits")
-    //      case AlignmentUnits.Bytes => println("was bytes")
-    //    }
   }
-
-  /* @Test def testXsomMultifile(){
-
-    val parser = new XSOMParser()
-    val apf = new DomAnnotationParserFactory()
-    parser.setAnnotationParser(apf)
-
-    val inFile = new File(Misc.getRequiredResource("/test/first.xsd"))
-
-    parser.parse(inFile)
-
-    val sset = parser.getResult()
-    val sds = parser.getDocuments().toList
-    assertTrue(sds.size() >= 2)
-
-    // sds.map{sd => println(sd.getSystemId)}
-  }*/
 
   @Test def testSequence1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -506,7 +483,6 @@ class TestDsomCompiler extends Logging {
     assertEquals("ex", gs1.restrictionBase.prefix.get)
     assertEquals("aaType", gs1.restrictionBase.local)
 
-    // println(gs1.properties)
     assertTrue(gs1.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
 
     assertTrue(gs1.verifyPropValue("byteOrder", "bigEndian")) // SimpleType - Base
@@ -519,15 +495,11 @@ class TestDsomCompiler extends Logging {
     val gs3 = gs3f.forElement(e1) // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
-
-    //    println(gs3.nonDefaultPropertySources)
-    //    println(gs3.defaultPropertySources)
-    // gs3.valueAsAny // because these unit tests are outside the normal framework,
+    // because these unit tests are outside the normal framework,
     // we sometimes have to demand things in order for errors to be noticed.
     assertTrue(gs3.isError)
     val msgs = gs3.getDiagnostics.mkString("\n").toLowerCase
     assertTrue(msgs.contains("overlap"))
-    //    println(msgs)
     assertTrue(msgs.contains("alignmentUnits".toLowerCase))
   }
 
@@ -547,27 +519,16 @@ class TestDsomCompiler extends Logging {
 
     // GroupRefTest
     val e4 = e4f.forRoot() // groupRefTest
-    // println(e4)
 
     val e4ct = e4.elementComplexType
 
-    // println(e4ct)
     val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef] // groupRefTests' local group decl
 
-    // println(e4ctgref)
     val myGlobal1 = e4ctgref.groupDef
-    // println(myGlobal1)
 
     val myGlobal1Seq = myGlobal1.modelGroup.asInstanceOf[Sequence]
 
-    // println(myGlobal1Seq)
     val myGlobal2Seq = myGlobal1Seq.groupRefChildren(0).group.asInstanceOf[Sequence]
-
-    //    println(myGlobal2Seq)
-    //    println(myGlobal1Seq.properties)
-    //    println(myGlobal2Seq.properties)
-
-    // val myGlobal2Seq = myGlobal2.modelGroup.asInstanceOf[Sequence]
 
     // myGlobal1 Properties
     assertTrue(myGlobal1Seq.verifyPropValue("separator", ","))
@@ -610,8 +571,6 @@ class TestDsomCompiler extends Logging {
 
     val f1 = ge1.formatAnnotation
 
-    // println(f1.properties)
-
     assertTrue(f1.verifyPropValue("separatorPosition", "infix"))
     assertTrue(f1.verifyPropValue("lengthKind", "implicit"))
     assertFalse(f1.verifyPropValue("representation", "text"))
@@ -626,10 +585,7 @@ class TestDsomCompiler extends Logging {
     //
     assertTrue(e1f.verifyPropValue("initiator", ""))
     assertTrue(e1f.verifyPropValue("representation", "text"))
-    //println(e1f.initiatorRaw)
 
-    //e1f.initiatorRaw
-    //e1f.byteOrderRaw
     e1.lengthKind
   }
 
@@ -646,8 +602,6 @@ class TestDsomCompiler extends Logging {
     val ge1 = ge1f.forRoot()
     ge1.formatAnnotation.properties
 
-    // println(props)
-    //assertEquals(":", ge1.initiatorRaw)
   }
 
   @Test def testGetQName = {
@@ -657,7 +611,6 @@ class TestDsomCompiler extends Logging {
       </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
-    // println(testSchema)
     val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
@@ -669,7 +622,6 @@ class TestDsomCompiler extends Logging {
     val nsURI = qn.namespace
     val localName = qn.local
 
-    // println(nsURI + ", " + localName)
     assertEquals("ref1", localName)
     assertEquals(XMLUtils.EXAMPLE_NAMESPACE, nsURI)
   }
@@ -698,11 +650,7 @@ class TestDsomCompiler extends Logging {
 
     val Seq(e1: LocalElementDecl, _ /* e2 */ : ElementBase, e3: ElementBase) = seq.groupMembers
 
-    //    println(e1.properties)
     assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
-    //    assertEquals("a", e1.allTerminatingMarkup(0).prettyExpr)
-    //    assertEquals("b", e1.allTerminatingMarkup(1).prettyExpr)
-    //    assertEquals("g", e1.allTerminatingMarkup(2).prettyExpr)
     assertEquals("a", e1.allTerminatingMarkup(0)._1.prettyExpr)
     assertEquals("b", e1.allTerminatingMarkup(1)._1.prettyExpr)
     assertEquals("g", e1.allTerminatingMarkup(2)._1.prettyExpr)
@@ -760,7 +708,6 @@ class TestDsomCompiler extends Logging {
     // val props = e1.properties
 
     val e1f_esref = e1.getProperty("escapeSchemeRef")
-    // println(e1f_esref)
 
     assertEquals("pound", e1f_esref)
 
@@ -824,7 +771,6 @@ class TestDsomCompiler extends Logging {
     val s3s = s3.asInstanceOf[Sequence]
     val Seq(es) = s3s.groupMembers
     val ese = es.asInstanceOf[LocalElementDecl]
-    // println(ese)
     assertTrue(ese.path.contains("sequence[3]"))
   }
 

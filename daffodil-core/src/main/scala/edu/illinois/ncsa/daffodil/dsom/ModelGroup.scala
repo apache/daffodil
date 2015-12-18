@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * A factory for model groups.
@@ -251,7 +252,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     es match {
       case None => true
       case Some(s) => {
-        if (s.groupMembers.head eq this) s.isKnownToBePrecededByAllByteLengthItems
+        if (s.groupMembers.head _eq_ this) s.isKnownToBePrecededByAllByteLengthItems
         else {
           //pass for now
           val index = s.groupMembers.indexOf(this)

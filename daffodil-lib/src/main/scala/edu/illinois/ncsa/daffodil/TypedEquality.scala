@@ -58,6 +58,8 @@ package object equality {
   implicit class ViewEqual[L](val left: L) extends AnyVal {
     def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
       equality.areEqual(left, right)
+    def !=#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
+      !equality.areEqual(left, right)
   }
   @implicitNotFound("View equality requires ${L} and ${R} to be in an implicit conversion relationship, i.e. one can be viewed as the other!")
   private[equality] sealed trait ViewEquality[L, R] {
@@ -82,28 +84,35 @@ package object equality {
 
   // Type wise - allows bi-directional subtypes, not just subtype on right.
 
-  implicit class TypeEqual[L](val left: L) extends AnyVal {
-    def =:=[R](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+  implicit class TypeEqual[L <: AnyRef](val left: L) extends AnyVal {
+    def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       equality.areEqual(left, right)
-    def !=:=[R](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       !equality.areEqual(left, right)
+    def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      equality.areEq(left, right)
+    def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      !equality.areEq(left, right)
   }
 
   @implicitNotFound("Typed equality requires ${L} and ${R} to be in a subtype relationship!")
-  private[equality] sealed trait TypeEquality[L, R] {
+  private[equality] sealed trait TypeEquality[L <: AnyRef, R <: AnyRef] {
     def areEqual(left: L, right: R): Boolean
+    def areEq(left: L, right: R): Boolean
   }
   private[equality] object TypeEquality extends LowPriorityTypeEqualityImplicits {
-    implicit def rightSubtypeOfLeftEquality[L, R <: L]: TypeEquality[L, R] =
+    implicit def rightSubtypeOfLeftEquality[L <: AnyRef, R <: L]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
   private[equality] trait LowPriorityTypeEqualityImplicits {
-    implicit def leftSubtypeOfRightEquality[R, L <: R]: TypeEquality[L, R] =
+    implicit def leftSubtypeOfRightEquality[R <: AnyRef, L <: R]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
-  private object AnyTypeEquality extends TypeEquality[Any, Any] {
-    override def areEqual(left: Any, right: Any): Boolean =
+  private object AnyTypeEquality extends TypeEquality[AnyRef, AnyRef] {
+    override def areEqual(left: AnyRef, right: AnyRef): Boolean =
       left == right
+    override def areEq(left: AnyRef, right: AnyRef): Boolean =
+      left eq right
   }
 
   // exact type equality

@@ -1,6 +1,7 @@
 package edu.illinois.ncsa.daffodil.util
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import Maybe._
 
 /**
  * Cursor pattern is a performance hack to avoid allocation of objects
@@ -37,9 +38,23 @@ trait HasCpy[+ItemType] {
 
 trait Accessor[ItemType] extends AnyRef with HasCpy[ItemType] {
 
-  // TODO: Performance - Get rid of cpy and assignFrom. They are legacy of old copying
-  // and allocating way of doing things.
+  /**
+   * Copy method that returns accessor's ItemType. (sometimes that's the same as the Accessor type).
+   *
+   * Not named copy() because of the automatically generated one from case-classes.
+   *
+   * Case classes are likely to be used a lot with accessors, and this doesn't have the same
+   * type as the generated copy() methods.
+   */
   def cpy(): ItemType
+
+  /**
+   * Used when you need to have 3 or more items in examination. You can instantiate an accessor,
+   * and "advance" onto it by populating it using this method.
+   *
+   * Normally the advanceAccessor and inspectAccessor are sufficient, but sometimes
+   * more are desirable.
+   */
   def assignFrom(other: ItemType): Unit
 }
 
@@ -64,6 +79,19 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
    */
   def inspect: Boolean
 
+  /**
+   * Convenient combinations of advance with
+   * giving access to the appropriate accessor.
+   */
+  final def advanceMaybe: Maybe[AccessorType] = {
+    if (advance) One(advanceAccessor)
+    else Nope
+  }
+
+  final def inspectMaybe: Maybe[AccessorType] = {
+    if (inspect) One(inspectAccessor)
+    else Nope
+  }
 }
 
 trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[AccessorType] =>
@@ -75,11 +103,14 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   private var priorOpKind: OpKind = Advance
 
   /**
-   * Implement to fill in the accessor defined by the private var
-   * `accessor`
+   * Implement to fill in the accessor defined by the var`accessor`
    */
   protected def fill: Boolean
 
+  /**
+   * Assign this var to whatever accessor you want filled by the next
+   * advance or inspect operation.
+   */
   protected final var accessor: AccessorType = null.asInstanceOf[AccessorType]
 
   private var isFilled = false
@@ -124,26 +155,5 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
     isFilled = if (res) isFilledValue else false
     res
   }
-}
 
-/**
- * Many tests are written using an Iterator pattern.
- *
- * Create an iterator (with peek), or a stream, given a Cursor.
- *
- * This copies the accessors - so that the result is truly safe, and
- * as would normally be expected it is a separate object.
- *
- * This defeats the purpose of cursors though, which is to populate
- * accessors, not copy them.
- */
-
-class IteratorFromCursor[ItemType <: HasCpy[ItemType], AccessorType <: Accessor[AccessorType]](
-  cursor: Cursor[AccessorType],
-  converter: AccessorType => ItemType)
-  extends IteratorWithPeek[ItemType] {
-
-  override def hasNext = cursor.inspect
-  override def next() = { Assert.invariant(cursor.advance); converter(cursor.advanceAccessor.cpy()) }
-  override def peek = { Assert.invariant(cursor.inspect); converter(cursor.inspectAccessor.cpy()) }
 }

@@ -6,6 +6,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.equality._
 
 abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
@@ -25,7 +26,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
     setupEncoding(state, erd)
 
     val nBits = getBitLength(state)
-    if (state.status ne Success) return
+    if (state.status _ne_ Success) return
     val dos = state.dataOutputStream
     val startingBitPos0b = dos.bitPos0b
     val isLimitOk = dos.withBitLengthLimit(nBits) {

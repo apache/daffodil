@@ -91,7 +91,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
       // starting with the character following that of the matched
       // delimiter until we reach end of data.
       //
-      Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
+      Assert.invariant(beforeDelimiter =#= DataInputStream.MarkPos.NoMarkPos)
       field.run(fieldReg)
       val dfaStatus = fieldReg.status
       fieldReg.actionNum = 0 // unnecessary?
@@ -268,7 +268,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           })
           if (!successes.isEmpty) {
             val (matchedDelim, matchedReg) = longestMatch(successes).get
-            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =:= escapeChar) {
+            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar) {
               if (hasEscCharAsDelimiter) { fieldReg.appendToField(escapeChar) }
               else if (escapeEscapeChar.isDefined)
                 fieldReg.appendToField(escapeEscapeChar.get)
