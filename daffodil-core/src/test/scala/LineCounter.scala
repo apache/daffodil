@@ -70,14 +70,15 @@ object LineCounter extends App {
         new LineCounter("daffodil source sbt", root, List("daffodil"), List("project")))),
       new LineCounter("daffodil unit test", root + "daffodil", srcModulesToInclude, List("src/test")),
       new LineCounterCombiner("daffodil tests and examples", List(
-        new LineCounter("daffodil tests and examples", root + "daffodil", List("daffodil-test", "daffodil-examples"), List("src/main", "src/test")),
+        new LineCounter("daffodil tests and examples", root + "daffodil", List("daffodil-test", "daffodil-examples"), List("src/main", "src/test"),
+          filesToExclude = List("pcap.tdml")),
         new LineCounter("daffodil 'ibm1' ibm-supplied tests", root + "daffodil", List("daffodil-test-ibm1"),
           List("src/main",
             "src/test/resources/test-suite/ibm-contributed",
             "src/test/scala",
             "src/test/scala-debug",
             "src/test/scala-new"),
-          fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".sbt"),
+          fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".sbt"), // not .xsd as we didn't write the schemas here.
           filesToExclude = List("TresysTests")),
         new LineCounter("daffodil 'ibm1' tresys-supplied tests", root + "daffodil", List("daffodil-test-ibm1"),
           List("src/main",
@@ -85,8 +86,9 @@ object LineCounter extends App {
             "src/test/scala",
             "src/test/scala-debug",
             "src/test/scala-new"),
-          filesToExclude = List("IBMTests")) // not .xsd as we didn't write the schemas here.
-          )),
+          filesToExclude = List("IBMTests",
+            "AT.tdml")) // giant mostly data tdml file.
+            )),
       new LineCounterCombiner("DFDLSchemas", List(
         // NACHA is separate due to the 2013 subdir, which we don't have a way to deal with yet
         new LineCounter("DFDLSchemas/NACHA", root + "DFDLSchemas/NACHA", List("2013"), List("src/test"),
@@ -129,11 +131,14 @@ trait LineCounterBase {
 
   protected final def linesWithoutCopyright(f: File): List[String] = {
     val srcContents = Source.fromFile(f).getLines().mkString("\n")
-    val srcNoCopyright: String = srcContents.replaceFirst("""(?i)(?s)Copyright\s+\(c\)\s+[\w\s-]{0,10}?\s+Tresys\s+Technology.+?\sOTHER.+?DEALINGS.+?WITH.+?THE.+?SOFTWARE\.""", "")
-    if (srcContents == srcNoCopyright)
-      System.err.println("No banner in " + f.toString)
-    else
-      System.err.println("Banner found in " + f.toString)
+    val srcNoCopyright: String = srcContents.replaceFirst(
+      """(?i)(?s)Copyright\s+\(c\)\s+[\w\s-]{0,10}?\s+Tresys\s+Technology""" +
+        """.+?\sOTHER.+?DEALINGS.+?WITH.+?THE.+?SOFTWARE\.""",
+      "")
+    //    if (srcContents == srcNoCopyright)
+    //      System.err.println("No banner in " + f.toString)
+    //    else
+    //      System.err.println("Banner found in " + f.toString)
     val lines: List[String] = srcNoCopyright.split("""\n""").toList
     lines
   }
