@@ -442,9 +442,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e7 xmlns="http://example.com">
-          <month>January</month>
           <day>23</day>
-          <hour>9</hour>
         </e7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -474,8 +472,6 @@
       <tdml:dfdlInfoset>
         <e9 xmlns="http://example.com">
           <NoSale>Monday</NoSale>
-          <month>month</month>
-          <price>36</price>
         </e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>

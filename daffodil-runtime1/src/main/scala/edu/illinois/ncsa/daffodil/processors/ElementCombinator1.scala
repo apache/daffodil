@@ -98,7 +98,7 @@ abstract class StatementElementParserBase(
 
   def parse(pstate: PState): Unit = {
 
-    if (patDiscrimParser.isDefined){
+    if (patDiscrimParser.isDefined) {
       val startingBitPos = pstate.dataInputStream.mark
       patDiscrimParser.get.parse1(pstate)
       // Pattern fails at the start of the Element
@@ -163,9 +163,9 @@ abstract class StatementElementParserBase(
       }
 
       if (testDiscrimParser.isDefined) {
-          testDiscrimParser.get.parse1(pstate)
-          // Tests fail at the end of the Element
-          if (pstate.status ne Success) { return }
+        testDiscrimParser.get.parse1(pstate)
+        // Tests fail at the end of the Element
+        if (pstate.status ne Success) { return }
       }
 
       //
@@ -347,7 +347,7 @@ class ChoiceStatementElementParser(
     val priorElement = currentElement.parent
     // Note: interaction of unboxed Maybe[T] with pass by name args of log method
     // require us to call toScalaOption here.
-    log(LogLevel.Debug, "priorElement = %s", Maybe.toScalaOption(priorElement))
+    log(LogLevel.Debug, "priorElement = %s", Maybe.WithNulls.toScalaOption(priorElement))
     move(pstate)
   }
 }

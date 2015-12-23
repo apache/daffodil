@@ -12,8 +12,8 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
-trait DataStreamCommonState {
-  def defaultCodingErrorAction: CodingErrorAction
+class DataStreamCommonState {
+
   var binaryFloatRep: BinaryFloatRep = BinaryFloatRep.Ieee
   var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
   var maybeCharWidthInBits: MaybeInt = MaybeInt.Nope
@@ -56,6 +56,9 @@ trait DataStreamCommonState {
 
 }
 
+/**
+ * Shared by both DataInputStream and DataOutputStream implementations
+ */
 trait DataStreamCommonImplMixin extends DataStreamCommon {
 
   protected def cst: DataStreamCommonState
@@ -88,7 +91,7 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
 
   final override def areDebugging = cst.debugging
 
-  final override def setDebugging(setting: Boolean) {
+  override def setDebugging(setting: Boolean) {
     if (bitPos0b > 0) throw new IllegalStateException("Must call before any access to data")
     cst.debugging = setting
   }

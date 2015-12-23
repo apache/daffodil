@@ -105,6 +105,15 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
       justificationTrim,
       e.elementRuntimeData)
 
+  // TODO: PERFORMANCE The unparser below currently uses the worst-case algorithm
+  // which is what is needed for utf-8 where we don't know the length in bytes/bits until we
+  // actually convert the utf-8 to bytes.
+  // However, it does this even if the string is ascii, i.e., known fixed width.
+  //
+  // Either here or in the grammar, we should be choosing an algorithm that
+  // if the encoding is known, if it is fixed width then we just calculate the fixed length in bytes/bits
+  // directly rather than calling a method that outputs the string to bytes in order to measure it.
+
   override lazy val unparser: Unparser =
     new StringOfSpecifiedLengthUnparser(unparsingPadChar,
       justificationPad,

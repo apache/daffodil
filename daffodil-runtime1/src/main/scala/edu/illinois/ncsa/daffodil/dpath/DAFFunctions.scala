@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.util.Maybe
 import Maybe._
@@ -48,8 +47,10 @@ case class DAFTrace(recipe: CompiledDPath, msg: String)
 
 case object DAFError extends RecipeOp {
   override def run(dstate: DState) {
-    val ie = dstate.pstate.infoset.asInstanceOf[DIElement]
-    val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(dstate.pstate.currentLocation), "The error function was called.")
+    val maybeSFL =
+      if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
+      else Nope
+    val pe = new ParseError(maybeSFL, dstate.contextLocation, "The error function was called.")
     throw pe
   }
 }

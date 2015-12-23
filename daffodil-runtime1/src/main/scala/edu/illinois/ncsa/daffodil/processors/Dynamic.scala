@@ -51,6 +51,10 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
  */
 trait Dynamic {
 
+  // TODO: Performance - is this cache necessary? Seems to only be used in text number format
+  // situations. Why would any of these be referenced more than once in parse or unparse of a simple
+  // text number type element?  (Can't these just be lazy val on the infoset element then?)
+
   // TODO: Performance - we should consider avoiding using an Either object here since they are
   // allocated every time this is called. Getting allocation down to where meaningful and necessary
   // objects are allocated is important, and little tuples and Some(..) and Right/Left objects
@@ -83,6 +87,26 @@ trait Dynamic {
   // at that level also.
   //
 
+  // We can use an AnyRef, and use either a value or a compiled expression, and methods that embed
+  // the cast, answer isExpression or isValue, etc.
+  // i.e, Create a value class named EitherOr that plays the same tricks as Maybe. Probably has to be
+  // special for CompiledExpression because we have to have a non-generic thing we can test for
+  // isInstanceOf that isn't erased. (Should build this right into compiled expression - i.e.,
+  // have evaluate method and getCache() method which returns object which has evaluate() also, but caches))
+  //
+  // However, we still have the box/unbox problem if the values of these are numbers. May not matter
+  // as these caches are not hit a lot.
+  //
+  // Dynamic is a mixin. It's used only in two places - escape schemes (because escChar and escescChar)
+  // and text number formats.
+  //
+  // The type A appears only as String, List[Char], Character. Generic [A] type may be overkill. Or
+  // generic should just call a common thing that is wired for String, List[Char] or Character, and has the
+  // converter built into it.
+  //
+  // There shouldn't be a need for NumFormat static and dynamic variants. That's a redundant distinction
+  // that is being hidden at this level in theory.
+  //
   type CachedDynamic[A] = Either[CompiledExpression, A]
 
   // Returns an Either, with Right being the value of the constant, and the

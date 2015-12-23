@@ -145,7 +145,14 @@ object Assert extends Assert {
    * the compiler can't assure you, but you still believe you are being exhaustive). Under program
    * maintenance people break these things. Hence, use this to catch those kinds of fall throughs.
    */
-  def impossibleCase() = impossible("should be no fall through to this case")
+  def impossibleCase(x: Any = null) = {
+    val extra =
+      if (x == null) ""
+      else " Value was: " + x + "."
+    impossible("Should be no fall through to this case." + extra)
+  }
+
+  def impossibleCase: Nothing = impossibleCase(null)
 
   /**
    * Use when a case or if/then analysis has fallen through to a situation that

@@ -54,6 +54,9 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.TransientParam
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.{ One, Nope }
+import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -122,6 +125,26 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
    */
   def evaluate(state: ParseOrUnparseState): Any
 
+  /**
+   * Use for outputValueCalc. It returns Nope if the expression was unable to be
+   * computed.
+   */
+  def evaluateForwardReferencing(state: ParseOrUnparseState): Any
+
+  /**
+   * If evaluateForwardReferencing returned One(x), then this is MaybeULong.Nope.
+   *
+   * If evaluateForwardReferencing returned Nope, then result.get is a ULong that
+   * is unique for each distinct place that the expression can block. If the same
+   * ULong value is returned after evaluating the expression a second time, that
+   * indicates that the expression is still blocked on the same issue.
+   *
+   * If all forward referencing expressions that are outstanding are returning
+   * the same value for this repeatedly, then there is a deadlock, where expressions
+   * are co-referencing.
+   */
+  def expressionEvaluationBlockLocation: MaybeULong
+
   override def toString(): String = "CompiledExpression(" + value.toString + ")"
 }
 
@@ -131,12 +154,29 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
 
   lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(v)
 
-  override lazy val prettyExpr = v.toString
+  /**
+   * Note use of the `stringOf(v)` below.
+   * Turns out `x.toString` creates some crappy printed representations,
+   * particularly for `Array[Byte]`. It prints a useless thing like "[@0909280".
+   * Use of `stringOf` prints "Array(....)".
+   */
+  override lazy val prettyExpr = stringOf(v)
 
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant: Any = v
   def evaluate(state: ParseOrUnparseState) = constant
+  def evaluate(dstate: DState, state: ParseOrUnparseState) = {
+    dstate.setCurrentValue(constant)
+    constant
+  }
+
+  def evaluateForwardReferencing(state: ParseOrUnparseState): Any = {
+    val res = evaluate(state)
+    res
+  }
+
+  def expressionEvaluationBlockLocation = MaybeULong.Nope
 
 }
 

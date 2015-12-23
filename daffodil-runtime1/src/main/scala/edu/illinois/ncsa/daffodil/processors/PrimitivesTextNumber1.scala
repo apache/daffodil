@@ -398,6 +398,7 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
 }
 
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) extends Serializable {
+
   protected def checkUnique(decimalSepList: Maybe[List[Char]],
     groupingSep: Maybe[Character],
     exponentRep: Maybe[String],
@@ -567,6 +568,10 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
 }
 
+//
+// TODO: Complexity - why do we need both Static and Dynamic variants of this?
+// CachedDynamic hides this distinction (or should), as does CompiledExpression underneath that.
+
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
   decimalSepExp: Maybe[CompiledExpression],
@@ -724,57 +729,4 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     numFormat
   }
 
-  //  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
-  //
-  //    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
-  //      (s: UState, c: Any) =>
-  //        {
-  //          getDecimalSepList(c.asInstanceOf[String], s)
-  //        }
-  //    }
-  //
-  //    val groupingSep = evalWithConversion(state, groupingSepCached) {
-  //      (s: UState, c: Any) =>
-  //        {
-  //          getGroupingSep(c.asInstanceOf[String], s)
-  //        }
-  //    }
-  //
-  //    val exponentRep = evalWithConversion(state, exponentRepCached) {
-  //      (s: UState, c: Any) =>
-  //        {
-  //          getExponentRep(c.asInstanceOf[String], s)
-  //        }
-  //    }
-  //
-  //    checkUnique(
-  //      decimalSepList,
-  //      groupingSep,
-  //      One(exponentRep),
-  //      infRep,
-  //      nanRep,
-  //      parserHelper.zeroRepListRaw,
-  //      state)
-  //
-  //    val generatedNumFormat =
-  //      generateNumFormat(
-  //        decimalSepList,
-  //        groupingSep,
-  //        exponentRep,
-  //        infRep,
-  //        nanRep,
-  //        checkPolicy,
-  //        pattern,
-  //        rounding,
-  //        roundingMode,
-  //        roundingInc)
-  //
-  //    val numFormat = new ThreadLocal[NumberFormat] {
-  //      override def initialValue() = {
-  //        generatedNumFormat
-  //      }
-  //    }
-  //
-  //    numFormat
-  //  }
 }

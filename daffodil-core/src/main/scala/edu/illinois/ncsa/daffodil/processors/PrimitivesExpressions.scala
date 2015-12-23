@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -58,6 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnp
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
@@ -200,14 +202,21 @@ abstract class ValueCalcBase(e: ElementBase)
 case class ValueCalc(
   override val baseName: String,
   e: ElementBase,
-  property: PropertyLookupResult)
+  property: PropertyLookupResult,
+  ovcRepUnparserGram: Gram = null)
   extends ValueCalcBase(e) {
 
   val exprProp = property.asInstanceOf[Found]
 
-  def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
+  def parser: DaffodilParser = {
+    Assert.usage(ovcRepUnparserGram eq null)
+    new IVCParser(expr, e.elementRuntimeData)
+  }
 
-  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData)
+  override def unparser: DaffodilUnparser = {
+    val ovcRepUnparser = ovcRepUnparserGram.unparser
+    new ElementOutputValueCalcUnparser(e.elementRuntimeData, ovcRepUnparser)
+  }
 
 }
 

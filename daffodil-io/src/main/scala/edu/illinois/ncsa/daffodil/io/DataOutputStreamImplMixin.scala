@@ -1,5 +1,6 @@
 package edu.illinois.ncsa.daffodil.io
 
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.Maybe.One
@@ -21,83 +22,76 @@ import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.equality._
 
-trait DataOutputStreamStateImplMixin extends DataStreamCommonState {
+class DataOutputStreamState extends DataStreamCommonState {
 
   def defaultCodingErrorAction: CodingErrorAction = CodingErrorAction.REPLACE
 
-  var fillByte: Int = 0
-  var encoder: CharsetEncoder = {
+  private val initialEncoder = {
     val enc = StandardCharsets.UTF_8.newEncoder
     enc.onMalformedInput(defaultCodingErrorAction)
     enc.onUnmappableCharacter(defaultCodingErrorAction)
     enc
   }
+
+  var fillByte: Int = 0
+  var encoder: CharsetEncoder = initialEncoder
+
   var codingErrorAction: CodingErrorAction = defaultCodingErrorAction
-
-  def assignFrom(other: DataOutputStreamStateImplMixin) = {
-    super.assignFrom(other)
-    this.fillByte = other.fillByte
-    this.encoder = other.encoder
-    this.codingErrorAction = other.codingErrorAction
-  }
-}
-
-class BasicDataOutputStreamState extends DataOutputStreamStateImplMixin {
 
   var bitPos0b: Long = 0
   var bitLimit0b: MaybeULong = MaybeULong.Nope
 
   var byteOrder: ByteOrder = ByteOrder.BigEndian
-  var debugOutputStream: ByteArrayOutputStream = null
+  var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
 
-  def assignFrom(other: BasicDataOutputStreamState) = {
+  def assignFrom(other: DataOutputStreamState) = {
     super.assignFrom(other)
+    this.fillByte = other.fillByte
+    // DO NOT SET THIS IT IS SET IN THE CALLER ; this.encoder = other.encoder
+    // DO NOT SET THIS IT IS SET IN THE CALLER ; this.codingErrorAction = other.codingErrorAction
     this.bitPos0b = other.bitPos0b
     this.bitLimit0b = other.bitLimit0b
     this.byteOrder = other.byteOrder
     this.debugOutputStream = other.debugOutputStream
   }
+
 }
 
-object BasicDataOutputStream {
-  def apply(chan: java.nio.channels.WritableByteChannel): DataOutputStream = {
-    val os = java.nio.channels.Channels.newOutputStream(chan)
-    BasicDataOutputStream(os)
+sealed trait DOSState
+private[io] case object Active extends DOSState
+private[io] case object Finished extends DOSState
+private[io] case object Uninitialized extends DOSState
+
+trait DataOutputStreamImplMixin extends DataOutputStream
+  with DataStreamCommonImplMixin
+  with LocalBufferMixin {
+
+  private var _dosState: DOSState = Active // active when new.
+
+  @inline protected def dosState = _dosState
+
+  @inline protected final def setDOSState(newState: DOSState) { _dosState = newState }
+
+  private[io] def isBuffering: Boolean
+
+  @inline private[io] final def isDead = { _dosState =:= Uninitialized }
+  @inline override final def isFinished = { _dosState =:= Finished }
+  @inline override def setFinished() { _dosState = Finished }
+  @inline private[io] final def isActive = { _dosState =:= Active }
+  @inline private[io] final def isReadOnly = { isFinished && isBuffering }
+  @inline private[io] final def isWritable = { isActive }
+  @inline private[io] final def isReadable = { !isDead }
+
+  final def encoder = {
+    Assert.usage(isReadable)
+    st.encoder
   }
 
-  def apply(os: java.io.OutputStream): DataOutputStream = new BasicDataOutputStream(os)
-}
-
-/**
- * Mixin to implement character-related methods in terms of more primitive
- * character-related methods.
- */
-private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixin {
-
-  protected def st: DataOutputStreamStateImplMixin
-
-  def putCharBuffer(cb: CharBuffer): Long
-
-  final def putString(str: String): Long = {
-    // must respect bitLimit0b if defined
-    // must not get encoding errors until a char is being written to the output
-    // otherwise we can't get precise encodingErrorPolicy='error' behavior.
-    withLocalCharBuffer { lcb =>
-      val cb = lcb.getBuf(str.length)
-      cb.append(str) // one copying hop
-      cb.flip
-      putCharBuffer(cb)
-    }
-  }
-
-  final def setFillByte(fillByte: Int) {
-    st.fillByte = fillByte
-  }
-
-  final def encoder = st.encoder
   final def setEncoder(encoder: CharsetEncoder): Unit = {
-    if (st.encoder == encoder) return
+    Assert.usage(isWritable)
+    if (this.encoder == encoder) return
     st.encoder = encoder
     st.encoder.onMalformedInput(st.codingErrorAction)
     st.encoder.onUnmappableCharacter(st.codingErrorAction)
@@ -124,7 +118,16 @@ private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixi
     st.encodingMandatoryAlignmentInBits = mandatoryAlignInBits
   }
 
+  final def encodingErrorPolicy = {
+    Assert.usage(isReadable)
+    st.codingErrorAction match {
+      case CodingErrorAction.REPLACE => EncodingErrorPolicy.Replace
+      case CodingErrorAction.REPORT => EncodingErrorPolicy.Error
+    }
+  }
+
   final def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = {
+    Assert.usage(isWritable)
     st.codingErrorAction = eep match {
       case EncodingErrorPolicy.Replace => CodingErrorAction.REPLACE
       case EncodingErrorPolicy.Error => CodingErrorAction.REPORT
@@ -134,26 +137,44 @@ private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixi
     ()
   }
 
-}
-
-class BasicDataOutputStream private (realStream: java.io.OutputStream,
-  protected final val st: BasicDataOutputStreamState = new BasicDataOutputStreamState)
-  extends DataOutputStream with DataOutputStreamCharImplMixin {
-
-  private lazy val outStream = {
-    if (areDebugging) {
-      if (st.debugOutputStream == null) {
-        val dataCopyStream = new ByteArrayOutputStream()
-        st.debugOutputStream = dataCopyStream
-      }
-      val teeStream = new TeeOutputStream(realStream, st.debugOutputStream)
-      teeStream
-    } else realStream
+  final def setFillByte(fillByte: Int) {
+    Assert.usage(isWritable)
+    st.fillByte = fillByte
   }
 
-  protected final def cst: DataStreamCommonState = st
+  protected def setJavaOutputStream(newOutputStream: java.io.OutputStream): Unit
 
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = ???
+  protected def getJavaOutputStream(): java.io.OutputStream
+
+  protected val st: DataOutputStreamState = new DataOutputStreamState
+  final protected def cst = st
+
+  def assignFrom(other: DataOutputStreamImplMixin) {
+    Assert.usage(isWritable)
+    this.st.assignFrom(other.st)
+    this.setEncoder(other.encoder)
+    this.setEncodingErrorPolicy(other.encodingErrorPolicy)
+  }
+
+  /**
+   * just a synonym
+   */
+  private final def realStream = getJavaOutputStream()
+
+  final override def setDebugging(setting: Boolean) {
+    Assert.usage(isWritable)
+    Assert.usage(!areDebugging)
+    super.setDebugging(setting)
+    val dataCopyStream = new ByteArrayOutputStream()
+    st.debugOutputStream = One(dataCopyStream)
+    val teeStream = new TeeOutputStream(realStream, dataCopyStream)
+    setJavaOutputStream(teeStream)
+  }
+
+  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = {
+    Assert.usage(isWritable)
+    ???
+  }
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
     val endBitPos0b = bitPos0b + (lengthInBytes * 8)
@@ -163,16 +184,25 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
   }
 
   def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = {
+    Assert.usage(isWritable)
     Assert.notYetImplemented(st.bitPos0b % 8 != 0, "non-byte-aligned data")
-    if (exceedsBitLimit(lengthInBytes)) return 0
-    outStream.write(ba, byteStartOffset0b, lengthInBytes)
-    st.bitPos0b += lengthInBytes * 8
-    lengthInBytes
+    val nBytes =
+      if (exceedsBitLimit(lengthInBytes)) {
+        val n = (bitLimit0b.get - bitPos0b) / 8
+        Assert.invariant(n >= 0)
+        n
+      } else {
+        lengthInBytes
+      }
+    realStream.write(ba, byteStartOffset0b, nBytes.toInt)
+    st.bitPos0b += nBytes * 8
+    nBytes
   }
 
-  def putBytes(ba: Array[Byte]) = putBytes(ba, 0, ba.length)
+  def putBytes(ba: Array[Byte]): Long = putBytes(ba, 0, ba.length)
 
   def putByteBuffer(bb: java.nio.ByteBuffer): Long = {
+    Assert.usage(isWritable)
     val nTransferred =
       if (bb.hasArray) {
         putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining())
@@ -180,14 +210,28 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
         Assert.notYetImplemented(st.bitPos0b % 8 != 0, "non-byte-aligned data")
         val lengthInBytes = bb.remaining
         if (exceedsBitLimit(lengthInBytes)) return 0
-        val chan = Channels.newChannel(outStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
+        val chan = Channels.newChannel(realStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
         st.bitPos0b += lengthInBytes * 8
         chan.write(bb)
       }
     nTransferred
   }
 
+  final def putString(str: String): Long = {
+    Assert.usage(isWritable)
+    // must respect bitLimit0b if defined
+    // must not get encoding errors until a char is being written to the output
+    // otherwise we can't get precise encodingErrorPolicy='error' behavior.
+    withLocalCharBuffer { lcb =>
+      val cb = lcb.getBuf(str.length)
+      cb.append(str) // one copying hop
+      cb.flip
+      putCharBuffer(cb)
+    }
+  }
+
   def putCharBuffer(cb: java.nio.CharBuffer): Long = {
+    Assert.usage(isWritable)
     val nToTransfer = cb.remaining()
     if (!align(st.encodingMandatoryAlignmentInBits)) return 0
     // must respect bitLimit0b if defined
@@ -216,10 +260,12 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
 
   def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
     // must respect bitLimit0b if defined
+    Assert.usage(isWritable)
     ???
   }
 
   def skip(nBits: Long): Boolean = {
+    Assert.usage(isWritable)
     Assert.notYetImplemented(nBits % 8 != 0, "skips that aren't a multiple of 8 bits")
     if (bitLimit0b.isDefined) {
       val lim = bitLimit0b.get
@@ -229,25 +275,38 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     while (nBytes > 0) {
       nBytes -= 1
       st.bitPos0b += 8
-      outStream.write(st.fillByte)
+      realStream.write(st.fillByte)
     }
     true
   }
 
   // Members declared in DataStreamCommon
-  def bitLimit0b: MaybeULong = st.bitLimit0b
-  def bitPos0b: Long = st.bitPos0b
-  def setBitPos0b(bitPos0b: Long) = st.bitPos0b = bitPos0b
+  def bitLimit0b: MaybeULong = {
+    Assert.usage(isReadable)
+    st.bitLimit0b
+  }
+  def bitPos0b: Long = {
+    Assert.usage(isReadable)
+    st.bitPos0b
+  }
+  def setBitPos0b(bitPos0b: Long) = {
+    Assert.usage(isWritable)
+    st.bitPos0b = bitPos0b
+  }
 
-  def futureData(nBytesRequested: Int): ByteBuffer = ByteBuffer.allocate(0)
+  def futureData(nBytesRequested: Int): ByteBuffer = {
+    Assert.usage(isReadable)
+    ByteBuffer.allocate(0)
+  }
 
   def pastData(nBytesRequested: Int): ByteBuffer = {
+    Assert.usage(isReadable)
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
-    if (st.debugOutputStream == null) {
+    if (st.debugOutputStream == Nope) {
       ByteBuffer.allocate(0)
     } else {
-      val arr = st.debugOutputStream.toByteArray()
+      val arr = st.debugOutputStream.get.toByteArray()
       val bb = ByteBuffer.wrap(arr)
       val sz = math.max(0, arr.length - nBytesRequested)
       bb.limit(arr.length)
@@ -257,19 +316,27 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
   }
 
   def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = {
+    Assert.usage(isWritable)
     if (st.bitLimit0b.isDefined && bitLimit0b.isDefined)
       if (bitLimit0b.get > st.bitLimit0b.get) return false
     st.bitLimit0b = bitLimit0b
     true
   }
 
-  final protected[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
+  final override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
+    Assert.usage(isWritable)
     st.bitLimit0b = savedBitLimit0b
   }
 
-  def setByteOrder(byteOrder: ByteOrder): Unit = st.byteOrder = byteOrder
+  def setByteOrder(byteOrder: ByteOrder): Unit = {
+    Assert.usage(isWritable)
+    st.byteOrder = byteOrder
+  }
 
-  def byteOrder: ByteOrder = st.byteOrder
+  def byteOrder: ByteOrder = {
+    Assert.usage(isReadable)
+    st.byteOrder
+  }
 
   def validateFinalStreamState {
     // nothing to validate

@@ -57,6 +57,8 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.dpath.DState
+import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
@@ -79,6 +81,31 @@ sealed trait DINode {
   def filledSlots: IndexedSeq[DINode]
   final def numChildren = filledSlots.length
 
+  /*
+   * Unparser specific things
+   */
+  /**
+   * Indicates that no more children can be added to this node
+   * and that its value will not be set if it isn't already here.
+   *
+   * This transitions to true once an End(Node) Infoset event has
+   * been processed.
+   *
+   * If this is true, then expressions referencing this node never
+   * need to suspend. Any suspended expressions at the time this
+   * is set to true, become unsuspended and are evaluated.
+   *
+   * That may result in success or failure of the expression. E.g.,
+   * an expression that is pending on traversing to a child with a particular
+   * ERD, if the node is closed without that child being added, then
+   * the expression will fail.
+   */
+  private var _isClosed: Boolean = false
+  def setClosed() {
+    _isClosed = true
+  }
+  def isClosed: Boolean = _isClosed
+
 }
 
 /**
@@ -86,27 +113,11 @@ sealed trait DINode {
  * slot being probed. E.g., expression evaluation reaching to a forward
  * sibling that has not yet been parsed.
  */
-class InfosetNoSuchChildElementException(msg: String) extends ProcessingError("Error", Nope, Nope, msg) {
-  def this(erd: ElementRuntimeData) = this("Child element %s does not exist.".format(erd.prettyName))
+class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
+  extends ProcessingError("Error", Nope, Nope, "Child element %s does not exist.", info.namedQName)
 
-  def this(name: String, namespace: NS, slot: Int) = this("Child named '" + name +
-    (if (namespace == NoNamespace) "' " else "' in namespace '%s' ".format(namespace)) +
-    "(slot " + slot + ") does not exist.")
-
-  override def getMessage: String = msg
-}
-
-class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError("Error", Nope, Nope, msg) {
-  def this(name: String, namespace: NS, slot: Long, length: Long) = {
-    this("Value %d is out of range for the '%s' array%swith length %d".format(
-      slot,
-      name,
-      if (namespace == NoNamespace) " " else " in namespace '%s' ".format(namespace),
-      length))
-  }
-
-  override def getMessage: String = msg
-}
+class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
+  extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
 
 /**
  * Used to determine if expressions can be evaluated without any nodes.
@@ -150,6 +161,8 @@ sealed trait DIElement extends DINode with InfosetElement {
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
+
+  def isRoot = parent.isInstanceOf[DIDocument]
 
   /**
    * Note: there is no infoset data member for isHidden. A hidden group is
@@ -251,7 +264,7 @@ final class DIArray(
    */
   def getOccurrence(occursIndex1b: Long) = {
     if (occursIndex1b > length || occursIndex1b < 1)
-      throw new InfosetArrayIndexOutOfBoundsException(namedQName.local, namedQName.namespace, occursIndex1b, length)
+      throw new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length)
     _contents(occursIndex1b.toInt - 1)
   }
 
@@ -286,7 +299,7 @@ final class DIArray(
  * This should be caught in contexts that want to undertake on-demand
  * evaluation of the OVC expression.
  */
-case class OutputValueCalcEvaluationException(val erd: ElementRuntimeData)
+case class OutputValueCalcEvaluationException(val diSimple: DISimple)
   extends Exception with ThinThrowable
 
 sealed class DISimple(override val erd: ElementRuntimeData)
@@ -312,8 +325,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   }
 
   override def setDataValue(x: Any) {
-    Assert.invariant(!hasValue) // Might get us in trouble with conversions for text numbers.
-    overwriteDataValue(x)
+    Assert.invariant(!hasValue)
+    overwriteDataValue(x) // conversions for text numbers displace the string with the number.
   }
 
   def overwriteDataValue(x: Any) {
@@ -353,7 +366,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
    * Obtain the data value. Implements default
    * values, and outputValueCalc for unparsing.
    */
-  override def dataValue = {
+  override def dataValue: Any = {
     if (_value == null)
       if (erd.optDefaultValue.isDefined) {
         val defaultVal = erd.optDefaultValue.get
@@ -363,7 +376,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         // want calling context to evaluate the expression.
         // It has the information needed to provide the proper
         // context
-        throw new OutputValueCalcEvaluationException(erd)
+        throw new OutputValueCalcEvaluationException(this)
       }
     this.erd.schemaDefinitionUnless(_value != null, "Value has not been set.")
     _value
@@ -527,57 +540,50 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   override lazy val filledSlots: IndexedSeq[DINode] = slots.filter { _ ne null }
 
-  override def children = _slots.map { s => if (Maybe.isDefined(s)) Some(s) else None }.flatten.toStream
+  override def children = _slots.map { s => if (Maybe.WithNulls.isDefined(s)) Some(s) else None }.flatten.toStream
 
-  final override def getChild(erd: ElementRuntimeData): InfosetElement = {
-    val res = getChildMaybe(erd)
+  final override def getChild(erd: ElementRuntimeData): InfosetElement = getChild(erd.dpathElementCompileInfo)
+
+  final def getChild(info: DPathElementCompileInfo): InfosetElement = {
+    val res = getChildMaybe(info)
     if (res ne null) res
     else {
-      if (erd.optDefaultValue.isDefined) {
-        val dv = erd.optDefaultValue.get
-        val dis = new DISimple(erd)
-        dis.setDefaultedDataValue(dv)
-        dis
-      } else {
-        throw new InfosetNoSuchChildElementException(erd)
-      }
+      throw new InfosetNoSuchChildElementException(this, info)
     }
   }
 
   final override def getChildMaybe(erd: ElementRuntimeData): InfosetElement =
-    getChildMaybe(erd.slotIndexInParent)
+    getChildMaybe(erd.dpathElementCompileInfo)
 
-  final def getChild(slot: Int): InfosetElement = {
-    val res = getChildMaybe(slot)
+  final def getChildMaybe(info: DPathElementCompileInfo): InfosetElement = {
+    val slot = info.slotIndexInParent
+    val res = getChildOrNull(slot)
     if (res ne null) res
     else {
-      if (erd.optDefaultValue.isDefined) {
-        val dv = erd.optDefaultValue.get
-        val dis = new DISimple(erd)
-        dis.setDefaultedDataValue(dv)
-        dis
-      } else {
-        val namedQName = erd.childERDs(slot).namedQName
-        throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
-      }
+      throw new InfosetNoSuchChildElementException(this, info)
     }
   }
 
   /**
    * Returns null if there is no child element in that slot
    */
-  final def getChildMaybe(slot: Int): InfosetElement = {
+  final def getChildOrNull(slot: Int): InfosetElement = {
     val s = _slots(slot)
     s.asInstanceOf[InfosetElement]
   }
 
-  final def getChildArray(info: ElementRuntimeData): InfosetArray = {
+  final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
+    Assert.usage(childERD.isArray)
+    getChildArray(childERD.dpathElementCompileInfo)
+  }
+
+  final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
     Assert.usage(info.isArray)
     val slot = info.slotIndexInParent
     getChildArray(slot)
   }
 
-  final def getChildArray(slot: Int): InfosetArray = {
+  private def getChildArray(slot: Int): InfosetArray = {
     val slotVal = _slots(slot)
     if (slotVal ne null)
       slotVal match {
@@ -585,10 +591,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
         case _ => Assert.usageError("not an array")
       }
     else {
-      val info = erd.childERDs(slot)
+      val arrayERD = erd.childERDs(slot)
       // slot is null. There isn't even an array object yet.
       // create one (it will have zero entries)
-      val ia = new DIArray(info, this)
+      val ia = new DIArray(arrayERD, this)
       // no array there yet. So we have to create one.
       setChildArray(slot, ia)
       ia
@@ -655,7 +661,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     var i = _lastSlotAdded
     while (i > ss.lastSlotAdded) {
       _slots(i) = null
-      i -=1
+      i -= 1
     }
     _lastSlotAdded = ss.lastSlotAdded
 

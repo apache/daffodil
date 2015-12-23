@@ -71,8 +71,7 @@ case class ConvertTextNumberUnparser[S](
 
   def unparse(state: UState): Unit = {
 
-    val event: InfosetAccessor = state.inspectOrError
-    val node = event.node.asSimple
+    val node = state.currentInfosetNode.asSimple
     val value = node.dataValue
 
     // The type of value should have the type of S, but type erasure makes this

@@ -68,7 +68,7 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
 }
 
 /**
- * Vast majority of unparsers (all?) are actually Term unparsers.
+ * Vast majority of unparsers are actually Term unparsers. (The ones that are not are expression related e.g., SetVar)
  */
 abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends Unparser(termRuntimeData)
 

@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dpath
 import scala.xml.NodeSeq.seqToNodeSeq
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
@@ -53,12 +54,19 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
   def toXML = <CompiledDPath>{ ops.map { _.toXML } }</CompiledDPath>
 
-  def runExpression(state: ParseOrUnparseState) {
-    val dstate = state.dstate
+  /**
+   * For parsing or for backward-referencing expressions when unparsing.
+   */
+  def runExpression(state: ParseOrUnparseState, expr: CompiledExpression) {
+    val dstate = state.dState
     dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
     dstate.setVMap(state.variableMap)
-    dstate.setPUState(state)
+    dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
+    dstate.setArrayPos(state.arrayPos)
+    dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
+    dstate.setErrorOrWarn(state)
     dstate.resetValue
+    dstate.setMode(NonBlocking)
     run(dstate)
   }
 
@@ -108,13 +116,36 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     res
   }
 
+  /**
+   * Keeps track of which op it is currenly running in the dstate.
+   *
+   * This allows a restart at that same location inorder to retry
+   * exactly what it was doing before.
+   */
   def run(dstate: DState) {
-    var i = 0
-    // Assert.invariant(ops.length > 0)
-    while (i < ops.length) {
-      val op = ops(i)
-      op.run(dstate)
-      i = i + 1
+    if (dstate.mode == Blocking) {
+      Assert.invariant(ops.length > 0)
+      Assert.invariant(dstate.opIndex < ops.length)
+      while (dstate.opIndex < ops.length) {
+        val op = ops(dstate.opIndex)
+        op.run(dstate)
+        dstate.opIndex += 1
+      }
+      //
+      // The assumption here is that the code exits via a throw if a "restart"
+      // of the op may be needed. Hence, this assignment back to 0 does not happen.
+      // This assignment back to 0 only happens if the expression evaluates completely.
+      //
+      dstate.opIndex = 0
+    } else {
+      // non-blocking mode
+      dstate.opIndex = 0
+      var i = 0
+      while (i < ops.length) {
+        val op = ops(i)
+        op.run(dstate)
+        i += 1
+      }
     }
   }
 }

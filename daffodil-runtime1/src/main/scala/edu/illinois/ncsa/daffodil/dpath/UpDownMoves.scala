@@ -78,7 +78,7 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    dstate.setCurrentNode(now.getChild(info.slotIndexInParent).asInstanceOf[DIElement])
+    dstate.setCurrentNode(now.getChild(info).asInstanceOf[DIElement])
   }
 
   override def toXML = {
@@ -118,7 +118,7 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info.slotIndexInParent)
+    val arr = now.getChildArray(info)
     Assert.invariant(arr ne null)
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
@@ -133,9 +133,9 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info.slotIndexInParent)
+    val arr = now.getChildArray(info)
 
-    if ((arr eq null) || arr.length == 0) throw new InfosetNoSuchChildElementException("Array does not exist.")
+    if ((arr eq null) || arr.length == 0) throw new InfosetNoSuchChildElementException(now, info)
   }
 
   override def toXML = {

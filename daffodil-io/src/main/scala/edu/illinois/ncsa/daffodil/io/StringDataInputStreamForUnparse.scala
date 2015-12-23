@@ -19,8 +19,10 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
  * string data being unparsed as a DataInputStream.
  */
 final class StringDataInputStreamForUnparse
-  extends DataInputStream {
+  extends DataInputStreamImplMixin {
   import DataInputStream._
+
+  final protected val cst = new DataStreamCommonState
 
   var str: String = null
   var dis: DataInputStream = null
@@ -41,14 +43,11 @@ final class StringDataInputStreamForUnparse
 
   private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
 
-  def areDebugging: Boolean = false
-
   def asIteratorChar: DataInputStream.CharIterator = {
     Assert.usage(dis != null, "Must call reset(str) before any other method.")
     dis.asIteratorChar
   }
 
-  override def align(bitAlignment1b: Int): Boolean = dis.align(bitAlignment1b)
   override def bitLimit0b = dis.bitLimit0b
   override def bitPos0b: Long = dis.bitPos0b
   override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
@@ -61,8 +60,6 @@ final class StringDataInputStreamForUnparse
   override def getSignedLong(bitLengthFrom1To64: Int): Long = doNotUse
   override def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
   override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
-  override def isAligned(bitAlignment1b: Int): Boolean = dis.isAligned(bitAlignment1b)
-  override def limits: DataStreamCommon.Limits = dis.limits
   override def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
     dis.lookingAt(matcher, initialRegexMatchLimitInChars)
   override def mark: DataInputStream.Mark = dis.mark
@@ -70,9 +67,7 @@ final class StringDataInputStreamForUnparse
   override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
   override def resetPos(m: MarkPos) = dis.resetPos(m)
-  override def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit = doNotUse
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
-  override def setBitOrder(bitOrder: BitOrder): Unit = doNotUse
   override def setByteOrder(byteOrder: ByteOrder): Unit = doNotUse
   override def byteOrder: ByteOrder = doNotUse
   // override def setCharWidthInBits(charWidthInBits: MaybeInt): Unit = doNotUse
@@ -81,12 +76,9 @@ final class StringDataInputStreamForUnparse
   override def setDecoder(decoder: java.nio.charset.CharsetDecoder): Unit = doNotUse
   override def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = doNotUse
   // override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = doNotUse
-  override def setLimits(newLimits: DataStreamCommon.Limits): Unit = doNotUse
-  override def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = doNotUse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
   override def skip(nBits: Long): Boolean = doNotUse
   override def skipChars(nChars: Long): Boolean = getString(nChars).isDefined
-  override def remainingBits: MaybeULong = doNotUse
-  override protected[io] def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
+  override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
   override def validateFinalStreamState {} // does nothing
 }

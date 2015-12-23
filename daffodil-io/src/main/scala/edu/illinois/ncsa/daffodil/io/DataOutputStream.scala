@@ -62,4 +62,15 @@ trait DataOutputStream extends DataStreamCommon {
    */
   def putString(str: String): Long
   def putCharBuffer(cb: CharBuffer): Long
+
+  /**
+   * Force buffered content to output if possible.
+   */
+  def flush(): Unit
+
+  /**
+   * close-out this output stream. No more writing to this after.
+   */
+  def setFinished(): Unit
+  def isFinished: Boolean
 }

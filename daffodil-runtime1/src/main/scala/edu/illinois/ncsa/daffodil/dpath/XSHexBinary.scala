@@ -64,7 +64,12 @@ trait HexBinaryKind {
   protected def reduce(numeric: Any): Array[Byte] = {
     val res: Array[Byte] = numeric match {
       case b: Byte => HexBinaryConversions.toByteArray(b)
-      case s: Short if (s <= Byte.MaxValue && s >= Byte.MinValue) => reduce(s.toByte)
+      //
+      // Note -128 to 255 are converted to bytes. This means signed or unsigned bytes
+      // will stay at size 1 byte. This prevents bytes like 0xD0 from turning
+      // into 00D0 and occupying 4 characters instead of two.
+      //
+      case s: Short if (s <= 255 && s >= Byte.MinValue) => reduce(s.toByte)
       case s: Short => HexBinaryConversions.toByteArray(s)
       case i: Int if (i <= Short.MaxValue && i >= Short.MinValue) => reduce(i.toShort)
       case i: Int => HexBinaryConversions.toByteArray(i)

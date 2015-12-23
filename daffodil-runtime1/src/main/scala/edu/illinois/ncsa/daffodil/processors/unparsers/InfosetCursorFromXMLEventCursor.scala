@@ -47,7 +47,10 @@ import edu.illinois.ncsa.daffodil.processors.ProcessingError
  */
 private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo: ElementRuntimeData)
   extends InfosetCursor
-  with CursorImplMixin[InfosetAccessor] {
+  with CursorImplMixin[InfosetAccessor]
+  with InvertControl[InfosetAccessor] {
+
+  private def iter = this.asInstanceOf[InvertControl[InfosetAccessor]]
 
   /**
    * Fills current accessor with next infoset event.
@@ -86,7 +89,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
   //    println(this)
   //  }
 
-  private lazy val iter: InvertControl[InfosetAccessor] = new InvertControl[InfosetAccessor]({
+  def body {
     try {
       nodeStack.push(diDoc)
       recursivelyCreateTreeFromXMLEvents(nodeStack)
@@ -96,7 +99,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
       case rsde: RuntimeSchemaDefinitionError => iter.setFinal(rsde)
       case pe: ProcessingError => iter.setFinal(pe)
     }
-  })
+  }
 
   @tailrec
   private def recursivelyCreateTreeFromXMLEvents(parents: NodeStack) {
@@ -279,7 +282,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
 
   private def createNewSimpleElement(evStart: EvStart, erd: ElementRuntimeData): DISimple = {
     val newNode = new DISimple(erd)
-    if (evStart.isNil) {
+    if (erd.isNillable && evStart.isNil) {
       newNode.setNilled()
     }
     newNode

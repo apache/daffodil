@@ -44,7 +44,10 @@ trait Pool[T <: AnyRef] {
    * the pool, but then dropped.
    */
   final def finalCheck {
-    Assert.invariant(numOutstanding =#= 0)
+    if (!(numOutstanding =#= 0)) {
+      val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)."
+      Assert.invariantFailed(msg)
+    }
   }
 
 }

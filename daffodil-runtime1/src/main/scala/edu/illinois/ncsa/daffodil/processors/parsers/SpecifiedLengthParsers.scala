@@ -39,7 +39,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
     val dis = pState.dataInputStream
 
     val startingBitPos0b = dis.bitPos0b
-    val isLimitOk = dis.withBitLengthLimit(nBits) {
+    val isLimitOk = dis.withBitLengthLimit(dis, nBits) {
       eParser.parse1(pState)
     }
     if (!isLimitOk) {

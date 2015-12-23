@@ -2,6 +2,8 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetDocument
+import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.Infoset
@@ -11,7 +13,7 @@ import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 /**
  * Iterates an infoset tree, handing out elements one by one in response to pull calls.
  */
-private[unparsers] class InfosetCursorFromTree(doc: InfosetDocument)
+private[unparsers] class InfosetCursorFromTree(item: InfosetItem)
   extends InfosetCursor
   with CursorImplMixin[InfosetAccessor] {
 
@@ -20,7 +22,15 @@ private[unparsers] class InfosetCursorFromTree(doc: InfosetDocument)
 
   private var visitKind: InfosetEventKind = StartKind
 
-  nodeStack.push(doc.getRootElement().asInstanceOf[DINode])
+  val node = {
+    val res = item match {
+      case doc: InfosetDocument => doc.getRootElement()
+      case el: InfosetElement => el
+    }
+    res.asInstanceOf[DINode]
+  }
+
+  nodeStack.push(node)
   indexStack0b.push(0)
 
   /**

@@ -10696,7 +10696,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tdml:dfdlHexBinary02>00D0</tdml:dfdlHexBinary02>
+        <tdml:dfdlHexBinary02>D0</tdml:dfdlHexBinary02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

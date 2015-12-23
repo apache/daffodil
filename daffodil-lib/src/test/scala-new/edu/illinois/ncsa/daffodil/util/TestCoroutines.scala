@@ -58,10 +58,12 @@ private class TestInvertControl {
     // Wrap the initial call that starts the library in the
     // InvertControl class.
     //
-    val iter = new InvertControl[JInt]({
+    val iter = new InvertControl[JInt] {
+      def body {
       // this argument is the code to call to run the library
       cb.doIt(List(1, 2, 3)) // not executed until we start iterating
-    })
+    }
+    }
 
     //
     // define a handler as the library requires
@@ -105,7 +107,8 @@ private class TestInvertControl {
     // Wrap the initial call that starts the library in the
     // InvertControl class.
     //
-    lazy val iter: InvertControl[JInt] = new InvertControl[JInt]({
+    lazy val iter: InvertControl[JInt] = new InvertControl[JInt]{
+      def body {
       // this argument is the code to call to run the library
       var wasThrown = false
       try {
@@ -117,7 +120,8 @@ private class TestInvertControl {
       }
       assertTrue(wasThrown)
       sprintln("NotThreadSafeLibrary exiting")
-    })
+    }
+    }
 
     //
     // define a handler as the library requires

@@ -32,6 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+
 case object FNCount extends RecipeOp {
   override def run(dstate: DState) {
     dstate.setCurrentValue(dstate.arrayLength)
@@ -58,11 +60,23 @@ case object FNExactlyOne extends RecipeOp {
     //    }
     //    else { throw new Exception("fn:exactly-one called with a sequence containing zero or more than one item.") }
 
+    //
+    //This was commented out in 6c9612e9f711beb1d8e4239ef9a473eb9c64a32f, which as the commit message:
+    //
+    //    Implements fn:exactly-one function, but comments out the functionality as the function
+    //    is useless until query-style path expressions are allowed/implemented. Yields a subsetError
+    //    until such time.
+
+    // The reason queries are needed is that without them, well, the answer to this has to be true, as
+    // there are no functions which return zero nor more than one node.
+    //
+    dstate.SDE("Subset - fn:exactly-one is not implemented by Daffodil.")
   }
 }
 
 case object DFDLOccursIndex extends RecipeOp {
   override def run(dstate: DState) {
-    dstate.setCurrentValue(dstate.pstate.mpstate.arrayPos)
+    Assert.invariant(dstate.arrayPos >= 1)
+    dstate.setCurrentValue(dstate.arrayPos)
   }
 }

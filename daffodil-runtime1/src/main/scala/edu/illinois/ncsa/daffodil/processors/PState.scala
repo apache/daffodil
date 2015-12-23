@@ -72,7 +72,6 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.dpath.ParseMode
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
@@ -119,8 +118,6 @@ object MPState {
 }
 
 case class MPState() {
-
-  val dstate: DState = new DState
   val arrayIndexStack = new MStack.OfLong
   arrayIndexStack.push(1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
@@ -146,7 +143,7 @@ case class MPState() {
   def occursBounds = occursBoundsStack.top
 
   var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
-  var currentDelimsCooked : Maybe[List[String]] = Nope
+  var currentDelimsCooked: Maybe[List[String]] = Nope
   var currentFieldDFA: Maybe[DFAField] = Nope
   var currentParser: Maybe[TextDelimitedParserBase] = Nope
 
@@ -207,6 +204,9 @@ case class TupleForDebugger(
   val bitLimit0b: MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
+class DecoderCache extends mutable.HashMap[Charset, CharsetDecoder]
+class EncoderCache extends mutable.HashMap[Charset, CharsetEncoder]
+
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -219,20 +219,26 @@ case class TupleForDebugger(
  * places where points-of-uncertainty are handled.
  */
 abstract class ParseOrUnparseState(
-  dstateArg: DState,
   var variableMap: VariableMap,
   var diagnostics: List[Diagnostic],
-  var dataProc: DataProcessor) extends DFDL.State
+  var dataProc: DataProcessor,
+  initialDecoderCache: DecoderCache = new DecoderCache(),
+  initialEncoderCache: EncoderCache = new EncoderCache()) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE with SavesErrorsAndWarnings
   with LocalBufferMixin {
 
-  val dstate = {
-    setMode(dstateArg)
-    dstateArg
-  }
+  private val _dState = new DState
 
-  def setMode(dstate: DState): Unit
+  /**
+   * Used when evaluating expressions. Holds state of expression
+   * during evaluation.
+   *
+   * Doesn't hold every bit of state - that is to say there's still the
+   * regular execution call stack, which
+   * keeps track of exactly where in the expression evaluation we are.
+   */
+  def dState = _dState
 
   def copyStateForDebugger = {
     TupleForDebugger(
@@ -314,8 +320,14 @@ abstract class ParseOrUnparseState(
     diagnostics = rsdw :: diagnostics
   }
 
-  private val decoderCache = new mutable.HashMap[Charset, CharsetDecoder]()
-  private val encoderCache = new mutable.HashMap[Charset, CharsetEncoder]()
+  /**
+   * The reason for these caches is that otherwise to
+   * get a decoder you have to take the Charset and call
+   * newDecoder which allocates. We always want the same one for a given
+   * thread using Daffodil to parse/unparse with a particular PState/UState.
+   */
+  protected val decoderCache = initialDecoderCache
+  protected val encoderCache = initialEncoderCache
 
   def getDecoder(charset: Charset): CharsetDecoder = {
     // threadCheck()
@@ -350,12 +362,10 @@ final class PState private (
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var foundDelimiter: Maybe[FoundDelimiterText])
-  extends ParseOrUnparseState(mpstate.dstate, vmap, diagnosticsArg, dataProcArg) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, dataProcArg) {
 
   val discriminatorStack = new MStack.OfBoolean
   discriminatorStack.push(false)
-
-  def setMode(dstate: DState) = dstate.setMode(ParseMode)
 
   override def dataStream: DataStreamCommon = dataInputStream
 

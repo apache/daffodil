@@ -141,6 +141,9 @@ class ProcessorFactory(val sset: SchemaSet)
     ExecutionMode.usingCompilerMode {
       Assert.usage(canProceed)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
+      val rootERD = rootElem.elementRuntimeData
+      rootElem.schemaDefinitionUnless(rootERD.outputValueCalcExpr.isEmpty,
+        "The root element cannot have the dfdl:outputValueCalc property.")
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
       val p = if (rootElem.canProceed) parser else null
@@ -149,7 +152,7 @@ class ProcessorFactory(val sset: SchemaSet)
         p,
         u,
         this.diagnostics,
-        rootElem.elementRuntimeData,
+        rootERD,
         variables,
         validationMode)
       CheckJavaVersion.checkJavaVersion(ssrd)

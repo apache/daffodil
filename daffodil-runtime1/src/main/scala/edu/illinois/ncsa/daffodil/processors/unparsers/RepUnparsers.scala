@@ -140,7 +140,7 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
   extends RepUnparser(-1, rUnparser, erd, "Unbounded") {
 
   def unparseAllRepeats(ustate: UState) {
-    Assert.invariant(Maybe.isDefined(ustate.currentInfosetNode))
+    Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
     while (!ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
       rUnparser.unparse1(ustate, erd)

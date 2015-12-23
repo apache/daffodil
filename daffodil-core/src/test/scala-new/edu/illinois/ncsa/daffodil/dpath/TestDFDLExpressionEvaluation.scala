@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppre
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
+import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
@@ -68,7 +69,8 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val doc = Infoset.newDocument(erd)
     doc.setRootElement(infosetRootElem)
 
-    val pstate = PState.createInitialPState(doc, erd, null, dp)
+    val dis = ByteBufferDataInputStream(java.nio.ByteBuffer.allocate(0), 0L) // fake. Zero bits available.
+    val pstate = PState.createInitialPState(doc, erd, dis, dp)
     val result = compiledExpr.evaluate(pstate)
     body(result)
   }

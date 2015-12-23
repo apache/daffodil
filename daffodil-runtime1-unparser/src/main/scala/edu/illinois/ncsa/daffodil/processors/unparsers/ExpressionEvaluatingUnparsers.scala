@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
  * Common parser base class for any parser that evaluates an expression.
  */
 
-abstract class ExpressionEvaluationUnparser(expr: CompiledExpression, rd: RuntimeData)
+abstract class ExpressionEvaluationUnparser(protected val expr: CompiledExpression, rd: RuntimeData)
   extends Unparser(rd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
@@ -63,7 +63,7 @@ class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData, r
   extends ExpressionEvaluationUnparser(expr, decl) {
 
   def unparse(start: UState): Unit = {
-    log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
+    log(LogLevel.Debug, "This is %s", toString)
 
     val someValue = eval(start)
 

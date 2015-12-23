@@ -113,7 +113,7 @@ class TestByteBufferDataInputStream {
   @Test def testBitLengthLimit1 {
     val dis = ByteBufferDataInputStream(twenty)
     val bb = ByteBuffer.allocate(20)
-    val isLimitOk = dis.withBitLengthLimit(80) {
+    val isLimitOk = dis.withBitLengthLimit(dis, 80) {
       val maybeNBytes = dis.fillByteBuffer(bb)
       assertEqualsTyped[Long](80, dis.bitLimit0b.get)
       assertEqualsTyped[Long](80, dis.bitPos0b)

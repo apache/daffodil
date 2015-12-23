@@ -48,7 +48,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.api.DataLocation
 
 class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,
@@ -75,104 +76,188 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant: Any = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
+  private def UE(msg: String, maybeCL: Maybe[DataLocation]) = UnparseError(One(ci.schemaFileLocation), maybeCL, msg)
+
   private def doPE(e: Exception, state: ParseOrUnparseState) = {
     val msg = "Expression evaluation failed due to: %s.".format(DiagnosticUtils.getSomeMessage(e).get)
     state match {
+      case null => Assert.usageError("state cannot be null")
+      case ustate: UState => UE(msg, One(ustate.currentLocation))
       case pstate: PState => {
         val pe = new ParseError(One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
         pstate.setFailed(pe)
         null
       }
-      case ustate: UState => {
-        UnparseError(One(ci.schemaFileLocation), One(ustate.currentLocation), msg)
-      }
     }
   }
 
   private def doSDE(e: Exception, state: ParseOrUnparseState) = {
-    val pe = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
+    val rsde = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
     state match {
-      case pstate: PState => pstate.setFailed(pe)
-      case _ => //ok
+      case pstate: PState => pstate.setFailed(rsde)
+      case _ => throw rsde
     }
     null
   }
 
+  private var blockLocation = MaybeULong.Nope
+
+  /**
+   * For unparsing of forward-referencing (outputValueCalc) expressions
+   *
+   * Depends on the dstate havng been properly initialized.
+   * E.g., the variable map, current node, mode, etc.
+   */
+  def evaluateForwardReferencing(state: ParseOrUnparseState): Any = {
+    val dstate = state.dState
+    val value =
+      try {
+        recipe.run(dstate)
+        //
+        // didn't throw, so we completed evaluation somehow
+        //
+        processForwardExpressionResults(dstate)
+      } catch {
+        case noChild: InfosetNoSuchChildElementException => { block(noChild); null }
+        case noArrayIndex: InfosetArrayIndexOutOfBoundsException => { block(noArrayIndex); null }
+        case ovc: OutputValueCalcEvaluationException => { block(ovc); null }
+        case th: Throwable => handleThrow(th, state)
+      }
+    val value1 = postProcess(value, state).asInstanceOf[AnyRef]
+    value1
+  }
+
+  private def processForwardExpressionResults(dstate: DState): Any = {
+    val v: Any = {
+      dstate.currentNode match {
+        case null => {
+          // there is no element. Can happen if one evaluates say, 5 + 6 or 5 + $variable
+          Assert.invariant(dstate.currentValue != null)
+          dstate.currentValue
+        }
+        case n: DIElement if n.isNilled => n
+        case c: DIComplex => {
+          Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
+          c
+        }
+        case s: DISimple => {
+          s.dataValue
+        }
+        case _ => Assert.invariantFailed("must be an element, simple or complex.")
+      }
+    }
+    v
+  }
+
+  private def block(noChild: InfosetNoSuchChildElementException) {
+    uniqueULongPerBlockLocation(noChild.diComplex, noChild.info, 0, noChild)
+  }
+
+  private def block(noArrayIndex: InfosetArrayIndexOutOfBoundsException) {
+    uniqueULongPerBlockLocation(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
+  }
+
+  private def block(ovc: OutputValueCalcEvaluationException) {
+    uniqueULongPerBlockLocation(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
+  }
+
+  private def uniqueULongPerBlockLocation(diNode: DINode, info: DPathElementCompileInfo, index: Long, exc: Exception) {
+    val num: Long = scala.math.abs(diNode.hashCode() + info.hashCode() + index + exc.getClass().hashCode())
+    blockLocation = MaybeULong(num)
+  }
+
+  def expressionEvaluationBlockLocation = blockLocation
+
+  /**
+   * For parsing or unparsing of backward-referencing expressions.
+   * That is, not outputValueCalc.
+   */
   final def evaluate(state: ParseOrUnparseState): Any = {
     val value =
       try {
-        recipe.runExpression(state)
-
-        val dstate = state.dstate
+        state.dState.opIndex = 0
+        recipe.runExpression(state, this) // initializes dstate from state, then runs
+        val dstate = state.dState
         state.variableMap = dstate.vmap
-        val v = {
-          dstate.currentNode match {
-            case null => {
-              // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger
-              dstate.currentValue
+        processExpressionResults(dstate)
+
+      } catch {
+        case th: Throwable => handleThrow(th, state)
+      }
+    val value1 = postProcess(value, state)
+    value1
+  }
+
+  private def processExpressionResults(dstate: DState) = {
+    val v = {
+      dstate.currentNode match {
+        case null => {
+          // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger in which case
+          // there is a value, but no node.
+          dstate.currentValue
+        }
+        case n: DIElement if n.isNilled => n
+        case c: DIComplex => {
+          Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
+          c
+        }
+        case s: DISimple => {
+          try {
+            s.dataValue
+          } catch {
+            case ovc: OutputValueCalcEvaluationException => {
+              Assert.invariantFailed("OVC should always have a data value by the time it reaches here.")
             }
-            case n: DIElement if n.isNilled => n
-            case c: DIComplex => {
-              Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
-              c
-            }
-            case s: DISimple => {
-              try {
-                s.dataValue
-              } catch {
-                case ovc: OutputValueCalcEvaluationException => {
-                  //
-                  // This is thrown when the infoset node is an element for an outputValueCalc which had
-                  // an expression that potentially reached into the future of the infoset.
-                  //
-                  // This leaves it up to the calling layer (i.e., right here)
-                  // to catch and decide whether evaluating the expression "on demand"
-                  // is the right thing to do. The notion there is that only the calling layer has enough context to
-                  // setup properly for this evaluation
-                  //
-                  Assert.invariant(s.runtimeData.outputValueCalcExpr.isDefined)
-                  Assert.invariant(s.runtimeData =:= ovc.erd)
-                  val expr = ovc.erd.outputValueCalcExpr.get
-                  val res = expr.evaluate(state)
-                  s.setDataValue(res)
-                  res
-                }
-              }
-            }
-            case _ => Assert.invariantFailed("must be an element, simple or complex.")
           }
         }
-        v
-      } catch {
-        //
-        // Here we catch exceptions that indicate something went wrong with the
-        // expression, but by that we mean legal evaluation of a compiled expression
-        // produced an error such as divide by zero or string having wrong format for
-        // conversion to another type. I.e., things te DFDL schema author could get
-        // wrong that some data inputs would exacerbate.
-        //
-        // This should not catch things that indicate a Daffodil code problem e.g.,
-        // class cast exceptions.
-        //
-        // Of course some things that are daffodil code bugs can hide - if for example
-        // there is an arithmetic error in daffodil code, this catch can't distinguish
-        // that error (which should be an abort, from an arithmetic exception
-        // due to an expression dividing by zero say.
-        case e: InfosetNoSuchChildElementException => doSDE(e, state)
-        case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, state)
-        case e: IllegalArgumentException => doPE(e, state)
-        case e: IllegalStateException => doPE(e, state)
-        case e: NumberFormatException => doPE(e, state)
-        case e: ArithmeticException => doPE(e, state)
+        case _ => Assert.invariantFailed("must be an element, simple or complex.")
       }
+    }
+    v
+  }
+
+  private def handleThrow(th: Throwable, state: ParseOrUnparseState): Null = {
+    th match {
+      //
+      // Here we catch exceptions that indicate something went wrong with the
+      // expression, but by that we mean legal evaluation of a compiled expression
+      // produced an error such as divide by zero or string having wrong format for
+      // conversion to another type. I.e., things te DFDL schema author could get
+      // wrong that some data inputs would exacerbate.
+      //
+      // This should not catch things that indicate a Daffodil code problem e.g.,
+      // class cast exceptions.
+      //
+      // Of course some things that are daffodil code bugs can hide - if for example
+      // there is an arithmetic error in daffodil code, this catch can't distinguish
+      // that error (which should be an abort, from an arithmetic exception
+      // due to an expression dividing by zero say.
+      case e: InfosetNoSuchChildElementException => doSDE(e, state)
+      case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, state)
+      case e: IllegalStateException => doPE(e, state)
+      case e: NumberFormatException => doPE(e, state)
+      case e: IllegalArgumentException => doPE(e, state)
+      case e: ArithmeticException => doPE(e, state)
+      case th => throw th
+    }
+  }
+
+  /**
+   * Accepts a value or null to mean there is no value.
+   *
+   * Note: Can't use a Maybe[T] here because T is required to be an AnyRef, and that would exclude
+   * Long, Int, etc. from being used as values.
+   */
+  private def postProcess(v: Any, state: ParseOrUnparseState): Any = {
+    val value = v
     value match {
       case null => {
-        Assert.invariant(state.status ne Success)
+        // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger in which case
+        // there is a value, but no node.
         return null
       }
-      case _ => {
-        // then fall through
-      }
+      case m: Maybe[AnyRef] => Assert.invariantFailed("should be null or value, not Maybe object.")
+      case _ => // fall through
     }
     val value1 =
       if (!value.isInstanceOf[DIElement]) {

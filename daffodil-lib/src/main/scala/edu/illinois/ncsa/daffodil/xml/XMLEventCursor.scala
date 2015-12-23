@@ -180,11 +180,12 @@ class XMLEventCursorFromInput(
   with MarkupParser
   with ExternalSources
   with XMLEventCursor
-  with CursorImplMixin[XMLAccessor] {
+  with CursorImplMixin[XMLAccessor]
+  with InvertControl[XMLAccessor] {
 
   override def fill: Boolean = {
-    if (iter.hasNext) {
-      iter.next
+    if (hasNext) {
+      next()
       true
     } else
       false
@@ -204,7 +205,7 @@ class XMLEventCursorFromInput(
     start.label = label
     start.attrs = attrs
     start.scope = scope
-    iter.setNext(accessor)
+    setNext(accessor)
   }
   override def elemEnd(pos: Int, pre: String, label: String) {
     val scope = scopeStack.pop
@@ -215,14 +216,14 @@ class XMLEventCursorFromInput(
     end.label = label
     end.scope = scope
     level -= 1
-    iter.setNext(accessor)
+    setNext(accessor)
   }
 
   def text(pos: Int, txt: String): NodeSeq = {
     accessor.event = accessor.text
     accessor.text.pos = pos
     accessor.text.text = txt
-    iter.setNext(accessor)
+    setNext(accessor)
     NodeSeq.Empty
   }
 
@@ -230,7 +231,7 @@ class XMLEventCursorFromInput(
     accessor.event = accessor.entityRef
     accessor.entityRef.pos = pos
     accessor.entityRef.entity = entity
-    iter.setNext(accessor)
+    setNext(accessor)
     NodeSeq.Empty
   }
 
@@ -240,7 +241,7 @@ class XMLEventCursorFromInput(
       accessor.procInstr.pos = pos
       accessor.procInstr.target = target
       accessor.procInstr.text = txt
-      iter.setNext(accessor)
+      setNext(accessor)
     }
     NodeSeq.Empty
   }
@@ -250,7 +251,7 @@ class XMLEventCursorFromInput(
       accessor.event = accessor.comment
       accessor.comment.pos = pos
       accessor.comment.text = txt
-      iter.setNext(accessor)
+      setNext(accessor)
     }
     NodeSeq.Empty
   }
@@ -266,22 +267,22 @@ class XMLEventCursorFromInput(
    * are explicitly filling in the accessors, so the XML information moves by
    * side-effect on the accessors.
    */
-  private lazy val iter: InvertControl[XMLAccessor] = new InvertControl[XMLAccessor]({
+  def body {
     curInput = input // this is how you give a MarkupParser access to the data source. Ugh.
     try {
-      this.initialize.document() // and... away we go. This does the SAX parse that starts the calling back.
+      initialize.document() // and... away we go. This does the SAX parse that starts the calling back.
     } catch {
       case e: scala.xml.SAXException =>
-        iter.setFinal(e) // send SAXExceptions over to the consumer side.
+        setFinal(e) // send SAXExceptions over to the consumer side.
       case th: Throwable =>
         throw th // good place for a breakpoint
     } finally {
       if (syntaxErrCount > 0) {
-        val e = new scala.xml.SAXException("XML Syntax Errors: " + this.syntaxErrStream.toString())
-        iter.setFinal(e)
+        val e = new scala.xml.SAXException("XML Syntax Errors: " + syntaxErrStream.toString())
+        setFinal(e)
       }
     }
-  })
+  }
 
   val preserveWS = true
   private var syntaxErrCount = 0

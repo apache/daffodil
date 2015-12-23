@@ -47,8 +47,7 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
 
   final def unparse(state: UState): Unit = {
 
-    val event: InfosetAccessor = state.inspectOrError
-    val node = event.node.asSimple
+    val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
 
     val dos = state.dataOutputStream

@@ -1,34 +1,27 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 
-class ElementOutputValueCalcUnparser(erd: ElementRuntimeData)
+class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, repUnparser: Unparser)
   extends Unparser(erd) with TextUnparserRuntimeMixin {
 
   Assert.invariant(erd.outputValueCalcExpr.isDefined)
   val expr = erd.outputValueCalcExpr.get
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Seq(repUnparser)
 
   def unparse(ustate: UState): Unit = {
+    Assert.invariant(erd.outputValueCalcExpr.isDefined)
 
-    // FIXME: This is broken. Can't work ultimately because expressions require variables which
-    // require model-groups. Just the infoset events... lacks the model-group traversal.
-    // puller.pullUntilExpressionCanBeEvaluated(ustate)
-    // We can pull to force nodes to be added to the infoset for OVC and defaultables,
-    // but we cannot pull events in a non-schema-specific manner and actually evaluate
-    // expressions.
+    val diSimple = ustate.currentInfosetNode.asSimple 
+    // note. This got attached to infoset in StatementElementOutputValueCalcUnparser
 
-    //
-    // Once we get here, then we're ready to evaluate the expression
-    //
-    val value = expr.evaluate(ustate)
-    ustate.currentInfosetNode.asInstanceOf[DISimple].overwriteDataValue(value)
+    val se = SuspendableExpression(diSimple, expr, ustate, repUnparser)
 
-    // Now that we have the value, some other unparser will end up
-    // unparsing this value. Not here.
+    ustate.addSuspendedExpression(se)
+
   }
 
 }

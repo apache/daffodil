@@ -66,14 +66,32 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
+
+  <xs:element name="ehb_08">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hb_08" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ xs:hexBinary('a1') }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
     
-    <xs:element name="hb_08" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ xs:hexBinary('a1') }"/>
     <xs:element name="hb_11" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary('a1') }"/>
-    
-    <xs:element name="hb_09" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
-    
-    <xs:element name="hb_10" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(5) }"/>
-    
+
+  <xs:element name="ehb_09">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hb_09" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ehb_10">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hb_10" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(5) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
    
     <xs:element name="hb_12">
       <xs:complexType>
@@ -83,8 +101,14 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
-    <xs:element name="hb_13" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:outputValueCalc="{ dfdl:hexBinary(-2) }"/>
+
+  <xs:element name="ehb_13">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hb_13" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:outputValueCalc="{ dfdl:hexBinary(-2) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
     
     <xs:element name="hb_14" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:outputValueCalc="{ dfdl:hexBinary(-2084) }"/>
     
@@ -329,11 +353,11 @@
     Schema: SimpleTypes-binary
     Purpose: This document demonstrates the use of the hexBinary constructor function
   -->
-  <tdml:unparserTestCase name="hexBinary_unparse_10" root="hb_08"
+  <tdml:unparserTestCase name="hexBinary_unparse_10" root="ehb_08"
       model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_08></ex:hb_08>
+        <ex:ehb_08></ex:ehb_08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
@@ -346,11 +370,11 @@
     Schema: SimpleTypes-binary
     Purpose: This document demonstrates the use of the dfdl hexBinary constructor function
   -->
-  <tdml:unparserTestCase name="hexBinary_unparse_11" root="hb_09"
+  <tdml:unparserTestCase name="hexBinary_unparse_11" root="ehb_09"
       model="SimpleTypes-binary">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_09></ex:hb_09>
+        <ex:ehb_09></ex:ehb_09>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
@@ -363,11 +387,11 @@
     Schema: SimpleTypes-binary
     Purpose: This document demonstrates the use of outputValueCalc for hexBinary
   -->
-  <tdml:unparserTestCase name="hexBinary_unparse_12" root="hb_10"
+  <tdml:unparserTestCase name="hexBinary_unparse_12" root="ehb_10"
       model="SimpleTypes-binary">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_10></ex:hb_10>
+        <ex:ehb_10></ex:ehb_10>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
@@ -403,12 +427,11 @@
       <tdml:dfdlInfoset>
         <ex:hb_12>
           <ex:input>208</ex:input>
-          <ex:out></ex:out>
         </ex:hb_12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="byte"><![CDATA[3230382c00d0]]></tdml:documentPart>
+      <tdml:documentPart type="byte"><![CDATA[3230382cd0]]></tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
@@ -423,7 +446,6 @@
       <tdml:dfdlInfoset>
         <ex:hb_12>
           <ex:input>1</ex:input>
-          <ex:out></ex:out>
         </ex:hb_12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -437,11 +459,11 @@
     Schema: SimpleTypes-binary
     Purpose: This document demonstrates the use of outputValueCalc for hexBinary with the dfdl:hexBinary constructor function
   -->
-  <tdml:unparserTestCase name="hexBinary_unparse_16" root="hb_13"
+  <tdml:unparserTestCase name="hexBinary_unparse_16" root="ehb_13"
       model="SimpleTypes-binary">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_13></ex:hb_13>
+        <ex:ehb_13></ex:ehb_13>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>

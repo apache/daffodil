@@ -30,10 +30,11 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
 
 object MaybeULong {
   private val undefValue = -1L
+
   @inline final def apply(v: Long) = {
     Assert.usage(v >= 0)
     new MaybeULong(v)
   }
+
   val Nope = new MaybeULong(undefValue)
 }
-

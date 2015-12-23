@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputValueCalcUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
@@ -74,11 +75,19 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
         eParser,
         eAfterParser)
 
-  override lazy val unparser: Unparser =
-    if (context.isRepresented)
-      new StatementElementUnparser(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
-    else
-      new StatementElementUnparserNoRep(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
+  override lazy val unparser: Unparser = {
+    if (context.isRepresented) {
+      if (context.isOutputValueCalc) {
+        new StatementElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
+      } else {
+        new StatementElementUnparser(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
+      }
+    } else {
+      // When "not represented" (meaning inputValueCalc), then we don't
+      // unparse anything. And we don't expect any infoset events either.
+      new StatementElementUnparserNoRep(context.erd, context.name, uSetVar)
+    }
+  }
 }
 
 class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
@@ -146,7 +155,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   def parser: Parser
 
-  lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser)
+  lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser).toArray
   lazy val eUnparser: Maybe[Unparser] =
     if (eGram.isEmpty) Maybe.Nope
     else Maybe(eGram.unparser)

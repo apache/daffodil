@@ -82,7 +82,12 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal {
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 }
 
-private[util] object NopeValue extends Serializable {
+/**
+ * Outside of Maybe because it has to be public due to inlining, and
+ * it doesn't want to get imported by 'import Maybe._' since it is
+ * for internal use only.
+ */
+object NopeValue extends Serializable {
   override def toString = "Nope"
 }
 
@@ -100,16 +105,14 @@ object Maybe {
    *
    * The conversion the other way must be explicit by calling toScalaOption
    */
-  implicit def toMaybe[T <: AnyRef](o: Option[T]): Maybe[T] = if (o.isDefined) One(o.get) else Nope
+
+  implicit def toMaybe[T <: AnyRef](o: Option[T]): Maybe[T] = o match {
+    case None => Nope
+    case Some(x) => One(x)
+  }
 
   @inline
-  final def apply[T <: AnyRef](value: T) = if (value eq null) Nope else one(value)
-
-  @inline
-  final def one[T <: AnyRef](value: T) = new Maybe[T](value)
-
-  @inline
-  final def empty[T] = Nope
+  final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
 
   val Nope = new Maybe[Nothing](NopeValue)
 
@@ -128,21 +131,37 @@ object Maybe {
   /**
    * Use to do Maybe-like things using object vs. null.
    *
-   * Done to avoid allocation of Maybe objects.
+   * Done to avoid allocation of Maybe objects, for example if you
+   * are storing them in a generic collection, or passing them polymorphically,
+   * then a Maybe[T] will get
+   * allocated because generic collection items are AnyRef, and polymorphism
+   * works across AnyRefs only.
+   *
+   * Lets you use the same API as for Maybe objects. i.e., isDefined, get, etc.
+   * or you can define an API that returns Maybe[T] by calling the toMaybe
+   * function when returning a result, and thereby hide the fact that the
+   * implementation is Object/null, but the API looks like Maybe[T] are being stored.
+   *
+   * The above is what I would call a "Conceptual Maybe" object being stored.
    */
-  @inline final def isDefined[T <: AnyRef](thing: T): Boolean = {
-    if (thing eq null) false
-    else if (thing eq NopeValue) Assert.usageError("Maybe.isDefined not for use on Maybe[T] objects, but T (or null) objects.")
-    else true
-  }
+  object WithNulls {
 
-  @inline final def get[T <: AnyRef](thing: T): T = {
-    if (!isDefined(thing)) throw new NoSuchElementException("get on undefined value: " + thing)
-    else thing
-  }
+    @inline final def isDefined[T <: AnyRef](thing: T): Boolean = {
+      if (thing eq null) false
+      else if (thing eq NopeValue) Assert.usageError("Maybe.WithNulls.isDefined not for use on Maybe[T] objects, but T (or null) objects.")
+      else true
+    }
 
-  final def toScalaOption[T <: AnyRef](thing: T): Option[T] = {
-    if (thing eq null) None else Some(thing)
+    @inline final def get[T <: AnyRef](thing: T): T = {
+      if (!isDefined(thing)) throw new NoSuchElementException("get on undefined value: " + thing)
+      else thing
+    }
+
+    final def toScalaOption[T <: AnyRef](thing: T): Option[T] = {
+      if (!isDefined(thing)) None else Some(thing)
+    }
+
+    @inline final def toMaybe[T <: AnyRef](thing: T): Maybe[T] = Maybe(thing)
   }
 }
 

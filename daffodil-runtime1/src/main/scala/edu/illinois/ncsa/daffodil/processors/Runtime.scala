@@ -32,10 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
+import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -70,13 +71,12 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
-import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
-import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
+import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.xml.XMLEvent
 
@@ -290,7 +290,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
-    val out = BasicDataOutputStream(output)
+    val outStream = java.nio.channels.Channels.newOutputStream(output)
+    val out = DirectOrBufferedDataOutputStream(outStream)
     out.setBitOrder(BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0
     val unparserState =
       UState.createInitialUState(
@@ -305,6 +306,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
       unparserState.dataProc.init(ssrd.unparser)
       unparse(unparserState)
+      unparserState.evalSuspendedExpressions() // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
     } catch {
       case ue: UnparseError => {
@@ -420,7 +422,7 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
   override def resultState = ustate
 
   private def maybeEncodingInfo =
-    if (Maybe.isDefined(ustate.currentInfosetNode))
+    if (Maybe.WithNulls.isDefined(ustate.currentInfosetNode))
       One(ustate.currentInfosetNode.asInstanceOf[DIElement].runtimeData.encodingInfo)
     else
       Nope

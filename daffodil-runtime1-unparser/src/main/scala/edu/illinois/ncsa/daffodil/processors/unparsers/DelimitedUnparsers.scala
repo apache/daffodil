@@ -32,7 +32,8 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(erd)
 
-  protected def theString(state: UState) = state.currentInfosetNode.asSimple.dataValueAsString
+  protected def theString(state: UState) =
+    state.currentInfosetNode.asSimple.dataValueAsString
 
   override val padToLength: Int = {
     if (erd.minLength.isDefined) { erd.minLength.get.intValue() } else { 0 }

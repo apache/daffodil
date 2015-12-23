@@ -10,6 +10,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.DecoderCache
+import edu.illinois.ncsa.daffodil.processors.EncoderCache
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
@@ -22,15 +24,15 @@ import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
+import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
-import edu.illinois.ncsa.daffodil.dpath.UnparseMode
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.util.MStack
@@ -39,24 +41,75 @@ import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.NonAllocatingMap
+import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
+import edu.illinois.ncsa.daffodil.dpath.Blocking
+import scala.collection.mutable
 
 class UState(
   private val infosetCursor: InfosetCursor,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
-  var dataOutputStream: DataOutputStream)
-  extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
+  var dataOutputStream: DataOutputStream,
+  initialSuspendedExpressions: mutable.Queue[SuspendableExpression] = new mutable.Queue[SuspendableExpression],
+  initialDecoderCache: DecoderCache = new DecoderCache(),
+  initialEncoderCache: EncoderCache = new EncoderCache())
+  extends ParseOrUnparseState(vmap, diagnosticsArg, dataProcArg, initialDecoderCache, initialEncoderCache)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
+  override def toString = {
+    "UState(" + dataOutputStream.toString() + ")"
+  }
+
+  def cloneForOVC(newDOS: DataOutputStream): UState = {
+    val clone = new UState(
+      NonUsableInfosetCursor,
+      this.variableMap,
+      Nil, // no diagnostics for now. Any that accumulate here must eventually be output.
+      dataProcArg, // same data proc.
+      newDOS,
+      this.suspendedExpressions, // inherit same place to put these OVC suspensions from original.
+      this.decoderCache,
+      this.encoderCache)
+    Assert.invariant(currentInfosetNodeMaybe.isDefined)
+    clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
+    clone.currentEscapeScheme = this.currentEscapeScheme
+    val dstate = clone.dState
+    dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
+    dstate.setVMap(variableMap)
+    dstate.setContextNode(thisElement.asInstanceOf[DINode]) // used for diagnostics
+    dstate.setArrayPos(arrayPos)
+    dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
+    dstate.setErrorOrWarn(this)
+    dstate.resetValue
+    dstate.setMode(Blocking)
+    clone
+  }
+
+  //  private val dstateTable = new NonAllocatingMap[CompiledExpression, DState](
+  //    new java.util.LinkedHashMap[CompiledExpression, DState])
+  //  /**
+  //   * Every expression has a DState that can be used for that expression.
+  //   */
+  //  def dState(expr: CompiledExpression): DState = {
+  //    val maybeDstate = dstateTable.get(expr)
+  //    if (maybeDstate.isDefined) maybeDstate.get
+  //    else {
+  //      val newDstate = new DState
+  //      dstateTable.put(expr, newDstate)
+  //      newDstate
+  //    }
+  //  }
   override def dataStream: DataStreamCommon = dataOutputStream
 
   final val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
   final val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
-  final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, BasicDataOutputStream)](
+  final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
     {
       val baos = new ByteArrayOutputStream() // PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
-      val dos = BasicDataOutputStream(baos).asInstanceOf[BasicDataOutputStream]
+      val dos = DirectOrBufferedDataOutputStream(baos).asInstanceOf[DirectOrBufferedDataOutputStream]
       (baos, dos)
     },
     pair => pair match {
@@ -65,8 +118,6 @@ class UState(
         dos.setBitLimit0b(MaybeULong.Nope)
         dos.setBitPos0b(0L)
     })
-
-  def setMode(dstate: DState) = dstate.setMode(UnparseMode)
 
   @inline final def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
     val savedDOS = dataOutputStream
@@ -131,10 +182,10 @@ class UState(
     currentInfosetEvent_ = ev
   }
 
-  override def hasInfoset = Maybe.isDefined(currentInfosetNode)
+  override def hasInfoset = Maybe.WithNulls.isDefined(currentInfosetNode)
 
   override def infoset = {
-    Assert.invariant(Maybe.isDefined(currentInfosetNode))
+    Assert.invariant(Maybe.WithNulls.isDefined(currentInfosetNode))
     currentInfosetNode match {
       case a: DIArray => {
         a.getOccurrence(arrayPos)
@@ -144,7 +195,7 @@ class UState(
   }
 
   override def thisElement: InfosetElement = {
-    Assert.usage(Maybe.isDefined(currentInfosetNode))
+    Assert.usage(Maybe.WithNulls.isDefined(currentInfosetNode))
     val curNode = currentInfosetNode
     curNode match {
       case e: DIElement => e
@@ -159,7 +210,7 @@ class UState(
   val unparseResult = new UnparseResult(dataProcArg, this)
 
   private def maybeCurrentInfosetElement: Maybe[DIElement] = {
-    if (!Maybe.isDefined(currentInfosetNode)) Nope
+    if (!Maybe.WithNulls.isDefined(currentInfosetNode)) Nope
     else {
       currentInfosetNode match {
         case e: DIElement => One(e)
@@ -238,7 +289,47 @@ class UState(
     dataOutputStream.setDebugging(flag)
   }
 
+  /**
+   * For outputValueCalc we accumulate the suspendables here.
+   *
+   * Note: only the primary UState (the initial one) will use this.
+   * All the other clones used for outputValueCalc, those never
+   * need to add any.
+   */
+  private val suspendedExpressions = initialSuspendedExpressions
+
+  def addSuspendedExpression(se: SuspendableExpression) {
+    suspendedExpressions.enqueue(se)
+  }
+
+  def evalSuspendedExpressions() {
+    var countOfNotMakingProgress = 0
+    while (!suspendedExpressions.isEmpty &&
+      countOfNotMakingProgress < suspendedExpressions.length) {
+      val se = suspendedExpressions.dequeue
+      se.evaluate()
+      if (!se.isDone) suspendedExpressions.enqueue(se)
+      if (!se.isMakingProgress)
+        countOfNotMakingProgress += 1
+      else
+        countOfNotMakingProgress = 0
+    }
+    // after the loop, did we terminate
+    // with some expressions still unevaluated?
+    if (suspendedExpressions.length > 0) {
+      // unable to evaluate all the expressions
+      throw new SuspendedExpressionsDeadlockException(suspendedExpressions.seq)
+    }
+  }
+
 }
+
+class SuspendedExpressionsDeadlockException(suspExprs: Seq[SuspendableExpression])
+  extends RuntimeSchemaDefinitionError(
+    suspExprs(0).diSimple.erd.schemaFileLocation,
+    suspExprs(0).ustate,
+    "Expressions are circularly deadlocked (mutually defined): %s",
+    suspExprs)
 
 object UState {
 

@@ -6,14 +6,22 @@ import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Misc
 
-private[io] class CharBufferDataOutputStreamState extends DataOutputStreamStateImplMixin
+private[io] class CharBufferDataOutputStreamState extends DataOutputStreamState
 /**
  * Used to implement unparsing when length is specified in lengthUnits 'characters' when
  * the encoding is variable width (e.g., utf-8)
  */
-class CharBufferDataOutputStream
-  extends DataOutputStream with DataOutputStreamCharImplMixin {
+final class CharBufferDataOutputStream
+  extends DataOutputStream with DataOutputStreamImplMixin {
+
+  private[io] def isBuffering: Boolean = true
+
+  private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
+
+  protected def getJavaOutputStream(): java.io.OutputStream = doNotUse
+  protected def setJavaOutputStream(newOutputStream: java.io.OutputStream): Unit = doNotUse
 
   private var target: CharBuffer = null
 
@@ -21,8 +29,11 @@ class CharBufferDataOutputStream
     target = cb
   }
 
-  protected final val st = new CharBufferDataOutputStreamState
-  protected final def cst: DataStreamCommonState = st
+  override def flush() {
+    // do nothing
+  }
+
+  protected override val st = new CharBufferDataOutputStreamState
 
   private def notToBeUsed = Assert.usageError("not to be used")
 
@@ -45,7 +56,6 @@ class CharBufferDataOutputStream
   override def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = notToBeUsed
-  protected[io] override def resetBitLimit0b(saved: MaybeULong): Unit = notToBeUsed
   override def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed
   override def byteOrder: ByteOrder = notToBeUsed
   override def validateFinalStreamState { /* do nothing */ }

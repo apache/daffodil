@@ -52,7 +52,6 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.equality._
 import java.io.ByteArrayOutputStream
-import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
@@ -204,7 +203,8 @@ trait StringLengthMixin {
     val nCharsToTrim = str.length - nChars
     val result = justificationTrim match {
       case TextJustificationType.None => {
-        if (isForString) UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Trimming is required, but the dfdl:textTrimKind property is 'none'.")
+        if (isForString)
+          UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Trimming is required, but the dfdl:textTrimKind property is 'none'.")
         else str
       }
       case TextJustificationType.Right => {

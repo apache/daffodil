@@ -141,10 +141,23 @@ trait CoroutineAny {
  * this co-routine.
  */
 
-final class InvertControl[S <: AnyRef](body: => Unit) extends IteratorWithPeek[S] with Coroutine[S] {
+trait InvertControl[S <: AnyRef] extends IteratorWithPeek[S] with Coroutine[S] {
 
   /**
-   * The producer will run the body function, and from within it,
+   * Must override toString because otherwise we get Iterator's toString
+   * which calls hasNext. (Very undesirable)
+   */
+  override def toString: String = {
+    val clName = Misc.getNameFromClass(this)
+    val uniqueInt = System.identityHashCode(this)
+    val str = clName + "@" + uniqueInt
+    str
+  }
+
+  def body: Unit
+
+  /**
+   * The producer will run the body method, and from within it,
    * calls to setNext(value) will
    * produce the values for the consumer. The consumer (main thread)
    * just uses ordinary Iterator hasNext/next calls to get the values.

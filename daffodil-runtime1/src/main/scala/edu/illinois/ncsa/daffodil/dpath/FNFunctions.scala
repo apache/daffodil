@@ -262,7 +262,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
       return cal
     } catch {
       case ex: java.lang.IllegalArgumentException =>
-        dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
+        dstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
     }
   }
   override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
@@ -307,7 +307,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
       }
       case (true, false) => newCal.setTimeZone(dateTZ)
       case (false, true) => newCal.setTimeZone(timeTZ)
-      case (true, true) if dateTZ != timeTZ => dstate.pstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
+      case (true, true) if dateTZ != timeTZ => dstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
       case (true, true) => newCal.setTimeZone(dateTZ)
     }
 

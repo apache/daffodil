@@ -1,7 +1,7 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.DINode
-import edu.illinois.ncsa.daffodil.processors.InfosetDocument
+import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DISimple
@@ -14,12 +14,14 @@ import edu.illinois.ncsa.daffodil.util.Cursor
 import edu.illinois.ncsa.daffodil.util.Accessor
 import edu.illinois.ncsa.daffodil.util.IteratorWithPeek
 import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args: _*)
 
 object InfosetCursor {
 
-  def fromInfosetTree(infoset: InfosetDocument): InfosetCursor = {
+  def fromInfosetTree(infoset: InfosetItem): InfosetCursor = {
     val is = new InfosetCursorFromTree(infoset)
     is
   }
@@ -51,8 +53,16 @@ trait InfosetCursor extends Cursor[InfosetAccessor] {
    * Override these further only if you want to say, delegate from one cursor implemtation
    * to another one.
    */
-  override val advanceAccessor = InfosetAccessor(null, null)
-  override val inspectAccessor = InfosetAccessor(null, null)
+  override lazy val advanceAccessor = InfosetAccessor(null, null)
+  override lazy val inspectAccessor = InfosetAccessor(null, null)
+}
+
+object NonUsableInfosetCursor extends InfosetCursor {
+  private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
+  override lazy val advanceAccessor = doNotUse
+  override lazy val inspectAccessor = doNotUse
+  override def advance = doNotUse
+  override def inspect = doNotUse
 }
 
 // TODO - Performance - It's silly to use both a StartKind and EndKind accessor when

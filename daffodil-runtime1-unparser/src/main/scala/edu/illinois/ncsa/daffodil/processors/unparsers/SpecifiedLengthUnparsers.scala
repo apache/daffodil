@@ -23,13 +23,13 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
 
   final def unparse(state: UState): Unit = {
 
-    setupEncoding(state, erd)
+    setupEncoding(state, erd) // TODO: remove - should be happening in EncodingChangeUnparser now.
 
     val nBits = getBitLength(state)
     if (state.status _ne_ Success) return
     val dos = state.dataOutputStream
     val startingBitPos0b = dos.bitPos0b
-    val isLimitOk = dos.withBitLengthLimit(nBits) {
+    val isLimitOk = dos.withBitLengthLimit(dos, nBits) {
       eUnparser.unparse1(state, erd)
     }
     if (!isLimitOk) {

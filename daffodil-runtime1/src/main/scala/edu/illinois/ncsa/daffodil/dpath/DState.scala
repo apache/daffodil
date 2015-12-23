@@ -35,19 +35,53 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.LocalStack
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.io.DataOutputStream
 
-sealed trait ParseOrUnparseMode
-case object ParseMode extends ParseOrUnparseMode
-case object UnparseMode extends ParseOrUnparseMode
+/**
+ * There are two modes for expression evaluation.
+ */
+sealed trait EvalMode
+
+/**
+ * Parsing always uses this mode, for everything.
+ *
+ * Unparsing uses this mode
+ * for expressions that produce the values of (most? all? TBD) properties,
+ * and for expressions that produce the values of variables.
+ *
+ * In this mode, evaluation is simple. If a child doesn't exist
+ * but is needed to be traversed, an exception is thrown. If a value doesn't exist
+ * an exception is thrown.
+ */
+case object NonBlocking extends EvalMode
+
+/**
+ * Unparsing uses this mode for outputValueCalc
+ * (Also for length expressions TBD?)
+ *
+ * In this mode, evaluation can suspend waiting for a child
+ * node to be added/appended, or for a value to be set.
+ *
+ * Once the situation leading to the suspension changes, evaluation
+ * is retried in Regular mode.
+ */
+case object Blocking extends EvalMode
 
 /**
  * expression evaluation side-effects this state block.
  */
 case class DState() {
   import AsIntConverters._
+
+  var opIndex: Int = 0
 
   val withArray8 = new LocalStack[Array[Int]](new Array[Int](8))
   /**
@@ -58,11 +92,15 @@ case class DState() {
    */
   private var _currentValue: Any = null
 
-  private var mode: ParseOrUnparseMode = null
+  private var _mode: EvalMode = NonBlocking
 
-  def setMode(m: ParseOrUnparseMode) {
-    mode = m
+  /**
+   * Set to Blocking for forward-referencing expressions during unparsing.
+   */
+  def setMode(m: EvalMode) {
+    _mode = m
   }
+  def mode = _mode
 
   def resetValue() {
     _currentValue = null
@@ -94,10 +132,13 @@ case class DState() {
   def arrayLength: Long =
     if (currentNode.isInstanceOf[DIArray]) currentArray.length
     else {
+      Assert.invariant(errorOrWarn.isDefined)
       if (currentNode.isInstanceOf[DIElement]) {
-        this.pstate.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
-      } else this.pstate.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
-      1
+        errorOrWarn.get.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
+      } else {
+        errorOrWarn.get.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
+      }
+      1L
     }
 
   def exists: Boolean = true // we're at a node, so it must exist.
@@ -149,12 +190,60 @@ case class DState() {
     _vmap = m
   }
 
-  private var _pustate: ParseOrUnparseState = null // for issuing processing errors
+  def runtimeData = {
+    if (contextNode.isDefined) One(contextNode.get.erd)
+    else Nope
+  }
 
-  def ustate = _pustate.asInstanceOf[UState]
-  def pstate = _pustate.asInstanceOf[PState]
-  def setPUState(ps: ParseOrUnparseState) {
-    _pustate = ps
+  private var _contextNode: Maybe[DINode] = Nope
+  def contextNode = _contextNode
+  def setContextNode(node: DINode) {
+    _contextNode = One(node)
+  }
+
+  private var _bitPos1b: MaybeULong = MaybeULong.Nope
+  private var _bitLimit1b: MaybeULong = MaybeULong.Nope
+  private var _dataStream: Maybe[DataStreamCommon] = Nope
+
+  def setLocationInfo(bitPos1b: Long, bitLimit1b: MaybeULong, dataStream: DataStreamCommon) {
+    _bitPos1b = MaybeULong(bitPos1b)
+    _bitLimit1b = bitLimit1b
+    _dataStream = One(dataStream)
+  }
+
+  def setLocationInfo() {
+    _bitPos1b = MaybeULong.Nope
+    _bitLimit1b = MaybeULong.Nope
+    _dataStream = Nope
+  }
+
+  def contextLocation: Maybe[DataLocation] = {
+    if (_bitPos1b.isDefined) {
+      val either = _dataStream.get match {
+        case dis: DataInputStream => Right(dis)
+        case dos: DataOutputStream => Left(dos)
+      }
+      One(new DataLoc(_bitPos1b.get, _bitLimit1b, either,
+        (if (contextNode.isEmpty) Nope else One { contextNode.value.erd })))
+    } else
+      Nope
+  }
+
+  private var _savesErrorsAndWarnings: Maybe[SavesErrorsAndWarnings] = Nope
+  def errorOrWarn = _savesErrorsAndWarnings
+  def setErrorOrWarn(s: SavesErrorsAndWarnings) {
+    _savesErrorsAndWarnings = One(s)
+  }
+
+  private var _arrayPos: Long = -1L // init to -1L so that we must set before use.
+  def arrayPos = _arrayPos
+  def setArrayPos(arrayPos1b: Long) {
+    _arrayPos = arrayPos1b
+  }
+
+  def SDE(formatString: String, args: Any*) = {
+    Assert.usage(runtimeData.isDefined)
+    errorOrWarn.get.SDE(formatString, args: _*)
   }
 
   // These exists so we can override it in our fake DState we use when
@@ -176,9 +265,11 @@ class DStateForConstantFolding extends DState {
   override def currentElement = die
   override def currentArray = die
   override def currentComplex = die
-  override def pstate = die
   override def currentNode = new FakeDINode
+  override def runtimeData = die
   override def vmap = die
   override def selfMove() = die
   override def fnExists() = die
+  override def arrayPos = die
+  override def arrayLength = die
 }

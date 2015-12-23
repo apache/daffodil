@@ -57,7 +57,7 @@ class TestByteBufferDataInputStream2 {
     val dis = ByteBufferDataInputStream(twenty)
     var bb = ByteBuffer.allocate(20)
     var m1: DataInputStream.Mark = null
-    dis.withBitLengthLimit(5 * 8) {
+    dis.withBitLengthLimit(dis, 5 * 8) {
       val n = dis.fillByteBuffer(bb)
       assertTrue(n.isDefined)
       assertEquals(5, n.get)

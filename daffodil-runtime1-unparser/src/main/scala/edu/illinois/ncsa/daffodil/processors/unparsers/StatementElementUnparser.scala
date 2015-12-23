@@ -45,26 +45,38 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
+import edu.illinois.ncsa.daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.processors.DIDocument
+import edu.illinois.ncsa.daffodil.util.Misc
 
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
   name: String,
-  setVarUnparser: Seq[Unparser],
+  setVarUnparsers: Array[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends TermUnparser(rd) {
 
-  override lazy val childProcessors: Seq[Processor] = setVarUnparser ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
+  override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
   def move(state: UState): Unit // implement for different kinds of "moving over to next thing"
   def unparseBegin(state: UState): Unit
   def unparseEnd(state: UState): Unit
 
+  def doSetVars(state: UState) {
+    var i: Int = 0
+    while (i < setVarUnparsers.length) {
+      val unp = setVarUnparsers(i)
+      i += 1
+      unp.unparse1(state, rd)
+    }
+  }
+
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
-        setVarUnparser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
         (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
         "</Element>"
   }
@@ -99,9 +111,9 @@ abstract class StatementElementUnparserBase(
     if (eUnparser.isDefined) {
       eUnparser.get.unparse1(state, rd)
     }
-    setVarUnparser.foreach(d => {
-      d.unparse1(state, rd)
-    })
+
+    doSetVars(state) // ?? Do SetVars occur after the element is unparsed when unparsing ??
+
     if (eAfterUnparser.isDefined) {
       eAfterUnparser.get.unparse1(state, rd)
     }
@@ -114,13 +126,13 @@ abstract class StatementElementUnparserBase(
 class StatementElementUnparser(
   erd: ElementRuntimeData,
   name: String,
-  setVar: Seq[Unparser],
+  setVarUnparsers: Array[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparserBase(
     erd,
     name,
-    setVar,
+    setVarUnparsers,
     eUnparser,
     eAfterUnparser) {
 
@@ -143,7 +155,8 @@ class StatementElementUnparser(
         //
         state.currentInfosetNodeStack.push(One(e.asElement))
       }
-      case _ => UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
+      case _ =>
+        UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
     }
   }
 
@@ -155,33 +168,74 @@ class StatementElementUnparser(
 
         state.currentInfosetNodeStack.pop
       }
-      case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event, but received: %s.", event)
+      case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received: %s.", erd.namedQName, event)
     }
     move(state)
   }
 }
 
+/**
+ * The dummy unparser used for an element that has inputValueCalc.
+ *
+ * No events are consumed from the infoset event cursor
+ * No pushing/popping context.
+ *
+ * The only thing we do is move over one child element, because the
+ * inputValueCalc element does take up one child element position.
+ * However, not in the group - because that is what is used to decide
+ * whether to place separators, and there should not be any separator
+ * corresponding to an IVC element.
+ */
 class StatementElementUnparserNoRep(
   erd: ElementRuntimeData,
   name: String,
-  setVar: Seq[Unparser],
+  setVarUnparsers: Array[Unparser])
+  extends StatementElementUnparser(
+    erd,
+    name,
+    setVarUnparsers,
+    Nope,
+    Nope) {
+
+  /**
+   * Move over in the element children, but not in the group.
+   * This avoids separators for this IVC element.
+   */
+  override def move(state: UState) {
+    val childIndex = state.childIndexStack.pop()
+    state.childIndexStack.push(childIndex + 1)
+  }
+
+  override def unparseBegin(state: UState) {
+    // do nothing - no stack manipulations
+  }
+
+  override def unparseEnd(state: UState) {
+    move(state)
+  }
+}
+
+class StatementElementOutputValueCalcUnparser(
+  erd: ElementRuntimeData,
+  name: String,
+  setVarUnparsers: Array[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparser(
     erd,
     name,
-    setVar,
+    setVarUnparsers,
     eUnparser,
     eAfterUnparser) {
 
-  override lazy val childProcessors = setVar ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
+  override def unparseBegin(state: UState) {
+    val e = new DISimple(erd)
+    state.currentInfosetNode.asComplex.addChild(e)
+    state.currentInfosetNodeStack.push(One(e))
+  }
 
-  // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
-  // but we don't create anything new as far as the group is concerned, and we don't want
-  // the group 'thinking' that there's a prior sibling inside the group and placing a
-  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
-  override def move(state: UState) {
-    val childIndex = state.childIndexStack.pop()
-    state.childIndexStack.push(childIndex + 1)
+  override def unparseEnd(state: UState) {
+    state.currentInfosetNodeStack.pop
+    // NOTE: NOT CALLING move(state). TBD: who advances ??
   }
 }

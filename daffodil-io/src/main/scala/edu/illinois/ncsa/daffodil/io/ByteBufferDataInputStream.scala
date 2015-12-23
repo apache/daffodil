@@ -162,7 +162,7 @@ private[io] class TLState {
  * The state that must be saved and restored by mark/reset calls
  */
 final class MarkState(initialBitPos0b: Long)
-  extends DataInputStream.Mark with DataStreamCommonState {
+  extends DataStreamCommonState with DataInputStream.Mark {
 
   def defaultCodingErrorAction = ByteBufferDataInputStream.defaultCodingErrorAction
 
@@ -245,14 +245,14 @@ private object BBSLimits extends DataStreamCommon.Limits {
  * these objects, and those may have non-zero positions. E.g., see the def makeACopy.
  */
 final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitPos0b: Long)
-  extends DataInputStream with TLStateMixin with DataStreamCommonImplMixin {
+  extends DataInputStreamImplMixin with TLStateMixin {
   import DataInputStream._
 
   Assert.usage(initialBitPos0b >= 0)
   val initialBytePos0b = initialBitPos0b / 8
 
   Assert.usage(initialBytePos0b < data.capacity() ||
-              (initialBytePos0b == data.capacity() && (initialBitPos0b % 8 == 0))) // when equal to capacity, bits of fragment partial byte can't spill over past the capacity.
+    (initialBytePos0b == data.capacity() && (initialBitPos0b % 8 == 0))) // when equal to capacity, bits of fragment partial byte can't spill over past the capacity.
 
   data.position((initialBitPos0b / 8).toInt) // set data position based on the initialBitPos0b
 
@@ -317,9 +317,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   /*
-   * Package private for unit test purposes. Otherwise would be protected.
+   * Want package private - but macro usage requires public
    */
-  final protected[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
+  final override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     // threadCheck()
     Assert.invariant(savedBitLimit0b.isDefined)
     val newBitLimit = savedBitLimit0b.get
