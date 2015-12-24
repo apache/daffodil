@@ -134,7 +134,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   override lazy val nodeKind = stmt.defv.primType
 
   def parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
-  override def unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData)
+  override def unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData, stmt.nonTermRuntimeData)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)

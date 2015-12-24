@@ -42,8 +42,8 @@ import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -152,17 +152,17 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 
 }
 
-case class VRef(qn: GlobalQName, context: ThrowsSDE)
+case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
   extends RecipeOp {
 
   override def run(dstate: DState) {
     Assert.invariant(dstate.vmap != null)
-    val (res, newVMap) = dstate.vmap.readVariable(qn, context)
+    val (res, newVMap) = dstate.vmap.readVariable(vrd, context)
     dstate.setVMap(newVMap)
     dstate.setCurrentValue(res)
   }
 
-  override def toXML = toXML("$" + qn.toPrettyString)
+  override def toXML = toXML("$" + vrd.globalQName.toPrettyString)
 
 }
 

@@ -1176,7 +1176,7 @@ case class VariableRef(val qnameString: String)
   extends PrimaryExpression(Nil) {
 
   override lazy val compiledDPath = {
-    val vrefOp = VRef(theQName, vrd)
+    val vrefOp = VRef(vrd, compileInfo)
     new CompiledDPath(vrefOp +: conversions)
   }
   override def text = "$" + qnameString

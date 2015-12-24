@@ -110,8 +110,6 @@ object VariableUtils {
     Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
 
-object EmptyVariableMap extends VariableMap()
-
 /**
  * Pure functional data structure for implementing DFDL's variables.
  *
@@ -123,21 +121,33 @@ object EmptyVariableMap extends VariableMap()
  * semantics (and complexity) into designing and debugging DFDL schemas. They also allow for parallel implementations since
  * order of evaluation does not matter.
  *
- * What makes this tricky to implement is that we're using the JDOM representation for the DFDL Infoset. This gives us
- * XPath expression evaluation as part of the implementation; however, that implementation must be made to implement the
+ * The DPath implementation must be made to implement the
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
- * Our "pure functional" desire lives in tension with this.
  */
-class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.empty)
+class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
   extends WithParseErrorThrowing
   with Serializable {
 
+  def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
+    this(topLevelVRDs.map {
+      vrd =>
+        val variab = vrd.newVariableInstance
+        (vrd.globalQName, List(List(variab)))
+    }.toMap)
+
   override def toString(): String = {
-    "VariableMap(" + variables.mkString(" | ") + ")"
+    "VariableMap(" + vTable.mkString(" | ") + ")"
+  }
+
+  def find(qName: GlobalQName): Option[Variable] = {
+    val optVrd = getVariableRuntimeData(qName)
+    val optLists = optVrd.flatMap { vrd => vTable.get(vrd.globalQName) }
+    val variab = optLists.flatMap { lists => lists.flatMap { _.toStream }.headOption }
+    variab
   }
 
   def getVariableRuntimeData(qName: GlobalQName): Option[VariableRuntimeData] = {
-    val optLists = variables.get(qName)
+    val optLists = vTable.get(qName)
     optLists match {
       case None => None // no such variable.
       case Some(lists) => {
@@ -152,7 +162,7 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
   lazy val context = Assert.invariantFailed("unused.")
 
   private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val newMap = variables + ((newVar.rd.globalQName, (newVar :: firstTier) :: enclosingScopes))
+    val newMap = vTable + ((newVar.rd.globalQName, (newVar :: firstTier) :: enclosingScopes))
     new VariableMap(newMap)
   }
 
@@ -160,18 +170,30 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
    * Convenient method of updating the entry of the Variable and returning a new VMap.
    */
   private def mkVMap(varQName: GlobalQName, updatedFirstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val updatableMap = scala.collection.mutable.Map(variables.toSeq: _*)
+    val updatableMap = scala.collection.mutable.Map(vTable.toSeq: _*)
     updatableMap(varQName) = updatedFirstTier :: enclosingScopes
     new VariableMap(updatableMap.toMap)
   }
+
+  /**
+   * For testing mostly.
+   */
+  def getVariableBindings(qn: GlobalQName): List[List[Variable]] = {
+    vTable.get(qn).get
+  }
+  //  def getVariableBindings(vrd: VariableRuntimeData): List[List[Variable]] = {
+  //    vTable.get(vrd.globalQName).get
+  //  }
 
   /**
    * Returns the value of a variable, constructing also a modified variable map which
    * shows that the variable has been read (state VariableRead), when the variable hadn't
    * previously been read yet.
    */
-  def readVariable(varQName: GlobalQName, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
-    val lists = variables.get(varQName)
+  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
+    val referringContext: ThrowsSDE = vrd
+    val varQName = vrd.globalQName
+    val lists = vTable.get(varQName)
     lists match {
 
       case Some(firstTier :: enclosingScopes) =>
@@ -206,8 +228,10 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData, pstate: ParseOrUnparseState): VariableMap = {
-    variables.get(varQName) match {
+  def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: ThrowsSDE, pstate: ParseOrUnparseState): VariableMap = {
+    val varQName = vrd.globalQName
+
+    vTable.get(varQName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", varQName)
 
@@ -247,7 +271,7 @@ class VariableMap(val variables: Map[GlobalQName, List[List[Variable]]] = Map.em
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
   def setExtVariable(varQName: GlobalQName, newValue: Any, referringContext: ThrowsSDE): VariableMap = {
-    variables.get(varQName) match {
+    vTable.get(varQName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", varQName)
 

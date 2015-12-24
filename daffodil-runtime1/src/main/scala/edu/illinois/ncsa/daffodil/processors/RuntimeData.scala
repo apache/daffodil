@@ -36,6 +36,8 @@ import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dsom.ConstantExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
@@ -44,6 +46,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.util.TransientParam
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.RefQName
 
@@ -164,7 +168,7 @@ class VariableRuntimeData(
   override val path: String,
   override val namespaces: NamespaceBinding,
   val external: Boolean,
-  val defaultValue: Option[String],
+  val maybeDefaultValueExpr: Maybe[CompiledExpression],
   val typeRef: RefQName,
   val globalQName: GlobalQName,
   val primType: NodeInfo.PrimType)
@@ -176,5 +180,21 @@ class VariableRuntimeData(
     namespaces,
     None)
   with Serializable {
+
+  private val state =
+    if (!maybeDefaultValueExpr.isDefined) VariableUndefined
+    else VariableDefined
+
+  private val maybeValue: Maybe[AnyRef] =
+    if (maybeDefaultValueExpr.isEmpty) Nope
+    else {
+      val defaultValueExpr = maybeDefaultValueExpr.get
+      defaultValueExpr match {
+        case constExpr: ConstantExpression => One(constExpr.constant.asInstanceOf[AnyRef])
+        case _ => Nope
+      }
+    }
+
+  def newVariableInstance: Variable = Variable(state, maybeValue, this, maybeDefaultValueExpr)
 
 }

@@ -85,7 +85,7 @@ class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
         case _ => /*fall through*/ }
       if (start.status.isInstanceOf[Failure]) return
       // val vmap = start.variableMap
-      start.setVariable(decl.globalQName, res, decl, start)
+      start.setVariable(decl, res, decl, start)
     }
   }
 }

@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
+import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
@@ -235,7 +235,7 @@ class Fakes private () {
     def setExternalVariables(extVars: Map[String, String]): Unit = {}
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}
-    def getVariables(): VariableMap = EmptyVariableMap
+    def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
     def parse(file: File): DFDL.ParseResult = null
     def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = null

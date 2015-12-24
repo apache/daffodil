@@ -41,9 +41,9 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import scala.util.Success
+import edu.illinois.ncsa.daffodil.processors.VariableMap
 
 class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -100,12 +100,14 @@ class TestExternalVariablesLoader extends Logging {
     val (sd, sset) = generateSD(topLevelAnnotations)
     val initialVMap = sset.variableMap
 
-    val initVars = initialVMap.variables
-    val (_, lst_v_no_default) = initVars.filterKeys(k => k == v_no_default).head
-    val (_, lst_v_with_default) = initVars.filterKeys(k => k == v_with_default).head
+    val lst_v_no_default = initialVMap.getVariableBindings(v_no_default)
+    val lst_v_with_default = initialVMap.getVariableBindings(v_with_default)
 
     val var_v_no_default = lst_v_no_default.head.head
     val var_v_with_default = lst_v_with_default.head.head
+
+    val v_no_default_vrd = var_v_no_default.rd
+    val v_with_default_vrd = var_v_with_default.rd
 
     // Verify that v_no_default isn't defined
     assertFalse(var_v_no_default.value.isDefined)
@@ -118,9 +120,9 @@ class TestExternalVariablesLoader extends Logging {
 
     // Verify that the external variables override the previous values
     // in the VariableMap
-    val (value1, _) = vmap.readVariable(v_no_default, Fakes.fakeElem)
+    val (value1, _) = vmap.readVariable(v_no_default_vrd, Fakes.fakeElem)
     assertEquals(1, value1)
-    val (value2, _) = vmap.readVariable(v_with_default, Fakes.fakeElem)
+    val (value2, _) = vmap.readVariable(v_with_default_vrd, Fakes.fakeElem)
     assertEquals(2, value2)
   }
 
@@ -130,7 +132,7 @@ class TestExternalVariablesLoader extends Logging {
     val e = intercept[SchemaDefinitionError] {
       // fakeSD does not contain any defineVariables
       // Because we are trying to load external variables and none are defined we should SDE.
-      ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, EmptyVariableMap)
+      ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, new VariableMap())
     }
     val err = e.getMessage()
     assertTrue(err.contains("unknown variable {http://example.com}v_no_default"))

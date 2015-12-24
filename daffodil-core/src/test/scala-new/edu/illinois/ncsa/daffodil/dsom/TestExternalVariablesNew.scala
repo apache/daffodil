@@ -57,6 +57,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.xml.QName
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -152,11 +153,14 @@ class TestExternalVariablesNew {
   }
 
   def checkResult(vmap: VariableMap, keyToFind: String, expectedValue: String) = {
-    vmap.variables.find { case (qn, value) => qn.toString == keyToFind } match {
-      case None => fail("Did not find " + keyToFind + " in the VariableMap.")
-      case Some((key, value)) => {
+    import scala.util.{ Success, Failure }
+    val tri = QName.refQNameFromExtendedSyntax(keyToFind).map { _.toGlobalQName }.map { qn => vmap.find(qn) }
+    tri match {
+      case Failure(th) => fail("The syntax '" + keyToFind + "' did not parse. Got " + DiagnosticUtils.getSomeMessage(th).get)
+      case Success(None) => fail("Did not find " + keyToFind + " in the VariableMap.")
+      case Success(Some(variab)) => {
         // Found var1 but is the value correct?
-        assertTrue(value.toString.contains("Variable(VariableDefined,One(" + expectedValue + ")"))
+        assertTrue(variab.toString.contains("Variable(VariableDefined,One(" + expectedValue + ")"))
       }
     }
   }
@@ -203,8 +207,6 @@ class TestExternalVariablesNew {
 
     val sset = pf.sset
 
-    sset.variableMap.variables
-
     // var1's namespace was htp://example.com, so we expect to find it
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")
 
@@ -249,8 +251,6 @@ class TestExternalVariablesNew {
 
     val pf = c.compileSource(source)
     val sset = pf.sset
-
-    val _ = sset.variableMap.variables
 
     // var1's namespace was htp://example.com, so we expect to find it
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")

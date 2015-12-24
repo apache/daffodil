@@ -53,6 +53,7 @@ import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
+import edu.illinois.ncsa.daffodil.util.Maybe
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
@@ -85,7 +86,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   final lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
 
-  final lazy val newVariableInstance = VariableFactory.create(this, globalQName, primType, defaultValue, external, doc)
+  final def newVariableInstance = variableRuntimeData.newVariableInstance
 
   // So that we can display the namespace information associated with
   // the variable when toString is called.
@@ -93,13 +94,23 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   final override lazy val runtimeData = variableRuntimeData
 
+  private lazy val maybeDefaultValueExpr = {
+    val compilationTargetType = primType
+
+    val defaultValExpr = defaultValue.map { e =>
+      ExpressionCompiler.compile(compilationTargetType, Found(e, this.dpathCompileInfo))
+    }
+
+    Maybe.toMaybe(defaultValExpr)
+  }
+
   final lazy val variableRuntimeData = new VariableRuntimeData(
     this.schemaFileLocation,
     this.prettyName,
     this.path,
     this.namespaces,
     this.external,
-    this.defaultValue,
+    maybeDefaultValueExpr,
     this.typeQName,
     this.namedQName.asInstanceOf[GlobalQName],
     this.primType)

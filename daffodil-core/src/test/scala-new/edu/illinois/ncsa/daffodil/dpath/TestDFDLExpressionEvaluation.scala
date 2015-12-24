@@ -37,7 +37,6 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import scala.xml.Utility
-import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
 import edu.illinois.ncsa.daffodil.xml.NS

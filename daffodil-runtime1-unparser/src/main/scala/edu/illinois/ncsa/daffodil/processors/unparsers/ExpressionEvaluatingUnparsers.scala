@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -58,7 +59,7 @@ abstract class ExpressionEvaluationUnparser(expr: CompiledExpression, rd: Runtim
   }
 }
 
-class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
+class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData, referencingContext: NonTermRuntimeData)
   extends ExpressionEvaluationUnparser(expr, decl) {
 
   def unparse(start: UState): Unit = {
@@ -67,13 +68,13 @@ class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
     val someValue = eval(start)
 
     if (start.status.isInstanceOf[Failure])
-      UnparseError(One(decl.schemaFileLocation), One(start.currentLocation), "%s - Evaluation failed for %s.", nom, expr)
+      UnparseError(One(referencingContext.schemaFileLocation), One(start.currentLocation), "%s - Evaluation failed for %s.", nom, expr)
 
-    val newVMap = start.variableMap.setVariable(decl.globalQName, someValue, decl, start)
+    val newVMap = start.variableMap.setVariable(decl, someValue, referencingContext, start)
     start.setVariables(newVMap)
 
     if (start.status.isInstanceOf[Failure])
-      UnparseError(One(decl.schemaFileLocation), One(start.currentLocation), "%s - SetVariable failed for %s.", nom, expr)
+      UnparseError(One(referencingContext.schemaFileLocation), One(start.currentLocation), "%s - SetVariable failed for %s.", nom, expr)
   }
 
 }
