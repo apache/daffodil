@@ -64,7 +64,7 @@ object ByteBufferDataInputStream {
    * File becomes a direct mapped byte buffer.
    */
   def apply(file: java.io.File, initialBitPos0b: Long): DataInputStream = {
-    //Assert.usage(file.length() < Int.MaxValue)
+    Assert.usage(file.length() < Int.MaxValue)
     val path = file.toPath()
     val channel = FileChannel.open(path)
     apply(channel, initialBitPos0b)
@@ -248,11 +248,11 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   extends DataInputStream with TLStateMixin with DataStreamCommonImplMixin {
   import DataInputStream._
 
-  //Assert.usage(initialBitPos0b >= 0)
+  Assert.usage(initialBitPos0b >= 0)
   val initialBytePos0b = initialBitPos0b / 8
 
-  //Assert.usage(initialBytePos0b < data.capacity() ||
-  //(initialBytePos0b == data.capacity() && (initialBitPos0b % 8 == 0))) // when equal to capacity, bits of fragment partial byte can't spill over past the capacity.
+  Assert.usage(initialBytePos0b < data.capacity() ||
+              (initialBytePos0b == data.capacity() && (initialBitPos0b % 8 == 0))) // when equal to capacity, bits of fragment partial byte can't spill over past the capacity.
 
   data.position((initialBitPos0b / 8).toInt) // set data position based on the initialBitPos0b
 
@@ -279,8 +279,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def setBitPos0b(newBitPos0b: Long) {
     // threadCheck()
-    //Assert.invariant(newBitPos0b < (Int.MaxValue * 8L))
-    //Assert.invariant(newBitPos0b >= 0)
+    Assert.invariant(newBitPos0b < (Int.MaxValue * 8L))
+    Assert.invariant(newBitPos0b >= 0)
     val newBitOffset0b = (newBitPos0b & 0x7).toInt
     val newBytePos0b = (newBitPos0b >> 3).toInt
     val bitLim0b = bitLimit0b.get
@@ -299,16 +299,16 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   def calcBitLimit0b: Long = {
     // threadCheck()
     // we always have a bitLimit in this implementation
-    //Assert.invariant(st.maybeBitLimitOffset0b.isDefined)
+    Assert.invariant(st.maybeBitLimitOffset0b.isDefined)
     (data.limit << 3) + st.maybeBitLimitOffset0b.get
   }
 
   override def setBitLimit0b(newBitLimit0b: MaybeULong): Boolean = {
     // threadCheck()
-    //Assert.invariant(newBitLimit0b.isDefined)
+    Assert.invariant(newBitLimit0b.isDefined)
     val newBitLimit = newBitLimit0b.get
     if (newBitLimit > Int.MaxValue) return false
-    //Assert.usage(newBitLimit >= bitPos0b)
+    Assert.usage(newBitLimit >= bitPos0b)
     if (st.maybeBitLimitOffset0b.isDefined) {
       if (newBitLimit > this.calcBitLimit0b) return false // new limit is beyond our available length.
     }
@@ -321,7 +321,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
    */
   final protected[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     // threadCheck()
-    //Assert.invariant(savedBitLimit0b.isDefined)
+    Assert.invariant(savedBitLimit0b.isDefined)
     val newBitLimit = savedBitLimit0b.get
     val bitLim = newBitLimit.toInt
     val newBitLimitOffset0b = bitLim & 0x7
@@ -407,13 +407,13 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         fillByteBufferByteAligned(bb) // bit order doesn't matter.
       else
         fillByteBufferUnaligned(bb) // bit order sensitive
-    //Assert.invariant(bitPos0b <= bitLimit0b.get)
+    Assert.invariant(bitPos0b <= bitLimit0b.get)
     res
   }
 
   private def fillByteBufferByteAligned(bb: java.nio.ByteBuffer): MaybeInt = {
     // threadCheck()
-    //Assert.usage(isAligned(8))
+    Assert.usage(isAligned(8))
     var i = 0
     val dataRemainingBefore = data.remaining()
     val delta = math.min(bb.remaining(), dataRemainingBefore)
@@ -431,7 +431,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           // there is room for one more byte at least, but we stopped because
           // we ran out of whole bytes of input data. So we need to also transfer
           // a final byte containing the bit fragment.
-          //Assert.invariant(data.capacity() > data.limit()) // the final fragment byte must live somewhere
+          Assert.invariant(data.capacity() > data.limit()) // the final fragment byte must live somewhere
           val savedDataLimit = data.limit()
           data.limit(savedDataLimit + 1)
           val finalByte = data.get(savedDataLimit) // absolute get.
@@ -449,10 +449,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   private def fillByteBufferUnaligned(bb: java.nio.ByteBuffer): MaybeInt = {
     // threadCheck()
-    //Assert.usage(!isAligned(8))
+    Assert.usage(!isAligned(8))
     val initialBitPos0b = bitPos0b
     val numFragmentBits = 8 - st.bitOffset0b
-    //Assert.invariant(numFragmentBits > 0)
+    Assert.invariant(numFragmentBits > 0)
     val src = data
     val tgt = bb
     if (tgt.remaining() == 0) return MaybeInt.Nope // nothing to do
@@ -513,7 +513,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       }
       countBytesTransferred
     }
-    //Assert.invariant(bitLimit0b.isDefined)
+    Assert.invariant(bitLimit0b.isDefined)
     //
     // Important detail: the bitPos after this method may be shorter than 8 * number of bytes
     // transferred, because the data may end in the middle of a byte. If so the final partial
@@ -528,7 +528,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   def getBinaryDouble(): Double = {
-    //Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
+    Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
     val db = data.asDoubleBuffer() // note: byte order is inherited from data
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(64)
     else {
@@ -539,7 +539,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   def getBinaryFloat(): Float = {
-    //Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
+    Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
     val db = data.asFloatBuffer() // note: byte order is inherited from data's current
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(32)
     else {
@@ -560,7 +560,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   def signExtend(l: Long, bitLength: Int): Long = {
-    //Assert.usage(bitLength > 0 && bitLength <= 64)
+    Assert.usage(bitLength > 0 && bitLength <= 64)
     if (bitLength == 1) return l // a single bit has no sign to extend
     val shift = 64 - bitLength
     val res = ((l << shift) >> shift) // arithmetic shift right extends sign.
@@ -568,7 +568,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   def unSignExtend(l: Long, bitLength: Int): Long = {
-    //Assert.usage(bitLength > 0 && bitLength <= 64)
+    Assert.usage(bitLength > 0 && bitLength <= 64)
     val mask = if (bitLength == 64) -1L else (1L << bitLength) - 1
     l & mask
   }
@@ -580,22 +580,22 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
    */
   def getSignedLong(bitLengthFrom1To64: Int): Long = {
     // threadCheck()
-    //Assert.usage(bitLengthFrom1To64 >= 1)
-    //Assert.usage(bitLengthFrom1To64 <= 64)
+    Assert.usage(bitLengthFrom1To64 >= 1)
+    Assert.usage(bitLengthFrom1To64 <= 64)
     val sl =
       if (data.order() eq java.nio.ByteOrder.BIG_ENDIAN) {
-        //Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
+        Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
         converter_BE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
       } else {
-        //Assert.invariant(data.order() eq java.nio.ByteOrder.LITTLE_ENDIAN)
+        Assert.invariant(data.order() eq java.nio.ByteOrder.LITTLE_ENDIAN)
         if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
           converter_LE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
         } else {
-          //Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
+          Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
           converter_LE_LSBFirst.getSignedLong(bitLengthFrom1To64, this)
         }
       }
-    //Assert.invariant(bitPos0b <= bitLimit0b.get)
+    Assert.invariant(bitPos0b <= bitLimit0b.get)
     sl
   }
 
@@ -610,7 +610,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def getSignedBigInt(bitLengthFrom1: Int): BigInt = {
     // threadCheck()
-    //Assert.usage(bitLengthFrom1 >= 1)
+    Assert.usage(bitLengthFrom1 >= 1)
     if (bitLengthFrom1 <= 64) {
       if (this.isDefinedForLength(bitLengthFrom1))
         BigInt(getSignedLong(bitLengthFrom1))
@@ -621,9 +621,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // val savedDataLimit = data.limit()
       // data.limit(data.position() + nBytesNeeded) // Not necessary since we're allocating the rawBytes array below.
       val rawBytes = ByteBuffer.allocate(nBytesNeeded) // FIXME: Performance, no need to allocate this. Can re-use a max-sized one.
-      fillByteBuffer(rawBytes)
-      //Assert.invariant(maybeN.isDefined)
-      //Assert.invariant(maybeN.get == nBytesNeeded)
+      val maybeN = fillByteBuffer(rawBytes)
+      Assert.invariant(maybeN.isDefined)
+      Assert.invariant(maybeN.get == nBytesNeeded)
       // at this point we have the bytes we need. The last byte may contain a fragment of a byte
       val fragmentByteWidth = bitLengthFrom1 % 8
       val fragmentByteShift = if (fragmentByteWidth == 0) 0 else 8 - fragmentByteWidth
@@ -631,11 +631,11 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // data.limit(savedDataLimit) // restore data limit - not necessary per above
       val result =
         if (javaByteOrder =:= java.nio.ByteOrder.BIG_ENDIAN) {
-          //Assert.invariant(st.bitOrder == BitOrder.MostSignificantBitFirst)
+          Assert.invariant(st.bitOrder == BitOrder.MostSignificantBitFirst)
           val res = BigInt(allBytes) >> fragmentByteShift
           res
         } else {
-          //Assert.invariant(javaByteOrder =:= java.nio.ByteOrder.LITTLE_ENDIAN)
+          Assert.invariant(javaByteOrder =:= java.nio.ByteOrder.LITTLE_ENDIAN)
           Bits.reverseBytes(allBytes)
           if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
             // if the last byte was a fragment, now the first byte is the fragment.
@@ -670,7 +670,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = {
-    //Assert.usage(bitLengthFrom1 >= 1)
+    Assert.usage(bitLengthFrom1 >= 1)
     val bi = getSignedBigInt(bitLengthFrom1)
     signedBigIntToUnsigned(bitLengthFrom1, bi)
   }
@@ -681,7 +681,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
    * Does not advance the position
    */
   final def isDefinedForLength(nBits: Long): Boolean = {
-    //Assert.invariant(dis.bitLimit0b.isDefined)
+    Assert.invariant(bitLimit0b.isDefined)
     val bitLim = bitLimit0b.get
     if (bitPos0b + nBits > bitLim) false
     else true
@@ -689,7 +689,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def skip(nBits: Long): Boolean = {
     // threadCheck()
-    //Assert.usage(nBits <= Int.MaxValue)
+    Assert.usage(nBits <= Int.MaxValue)
     if (!this.isDefinedForLength(nBits)) return false
     setBitPos0b(bitPos0b + nBits)
     true
@@ -718,7 +718,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def mark: DataInputStream.Mark = {
     val m = markPool.getFromPool
-    //Assert.invariant(!markStack.contains(m)) // commented out, too intensive for inner loop
     m.assignFrom(st)
     m.savedBytePosition0b = data.position()
     m.savedByteLimit0b = data.limit()
@@ -729,22 +728,20 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   private def releaseUntilMark(mark: DataInputStream.Mark) = {
     // threadCheck()
-    //Assert.usage(!markStack.isEmpty)
-    //Assert.usage(mark != null)
-    //Assert.invariant(!markPool.contains(mark)) // commented out, too intensive for inner loop
-    //Assert.invariant(markStack.contains(mark)) // commented out, too intensive for inner loop
+    Assert.usage(!markStack.isEmpty)
+    Assert.usage(mark != null)
     var current = markStack.pop
     while (!(markStack.isEmpty) && (current ne mark)) {
       markPool.returnToPool(current)
       current = markStack.pop
     }
-    //Assert.invariant(current eq mark) // holds unless markStack was empty // commented out, too intensive for inner loop
+    Assert.invariant(current eq mark) // holds unless markStack was empty
     current
   }
 
   def reset(mark: DataInputStream.Mark): Unit = {
     val current = releaseUntilMark(mark)
-    //Assert.invariant(current eq mark) // commented out, too intensive for inner loop
+    Assert.invariant(current eq mark)
     st.assignFrom(current)
     data.position(st.savedBytePosition0b)
     data.limit(st.savedByteLimit0b)
@@ -756,8 +753,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def discard(mark: DataInputStream.Mark): Unit = {
     val current = releaseUntilMark(mark)
-    //Assert.invariant(current eq mark) // commented out, too intensive for inner loop
-    //Assert.invariant(!markStack.contains(mark)) // commented out, too intensive for inner loop
+    Assert.invariant(current eq mark)
     markPool.returnToPool(current)
   }
 
@@ -804,7 +800,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val cbRemainingBefore = cb.remaining() // must capture this before the surrogate pair screwing around.
     val bbRemainingBefore = data.remaining()
 
-    //Assert.usage(cbRemainingBefore > 0)
+    Assert.usage(cbRemainingBefore > 0)
 
     cr = decoder.decode(data, cb, true)
     nCharsTransferred = cbRemainingBefore - cb.remaining()
@@ -816,10 +812,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // by checking the cheapest thing to check first
     //
     if (cbRemainingBefore == 1 && nCharsTransferred == 0 && nBytesConsumed == 0 && cr.isOverflow()) {
-      //Assert.invariant(bbRemainingBefore >= 4)
-      //Assert.invariant(st.decoder.charset() == StandardCharsets.UTF_8)
-      // val firstByte = data.get(data.position())
-      //Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
+      Assert.invariant(bbRemainingBefore >= 4)
+      Assert.invariant(st.decoder.charset() == StandardCharsets.UTF_8)
+      val firstByte = data.get(data.position())
+      Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
       //
       // What's painful is that we have to detect this because any time F0 appears in
       // bad data that is UTF-8, we don't get an error unless we have room for 2
@@ -837,7 +833,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       //
       val firstChar = tempCB.get(0)
       if (nDecoded == 1 && firstChar == 0xFFFD.toChar) {
-        //Assert.invariant(!cr.isError)
+        Assert.invariant(!cr.isError)
         //
         // we got exactly 1 substitution character
         //
@@ -857,18 +853,18 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         cb.put(0xFFFD.toChar)
         st.resetUTF8SurrogatePairCapture
       } else if (nDecoded == 2 && firstChar.isHighSurrogate) {
-        //Assert.invariant(!cr.isError)
+        Assert.invariant(!cr.isError)
         // surrogate pair case
         // note that the decode operation has advanced data by 4 bytes.
-        //Assert.invariant(bbRemainingBefore - 4 =#= data.remaining)
+        Assert.invariant(bbRemainingBefore - 4 =#= data.remaining)
         val leadingSurrogate = firstChar
         val trailingSurrogate = tempCB.get(1)
-        //Assert.invariant(trailingSurrogate.isLowSurrogate)
+        Assert.invariant(trailingSurrogate.isLowSurrogate)
         st.maybeTrailingSurrogateForUTF8 = MaybeChar(trailingSurrogate)
         st.priorBitPos = bitPos0b
         cb.put(leadingSurrogate)
       } else {
-        //Assert.invariant(cr.isError)
+        Assert.invariant(cr.isError)
         // error case -
         st.resetUTF8SurrogatePairCapture
       }
@@ -957,7 +953,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         if (st.codingErrorAction == CodingErrorAction.REPORT)
           cr.throwException()
         else {
-          //Assert.invariant(st.codingErrorAction == CodingErrorAction.REPLACE)
+          Assert.invariant(st.codingErrorAction == CodingErrorAction.REPLACE)
           //
           // it's possible bytes were consumed. Rewind those.
           setBitPos0b(bitPos0bBefore)
@@ -985,7 +981,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       setBitPos0b(bitPos0bBefore)
       MaybeULong.Nope
     } else {
-      //Assert.invariant(nBytesConsumed == bbRemainingBefore - data.remaining())
+      Assert.invariant(nBytesConsumed == bbRemainingBefore - data.remaining())
       val lengthInBits = stringLengthInbits(nBytesConsumed, nCharsTransferred)
       setBitPos0b(bitPos0bBefore + lengthInBits)
       MaybeULong(nCharsTransferred)
@@ -994,7 +990,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def skipChars(nChars: Long): Boolean = {
     // threadCheck()
-    //Assert.usage(nChars <= skipCharBuf.capacity())
+    Assert.usage(nChars <= skipCharBuf.capacity())
     skipCharBuf.clear
     skipCharBuf.limit(nChars.toInt)
     var maybeN: MaybeULong = MaybeULong(0L)
@@ -1028,7 +1024,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         regexMatchBuffer.limit(st.adaptedRegexMatchBufferLimit)
         false // not done, try the match again
       } else {
-        //Assert.invariant(existingLimit == existingCapacity)
+        Assert.invariant(existingLimit == existingCapacity)
         // need more but we can't enlarge it any more
         // match is done. It might be successful or might have failed to match
         // but either way we have a decision now.
@@ -1157,8 +1153,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           // In other words, if hitEnd is false after an attempted match, then we don't need to
           // keep pushing ahead decoding (and substituting for errors) into the data.
           //
-          fillCharBufferLoop(lengthDeterminationBuffer)
-          //Assert.invariant(isFilled)
+          val isFilled = fillCharBufferLoop(lengthDeterminationBuffer)
+          Assert.invariant(isFilled)
           val nbits = bitPos0b - initialBitPos0b
           nbits
         }
@@ -1173,7 +1169,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   def pastData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
-    //Assert.usage(nBytesRequested >= 0)
+    Assert.usage(nBytesRequested >= 0)
     val bb = data.duplicate()
     val posOffset = math.min(bytePos0b, nBytesRequested).toInt
     bb.limit(bb.position)
@@ -1184,7 +1180,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   def futureData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
-    //Assert.usage(nBytesRequested >= 0)
+    Assert.usage(nBytesRequested >= 0)
     if (nBytesRequested == 0) return ByteBuffer.allocate(0)
     val bb = data.duplicate()
     if (bytePos0b + nBytesRequested < bb.limit()) {
@@ -1248,7 +1244,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     if (maybeNumChars.isEmpty) {
       // Couldn't get one character
       ist.deltaBits = 0
-      //Assert.invariant(dis.bitPos0b =#= dataBitPosBefore0b)
+      Assert.invariant(dis.bitPos0b =#= dataBitPosBefore0b)
       return false
     }
     // got 1 character
@@ -1261,7 +1257,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
   def peek(): Char = {
     // threadCheck()
     if (!hasNext) return -1.toChar
-    //Assert.invariant(st.charIteratorState.isFetched)
+    Assert.invariant(st.charIteratorState.isFetched)
     val c = st.charIteratorState.cb.get(0)
     c
   }
@@ -1291,7 +1287,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     }
     if (!ist.isFetched) ist.isFetched = fetch()
 
-    //Assert.invariant(dis.bitPos0b <= dis.bitLimit0.getb)
+    Assert.invariant(dis.bitPos0b <= dis.bitLimit0b.get)
     ist.isFetched
   }
 
@@ -1313,7 +1309,7 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     ist.isFetched = false
     val newBitPos0b = dis.bitPos0b + ist.deltaBits
     dis.setBitPos0b(newBitPos0b)
-    //Assert.invariant(dis.bitPos0b <= dis.bitLimit0b.get)
+    Assert.invariant(dis.bitPos0b <= dis.bitLimit0b.get)
     c
   }
 }
@@ -1450,7 +1446,7 @@ private class Converter_LE_MSBFirst extends LongConverter {
         }
         if (dis.st.bitOffset0b >= numBitsInLastByte) {
           // the shift left above will leave no bits in the final byte.
-          //Assert.invariant(smallBuf.limit() > 1)
+          Assert.invariant(smallBuf.limit() > 1)
           smallBuf.limit(smallBuf.limit - 1) // shorten it by 1 byte.
         }
         //
@@ -1544,7 +1540,7 @@ private class Converter_LE_LSBFirst extends LongConverter {
           // we shifted every bit out of the last byte
           nBytesNeeded - 1
         }
-      //Assert.invariant(numBytesRemaining == smallBuf.limit || numBytesRemaining == (smallBuf.limit - 1))
+      Assert.invariant(numBytesRemaining == smallBuf.limit || numBytesRemaining == (smallBuf.limit - 1))
       smallBuf.limit(numBytesRemaining)
 
       // Now we can reverse the bits back to their original bit order

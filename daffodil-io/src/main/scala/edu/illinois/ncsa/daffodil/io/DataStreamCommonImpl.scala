@@ -94,7 +94,7 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
   }
 
   final override def isAligned(bitAlignment1b: Int): Boolean = {
-    //Assert.usage(bitAlignment1b >= 1)
+    Assert.usage(bitAlignment1b >= 1)
     val alignment = bitPos0b % bitAlignment1b
     val res = alignment == 0
     res

@@ -270,7 +270,7 @@ class TextDelimitedParserWithEscapeBlock(
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
-      //Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
+      Assert.invariant(beforeDelimiter =#= DataInputStream.MarkPos.NoMarkPos)
       fieldEsc.run(fieldRegister)
       val dfaStatus = fieldRegister.status
       beforeDelimiter = input.markPos // at this point the input is one past the end of the field.
@@ -343,7 +343,7 @@ class TextDelimitedParserWithEscapeBlock(
         }
       }
     } // End While
-    //Assert.invariant(beforeDelimiter !=:= DataInputStream.MarkPos.NoMarkPos)
+    Assert.invariant(beforeDelimiter !=#= DataInputStream.MarkPos.NoMarkPos)
     input.resetPos(beforeDelimiter)
     val lm = longestMatch(successes)
     val result = {
@@ -368,7 +368,7 @@ class TextDelimitedParserWithEscapeBlock(
         //
         // A delimiter was found
         //
-        //Assert.invariant(lm.isDefined)
+        Assert.invariant(lm.isDefined)
         val (dfa, r) = lm.get
         val fieldValue: Maybe[String] = {
           One(fieldRegister.resultString.toString)
@@ -395,11 +395,11 @@ class TextDelimitedParserWithEscapeBlock(
   def parse(input: DataInputStream, field: DFAField, fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
     delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
-    //Assert.invariant(delims != null)
-    //Assert.invariant(fieldEsc != null)
-    //Assert.invariant(field != null)
-    //Assert.invariant(startBlock != null)
-    //Assert.invariant(endBlock != null)
+    Assert.invariant(delims != null)
+    Assert.invariant(fieldEsc != null)
+    Assert.invariant(field != null)
+    Assert.invariant(startBlock != null)
+    Assert.invariant(endBlock != null)
 
     removeLeftPadding(input, delims)
     val foundStartBlock = parseStartBlock(input, startBlock, delims)

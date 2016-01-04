@@ -193,12 +193,12 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
    */
   def iterator: Iterator[T] = new Iterator[T] {
     private var currentIndex = index
-    // private val initialIndex = index
+    private val initialIndex = index
 
     def hasNext = currentIndex > 0
     def next() = {
-      //Assert.usage(hasNext)
-      //Assert.usage(initialIndex <= index) // can't make it smaller than when initialized.
+      Assert.usage(hasNext)
+      Assert.usage(initialIndex <= index) // can't make it smaller than when initialized.
       currentIndex -= 1
       table(currentIndex).asInstanceOf[T]
     }
