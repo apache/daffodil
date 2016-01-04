@@ -528,7 +528,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(64)
     else {
       val d = db.get()
-      data.position(data.position + 8)
       setBitPos0b(bitPos0b + 64)
       d
     }
@@ -540,7 +539,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(32)
     else {
       val d = db.get()
-      data.position(data.position + 4)
       setBitPos0b(bitPos0b + 32)
       d
     }
@@ -605,16 +603,16 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     ULong(u)
   }
 
-  def getSignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = {
+  def getSignedBigInt(bitLengthFrom1: Int): BigInt = {
     // threadCheck()
     //Assert.usage(bitLengthFrom1 >= 1)
     if (bitLengthFrom1 <= 64) {
       if (this.isDefinedForLength(bitLengthFrom1))
-        One(BigInt(getSignedLong(bitLengthFrom1)))
-      else Nope
+        BigInt(getSignedLong(bitLengthFrom1))
+      else throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
     } else {
       val nBytesNeeded = computeNBytesNeeded(bitLengthFrom1, 0)
-      if (data.remaining() < nBytesNeeded) return Nope
+      if (data.remaining() < nBytesNeeded) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
       // val savedDataLimit = data.limit()
       // data.limit(data.position() + nBytesNeeded) // Not necessary since we're allocating the rawBytes array below.
       val rawBytes = ByteBuffer.allocate(nBytesNeeded) // FIXME: Performance, no need to allocate this. Can re-use a max-sized one.
@@ -652,7 +650,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           //
           BigInt(allBytes)
         }
-      One(result)
+      result
     }
   }
 
@@ -666,11 +664,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
   }
 
-  def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = {
+  def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = {
     //Assert.usage(bitLengthFrom1 >= 1)
-    getSignedBigInt(bitLengthFrom1).map {
-      signed => signedBigIntToUnsigned(bitLengthFrom1, signed)
-    }
+    val bi = getSignedBigInt(bitLengthFrom1)
+    signedBigIntToUnsigned(bitLengthFrom1, bi)
   }
 
   /**

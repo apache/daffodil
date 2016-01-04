@@ -1146,7 +1146,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <bit38>-1</bit38>
+        <bit38>1</bit38>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1278,10 +1278,10 @@
       <tdml:dfdlInfoset>
         <s4>
           <bit33>42</bit33>
-          <bit34>-1</bit34>
+          <bit34>1</bit34>
           <bit35>16777216</bit35>
           <bit36>0</bit36>
-          <bit37>-1</bit37>
+          <bit37>1</bit37>
         </s4>
       </tdml:dfdlInfoset>
     </tdml:infoset>

@@ -31,7 +31,7 @@
 					textStandardZeroRep="0" textStandardInfinityRep="Inf"
 					textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
 					textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
-					textNumberRoundingIncrement="0"  />
+					textNumberRoundingIncrement="0" decimalSigned="yes" />
 			</dfdl:defineFormat>
 
 			<!-- As we add new properties, add them here. -->

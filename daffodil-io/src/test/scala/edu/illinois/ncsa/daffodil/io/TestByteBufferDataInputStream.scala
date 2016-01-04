@@ -298,7 +298,7 @@ class TestByteBufferDataInputStream {
     val ml = dis.getSignedBigInt(1)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = BigInt(1)
-    assertTrue(expected =:= ml.get)
+    assertTrue(expected =:= ml)
   }
 
   @Test def testSignedBigInt2 {
@@ -306,7 +306,7 @@ class TestByteBufferDataInputStream {
     val ml = dis.getSignedBigInt(40)
     assertEqualsTyped[Long](40, dis.bitPos0b)
     val expected = BigInt(0xFFFFFFC1C2C3C4C5L)
-    assertEqualsTyped[BigInt](expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt1 {
@@ -314,7 +314,7 @@ class TestByteBufferDataInputStream {
     val ml = dis.getUnsignedBigInt(2)
     assertEqualsTyped(2, dis.bitPos0b)
     val expected = BigInt(3)
-    assertEqualsTyped[BigInt](expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt2 {
@@ -322,7 +322,7 @@ class TestByteBufferDataInputStream {
     val ml = dis.getUnsignedBigInt(40)
     assertEqualsTyped(40, dis.bitPos0b)
     val expected = BigInt(0xC1C2C3C4C5L)
-    assertEqualsTyped[BigInt](expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt3 {
@@ -332,10 +332,9 @@ class TestByteBufferDataInputStream {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val mbi = dis.getUnsignedBigInt(dat.length * 4)
-    assertTrue(mbi.isDefined)
     val expected = BigInt(dat.reverse, 16)
     val expectedHex = "%x".format(expected)
-    val actualHex = "%x".format(mbi.get)
+    val actualHex = "%x".format(mbi)
     assertEqualsTyped[String](expectedHex, actualHex)
   }
 
@@ -357,8 +356,7 @@ class TestByteBufferDataInputStream {
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val nBits = (expectedHex.length * 4)
     val mbi = dis.getUnsignedBigInt(nBits)
-    assertTrue(mbi.isDefined)
-    val actual = mbi.get
+    val actual = mbi
     val actualHex = "%x".format(actual)
     val expectedHexNoLeadingZeros = "%x".format(expected)
     assertEqualsTyped[String](expectedHexNoLeadingZeros, actualHex)

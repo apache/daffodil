@@ -529,21 +529,28 @@ trait DataInputStream
    * <p>
    * The result will never be negative.
    * <p>
-   * If the data stream does not have bitLengthFrom1 remaining bits, Nope is returned.
+   * If the data stream does not have bitLengthFrom1 remaining bits,
+   * NotEnoughDataException is thrown. Calls should be preceded by calls to isDefinedForLength
+   * to check if sufficient bits are available. Alternatively one can catch the exception,
+   * but that is likely less performant.
    * <p>
    * Usage: The smallest value of bitLengthFrom1 is 1.
    * <p>
    * It is recommended that getUnsignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt]
+  def getUnsignedBigInt(bitLengthFrom1: Int): BigInt
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
    * <p>
    * The result will be negative if the most significant bit is set.
    * <p>
-   * If the data stream does not have bitLengthFrom1 remaining bits, Nope is returned.
+   * If the data stream does not have bitLengthFrom1 remaining bits,
+   * NotEnoughDataException is thrown. Calls should be preceded by calls to isDefinedForLength
+   * to check if sufficient bits are available. Alternatively one can catch the exception,
+   * but that is likely less performant.
+   *
    * If the bitLength is 1, then the value returned will be 1 or 0 depending on
    * the bit value. That is, if there is only 1 bit, it is treated as non-negative.
    * <p>
@@ -552,7 +559,7 @@ trait DataInputStream
    * It is recommended that getSignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getSignedBigInt(bitLengthFrom1: Int): Maybe[BigInt]
+  def getSignedBigInt(bitLengthFrom1: Int): BigInt
 
   /**
    * Float and Double

@@ -325,25 +325,25 @@ trait ElementBaseGrammarMixin
       case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
-          case -1 => new SignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+          case -1 => new BinaryIntegerRuntimeLength(this, true)
+          case _ => new BinaryIntegerKnownLength(this, true, binaryNumberKnownLengthInBits)
         }
       }
 
       case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt | PrimType.UnsignedLong | PrimType.NonNegativeInteger => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
-          case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+          case -1 => new BinaryIntegerRuntimeLength(this, false)
+          case _ => new BinaryIntegerKnownLength(this, false, binaryNumberKnownLengthInBits)
         }
       }
 
       case PrimType.Double | PrimType.Float =>
         (primType, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
           case (_, -1, BinaryFloatRep.Ieee) => SDE("Floating point binary numbers may not have runtime-specified lengths.")
-          case (PrimType.Float, 32, BinaryFloatRep.Ieee) => new FloatKnownLengthRuntimeByteOrderBinaryNumber(this, 32)
+          case (PrimType.Float, 32, BinaryFloatRep.Ieee) => new BinaryFloat(this)
           case (PrimType.Float, n, BinaryFloatRep.Ieee) => SDE("binary xs:float must be 32 bits. Length in bits was %s.", n)
-          case (PrimType.Double, 64, BinaryFloatRep.Ieee) => new DoubleKnownLengthRuntimeByteOrderBinaryNumber(this, 64)
+          case (PrimType.Double, 64, BinaryFloatRep.Ieee) => new BinaryDouble(this)
           case (PrimType.Double, n, BinaryFloatRep.Ieee) => SDE("binary xs:double must be 64 bits. Length in bits was %s.", n)
           case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
@@ -354,7 +354,10 @@ trait ElementBaseGrammarMixin
           SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
         if (binaryDecimalVirtualPoint < DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
           SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
-        new DecimalKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+        binaryNumberKnownLengthInBits match {
+          case -1 => new BinaryDecimalRuntimeLength(this)
+          case _ => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
+        }
       }
       case _ => notYetImplemented("Type %s when representation='binary'", primType.name)
     }

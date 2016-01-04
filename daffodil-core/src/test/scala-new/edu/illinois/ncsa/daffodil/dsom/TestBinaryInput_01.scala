@@ -80,7 +80,7 @@ class TestBinaryInput_01 {
     dis.reset(startOver)
     startOver = dis.mark
     if (offset > 0) dis.skip(offset)
-    dis.getSignedBigInt(len).get
+    dis.getSignedBigInt(len)
   }
 
   /*** DFDL-334 ***/

@@ -1960,7 +1960,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:double</tdml:error>
+      <tdml:error>64</tdml:error>
+      <tdml:error>7</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2081,7 +2082,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:decimal</tdml:error>
+      <tdml:error>64</tdml:error>
+      <tdml:error>7</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2415,7 +2417,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:float</tdml:error>
+      <tdml:error>32</tdml:error>
+      <tdml:error>7</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2500,7 +2503,8 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:byte</tdml:error>
+      <tdml:error>8</tdml:error>
+      <tdml:error>5</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2610,7 +2614,8 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:unsignedByte</tdml:error>
+      <tdml:error>8</tdml:error>
+      <tdml:error>5</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2720,7 +2725,8 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>xs:int</tdml:error>
+      <tdml:error>32</tdml:error>
+      <tdml:error>5</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

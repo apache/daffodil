@@ -57,9 +57,9 @@ final class StringDataInputStreamForUnparse
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def getBinaryDouble(): Double = doNotUse
   override def getBinaryFloat(): Float = doNotUse
-  override def getSignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
+  override def getSignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
   override def getSignedLong(bitLengthFrom1To64: Int): Long = doNotUse
-  override def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
+  override def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
   override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
   override def isAligned(bitAlignment1b: Int): Boolean = dis.isAligned(bitAlignment1b)
   override def limits: DataStreamCommon.Limits = dis.limits

@@ -41,181 +41,109 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 
-class FloatKnownLengthRuntimeByteOrderBinaryNumberParser(
-  val bo: CompiledExpression,
-  val len: Long,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[Float](e)
-  with HasRuntimeExplicitByteOrder[Float]
-  with HasKnownLengthInBits[Float] {
 
-  final def convertValue(n: BigInt, ignored_msb: Int): Float = {
-    val nWith33rdBit = n | (BigInt(1) << 33) // make sure we have 5 bytes here. Then we'll ignore 5th byte.
-    val ba = nWith33rdBit.toByteArray
-    val bb = java.nio.ByteBuffer.wrap(ba)
-    val res = ba.length match {
-      case 5 => bb.getFloat(1)
-      case _ => Assert.invariantFailed("byte array should be 5 long")
-    }
-    res
-  }
-}
-
-class DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(
-  val bo: CompiledExpression,
-  val len: Long,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[Double](e)
-  with HasRuntimeExplicitByteOrder[Double]
-  with HasKnownLengthInBits[Double] {
-
-  final def convertValue(n: BigInt, ignored_msb: Int): Double = {
-    val nWith65thBit = n.abs | (BigInt(1) << 65) // make sure we have 9 bytes of bigint here. Then we'll ignore the 9th byte.
-    val ba = nWith65thBit.toByteArray
-    val bb = java.nio.ByteBuffer.wrap(ba)
-    val res = ba.length match {
-      case 9 => bb.getDouble(1) // ignore first byte.
-      case _ => Assert.invariantFailed("byte array should be 9 long, but was " + ba.length)
-    }
-    res
-  }
-}
-
-class DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(
-  val bo: CompiledExpression,
-  val len: Long,
-  e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
-  extends BinaryNumberBaseParser[BigDecimal](e)
-  with HasRuntimeExplicitByteOrder[BigDecimal]
-  with HasKnownLengthInBits[BigDecimal] {
-
-  final def convertValue(n: BigInt, ignored_msb: Int): BigDecimal = {
-    val res = BigDecimal(n, binaryDecimalVirtualPoint)
-    res
-  }
-
-  override def convertValueToString(n: BigDecimal): String = {
-    n.underlying.toPlainString
-  }
-}
-class HexBinaryRuntimeLengthBinaryNumberParser(
-  val lUnits: LengthUnits,
-  override val length: CompiledExpression,
-  override val e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[String](e)
-  with HasRuntimeExplicitLength[String] {
-
-  def getByteOrder(s: PState) = ByteOrder.BigEndian
-
-  final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
-}
-
-class HexBinaryKnownLengthBinaryNumberParser(
-  val len: Long,
-  e: ElementRuntimeData,
-  lUnits: LengthUnits)
-  extends BinaryNumberBaseParser[String](e) {
-
-  // binary numbers will use this conversion. Others won't.
-  val toBits = lUnits match {
-    case LengthUnits.Bits => 1
-    case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-  }
-
-  def getByteOrder(s: PState) = ByteOrder.BigEndian
-
-  def getBitLength(s: PState): Long = {
-    len * toBits
-  }
-
-  def getLength(s: PState): Long = {
-    len
-  }
-
-  final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
-}
-
-class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
-  val bo: CompiledExpression,
-  val lUnits: LengthUnits,
-  override val length: CompiledExpression,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[T](e)
-  with HasRuntimeExplicitLength[T]
-  with HasRuntimeExplicitByteOrder[T]
-  with HasUnsignedNumber[T] {
-}
-
-class UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
-  val bo: CompiledExpression,
-  val len: Long,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[T](e)
-  with HasRuntimeExplicitByteOrder[T]
-  with HasKnownLengthInBits[T]
-  with HasUnsignedNumber[T] {
-}
-
-class SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
-  val bo: CompiledExpression,
-  val lUnits: LengthUnits,
-  override val length: CompiledExpression,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[T](e)
-  with HasRuntimeExplicitLength[T]
-  with HasRuntimeExplicitByteOrder[T]
-  with HasSignedNumber[T] {
-}
-
-class SignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
-  val bo: CompiledExpression,
-  val len: Long,
-  e: ElementRuntimeData)
-  extends BinaryNumberBaseParser[T](e)
-  with HasRuntimeExplicitByteOrder[T]
-  with HasKnownLengthInBits[T]
-  with HasSignedNumber[T] {
-}
-
-abstract class BinaryNumberBaseParser[T](
-  val e: ElementRuntimeData)
+class BinaryFloatParser(e: ElementRuntimeData)
   extends PrimParser(e) {
-  val primName = e.optPrimType.get.name
-  override lazy val childProcessors = Nil
 
-  val bitOrd = e.defaultBitOrder
-
-  protected def getBitLength(s: PState): Long
-  protected def getByteOrder(s: PState): ByteOrder
-  protected def convertValue(n: BigInt, msb: Int): T
-
-  override def toString = Misc.getNameFromClass(this) // e.prettyName
-
-  def convertValueToString(n: T): String = {
-    n.toString
-  }
-
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
-    val nBits = getBitLength(start).toInt
-    val computedByteOrder = getByteOrder(start)
+  def parse(start: PState): Unit = {
     val dis = start.dataInputStream
-    //
-    // The byte order is set now using the ByteOrderChange parser/unparser
-    // so we don't need to set this here anymore.
-    Assert.invariant(computedByteOrder =:= dis.byteOrder)
 
-    val maybeValue = dis.getUnsignedBigInt(nBits)
-    if (maybeValue.isEmpty) {
-      PE(start, "Insufficient bits to create an xs:" + primName)
+    if (!dis.isDefinedForLength(32)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", 32, dis.remainingBits.get)
       return
     }
-    val value = maybeValue.get
-    val convertedValue: T = convertValue(value, nBits)
-    start.simpleElement.overwriteDataValue(convertedValue)
-  }
 
+    val f = dis.getBinaryFloat()
+    start.simpleElement.overwriteDataValue(f)
+  }
+}
+
+class BinaryDoubleParser(e: ElementRuntimeData)
+  extends PrimParser(e) {
+
+  def parse(start: PState): Unit = {
+    val dis = start.dataInputStream
+
+    if (!dis.isDefinedForLength(64)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", 64, dis.remainingBits.get)
+      return
+    }
+
+    val d = dis.getBinaryDouble()
+    start.simpleElement.overwriteDataValue(d)
+  }
+}
+
+
+class BinaryDecimalKnownLengthParser(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthInBits: Int)
+  extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
+  with HasKnownLengthInBits {
+}
+
+class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthExpr: CompiledExpression, val lUnits: LengthUnits)
+  extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
+  with HasRuntimeExplicitLength {
+}
+
+abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
+  extends PrimParser(e) {
+
+  protected def getBitLength(s: PState): Int
+
+  def parse(start: PState): Unit = {
+    val nBits = getBitLength(start)
+    val dis = start.dataInputStream
+
+    if (!dis.isDefinedForLength(nBits)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      return
+    }
+
+    val bigInt: BigInt =
+      if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits) }
+      else { dis.getUnsignedBigInt(nBits) }
+
+    val bigDec = BigDecimal(bigInt, binaryDecimalVirtualPoint)
+    start.simpleElement.overwriteDataValue(bigDec)
+  }
+}
+
+class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthExpr: CompiledExpression, val lUnits: LengthUnits)
+  extends BinaryIntegerBaseParser(e, signed)
+  with HasRuntimeExplicitLength {
+}
+
+class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val lengthInBits: Int)
+  extends BinaryIntegerBaseParser(e, signed)
+  with HasKnownLengthInBits {
+}
+
+abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
+  extends PrimParser(e) {
+
+  protected def getBitLength(s: PState): Int
+
+  def parse(start: PState): Unit = {
+    val nBits = getBitLength(start)
+    val dis = start.dataInputStream
+
+    if (!dis.isDefinedForLength(nBits)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      return
+    }
+
+    val int: Any =
+      if (signed) {
+        if (nBits > 64) { dis.getSignedBigInt(nBits) }
+        else { dis.getSignedLong(nBits) }
+      } else {
+        if (nBits >= 64) { dis.getUnsignedBigInt(nBits) }
+        else { dis.getUnsignedLong(nBits).toLong }
+      }
+
+    start.simpleElement.overwriteDataValue(int)
+  }
 }

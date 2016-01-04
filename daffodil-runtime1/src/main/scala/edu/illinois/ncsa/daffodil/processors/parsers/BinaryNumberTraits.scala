@@ -39,10 +39,16 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
-trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
+
+trait HasKnownLengthInBits {
+  def lengthInBits: Int
+  def getBitLength(s: PState) = lengthInBits
+}
+
+trait HasRuntimeExplicitLength {
   def e: ElementRuntimeData
   def lUnits: LengthUnits // get at compile time, not runtime.
-  def length: CompiledExpression
+  def lengthExpr: CompiledExpression
 
   // binary numbers will use this conversion. Others won't.
   lazy val toBits = lUnits match {
@@ -51,46 +57,9 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def getBitLength(s: PState): Long = {
-    val nBytesAsAny = length.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
+  def getBitLength(s: PState): Int = {
+    val nBytesAsAny = lengthExpr.evaluate(s)
+    val nBytes = AsIntConverters.asInt(nBytesAsAny)
     nBytes * toBits
   }
-  def getLength(s: PState): Long = {
-    val nBytesAsAny = length.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes
-  }
-}
-
-trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
-  def e: ElementRuntimeData
-  def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
-
-  def getByteOrder(s: PState): ByteOrder = {
-    val byteOrderAsAny = bo.evaluate(s)
-    val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
-    dfdlByteOrderEnum
-  }
-}
-
-trait HasSignedNumber[T] {
-  self: BinaryNumberBaseParser[T] =>
-  def convertValue(n: BigInt, msb: Int): T = {
-    val signed = n.testBit(msb - 1) match { // msb is zero-based bit counting
-      case true => n - (BigInt(1) << msb)
-      case false => n
-    }
-    signed.asInstanceOf[T]
-  }
-}
-
-trait HasUnsignedNumber[T] { self: BinaryNumberBaseParser[T] =>
-  def convertValue(n: BigInt, msb: Int): T = n.asInstanceOf[T]
-}
-
-trait HasKnownLengthInBits[T] {
-  self: BinaryNumberBaseParser[T] =>
-  def len: Long
-  def getBitLength(s: PState) = len // already in bits, so no multiply by 8 for this one.
 }
