@@ -110,7 +110,6 @@ trait InfosetComplexElement extends InfosetElement {
    * When slot contains an array, this appends to the end of the array.
    */
   def addChild(e: InfosetElement): Unit
-  def removeChild(e: InfosetElement): Unit
 
 }
 

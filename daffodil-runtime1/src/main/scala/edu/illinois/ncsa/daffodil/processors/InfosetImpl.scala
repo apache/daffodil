@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeInt
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import com.ibm.icu.util.Calendar
@@ -239,8 +240,8 @@ final class DIArray(
   /**
    * Used to shorten array when backtracking out of having appended elements.
    */
-  def trimEnd(n: Int) {
-    _contents.trimEnd(n)
+  def reduceToSize(n: Int) {
+    _contents.reduceToSize(n)
   }
 
   override def filledSlots: IndexedSeq[DINode] = _contents
@@ -292,8 +293,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement
   with InfosetSimpleElement {
 
-  private val mt: IndexedSeq[DINode] = IndexedSeq.empty
-  def filledSlots: IndexedSeq[DINode] = mt
+  def filledSlots: IndexedSeq[DINode] = IndexedSeq.empty
 
   protected var _isDefaulted: Boolean = false
 
@@ -523,6 +523,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     slots
   }
 
+  private var _lastSlotAdded = -1
+
   override lazy val filledSlots: IndexedSeq[DINode] = slots.filter { _ ne null }
 
   override def children = _slots.map { s => if (Maybe.isDefined(s)) Some(s) else None }.flatten.toStream
@@ -601,6 +603,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   final def setChildArray(slot: Int, arr: DIArray) {
     Assert.invariant(_slots(slot) eq null)
     _slots(slot) = arr
+    _lastSlotAdded = slot
   }
 
   override def addChild(e: InfosetElement): Unit = {
@@ -614,12 +617,9 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       arr.append(e)
     } else {
       _slots(e.runtimeData.slotIndexInParent) = e.asInstanceOf[DINode]
+      _lastSlotAdded = e.runtimeData.slotIndexInParent
     }
     e.setParent(this)
-  }
-
-  final override def removeChild(e: InfosetElement): Unit = {
-    _slots(e.runtimeData.slotIndexInParent) = null
   }
 
   final override def removeHiddenElements(): InfosetElement = {
@@ -634,77 +634,38 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   //TODO: make these use a thread-local pool so that we avoid allocating
   //these objects that obey a stack discipline.
-  final override def captureState(): InfosetElementState =
-    DIComplexState(_isNilled, _validity, _slots)
+  final override def captureState(): InfosetElementState = {
+    val arrSize =
+      if (_lastSlotAdded >= 0) {
+        _slots(_lastSlotAdded) match {
+          case arr: DIArray => MaybeInt(arr.length.toInt)
+          case _ => MaybeInt.Nope
+        }
+      } else {
+        MaybeInt.Nope
+      }
+    new DIComplexState(_isNilled, _validity, _lastSlotAdded, arrSize)
+  }
 
   final override def restoreState(st: InfosetElementState): Unit = {
     val ss = st.asInstanceOf[DIComplexState]
     _isNilled = ss.isNilled
     _validity = ss.validity
-    val si = ss.slotsInfo
-    var i = 0
-    while (i < si.length) {
-      si(i) match {
-        case DIComplexState.NOT_DEFINED => _slots(i) = null
-        case DIComplexState.DEFINED_ONEONLY => {
-          Assert.invariant(_slots(i) ne null)
-          // TODO: is this ok? Do we have to know what the value in fact was?
-          // Or is it sufficient to just know it had a value and still does.
-        }
-        case arrayLength => {
-          val arr = _slots(i).asInstanceOf[DIArray]
-          if (arr.length > arrayLength) {
-            //
-            // we must shorten the array.
-            //
-            arr.trimEnd(arr.length.toInt - arrayLength)
-          }
-        }
-      }
-      i = i + 1
+
+    var i = _lastSlotAdded
+    while (i > ss.lastSlotAdded) {
+      _slots(i) = null
+      i -=1
+    }
+    _lastSlotAdded = ss.lastSlotAdded
+
+    if (ss.arraySize.isDefined) {
+      _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(ss.arraySize.get)
     }
   }
 
-  class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val slotsInfo: Array[Int])
+  class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val lastSlotAdded: Int, val arraySize: MaybeInt)
     extends InfosetElementState
-
-  object DIComplexState {
-
-    val NOT_DEFINED = -1
-    val DEFINED_ONEONLY = -2
-
-    /**
-     * SlotsInfo is an array of Int that is a summary of the state
-     * of a complex element. We represent only whether the slot was
-     * occupied, and how long an array was, but that is all.
-     * If -1 then the actual slot was Nope
-     * If -2 then the actual slot was One(IE) for a non-array IE
-     * if N >=0, then the slot was One(Arr) and Arr was of length N.
-     */
-    def slotsInfo(slots: IndexedSeq[DINode]) = {
-      val slotsInfo = new Array[Int](slots.length)
-      var i = 0
-      val NOT_DEFINED = -1
-      val DEFINED_ONEONLY = -2
-      //  non-negative values mean an array with N children
-      while (i < slots.length) {
-        slotsInfo(i) =
-          if (slots(i) eq null) NOT_DEFINED
-          else {
-            val ie = slots(i)
-            ie match {
-              case ab: DIArray => ab.length.toInt
-              case _ => DEFINED_ONEONLY
-            }
-          }
-        i = i + 1
-      }
-      slotsInfo
-    }
-
-    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: IndexedSeq[DINode]) =
-      new DIComplexState(isNilled, validity, slotsInfo(slots))
-  }
 
   override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
     if (isHidden && removeHidden) Nil
