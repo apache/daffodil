@@ -1,0 +1,69 @@
+
+@media print {
+  a[href]:after {
+    content: " (" attr(href) ") ";
+  }
+}
+
+body {
+   font-size: 12px;
+   font-family: 'Segoe UI Semibold', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
+   font-weight: normal;
+   font-style: normal;
+   text-align: justify;
+   cursor:default;
+   background: #FFFFFF;
+}
+
+#logo {
+  float:right;
+  verical-align: top;
+}
+
+p ~ p, br ~ p {
+   margin-bottom:1.0em
+}
+
+blockquote
+{
+   background: WhiteSmoke no-repeat scroll;
+   border:1px dotted #F76E75;
+   padding:15px 15px 15px 48px;
+   margin:0 0 0 15px;
+   color: #2E2E2E;
+   font-family: Georgia, 'Times New Roman', Times, Serif;
+   font-weight: normal;
+   font-style: italic;
+   text-align: left;
+   /* makes block not to align behind the image if they are in the same line */
+  overflow: auto;
+   clear:both;
+}
+
+blockquote a
+{
+   color: #2E2E2E;
+   font-family: 'Segoe UI Semibold', Arial, 'Arial Unicode MS', Helvetica, Sans-Serif;
+   font-weight: normal;
+   font-style: italic;
+   text-align: left;
+}
+
+/*
+  ========================================
+  Clearfix
+  ========================================
+*/
+.group:before,
+.group:after {
+  content: "";
+  display: table;
+}
+.group:after {
+  clear: both;
+}
+.group {
+  clear: both;
+  *zoom: 1;
+}
+

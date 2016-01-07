@@ -29,6 +29,7 @@
 
   <xsd:attributeGroup name="BaseAG">
     <xsd:attribute name="ref" type="xsd:QName" />
+    <xsd:anyAttribute namespace="http://www.ibm.com/xmlns/dfdl/testData" processContents="lax"/> 
   </xsd:attributeGroup>
 
   <!-- 11 Properties Common to Both Content and Framing -->

@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="DFDLTutorialStylesheet.xsl"?>
+<tdml:testSuite description="Understanding dfdl:bitOrder" suiteName="bitorder tutorial" 
+xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns="http://www.w3.org/1999/xhtml">
+  <tdml:tutorial>
+    <p>
+      DFDL has not only the dfdl:byteOrder property, but a property dfdl:bitOrder which is used when the data fields are not on byte boundaries. There are many formats which use individual bit flags, small 2 or 3 or 4 bit fields, or larger fields that do not use up an integral number of bytes.
+      E.g., a
+      12-bit field. Given that the bits of these fields do not occupy whole bytes, the quesion arises of how we express which bits of a byte are the ones that make up a data field.
+    </p>
+    <p>
+      The
+      <a href='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>DFDL Specification describes dfdl:bitOrder</a>
+      :
+    </p>
+      <blockquote cite='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>
+        The bits of a byte each have a place value or significance of 2
+        <sup>n</sup>
+        , for n from 0 to 7.
+        Hence, the byte value 255 = 2
+        <sup>7</sup>
+        + 2
+        <sup>6</sup>
+        + 2
+        <sup>5</sup>
+        + 2
+        <sup>4</sup>
+        + 2
+        <sup>3</sup>
+        + 2
+        <sup>2</sup>
+        + 2
+        <sup>1</sup>
+        + 2
+        <sup>0</sup>
+        .
+        A bit can always be unambiguously identified as the 2
+        <sup>n</sup>
+        -bit.
+        The bit order is the correspondence of a bit's numeric significance to the bit position (1 to 8) within the byte.
+      </blockquote>
+    <p>
+      The point of the above is that the way that bytes are "stored" or "transmitted" is irrelevant.
+    </p>
+    <p>
+      Consider the byte value 36 decimal, or 0x24 as a pure mathematical quantity. Most computers these days are "byte oriented" meaning if the byte value 36 is written to a storage medium, and read back, you get back the mathematical value 36, and you don't have to know anything about how the bits were
+      actually represented in that medium. In fact, on many storage devices they aren't stored as some adjacent collection of physical bit storage units but may be sliced differently (first bits of all bytes are adjacent, then 2nd bits of all bytes, .... and so on.) or they may be cleverly encoded
+      in some way so as to recover from storage errors, etc.
+    </p>
+    <p>
+      So in some sense, there is no storage order for the bits. None we need to know about anyway. Nevertheless the concept of bit-order is important.
+    </p>
+    <p>
+      Now I can think of 36 decimal as a polynomial in any base I want e.g.
+    </p>
+    <p>
+      0x
+      <sup>2 </sup>
+      + 3x
+      <sup>1</sup>
+      + 6x
+      <sup>0</sup>
+      = 36 if x is 10.
+    </p>
+    <p>
+      equivalently, this polynomial:
+    </p>
+    <p>
+      0x
+      <sup>7 </sup>
+      + 0x
+      <sup>6 </sup>
+      + 1x
+      <sup>5 </sup>
+      + 0x
+      <sup>4 </sup>
+      + 0x
+      <sup>3 </sup>
+      + 1x
+      <sup>2 </sup>
+      + 0x
+      <sup>1 </sup>
+      + 0x
+      <sup>0</sup>
+      = 36 when x is 2.
+    </p>
+    <p>
+      Note that the above is only mathematics. No bits have any "positions". They just have their associated mathematical place value that they are being multiplied-by to get a total value.
+    </p>
+    <p>
+      Now, If I ask for binary digit (aka bit) 5 of the binary digits that the above x=2 polynomial mentions then I'm implying some correspondence of digit position numbers to the place-values of those digits. There are only 2 sensible schemes depending on which end you start on, that's either the
+      2
+      <sup>5</sup>
+      bit (starting from least-significant-first), or the 2
+      <sup>2</sup>
+      bit (starting from most significant first).
+    </p>
+    <p>
+      Note that there is still nothing here about how anything is being stored or transmitted. We have a mathematical value 36, but we can, by choosing a convention (least/most first), specify what bit 5 is, without any reference to how anything is stored or transmitted. It's just math.
+    </p>
+    <p>
+      So in general, given
+    </p>
+      <ul>
+        <li>a mathematical number N with value from 0 to 255</li>
+        <li>a number base b (usually 2)</li>
+        <li>a convention least-significant first, or most significant first</li>
+      </ul>
+    <p>
+      I can define what "digit d" means, and that digit d has a specific numeric value that it contributes to the value of the number N. All math. Nothing about storage or transmission. Sorry for repeating myself.
+    </p>
+    <p>
+      So that's why a byte containing 36 contains 36 whether the bit-order is least-significant first or most-significant first, because we're looking at all of it. A key concept here is that
+      <em>bit order only matters when you are looking at fewer than all the bits of a byte</em>
+      .
+    </p>
+    <p>
+      Perhaps "bitOrder" should have been named "bitInterpretationOrder" or "bitNumberingScheme", as it is not about how anything is stored, but about how we label the bits when a number is expressed base 2.
+    </p>
+    <p>
+      Now consider a hex editor. When you type 24 hex, well most humans write numbers big-end-first-left-to-right. This convention has nothing whatsoever to do with how anything is stored in computers. If I translate 24 hex to 00100100 binary, I wrote it that way because I use big-endian-left-to-right
+      human-friendly conventions. The hex/binary editor puts it on screen that way, because it knows us biologicals need to read it that way. But it's not about "storage order".
+    </p>
+    <p>
+      That said. It is OK to pretend that computers store bytes as little left-to-right vectors of binary bits on pages of paper, and every computer stores them most-significant-bit first. But when visualizing data, this way of thinking about it just makes your life much harder, which is why all the
+      diagrams in the specs that are about data with leastSignificantbitFirst are numbered right to left instead.
+    </p>
+    <p>
+      So everything about transmission order or how things are stored is irrelevant to the discussion of what is bit 0, bit 1, etc. All we need is the numeric value, and the bit order convention.
+    </p>
+    <p>
+      Just number the bytes starting from the right. Then look at each byte, and type the two hex digits for it, most-significant first, then least-significant.
+    </p>
+    <p>
+      <img alt="diagram of bits"
+        src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAboAAABECAYAAAD3GPBYAAAAAXNSR0ICQMB9xQAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUATWljcm9zb2Z0IE9mZmljZX/tNXEAAB6OSURBVHja7Z0H2BXV0cdDBwFBEVEUsYu9iyJYKPZPjd1gb7F3xYZiAbEksSv2XrD3XmLvXaNGYxJjNMWSpiZq7nd++83wLMuWs3f3XF/eb+Z5/o++dy977jl7Zv4zc+ac/dHxxx//I4PBYDAY2itsEAwGg8FgRGcwGAwGgxGdwWAwGAxGdAaDwWAwGNEZDAaDwWBEZzAYDAZDZaJzMtBhY4PBYDAY2jDWdejcLNFt27Fjx8Ycc8wRFLPPPnvDtdXo27dv8Lb69OkTtUWbodvq1atXo0OHDsHbmW222aI+8d/Qbc0666xRW/369QveVs+ePRutmH/Mu1bNid69e7dkTphOmU79f9EpGb+vHHo3S3RbDBgwoPHHP/6x8be//S0YXnnllWhQHn744aDtgDvuuCNq65133gne1s9//vPIsH322WdB23nqqaeiPj399NPB+3Tttdc2OnXq1Pjwww+Dt3XiiSdGyh+6nYceeigav1dffTV4WxdeeGGjW7du7VKnfvWrXwVv64wzzojI7q9//WvQdtClVunU9ddf3+50innH+DEPQ7d11VVX0danDr2aJrq555678Z///KcRUn77299Gg/LSSy81Qstjjz0WtfXnP/85eFsYNbyN0PL2229PMzSh5a677oqU8u9//3vwtnAU8NhCy4svvhiN3+9+97vgbV133XUR0bVHnfrTn/4UvK1LLrkkch5DC7rUKp2655572p1OMe8YP+ZhaLn99turE91cc83V+Oc//xn0h/7617+OBuXZZ58NPijqvX/88cfB2zrvvPMiovv222+DtvPaa69FfXr99deD9+m2226LlBKPOrScdtppLVHKZ555Jhq/999/P3hbeJ8QXXvUqT/84Q/B25oyZUpEdKEdBXSpVTpFRNzedIp5x/gxD0PLzTffbESXpZRGdM2JEV01MaKrJkZ0M4dOGdG1EaU0omtOjOiqiRFdNTGimzl0yoiujSilEV1zYkRXTYzoqokR3cyhU+2a6F544YXGKaec0th7770bRx55ZOOWW25pfP3117UrJcRBUcRR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'/>
+        </p>
+      <pre>
+        |---------byte 1 ------------| |------- byte 0 ------------|
+        |---hex 0----| |----hex 8----| |---hex 2----| |---hex 4----|
+      </pre>
+      Becomes hex 24 08 in the editor.
+    <p>
+      Note: Redraw the above ascii-artwork using
+      <a href="https://svg-edit.github.io/svgedit/releases/svg-edit-2.8.1/svg-editor.html">SVG-Edit</a>
+      like the example below.
+    </p>
+    <svg width="100%" height="80" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+      <g>
+        <title>Layer 1</title>
+        <rect id="svg_1" height="55" width="87" y="10" x="44" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+        <rect id="svg_2" height="58" width="131" y="10" x="172" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+        <rect id="svg_3" height="58" width="96" y="10" x="353" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+        <rect id="svg_4" height="61" width="103" y="10" x="488" stroke-width="5" stroke="#000000" fill="#FF0000"/>
+      </g>
+    </svg>
+    <p>
+      So at this point it should be clear that there is never any flipping bits backward ever.
+    </p>
+    <h2>Writing a DFDL Schema Using dfdl:bitOrder='leastSignificantBitFirst'</h2>
+    <p>
+      <i>TBD: This section will walk through examples.</i>
+    </p>
+  </tdml:tutorial>
+
+  <tdml:defineSchema name="s">
+    <dfdl:format tdml:tutorialInclude="no" ref="ex:daffodilTest1" representation="binary" lengthUnits="bits" 
+                 bitOrder='leastSignificantBitFirst' lengthKind='explicit' 
+                 byteOrder='littleEndian' alignmentUnits='bits' alignment='1'/>
+
+    <xs:element name="tabBI" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Version" type="xs:unsignedInt" dfdl:length="4"/>
+          <xs:element name="FPI" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="GPI_OriginatorAddress" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="FPI_URN" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24"/>
+          <xs:element name="FPI_UnitName" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="UnitName" type="xs:string" dfdl:encoding="us-ascii-7-bit-packed" 
+                      dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;"/>
+          <xs:element name="GPI_RecipAddrGroup" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="GRI_R1" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="FPI_URN2" type="xs:unsignedInt" dfdl:length="1"/>
+          <xs:element name="URN2" type="xs:unsignedInt" dfdl:length="24"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ver" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="span3Bytes" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="before" type="xs:unsignedInt" dfdl:length="5"/>
+          <xs:element name="middle" type="xs:unsignedInt" dfdl:length="13"/>
+          <xs:element name="after" type="xs:unsignedInt" dfdl:length="6"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="TestMIL2045_47001D_1" root="ver" model="s" description="Verification that user's test works for DFDL-677">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits" byteOrder="RTL">URN X0000000 00000000 01100111 1XXX XXXX</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <ver>
+          <URN>207</URN>
+        </ver>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="TestLSBFirstSpan3Bytes" root="span3Bytes" model="s" description="13 bits from the middle of a 24 bit field">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits" byteOrder="RTL">010110|10 00110111 011|10001</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <span3Bytes>
+          <before>17</before>
+          <middle>4539</middle>
+          <after>22</after>
+        </span3Bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s2">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary' byteOrder="littleEndian"/>
+
+    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3"/>
+          <xs:element name="B" type="xs:int" dfdl:length="7"/>
+          <xs:element name="C" type="xs:int" dfdl:length="4"/>
+          <xs:element name="D" type="xs:int" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="switchOrder" dfdl:lengthKind='implicit' tdml:tutorialInclude="no">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:bitOrder="leastSignificantBitFirst"/>
+          <xs:element name="B" type="xs:int" dfdl:length="7" dfdl:bitOrder="mostSignificantBitFirst"/>
+          <xs:element name="C" type="xs:int" dfdl:length="4" dfdl:bitOrder="leastSignificantBitFirst"/>
+          <xs:element name="D" type="xs:int" dfdl:length="2" dfdl:bitOrder="leastSignificantBitFirst"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: leastSignificantBitFirst
+        Schema: s2
+          Root: leastFirst
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst'.
+-->
+  <tdml:parserTestCase name="leastSignificantBitFirst" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits">01001|011 01|0101|00</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <leastFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </leastFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: leastSignificantBitFirstRTL
+        Schema: s2
+          Root: leastFirst
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byte order of right to left.
+-->
+  <tdml:parserTestCase name="leastSignificantBitFirstRTL" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst' with byte order of right to left">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits" byteOrder="RTL">01|0101|00 01001|011</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <leastFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </leastFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s3">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="mostFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3"/>
+          <xs:element name="B" type="xs:int" dfdl:length="7"/>
+          <xs:element name="C" type="xs:int" dfdl:length="4"/>
+          <xs:element name="D" type="xs:int" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: mostSignificantBitFirst
+        Schema: s3
+          Root: mostFirst
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
+-->
+  <tdml:parserTestCase name="mostSignificantBitFirst" root="mostFirst" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits">011|00010 01|0101|01</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <mostFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </mostFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s4">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+                 lengthUnits="bytes" lengthKind='explicit' 
+                 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian" 
+       dfdl:representation="binary" 
+       dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: littleEndianLeastFirstLTR
+        Schema: s4
+          Root: littleLeast
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
+  -->
+  <tdml:parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData"  tdml:tutorialInclude="no">
+      <documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <littleLeast>5A9200</littleLeast>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: littleEndianLeastFirstRTL
+        Schema: s4
+          Root: littleLeast
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes right to left.
+  -->
+  <tdml:parserTestCase name="littleEndianLeastFirstRTL" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes right to left">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData"  tdml:tutorialInclude="no">
+      <documentPart type="bits" byteOrder="RTL">01011010 10010010 00000000</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <littleLeast>00925A</littleLeast>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s5">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+                 lengthUnits="bytes" lengthKind='explicit' 
+                 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="bigLeast" type="xs:hexBinary" 
+                dfdl:byteOrder="bigEndian" dfdl:representation="binary" 
+                dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="1"/>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s6">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+                 lengthUnits="bits" lengthKind='explicit' 
+                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
+          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
+          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
+          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: bitOrderDocument
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test specifies the bitOrder in the document.
+-->
+  <tdml:parserTestCase name="bitOrderDocument" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
+      <documentPart type="bits">01001|011 00|010101</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <noBitOrder>
+          <A>3</A>
+          <B>9</B>
+          <C>21</C>
+          <D>0</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderChange
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test changes bitOrder when on a byte boundary.
+-->
+  <tdml:parserTestCase name="bitOrderChange" root="noBitOrder" model="s6" description="Tests changing bitOrder when on a byte boundary.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
+      <documentPart type="bits" bitOrder="LSBFirst">01001|011</documentPart>
+      <documentPart type="bits" bitOrder="MSBFirst">010101|00</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <noBitOrder>
+          <A>3</A>
+          <B>9</B>
+          <C>21</C>
+          <D>0</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderTypeByte
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test specifies the bitOrder in the document when the type is 'byte'.
+-->
+  <tdml:parserTestCase name="bitOrderTypeByte" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document when the type is 'byte'.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
+      <documentPart type="byte">C6 A2</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <noBitOrder>
+          <A>6</A>
+          <B>24</B>
+          <C>34</C>
+          <D>2</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>

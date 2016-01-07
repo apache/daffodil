@@ -326,6 +326,7 @@ object XMLUtils {
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
+  val XHTML_NAMESPACE = NS("http://www.w3.org/1999/xhtml")
 
   /**
    * Added to support extensions and proposed future features as part of daffodil.

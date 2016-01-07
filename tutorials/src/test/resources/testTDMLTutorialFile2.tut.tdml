@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="DFDLTutorialStylesheet.xsl"?>
+<tdml:testSuite suiteName="theSuiteName" 
+ xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ xmlns:ex="http://example.com" 
+ xmlns:tns="http://example.com" 
+ xmlns="http://www.w3.org/1999/xhtml">
+  <tdml:tutorial>
+  <p>1</p>
+  </tdml:tutorial>
+  <tdml:defineSchema name="mySchema">
+    <dfdl:format ref="tns:daffodilTest1"/>
+    <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+  </tdml:defineSchema>
+  <tdml:tutorial>
+    <p>2</p>
+  </tdml:tutorial>
+  <tdml:parserTestCase name="testTutorialElementsParse" root="data" model="mySchema">
+    <tdml:tutorial>
+      <p>3</p>
+    </tdml:tutorial>
+    <tdml:document>37</tdml:document>
+    <tdml:tutorial>
+      <p>4</p>
+    </tdml:tutorial>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:data>37</ex:data>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:tutorial>
+      <p>5</p>
+    </tdml:tutorial>
+  </tdml:parserTestCase>
+  <tdml:tutorial>
+    <p>6</p>
+  </tdml:tutorial>
+  <tdml:defineSchema name="s">
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+    <dfdl:format ref="ex:daffodilTest1"/>
+    <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
+  </tdml:defineSchema>
+  <tdml:tutorial>
+    <p>7</p>
+  </tdml:tutorial>
+  <tdml:unparserTestCase name="testTutorialElementsUnparse" root="bar" model="s">
+    <tdml:tutorial>
+      <p>8</p>
+    </tdml:tutorial>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:bar>Hello</ex:bar>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:tutorial>
+      <p>9</p>
+    </tdml:tutorial>
+    <tdml:document>Hello</tdml:document>
+    <tdml:tutorial>
+      <p>10</p>
+    </tdml:tutorial>
+  </tdml:unparserTestCase>
+  <tdml:tutorial>
+    <p>11</p>
+  </tdml:tutorial>
+</tdml:testSuite>
