@@ -390,11 +390,12 @@ final class PState private (
   def reset(m: PState.Mark) {
     // threadCheck()
     m.resetOntoPState(this)
-    discard(m)
+    m.clear()
+    markPool.returnToPool(m)
   }
 
   def discard(m: PState.Mark) {
-    // threadCheck()
+    dataInputStream.discard(m.disMark)
     m.clear()
     markPool.returnToPool(m)
   }

@@ -114,29 +114,46 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
   // Note: above not needed as these are ALWAYS evaluated below.
 
-  lazy val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
+  lazy val patDiscrim = {
+    val pd = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern)
+    Assert.invariant(pd.size <= 1)
+    if (pd.size == 0) {
+      Maybe.Nope
+    } else {
+      Maybe(pd(0).gram.parser)
+    }
+  }
   lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
   lazy val pSetVar = context.setVariableStatements.map(_.gram.parser).toArray
-  lazy val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
+  lazy val testDiscrim = {
+    val td = context.discriminatorStatements.filter(_.testKind == TestKind.Expression)
+    Assert.invariant(td.size <= 1)
+    if (td.size == 0) {
+      Maybe.Nope
+    } else {
+      Maybe(td(0).gram.parser)
+    }
+  }
   lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
 
-  lazy val eParser: Option[Parser] = if (eGram.isEmpty) None
-  else Some(eGram.parser)
+  lazy val eParser: Maybe[Parser] =
+    if (eGram.isEmpty) Maybe.Nope
+    else Maybe(eGram.parser)
 
-  lazy val eAfterParser: Option[Parser] =
-    if (eGramAfter.isEmpty) None
-    else Some(eGramAfter.parser)
+  lazy val eAfterParser: Maybe[Parser] =
+    if (eGramAfter.isEmpty) Maybe.Nope
+    else Maybe(eGramAfter.parser)
 
   def parser: Parser
 
   lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser)
-  lazy val eUnparser: Option[Unparser] =
-    if (eGram.isEmpty) None
-    else Some(eGram.unparser)
+  lazy val eUnparser: Maybe[Unparser] =
+    if (eGram.isEmpty) Maybe.Nope
+    else Maybe(eGram.unparser)
 
-  lazy val eAfterUnparser: Option[Unparser] =
-    if (eGramAfter.isEmpty) None
-    else Some(eGramAfter.unparser)
+  lazy val eAfterUnparser: Maybe[Unparser] =
+    if (eGramAfter.isEmpty) Maybe.Nope
+    else Maybe(eGramAfter.unparser)
 
   def unparser: Unparser
 

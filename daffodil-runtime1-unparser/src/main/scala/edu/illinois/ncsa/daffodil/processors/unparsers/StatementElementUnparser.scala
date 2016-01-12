@@ -50,11 +50,11 @@ abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
   name: String,
   setVarUnparser: Seq[Unparser],
-  eUnparser: Option[Unparser],
-  eAfterUnparser: Option[Unparser])
+  eUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser])
   extends TermUnparser(rd) {
 
-  override lazy val childProcessors: Seq[Processor] = setVarUnparser ++ eUnparser ++ eAfterUnparser
+  override lazy val childProcessors: Seq[Processor] = setVarUnparser ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
   def move(state: UState): Unit // implement for different kinds of "moving over to next thing"
   def unparseBegin(state: UState): Unit
@@ -96,14 +96,14 @@ abstract class StatementElementUnparserBase(
     state.dataProc.startElement(state, this)
     unparseBegin(state)
     // Debugger.startElement(state, this)
-    eUnparser.map { eUnparser =>
-      eUnparser.unparse1(state, rd)
+    if (eUnparser.isDefined) {
+      eUnparser.get.unparse1(state, rd)
     }
     setVarUnparser.foreach(d => {
       d.unparse1(state, rd)
     })
-    eAfterUnparser.foreach { eAfterUnparser =>
-      eAfterUnparser.unparse1(state, rd)
+    if (eAfterUnparser.isDefined) {
+      eAfterUnparser.get.unparse1(state, rd)
     }
     unparseEnd(state)
     state.dataProc.endElement(state, this)
@@ -115,8 +115,8 @@ class StatementElementUnparser(
   erd: ElementRuntimeData,
   name: String,
   setVar: Seq[Unparser],
-  eUnparser: Option[Unparser],
-  eAfterUnparser: Option[Unparser])
+  eUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparserBase(
     erd,
     name,
@@ -165,8 +165,8 @@ class StatementElementUnparserNoRep(
   erd: ElementRuntimeData,
   name: String,
   setVar: Seq[Unparser],
-  eUnparser: Option[Unparser],
-  eAfterUnparser: Option[Unparser])
+  eUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparser(
     erd,
     name,
@@ -174,7 +174,7 @@ class StatementElementUnparserNoRep(
     eUnparser,
     eAfterUnparser) {
 
-  override lazy val childProcessors = setVar ++ eUnparser ++ eAfterUnparser
+  override lazy val childProcessors = setVar ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
   // but we don't create anything new as far as the group is concerned, and we don't want

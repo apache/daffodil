@@ -38,34 +38,30 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 abstract class StatementElementParserBase(
   rd: RuntimeData,
   name: String,
-  patDiscrimParser: Array[Parser],
+  patDiscrimParser: Maybe[Parser],
   patAssertParser: Array[Parser],
   setVarParser: Array[Parser],
-  testDiscrimParser: Array[Parser],
+  testDiscrimParser: Maybe[Parser],
   testAssertParser: Array[Parser],
-  eParser: Option[Parser],
-  eAfterParser: Option[Parser])
+  eParser: Maybe[Parser],
+  eAfterParser: Maybe[Parser])
   extends Parser(rd) {
-
-  Assert.invariant(testDiscrimParser.size <= 1)
-  Assert.invariant(patDiscrimParser.size <= 1)
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseBegin(pstate: PState): Unit
   def parseEnd(pstate: PState): Unit
 
-  override lazy val childProcessors: Seq[Processor] = patDiscrimParser ++
+  override lazy val childProcessors: Seq[Processor] = patDiscrimParser.toSeq ++
     patAssertParser ++
     eParser.toSeq ++
     setVarParser ++
-    testDiscrimParser ++
+    testDiscrimParser.toSeq ++
     testAssertParser ++
     eAfterParser.toSeq
 
@@ -102,47 +98,37 @@ abstract class StatementElementParserBase(
 
   def parse(pstate: PState): Unit = {
 
-    var startingBitPos = pstate.dataInputStream.mark
-
-    { // done as while loops to avoid allocation of closure objects
-      var i: Int = 0
-      while (i < patDiscrimParser.length) {
-        val d = patDiscrimParser(i)
-        i += 1
-        d.parse1(pstate)
-        // Pattern fails at the start of the Element
-        if (pstate.status ne Success) {
-          pstate.dataInputStream.discard(startingBitPos)
-          return
-        }
+    if (patDiscrimParser.isDefined){
+      val startingBitPos = pstate.dataInputStream.mark
+      patDiscrimParser.get.parse1(pstate)
+      // Pattern fails at the start of the Element
+      if (pstate.status ne Success) {
+        pstate.dataInputStream.discard(startingBitPos)
+        return
       }
+      pstate.dataInputStream.reset(startingBitPos)
     }
 
-    // now here we backup and run the pattern Asserts
-    // against the data at the start of the element's representation again.
-    pstate.dataInputStream.reset(startingBitPos)
-    startingBitPos = pstate.dataInputStream.mark
-
-    {
+    if (patAssertParser.length > 0) {
+      val startingBitPos = pstate.dataInputStream.mark
       var i: Int = 0
-      while (i < patAssertParser.length) {
+      val size = patAssertParser.size
+      while (i < size) {
         val d = patAssertParser(i)
-        i += 1
-
         d.parse1(pstate)
         // Pattern fails at the start of the Element
         if (pstate.status ne Success) {
           pstate.dataInputStream.discard(startingBitPos)
           return
         }
+        i += 1
       }
+      // backup again. If all pattern discriminators and/or asserts
+      // have passed, now we parse the element. But we backup
+      // as if the pattern matching had not advanced the state.
+      pstate.dataInputStream.reset(startingBitPos)
     }
 
-    // backup again. If all pattern discriminators and/or asserts
-    // have passed, now we parse the element. But we backup
-    // as if the pattern matching had not advanced the state.
-    pstate.dataInputStream.reset(startingBitPos)
-    startingBitPos = pstate.dataInputStream.mark
     parseBegin(pstate)
     try {
 
@@ -176,15 +162,10 @@ abstract class StatementElementParserBase(
         }
       }
 
-      {
-        var i: Int = 0
-        while (i < testDiscrimParser.length) {
-          val d = testDiscrimParser(i)
-          i += 1
-          d.parse1(pstate)
+      if (testDiscrimParser.isDefined) {
+          testDiscrimParser.get.parse1(pstate)
           // Tests fail at the end of the Element
           if (pstate.status ne Success) { return }
-        }
       }
 
       //
@@ -218,7 +199,6 @@ abstract class StatementElementParserBase(
     } finally {
       parseEnd(pstate)
       pstate.dataProc.endElement(pstate, this)
-      pstate.dataInputStream.discard(startingBitPos)
     }
   }
 }
@@ -226,13 +206,13 @@ abstract class StatementElementParserBase(
 class StatementElementParser(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Array[Parser],
+  patDiscrim: Maybe[Parser],
   patAssert: Array[Parser],
   setVar: Array[Parser],
-  testDiscrim: Array[Parser],
+  testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
-  eParser: Option[Parser],
-  eAfterParser: Option[Parser])
+  eParser: Maybe[Parser],
+  eAfterParser: Maybe[Parser])
   extends StatementElementParserBase(
     erd,
     name,
@@ -294,13 +274,13 @@ class StatementElementParser(
 class StatementElementParserNoRep(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Array[Parser],
+  patDiscrim: Maybe[Parser],
   patAssert: Array[Parser],
   setVar: Array[Parser],
-  testDiscrim: Array[Parser],
+  testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
-  eParser: Option[Parser],
-  eAfterParser: Option[Parser])
+  eParser: Maybe[Parser],
+  eAfterParser: Maybe[Parser])
   extends StatementElementParser(
     erd,
     name,
@@ -324,13 +304,13 @@ class StatementElementParserNoRep(
 class ChoiceStatementElementParser(
   erd: ElementRuntimeData,
   name: String,
-  patDiscrim: Array[Parser],
+  patDiscrim: Maybe[Parser],
   patAssert: Array[Parser],
   setVar: Array[Parser],
-  testDiscrim: Array[Parser],
+  testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
-  eParser: Option[Parser],
-  eAfterParser: Option[Parser])
+  eParser: Maybe[Parser],
+  eAfterParser: Maybe[Parser])
   extends StatementElementParserBase(
     erd,
     name,

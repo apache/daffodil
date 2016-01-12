@@ -242,7 +242,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           pBefore = pstate.mark
           parser.parse1(pstate)
         } catch {
-          case s: scala.util.control.ControlThrowable => throw s
+          case s: scala.util.control.ControlThrowable => { pstate.discard(pBefore); throw s }
           case u: UnsuppressableException => { pstate.discard(pBefore); throw u }
           case rsde: RuntimeSchemaDefinitionError => { pstate.discard(pBefore); throw rsde }
           // Don't catch very general exception classes. Only very specific
