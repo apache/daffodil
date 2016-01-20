@@ -409,13 +409,23 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
     val mm = new HashMap[String, Set[String]] with MultiMap[String, String]
-    decimalSepList.foreach { dsl =>
+    if (decimalSepList.isDefined) {
+      val dsl = decimalSepList.value
       dsl.foreach { ds => mm.addBinding(ds.toString, "textStandardDecimalSeparator") }
     }
     if (groupingSep.isDefined) mm.addBinding(groupingSep.get.toString, "textStandardGroupingSeparator")
-    exponentRep.foreach { er => mm.addBinding(er, "textStandardExponentRep") }
-    infRep.foreach { ir => mm.addBinding(ir, "textStandardInfinityRep") }
-    nanRep.foreach { nr => mm.addBinding(nr, "textStandardNaNRep") }
+    if (exponentRep.isDefined) {
+      val er = exponentRep.value
+      er.foreach { c => mm.addBinding(c.toString, "textStandardExponentRep") }
+    }
+    if (infRep.isDefined) {
+      val ir = infRep.value
+      mm.addBinding(ir, "textStandardInfinityRep")
+    }
+    if (nanRep.isDefined) {
+      val nr = nanRep.value
+      mm.addBinding(nr, "textStandardNaNRep")
+    }
     zeroRep.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
 
     val dupes = mm.filter { case (k, s) => s.size > 1 }
@@ -574,13 +584,21 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     (!groupingSepExp.isDefined || groupingSepExp.get.isConstant) &&
     exponentRepExp.isConstant)
 
-  val decSep = decimalSepExp.map { dse => getDecimalSepList(dse.constantAsString, context) }
+  val decSep =
+    if (decimalSepExp.isEmpty) Nope else One {
+      val dse = decimalSepExp.value
+      getDecimalSepList(dse.constantAsString, context)
+    }
 
-  val groupSep = groupingSepExp.map { gse => getGroupingSep(gse.constantAsString, context) }
+  val groupSep =
+    if (groupingSepExp.isEmpty) Nope else One {
+      val gse = groupingSepExp.value
+      getGroupingSep(gse.constantAsString, context)
+    }
 
   val expRep = getExponentRep(exponentRepExp.constantAsString, context)
 
-  val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, context) }
+  val roundingInc: MaybeDouble = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, context) }
 
   checkUnique(
     decSep,
@@ -650,7 +668,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     parserHelper.zeroRepListRaw,
     staticContext)
 
-  val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
+  val roundingInc = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, staticContext) }
 
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
 

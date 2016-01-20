@@ -95,8 +95,11 @@ abstract class ProcessingError(
     }
     val res = pOrU + ": " + msg +
       componentText +
-      "\nSchema context: %s%s".format(rd.map { _.toString }.getOrElse("(no schema component identifier)"), schemaLocationsString) +
-      loc.map { l => "\nData location was preceding %s".format(l) }.getOrElse("(no data location)")
+      "\nSchema context: %s%s".format((if (rd.isDefined) rd.value.toString else "(no schema component identifier)"), schemaLocationsString) +
+      (if (loc.isDefined)
+        "\nData location was preceding %s".format(loc.value)
+      else
+        "(no data location)")
     res
   }
 

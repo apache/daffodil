@@ -47,34 +47,43 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *  Maybe(null) = Nope
  *  One(null) == Nope // can't construct a Maybe type containing null.
  */
-final class Maybe[+T <: AnyRef](val v: Any) extends AnyVal {
-  import Maybe._
+final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal {
   @inline final def get: T = if (isDefined) value else noneGet
   @inline final def value: T = v.asInstanceOf[T]
   final def noneGet = throw new NoSuchElementException("Nope.get")
 
-  @inline final def isEmpty: Boolean = NopeValue eq v.asInstanceOf[AnyRef]
+  @inline final def isEmpty: Boolean = NopeValue eq v
   @inline final def isDefined: Boolean = !isEmpty
   @inline final def nonEmpty = isDefined
   @inline final def contains[U >: T](elem: U): Boolean = !isEmpty && value == elem
-  @inline final def exists(p: T => Boolean): Boolean = !isEmpty && p(get)
-  @inline final def forall(p: T => Boolean): Boolean = isEmpty || p(get)
-  @inline final def collect[U <: AnyRef](pf: PartialFunction[T, U]): Maybe[U] = if (!isEmpty && pf.isDefinedAt(get)) One(pf(get)) else Nope
-  @inline final def iterator: Iterator[T] = if (isEmpty) collection.Iterator.empty else collection.Iterator.single(get)
+  //  @inline final def exists(p: T => Boolean): Boolean = !isEmpty && p(get)
+  //  @inline final def forall(p: T => Boolean): Boolean = isEmpty || p(get)
+  //  @inline final def collect[U <: AnyRef](pf: PartialFunction[T, U]): Maybe[U] = if (!isEmpty && pf.isDefinedAt(get)) One(pf(get)) else Nope
+  //  @inline final def iterator: Iterator[T] = if (isEmpty) collection.Iterator.empty else collection.Iterator.single(get)
   @inline final def toList: List[T] = if (isEmpty) List() else new ::(get, Nil)
   @inline final def toSeq: Seq[T] = toList
   @inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
   @inline final def orNull[U >: T](implicit ev: Null <:< U): U = get
-  @inline final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
-  @inline final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
-  @inline final def withFilter(f: T => Boolean): Maybe[T] = filter(f)
-  @inline final def map[U <: AnyRef](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
-  @inline final def flatMap[U <: AnyRef](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
-  @inline final def foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
-  @inline final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
-  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
+  //  @inline final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
+  //  @inline final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
+  //  @inline final def withFilter(f: T => Boolean): Maybe[T] = filter(f)
+  //  @inline final def map[U <: AnyRef](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
+  //
+  // rewrite x.map{y => foo(y) } like this: if (x.isEmpty) Nope else One{ val y = x.value ; foo(y) }
+  //
+  //  @inline final def flatMap[U <: AnyRef](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
+  /**
+   * For testing if the function object gets allocated or inlined away.
+   */
+  @inline private[util] final def _foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
+  //  @inline final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
+  //  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
   @inline final def toScalaOption: scala.Option[T] = if (isEmpty) scala.None else scala.Some(get)
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
+}
+
+private[util] object NopeValue extends Serializable {
+  override def toString = "Nope"
 }
 
 object Maybe {
@@ -91,16 +100,13 @@ object Maybe {
    *
    * The conversion the other way must be explicit by calling toScalaOption
    */
-  implicit def toMaybe[T <: AnyRef](o: Option[T]) = o match {
-    case None => Nope
-    case Some(x) => One(x)
-  }
+  implicit def toMaybe[T <: AnyRef](o: Option[T]): Maybe[T] = if (o.isDefined) One(o.get) else Nope
 
   @inline
-  final def apply[T <: AnyRef](value: T) = if (value == null) Nope else some(value)
+  final def apply[T <: AnyRef](value: T) = if (value eq null) Nope else one(value)
 
   @inline
-  final def some[T <: AnyRef](value: T) = new Maybe[T](value)
+  final def one[T <: AnyRef](value: T) = new Maybe[T](value)
 
   @inline
   final def empty[T] = Nope
@@ -117,9 +123,6 @@ object Maybe {
     // worth using.
     //
     // def unapply[T](value: Maybe[T]) = if (value.isDefined) scala.Some(value.get) else scala.None
-  }
-  object NopeValue extends Serializable {
-    override def toString = "Nope"
   }
 
   /**

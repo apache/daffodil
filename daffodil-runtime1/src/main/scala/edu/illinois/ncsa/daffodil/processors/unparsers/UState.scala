@@ -176,8 +176,10 @@ class UState(
   var removeUnneededInfosetElements = false // set from API of top level Unparser call.
 
   def currentLocation: DataLocation = {
+    val m = maybeCurrentInfosetElement
     new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),
-      maybeCurrentInfosetElement.map { _.runtimeData })
+      if (m.isDefined) Maybe(m.value.runtimeData) else Nope
+      )
   }
 
   val currentInfosetNodeStack = new MStack.OfMaybe[DINode]

@@ -60,7 +60,10 @@ case class EscapeSchemeCharUnparserHelper(private val escChar: Maybe[String], pr
   }
 
   override def toString() = "<EscapeSchemeChar escapeChar='" + escChar.getOrElse("") +
-    "' escapeEscapeChar='" + escEscChar.getOrElse("") + "' extraEscapedChars='" + extraEscChar.map { _.mkString(" ") } + "'/>"
+    "' escapeEscapeChar='" + escEscChar.getOrElse("") + "' extraEscapedChars='" + 
+    (
+        if (extraEscChar.isEmpty) Nope else One(extraEscChar.value.mkString(" ") )
+        ) + "'/>"
 }
 case class EscapeSchemeBlockUnparserHelper(private val escEscChar: Maybe[String],
   blockStart: String,

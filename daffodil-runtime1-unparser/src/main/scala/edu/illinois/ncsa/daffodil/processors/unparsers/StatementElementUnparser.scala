@@ -63,9 +63,9 @@ abstract class StatementElementUnparserBase(
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
-        eUnparser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
+        (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
         setVarUnparser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        eAfterUnparser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
+        (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
         "</Element>"
   }
 

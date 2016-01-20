@@ -37,10 +37,51 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
+/**
+ * Takes a compiled expression and a conversion, and if the expression is a constant,
+ * runs the conversion once saving the converted result. This saves work if this
+ * happens at compilation time, not runtime.
+ *
+ * If the expression is dynamic, then
+ * it runs the expression then the conversion once, and saves the result.
+ *
+ * Note that the "only once" aspect of this isn't terribly important, as one would not
+ * expect parse/unparse operations to go back and ask for these expressions repeatedly. They
+ * should be keeping it in a local val.
+ */
 trait Dynamic {
 
   // TODO: Performance - we should consider avoiding using an Either object here since they are
-  // allocated every time this is called.
+  // allocated every time this is called. Getting allocation down to where meaningful and necessary
+  // objects are allocated is important, and little tuples and Some(..) and Right/Left objects
+  // are not created makes a great deal of performance difference, albeit at the cost of making the
+  // code slighly more clumsy.
+
+  // We can use an AnyRef, and use either a value or a compiled expression, and methods that embed
+  // the cast, answer isExpression or isValue, etc.
+  // i.e, Create a value class named EitherOr that plays the same tricks as Maybe. Probably has to be
+  // special for CompiledExpression because we have to have a non-generic thing we can test for
+  // isInstanceOf that isn't erased. (Should build this right into compiled expression - i.e.,
+  // have evaluate method and getCache() method which returns object which has evaluate() also, but caches))
+  //
+  // However, we still have the box/unbox problem if the values of these are numbers. May not matter
+  // as these caches are not hit a lot.
+  //
+
+  //
+  // TODO: Complexity - seems excessively complex
+  //
+  // Dynamic is a mixin. It's used only in two places - escape schemes (because escChar and escescChar)
+  // and text number formats.
+  //
+  // The type A appears only as String, List[Char], Character. Generic [A] type may be overkill. Or
+  // generic should just call a common thing that is wired for String, List[Char] or Character, and has the
+  // converter built into it. So no function object needs to be passed, etc.
+  //
+  // There shouldn't be a need for NumFormat static and dynamic variants. That's a redundant distinction
+  // that is being hidden at this level in theory. Yet there is the static/dynamic distinction being made
+  // at that level also.
+  //
 
   type CachedDynamic[A] = Either[CompiledExpression, A]
 
