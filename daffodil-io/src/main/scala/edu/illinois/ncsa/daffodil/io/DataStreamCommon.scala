@@ -138,7 +138,7 @@ trait DataStreamCommon {
    * Note that length limits in lengthUnits Characters are not implemented
    * this way. See fillCharBuffer(cb) method.
    */
-  final def withBitLengthLimit(self: DataStreamCommon, lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacro
+  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacro
 
   def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 

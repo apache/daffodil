@@ -29,7 +29,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
     if (state.status _ne_ Success) return
     val dos = state.dataOutputStream
     val startingBitPos0b = dos.bitPos0b
-    val isLimitOk = dos.withBitLengthLimit(dos, nBits) {
+    val isLimitOk = dos.withBitLengthLimit(nBits) {
       eUnparser.unparse1(state, erd)
     }
     if (!isLimitOk) {

@@ -6,12 +6,15 @@ object LoggerMacros {
 
   def logMacro(c: Context)(lvl: c.Tree, msg: c.Tree, args: c.Tree*) = {
     import c.universe._
+
+    val level = TermName(c.freshName)
+    val l = TermName(c.freshName)
     q"""
     {
-      val level = $lvl
-      val l = level.lvl
-      if (getLoggingLevel().lvl >= l)
-        doLogging(level, $msg, Seq(..$args))
+      val $level = $lvl
+      val $l = $level.lvl
+      if (getLoggingLevel().lvl >= $l)
+        doLogging($level, $msg, Seq(..$args))
     }
     """
   }
@@ -24,12 +27,17 @@ object LoggerMacros {
   def withLoggingLevelMacro(c: Context)(newLevel: c.Tree)(body: c.Tree) = {
 
     import c.universe._
+
+    val previousLogLevel = TermName(c.freshName)
+
     q"""{
-    val previousLogLevel = logLevel
+    val $previousLogLevel = logLevel
     logLevel = One($newLevel)
-    try $body
+    try {
+      $body
+    }
     finally {
-      logLevel = previousLogLevel
+      logLevel = $previousLogLevel
     }
     }"""
   }

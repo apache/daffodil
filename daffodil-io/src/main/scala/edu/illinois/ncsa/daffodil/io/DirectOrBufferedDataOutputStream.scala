@@ -198,7 +198,7 @@ object DirectOrBufferedDataOutputStream {
     val bufferNBits = bufDOS.bitPos0b
     val realBitPos0b = newDirectDOS.bitPos0b
 
-    newDirectDOS.withBitLengthLimit(newDirectDOS, bufferNBits) {
+    newDirectDOS.withBitLengthLimit(bufferNBits) {
       //
       // TODO/FIXME : This must transfer any fractional byte as well in case
       // the last bit is not on a byte boundary.

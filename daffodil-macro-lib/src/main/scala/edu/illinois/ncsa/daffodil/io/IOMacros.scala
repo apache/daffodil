@@ -10,30 +10,31 @@ object IOMacros {
    * Implementing as a macro eliminates the creation of a downward function object every time this
    * is called.
    *
-   * ISSUE: this macro really wants to use a self reference to `this`. But when a macro is expanded
-   * the object that `this` represents changes. Until a better way to do this comes about, we have to pass
-   * the `this` object to the `self` argument, which makes calls look like:
-   *     dis.withBigLengthLimit(dis, newLimit){... body ...}
-   * That looks redundant, and it is, but it's more important to get the allocation of this downward function
-   * object out of inner loops.
    */
-  def withBitLengthLimitMacro(c: Context)(self: c.Tree, lengthLimitInBits: c.Tree)(body: c.Tree) = {
+  def withBitLengthLimitMacro(c: Context)(lengthLimitInBits: c.Tree)(body: c.Tree) = {
 
     import c.universe._
+
+    val dStream = TermName(c.freshName)
+    val newLengthLimit = TermName(c.freshName)
+    val savedLengthLimit = TermName(c.freshName)
+    // c.prefix is the expression this macro was expanded on. Not quite same thing as 'this' because we have to be
+    // careful not to use it more than once or it will evaluate more than once.
+    val selfExp = c.prefix
 
     q"""{
     import edu.illinois.ncsa.daffodil.util.MaybeULong
 
-    val ___dStream = $self
-    val ___newLengthLimit = $lengthLimitInBits
-    val ___savedLengthLimit = ___dStream.bitLimit0b
+    val $dStream = $selfExp
+    val $newLengthLimit = $lengthLimitInBits
+    val $savedLengthLimit = $dStream.bitLimit0b
 
-    if (!___dStream.setBitLimit0b(MaybeULong(___dStream.bitPos0b + ___newLengthLimit))) false
+    if (!$dStream.setBitLimit0b(MaybeULong($dStream.bitPos0b + $newLengthLimit))) false
     else {
       try {
         $body
       } finally {
-        ___dStream.resetBitLimit0b(___savedLengthLimit)
+        $dStream.resetBitLimit0b($savedLengthLimit)
       }
       true
     }
