@@ -770,7 +770,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def testLSB3_7bit_1char() {
     val xml = <document>
-                <documentPart type="text" bitOrder="LSBFirst" encoding="us-ascii-7-bit-packed">1</documentPart>
+                <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">1</documentPart>
               </document>
 
     val doc = new Document(xml, null)
@@ -782,7 +782,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def testLSB3_7bit_2char() {
     val xml = <document>
-                <documentPart type="text" bitOrder="LSBFirst" encoding="us-ascii-7-bit-packed">12</documentPart>
+                <documentPart type="text" bitOrder="LSBFirst" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">12</documentPart>
               </document>
 
     val doc = new Document(xml, null)
@@ -842,7 +842,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def testCheckForBadBitOrderTransitions4() {
     val xml = <document>
-                <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst">abcdefgh</documentPart>
+                <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst">abcdefgh</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
               </document>
@@ -854,7 +854,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def testCheckForBadBitOrderTransitions5() {
     val xml = <document>
-                <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst">abc</documentPart>
+                <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst">abc</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
                 <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
               </document>

@@ -40,8 +40,13 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
   override final lazy val knownEncodingAlignmentInBits = {
     if (isKnownEncoding) {
-      knownEncodingName match {
-        case "US-ASCII-7-BIT-PACKED" => 1 // canonical form of encoding names is all upper case
+      knownEncodingName match { // canonical form of encoding names is all upper case
+        case "US-ASCII-7-BIT-PACKED" => {
+          SDW("Character set encoding name US-ASCII-7-BIT-PACKED is deprecated. Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
+          1
+        }
+        case "X-DFDL-US-ASCII-7-BIT-PACKED" => 1 // new official name.
+        case "X-DFDL-US-ASCII-6-BIT-PACKED" => 1 // 6 bit is in the official DFDL standard too
         case _ => 8
       }
     } else 8 // unknown encodings always assumed to be 8-bit aligned.
@@ -96,7 +101,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * directly.
    * <p>
    * We are going to depend on the fact that if the encoding is going to be this
-   * US-ASCII-7Bit-PACKED thingy (7-bits wide code units, so aligned at 1 bit) that
+   * X-DFDL-US-ASCII-7-BIT-PACKED thingy (7-bits wide code units, so aligned at 1 bit) that
    * this encoding must be specified statically in the schema.
    * <p>
    * If an encoding is determined at runtime, then we will

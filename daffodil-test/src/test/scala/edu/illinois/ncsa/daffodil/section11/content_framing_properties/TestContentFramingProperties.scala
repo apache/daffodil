@@ -72,7 +72,7 @@ class TestContentFramingProperties {
   //  @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") }
   //  @Test def test_alignmentPacked7BitASCII_05() { runner2.runOneTest("alignmentPacked7BitASCII_05") }
 
-  /*** DFDL-379 US-ASCII-7-bit-packed text ***/
+  /*** DFDL-379 X-DFDL-US-ASCII-7-BIT-PACKED text ***/
   @Test def test_packed7BitASCII1() { runner2.runOneTest("packed7BitASCII1") }
   @Test def test_packed7BitASCII2() { runner2.runOneTest("packed7BitASCII2") }
   @Test def test_packed7BitASCII3() = { runner2.runOneTest("packed7BitASCII3") }

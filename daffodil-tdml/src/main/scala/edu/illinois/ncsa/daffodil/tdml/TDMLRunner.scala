@@ -1307,8 +1307,8 @@ case class Document(d: NodeSeq, parent: TestCase) {
 class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
 
   lazy val encoder = {
-    if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
-      Assert.usage(partBitOrder == LSBFirst, "encoding US-ASCII-7-BIT-PACKED requires bitOrder='LSBFirst'")
+    if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED" || encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED")
+      Assert.usage(partBitOrder == LSBFirst, "encoding X-DFDL-US-ASCII-7-BIT-PACKED requires bitOrder='LSBFirst'")
     CharsetUtils.getCharset(encodingName).newEncoder()
   }
 
@@ -1370,7 +1370,8 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val bytesAsStrings =
       if (encoder.charset.name.toLowerCase == "utf-8")
         encodeUtf8ToBits(textContentWithoutEntities)
-      else if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
+      else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
+               encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
         encodeWith7BitEncoder(textContentWithoutEntities)
       else encodeWith8BitEncoder(textContentWithoutEntities)
     bytesAsStrings

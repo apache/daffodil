@@ -178,7 +178,7 @@
 
   <tdml:defineSchema name="packed7BitASCII">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="US-ASCII-7-bit-packed"
+    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
       lengthUnits="characters"/>
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -264,9 +264,9 @@
   <!--
     Test name: packed7BitASCII1
     Schema: packed7BitASCII
-    Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed 
+    Purpose: This test demonstrates the simple use of the X-DFDL-US-ASCII-7-BIT-PACKED 
     encoding, where the document represents
-    two US-ASCII-7-bit-packed characters in binary.
+    two X-DFDL-US-ASCII-7-BIT-PACKED characters in binary.
   -->
 
   <tdml:parserTestCase name="packed7BitASCII1" root="e1"
@@ -286,9 +286,9 @@
   <!--
     Test name: packed7BitASCII2
     Schema: packed7BitASCII
-    Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed 
+    Purpose: This test demonstrates the simple use of the X-DFDL-US-ASCII-7-BIT-PACKED 
     encoding, where the document represents
-    64 US-ASCII-7-bit-packed characters in binary.
+    64 X-DFDL-US-ASCII-7-BIT-PACKED characters in binary.
   -->
 
   <tdml:parserTestCase name="packed7BitASCII2" root="e2"
@@ -314,9 +314,9 @@
   <!--
     Test name: packed7BitASCII3
     Schema: packed7BitASCII
-    Purpose: This test demonstrates the simple use of the US-ASCII-7-bit-packed 
+    Purpose: This test demonstrates the simple use of the X-DFDL-US-ASCII-7-BIT-PACKED 
     encoding, where the document represents
-    two US-ASCII-7-bit-packed characters in binary, one being the terminator 
+    two X-DFDL-US-ASCII-7-BIT-PACKED characters in binary, one being the terminator 
     ","
   -->
 
@@ -337,7 +337,7 @@
   <!--
     Test name: packed7BitASCII4
     Schema: packed7BitASCII
-    Purpose: This test demonstrates a more complex use of the US-ASCII-7-bit-packed 
+    Purpose: This test demonstrates a more complex use of the X-DFDL-US-ASCII-7-BIT-PACKED 
     encoding, where delimited by NUL, which is illegal in XML so is remapped to E000.
   -->
 
@@ -383,7 +383,7 @@
   <!--
     Test name: packed7BitASCII6
     Schema: packed7BitASCII
-    Purpose: This test demonstrates a more complex use of the US-ASCII-7-bit-packed.
+    Purpose: This test demonstrates a more complex use of the X-DFDL-US-ASCII-7-BIT-PACKED.
     The NUL character, illegal in XML, is remapped into the private use area to E000. 
   -->
 

@@ -46,7 +46,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 /**
  * Some encodings are not byte-oriented.
  *
- * US-ASCII-7-bit-packed occupies only 7 bits with each
+ * X-DFDL-US-ASCII-7-BIT-PACKED occupies only 7 bits with each
  * code unit.
  *
  * There are 6 bit and 5 bit encodings in use as well. (One can even think of hexadecimal as
@@ -112,7 +112,7 @@ trait NonByteSizeCharsetEncoderDecoderImpl
 }
 
 object USASCII7BitPackedCharset
-  extends java.nio.charset.Charset("US-ASCII-7-bit-packed", Array())
+  extends java.nio.charset.Charset("X-DFDL-US-ASCII-7-BIT-PACKED", Array("US-ASCII-7-BIT-PACKED"))
   with USASCII7BitPackedEncoderDecoderMixin {
 
   def contains(cs: Charset): Boolean = false
@@ -277,7 +277,7 @@ class USASCII7BitPackedDecoder
             handlePossibleFinalFragmentByte(in, out)
             return CoderResult.UNDERFLOW
           } else if (!outHasRemainingSpace) {
-            return CoderResult.OVERFLOW 
+            return CoderResult.OVERFLOW
           }
         } else {
           if (inHasRemainingData) {
@@ -327,7 +327,7 @@ class USASCII7BitPackedDecoder
 
     Assert.impossible("Incorrect return from decodeLoop.")
   }
-  
+
   private def output(charCode: Int, out: CharBuffer) {
     // println("charcode = %2x".format(charCode))
     val char = charCode.toChar

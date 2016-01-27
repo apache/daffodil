@@ -88,7 +88,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
-        <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70", hex)
@@ -98,7 +98,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
-        <documentPart type="text" encoding="us-ascii-7-bit-packed"><![CDATA[123456789]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"><![CDATA[123456789]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD7039", hex)
@@ -108,7 +108,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document bitOrder="LSBFirst">
-        <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70B91C", hex)
@@ -172,7 +172,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
-        <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70", hex)
@@ -182,7 +182,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     USASCII7BitPackedCharset.newEncoder()
     val doc = new Document(
       <document>
-        <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD7039", hex)
@@ -192,7 +192,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document>
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[110]]></documentPart>
-        <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[123]]></documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[123]]></documentPart>
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[1011]]></documentPart>
       </document>, null)
     val doc1bits = doc.documentBits.mkString
@@ -255,7 +255,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" byteOrder="RTL">FPI for URN                     X1XX XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">URN  X0000000 00000000 01100111 1XXX XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">FPI for Unit Name               1XXX XXXX</documentPart>
-        <documentPart type="text" encoding="us-ascii-7-bit-packed">UNITA&#x7F;</documentPart>
+        <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">UNITA&#x7F;</documentPart>
         <documentPart type="bits" byteOrder="RTL">GPI for Recip. Addr Group       XXXX X1XX</documentPart>
         <documentPart type="bits" byteOrder="RTL">GRI for R_ONE                   XXXX 0XXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">FPI for URN                     XXX1 XXXX</documentPart>

@@ -56,7 +56,7 @@
           <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24" />
           <xs:element name="FPI_UnitName" type="xs:unsignedInt"
             dfdl:length="1" />
-          <xs:element name="UnitName" type="xs:string" dfdl:encoding="us-ascii-7-bit-packed"
+          <xs:element name="UnitName" type="xs:string" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
             dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;" />
           <xs:element name="GPI_RecipAddrGroup" type="xs:unsignedInt"
             dfdl:length="1" />
@@ -116,7 +116,7 @@
       <documentPart type="bits" byteOrder="RTL">FPI for URN                     X1XX XXXX</documentPart>
       <documentPart type="bits" byteOrder="RTL">URN  X0000000 00000000 01100111 1XXX XXXX</documentPart>
       <documentPart type="bits" byteOrder="RTL">FPI for Unit Name               1XXX XXXX</documentPart>
-      <documentPart type="text" encoding="us-ascii-7-bit-packed">UNITA&#x7F;</documentPart>
+      <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED">UNITA&#x7F;</documentPart>
       <documentPart type="bits" byteOrder="RTL">GPI for Recip. Addr Group       XXXX X1XX</documentPart>
       <documentPart type="bits" byteOrder="RTL">GRI for R_ONE                   XXXX 0XXX</documentPart>
       <documentPart type="bits" byteOrder="RTL">FPI for URN                     XXX1 XXXX</documentPart>
