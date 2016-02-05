@@ -52,8 +52,8 @@ class TestTutorials {
   @Test def testTutorialElementsParse() { runner2.runOneTest("testTutorialElementsParse") }
   @Test def testTutorialElementsUnparse() { runner2.runOneTest("testTutorialElementsUnparse") }
 
-  @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
-  @Test def test_LSBFirstSpan3Bytes() { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
+  // removed for now. This will probably go back into this tutorial
+  // @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
   @Test def test_leastSignificantBitFirst() { runner1.runOneTest("leastSignificantBitFirst") }
   @Test def test_leastSignificantBitFirstRTL() { runner1.runOneTest("leastSignificantBitFirstRTL") }
   @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }

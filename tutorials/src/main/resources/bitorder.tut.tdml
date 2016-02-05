@@ -756,7 +756,7 @@ most significant bit is on the left, least significant on the right.</p>
     The data (in hex) is different than the prior example.
   </tdml:tutorial>
     <document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="bits">4B 54</documentPart>
+      <documentPart type="byte">4B 54</documentPart>
     </document>
       <tdml:tutorial>
 	The logical information in elements A, B, C, and D is the same.
