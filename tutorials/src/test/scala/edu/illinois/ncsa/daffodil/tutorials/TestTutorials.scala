@@ -37,9 +37,9 @@ import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestTutorials {
-  val runner1 = Runner("/", "bitorder.tut.tdml")
-  val runner2 = Runner("/", "test1.tut.tdml")
-  val runner3 = Runner("/", "testTDMLTutorialFile2.tut.tdml")
+  val runner1 = Runner("/", "bitorder.tutorial.tdml.xml")
+  val runner2 = Runner("/", "test1.tutorial.tdml.xml")
+  val runner3 = Runner("/", "testTDMLTutorialFile2.tutorial.tdml.xml")
 
   @AfterClass def shutDown {
     runner1.reset
