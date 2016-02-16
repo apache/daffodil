@@ -243,36 +243,4 @@ class TestPrimitives {
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
 
-  // We no longer expect byte alignment errors
-  //  @Test def testNotByteAlignedCharactersErrorDetected() {
-  //    val sch = SchemaUtils.dfdlTestSchema(
-  //      <dfdl:format ref="tns:daffodilTest1"/>,
-  //      <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-  //    val pf = new Compiler().compile(sch)
-  //    val dp = pf.onPath("/").asInstanceOf[DataProcessor]
-  //
-  //    val edecl = dp.rootElem
-  //    val d = Misc.stringToReadableByteChannel("42")
-  //    val initialState = PState.createInitialState(pf.sset.schemaComponentRegistry,
-  //      edecl, d, bitOffset = 3)
-  //    // Processing Errors are no longer making it to the top-level to throw the Exception
-  //    //    val exc = intercept[Exception] {
-  //    //      var resState = dp.parse(initialState)
-  //    //      System.err.println(resState.isError)
-  //    //      assertTrue(resState.isError)
-  //    //    }
-  //    //    val err = exc.getMessage()
-  //    //    assertTrue(err.toString.contains("8"))
-  //    //    assertTrue(err.toString.contains("align"))
-  //    var resState = dp.parse(initialState)
-  //    assertTrue(resState.isError)
-  //    //assertTrue(resState.resultState.status.isInstanceOf[Failure])
-  //    val err = resState.resultState.status.asInstanceOf[Failure].msg
-  //    assertTrue(err.contains("not byte aligned"))
-  //
-  //    // val Seq(err) = resState.getDiagnostics
-  //    // assertTrue(err.isInstanceOf[ParseError])
-  //
-  //  }
-
 }

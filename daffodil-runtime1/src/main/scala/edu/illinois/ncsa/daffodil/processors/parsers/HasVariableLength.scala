@@ -35,14 +35,14 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.TypeConversions
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 trait HasVariableLength { self: PrimParser =>
   def length: CompiledExpression
 
   def getLength(pstate: PState): Long = {
     val lengthAsAny = length.evaluate(pstate)
-    val l = TypeConversions.convertToLong(lengthAsAny, pstate)
+    val l = AsIntConverters.asLong(lengthAsAny)
     l
   }
 }

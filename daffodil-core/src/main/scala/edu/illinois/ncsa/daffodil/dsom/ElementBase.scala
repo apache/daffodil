@@ -89,8 +89,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin
-  with RealTermMixin
-  {
+  with RealTermMixin {
 
   ElementBase.count += 1 // how many elements in this schema.
 
@@ -418,8 +417,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       notReferencedByExpressions,
       fillByteValue,
       optTruncateSpecifiedLengthString,
-      if (isOutputValueCalc) Some(ovcCompiledExpression) else None
-      )
+      if (isOutputValueCalc) Some(ovcCompiledExpression) else None)
     newERD
   }
 
@@ -746,27 +744,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       res
     }
   }.value
-
-  //  /**
-  //   * everything that we need to look for when deciding how to terminate a data region
-  //   * based on scanning
-  //   */
-  //  lazy val inScopeTerminatingMarkup = {
-  //    // our own terminator is one thing
-  //    // the separator of an enclosing group, if we're not last.
-  //    // the terminator of an enclosing group, if we are last
-  //    // the terminator of an enclosing element
-  //    // recursively outward.
-  //    //
-  //    // or another way to think of it is
-  //    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
-  //    // last member. Plus any inscope terminating markup from what it is encapsulated in.
-  //    //
-  //    // an element has its terminator
-  //    //
-  //    // Note: if we are potentially the last item (not required, but no downstream required siblings)
-  //    Assert.notYetImplemented("inScopeTerminatingMarkup")
-  //  }
 
   final lazy val hasExpressionsInTerminatingMarkup: Boolean = {
     this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0

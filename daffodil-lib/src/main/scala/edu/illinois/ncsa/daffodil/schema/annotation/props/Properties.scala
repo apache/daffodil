@@ -104,13 +104,19 @@ abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase {
   class Value extends EnumValueBase { self: A => {
       val theVal = this
-      _values += (getNameFromClass(this).toLowerCase -> theVal)
+      val cn = getNameFromClass(this)
+      val en = cn match {
+        //
+        // Special case for CalendarFirstDayOfWeek
+        //
+        case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" => cn
+        case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
+      }
+      _values += (en -> theVal)
       _values
     }
-    override val toString = {
-      val s = getNameFromClass(this)
-      val capS = s.substring(0, 1).toLowerCase()
-      val propName = capS + s.substring(1)
+    override lazy val toString = {
+      val propName = Misc.toInitialLowerCaseUnlessAllUpperCase(getNameFromClass(this))
       propName
     }
   }
@@ -118,10 +124,15 @@ abstract class Enum[A] extends EnumBase {
   def toPropName(prop: A) = prop.toString
 
   private val _values = mutable.ArrayBuffer.empty[Tuple2[String, A]]
+
+  /**
+   * This is invoked at runtime to compare expression results to see if they
+   * match the strings for the enum values. So this has to be fast.
+   */
   def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE): A = {
     var i: Int = 0
     while (i < _values.size) {
-      if (_values(i)._1.equalsIgnoreCase(str)) {
+      if (_values(i)._1.equals(str)) { // was equals ignore case - that's just going to allow errors if used at runtime
         return _values(i)._2
       }
       i += 1

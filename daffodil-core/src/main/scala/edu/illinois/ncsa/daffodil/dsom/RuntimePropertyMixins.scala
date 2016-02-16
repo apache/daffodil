@@ -143,7 +143,7 @@ trait ElementRuntimeValuedPropertiesMixin
 
   final lazy val length = LV('length) {
     ExpressionCompiler.compile(NodeInfo.UnsignedLong, lengthRaw)
-  }.value // NodeInfo.UnsignedInt
+  }.value
 
   //
   // The occursCount expression is written on the array element, but that expression

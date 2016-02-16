@@ -213,16 +213,6 @@ trait Facets { self: SimpleTypeDefBase =>
     "" // Indicates the facet doesn't exist
   }
 
-  //  private def evaluateFacet(check: (Long, Long, Facet.Type) => Unit, theFacetType: Facet.Type, theLocalFacet: Long) = {
-  //    val remoteFacetValues = getRemoteFacetValues(theFacetType)
-  //    if (remoteFacetValues.size > 0) {
-  //      val (_, remoteValues) = remoteFacetValues(0)
-  //      val theRemoteFacet = remoteValues(0).toLong
-  //      check(theLocalFacet, theRemoteFacet, theFacetType)
-  //    }
-  //    theLocalFacet
-  //  }
-
   private def getFacetValue(theLocalValue: String, theRemoteValue: String, theType: Facet.Type, exists: Boolean): java.math.BigDecimal = {
     if (!exists) context.SDE("The facet %s was not found.", theType)
     else if (theLocalValue != "" && theRemoteValue != "") {
@@ -432,14 +422,6 @@ trait Facets { self: SimpleTypeDefBase =>
     (theLocalFacet, theRemoteFacet)
   }
 
-  //  private def isNumInRange(num: java.math.BigDecimal, min: java.math.BigDecimal,
-  //    max: java.math.BigDecimal): Boolean = {
-  //    val checkMin = num.compareTo(min)
-  //    if (checkMin < 0) { return false } // num less than min
-  //    val checkMax = num.compareTo(max)
-  //    if (checkMax > 0) { return false } // num greater than max
-  //    true
-  //  }
   private def isFacetInByteRange(facet: java.math.BigDecimal): Boolean = self.isInByteRange(facet)
 
   private def isFacetInShortRange(facet: java.math.BigDecimal): Boolean = self.isInShortRange(facet)

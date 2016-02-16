@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -71,6 +71,15 @@ object Misc {
     nameToken // + "@" + hexHash
   }
 
+  /**
+   * Removes a suffix string, if it is found.
+   */
+  def stripSuffix(s: String, suffix: String) = {
+    if (s.endsWith(suffix))
+      s.substring(0, s.length - suffix.length)
+    else s
+  }
+
   def stripQuotes(s: String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
     val stripLast = if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1) else stripFirst
@@ -116,11 +125,11 @@ object Misc {
     }
     val result: Option[URI] = {
       optContextURI.flatMap { contextURI =>
-        // 
+        //
         // try relative to enclosing context uri
-        // 
+        //
         // Done using URL constructor because the URI.resolve(uri) method
-        // doesn't work against so called opaque URIs, and jar URIs of the 
+        // doesn't work against so called opaque URIs, and jar URIs of the
         // sort we get here if the resource is in a jar, are opaque.
         // Some discussion of this issue is https://issues.apache.org/jira/browse/XMLSCHEMA-3
         //
@@ -137,10 +146,10 @@ object Misc {
         // ...foo/xsd/xsd/bar.xsd. That is, the xsd
         // component is repeated twice. That is because something
         // mindlessly strips off the last component of the path,
-        // and then appends the current schema's schema location 
-        // onto it. Really it should be stripping off the 
-        // current file's literal systemId, so as to get 
-        // the right base. 
+        // and then appends the current schema's schema location
+        // onto it. Really it should be stripping off the
+        // current file's literal systemId, so as to get
+        // the right base.
         //
         // JIRA issue DFDL-1183 is about figuring out something better than this.
         //
@@ -209,6 +218,29 @@ object Misc {
 
   def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
   def initialLowerCase(s: String): String = s.head.toLower + s.substring(1)
+
+  /**
+   * Convert FooBar to fooBar, but leave FOOBAR as FOOBAR.
+   */
+  def toInitialLowerCaseUnlessAllUpperCase(s: String): String = {
+    // Assert.usage(s.length > 0)
+    if (s(0).isLower) return s
+    //
+    // At this point we know the first letter is uppercase
+    //
+    if (isAllUpper(s, 1)) s
+    else s(0).toLower + s.substring(1)
+  }
+
+  def isAllUpper(s: String, start: Int): Boolean = {
+    var i = start
+    val l = s.length
+    while (i < l) {
+      if (s(i).isLower) return false
+      i += 1
+    }
+    true
+  }
 
   /**
    * Returns a tuple with the primary version number in the first slot
@@ -322,8 +354,8 @@ object Misc {
       // Unicode separators & joiners
       case 0x00A0 => URC // no-break space
       case 0x200B => URC // zero width space
-      case 0x2028 => URC // line separator 
-      case 0x2029 => URC // paragraph separator 
+      case 0x2028 => URC // line separator
+      case 0x2029 => URC // paragraph separator
       case 0x200C => URC // zero width non-joiner
       case 0x200D => URC // zero width joiner
       case 0x2060 => URC // word joiner
@@ -336,14 +368,14 @@ object Misc {
       // we assume surrogate codepoints all have a glyph (depends on font used of course)
       //
       // TODO: this could go on and on. There's a flock of 'space' characters (EM SPACE)
-      // all over the place in Unicode. 
-      // 
+      // all over the place in Unicode.
+      //
       // TODO: combining characters,
-      // all whitespace, zero-width, and combining/joining characters would be 
+      // all whitespace, zero-width, and combining/joining characters would be
       // represented by a separate glyph-character.
       //
       // Probably could be done by checking the character against some
-      // unicode regex character classes like \p{M} which is the class 
+      // unicode regex character classes like \p{M} which is the class
       // of combining mark characters
       //
       //
@@ -437,12 +469,12 @@ object Misc {
       case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
       case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
       //
-      // replace undefined characters in the C1 control space with 
-      // glyph characters. These are the only codepoints in the C1 
+      // replace undefined characters in the C1 control space with
+      // glyph characters. These are the only codepoints in the C1
       // space which do not have a glyph defined by windows-1252
-      // 
+      //
       // We remap these into the Unicode Latin Extended B codepoints by
-      // adding 0x100 to their basic value. 
+      // adding 0x100 to their basic value.
       //
       case 0x81 => 0x0181
       case 0x8D => 0x018d

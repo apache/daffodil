@@ -12,19 +12,19 @@ import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import org.junit.Test
 import org.junit.Assert._
-//
-///**
-// * These unit tests characterize the behavior of charset decoders
-// * that we depend upon.
-// *
-// * There appear to be some bugs in Java 7 that are fixed in Java 8.
-// * But to work around them we have a DecoderWrapper class.
-// *
-// * The bug is specifically associated with
-// * a use case we need, which is the case where there is room in the
-// * output CharBuffer for exactly 1 character.
-// *
-// */
+
+/**
+ * These unit tests characterize the behavior of charset decoders
+ * that we depend upon.
+ *
+ * There appear to be some bugs in Java 7 that are fixed in Java 8.
+ * But to work around them we have a DecoderWrapper class.
+ *
+ * The bug is specifically associated with
+ * a use case we need, which is the case where there is room in the
+ * output CharBuffer for exactly 1 character.
+ *
+ */
 class TestDecoder {
 
   /**
@@ -163,6 +163,10 @@ class TestDecoder {
     //
 
   }
+  
+  // KEEP THESE TESTS IN CASE WE EVER HAVE TO SUPPORT JAVA 7
+  // Delete once it's clear we're never going to have to do that.
+  //
   //  @Test def testDecoder2 {
   //    val originalDecoder = Charset.forName("utf-8").newDecoder()
   //    originalDecoder.onMalformedInput(CodingErrorAction.REPORT)

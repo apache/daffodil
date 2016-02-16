@@ -37,25 +37,6 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnAPI1 { ImplicitsSup
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.TestUtils
 
-//object Fakes {
-//  lazy val sch = <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
-//                  <xs:element name="e1" type="xs:int" dfdl:representation="binary" dfdl:inputValueCalc="{ 42 }" dfdl:encodingErrorPolicy="replace" dfdl:encoding="ascii"/>
-//                </xs:schema>
-//  lazy val xsd_sset = new SchemaSet(null, sch, "", "fake")
-//  lazy val xsd_schema = xsd_sset.getSchema(NS("")).get
-//  lazy val fakeSD = xsd_schema.schemaDocuments(0)
-//}
-
-//class H extends OOLAGHost() {
-//     def rethrowAsDiagnostic(th: Throwable) = ???
-//      oolagContextViaSet == None
-//      override lazy val oolagRoot = this
-//  }
-//
-//object Fakes {
-//  lazy val fakeSD = new H
-//}
-
 class TestForMemLeak {
 
   @Test def testParseSimpleLeakChecking() {

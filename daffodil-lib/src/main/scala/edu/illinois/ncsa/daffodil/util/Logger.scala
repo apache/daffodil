@@ -131,15 +131,7 @@ object NullLogWriter extends LogWriter {
 }
 
 object ConsoleWriter extends LogWriter {
-  //  protected val writer = actor {
-  //    loop {
-  //      react {
-  //        case msg : String =>
-  //          Console.out.println(msg);
-  //          Console.flush case _ =>
-  //      }
-  //    }
-  //  }
+
   def write(msg: String) {
     Console.err.println(msg)
     Console.flush

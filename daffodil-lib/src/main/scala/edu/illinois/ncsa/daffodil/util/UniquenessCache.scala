@@ -19,23 +19,6 @@ package edu.illinois.ncsa.daffodil.util
  * usage.
  */
 
-//final class Symbol private (val name: String) extends Serializable {
-//  /** Converts this symbol to a string.
-//   */
-//  override def toString(): String = "'" + name
-//
-//  @throws(classOf[java.io.ObjectStreamException])
-//  private def readResolve(): Any = Symbol.apply(name)
-//  override def hashCode = name.hashCode()
-//  override def equals(other: Any) = this eq other.asInstanceOf[AnyRef]
-//}
-
-//object Symbol extends UniquenessCache[String, Symbol] {
-//  override def apply(name: String): Symbol = super.apply(name)
-//  protected def valueFromKey(name: String): Symbol = new Symbol(name)
-//  protected def keyFromValue(sym: Symbol): Option[String] = Some(sym.name)
-//}
-
 abstract class UniquenessCache[K, V >: Null]
 {
   import java.lang.ref.WeakReference

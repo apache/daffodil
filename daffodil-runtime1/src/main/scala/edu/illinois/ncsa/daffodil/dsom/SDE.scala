@@ -198,8 +198,10 @@ abstract class SchemaDefinitionDiagnosticBase(
         try {
           kind.format(args: _*)
         } catch {
-          case th: Throwable =>
-            Assert.abort("Throw during toString of SDE object. kind='" + kind + "', args=" + args)
+          case th: Throwable => {
+            val exc = th
+            Assert.abort("Throw during toString of SDE object. kind='" + kind + "', args=" + args + " thrown type was: " + exc.getClass())
+          }
         }
       else kind
 

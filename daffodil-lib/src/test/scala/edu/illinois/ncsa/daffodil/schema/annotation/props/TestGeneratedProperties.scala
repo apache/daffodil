@@ -147,7 +147,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.textBidiSymmetric, "yes")
     comparePropValue(hasProps.textBidiTextShaped, "no")
     comparePropValue(hasProps.textBidiNumeralShapes, "nominal")
-    comparePropValue(hasProps.textBidiOrientation, "rTL")
+    comparePropValue(hasProps.textBidiOrientation, "RTL")
     comparePropValue(hasProps.textStringJustification, "left")
     //comparePropValue(hasProps.textStringPadCharacter, "%SP;")
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")

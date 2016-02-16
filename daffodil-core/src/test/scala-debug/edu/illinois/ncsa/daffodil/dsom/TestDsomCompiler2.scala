@@ -379,28 +379,6 @@ class TestDsomCompiler2 extends Logging {
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
-  //  @Test def testBMP() {
-  //    val infoset = scala.xml.XML.loadFile("header.xml")
-  //    val compiler = Compiler()
-  //    val pf = compiler.compile("BMPtest.xsd") //pass compiler the schema
-  //    val unparser = pf.onPath("/") //create unparser for given schema
-  //    val outputStream = new FileOutputStream("testBMP")
-  //    val out = java.nio.channels.Channels.newChannel(outputStream)
-  //    unparser.unparse(out, infoset) //pass infoset to unparser
-  //    out.close()
-  //  }
-
-  //  @Test def testBMPPixels() {
-  //    val infoset = scala.xml.XML.loadFile("pixeldata.xml")
-  //    val compiler = Compiler()
-  //    val pf = compiler.compile("BMPtestPixels.xsd") //pass compiler the schema
-  //    val unparser = pf.onPath("/") //create unparser for given schema
-  //    val outputStream = new FileOutputStream("testBMPPixels")
-  //    val out = java.nio.channels.Channels.newChannel(outputStream)
-  //    unparser.unparse(out, infoset) //pass infoset to unparser
-  //    out.close()
-  //  }
-
   @Test def testUnparseBinary1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,

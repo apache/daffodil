@@ -442,6 +442,44 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final lazy val priorPhysicalSiblings = priorSiblings.filter { _.isRepresented }
   final lazy val priorPhysicalSibling = priorPhysicalSiblings.lastOption
 
+  //
+  // FIXME: incomplete analysis. This needs to walk outward to parent, then down into
+  // last of prior sibling sequence group looking downward at last child until it finds
+  // a physical term that satisfies the test.
+  // E.g., the prior sibling in this sequence might satisfy, or the enclosing parent if we're
+  // first, or the prior sibling of the enclosing parent, or the last child of the prior
+  // sibling of the enclosing parent, and so on.
+  //
+  // Really we often need the "things before this" enumerated and filtered, so there
+  // should be a stream of things looking at prior prior of that, prior of that, etc.
+  //
+  // Choice groups require special consideration. A prior that's a choice only has a
+  // defined property if (1) it's relevant to the choice group - so dfdl:terminator yes, dfdl:byteOrder no.
+  // (2) it is present for that choice group, or (3) it is recursively present on the last of
+  // ALL children of the choice group, so that it is present with a specific value no matter
+  // which branch of the choice is realized.
+  //
+  // It is ok for this to stop early and be less comprehensive about walking backward
+  // IFF it is used in conservative analysis, i.e., where not finding the term, even if
+  // it does in fact exist back there someplace, causes no incorrectness, just suboptimality.
+  //
+  // Note also that the predicate test interacts with sequence groups in a complex way.
+  // If the sequence group has separators, the separator will be present (because the current
+  // term is not first, or the sep is in prefix position, or ...) then if the predicate
+  // is true of a sequence separator (e.g., such as has same encoding property value) then
+  // we have a preceding physical term, the enclosing sequence, which has a physical
+  // syntax, the separator, which satisfies the predicate.
+  //
+  // That's the job of the predicate. The point is that this predicate may or may not
+  // stop on some enclosing parent, depending on separators, etc. You can't just have the
+  // predicate be "has same encoding" test, because whether that encoding will have been
+  // put into effect depends on whether some group syntax - such as a separator, or initiator
+  // will have been present and so required establishing that property to be in effect.
+  //
+  // If a sequence has no separator and no initiator, then it doesn't impose an encoding prior to or
+  // between the sibling children. Hence, even if it has an encoding property in scope, and even
+  // uses it for a terminator, it doesn't re-establish that encoding prior to children, so
+  // the analysis can't stop on the sequence.
   final def nearestPriorPhysicalTermSatisfying(pred: Term => Boolean): Option[Term] = {
     priorPhysicalSiblings.filter { pred(_) }.lastOption match {
       case x @ Some(sib) => x

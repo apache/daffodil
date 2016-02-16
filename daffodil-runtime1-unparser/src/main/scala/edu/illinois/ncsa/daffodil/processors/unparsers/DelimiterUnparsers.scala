@@ -28,11 +28,11 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
   def unparse(state: UState): Unit = {
     setupEncoding(state, erd)
 
-    log(LogLevel.Debug, "Parsing starting at bit position: %s", state.bitPos1b)
+    log(LogLevel.Debug, "Unparsing starting at bit position: %s", state.bitPos1b)
 
     val localDelimNode = state.localDelimiters
 
-    val (delimDFAOpt, _ /* location */) = {
+    val (delimDFAOpt, _ /* location */ ) = {
       if (delimiterType == DelimiterTextType.Initiator) (localDelimNode.initiator, localDelimNode.initiatorLoc)
       else if (delimiterType == DelimiterTextType.Separator) (localDelimNode.separator, localDelimNode.separatorLoc)
       else (localDelimNode.terminator, localDelimNode.terminatorLoc)
@@ -54,7 +54,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
       // Characters in infoset element cannot be encoded without error.
       //
       // This won't actually be thrown until encodingErrorPolicy='error' is
-      // implemented. 
+      // implemented.
       //
       case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
     }

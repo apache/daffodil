@@ -693,27 +693,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     if (!this.isDefinedForLength(nBits)) return false
     setBitPos0b(bitPos0b + nBits)
     true
-    //    val n = nBits.toInt
-    //    if (n <= 64) {
-    //      //
-    //      // skip is defined in terms of getSignedLong because
-    //      // that way we don't have to worry about bitOrder and other
-    //      // issues, or fragments of a byte and such. We have that code
-    //      // in only one place, not both there and here.
-    //      //
-    //      getSignedLong(n)
-    //    } else {
-    //      val nLongs = n / 64
-    //      val rest = n % 64
-    //      var i = 0
-    //      while (i < nLongs) {
-    //        getSignedLong(64)
-    //      }
-    //      if (rest > 0) {
-    //        getSignedLong(rest)
-    //      }
-    //    }
-    //    true
   }
 
   def mark: DataInputStream.Mark = {

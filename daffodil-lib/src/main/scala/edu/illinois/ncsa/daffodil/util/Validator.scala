@@ -143,23 +143,8 @@ object Validator extends NoBindingFactoryAdapter {
 
     val parser = makeParser(Some(schema))
 
-    //    val xr = parser.getXMLReader()
-    //    val vh = schema.newValidatorHandler()
-    //    vh.setContentHandler(this)
-    //    xr.setContentHandler(vh)
-    //    scopeStack.push(TopScope)
-    //    xr.parse(documentSource)
-    //    scopeStack.pop
-    //    rootElem.asInstanceOf[Elem]
-
     val dh = new ContentHandler() //new DefaultHandler()
     parser.parse(documentSource, dh)
-
-    //    val vh = schema.newValidatorHandler()
-    //    val validator = schema.newValidator()
-    //    validator.setResourceResolver(sf.getResourceResolver())
-    //    val docSrc = new StreamSource(documentSource.getByteStream())
-    //    validator.validate(docSrc)
   }
 
   def validateXML(schemaSource: StreamSource, documentSource: InputSource) = {

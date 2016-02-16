@@ -172,19 +172,6 @@ object Utility extends AnyRef with parsing.TokenTests {
     }
   }
 
-  // def toXML(
-  //   x: Node,
-  //   pscope: NamespaceBinding = TopScope,
-  //   sb: StringBuilder = new StringBuilder,
-  //   stripComments: Boolean = false,
-  //   decodeEntities: Boolean = true,
-  //   preserveWhitespace: Boolean = false,
-  //   minimizeTags: Boolean = false): String =
-  // {
-  //   toXMLsb(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
-  //   sb.toString()
-  // }
-
   /**
    * Serialize an XML Node to a StringBuilder.
    *

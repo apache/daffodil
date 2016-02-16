@@ -366,14 +366,6 @@ class DFDLPathExpressionParser(
    * This is to avoid whitespace collapsing inside string literals. We want
    * whitespace to be ignored outside string literals, but not inside them.
    */
-  //  val StringLiteral: Parser[String] =
-  //    ("\"" ~> (EscapeQuot | notQuot).* <~ "\"") ^^ { case values => values.mkString } |
-  //      ("'" ~> (EscapeApos | notApos).* <~ "'") ^^ { case values => values.mkString }
-  //
-  //  val EscapeQuot = "\"\""
-  //  val EscapeApos = "''"
-  //  val notQuot: Parser[String] = """[^"]""".r
-  //  val notApos: Parser[String] = """[^']""".r
 
   val StringLiteral: Parser[String] = {
     val escapeQuot = """\"\""""

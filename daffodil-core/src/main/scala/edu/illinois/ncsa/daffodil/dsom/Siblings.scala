@@ -1,27 +1,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 /**
- * The compiler does lots of analysis of terms and the siblings of terms.
- *
- * To get some stronger type-correctness guarantees than just using a nested list, we
- * specifically have bags of things that are ordered, and that represent alternatives.
- */
-
-//case class Alternatives[T](alts: Seq[T]) {
-//  override def size = alts.size
-//}
-//
-//object Sibs {
-//  def apply[T <: Term](thing: T): Siblings[T] = Siblings[T](Seq(Alternatives[T](Seq(thing))))
-//  def apply[T <: Term](things: Seq[T]): Siblings[T] = Siblings[T](things.map { thing => Alternatives[T](Seq(thing)) })
-//}
-//
-//case class Siblings[T <: Term](sibs: Seq[Alternatives[T]]) {
-//  def size = sibs.size
-//  def isEmpty = sibs.isEmpty
-//}
-
-/**
  * Information needed specifically for unparsing.
  */
 object UnparserInfo {

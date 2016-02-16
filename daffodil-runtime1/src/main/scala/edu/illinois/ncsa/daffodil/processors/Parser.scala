@@ -50,7 +50,6 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.dsom.TypeConversions
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder

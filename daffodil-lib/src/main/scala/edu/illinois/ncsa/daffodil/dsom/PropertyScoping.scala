@@ -150,25 +150,6 @@ trait FindPropertyMixin extends PropTypes {
       else "\nThere were no default properties.\n"
     SDE("Property %s is not defined.%s%s", pname, nonDefDescription, defLocsDescription)
   }
-  //
-  // Done by the expression compiler. Not needed here.
-  //
-  //  def expressionize(s: String) = {
-  //    val trimmed = s.trim()
-  //    val res =
-  //      if (trimmed.startsWith("{{")) "{ '" + trimmed + "' }"
-  //      else if (trimmed.startsWith("{")) s
-  //      else if (trimmed == "'") """{ "'" }"""
-  //      else if (trimmed == "\"") """{ '"' }"""
-  //      else if (((trimmed.startsWith("'")) && trimmed.endsWith("'")) ||
-  //        ((trimmed.startsWith("\"")) && trimmed.endsWith("\""))) "{ " + trimmed + " }"
-  //      else
-  //        // it is some sort of token, or number or character
-  //        // e.g., bigEndian or ; or END
-  //        // surround with single quotes.
-  //        "{ '" + trimmed + "' }"
-  //    res
-  //  }
 
   /**
    * It is ok to use getProperty if the resulting property value cannot ever contain

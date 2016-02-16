@@ -161,6 +161,13 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
     uniqueULongPerBlockLocation(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
   }
 
+  /**
+   * This is a Long that is unique for each location where expression evaluation can block
+   * on forward reference during unparsing. The purpose of this is to detect if an expression
+   * is blocking on different locations successively, but gradually making forward progress, or
+   * if the expression is stuck and keeps blocking on the exact same missing information,
+   * which means there is a cyclic dependency of some kind in the expression.
+   */
   private def uniqueULongPerBlockLocation(diNode: DINode, info: DPathElementCompileInfo, index: Long, exc: Exception) {
     val num: Long = scala.math.abs(diNode.hashCode() + info.hashCode() + index + exc.getClass().hashCode())
     blockLocation = MaybeULong(num)
