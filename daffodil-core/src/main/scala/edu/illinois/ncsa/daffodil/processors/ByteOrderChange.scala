@@ -33,13 +33,17 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.processors.unparsers.ByteOrderChangeUnparser
+import edu.illinois.ncsa.daffodil.util.Maybe
+import Maybe._
 
-case class ByteOrderChange(t: Term) extends Terminal(t, true) {
+case class ByteOrderChange(e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser = new ByteOrderChangeParser(t.termRuntimeData, t.byteOrder)
+  lazy val checkByteAndBitOrder = new CheckByteAndBitOrderEv(e.erd, e.defaultBitOrder, One(e.byteOrderEv))
 
-  override lazy val unparser = new ByteOrderChangeUnparser(t.termRuntimeData, t.byteOrder)
+  override lazy val parser = new ByteOrderChangeParser(e.erd, e.byteOrderEv, checkByteAndBitOrder)
+
+  override lazy val unparser = new ByteOrderChangeUnparser(e.erd, e.byteOrderEv, checkByteAndBitOrder)
 
 }

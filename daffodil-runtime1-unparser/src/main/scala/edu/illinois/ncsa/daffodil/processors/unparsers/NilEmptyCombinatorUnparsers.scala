@@ -5,7 +5,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 
 case class SimpleNilOrEmptyOrValueUnparser(ctxt: RuntimeData,
-  nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends Unparser(ctxt) {
+  nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, emptyUnparser, valueUnparser)
 
@@ -19,7 +19,7 @@ case class SimpleNilOrEmptyOrValueUnparser(ctxt: RuntimeData,
 }
 
 case class SimpleNilOrValueUnparser(ctxt: RuntimeData,
-  nilUnparser: Unparser, valueUnparser: Unparser) extends Unparser(ctxt) {
+  nilUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
 
@@ -32,7 +32,7 @@ case class SimpleNilOrValueUnparser(ctxt: RuntimeData,
 }
 
 case class SimpleEmptyOrValueUnparser(ctxt: RuntimeData,
-  emptyUnparser: Unparser, valueUnparser: Unparser) extends Unparser(ctxt) {
+  emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(emptyUnparser, valueUnparser)
 
@@ -45,7 +45,7 @@ case class SimpleEmptyOrValueUnparser(ctxt: RuntimeData,
 }
 
 case class ComplexNilOrContentUnparser(ctxt: RuntimeData,
-  nilUnparser: Unparser, contentUnparser: Unparser) extends Unparser(ctxt) {
+  nilUnparser: Unparser, contentUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, contentUnparser)
 

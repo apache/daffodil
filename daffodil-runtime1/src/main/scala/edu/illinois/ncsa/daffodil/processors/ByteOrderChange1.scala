@@ -32,15 +32,18 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+class ByteOrderChangeParser(val elementRuntimeData: ElementRuntimeData, byteOrdEv: ByteOrderEv, check: CheckByteAndBitOrderEv)
+  extends PrimParser with BinaryParserUnparserRuntimeMixin {
 
-class ByteOrderChangeParser(val termRuntimeData: TermRuntimeData, byteOrdExpr: CompiledExpression)
-  extends PrimParser(termRuntimeData) with BinaryParserUnparserRuntimeMixin {
+  override val context = elementRuntimeData
 
-  override def briefXMLAttributes = "byteOrder=" + byteOrdExpr.toBriefXML()
+  override lazy val runtimeDependencies = List(check)
+
+  override def briefXMLAttributes = "byteOrder=" + byteOrdEv.toBriefXML()
 
   def parse(pstate: PState): Unit = {
-    setupByteOrder(pstate, termRuntimeData, byteOrdExpr)
+    check(pstate)
+    setupByteOrder(pstate, elementRuntimeData, byteOrdEv)
   }
 
 }

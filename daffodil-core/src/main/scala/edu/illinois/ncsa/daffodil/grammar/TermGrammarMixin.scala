@@ -57,7 +57,7 @@ trait TermGrammarMixin
   private lazy val newVarStarts = newVars.map { _.gram }
   private lazy val newVarEnds = newVars.map { _.endGram }
 
-  protected lazy val ioPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ byteOrderChange ~ encodingChange }
+  protected lazy val termIOPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ encodingChange }
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
   protected final lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {

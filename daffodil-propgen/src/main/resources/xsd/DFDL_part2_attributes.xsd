@@ -340,12 +340,12 @@
 
   <!-- 13.14 Properties for Nillable Elements -->
   <xsd:attribute name="nilKind" type="dfdl:NilKindEnum" />
-  <xsd:attribute name="nilValue" type="dfdl:ListOfDFDLStringLiteral" />
+  <xsd:attribute name="nilValue" type="dfdl:NonEmptyListOfDFDLStringLiteral" />
   <xsd:attribute name="nilValueDelimiterPolicy" type="dfdl:NilValueDelimiterPolicyEnum" />
 
   <xsd:attributeGroup name="NillableAG">
     <xsd:attribute name="nilKind" type="dfdl:NilKindEnum" />
-    <xsd:attribute name="nilValue" type="dfdl:ListOfDFDLStringLiteral" />
+    <xsd:attribute name="nilValue" type="dfdl:NonEmptyListOfDFDLStringLiteral" />
     <xsd:attribute name="nilValueDelimiterPolicy" type="dfdl:NilValueDelimiterPolicyEnum" />
   </xsd:attributeGroup>
 
@@ -846,7 +846,7 @@
     <xsd:attribute form="qualified" name="nilKind"
       type="dfdl:NilKindEnum" />
     <xsd:attribute form="qualified" name="nilValue"
-      type="dfdl:ListOfDFDLStringLiteral" />
+      type="dfdl:NonEmptyListOfDFDLStringLiteral" />
     <xsd:attribute form="qualified" name="nilValueDelimiterPolicy"
       type="dfdl:NilValueDelimiterPolicyEnum" />
   </xsd:attributeGroup>

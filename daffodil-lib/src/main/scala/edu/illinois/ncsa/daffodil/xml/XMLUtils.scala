@@ -581,8 +581,11 @@ object XMLUtils {
     res
   }
 
+  /**
+   * removes insignificant whitespace from between elements
+   */
   private def removeMixedWhitespace(ns: Node): Node = {
-    Assert.usage(ns.isInstanceOf[Elem])
+    if (!ns.isInstanceOf[Elem]) return ns
 
     val e = ns.asInstanceOf[Elem]
     val children = e.child
@@ -595,10 +598,20 @@ object XMLUtils {
           case _ => true
         }.map(removeMixedWhitespace)
       } else {
-        children
+        children.filter {
+          //
+          // So this is a bit strange, but we're dropping nodes that are Empty String.
+          //
+          // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
+          //
+          case Text("") => false // drop empty strings
+          case _ => true
+        }
       }
-
-    e.copy(child = noMixedChildren)
+    val res =
+      if (noMixedChildren eq children) e
+      else e.copy(child = noMixedChildren)
+    res
   }
 
   def convertPCDataToText(n: Node): Node = {
@@ -679,12 +692,12 @@ object XMLUtils {
     res
   }
 
-  def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node) = {
+  def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node, ignoreProcInstr: Boolean = true) = {
     if (trimmedExpected != actualNoAttrs) {
       val expString = trimmedExpected.toString
       val actString = actualNoAttrs.toString
       if (expString != actString) {
-        val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
+        val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs, ignoreProcInstr)
         if (diffs.length > 0) {
           throw new Exception("""
 Comparison failed.
@@ -704,8 +717,8 @@ Differences were (path, expected, actual):
    * computes a precise difference list which is a sequence of triples.
    * Each triple is the path (an x-path-like string), followed by expected, and actual values.
    */
-  def computeDiff(a: Node, b: Node) = {
-    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil)
+  def computeDiff(a: Node, b: Node, ignoreProcInstr: Boolean = true) = {
+    computeDiffOne(Seq(a), Seq(b), Map.empty, Nil, ignoreProcInstr)
   }
 
   def childArrayCounters(e: Elem) = {
@@ -720,7 +733,8 @@ Differences were (path, expected, actual):
 
   def computeDiffOne(as: Seq[Node], bs: Seq[Node],
     aCounters: Map[String, Long],
-    path: Seq[String]): Seq[(String, String, String)] = {
+    path: Seq[String],
+    ignoreProcInstr: Boolean = true): Seq[(String, String, String)] = {
     lazy val zPath = path.reverse.mkString("/")
     (as, bs) match {
       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {
@@ -752,8 +766,8 @@ Differences were (path, expected, actual):
           val childrenAList = childrenA.toList
           val childrenBList = childrenB.toList
           val childrenDiffs =
-            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath)
-          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path)
+            computeDiffOne(childrenAList, childrenBList, aChildArrayCounters, newPath, ignoreProcInstr)
+          val subsequentPeerDiffs = computeDiffOne(ars, brs, newACounters, path, ignoreProcInstr)
           val res = childrenDiffs ++ subsequentPeerDiffs
           res
         }
@@ -761,20 +775,58 @@ Differences were (path, expected, actual):
       case (tA1 :: ars, tB1 :: brs) if (tA1.isInstanceOf[Text] && tB1.isInstanceOf[Text]) => {
         val (tA: Text, tB: Text) = (tA1, tB1)
         val thisDiff = computeTextDiff(zPath, tA, tB)
-        val restDiffs = computeDiffOne(ars, brs, aCounters, path)
+        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
         val res = thisDiff ++ restDiffs
         res
       }
+      case (tA1 :: ars, brs) if (ignoreProcInstr && tA1.isInstanceOf[scala.xml.ProcInstr]) =>
+        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+      case (ars, tB1 :: brs) if (ignoreProcInstr && tB1.isInstanceOf[scala.xml.ProcInstr]) =>
+        computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+      case (scala.xml.ProcInstr(tA1label, tA1content) :: ars,
+        scala.xml.ProcInstr(tB1label, tB1content) :: brs) => {
+        val labelDiff = computeTextDiff(zPath, tA1label, tB1label)
+        //
+        // The content of a ProcInstr is technically a big string
+        // But our usage of them the content is XML-like so could be loaded and then compared
+        // as XML, if the label is in fact an indicator that this is our special
+        // PI with format info.
+        //
+        // Much of that XML-ish content is attributes however, so we need to be sure
+        // we're comparing those too.
+        //
+        // TODO: implement XML-comparison for our data format info PIs.
+        //
+        val contentDiff = computeTextDiff(zPath, tA1content, tB1content)
+        val restDiffs = computeDiffOne(ars, brs, aCounters, path, ignoreProcInstr)
+        val res = labelDiff ++ contentDiff ++ restDiffs
+        res
+      }
       case (Nil, Nil) => Nil
+      //
+      // special case.
+      //
+      // when we read in an infoset for comparison we might have <foo></foo> which
+      // loads as an Elem with Nil for child.
+      //
+      // But the actual might be Elem with child that is an array of exactly one Text node
+      // with value "" (empty string). Visually this is the same! <foo></foo>
+      //
+      // Something in scala's libraries removes the isolated Text empty string nodes
+      // So this comparison works. (Whitespace removal)
       case _ => {
         List((zPath, as.toString, bs.toString))
       }
     }
   }
 
-  def computeTextDiff(zPath: String, tA: Text, tB: Text) = {
+  def computeTextDiff(zPath: String, tA: Text, tB: Text): Seq[(String, String, String)] = {
     val dataA = tA.toString
     val dataB = tB.toString
+    computeTextDiff(zPath, dataA, dataB)
+  }
+
+  def computeTextDiff(zPath: String, dataA: String, dataB: String): Seq[(String, String, String)] = {
     def quoteIt(str: String) = "'" + str + "'"
     if (dataA == dataB) Nil
     else if (dataA.length != dataB.length) {

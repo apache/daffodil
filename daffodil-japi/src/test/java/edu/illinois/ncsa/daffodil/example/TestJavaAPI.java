@@ -64,8 +64,7 @@ public class TestJavaAPI {
 
 	public java.io.File getResource(String resPath) {
 		try {
-			return new java.io.File(this.getClass().getResource(resPath)
-					.toURI());
+			return new java.io.File(this.getClass().getResource(resPath).toURI());
 		} catch (Exception e) {
 			return null;
 		}
@@ -88,36 +87,36 @@ public class TestJavaAPI {
 		dp.setDebugging(true);
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// xo.setFormat(Format.getPrettyFormat());
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		for (String e : lw.errors)
-			System.err.println(e);
-		for (String e : lw.warnings)
-			System.err.println(e);
+		// for (String e : lw.errors)
+		// System.err.println(e);
+		// for (String e : lw.warnings)
+		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
 		// (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines
-				.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
 
 		// reset the global logging and debugger state
@@ -155,36 +154,36 @@ public class TestJavaAPI {
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = parser.parse(rbc, 2 << 3);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// xo.setFormat(Format.getPrettyFormat());
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		for (String e : lw.errors)
-			System.err.println(e);
-		for (String e : lw.warnings)
-			System.err.println(e);
+		// for (String e : lw.errors)
+		// System.err.println(e);
+		// for (String e : lw.warnings)
+		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
 		// (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines
-				.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
 
 		// reset the global logging and debugger state
@@ -224,9 +223,7 @@ public class TestJavaAPI {
 			parser.setValidationMode(ValidationMode.Full);
 			fail();
 		} catch (InvalidUsageException e) {
-			assertEquals(
-					"'Full' validation not allowed when using a restored parser.",
-					e.getMessage());
+			assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage());
 		}
 
 		// reset the global logging and debugger state
@@ -248,8 +245,7 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myDataBroken.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		try {
 			@SuppressWarnings("unused")
@@ -262,12 +258,11 @@ public class TestJavaAPI {
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
 		assertEquals(1, diags.size());
 		Diagnostic d = diags.get(0);
-		System.err.println(d.getMessage());
+		// System.err.println(d.getMessage());
 		assertTrue(d.getMessage().contains("int"));
 		assertTrue(d.getMessage().contains("Not an int"));
 		assertTrue(d.getDataLocations().toString().contains("10"));
-		java.util.List<LocationInSchemaFile> locs = d
-				.getLocationsInSchemaFiles();
+		java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
 		assertEquals(1, locs.size());
 		LocationInSchemaFile loc = locs.get(0);
 		assertTrue(loc.toString().contains("mySchema2.dfdl.xsd"));
@@ -297,26 +292,25 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData16.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 16 << 3);
 		boolean err = res.isError();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			xo.output(doc, System.out);
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// xo.output(doc, System.out);
+		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(2, res.location().bytePos1b());
 		assertEquals(9, res.location().bitPos1b());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	// This is a duplicate of test testJavaAPI3 that serializes the parser
@@ -342,26 +336,25 @@ public class TestJavaAPI {
 
 		java.io.File file = getResource("/test/japi/myData16.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = parser.parse(rbc, 16 << 3);
 		boolean err = res.isError();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			xo.output(doc, System.out);
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// xo.output(doc, System.out);
+		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(2, res.location().bytePos1b());
 		assertEquals(9, res.location().bitPos1b());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	/*
@@ -396,26 +389,25 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData2.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 64 << 3);
 		boolean err = res.isError();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			xo.output(doc, System.out);
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// xo.output(doc, System.out);
+		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(5, res.location().bytePos1b());
 		assertEquals(33, res.location().bitPos1b());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	@Test
@@ -430,27 +422,25 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
 																	// bytes
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 4 << 3);
 		boolean err = res.isError();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			xo.output(doc, System.out);
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// xo.output(doc, System.out);
+		// }
 		assertFalse(err);
-		assertTrue("Assertion failed: End of data not reached.", res.location()
-				.isAtEnd());
+		assertTrue("Assertion failed: End of data not reached.", res.location().isAtEnd());
 		assertEquals(5, res.location().bytePos1b());
 		assertEquals(33, res.location().bitPos1b());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	/***
@@ -468,8 +458,7 @@ public class TestJavaAPI {
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
-		java.io.File schemaFile = new java.io.File(
-				"/test/japi/notHere1.dfdl.xsd");
+		java.io.File schemaFile = new java.io.File("/test/japi/notHere1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		assertTrue(pf.isError());
 		List<Diagnostic> diags = pf.getDiagnostics();
@@ -511,22 +500,22 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			// xo.setFormat(Format.getPrettyFormat());
-			xo.setFormat(Format.getRawFormat().setTextMode(
-					Format.TextMode.PRESERVE));
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// // xo.setFormat(Format.getPrettyFormat());
+		// xo.setFormat(Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE));
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
 
 		// assertEquals(0, lw.errors.size());
@@ -562,21 +551,22 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			// xo.setFormat(Format.getPrettyFormat());
-			xo.setFormat(Format.getRawFormat());
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// // xo.setFormat(Format.getPrettyFormat());
+		// xo.setFormat(Format.getRawFormat());
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
 
 		// assertEquals(0, lw.errors.size());
@@ -608,22 +598,23 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			// org.jdom2.Document doc2 = res.result();
-			// org.jdom2.Document doc3 = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getRawFormat());
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// // org.jdom2.Document doc2 = res.result();
+		// // org.jdom2.Document doc3 = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// xo.setFormat(Format.getRawFormat());
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
 
 		// reset the global logging state
@@ -644,24 +635,22 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData4.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
 			org.jdom2.Document doc = res.result();
 			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
+			// xo.output(doc, System.out);
 			org.jdom2.Element rootNode = doc.getRootElement();
-			org.jdom2.Element hidden = rootNode.getChild("hiddenElement",
-					rootNode.getNamespace());
+			org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
 			assertTrue(null == hidden);
 		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
 	}
 
@@ -678,18 +667,20 @@ public class TestJavaAPI {
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData5.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
 			org.jdom2.Document doc = res.result();
 			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
+			// xo.output(doc, System.out);
 			org.jdom2.Element rootNode = doc.getRootElement();
-			org.jdom2.Element elementGroup = rootNode.getChild("elementGroup",
-					null); // local element names are unqualified
+			org.jdom2.Element elementGroup = rootNode.getChild("elementGroup", null); // local
+																						// element
+																						// names
+																						// are
+																						// unqualified
 			assertTrue(null != elementGroup);
 			org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
 			assertTrue(null != groupE2);
@@ -700,10 +691,10 @@ public class TestJavaAPI {
 			org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
 			assertTrue(null == rootE3);
 		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
 	}
 
@@ -726,35 +717,35 @@ public class TestJavaAPI {
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
-		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		assertFalse(err);
+		// if (!err) {
+		// org.jdom2.Document doc = res.result();
+		// org.jdom2.output.XMLOutputter xo = new
+		// org.jdom2.output.XMLOutputter();
+		// xo.setFormat(Format.getPrettyFormat());
+		// xo.output(doc, System.out);
+		// }
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		for (String e : lw2.errors)
-			System.err.println(e);
-		for (String e : lw2.warnings)
-			System.err.println(e);
+		// for (String e : lw2.errors)
+		// System.err.println(e);
+		// for (String e : lw2.warnings)
+		// System.err.println(e);
 		assertEquals(0, lw2.errors.size());
 		assertEquals(0, lw2.warnings.size());
 		// assertTrue(lw2.infos.size() > 0);
 		assertTrue(lw2.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines
-				.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -784,15 +775,14 @@ public class TestJavaAPI {
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
 			org.jdom2.Document doc = res.result();
 			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
+			// xo.output(doc, System.out);
 			String docString = xo.outputString(doc);
 			boolean containsVar1 = docString.contains("var1Value");
 			boolean containsVar1Value = docString.contains("externallySet");
@@ -816,7 +806,8 @@ public class TestJavaAPI {
 		// assertTrue(lw.infos.size() > 0);
 		// assertTrue(lw.others.size() > 0);
 		// assertTrue(debugger.lines.size() > 0);
-		// assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		// assertTrue(debugger.lines.contains("-----------------------------------------------------------------
+		// 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -845,40 +836,38 @@ public class TestJavaAPI {
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
-		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-				.newChannel(fis);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
 			org.jdom2.Document doc = res.result();
 			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
+			// xo.output(doc, System.out);
 			String docString = xo.outputString(doc);
 			boolean containsVar1 = docString.contains("var1Value");
 			boolean containsVar1Value = docString.contains("externallySet");
 			assertTrue(containsVar1);
 			assertTrue(containsVar1Value);
 		}
-		java.util.List<Diagnostic> diags = res.getDiagnostics();
-		for (Diagnostic d : diags) {
-			System.err.println(d.getMessage());
-		}
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos1b());
-		System.err.println("bytePos = " + res.location().bytePos1b());
+		// System.err.println("bitPos = " + res.location().bitPos1b());
+		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		for (String e : lw.errors)
-			System.err.println(e);
-		for (String e : lw.warnings)
-			System.err.println(e);
+		// for (String e : lw.errors)
+		// System.err.println(e);
+		// for (String e : lw.warnings)
+		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		// assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines
-				.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());

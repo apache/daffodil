@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *  Maybe(null) = Nope
  *  One(null) == Nope // can't construct a Maybe type containing null.
  */
-final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal {
+final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable {
   @inline final def get: T = if (isDefined) value else noneGet
   @inline final def value: T = v.asInstanceOf[T]
   final def noneGet = throw new NoSuchElementException("Nope.get")
@@ -161,7 +161,9 @@ object Maybe {
       if (!isDefined(thing)) None else Some(thing)
     }
 
-    @inline final def toMaybe[T <: AnyRef](thing: T): Maybe[T] = Maybe(thing)
+    @inline final def toMaybe[T <: AnyRef](thing: AnyRef): Maybe[T] = {
+      if (thing eq null) Nope else new Maybe(thing.asInstanceOf[T])
+    }
   }
 }
 

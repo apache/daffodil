@@ -209,8 +209,8 @@ object Misc {
         val msg = "Required resource " + resPath + " was not found.\nClasspath is " +
           (if (classPath.length == 0) "empty."
           else ": " + classPath.mkString("\n"))
-        System.err.println(msg)
-        throw new Exception(msg)
+        // System.err.println(msg)
+        throw new java.io.FileNotFoundException(msg)
       }
       case (Some(res), _) => res
     }

@@ -37,11 +37,10 @@ import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.ListOfStringLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -53,6 +52,7 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.PrimParser
 
 trait ComputesValueFoundInstead {
   //
@@ -75,12 +75,12 @@ class InitiatorDelimiterValues(val init: String, context: TermRuntimeData)
 
 class StaticTextDelimiterValues(
   val delim: String,
-  allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  allTerminatingMarkup: List[(CompiledExpression[String], String, String)],
   context: TermRuntimeData)
   extends DelimiterValues {
 
   val delimsRaw = allTerminatingMarkup.map {
-    case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)
+    case (delimValue, elemName, elemPath) => (delimValue.constant, elemName, elemPath)
   }
 
   val textParser = new TextParser(context)
@@ -95,8 +95,11 @@ object DelimiterTextType extends Enum {
 
 abstract class DelimiterTextParserBase(rd: TermRuntimeData,
   delimiterType: DelimiterTextType.Type)
-  extends PrimParser(rd)
+  extends PrimParser
   with ComputesValueFoundInstead with TextParserRuntimeMixin {
+
+  override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
+  override def context = rd
 
   val isInitiator: Boolean = delimiterType == DelimiterTextType.Initiator
 
@@ -146,7 +149,7 @@ abstract class DelimiterTextParserBase(rd: TermRuntimeData,
 
 class DelimiterTextParser(
   rd: TermRuntimeData,
-  delimExpr: CompiledExpression,
+  delimExpr: CompiledExpression[String],
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,

@@ -57,10 +57,18 @@ import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
  * containing QNames). That is, you can't interpret a QName without
  * the scope from the XML where it was written.
  */
-sealed abstract class PropertyLookupResult extends Serializable
-case class Found(value: String, location: LookupLocation) extends PropertyLookupResult
-case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation])
-  extends PropertyLookupResult
+sealed abstract class PropertyLookupResult(val pname: String) extends Serializable {
+  def isDefined: Boolean
+}
+
+case class Found(value: String, location: LookupLocation, override val pname: String) extends PropertyLookupResult(pname) {
+  override def isDefined = true
+}
+
+case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation], override val pname: String)
+  extends PropertyLookupResult(pname) {
+    override def isDefined = false
+}
 
 /**
  * A lookup location is where we indicate a property binding
@@ -121,6 +129,10 @@ trait FindPropertyMixin extends PropTypes {
    */
   final def findProperty(pname: String): Found = {
     val prop = findPropertyOption(pname)
+    requireProperty(prop)
+  }
+
+  final def requireProperty(prop: PropertyLookupResult) = {
     val res = prop match {
       case f: Found => f
       //
@@ -131,13 +143,13 @@ trait FindPropertyMixin extends PropTypes {
       // Hence, we need a way to explicitly get the possibly translated version of a
       // literal english string when that string is not the direct argument of a SDE call.
       //
-      case nf: NotFound => requiredButNotFound(pname, nf)
+      case nf: NotFound => requiredButNotFound(nf)
     }
     res
   }
 
-  private def requiredButNotFound(pname: String, nf: NotFound) = {
-    val NotFound(nonDefaultLocs, defaultLocs) = nf
+  private def requiredButNotFound(nf: NotFound) = {
+    val NotFound(nonDefaultLocs, defaultLocs, pname) = nf
     val ndListText = nonDefaultLocs.map { _.locationDescription }.mkString("\n")
     val dListText = defaultLocs.map { _.locationDescription }.mkString("\n")
     val nonDefDescription =
@@ -156,7 +168,7 @@ trait FindPropertyMixin extends PropTypes {
    * a QName that would have to be resolved.
    */
   final def getProperty(pname: String): String = {
-    val Found(res, _) = findProperty(pname)
+    val Found(res, _, _) = findProperty(pname)
     res
   }
 
@@ -177,7 +189,7 @@ trait FindPropertyMixin extends PropTypes {
   final def getPropertyOption(pname: String): Option[String] = {
     val lookupRes = findPropertyOption(pname)
     val res = lookupRes match {
-      case Found(v, _) => Some(v)
+      case Found(v, _, _) => Some(v)
       case _ => None
     }
     res
@@ -188,9 +200,9 @@ trait FindPropertyMixin extends PropTypes {
    */
   final def verifyPropValue(key: String, value: String): Boolean = {
     findPropertyOption(key) match {
-      case Found(`value`, _) => true
-      case Found(_, _) => false
-      case NotFound(_, _) => false
+      case Found(`value`, _, _) => true
+      case Found(_, _, _) => false
+      case NotFound(_, _, _) => false
     }
   }
 
@@ -214,14 +226,14 @@ trait FindPropertyMixin extends PropTypes {
     val propCacheResult = cachePropertyOption(name)
     propCacheResult match {
       case f: Found => f
-      case nf: NotFound => requiredButNotFound(name, nf)
+      case nf: NotFound => requiredButNotFound(nf)
     }
   }
 
   protected final def cacheGetPropertyOption(name: String): Option[String] = {
     val pOpt = cachePropertyOption(name)
     pOpt match {
-      case Found(v, l) => Some(v)
+      case Found(v, l, _) => Some(v)
       case _ => None
     }
   }

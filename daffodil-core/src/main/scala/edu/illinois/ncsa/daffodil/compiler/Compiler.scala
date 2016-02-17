@@ -65,6 +65,9 @@ import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.Processor
+
 import scala.util.DynamicVariable
 
 /**
@@ -90,11 +93,13 @@ class ProcessorFactory(val sset: SchemaSet)
 
   lazy val parser = LV('parser) {
     val par = rootElem.document.parser
+    Processor.initialize(par)
     par
   }.value
 
   lazy val unparser = LV('unparser) {
     val unp = rootElem.document.unparser
+    Processor.initialize(unp)
     unp
   }.value
 

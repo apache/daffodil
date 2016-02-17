@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.util.Misc._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
+import edu.illinois.ncsa.daffodil.dsom.Converter
 import scala.collection.mutable
 
 /**
@@ -101,7 +102,7 @@ import scala.collection.mutable
  */
 abstract class EnumBase
 abstract class EnumValueBase extends Serializable
-abstract class Enum[A] extends EnumBase {
+abstract class Enum[A] extends EnumBase with Converter[String, A] {
   class Value extends EnumValueBase { self: A => {
       val theVal = this
       val cn = getNameFromClass(this)
@@ -153,6 +154,10 @@ abstract class Enum[A] extends EnumBase {
   def forceConstruction(obj: Any) {
     //Assert.invariant(obj.toString() != "") // TODO: is forceConstruction needed at all?
   }
+
+  override protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean): A = apply(b, context)
+
+  def apply(name: String, context: ThrowsSDE): A
 } // end class
 
 /**

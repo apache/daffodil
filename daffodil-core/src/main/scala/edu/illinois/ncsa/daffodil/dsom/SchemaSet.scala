@@ -81,7 +81,7 @@ final class SchemaSet(
   rootSpec: Option[RootSpec],
   externalVariables: Seq[Binding],
   schemaSourcesArg: Seq[DaffodilSchemaSource],
-  validateDFDLSchemas: Boolean,
+  val validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
   parent: SchemaComponent)
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component

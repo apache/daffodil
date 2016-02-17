@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import java.io.File
 import jline.console.completer.Completer
@@ -46,9 +47,10 @@ import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerBase
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerClass
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
@@ -57,6 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import scala.collection.mutable
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -65,7 +68,7 @@ abstract class InteractiveDebuggerRunner {
   def fini(): Unit
 }
 
-class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: ExpressionCompilerBase) extends Debugger {
+class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: ExpressionCompilerClass) extends Debugger {
 
   object DebugState extends Enum {
     sealed abstract trait Type extends EnumValueType
@@ -284,27 +287,73 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     cmd.split(" ").filter(_ != "")
   }
 
+  private val debuggerQName = GlobalQName(Some("daf"), "debugger", XMLUtils.dafintURI)
+
+  /**
+   * Here the debugger depends on being able to evaluate expressions that might run into
+   * problems like asking for data from elements that don't exist yet or have no values yet.
+   *
+   * There also can be compilation errors if the expressions aren't well formed or have type errors in them (such as
+   * they don't return a boolean value).
+   */
   private def evaluateBooleanExpression(expression: String, state: ParseOrUnparseState, processor: Processor): Boolean = {
     val context = state.getContext()
     try {
+      //
+      // compile the expression
+      //
       val compiledExpr = try {
-        eCompiler.compile(
+        eCompilers.JBoolean.compile(debuggerQName,
           NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false)
       } catch {
+        //
+        // These are compile-time errors for the expression compilation
+        //
         case errs: ErrorsNotYetRecorded => {
           debugPrintln(errs)
           throw errs
         }
       }
-      val res = compiledExpr.evaluate(state)
-      res match {
-        case b: Boolean => b
-        case _ => false
+      //
+      // evaluate the expression, and catch ways it can fail just because this is the debugger and it
+      // isn't necessarily evaluating the expression in sensible places.
+      //
+      // Note also that the debugger does not use Evaluatable around the compiled expression. This is because
+      // Evaluatable is really designed to be called from parsers/unparsers.
+      //
+      try {
+        val res = compiledExpr.evaluate(state)
+        res match {
+          case b: java.lang.Boolean => b.booleanValue()
+          case _ => false
+        }
+      } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
+        case _: ExpressionEvaluationException | _: InfosetException | _: VariableException => {
+          // ?? How do we discern for the user whether this is a problem with their expression or
+          // the infoset is just not populated with the things the expression references yet?
+          state.setSuccess()
+          false
+        }
+        //
+        // Most errors are coming back here as RSDE because that's what they get upconverted into.
+        // Most expression problems are considered SDE.
+        //
+        case rsde: RuntimeSchemaDefinitionError => {
+          // println(rsde.getMessage())
+          state.setSuccess()
+          false
+        }
       }
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
-      case e: Throwable => false
+      case e: Throwable => {
+        println("caught throwable " + Misc.getNameFromClass(e) + ": " + DiagnosticUtils.getSomeMessage(e).get)
+        state.setSuccess()
+        false
+      }
     }
   }
 
@@ -948,7 +997,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           else adjustedExpression
         val isEvaluatedAbove = false
         try {
-          val compiledExpression = eCompiler.compile(
+          val compiledExpression = eCompilers.AnyRef.compile(debuggerQName,
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
             isEvaluatedAbove)
           val res = compiledExpression.evaluate(state)
@@ -977,6 +1026,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             }
           }
           case s: scala.util.control.ControlThrowable => throw s
+          //          case e: ExpressionEvaluationException => println(e)
+          //          case e: InfosetException => println(e)
+          //          case e: VariableException => println(e)
           case e: Throwable => {
             val ex = e // just so we can see it in the debugger.
             throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))

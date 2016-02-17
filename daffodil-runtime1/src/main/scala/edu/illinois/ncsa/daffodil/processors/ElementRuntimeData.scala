@@ -72,44 +72,45 @@ class ElementRuntimeData(
    * to allow parser serialization/deserialization to work.
    */
   @TransientParam parentArg: => Option[ElementRuntimeData],
+  @TransientParam parentTermArg: => Maybe[TermRuntimeData],
   @TransientParam childrenArg: => Seq[ElementRuntimeData],
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam nextElementResolverArg: => NextElementResolver,
   @TransientParam childElementResolverArg: => NextElementResolver,
-  encInfo: EncodingRuntimeData,
-  val dpathElementCompileInfo: DPathElementCompileInfo,
-  override val schemaFileLocation: SchemaFileLocation,
-  override val prettyName: String,
-  override val path: String,
-  override val namespaces: NamespaceBinding,
-  val minimizedScope: NamespaceBinding,
-  val uniqueScope: NamespaceBinding,
-  override val defaultBitOrder: BitOrder,
-  val optPrimType: Option[PrimType],
-  val targetNamespace: NS,
-  val thisElementsNamespace: NS,
-  val patternValues: Option[Seq[FacetTypes.FacetValueR]],
-  val enumerationValues: Option[String],
-  val minLength: Option[java.math.BigDecimal],
-  val maxLength: Option[java.math.BigDecimal],
-  val minInclusive: Option[java.math.BigDecimal],
-  val maxInclusive: Option[java.math.BigDecimal],
-  val minExclusive: Option[java.math.BigDecimal],
-  val maxExclusive: Option[java.math.BigDecimal],
-  val totalDigits: Option[java.math.BigDecimal],
-  val fractionDigits: Option[java.math.BigDecimal],
-  val minOccurs: Option[Int],
-  val maxOccurs: Option[Int],
-  val name: String,
-  val targetNamespacePrefix: String,
-  val thisElementsNamespacePrefix: String,
-  val isHidden: Boolean,
-  val nChildSlots: Int,
-  override val slotIndexInParent: Int,
-  val isNillable: Boolean,
-  val isArray: Boolean, // can have more than 1 occurrence
-  val isOptional: Boolean, // can have only 0 or 1 occurrence
-  val isRequired: Boolean, // must have at least 1 occurrence
+  @TransientParam encInfoArg: => EncodingRuntimeData,
+  @TransientParam dpathElementCompileInfoArg: => DPathElementCompileInfo,
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam minimizedScopeArg: => NamespaceBinding,
+  @TransientParam uniqueScopeArg: => NamespaceBinding,
+  @TransientParam defaultBitOrderArg: => BitOrder,
+  @TransientParam optPrimTypeArg: => Option[PrimType],
+  @TransientParam targetNamespaceArg: => NS,
+  @TransientParam thisElementsNamespaceArg: => NS,
+  @TransientParam patternValuesArg: => Option[Seq[FacetTypes.FacetValueR]],
+  @TransientParam enumerationValuesArg: => Option[String],
+  @TransientParam minLengthArg: => Option[java.math.BigDecimal],
+  @TransientParam maxLengthArg: => Option[java.math.BigDecimal],
+  @TransientParam minInclusiveArg: => Option[java.math.BigDecimal],
+  @TransientParam maxInclusiveArg: => Option[java.math.BigDecimal],
+  @TransientParam minExclusiveArg: => Option[java.math.BigDecimal],
+  @TransientParam maxExclusiveArg: => Option[java.math.BigDecimal],
+  @TransientParam totalDigitsArg: => Option[java.math.BigDecimal],
+  @TransientParam fractionDigitsArg: => Option[java.math.BigDecimal],
+  @TransientParam minOccursArg: => Option[Int],
+  @TransientParam maxOccursArg: => Option[Int],
+  @TransientParam nameArg: => String,
+  @TransientParam targetNamespacePrefixArg: => String,
+  @TransientParam thisElementsNamespacePrefixArg: => String,
+  @TransientParam isHiddenArg: => Boolean,
+  @TransientParam nChildSlotsArg: => Int,
+  @TransientParam slotIndexInParentArg: => Int,
+  @TransientParam isNillableArg: => Boolean,
+  @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
+  @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
+  @TransientParam isRequiredArg: => Boolean, // must have at least 1 occurrence
   /**
    * This is the properly qualified name for recognizing this
    * element.
@@ -118,14 +119,14 @@ class ElementRuntimeData(
    * If 'qualified' then there will be a namespace component.
    * If 'unqualified' the the namespace component will be No_Namespace.
    */
-  val namedQName: NamedQName,
-  isRepresented: Boolean,
-  couldHaveText: Boolean,
-  alignmentValueInBits: Int,
-  hasNoSkipRegions: Boolean,
-  val impliedRepresentation: Representation,
-  optIgnoreCase: Option[YesNo],
-  val optDefaultValue: Option[Any],
+  @TransientParam namedQNameArg: => NamedQName,
+  @TransientParam isRepresentedArg: => Boolean,
+  @TransientParam couldHaveTextArg: => Boolean,
+  @TransientParam alignmentValueInBitsArg: => Int,
+  @TransientParam hasNoSkipRegionsArg: => Boolean,
+  @TransientParam impliedRepresentationArg: => Representation,
+  @TransientParam optIgnoreCaseArg: => Option[YesNo],
+  @TransientParam optDefaultValueArg: => Option[AnyRef],
   //
   // Unparser-specific arguments
   //
@@ -134,32 +135,113 @@ class ElementRuntimeData(
    * accessed by way of expressions. Enables the element to be dropped
    * from the infoset immediately after unparsing is complete.
    */
-  val notReferencedByExpressions: Boolean,
-  fillByteValue: Int,
-  val optTruncateSpecifiedLengthString: Option[Boolean],
-  val outputValueCalcExpr: Option[CompiledExpression])
-  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions,
-    fillByteValue, defaultBitOrder, optIgnoreCase)
+  @TransientParam notReferencedByExpressionsArg: => Boolean,
+  @TransientParam fillByteValueArg: => Int,
+  @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
+  @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]])
+  extends TermRuntimeData(parentArg, parentTermArg, encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
+    fillByteValueArg, defaultBitOrderArg, optIgnoreCaseArg)
   with HasSlotIndexInParent {
 
-  lazy val children = childrenArg
   lazy val parent = parentArg
-  lazy val rootERD: ElementRuntimeData = parent.map { _.rootERD }.getOrElse(this)
-  override lazy val variableMap = variableMapArg
+  lazy val parentTerm = parentTermArg
+  lazy val children = childrenArg
+  lazy val variableMap = variableMapArg
   lazy val nextElementResolver = nextElementResolverArg
   lazy val childElementResolver = childElementResolverArg
+  lazy val encInfo = encInfoArg
+  lazy val dpathElementCompileInfo = dpathElementCompileInfoArg
+  lazy val schemaFileLocation = schemaFileLocationArg
+  lazy val prettyName = prettyNameArg
+  lazy val path = pathArg
+  lazy val namespaces = namespacesArg
+  lazy val minimizedScope = minimizedScopeArg
+  lazy val uniqueScope = uniqueScopeArg
+  lazy val optPrimType = optPrimTypeArg
+  lazy val targetNamespace = targetNamespaceArg
+  lazy val thisElementsNamespace = thisElementsNamespaceArg
+  lazy val patternValues = patternValuesArg
+  lazy val enumerationValues = enumerationValuesArg
+  lazy val minLength = minLengthArg
+  lazy val maxLength = maxLengthArg
+  lazy val minInclusive = minInclusiveArg
+  lazy val maxInclusive = maxInclusiveArg
+  lazy val minExclusive = minExclusiveArg
+  lazy val maxExclusive = maxExclusiveArg
+  lazy val totalDigits = totalDigitsArg
+  lazy val fractionDigits = fractionDigitsArg
+  lazy val minOccurs = minOccursArg
+  lazy val maxOccurs = maxOccursArg
+  lazy val name = nameArg
+  lazy val targetNamespacePrefix = targetNamespacePrefixArg
+  lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
+  lazy val isHidden = isHiddenArg
+  lazy val nChildSlots = nChildSlotsArg
+  lazy val slotIndexInParent = slotIndexInParentArg
+  lazy val isNillable = isNillableArg
+  lazy val isArray = isArrayArg
+  lazy val isOptional = isOptionalArg
+  lazy val isRequired = isRequiredArg
+  lazy val namedQName = namedQNameArg
+  lazy val impliedRepresentation = impliedRepresentationArg
+  lazy val optDefaultValue = optDefaultValueArg
+  lazy val notReferencedByExpressions = notReferencedByExpressionsArg
+  lazy val optTruncateSpecifiedLengthString = optTruncateSpecifiedLengthStringArg
+  lazy val outputValueCalcExpr = outputValueCalcExprArg
 
   override def preSerialization: Unit = {
     super.preSerialization
-    children
     parent
+    parentTerm
+    children
     variableMap
     nextElementResolver
     childElementResolver
+    encInfo
+    dpathElementCompileInfo
+    schemaFileLocation
+    prettyName
+    path
+    namespaces
+    minimizedScope
+    uniqueScope
+    optPrimType
+    targetNamespace
+    thisElementsNamespace
+    patternValues
+    enumerationValues
+    minLength
+    maxLength
+    minInclusive
+    maxInclusive
+    minExclusive
+    maxExclusive
+    totalDigits
+    fractionDigits
+    minOccurs
+    maxOccurs
+    name
+    targetNamespacePrefix
+    thisElementsNamespacePrefix
+    isHidden
+    nChildSlots
+    slotIndexInParent
+    isNillable
+    isArray
+    isOptional
+    isRequired
+    namedQName
+    impliedRepresentation
+    optDefaultValue
+    notReferencedByExpressions
+    optTruncateSpecifiedLengthString
+    outputValueCalcExpr
   }
 
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+
+  lazy val rootERD: ElementRuntimeData = parent.map { _.rootERD }.getOrElse(this)
 
   final def childERDs = children
 

@@ -43,13 +43,15 @@ trait InfosetElementState {
   // nothing
 }
 
-trait InfosetArray {
+trait InfosetCommon {
+  def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
+}
+
+trait InfosetArray extends InfosetCommon {
   def append(ie: InfosetElement): Unit
   def getOccurrence(occursIndex: Long): InfosetElement
-
   def length: Long
 
-  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
 }
 
 trait InfosetElement extends InfosetItem {
@@ -121,19 +123,17 @@ trait InfosetSimpleElement extends InfosetElement {
    * Caches the string so we're not allocating strings just to do facet checks
    */
   def dataValueAsString: String
-  def setDataValue(s: Any): Unit
+  def setDataValue(s: AnyRef): Unit
   def isDefaulted: Boolean
 }
 
 trait InfosetDocument extends InfosetItem {
-  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
   def getRootElement(): InfosetElement
   def setRootElement(root: InfosetElement): Unit
 }
 
-trait InfosetItem {
-  override def toString = toXML().toString
-  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
+trait InfosetItem extends InfosetCommon {
+  // override def toString = toXML(true, false).toString
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
 
   /**

@@ -36,7 +36,6 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import com.ibm.icu.text.NumberFormat
-import java.math.BigInteger
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
@@ -66,8 +65,8 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
         SDW("Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
         None
       }
-      case Found("", _) => None // empty string means no escape scheme
-      case Found(qName, loc) => {
+      case Found("", _, _) => None // empty string means no escape scheme
+      case Found(qName, loc, _) => {
         val qn = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
         val defESFactory = schemaSet.getDefineEscapeScheme(qn)
         //

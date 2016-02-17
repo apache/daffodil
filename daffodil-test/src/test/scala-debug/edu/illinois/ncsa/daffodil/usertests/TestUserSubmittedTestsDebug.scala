@@ -41,7 +41,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 
 class TestUserSubmittedTestsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
@@ -51,7 +51,7 @@ class TestUserSubmittedTestsDebug {
   //DFDL-1118
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner1
-    val db = new InteractiveDebugger(tr, ExpressionCompiler)
+    val db = new InteractiveDebugger(tr, ExpressionCompilers)
     runner.setDebugger(db)
     runner.setDebugging(true)
 

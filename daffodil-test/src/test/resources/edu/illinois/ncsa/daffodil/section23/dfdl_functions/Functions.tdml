@@ -10736,10 +10736,11 @@
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-    	<tdml:error>Schema Definition Error</tdml:error>
-    	<tdml:error>could not fit into a long</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary04>0AD78EBC5AC6200000</tdml:dfdlHexBinary04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

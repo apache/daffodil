@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_Annotatio
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import java.lang.{ Integer => JInt }
 
 abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)
   extends Term(xmlArg, parentArg, position) {
@@ -88,7 +89,7 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     res
   }
 
-  private lazy val alignmentValueChildren: Int = {
+  private lazy val alignmentValueChildren: JInt = {
     immediateGroup match {
       case Some(m: ModelGroup) => {
         m.groupMembers.sortBy(m => -m.alignmentValueInBits).headOption match {
@@ -100,10 +101,10 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     }
   }
 
-  final lazy val alignmentValueInBits: Int = {
+  final lazy val alignmentValueInBits: JInt = {
     this.alignment match {
       case AlignmentType.Implicit => alignmentValueChildren
-      case align: Int => this.alignmentUnits match {
+      case align: JInt => this.alignmentUnits match {
         case AlignmentUnits.Bits => align
         case AlignmentUnits.Bytes => 8 * align
       }
@@ -111,4 +112,3 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
   }
 
 }
-

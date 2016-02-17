@@ -54,8 +54,11 @@ class TestXMLLoaderWithLocation {
           fw.write(testXML.toString())
       }
       val res = new URISchemaSource(new File(tmpXMLFileName).toURI)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res)
+      val eh = new BasicErrorHandler
+      val node = (new DaffodilXMLLoader(eh)).load(res)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
+      assertFalse(eh.hasError)
+      assertEquals(0, eh.diagnostics.length)
     } finally {
       val t = new java.io.File(tmpXMLFileName)
       t.delete()
@@ -64,7 +67,7 @@ class TestXMLLoaderWithLocation {
 
   @Test def testCatalogResolver() {
     val baseURI: String = new File(".").toURI().toString
-    // val ldr = new DaffodilXMLLoader(BasicStderrErrorHandler)
+    // val ldr = new DaffodilXMLLoader(BasicErrorHandler)
     val pId: String = null
     val sId: String = null
     val resolver = DFDLCatalogResolver.get
@@ -84,7 +87,11 @@ class TestXMLLoaderWithLocation {
           fw.write(testXML.toString())
       }
       val res = new URISchemaSource(new File(tmpXMLFileName).toURI)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res)
+      val eh = new BasicErrorHandler
+      val node = (new DaffodilXMLLoader(eh)).load(res)
+      assertTrue(eh.hasError)
+      val msgs = eh.diagnostics.map { _.getMessage() }.mkString("\n")
+      assertTrue(msgs.contains("xs:illegal"))
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)

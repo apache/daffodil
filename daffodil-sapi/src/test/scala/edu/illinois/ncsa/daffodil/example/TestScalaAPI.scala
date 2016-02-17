@@ -96,11 +96,11 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
@@ -160,11 +160,11 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
@@ -208,7 +208,7 @@ class TestScalaAPI {
     val diags = res.getDiagnostics
     assertEquals(1, diags.size)
     val d = diags(0)
-    System.err.println(d.getMessage())
+    // System.err.println(d.getMessage())
     assertTrue(d.getMessage().contains("int"))
     assertTrue(d.getMessage().contains("Not an int"))
     assertTrue(d.getDataLocations.toString().contains("10"))
@@ -249,7 +249,7 @@ class TestScalaAPI {
     //xo.setFormat(Format.getPrettyFormat())
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     if (!err) {
       //org.jdom2.Document doc = res.result()
@@ -259,8 +259,8 @@ class TestScalaAPI {
     assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
   }
 
   // This is a duplicate of test testJavaAPI3 that serializes the parser
@@ -293,7 +293,7 @@ class TestScalaAPI {
     //xo.setFormat(Format.getPrettyFormat())
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     if (!err) {
       //org.jdom2.Document doc = res.result()
@@ -303,8 +303,8 @@ class TestScalaAPI {
     assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
   }
 
   /*
@@ -346,7 +346,7 @@ class TestScalaAPI {
     //xo.setFormat(Format.getPrettyFormat())
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     if (!err) {
       //org.jdom2.Document doc = res.result()
@@ -356,8 +356,8 @@ class TestScalaAPI {
     assertFalse(res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
   }
 
   @Test
@@ -379,7 +379,7 @@ class TestScalaAPI {
     //xo.setFormat(Format.getPrettyFormat())
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     if (!err) {
       //org.jdom2.Document doc = res.result()
@@ -390,8 +390,8 @@ class TestScalaAPI {
       .isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
   }
 
   /**
@@ -452,7 +452,7 @@ class TestScalaAPI {
     if (pf.isError()) {
       val diags = pf.getDiagnostics
       diags.foreach { d =>
-        System.err.println(d.getMessage())
+        // System.err.println(d.getMessage())
       }
     }
     val dp = pf.onPath("/")
@@ -471,7 +471,7 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
 
@@ -520,7 +520,7 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
 
@@ -566,7 +566,7 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
 
@@ -598,7 +598,7 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
   }
@@ -634,7 +634,7 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
   }
@@ -668,11 +668,11 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw2.errors.foreach(println)
     lw2.warnings.foreach(println)
@@ -763,11 +763,11 @@ class TestScalaAPI {
     }
     val diags = res.getDiagnostics
     diags.foreach { d =>
-      System.err.println(d.getMessage())
+      // System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
-    System.err.println("bitPos = " + res.location().bitPos1b())
-    System.err.println("bytePos = " + res.location().bytePos1b())
+    // System.err.println("bitPos = " + res.location().bitPos1b())
+    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)

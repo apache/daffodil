@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 
 /**
@@ -59,7 +60,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
   with FindPropertyMixin
-  with LookupLocation
   with SchemaFileLocatable
   with PropTypes {
 
@@ -139,7 +139,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       prettyName,
       path,
       namespaces,
-      enclosingElement.map { _.erd })
+      enclosingElement.map { _.erd },
+      Maybe.toMaybe(enclosingTerm.map { _.termRuntimeData }))
   }.value
 
   def variableMap: VariableMap = LV('variableMap) {
@@ -153,7 +154,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    */
   def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode
-    NotFound(Nil, Nil)
+    NotFound(Nil, Nil, pname)
   }
   // Q: not sure why non-annotated schema components need to have findProperty
   // on them at all. Who would call it polymorphically, not knowing whether they

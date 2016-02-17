@@ -34,12 +34,12 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.ListOfStringLiteral
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseError
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
@@ -63,7 +63,7 @@ class StringDelimitedParser(
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean)
-  extends PrimParser(erd) {
+  extends PrimParserObject(erd) {
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
@@ -86,7 +86,7 @@ class StringDelimitedParser(
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
     pf.getParser(start)
-    
+
     // Must check that currentParser and currentFieldDFA are populated.
     // currentParser, currentFieldDFA should always be populated by the
     // TextDelimitedParser and FieldFactory code.
@@ -96,8 +96,8 @@ class StringDelimitedParser(
     //
     if (!start.mpstate.currentParser.isDefined) Assert.invariantFailed("currentParser was not populated.")
     if (!start.mpstate.currentFieldDFA.isDefined) Assert.invariantFailed("currentFieldDFA was not populated.")
-    
-    val textParser = start.mpstate.currentParser.get 
+
+    val textParser = start.mpstate.currentParser.get
     val delims = start.mpstate.getAllTerminatingMarkup
     val fieldDFA = start.mpstate.currentFieldDFA.get
     val scheme = start.mpstate.currentEscapeScheme

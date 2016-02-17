@@ -51,7 +51,7 @@ abstract class StatementElementParserBase(
   testAssertParser: Array[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
-  extends Parser(rd) {
+  extends ParserObject(rd) {
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseBegin(pstate: PState): Unit
@@ -136,7 +136,7 @@ abstract class StatementElementParserBase(
 
       // We just successfully created the element in the infoset. Notify the
       // debugger of this so it can do things like check for break points
-      pstate.dataProc.startElement(pstate, this)
+      if (pstate.dataProc.isDefined) pstate.dataProc.value.startElement(pstate, this)
 
       if (eParser.isDefined)
         eParser.get.parse1(pstate)
@@ -198,7 +198,7 @@ abstract class StatementElementParserBase(
       if (pstate.status ne Success) return
     } finally {
       parseEnd(pstate)
-      pstate.dataProc.endElement(pstate, this)
+      if (pstate.dataProc.isDefined) pstate.dataProc.value.endElement(pstate, this)
     }
   }
 }
@@ -252,7 +252,8 @@ class StatementElementParser(
     val priorElement = currentElement.parent
 
     if (pstate.status eq Success) {
-      val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
+      val shouldValidate =
+        (pstate.dataProc.isDefined) && pstate.dataProc.value.getValidationMode != ValidationMode.Off
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints
         validate(pstate)
@@ -338,7 +339,8 @@ class ChoiceStatementElementParser(
   def parseEnd(pstate: PState): Unit = {
     val currentElement = pstate.thisElement
 
-    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate =
+      (pstate.dataProc.isDefined) && pstate.dataProc.value.getValidationMode != ValidationMode.Off
     if (shouldValidate && erd.isSimpleType) {
       // Execute checkConstraints
       validate(pstate)

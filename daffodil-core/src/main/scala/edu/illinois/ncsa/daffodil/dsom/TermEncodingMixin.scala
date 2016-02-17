@@ -8,9 +8,17 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
+  protected final lazy val defaultEncodingErrorPolicy = {
+    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
+      encodingErrorPolicy
+    } else {
+      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
+    }
+  }
   /**
    * Character encoding common attributes
    *
@@ -22,7 +30,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   final lazy val isKnownEncoding = {
     val isKnown = encoding.isConstant
     if (isKnown) {
-      val encName = encoding.constantAsString.toUpperCase()
+      val encName = encoding.constant.toUpperCase()
       if (encName.startsWith("UTF-16")) {
         utf16Width // demand this so checking is done
         true
@@ -53,10 +61,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
-      termChildrenEncodingInfo, summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
-
-  private lazy val termChildrenEncodingInfo: Seq[EncodingRuntimeData] = termChildren.map { _.encodingInfo }
+    new EncodingRuntimeData(termRuntimeData, encodingEv, decoderEv, encoderEv, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
+      summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
 
   /**
    * True if this element itself consists only of text. No binary stuff like alignment

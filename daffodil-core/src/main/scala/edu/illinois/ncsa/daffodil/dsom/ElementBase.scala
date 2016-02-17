@@ -58,6 +58,10 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ChildResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.SiblingResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
 import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import java.lang.{ Integer => JInt, Number => JNumber }
+import edu.illinois.ncsa.daffodil.processors._
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -278,19 +282,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   /**
-   * There is a subtle distinction between the NextElementResolver and an InfosetAugmenter.
-   *
    * The NextElementResolver is used to determine what infoset event comes next, and "resolves" which is to say
    * determines the ElementRuntimeData for that infoset event. This can be used to construct the initial
    * infoset from a stream of XML events.
-   *
-   * An InfosetAugmenter determines what infoset elements to insert (as computed or defaulted) to create the augmented
-   * infoset.
-   *
-   * TODO: PERFORMANCE - it is perhaps better to combine these mechanisms, and augment the infoset as it is created.
-   * However, that's non-trivial as there are two different ways Infosets come into existence. One is from XML events, the
-   * other is by the infoset pre-existing as a tree, and then it being unparsed. An example of the latter is the "round trip"
-   * scenario where data is parsed, and potentially transformed as the Infoset, and then that infoset is unparsed.
    */
   final def computeNextElementResolver(possibles: Seq[ElementBase], resolverType: ResolverType): NextElementResolver = {
     //
@@ -310,7 +304,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     resolver
   }
 
-  final lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
+  lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
     import UnparserInfo._
     if (isScalar && isDefaultable) ScalarDefaultable
     else if (isArray && isDefaultable) ArrayDefaultable
@@ -320,10 +314,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     else MustExist
   }
 
-  final lazy val canBeAbsentFromUnparseInfoset: Boolean = {
+  lazy val canBeAbsentFromUnparseInfoset: Boolean = {
     import UnparserInfo._
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
+
+  //  private lazy val mustBeAbsentFromUnparseInfoset: Boolean = {
+  //    isOutputValueCalc
+  //  }
 
   final lazy val nextElementResolver: NextElementResolver =
     computeNextElementResolver(possibleNextChildElementsInInfoset, SiblingResolver)
@@ -343,7 +341,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       Assert.invariant(this != enc)
       enc.elementRuntimeData
     }
-    createElementRuntimeData(optERD)
+    lazy val maybeTRD = this.enclosingTerm.map { enc =>
+      Assert.invariant(this != enc)
+      enc.termRuntimeData
+    }
+    createElementRuntimeData(optERD, maybeTRD)
   }.value
 
   def erd = elementRuntimeData // just an abbreviation
@@ -353,7 +355,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * in order to compile expressions using it, (for debug)
    * and issue proper diagnostics in error situations.
    */
-  private def createElementRuntimeData(parent: => Option[ElementRuntimeData]): ElementRuntimeData = {
+  private def createElementRuntimeData(parent: => Option[ElementRuntimeData],
+    parentTerm: => Maybe[TermRuntimeData]): ElementRuntimeData = {
 
     //
     // I got sick of initialization time problems, so this mutual recursion
@@ -365,6 +368,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       elementChildren.map { _.elementRuntimeData }
     val newERD: ElementRuntimeData = new ElementRuntimeData(
       parent,
+      parentTerm,
       childrenERDs,
       schemaSet.variableMap,
       nextElementResolver,
@@ -562,7 +566,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   private lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
 
-  final lazy val alignmentValueInBits: Int = {
+  final lazy val alignmentValueInBits: JInt = {
     alignment match {
       case AlignmentType.Implicit => {
         if (this.isComplexType) {
@@ -570,8 +574,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           ct.alignmentValueInBits
         } else implicitAlignmentInBits
       }
-      case align: Int => {
-        val alignInBits = this.alignmentUnits match {
+      case align: JInt => {
+        val alignInBits: JInt = this.alignmentUnits match {
           case AlignmentUnits.Bits => align
           case AlignmentUnits.Bytes => 8 * align
         }
@@ -607,7 +611,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val fixedLengthValue: Long = {
     Assert.usage(isFixedLength)
-    if (lengthKind =:= LengthKind.Explicit) length.constantAsLong
+    if (lengthKind =:= LengthKind.Explicit) length.constant
     else {
       Assert.invariant(lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
@@ -647,8 +651,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       lengthKind == LengthKind.EndOfParent
   }
 
+  // TODO: Is this used at all?
   final lazy val fixedLength = {
-    if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength
+    if (isFixedLength) length.constant.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
   }
 
   /**
@@ -685,13 +690,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * The difference is due to for unparsing the %NL; is treated specially
    * because it must be computed based on dfdl:outputNewLine.
    */
-  private lazy val nilValuesForParseListObject = new ListOfStringValueAsLiteral(nilValue, this, forUnparse = false)
-  lazy val cookedNilValuesForParse = nilValuesForParseListObject.cooked
-  lazy val rawNilValuesForParse = nilValuesForParseListObject.rawList
+  lazy val cookedNilValuesForParse = cookedNilValue(forUnparse = false)
+  lazy val rawNilValuesForParse = rawNilValueList(forUnparse = false)
 
-  private lazy val nilValuesForUnparseListObject = new ListOfStringValueAsLiteral(nilValue, this, forUnparse = true)
-  lazy val cookedNilValuesForUnparse = nilValuesForUnparseListObject.cooked
-  lazy val rawNilValuesForUnparse = nilValuesForUnparseListObject.rawList
+  lazy val cookedNilValuesForUnparse = cookedNilValue(forUnparse = true)
+  lazy val rawNilValuesForUnparse = rawNilValueList(forUnparse = false)
 
   lazy val hasESNilValue = rawNilValuesForParse.contains("%ES;")
 
@@ -709,7 +712,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
   // That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false.
-  private def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
+  private def initTermTestExpression(expr: CompiledExpression[AnyRef], prop: => Any, true1: Any, true2: Any): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
     // prop's value at all unless the first test is true.
     if (expr.isKnownNonEmpty)

@@ -101,8 +101,6 @@ class TestDirectOrBufferedDataOutputStream {
     buf1.putBytes("buf1".getBytes("ascii"))
     buf2.putBytes("buf2".getBytes("ascii"))
 
-    println(layered)
-
     assertTrue(buf2.isBuffering)
 
     buf1.flush() // does nothing because this is still buffering

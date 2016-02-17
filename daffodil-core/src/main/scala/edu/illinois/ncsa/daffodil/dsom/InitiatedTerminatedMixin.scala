@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import com.ibm.icu.text.NumberFormat
-import java.math.BigInteger
 import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
 
 trait InitiatedTerminatedMixin

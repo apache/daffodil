@@ -39,14 +39,14 @@ import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.xml.StepQName
 import edu.illinois.ncsa.daffodil.Implicits._
 
 class TestDFDLExpressionTree extends Parsers {
+  val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
 
   val dummySchema = SchemaUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
@@ -60,10 +60,12 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
-    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.String, testSchema.scope, erd.dpathCompileInfo, false)
+
+    val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.String, testSchema.scope, erd.dpathCompileInfo, false)
     val result = exprCompiler.getExpressionTree(expr)
     body(result)
   }
+
   def testExpr2(testSchema: scala.xml.Elem, expr: String)(body: (Expression, ElementRuntimeData) => Unit) {
     val schemaCompiler = Compiler()
     val sset = schemaCompiler.compileNode(testSchema).sset
@@ -72,7 +74,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl
-    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo, false)
+    val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo, false)
     val result = exprCompiler.getExpressionTree(expr)
     body(result, erd.elementRuntimeData)
   }

@@ -668,7 +668,7 @@ is multiple bytes in UTF-8 encoding that is used"
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>The string ([ start ]) must not contain any whitespace</tdml:error>
-      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Use DFDL Entities</tdml:error>
       <tdml:error>Schema context: element.element1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -710,7 +710,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Use DFDL Entities</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -751,7 +751,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Use DFDL Entities</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -792,7 +792,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Use DFDL Entities</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -831,7 +831,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Use DFDL Entities</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1153,19 +1153,14 @@ is multiple bytes in UTF-8 encoding that is used"
                In this case, the value is 50 characters long so %ES; is a terminator.
   -->
 
-  <tdml:parserTestCase name="emptyStringEntityTermInExpression_01" root="root" model="EmptyStringEntityInExpression"
-    description="">
+  <tdml:parserTestCase name="emptyStringEntityTermInExpression_01" root="root" model="EmptyStringEntityInExpression" description="">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[01234567890123456789012345678901234567890123456789]]></tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <root>
-          <value>01234567890123456789012345678901234567890123456789</value>
-        </root>
-      </tdml:dfdlInfoset>
-
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Illegal</tdml:error>
+      <tdml:error>%ES;</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -1182,9 +1177,9 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <root>
-          <value>012345678901234567890123456789012345678901</value>
-        </root>
+        <ex:root>
+          <ex:value>012345678901234567890123456789012345678901</ex:value>
+        </ex:root>
       </tdml:dfdlInfoset>
 
     </tdml:infoset>

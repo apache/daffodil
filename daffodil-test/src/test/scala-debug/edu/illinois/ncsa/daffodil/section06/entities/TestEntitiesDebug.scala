@@ -71,4 +71,8 @@ class TestEntitiesDebug {
   // Needs dfdl:utf16Width='variable' implementation
   @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
 
+  // Regression - we used to just reject %ES; in terminators. Now we accept it, but it doesn't work
+  // right. JIRA DFDL-1477
+   @Test def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
+
 }

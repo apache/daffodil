@@ -7,10 +7,11 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.equality._
+import java.lang.{ Long => JLong }
 
 abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
-  extends Unparser(erd) with TextUnparserRuntimeMixin
+  extends UnparserObject(erd) with TextUnparserRuntimeMixin
   with WithParseErrorThrowing {
 
   override lazy val childProcessors = Seq(eUnparser)
@@ -57,7 +58,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
 class SpecifiedLengthExplicitBitsUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
-  length: CompiledExpression)
+  length: CompiledExpression[JLong])
   extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
   final override def getBitLength(s: UState): Long = {
@@ -79,7 +80,7 @@ class SpecifiedLengthExplicitBitsFixedUnparser(
 class SpecifiedLengthExplicitBytesUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
-  length: CompiledExpression)
+  length: CompiledExpression[JLong])
   extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
   final override def getBitLength(s: UState): Long = {
@@ -120,9 +121,9 @@ class SpecifiedLengthExplicitBytesFixedUnparser(
 abstract class SpecifiedLengthExplicitCharactersUnparserBase(
   eUnparser: Unparser,
   erd: ElementRuntimeData)
-  extends Unparser(erd) with TextUnparserRuntimeMixin {
+  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
-  final override protected def childProcessors = Seq(eUnparser)
+  final override def childProcessors = Seq(eUnparser)
 
   protected def getCharLength(s: UState): Long
 
@@ -182,7 +183,7 @@ final class SpecifiedLengthExplicitCharactersFixedUnparser(
 final class SpecifiedLengthExplicitCharactersUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
-  length: CompiledExpression)
+  length: CompiledExpression[JLong])
   extends SpecifiedLengthExplicitCharactersUnparserBase(eUnparser, erd) {
 
   override def getCharLength(s: UState): Long = {

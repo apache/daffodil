@@ -3297,7 +3297,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStringPadCharacter cannot be empty!</tdml:error>
+      <tdml:error>textStringPadCharacter</tdml:error>
+      <tdml:error>exactly 1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

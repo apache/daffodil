@@ -329,18 +329,6 @@ object Currency extends Enum[Currency] {
 trait CurrencyMixin extends PropertyMixin {
 
   /**
-   * get property value, or fail trying. Use this if you need
-   * the property value.
-   *
-   * Also gets the schema component where the property was found
-   * so that one can report errors/diagnostics relative to that
-   * location, not the point of use of the property.
-   */
-  private def currencyLookup = cacheProperty("currency")
-  final def currency = Currency(currencyLookup.value, this)
-  final def currency_location = currencyLookup.location
-
-  /**
    * get Some(property value) or None if not defined in scope.
    *
    * Mostly do not use this. Most code shouldn't need to test for
@@ -349,8 +337,20 @@ trait CurrencyMixin extends PropertyMixin {
    * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
    */
   private def optionCurrencyLookup = cachePropertyOption("currency")
-  final def optionCurrency = optionCurrencyLookup match { case Found(raw, _) => Some(Currency(raw, this)) ; case _ => None }
-  final def optionCurrency_location = optionCurrencyLookup match { case Found(_, loc) => Some(loc) ; case _ => None }
+  final def optionCurrency = if (optionCurrencyLookup.isDefined) Some(currency) else None
+  final def optionCurrency_location = if (optionCurrencyLookup.isDefined) Some(currency_location) else None
+
+  /**
+   * get property value, or fail trying. Use this if you need
+   * the property value.
+   *
+   * Also gets the schema component where the property was found
+   * so that one can report errors/diagnostics relative to that
+   * location, not the point of use of the property.
+   */
+  private def currencyLookup = requireProperty(optionCurrencyLookup)
+  final def currency = Currency(currencyLookup.value, this)
+  final def currency_location = currencyLookup.location
 
   /**
    * This will print the property value if the property has any value
@@ -391,7 +391,8 @@ trait CurrencyMixin extends PropertyMixin {
       "inputValueCalc", "outputValueCalc",
       "textStandardInfinityRep", "textStandardNaNRep", "textStandardZeroRep",
       "nilValue",
-      "textStringPadCharacter", "textNumberPadCharacter", "textBooleanPadCharacter", "textCalendarPadCharacter")
+      "textStringPadCharacter", "textNumberPadCharacter", "textBooleanPadCharacter", "textCalendarPadCharacter",
+      "calendarLanguage")
     val res = runtimeValuedProperties.contains(propName)
     res
   }

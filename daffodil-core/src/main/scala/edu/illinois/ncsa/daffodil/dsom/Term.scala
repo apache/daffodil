@@ -61,6 +61,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import java.lang.{ Integer => JInt }
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -69,6 +70,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 // A term is content of a group
 abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   extends AnnotatedSchemaComponent(xmlArg, parentArg)
+  with TermRuntimeValuedPropertiesMixin
   with LocalComponentMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
@@ -78,7 +80,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")
     ic match {
-      case Found(value, location) => Some(YesNo(value, location))
+      case Found(value, location, _) => Some(YesNo(value, location))
       case _ => None
     }
   }
@@ -104,7 +106,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * An integer which is the alignment of this term. This takes into account the
    * representation, type, charset encoding and alignment-related properties.
    */
-  def alignmentValueInBits: Int
+  def alignmentValueInBits: JInt
 
   /**
    * True if this term is known to have some text aspect. This can be the value, or it can be
@@ -148,13 +150,13 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def isScalar = true // override in local elements
 
-  lazy val allTerminatingMarkup: List[(CompiledExpression, String, String)] = {
+  lazy val allTerminatingMarkup: List[(CompiledExpression[String], String, String)] = {
     val (tElemName, tElemPath) = this.terminatorLoc
     val tm = List((this.terminator, tElemName, tElemPath)) ++ this.allParentTerminatingMarkup
     tm.filter { case (delimValue, elemName, elemPath) => delimValue.isKnownNonEmpty }
   }
 
-  lazy val allParentTerminatingMarkup: List[(CompiledExpression, String, String)] = {
+  lazy val allParentTerminatingMarkup: List[(CompiledExpression[String], String, String)] = {
     // Retrieves the terminating markup for all parent
     // objects
 
@@ -162,7 +164,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     // will always be defined.  It's entirely possible that one or neither is defined.
     // The call to this non-existant property will result in an SDE.
     // See created issue DFDL-571
-    val pTM: List[(CompiledExpression, String, String)] = parent match {
+    val pTM: List[(CompiledExpression[String], String, String)] = parent match {
       case s: Sequence => {
         val (sElemName, sElemPath) = s.separatorLoc
         val (tElemName, tElemPath) = s.terminatorLoc
@@ -384,7 +386,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     res
   }
 
-  final lazy val terminatingMarkup: List[CompiledExpression] = {
+  final lazy val terminatingMarkup: List[CompiledExpression[String]] = {
     if (hasTerminator) List(terminator)
     else nearestEnclosingSequence match {
       case None => Nil

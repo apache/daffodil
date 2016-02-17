@@ -39,8 +39,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.PrimParser
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
+import edu.illinois.ncsa.daffodil.processors.{ PrimParser, PrimParserObject }
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -62,7 +61,7 @@ class StringOfSpecifiedLengthUnparser(
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
   isForString: Boolean)
-  extends PrimUnparser(erd)
+  extends PrimUnparserObject(erd)
   with StringLengthMixin {
 
   final override def justificationTrim = justificationPad

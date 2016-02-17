@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
@@ -136,7 +136,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val compileAllTopLevel: Boolean = false)
   extends Logging with HasSetDebugger {
 
-  System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
+  if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
+    System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
   aNodeFileOrURL match {
@@ -149,17 +150,17 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val errorHandler = new org.xml.sax.ErrorHandler {
     def warning(exception: SAXParseException) = {
       loadingExceptions == exception +: loadingExceptions
-      System.err.println("TDMLRunner Warning: " + exception.getMessage())
+      // System.err.println("TDMLRunner Warning: " + exception.getMessage())
     }
 
     def error(exception: SAXParseException) = {
       loadingExceptions = exception :: loadingExceptions
-      System.err.println("TDMLRunner Error: " + exception.getMessage())
+      // System.err.println("TDMLRunner Error: " + exception.getMessage())
       isLoadingError = true
     }
     def fatalError(exception: SAXParseException) = {
       loadingExceptions == exception +: loadingExceptions
-      System.err.println("TDMLRunner Fatal Error: " + exception.getMessage())
+      // System.err.println("TDMLRunner Fatal Error: " + exception.getMessage())
       isLoadingError = true
     }
   }
@@ -274,7 +275,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
-  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler)
+  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
   final var optDebugger: Option[Debugger] = None
 
@@ -671,7 +672,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       val leftOverException = if (!loc.isAtEnd) {
         val leftOverMsg = "Left over data: " + loc.toString
-        println(leftOverMsg)
+        // println(leftOverMsg)
         Some(new TDMLException(leftOverMsg))
       } else None
 
@@ -1015,16 +1016,27 @@ object VerifyTestCase {
     }
   }
 
+  private val cs8859 = java.nio.charset.Charset.forName("iso-8859-1")
+
   def verifyBinaryOrMixedData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
+    lazy val actual8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
+    lazy val displayableActual = Misc.remapControlsAndLineEndingsToVisibleGlyphs(actual8859String)
 
     val expectedBytes = IOUtils.toByteArray(Channels.newInputStream(expectedData))
+    lazy val expected8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(expectedBytes)).toString()
+    lazy val displayableExpected = Misc.remapControlsAndLineEndingsToVisibleGlyphs(expected8859String)
+
+    lazy val expectedAndActualDisplayStrings = "\n" +
+      "Excected data (as iso8859-1): " + displayableExpected + "\n" +
+      "Actual data                 : " + displayableActual
+
     val readCount = expectedBytes.length
     expectedData.close()
     if (readCount == 0) {
       // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
       if (actualBytes.length > 0) {
-        throw new TDMLException("Unexpected data was created.")
+        throw new TDMLException("Unexpected data was created: '" + displayableActual + "'")
       }
       return // we're done. Nothing equals nothing.
     }
@@ -1033,14 +1045,16 @@ object VerifyTestCase {
     if (actualBytes.length != readCount) {
       val bytesToShow = if (actualBytes.length == 0) "" else " for " + Misc.bytes2Hex(actualBytes)
       throw new TDMLException("output data length " + actualBytes.length + bytesToShow +
-        " doesn't match expected length " + readCount + " for " + Misc.bytes2Hex(expectedBytes))
+        " doesn't match expected length " + readCount + " for " + Misc.bytes2Hex(expectedBytes) +
+        expectedAndActualDisplayStrings)
     }
 
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)
     pairs.foreach {
       case ((expected, actual), index) =>
         if (expected != actual) {
-          val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
+          val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual) +
+            expectedAndActualDisplayStrings
           throw new TDMLException(msg)
         }
     }
@@ -1371,7 +1385,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
       if (encoder.charset.name.toLowerCase == "utf-8")
         encodeUtf8ToBits(textContentWithoutEntities)
       else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
-               encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
+        encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
         encodeWith7BitEncoder(textContentWithoutEntities)
       else encodeWith8BitEncoder(textContentWithoutEntities)
     bytesAsStrings

@@ -89,7 +89,7 @@ class TestSchemaCache {
       os.flush()
       os.close()
     }
-    println("iters = " + iters)
+    // println("iters = " + iters)
   }
 
   def compileTheSchema(uss: URISchemaSource) {

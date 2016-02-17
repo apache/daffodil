@@ -37,12 +37,12 @@ import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import java.math.BigInteger
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import java.lang.{ Long => JLong }
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -82,10 +82,10 @@ trait ElementBaseGrammarMixin
   private lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (length.isConstant) => {
-      val lengthFromProp = length.constantAsLong
+      val lengthFromProp: JLong = length.constant
       val nbits = lengthUnits match {
-        case LengthUnits.Bits => lengthFromProp
-        case LengthUnits.Bytes => lengthFromProp * 8
+        case LengthUnits.Bits => lengthFromProp.longValue()
+        case LengthUnits.Bytes => lengthFromProp.longValue() * 8
         case LengthUnits.Characters => SDE("The lengthUnits for binary numbers must be either 'bits' or 'bytes'. Not 'characters'.")
       }
       nbits
@@ -231,7 +231,7 @@ trait ElementBaseGrammarMixin
 
   //  private lazy val ibm390HexBinaryRepDouble = prod("ibm390HexBinaryRepDouble",
   //    binaryFloatRep.isConstant &&
-  //      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString) {
+  //      binaryFloatRep.constant == BinaryFloatRep.Ibm390Hex.toString) {
   //      subsetError("ibm390Hex not supported")
   //    }
 
@@ -295,7 +295,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val staticBinaryFloatRep = {
     subset(binaryFloatRep.isConstant, "Dynamic binaryFloatRep is not supported.")
-    BinaryFloatRep(binaryFloatRep.constantAsString, this)
+    BinaryFloatRep(binaryFloatRep.constant, this)
   }
 
   //  private lazy val binary = {
@@ -307,9 +307,21 @@ trait ElementBaseGrammarMixin
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
 
-  //  private lazy val zero = new BigInteger("0")
-  //  private lazy val two = new BigInteger("2")
-  //  private lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
+  private def binaryIntegerValue(isSigned: Boolean) = {
+    //
+    // Is it a single byte or smaller
+    //
+    if ((primType != PrimType.Byte) &&
+      (binaryNumberKnownLengthInBits == -1 ||
+        binaryNumberKnownLengthInBits > 8)) {
+      byteOrderRaw // must be defined or SDE
+    }
+    Assert.invariant(binaryIntRep == bin)
+    binaryNumberKnownLengthInBits match {
+      case -1 => new BinaryIntegerRuntimeLength(this, isSigned)
+      case _ => new BinaryIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+    }
+  }
 
   private lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
@@ -323,22 +335,15 @@ trait ElementBaseGrammarMixin
     val res: Gram = primType match {
 
       case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer => {
-        Assert.invariant(binaryIntRep == bin)
-        binaryNumberKnownLengthInBits match {
-          case -1 => new BinaryIntegerRuntimeLength(this, true)
-          case _ => new BinaryIntegerKnownLength(this, true, binaryNumberKnownLengthInBits)
-        }
+        binaryIntegerValue(true)
       }
 
       case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt | PrimType.UnsignedLong | PrimType.NonNegativeInteger => {
-        Assert.invariant(binaryIntRep == bin)
-        binaryNumberKnownLengthInBits match {
-          case -1 => new BinaryIntegerRuntimeLength(this, false)
-          case _ => new BinaryIntegerKnownLength(this, false, binaryNumberKnownLengthInBits)
-        }
+        binaryIntegerValue(false)
       }
 
-      case PrimType.Double | PrimType.Float =>
+      case PrimType.Double | PrimType.Float => {
+        byteOrderRaw // is required. SDE if not defined
         (primType, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
           case (_, -1, BinaryFloatRep.Ieee) => SDE("Floating point binary numbers may not have runtime-specified lengths.")
           case (PrimType.Float, 32, BinaryFloatRep.Ieee) => new BinaryFloat(this)
@@ -347,6 +352,7 @@ trait ElementBaseGrammarMixin
           case (PrimType.Double, n, BinaryFloatRep.Ieee) => SDE("binary xs:double must be 64 bits. Length in bits was %s.", n)
           case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
+      }
 
       case PrimType.Decimal => {
         Assert.invariant(binaryIntRep == bin)
@@ -354,6 +360,8 @@ trait ElementBaseGrammarMixin
           SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
         if (binaryDecimalVirtualPoint < DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
           SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
+        if (binaryNumberKnownLengthInBits == -1 ||
+          binaryNumberKnownLengthInBits > 8) byteOrderRaw // must have or SDE
         binaryNumberKnownLengthInBits match {
           case -1 => new BinaryDecimalRuntimeLength(this)
           case _ => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
@@ -593,7 +601,7 @@ trait ElementBaseGrammarMixin
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
   private lazy val elementLeftFraming = prod("elementLeftFraming") {
-    ioPropertiesChange ~ leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
+    byteOrderChange ~ termIOPropertiesChange ~ leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
   }
 
   private lazy val elementRightFraming = prod("elementRightFraming") { trailingSkipRegion }

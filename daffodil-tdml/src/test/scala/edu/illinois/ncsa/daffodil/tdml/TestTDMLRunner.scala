@@ -128,10 +128,10 @@ class TestTDMLRunner {
     val doc = new Document(xml, null)
     doc.documentParts(0)
     val bytes = doc.documentBytes
-    assertEquals(22, bytes.length)
+    assertEquals(24, bytes.length)
     val orig = new String(bytes.toArray, "UTF8")
-    assertEquals(17, orig.length)
-    assertEquals("\\$¢€%\u0000\u2028%#IGNORED;", orig)
+    assertEquals(19, orig.length)
+    assertEquals("\\$¢€%%\u0000\u2028%%#IGNORED;", orig)
   }
 
   @Test def testDocWithTextFile() {
@@ -481,12 +481,14 @@ class TestTDMLRunner {
 
   @Test def testEmbeddedSchemaValidates() {
     val testSuite = tdmlWithEmbeddedSchemaInvalid
+    assertFalse(ts.isTDMLFileValid)
     lazy val ts = new DFDLTestSuite(testSuite)
     assertFalse(ts.isTDMLFileValid)
     val msgs = ts.getLoadingDiagnosticMessages()
     val hasMsg = msgs.contains("notAllowed")
     // println("messages = '" + msgs + "'")
     assertTrue(hasMsg)
+    assertFalse(ts.isTDMLFileValid)
   }
 
   @Test def testRunTDMLSelfContainedFile() {
@@ -498,6 +500,7 @@ class TestTDMLRunner {
           fw.write(testSuite.toString())
       }
       lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      assertTrue(ts.isTDMLFileValid)
       ts.runAllTests()
     } finally {
       val t = new java.io.File(tmpTDMLFileName)

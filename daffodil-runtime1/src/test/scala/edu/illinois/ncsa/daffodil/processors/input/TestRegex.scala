@@ -165,7 +165,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val (c, delim) = result.get
@@ -239,7 +240,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val (c, delim) = result.get
@@ -337,7 +339,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_BlockEscapeWithPaddingCapturesEverything." + testNum), theInput)
+      // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_BlockEscapeWithPaddingCapturesEverything." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val (bc, delim) = result.get
@@ -438,7 +441,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_BlockEscapeWithPadding." + testNum), theInput)
+      // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_BlockEscapeWithPadding." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val res = result.get
@@ -505,7 +509,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_SameEscapeWithPadding." + testNum), theInput)
+      // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_SameEscapeWithPadding." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val res = result.get
@@ -759,7 +764,8 @@ class TestRegex extends RegexParsers {
     var testNum = 0
     def test(theParser: Parser[(String, String)], theInput: String) = {
       testNum = testNum + 1
-      val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      //val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
+      val result = this.parse(theParser, theInput)
       if (result.isEmpty) { None }
       else {
         val res = result.get
@@ -1604,8 +1610,8 @@ class TestRegex extends RegexParsers {
        */
       def test(x: String) = x match {
         case ContentPattern(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
-//          println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
-//            x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
+          //          println("'%s' parsed to ee1s = '%s', b = '%s', ee2s = '%s', delimAfterPad = '%s', ee3s = '%s', delimAfterEEs = '%s', a = '%s'".format(
+          //            x, ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after))
           val before1 = removeActiveEscapes(
             (if (ee1s == null) "" else ee1s) +
               before +
@@ -1627,7 +1633,7 @@ class TestRegex extends RegexParsers {
       // DFDL spec seems to say so. Only escape-escaped escape characters are preserved.
       //
       def removeActiveEscapes(str: String): String = {
-        System.err.println(str)
+        // System.err.println(str)
         // if contains ER, replace with just R
         val str2 = removeActiveEscapes1(str)
         str2

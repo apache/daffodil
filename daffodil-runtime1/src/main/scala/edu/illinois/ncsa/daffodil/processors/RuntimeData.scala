@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.RefQName
+import scala.collection.mutable
 
 trait RuntimeData
   extends ImplementsThrowsSDE
@@ -59,9 +60,22 @@ trait RuntimeData
   val path: String
   val namespaces: NamespaceBinding
 
-  def immediateEnclosingRuntimeData: Option[RuntimeData]
+  def immediateEnclosingElementRuntimeData: Option[ElementRuntimeData]
+  def immediateEnclosingTermRuntimeData: Maybe[TermRuntimeData]
   def variableMap: VariableMap
   override def toString = prettyName
+
+}
+
+object TermRuntimeData {
+
+  private var nextID = 0
+
+  def generateTermID: Int = synchronized {
+    val n = nextID
+    nextID += 1
+    n
+  }
 
 }
 
@@ -71,25 +85,55 @@ abstract class TermRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
-  @TransientParam immedEnclosingRD: => Option[RuntimeData],
-  final val encodingInfo: EncodingRuntimeData,
-  val dpathCompileInfo: DPathCompileInfo,
-  val isRepresented: Boolean,
-  val couldHaveText: Boolean,
-  val alignmentValueInBits: Int,
-  val hasNoSkipRegions: Boolean,
-  val fillByteValue: Int,
-  val defaultBitOrder: BitOrder,
-  val optIgnoreCase: Option[YesNo])
+  @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
+  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData],
+  @TransientParam encodingInfoArg: => EncodingRuntimeData,
+  @TransientParam dpathCompileInfoArg: => DPathCompileInfo,
+  @TransientParam isRepresentedArg: => Boolean,
+  @TransientParam couldHaveTextArg: => Boolean,
+  @TransientParam alignmentValueInBitsArg: => Int,
+  @TransientParam hasNoSkipRegionsArg: => Boolean,
+  @TransientParam fillByteValueArg: => Int,
+  @TransientParam defaultBitOrderArg: => BitOrder,
+  @TransientParam optIgnoreCaseArg: => Option[YesNo])
   extends RuntimeData
   with Serializable
   with PreSerialization {
 
-  lazy val immediateEnclosingRuntimeData = immedEnclosingRD
+  private val termID = TermRuntimeData.generateTermID
+
+  final override def hashCode(): Int = termID
+
+  final override def equals(other: Any) = other match {
+    case ref: AnyRef => this eq ref
+    case _ => false
+  }
+
+  lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
+  lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
+  lazy val encodingInfo = encodingInfoArg
+  lazy val dpathCompileInfo = dpathCompileInfoArg
+  lazy val isRepresented = isRepresentedArg
+  lazy val couldHaveText = couldHaveTextArg
+  lazy val alignmentValueInBits = alignmentValueInBitsArg
+  lazy val hasNoSkipRegions = hasNoSkipRegionsArg
+  lazy val fillByteValue = fillByteValueArg
+  lazy val defaultBitOrder = defaultBitOrderArg
+  lazy val optIgnoreCase = optIgnoreCaseArg
 
   override def preSerialization: Unit = {
     super.preSerialization
-    immediateEnclosingRuntimeData
+    immediateEnclosingElementRuntimeData
+    immediateEnclosingTermRuntimeData
+    encodingInfo
+    dpathCompileInfo
+    isRepresented
+    couldHaveText
+    alignmentValueInBits
+    hasNoSkipRegions
+    fillByteValue
+    defaultBitOrder
+    optIgnoreCase
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -107,79 +151,183 @@ class NonTermRuntimeData(
    * having to use an assignment to a var.
    */
   @TransientParam variableMapArg: => VariableMap,
-  override val schemaFileLocation: SchemaFileLocation,
-  override val prettyName: String,
-  override val path: String,
-  override val namespaces: NamespaceBinding,
-  override val immediateEnclosingRuntimeData: Option[RuntimeData])
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
+  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData])
   extends RuntimeData
   with PreSerialization {
 
   override lazy val variableMap = variableMapArg
+  lazy val schemaFileLocation = schemaFileLocationArg
+  lazy val prettyName = prettyNameArg
+  lazy val path = pathArg
+  lazy val namespaces = namespacesArg
+  lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
+  lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
 
   override def preSerialization: Unit = {
     super.preSerialization
     variableMap
+    schemaFileLocation
+    prettyName
+    path
+    namespaces
+    immediateEnclosingElementRuntimeData
+    immediateEnclosingTermRuntimeData
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
 }
 
-class ModelGroupRuntimeData(
+sealed abstract class ModelGroupRuntimeData(
   /**
    * These transient by-name args are part of how we
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
   @TransientParam variableMapArg: => VariableMap,
-  encInfo: EncodingRuntimeData,
-  override val schemaFileLocation: SchemaFileLocation,
-  ci: DPathCompileInfo,
-  override val prettyName: String,
-  override val path: String,
-  override val namespaces: NamespaceBinding,
-  defaultBitOrder: BitOrder,
-  val groupMembers: Seq[TermRuntimeData],
-  val erd: ElementRuntimeData,
-  isRepresented: Boolean,
-  couldHaveText: Boolean,
-  alignmentValueInBits: Int,
-  hasNoSkipRegions: Boolean,
-  fillByteValue: Int,
-  optIgnoreCase: Option[YesNo])
-  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue,
-    defaultBitOrder, optIgnoreCase) {
+  @TransientParam encInfoArg: => EncodingRuntimeData,
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam ciArg: => DPathCompileInfo,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam defaultBitOrderArg: => BitOrder,
+  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  @TransientParam erdArg: ElementRuntimeData,
+  @TransientParam trdArg: => TermRuntimeData,
+  @TransientParam isRepresentedArg: => Boolean,
+  @TransientParam couldHaveTextArg: => Boolean,
+  @TransientParam alignmentValueInBitsArg: => Int,
+  @TransientParam hasNoSkipRegionsArg: => Boolean,
+  @TransientParam fillByteValueArg: => Int,
+  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  extends TermRuntimeData(Some(erdArg),
+    Maybe(trdArg),
+    encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg,
+    defaultBitOrderArg, optIgnoreCaseArg) {
 
-  override lazy val variableMap = variableMapArg
+  lazy val variableMap = variableMapArg
+  lazy val encInfo = encInfoArg
+  lazy val schemaFileLocation = schemaFileLocationArg
+  lazy val ci = ciArg
+  lazy val prettyName = prettyNameArg
+  lazy val path = pathArg
+  lazy val namespaces = namespacesArg
+  lazy val groupMembers = groupMembersArg
+  lazy val erd = erdArg
+  lazy val trd = trdArg
 
   override def preSerialization: Unit = {
     super.preSerialization
     variableMap
+    encInfo
+    schemaFileLocation
+    ci
+    prettyName
+    path
+    namespaces
+    groupMembers
+    erd
+    trd
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
 }
 
+class SequenceRuntimeData(
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
+  @TransientParam variableMapArg: => VariableMap,
+  @TransientParam encInfoArg: => EncodingRuntimeData,
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam ciArg: => DPathCompileInfo,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam defaultBitOrderArg: => BitOrder,
+  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  @TransientParam erdArg: ElementRuntimeData,
+  @TransientParam trdArg: => TermRuntimeData,
+  @TransientParam isRepresentedArg: => Boolean,
+  @TransientParam couldHaveTextArg: => Boolean,
+  @TransientParam alignmentValueInBitsArg: => Int,
+  @TransientParam hasNoSkipRegionsArg: => Boolean,
+  @TransientParam fillByteValueArg: => Int,
+  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg, optIgnoreCaseArg)
+
+class ChoiceRuntimeData(
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
+  @TransientParam variableMapArg: => VariableMap,
+  @TransientParam encInfoArg: => EncodingRuntimeData,
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam ciArg: => DPathCompileInfo,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam defaultBitOrderArg: => BitOrder,
+  @TransientParam groupMembersArg: => Seq[TermRuntimeData],
+  @TransientParam erdArg: ElementRuntimeData,
+  @TransientParam trdArg: => TermRuntimeData,
+  @TransientParam isRepresentedArg: => Boolean,
+  @TransientParam couldHaveTextArg: => Boolean,
+  @TransientParam alignmentValueInBitsArg: => Int,
+  @TransientParam hasNoSkipRegionsArg: => Boolean,
+  @TransientParam fillByteValueArg: => Int,
+  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg, optIgnoreCaseArg)
+
 class VariableRuntimeData(
-  sfl: SchemaFileLocation,
-  override val prettyName: String,
-  override val path: String,
-  override val namespaces: NamespaceBinding,
-  val external: Boolean,
-  val maybeDefaultValueExpr: Maybe[CompiledExpression],
-  val typeRef: RefQName,
-  val globalQName: GlobalQName,
-  val primType: NodeInfo.PrimType)
+  @TransientParam schemaFileLocationArg: => SchemaFileLocation,
+  @TransientParam prettyNameArg: => String,
+  @TransientParam pathArg: => String,
+  @TransientParam namespacesArg: => NamespaceBinding,
+  @TransientParam externalArg: => Boolean,
+  @TransientParam maybeDefaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
+  @TransientParam typeRefArg: => RefQName,
+  @TransientParam globalQNameArg: => GlobalQName,
+  @TransientParam primTypeArg: => NodeInfo.PrimType)
   extends NonTermRuntimeData(
     null, // no variable map
-    sfl,
-    prettyName,
-    path,
-    namespaces,
+    schemaFileLocationArg,
+    prettyNameArg,
+    pathArg,
+    namespacesArg,
+    None,
     None)
   with Serializable {
+
+  lazy val external = externalArg
+  lazy val maybeDefaultValueExpr = maybeDefaultValueExprArg
+  lazy val typeRef = typeRefArg
+  lazy val globalQName = globalQNameArg
+  lazy val primType = primTypeArg
+
+  override def preSerialization: Unit = {
+    super.preSerialization
+    external
+    maybeDefaultValueExpr
+    typeRef
+    globalQName
+    primType
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   private val state =
     if (!maybeDefaultValueExpr.isDefined) VariableUndefined
@@ -190,7 +338,7 @@ class VariableRuntimeData(
     else {
       val defaultValueExpr = maybeDefaultValueExpr.get
       defaultValueExpr match {
-        case constExpr: ConstantExpression => One(constExpr.constant.asInstanceOf[AnyRef])
+        case constExpr: ConstantExpression[_] => One(constExpr.constant.asInstanceOf[AnyRef])
         case _ => Nope
       }
     }

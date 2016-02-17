@@ -39,9 +39,12 @@ import scala.xml.NodeSeq.seqToNodeSeq
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
+import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
+import java.lang.{ Number => JNumber }
+import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 trait CompareOpBase {
-  def operate(v1: Any, v2: Any): Any
+  def operate(v1: AnyRef, v2: AnyRef): AnyRef
 }
 
 trait NumberCompareOp extends CompareOpBase {
@@ -49,7 +52,7 @@ trait NumberCompareOp extends CompareOpBase {
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
    */
-  def operate(v1: Any, v2: Any): Boolean
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean
 }
 
 trait StringCompareOp extends CompareOpBase {
@@ -62,7 +65,7 @@ trait StringCompareOp extends CompareOpBase {
    *
    * This mimics the fn:compare method closely.
    */
-  def compare(v1: Any, v2: Any): Int = v1.asInstanceOf[String].compare(v2.asInstanceOf[String])
+  def compare(v1: AnyRef, v2: AnyRef): Int = v1.asInstanceOf[String].compare(v2.asInstanceOf[String])
 }
 
 abstract class CompareOp
@@ -80,13 +83,13 @@ abstract class CompareOp
     dstate.setCurrentValue(result)
   }
 
-  def compare(op: String, v1: Any, v2: Any): Boolean
+  def compare(op: String, v1: AnyRef, v2: AnyRef): JBoolean
 }
 
 case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPath)
   extends CompareOp {
 
-  def compare(op: String, v1: Any, v2: Any): Boolean = {
+  def compare(op: String, v1: AnyRef, v2: AnyRef): JBoolean = {
     if (op == "eq") v1 == v2
     else if (op == "ne") v1 != v2
     else Assert.invariantFailed("EqualtyCompareOp only supports eq and ne")
@@ -118,9 +121,11 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
   override def run(dstate: DState) {
     recipe.run(dstate)
     val value = dstate.currentValue match {
-      case i: Int => i * -1
-      case l: Long => l * (-1L)
-      case d: Double => d * 1.0
+      case i: JInt => i * -1
+      case l: JLong => l * (-1L)
+      case d: JDouble => d * -1.0
+      case bi: JBigInt => BigInt(bi) * -1
+      case bd: JBigDecimal => BigDecimal(bd) * -1
       case bi: BigInt => bi * -1
       case bd: BigDecimal => bd * -1
       case _ => Assert.invariantFailed("not a number: " + dstate.currentValue.toString)
@@ -141,7 +146,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
   override def toXML = toXML(recipe.toXML)
 
-  def computeValue(str: Any, dstate: DState): Any
+  def computeValue(str: AnyRef, dstate: DState): AnyRef
 }
 
 abstract class FNTwoArgs(recipes: List[CompiledDPath])
@@ -162,7 +167,7 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
     dstate.setCurrentValue(computeValue(arg1, arg2, dstate))
   }
 
-  def computeValue(arg1: Any, arg2: Any, dstate: DState): Any
+  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -186,7 +191,7 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSub
     dstate.setCurrentValue(computeValue(arg1, arg2, arg3, dstate))
   }
 
-  def computeValue(arg1: Any, arg2: Any, arg3: Any, dstate: DState): Any
+  def computeValue(arg1: AnyRef, arg2: AnyRef, arg3: AnyRef, dstate: DState): AnyRef
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -212,5 +217,5 @@ abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubR
     dstate.setCurrentValue(computeValue(args, dstate))
   }
 
-  def computeValue(args: List[Any], dstate: DState): Any
+  def computeValue(args: List[Any], dstate: DState): AnyRef
 }

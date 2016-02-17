@@ -359,7 +359,7 @@ class TestDsomCompiler extends Logging {
 
     val Seq(_, ge2, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
 
-    val x = ge2.forRoot().typeDef.asInstanceOf[LocalSimpleTypeDef]
+    val x = ge2.forRoot()
 
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }

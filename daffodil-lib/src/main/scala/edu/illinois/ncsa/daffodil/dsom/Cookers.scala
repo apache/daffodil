@@ -1,0 +1,57 @@
+package edu.illinois.ncsa.daffodil.dsom
+
+object TextStandardInfinityRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object TextStandardNaNRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object TextStandardZeroRepCooker extends ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities()
+
+class TextPadCharacterCookerBase extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
+
+object TextNumberPadCharacterCooker extends TextPadCharacterCookerBase
+
+object TextStringPadCharacterCooker extends TextPadCharacterCookerBase
+
+object TextBooleanPadCharacterCooker extends TextPadCharacterCookerBase
+
+object TextCalendarPadCharacterCooker extends TextPadCharacterCookerBase
+
+object NilValueLiteralCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities("nilValue")
+
+object NilValueLogicalValueCooker extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities("nilValue") // Note. Same as LiteralValue Binary
+
+object NilValueLiteralValueBinaryCooker extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities("nilValue")
+
+object NilValueLiteralValueTextCooker extends NonEmptyListOfStringLiteral("nilValue", true)
+
+object NilValueRawListCooker extends ListOfStringLiteral("nilValue", false)
+
+object EscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+
+object EscapeEscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+
+object EscapeBlockStartCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object EscapeBlockEndCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object ExtraEscapedCharactersCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+
+object InitiatorCooker extends DelimiterCooker()
+
+object TerminatorCooker extends DelimiterCooker()
+
+object SeparatorCooker extends DelimiterCookerNoES(null)
+
+object TextStandardDecimalSeparatorCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+
+object TextStandardGroupingSeparatorCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+
+object TextStandardExponentRepCooker extends StringLiteralNoCharClassEntitiesNoByteEntities()
+
+object OutputNewLinePartialCooker extends StringLiteralNoCharClassEntitiesNoByteEntities("outputNewLine")
+
+object OutputNewLineCooker extends SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities()
+
+object TextBooleanTrueRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object TextBooleanFalseRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()

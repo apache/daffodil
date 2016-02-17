@@ -53,6 +53,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 
 abstract class ProcessingError(
   pOrU: String,
@@ -61,6 +63,13 @@ abstract class ProcessingError(
   kind: String,
   args: Any*)
   extends Exception with ThinThrowable with DiagnosticImplMixin {
+
+  /**
+   * Used to convert a processing error into a parse error so that it
+   * looks like the same
+   */
+  def toParseError = new ParseError(rd, loc, kind, args: _*)
+
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
 
   override def getDataLocations: Seq[DataLocation] = loc.toSeq
@@ -172,8 +181,6 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  */
 trait WithParseErrorThrowing {
 
-  def context: HasSchemaFileLocation
-
   /**
    * Use to check for parse errors.
    *
@@ -186,6 +193,19 @@ trait WithParseErrorThrowing {
     throw new ParseError(One(context), Nope, kind, args: _*)
   }
 
+  private def doSDE(e: Throwable, state: ParseOrUnparseState) = {
+    e match {
+      case sde: SchemaDefinitionDiagnosticBase => {
+        state.setFailed(sde)
+        throw sde
+      }
+      case other => {
+        val sde = new RuntimeSchemaDefinitionError(state.getContext().schemaFileLocation, state, e.getMessage())
+        state.setFailed(sde)
+        throw sde
+      }
+    }
+  }
   /**
    * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which
    * call things which detect a parse error want to throw back to this)
@@ -198,7 +218,12 @@ trait WithParseErrorThrowing {
     WithParseErrorThrowing.flag = true
     try body
     catch {
+      case e: InfosetException =>
+        doSDE(e, pstate)
+      case v: VariableException =>
+        doSDE(v, pstate)
       case e: IndexOutOfBoundsException => {
+        // This should come through as an InfosetException, not a raw java exception like this.
         Assert.invariantFailed("Should not be allowing propagation of " + e)
         // pstate.setFailed(new ParseError(Nope, One(pstate.currentLocation), "%s", e))
       }
@@ -211,7 +236,8 @@ trait WithParseErrorThrowing {
       //          res
       //        }
       //
-      case e: NumberFormatException => handleNumberFormatException(pstate, e)
+      case e: NumberFormatException =>
+        handleNumberFormatException(pstate, e)
       // Note: We specifically do not catch other exceptions here
       // On purpose. If those exist, then there's someplace that should have already caught them
       // and turned them into a thrown parse error, or a schema definition error.

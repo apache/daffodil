@@ -46,10 +46,11 @@ case class XSInt(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
 }
 
 case class XSString(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(value: Any, dstate: DState) = {
-    val res: Any = value match {
+  override def computeValue(value: AnyRef, dstate: DState) = {
+    val res = value match {
       case hb: Array[Byte] => HexBinaryToString.computeValue(hb, dstate)
-      case _ => value.toString
+      case _ =>
+        value.toString
     }
     res
   }
@@ -59,7 +60,7 @@ case class XSDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDateTime"
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:dateTime can never succeed.")
       case _ => StringToDateTime.computeValue(a, dstate)
@@ -72,7 +73,7 @@ case class XSDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDate"
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:date can never succeed.")
       case _ => StringToDate.computeValue(a, dstate)
@@ -85,7 +86,7 @@ case class XSTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSTime"
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case _: DFDLDate => throw new NumberFormatException("Casting from xs:date to xs:time can never succeed")
       case _ => StringToTime.computeValue(a, dstate)

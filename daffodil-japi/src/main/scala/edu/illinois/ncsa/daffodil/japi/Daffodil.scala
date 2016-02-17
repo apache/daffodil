@@ -67,7 +67,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import org.xml.sax.InputSource
@@ -285,7 +285,7 @@ class Compiler private[japi] () {
  * Instead, use [[Compiler#compileFile(java.io.File)]]
  */
 class ProcessorFactory private[japi] (pf: SProcessorFactory)
-    extends WithDiagnostics(pf) {
+  extends WithDiagnostics(pf) {
 
   /**
    * Specify a global element to be the root of DFDL Schema to start parsing
@@ -435,7 +435,7 @@ class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
 class DataProcessor private[japi] (dp: SDataProcessor)
-    extends WithDiagnostics(dp) {
+  extends WithDiagnostics(dp) {
 
   /**
    * Enable/disable debugging.
@@ -461,7 +461,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
     }
 
     val debugger = if (runner != null) {
-      new SInteractiveDebugger(runner, ExpressionCompiler)
+      new SInteractiveDebugger(runner, ExpressionCompilers)
     } else {
       null
     }
@@ -544,7 +544,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
  * location
  */
 class ParseResult private[japi] (pr: SParseResult)
-    extends WithDiagnostics(pr) {
+  extends WithDiagnostics(pr) {
 
   /**
    * Get the resulting infoset as a jdom2 Document

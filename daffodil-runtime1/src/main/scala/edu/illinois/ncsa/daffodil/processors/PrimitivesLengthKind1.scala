@@ -37,10 +37,6 @@ import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
-import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
-import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
@@ -97,7 +93,7 @@ case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryBase], context: Thro
 
     val delimDFAs = start.mpstate.getAllTerminatingMarkup
     val delimsCooked = delimDFAs.map(d => d.lookingFor).toList
-    
+
     start.mpstate.currentFieldDFA = One(fieldDFA)
     start.mpstate.currentDelimsCooked = One(delimsCooked)
   }
@@ -124,7 +120,7 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
       } else {
         CreateFieldDFA()
       }
-    
+
     start.mpstate.currentFieldDFA = One(fieldDFA)
     start.mpstate.currentDelimsCooked = One(delimsCooked)
   }
@@ -136,37 +132,6 @@ abstract class EscapeSchemeFactoryBase(
   extends Serializable {
 
   def escapeKind = escapeSchemeObject.escapeKind
-
-  protected def constEval(knownValue: Option[String]) = {
-    val optConstValue = knownValue match {
-      case None => None
-      case Some(constValue) => {
-        val l = new SingleCharacterLiteralES(constValue, context)
-        val result = l.cooked
-        Some(result)
-      }
-    }
-    optConstValue
-  }
-
-  protected def evalAsConstant(knownValue: Option[CompiledExpression]) = {
-    knownValue match {
-      case None => None
-      case Some(ce) if ce.isConstant => {
-        val constValue = ce.constantAsString
-        val l = new SingleCharacterLiteralES(constValue, context)
-        val result = l.cooked
-        Some(result)
-      }
-      case Some(_) => None
-    }
-  }
-
-  protected def constEval(knownValue: String, context: ThrowsSDE) = {
-    val l = new SingleCharacterLiteralES(knownValue, context)
-    val result = l.cooked
-    result
-  }
 
   protected def getOptEscChar = {
     escapeSchemeObject.escapeKind match {
@@ -181,7 +146,7 @@ abstract class EscapeSchemeFactoryBase(
   }
 
   protected def getEscValue(escChar: String, context: ThrowsSDE): String = {
-    val l = new SingleCharacterLiteralES(escChar, context).cooked
+    val l = EscapeCharacterCooker.convertConstant(escChar, context, forUnparse = false)
     l
   }
 
@@ -189,7 +154,7 @@ abstract class EscapeSchemeFactoryBase(
     if (escapeSchemeObject.escapeKind == EscapeKind.EscapeCharacter) Assert.usageError("getBlockStart called when escapeKind = character")
     if (escapeSchemeObject.optionEscapeBlockStart.get == "") { context.SDE("escapeBlockStart cannot be the empty string when EscapeSchemeKind is Block.") }
 
-    val bs = new StringValueAsLiteral(escapeSchemeObject.optionEscapeBlockStart.get, context).cooked
+    val bs = EscapeBlockStartCooker.convertConstant(escapeSchemeObject.optionEscapeBlockStart.get, context, forUnparse = false)
     bs
   }
 
@@ -197,14 +162,14 @@ abstract class EscapeSchemeFactoryBase(
     if (escapeSchemeObject.escapeKind == EscapeKind.EscapeCharacter) Assert.usageError("getBlockStart called when escapeKind = character")
     if (escapeSchemeObject.optionEscapeBlockEnd.get == "") { context.SDE("escapeBlockEnd cannot be the empty string when EscapeSchemeKind is Block.") }
 
-    val be = new StringValueAsLiteral(escapeSchemeObject.optionEscapeBlockEnd.get, context).cooked
+    val be = EscapeBlockEndCooker.convertConstant(escapeSchemeObject.optionEscapeBlockEnd.get, context, forUnparse = false)
     be
   }
 
   protected def getExtraEscapedChars: Maybe[Seq[String]] = {
     val res =
       if (escapeSchemeObject.optionExtraEscapedCharacters.isDefined)
-        One(new ListOfStringValueAsLiteral(escapeSchemeObject.optionExtraEscapedCharacters.get, context).cooked)
+        One(ExtraEscapedCharactersCooker.convertConstant(escapeSchemeObject.optionExtraEscapedCharacters.get, context, forUnparse = false))
       else Nope
     res
   }
@@ -218,8 +183,13 @@ case class EscapeSchemeFactoryStatic(
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(escapeSchemeObject, context) {
 
-  val escChar = evalAsConstant(getOptEscChar)
-  val escEscChar = evalAsConstant(escapeSchemeObject.optionEscapeEscapeCharacter)
+  val escChar = getOptEscChar.map { ec =>
+    EscapeCharacterCooker.convertConstant(ec.constant, context, forUnparse = false)
+  }
+
+  val escEscChar = escapeSchemeObject.optionEscapeEscapeCharacter.map { ec =>
+    EscapeEscapeCharacterCooker.convertConstant(ec.constant, context, forUnparse = false)
+  }
 
   def generateEscapeScheme: EscapeSchemeParserHelper = {
     val result = escapeSchemeObject.escapeKind match {
@@ -248,7 +218,7 @@ case class EscapeSchemeFactoryDynamic(
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(escapeSchemeObject, context) with Dynamic {
 
-  val escapeCharacterCached: Maybe[CachedDynamic[String]] = {
+  val escapeCharacterCached: Maybe[CachedDynamic[String, String]] = {
     escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeBlock => // do nothing
       case EscapeKind.EscapeCharacter => {
@@ -262,12 +232,12 @@ case class EscapeSchemeFactoryDynamic(
       case Some(c) => One(c)
     }
     cacheConstantExpressionMaybe(ec) {
-      (a: Any) => constEval(a.asInstanceOf[String], context)
+      (a: Any) => EscapeCharacterCooker.convertConstant(a.asInstanceOf[String], context, forUnparse = false)
     }
   }
 
-  val escapeEscapeCharacterCached: Maybe[CachedDynamic[String]] = cacheConstantExpressionMaybe(escapeSchemeObject.optionEscapeEscapeCharacter) {
-    (a: Any) => constEval(a.asInstanceOf[String], context)
+  val escapeEscapeCharacterCached: Maybe[CachedDynamic[String, String]] = cacheConstantExpressionMaybe(escapeSchemeObject.optionEscapeEscapeCharacter) {
+    (a: Any) => EscapeEscapeCharacterCooker.convertConstant(a.asInstanceOf[String], context, forUnparse = false)
   }
 
   def getEscapeSchemeParser(state: PState) = {

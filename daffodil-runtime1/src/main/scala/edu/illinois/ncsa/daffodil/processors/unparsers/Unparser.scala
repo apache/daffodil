@@ -62,6 +62,7 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
   final protected def setupEncoder(state: UState, trd: TermRuntimeData) {
     val dis = state.dataOutputStream
     setupEncoding(state, trd)
+    dis.setEncodingErrorPolicy(trd.encodingInfo.defaultEncodingErrorPolicy)
     dis.setEncoder(encoder(state, trd)) // must set after the above since this will compute other settings based on those.
   }
 
@@ -70,33 +71,59 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
 /**
  * Vast majority of unparsers are actually Term unparsers. (The ones that are not are expression related e.g., SetVar)
  */
-abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends Unparser(termRuntimeData)
+abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends UnparserObject(termRuntimeData)
 
-abstract class Unparser(override val context: RuntimeData)
+trait Unparser
   extends Processor {
+
+  def context: RuntimeData
 
   def unparse(ustate: UState): Unit
 
   final def unparse1(ustate: UState, context: RuntimeData): Unit = {
-    ustate.dataProc.before(ustate, this)
+    if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
     //
     // Since the state is being overwritten (in most case) now,
     // we must explicitly make a copy so we can compute a delta
     // after
     //
     unparse(ustate)
-    ustate.dataProc.after(ustate, this)
+
+    if (ustate.dataProc.isDefined) ustate.dataProc.get.after(ustate, this)
   }
 
   def UE(ustate: UState, s: String, args: Any*) = {
     UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
+
+}
+
+/**
+ * PrimUnparsers are for simple types. They support the ability to pre-evaluate any
+ * computations that depend on runtime-valued properties. This is needed to support
+ * the DFDL outputValueCalc property when the calculation forward references into the infoset.
+ *
+ * In that case, one must evaluate all the runtime-valued properties, save them for later use,
+ * then suspend unparsing of the outputValueCalc'ed element. Later when the value has been
+ * computed, one then unparses the item, and the right values are present for runtime-evaluated
+ * things, as they've been cached (on the Infoset Element)
+ */
+trait PrimUnparser
+  extends Unparser
+  with PrimProcessor
+
+abstract class UnparserObject(override val context: RuntimeData)
+  extends Unparser
+
+abstract class PrimUnparserObject(override val context: RuntimeData)
+  extends PrimUnparser {
+  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
 
 // No-op, in case an optimization lets one of these sneak thru.
 // TODO: make this fail, and test optimizer sufficiently to know these
 // do NOT get through.
-class EmptyGramUnparser(context: RuntimeData = null) extends Unparser(context) {
+class EmptyGramUnparser(context: RuntimeData = null) extends UnparserObject(context) {
   def unparse(ustate: UState) {
     Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
   }
@@ -106,7 +133,7 @@ class EmptyGramUnparser(context: RuntimeData = null) extends Unparser(context) {
   override def toString = toBriefXML()
 }
 
-class ErrorUnparser(context: RuntimeData = null) extends Unparser(context) {
+class ErrorUnparser(context: RuntimeData = null) extends UnparserObject(context) {
   def unparse(ustate: UState) {
     Assert.abort("Error Unparser")
   }
@@ -117,7 +144,7 @@ class ErrorUnparser(context: RuntimeData = null) extends Unparser(context) {
 }
 
 class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
-  extends Unparser(context)
+  extends UnparserObject(context)
   with ToBriefXMLImpl {
 
   override val childProcessors = childUnparsers.toSeq
@@ -139,7 +166,7 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
   }
 }
 
-case class DummyUnparser(primitiveName: String) extends Unparser(null) {
+case class DummyUnparser(primitiveName: String) extends UnparserObject(null) {
 
   def unparse(state: UState): Unit = state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 

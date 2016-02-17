@@ -32,34 +32,27 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.PrimUnparserObject
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
  * A PrimParser is a parser that contains no child parsers.
  * Combinators are NOT PrimParser
+ *
+ * This trait is preferred over PrimParserObject.
  */
-abstract class PrimParser(contextArg: RuntimeData)
-  extends DaffodilParser(contextArg)
-  with WithParseErrorThrowing {
+trait PrimParser
+  extends PrimProcessor
+  with Parser
+  with WithParseErrorThrowing
 
-  override protected def childProcessors = Nil
-
+// Deprecated and to be phased out. Use the trait PrimParser instead.
+abstract class PrimParserObject(override val context: RuntimeData)
+  extends PrimParser {
+  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
 
-/**
- * A PrimUnparser is an unparser that contains no child unparsers.
- * Combinators are not PrimUnparsers
- */
-abstract class PrimUnparser(contextArg: RuntimeData)
-  extends DaffodilUnparser(contextArg) {
-
-  override lazy val childProcessors = Nil
-
-}
-
-class NadaParser(context: RuntimeData) extends PrimParser(context) {
+class NadaParser(context: RuntimeData) extends PrimParserObject(context) {
   override def toString = "Nada"
 
   def parse(start: PState): Unit = {
@@ -67,8 +60,10 @@ class NadaParser(context: RuntimeData) extends PrimParser(context) {
   }
 }
 
-class NadaUnparser(context: RuntimeData) extends PrimUnparser(context) {
+class NadaUnparser(context: RuntimeData) extends PrimUnparserObject(context) {
   override def toString = "Nada"
+
+  override def runtimeDependencies = Nil
 
   def unparse(start: UState) = {
     // do nothing

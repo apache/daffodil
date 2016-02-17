@@ -105,7 +105,7 @@ abstract class StatementElementUnparserBase(
 
   def unparse(state: UState): Unit = {
 
-    state.dataProc.startElement(state, this)
+    if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
     unparseBegin(state)
     // Debugger.startElement(state, this)
     if (eUnparser.isDefined) {
@@ -118,7 +118,7 @@ abstract class StatementElementUnparserBase(
       eAfterUnparser.get.unparse1(state, rd)
     }
     unparseEnd(state)
-    state.dataProc.endElement(state, this)
+    if (state.dataProc.isDefined) state.dataProc.value.endElement(state, this)
 
   }
 }

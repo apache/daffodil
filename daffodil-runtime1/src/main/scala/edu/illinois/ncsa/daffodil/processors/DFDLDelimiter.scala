@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.EntitySyntaxException
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -64,10 +65,15 @@ class Delimiter {
   var delimRegExParseDelim: String = "" // Regex to actually parse the entire delimiter
 
   // Pre-compiled RegEx patterns for finding character classes
-  lazy val NL = Pattern.compile("%(NL);", Pattern.MULTILINE)
-  lazy val WSP = Pattern.compile("%(WSP);", Pattern.MULTILINE)
-  lazy val WSP_Plus = Pattern.compile("%(WSP\\+);", Pattern.MULTILINE)
-  lazy val WSP_Star = Pattern.compile("%(WSP\\*);", Pattern.MULTILINE)
+  //
+  // You might thing those would be gone by now, but they actually can't be. They have
+  // to be removed only when the char class entities have been removed.
+  // Otherwise you can artificially create a char class entity.
+  //
+  private lazy val NL = Pattern.compile("(NL);", Pattern.MULTILINE)
+  private lazy val WSP = Pattern.compile("(WSP);", Pattern.MULTILINE)
+  private lazy val WSP_Plus = Pattern.compile("(WSP\\+);", Pattern.MULTILINE)
+  private lazy val WSP_Star = Pattern.compile("(WSP\\*);", Pattern.MULTILINE)
 
   override def toString(): String = {
     return "Delimiter[" + delimiterStr + "]"
@@ -316,60 +322,83 @@ class Delimiter {
   //
   def buildDelimBuf(delimStr: String): Array[DelimBase] = {
     val q: Queue[DelimBase] = new Queue[DelimBase]()
-    var inc = 0
-    val loop = new Breaks
 
     var newIdx = 0 // index within delimBuf array
 
     var numCharClass: Int = 0
 
-    loop.breakable {
-      for (i <- 0 until delimStr.length()) {
-        val idx = i + inc // Advances cursor past the Character Class
+    var idx = 0 // index in the delimStr
+    while (idx < delimStr.length()) {
 
-        if (idx >= delimStr.length()) {
-          // ran off end of delimiter string, break!
-          loop.break()
+      val c: Char = delimStr.charAt(idx)
+
+      if (c == '%') {
+        // is there another character after this?
+        if ((idx + 1) == delimStr.length) {
+          // last character in delimStr was a single isolated '%'.
+          // This shouldn't happen
+          Assert.invariantFailed("delimStr should not end in an isolated single %. DelimStr = " + delimStr)
         }
-
-        val c: Char = delimStr.charAt(idx)
-
-        if (c == '%') {
+        if (delimStr.charAt(idx + 1) == '%') {
+          // double percent. We want only a single one. And we
+          // want it treated as a character delimiter, not the introduction of
+          // a char class entity.
+          val obj = new CharDelim(c)
+          obj.index = newIdx // Index within delimBuf Array
+          newIdx += 1
+          q += obj
+          idx += 2 // move past the "%%"
+        } else {
           // Possible character class, check patterns
 
-          // According to JavaDoc, split will always return at least
-          // one result even if there is no match.
-          val split = delimStr.substring(idx + 1).split("%")
-
-          val subStr: String = "%" + split(0)
-          val (matchLength, delimObj) = findCharClasses(subStr)
-
+          val (matchLength, delimObj) = {
+            val split = delimStr.substring(idx + 1).split("%")
+            if (split.length == 0)
+              (-1, Nope) // no match, don't need the delimObj
+            else
+              findCharClasses(split(0))
+          }
           if (matchLength != -1) {
             // Have a match, add the object
             val obj = delimObj.get
             obj.index = newIdx // Index within delimBuf Array
             q += obj
-            inc += matchLength - 1 // advance cursor past the Character Class
+            idx += matchLength + 1 // advance cursor past the Character Class ( + 1 for the % sign )
             newIdx += 1
             numCharClass += 1
           } else {
             // Not a CharClass or unrecognized,
-            // therefore treat as a CharDelim
+            // therefore treat as a CharDelim (TODO: Why? Seems like the throw below commented out is more correct.)
+            //
+            // This shouldn't happen. We should be getting '%%' i.e, escaped percent signs, not isolated ones.
+            // And we shouldn't be getting %ES; or %WSP*; "alone" for delimiters.
+            //
+            // JIRA DFDL-1475 is the ticket for this poor diagnostic.
+            //
+            // It isn't clear to me how you issue a diagnostic from here. But clearly one wants to be able to.
+            //
+            // NOTE: if you throw here, instead of creating CharDelim, many regression tests break.
+            // So undertake as an isolated activity and really figure it out. It's not going to be a small thing to just
+            // do as part of a large commit.
+            //
+            // throw new EntitySyntaxException("delimStr has '%' at index " + idx + " that is not escaped (not '%%') and doesn't introduce an allowed char class entity: " + delimStr)
             val obj = new CharDelim(c)
             obj.index = newIdx // Index within delimBuf Array
             newIdx += 1
             q += obj
+            idx += 1
           }
-
-        } else {
-          // A CharDelim
-          val obj = new CharDelim(c)
-          obj.index = newIdx // Index within delimBuf Array
-          newIdx += 1
-          q += obj
         }
-      } // END for-loop
-    } // END loop-breakable
+      } else {
+        // c was not a '%'
+        // Treat as a CharDelim
+        val obj = new CharDelim(c)
+        obj.index = newIdx // Index within delimBuf Array
+        newIdx += 1
+        q += obj
+        idx += 1
+      }
+    }
     var resDelimBuf: Array[DelimBase] = null
     if (numCharClass > 1) {
       // More than one Char Class, reduction possible!

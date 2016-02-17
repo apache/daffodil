@@ -78,7 +78,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
@@ -629,7 +629,7 @@ object Main extends Logging {
             case None => new CLIDebuggerRunner()
           }
         }
-      val id = new InteractiveDebugger(runner, ExpressionCompiler)
+      val id = new InteractiveDebugger(runner, ExpressionCompilers)
       // runner.init(id)
       proc.setDebugger(id)
       proc.setDebugging(true)

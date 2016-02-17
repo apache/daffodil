@@ -39,7 +39,7 @@ import Maybe._
 case class DAFTrace(recipe: CompiledDPath, msg: String)
   extends FNOneArg(recipe, NodeInfo.AnyType) {
 
-  override def computeValue(str: Any, dstate: DState) = {
+  override def computeValue(str: AnyRef, dstate: DState) = {
     System.err.println("trace " + msg + ":" + str.toString)
     str
   }

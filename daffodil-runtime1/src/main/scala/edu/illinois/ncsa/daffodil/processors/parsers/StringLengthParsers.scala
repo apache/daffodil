@@ -49,9 +49,13 @@ import edu.illinois.ncsa.daffodil.util.Misc
 final class StringOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
-  override val erd: ElementRuntimeData)
-  extends PrimParser(erd)
+  erd: ElementRuntimeData)
+  extends PrimParser
   with StringOfSpecifiedLengthMixin with TextParserRuntimeMixin {
+
+  override def runtimeDependencies = List(erd.encInfo.decoderEv)
+
+  override def context = erd
 
   private val eName = erd.name
 
@@ -70,15 +74,13 @@ final class StringOfSpecifiedLengthParser(
 trait StringOfSpecifiedLengthMixin
   extends PaddingRuntimeMixin {
 
-  def erd: ElementRuntimeData
-
   protected final def parseString(start: PState): String = {
     val dis = start.dataInputStream
     val maxLen = dis.limits.maximumSimpleElementSizeInCharacters
     val str = dis.getSomeString(maxLen).getOrElse("")
     // TODO: Performance - trimByJustification wants to operate on a StringBuilder
-    // That means that dis.getSomeString wants to return a StringBuilder instead of 
-    // a string itself. 
+    // That means that dis.getSomeString wants to return a StringBuilder instead of
+    // a string itself.
     val field = trimByJustification(str)
     field
   }

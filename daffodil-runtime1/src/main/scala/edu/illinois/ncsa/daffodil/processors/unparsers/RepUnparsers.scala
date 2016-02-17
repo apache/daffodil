@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.Maybe
 
 abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData, baseName: String)
-  extends Unparser(context) {
+  extends UnparserObject(context) {
 
   override lazy val childProcessors = Seq(rUnparser)
 

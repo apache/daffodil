@@ -35,11 +35,12 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import java.lang.{ Long => JLong }
 
 abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
-  extends PrimParser(erd) {
+  extends PrimParserObject(erd) {
 
   protected def getLength(pstate: PState): Long
 
@@ -86,7 +87,7 @@ final class HexBinaryFixedLengthInBytesParser(nBytes: Long, erd: ElementRuntimeD
 
 }
 
-final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, override val length: CompiledExpression)
+final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, override val length: CompiledExpression[JLong])
   extends HexBinaryLengthInBytesParser(erd)
   with HasVariableLength {
 }

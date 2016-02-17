@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
@@ -48,8 +48,8 @@ final class LiteralNilOfSpecifiedLengthParser(
   override val cookedNilValuesForParse: List[String],
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
-  override val erd: ElementRuntimeData)
-  extends PrimParser(erd)
+  erd: ElementRuntimeData)
+  extends PrimParserObject(erd)
   with StringOfSpecifiedLengthMixin
   with NilMatcherMixin {
 

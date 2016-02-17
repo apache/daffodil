@@ -42,7 +42,7 @@ case class ConvertTextCombinatorUnparser(
   rd: RuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
-  extends Unparser(rd) {
+  extends UnparserObject(rd) {
 
   override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
 

@@ -1,19 +1,20 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.BitOrderChangeMixin
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class BitOrderChangeUnparser(
-  val runtimeData: RuntimeData,
+  val termRuntimeData: TermRuntimeData,
   val bitOrder: BitOrder,
-  val byteOrder: CompiledExpression)
-  extends PrimUnparser(runtimeData) with BitOrderChangeMixin {
+  val checkByteAndBitOrder: CheckByteAndBitOrderEv)
+  extends PrimUnparserObject(termRuntimeData) {
+
+  override lazy val runtimeDependencies = Seq(checkByteAndBitOrder)
 
   def unparse(state: UState): Unit = {
     checkByteAndBitOrder(state)
+    termRuntimeData.schemaDefinitionUnless(state.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
     state.dataOutputStream.setBitOrder(bitOrder)
   }
 

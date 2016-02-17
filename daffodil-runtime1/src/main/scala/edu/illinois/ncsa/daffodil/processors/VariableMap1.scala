@@ -79,6 +79,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 
 sealed abstract class VariableState extends Serializable
 
@@ -90,7 +92,7 @@ case object VariableRead extends VariableState
 /**
  * Core tuple of a pure functional "state" for variables.
  */
-case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression]) extends Serializable
+case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression[AnyRef]]) extends Serializable
 
 object VariableUtils {
 
@@ -109,6 +111,11 @@ object VariableUtils {
   def convert(v: String, rd: VariableRuntimeData): AnyRef =
     Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
+
+abstract class VariableException(val qname: NamedQName, val context: ThrowsSDE, msg: String) extends Exception(msg) with DiagnosticImplMixin with ThinThrowable
+
+class VariableHasNoValue(qname: NamedQName, context: ThrowsSDE) extends VariableException(qname, context,
+  "Variable map (runtime): variable %s has no value. It was not set, and has no default value.".format(qname))
 
 /**
  * Pure functional data structure for implementing DFDL's variables.
@@ -210,9 +217,9 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
 
           case _ => {
             // Fix DFDL-766
-            val msg = "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
+            throw new VariableHasNoValue(varQName, referringContext)
             // Runtime error:
-            referringContext.SDE(msg, varQName)
+            // referringContext.SDE(msg, varQName)
           }
         }
 

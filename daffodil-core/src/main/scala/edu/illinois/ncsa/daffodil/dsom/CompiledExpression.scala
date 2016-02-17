@@ -45,14 +45,23 @@ import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dpath._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import java.lang.{ Long => JLong, Boolean => JBoolean }
 
-object ExpressionCompiler extends ExpressionCompilerBase {
+object ExpressionCompilers extends ExpressionCompilerClass {
+  override val String = new ExpressionCompiler[String]
+  override val JLong = new ExpressionCompiler[JLong]
+  override val AnyRef = new ExpressionCompiler[AnyRef]
+  override val JBoolean = new ExpressionCompiler[JBoolean]
+}
+
+class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
 
   /**
    * For expressions that are the values of DFDL properties
@@ -71,8 +80,8 @@ object ExpressionCompiler extends ExpressionCompilerBase {
   /*
    * This form for most properties
    */
-  def compile(nodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean = false): CompiledExpression =
-    compile(nodeInfoKind, nodeInfoKind, property, isEvaluatedAbove)
+  def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean = false): CompiledExpression[T] =
+    compile(qn, nodeInfoKind, nodeInfoKind, property, isEvaluatedAbove)
 
   /*
      * This form for delimiters and escapeEscapeCharacter since they
@@ -89,10 +98,11 @@ object ExpressionCompiler extends ExpressionCompilerBase {
      * We don't want to allow turning on/off whether a format is delimited or
      * not based on runtime expressions, only what the delimiters are.
      */
-  def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found): CompiledExpression =
-    compile(staticNodeInfoKind, runtimeNodeInfoKind, property, false)
+  def compile(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found): CompiledExpression[T] =
+    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, property, false)
 
-  private def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean): CompiledExpression = {
+  private def compile(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind,
+    property: Found, isEvaluatedAbove: Boolean): CompiledExpression[T] = {
     val expr: String = property.value
     val namespacesForNamespaceResolution = property.location.namespaces
     val compileInfoWherePropertyWasLocated = {
@@ -102,15 +112,30 @@ object ExpressionCompiler extends ExpressionCompilerBase {
       }
     }
 
-    val compiled1 = compile(staticNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated,
+    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+  }
+
+  /**
+   * This is the fully general case.
+   */
+  def compile(qn: NamedQName,
+    staticNodeInfoKind: NodeInfo.Kind,
+    runtimeNodeInfoKind: NodeInfo.Kind,
+    expr: String,
+    namespaces: NamespaceBinding,
+    compileInfoWherePropertyWasLocated: DPathCompileInfo,
+    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
+    val compiled1 = compile(qn, staticNodeInfoKind, expr, namespaces, compileInfoWherePropertyWasLocated,
       isEvaluatedAbove)
     if (compiled1.isConstant) return compiled1
     if (staticNodeInfoKind == runtimeNodeInfoKind) return compiled1
     //
     // TODO: consider passing in a flag or some other way of avoiding this
     // duplicate compile run.
+
+    // This is, this nodeInfo.Kind is used as the target type in the DPath expression compiler, and
     //
-    val compiled2 = compile(runtimeNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated,
+    val compiled2 = compile(qn, runtimeNodeInfoKind, expr, namespaces, compileInfoWherePropertyWasLocated,
       isEvaluatedAbove)
     compiled2
   }
@@ -123,7 +148,7 @@ object ExpressionCompiler extends ExpressionCompilerBase {
    * the method to actually compile the expression.
    *
    */
-  def compile(nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
+  def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean) = {
     val expr = exprWithBracesMaybe
@@ -173,7 +198,7 @@ object ExpressionCompiler extends ExpressionCompilerBase {
      * If we try to do this outside the expression compiler we'd be replicating
      * some of this type-infer/check logic.
      */
-    compileExpression(nodeInfoKind, exprForCompiling, namespaces,
+    compileExpression(qn, nodeInfoKind, exprForCompiling, namespaces,
       compileInfoWherePropertyWasLocated, isEvaluatedAbove)
   }
 
@@ -185,6 +210,7 @@ object ExpressionCompiler extends ExpressionCompilerBase {
    * object.
    */
   private def compileExpression(
+    qn: NamedQName,
     nodeInfoKind: NodeInfo.Kind,
     expr: String,
     // Why this additional namespaceBinding argument?
@@ -192,13 +218,13 @@ object ExpressionCompiler extends ExpressionCompilerBase {
     // next argument provides? Ans: Point of use versus point of definition.
     namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression = {
+    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
     // This is important. The namespace bindings we use must be
     // those from the object where the property carrying the expression
     // was written, not those of the edecl object where the property
     // value is being used/compiled. JIRA DFDL-407
     //
-    val compiler = new DFDLPathExpressionParser(
+    val compiler = new DFDLPathExpressionParser[T](qn,
       nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
     val compiledDPath = compiler.compile(expr)
     compiledDPath

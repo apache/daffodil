@@ -53,7 +53,7 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 case object AnyAtomicToString extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case c: DFDLCalendar => c.toString
       case _ => a.asInstanceOf[String]
@@ -119,7 +119,7 @@ case object StringToDate extends Converter with XSDateTimeKind with DateFormatte
     Conversion.stringToDFDLDate(str, inFormat, expectsTZ, fncName, toType)
   }
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case cal: DFDLDateTime => cal.toDate
       case cal: DFDLDate => cal
@@ -147,7 +147,7 @@ case object StringToDateTime extends Converter
     Conversion.stringToDFDLDateTime(str, inFormat, expectsTZ, fncName, toType)
   }
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case cal: DFDLDateTime => cal
       case cal: DFDLDate => cal.toDateTime
@@ -175,7 +175,7 @@ case object StringToTime extends Converter with XSDateTimeKind with TimeFormatte
     Conversion.stringToDFDLTime(str, inFormat, expectsTZ, fncName, toType)
   }
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val result = a match {
       case cal: DFDLDateTime => cal.toTime
       case cal: DFDLTime => cal

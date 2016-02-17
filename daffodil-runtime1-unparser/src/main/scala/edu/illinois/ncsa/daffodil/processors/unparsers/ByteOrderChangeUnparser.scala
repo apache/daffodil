@@ -1,15 +1,17 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.BinaryParserUnparserRuntimeMixin
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors._
 
-class ByteOrderChangeUnparser(val termRuntimeData: TermRuntimeData, byteOrdExpr: CompiledExpression)
-  extends PrimUnparser(termRuntimeData) with BinaryParserUnparserRuntimeMixin {
+class ByteOrderChangeUnparser(val elementRuntimeData: ElementRuntimeData, byteOrdEv: ByteOrderEv, check: CheckByteAndBitOrderEv)
+  extends PrimUnparser with BinaryParserUnparserRuntimeMixin {
+
+  override def context = elementRuntimeData
+
+  override lazy val runtimeDependencies = Seq(byteOrdEv, check)
 
   def unparse(state: UState): Unit = {
-    setupByteOrder(state, termRuntimeData, byteOrdExpr)
+    check(state)
+    setupByteOrder(state, elementRuntimeData, byteOrdEv)
   }
 
 }

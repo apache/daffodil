@@ -25,5 +25,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
+	<classpathentry kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

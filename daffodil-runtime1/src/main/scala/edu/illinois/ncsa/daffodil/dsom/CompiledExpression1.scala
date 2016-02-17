@@ -34,6 +34,9 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.EvalCache
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -78,22 +81,22 @@ import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression(val value: Any) extends Serializable {
+abstract class CompiledExpression[+T <: AnyRef](
+  val qName: NamedQName,
+  valueForDebugPrinting: AnyRef)
+  extends Serializable {
 
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
   }
 
-  def prettyExpr: String
   /**
-   * used to determine whether we need a runtime evaluation or
-   * we can just use a constant value.
-   *
-   * Important because while many DFDL properties can have expressions
-   * as their values, much of the time people will not take advantage
-   * of this generality.
+   * Note use of the `stringOf(v)` below.
+   * Turns out `x.toString` creates some crappy printed representations,
+   * particularly for `Array[Byte]`. It prints a useless thing like "[@0909280".
+   * Use of `stringOf` prints "Array(....)".
    */
-  def isConstant: Boolean
+  lazy val prettyExpr = stringOf(valueForDebugPrinting)
 
   /**
    * tells us if the property is non-empty. This is true if it is a constant non-empty expression
@@ -108,28 +111,28 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
   /**
    * used to obtain a constant value.
    *
-   * isConstantValue must be true or this will throw.
+   * isConstant must be true or this will throw.
    */
-  def constant: Any
-  def constantAsString = constant.toString
-  def constantAsLong = constantAsString.toLong
+  // @deprecated("2016-02-18", "code should not test for constantness and access directly. Code should just call evaluate(...)")
+  def constant: T
+  def isConstant: Boolean
 
-  def targetType: NodeInfo.Kind
+  def evaluate(state: ParseOrUnparseState): T
+
   /**
-   * evaluation - the runtime
-   *
+   * The target type of the expression. This is the type that we want the expression to create.
+   */
+  def targetType: NodeInfo.Kind
+
+  /*
    * Note that since we can reference variables, and those might never have been read,
    * the act of evaluating them changes the variableMap state potentially.
-   *
-   *
    */
-  def evaluate(state: ParseOrUnparseState): Any
 
   /**
-   * Use for outputValueCalc. It returns Nope if the expression was unable to be
-   * computed.
+   * Use for outputValueCalc.
    */
-  def evaluateForwardReferencing(state: ParseOrUnparseState): Any
+  def evaluateForwardReferencing(state: ParseOrUnparseState): Maybe[T]
 
   /**
    * If evaluateForwardReferencing returned One(x), then this is MaybeULong.Nope.
@@ -145,39 +148,33 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
    */
   def expressionEvaluationBlockLocation: MaybeULong
 
-  override def toString(): String = "CompiledExpression(" + value.toString + ")"
+  override def toString(): String = "CompiledExpression(" + valueForDebugPrinting.toString + ")"
 }
 
-case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpression(v) {
+final case class ConstantExpression[+T <: AnyRef](
+  qn: NamedQName,
+  kind: NodeInfo.Kind,
+  value: T) extends CompiledExpression[T](qn, value) {
 
   def targetType = kind
 
-  lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(v)
+  lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(value)
 
-  /**
-   * Note use of the `stringOf(v)` below.
-   * Turns out `x.toString` creates some crappy printed representations,
-   * particularly for `Array[Byte]`. It prints a useless thing like "[@0909280".
-   * Use of `stringOf` prints "Array(....)".
-   */
-  override lazy val prettyExpr = stringOf(v)
-
-  def isConstant = true
   def isKnownNonEmpty = value != ""
-  def constant: Any = v
-  def evaluate(state: ParseOrUnparseState) = constant
+
+  override def evaluate(state: ParseOrUnparseState) = value
+
   def evaluate(dstate: DState, state: ParseOrUnparseState) = {
-    dstate.setCurrentValue(constant)
-    constant
+    dstate.setCurrentValue(value)
+    value
   }
 
-  def evaluateForwardReferencing(state: ParseOrUnparseState): Any = {
-    val res = evaluate(state)
-    res
-  }
+  final def evaluateForwardReferencing(state: ParseOrUnparseState): Maybe[T] = Maybe(evaluate(state))
 
   def expressionEvaluationBlockLocation = MaybeULong.Nope
 
+  def constant: T = value
+  def isConstant = true
 }
 
 /**
@@ -286,6 +283,20 @@ class DPathCompileInfo(
     }
   }
 
+  /**
+   * relative path - relative to enclosing element's path
+   * which by definition must be a prefix of this object's path.
+   */
+  final def relativePath: String = {
+    val rel = elementCompileInfo.map {
+      parentInfo =>
+        Assert.invariant(path.startsWith(parentInfo.path))
+        path.substring(parentInfo.path.length)
+    }
+    val s = rel.getOrElse(path)
+    val res = if (s.startsWith("::")) s.substring("::".length) else s
+    res
+  }
 }
 
 /**

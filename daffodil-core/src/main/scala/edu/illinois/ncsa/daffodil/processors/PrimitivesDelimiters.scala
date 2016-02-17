@@ -187,7 +187,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   lazy val textParser = new TextParser(e.termRuntimeData)
 }
 
-abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression, e: Term, eb: Term, guard: Boolean = true)
+abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression[String], e: Term, eb: Term, guard: Boolean = true)
   extends Text(e, eb, guard) {
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")

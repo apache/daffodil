@@ -42,15 +42,16 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import java.lang.{ Long => JLong }
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
-  extends Parser(context) {
+  extends ParserObject(context) {
 
   override lazy val childProcessors = Seq(rParser)
 
@@ -92,10 +93,11 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
 object Rep {
   def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): Unit = {
     while (pstate.mpstate.arrayPos <= intN) {
-      pstate.dataProc.beforeRepetition(pstate, iParser)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)
-      pstate.dataProc.afterRepetition(pstate, iParser)
-      if (pstate.status ne Success) return // fail if we don't get them all
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, iParser)
+      if (pstate.status ne Success)
+        return // fail if we don't get them all
       pstate.mpstate.moveOverOneArrayIndexOnly
     }
   }
@@ -108,9 +110,9 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
     var i = 0
     while (i < intN) {
       i += 1
-      pstate.dataProc.beforeRepetition(pstate, rParser)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, rParser)
       rParser.parse1(pstate)
-      pstate.dataProc.afterRepetition(pstate, rParser)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, rParser)
       if (pstate.status ne Success) {
         val cause = pstate.status.asInstanceOf[Failure].cause
         PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s). Cause: %s.",
@@ -140,9 +142,11 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
       pstate.pushDiscriminator
 
-      pstate.dataProc.beforeRepetition(pstate, this)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+
       rParser.parse1(pstate)
-      pstate.dataProc.afterRepetition(pstate, this)
+
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
       if (pstate.status ne Success) {
         //
@@ -224,9 +228,9 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       //
       // Every parse is a new point of uncertainty.
       pstate.pushDiscriminator
-      pstate.dataProc.beforeRepetition(pstate, this)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
       rParser.parse1(pstate)
-      pstate.dataProc.afterRepetition(pstate, this)
+      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
       if (pstate.status ne Success) {
         //
         // Did not succeed
@@ -270,8 +274,8 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   }
 }
 
-class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementRuntimeData)
-  extends Parser(erd) with WithParseErrorThrowing {
+class OccursCountExpressionParser(occursCount: CompiledExpression[JLong], erd: ElementRuntimeData)
+  extends ParserObject(erd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
 

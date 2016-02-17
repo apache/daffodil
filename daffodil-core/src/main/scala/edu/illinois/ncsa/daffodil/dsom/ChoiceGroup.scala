@@ -42,10 +42,12 @@ import scala.xml._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.ChoiceRuntimeData
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Maybe
 
 /**
  * Choices are a bit complicated.
@@ -177,4 +179,29 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
     noDupes
   }.value
+
+  final lazy val modelGroupRuntimeData = {
+    new ChoiceRuntimeData(
+      schemaSet.variableMap,
+      encodingInfo,
+      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
+      schemaFileLocation,
+      dpathCompileInfo,
+      prettyName,
+      path,
+      namespaces,
+      defaultBitOrder,
+      groupMembersRuntimeData,
+      enclosingElement.map { _.elementRuntimeData }.getOrElse(
+        Assert.invariantFailed("model group with no surrounding element.")),
+      enclosingTerm.map { _.termRuntimeData }.getOrElse {
+        Assert.invariantFailed("model group with no surrounding term.")
+      },
+      isRepresented,
+      couldHaveText,
+      alignmentValueInBits,
+      hasNoSkipRegions,
+      fillByteValue,
+      optIgnoreCase)
+  }
 }

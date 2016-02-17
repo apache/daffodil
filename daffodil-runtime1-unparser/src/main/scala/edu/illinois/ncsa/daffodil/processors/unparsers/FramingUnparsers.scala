@@ -1,7 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 
 class SkipRegionUnparser(
   alignmentInBits: Int,
@@ -19,7 +18,7 @@ class SkipRegionUnparser(
 class AlignmentFillUnparser(
   alignmentInBits: Int,
   e: RuntimeData)
-  extends PrimUnparser(e) {
+  extends PrimUnparserObject(e) {
 
   def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream

@@ -127,7 +127,12 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     // parser throws out of fatalErrors.
   }
 
-  private lazy val loader = new DaffodilXMLLoader(this)
+  private lazy val loader = {
+    val ldr = new DaffodilXMLLoader(this)
+    // val shouldValidate = sset.validateDFDLSchemas
+    // ldr.setValidation(shouldValidate) // TODO: Validation not occurring JIRA DFDL-1473. Fix later.
+    ldr
+  }
 
   private def loadedNode = LV('loadedNode) {
     def die(e: Throwable) = {

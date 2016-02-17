@@ -53,7 +53,26 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+
+object Processor {
+  /**
+   * This initialize routine is really part of compiling the DFDL schema so should be called from there.
+   * This insures that it is not, for example, being multi-threaded. If called from the runtime module, compilation might
+   * actually end up happening at run time.
+   */
+  def initialize(proc: Processor) {
+    proc.allPrimProcessors.foreach { pu =>
+      pu.runtimeDependencies.foreach { ev =>
+        initRuntimeDependencies(ev)
+      }
+    }
+  }
+
+  private def initRuntimeDependencies(ev: EvaluatableBase[AnyRef]) {
+    ev.ensureCompiled
+    ev.runtimeDependencies.foreach { initRuntimeDependencies(_) }
+  }
+}
 
 trait Processor
   extends ToBriefXMLImpl
@@ -61,6 +80,42 @@ trait Processor
   with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
+  def childProcessors: Seq[Processor]
+
+  /**
+   * Used to obtain all the potentially-runtime-evaluated computations this processor depends on.
+   *
+   * These may or may not actually be runtime-dependent. If they are runtime-dependent, then
+   * we want to be able to force their evaluation and caching (on the infoset element) of their
+   * values.
+   *
+   * This is only really needed for dfdl:outputValueCalc, where the context for determining
+   * the values of these runtime-valued properties is correct when the unparser first encounters
+   * the element. Later when the dfdl:outputValueCalc'ed value is finally available, the evaluation context
+   * e.g., things like variables having been read/written may have changed. Really all
+   * backward referencing expressions for runtime-valued things must be evaluated when we first
+   * encounter the OVC element, not later after the value has been determined.
+   *
+   * Many schemas and many objects will not have dfdl:outputValueCalc, so we're not going to even
+   * compute this thing unless it is really needed.
+   */
+  final lazy val allPrimProcessors: Seq[PrimProcessor] = childProcessors.flatMap { c =>
+    c match {
+      case pp: PrimProcessor => {
+        Assert.invariant(pp.childProcessors.isEmpty)
+        List(pp)
+      }
+      case p: Processor => p.allPrimProcessors
+      case _ => Assert.invariantFailed("all childProcessors of an Unparser must be unparsers")
+    }
+  }
+
+}
+
+trait PrimProcessor extends Processor {
+  override def childProcessors = Nil
+
+  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 }
 
 /**
@@ -69,8 +124,9 @@ trait Processor
 trait TextParserUnparserRuntimeBase {
 
   final protected def setupEncoding(state: ParseOrUnparseState, erd: TermRuntimeData) {
+    if (state.dataStream.isEmpty) return
     val encInfo = erd.encodingInfo
-    val dis = state.dataStream
+    val dis = state.dataStream.get
     dis.setMaybeUTF16Width(encInfo.optionUTF16Width)
     dis.setEncodingErrorPolicy(encInfo.defaultEncodingErrorPolicy)
   }
@@ -91,6 +147,7 @@ trait TextParserRuntimeMixin extends TextParserUnparserRuntimeBase {
   final protected def setupDecoder(state: PState, erd: TermRuntimeData) {
     setupEncoding(state, erd)
     val dis = state.dataInputStream
+    dis.setEncodingErrorPolicy(erd.encodingInfo.defaultEncodingErrorPolicy)
     dis.setDecoder(decoder(state, erd)) // must set after the above since this will compute other settings based on those.
   }
 
@@ -98,19 +155,24 @@ trait TextParserRuntimeMixin extends TextParserUnparserRuntimeBase {
 
 trait BinaryParserUnparserRuntimeMixin {
 
-  final protected def setupByteOrder(state: ParseOrUnparseState, trd: TermRuntimeData, byteOrdExpr: CompiledExpression) {
-    val dis = state.dataStream
-    val byteOrdString = byteOrdExpr.evaluate(state).asInstanceOf[String] // expressions are type-checked, so we know this will be a string
-    val byteOrd = ByteOrder(byteOrdString, trd)
+  final protected def setupByteOrder(state: ParseOrUnparseState, erd: ElementRuntimeData, byteOrdEv: ByteOrderEv) {
+    if (state.dataStream.isEmpty) return
+    val dis = state.dataStream.get
+    val byteOrd = byteOrdEv.evaluate(state)
     dis.setByteOrder(byteOrd)
-    dis.setBitOrder(trd.defaultBitOrder)
+    dis.setBitOrder(erd.defaultBitOrder)
   }
 }
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
+ *
+ * A parser can have sub-parsers. See also PrimParser which is a parser with no sub-parsers.
+ *
+ * This trait is preferred (and PrimParser) over the ParserObject because this requires one to
+ * explicitly manage runtimeDependencies, whereas ParserObject hides that detail, which isn't helpful.
  */
-abstract class Parser(override val context: RuntimeData)
+trait Parser
   extends Processor {
 
   protected def parserName = Misc.getNameFromClass(this)
@@ -125,9 +187,9 @@ abstract class Parser(override val context: RuntimeData)
   protected def parse(pstate: PState): Unit
 
   final def parse1(pstate: PState): Unit = {
-    pstate.dataProc.before(pstate, this)
+    if (pstate.dataProc.isDefined) pstate.dataProc.get.before(pstate, this)
     parse(pstate)
-    pstate.dataProc.after(pstate, this)
+    if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
   }
 
   // TODO: other methods for things like asking for the ending position of something
@@ -135,24 +197,9 @@ abstract class Parser(override val context: RuntimeData)
 
 }
 
-// No-op, in case an optimization lets one of these sneak thru.
-// TODO: make this fail, and test optimizer sufficiently to know these
-// do NOT get through.
-//class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
-//  def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
-//  override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
-//  override def toString = toBriefXML()
-//  override def childProcessors = Nil
-//
-//}
-
-//class ErrorParser(context: RuntimeData = null) extends Parser(context) {
-//  def parse(pstate: PState): Unit = Assert.abort("Error Parser")
-//  override def toBriefXML(depthLimit: Int = -1) = "<error/>"
-//  override def toString = "Error Parser"
-//  override def childProcessors = Nil
-//
-//}
+// Deprecated and to be phased out. Use the trait Parser instead.
+abstract class ParserObject(override val context: RuntimeData)
+  extends Parser
 
 /**
  * BriefXML is XML-style output, but intended for specific purposes. It is NOT
@@ -168,7 +215,7 @@ trait ToBriefXMLImpl {
 
   protected def briefXMLAttributes: String = ""
 
-  protected def childProcessors: Seq[Processor]
+  def childProcessors: Seq[Processor]
 
   // TODO: make this create a DOM tree, not a single string (because of size limits)
   def toBriefXML(depthLimit: Int = -1): String = {
@@ -192,7 +239,7 @@ trait ToBriefXMLImpl {
 }
 
 class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
-  extends Parser(context) {
+  extends ParserObject(context) {
 
   override def childProcessors = childParsers
 
@@ -222,7 +269,7 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 }
 
 class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
-  extends Parser(context) {
+  extends ParserObject(context) {
 
   override lazy val childProcessors = childParsers
 
@@ -298,7 +345,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
 
 }
 
-case class DummyParser(rd: RuntimeData) extends Parser(null) {
+case class DummyParser(rd: RuntimeData) extends ParserObject(null) {
   def parse(pstate: PState): Unit = pstate.SDE("Parser for " + rd + " is not yet implemented.")
 
   override def childProcessors = Nil

@@ -47,20 +47,18 @@ import java.text.ParsePosition
 import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteral
-import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
-import edu.illinois.ncsa.daffodil.dsom.ListOfSingleCharacterLiteral
+import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
+import java.lang.{ Number => JNumber }
 
 case class ConvertTextCombinatorParser(
   rd: RuntimeData,
   valueParser: Parser,
   converterParser: Parser)
-  extends Parser(rd) {
+  extends ParserObject(rd) {
 
   override lazy val childProcessors = Seq(valueParser, converterParser)
 
@@ -76,7 +74,7 @@ case class ConvertTextCombinatorParser(
 case class ConvertTextNumberParser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
-  e: ElementRuntimeData) extends PrimParser(e) {
+  e: ElementRuntimeData) extends PrimParserObject(e) {
   override def toString = "to(xs:" + helper.xsdType + ")"
 
   def parse(start: PState): Unit = withParseErrorThrowing(start) {
@@ -153,7 +151,7 @@ case class ConvertTextNumberParser[S](
     }
 
     Assert.invariant(!numValue.isInstanceOf[String])
-    node.overwriteDataValue(numValue)
+    node.overwriteDataValue(numValue.asInstanceOf[JNumber])
 
   }
 }
@@ -399,7 +397,7 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
 
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) extends Serializable {
 
-  protected def checkUnique(decimalSepList: Maybe[List[Char]],
+  protected def checkUnique(decimalSepList: Maybe[List[Character]],
     groupingSep: Maybe[Character],
     exponentRep: Maybe[String],
     infRep: Maybe[String],
@@ -437,7 +435,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     context.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
 
-  protected def generateNumFormat(decimalSepList: Maybe[List[Char]],
+  protected def generateNumFormat(decimalSepList: Maybe[List[Character]],
     groupingSep: Maybe[Character],
     exponentRep: String,
     infRep: Maybe[String],
@@ -509,19 +507,11 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     df
   }
 
-  protected def getDecimalSepList(decimalSepRaw: String, context: ThrowsSDE): List[Char] = {
-    // TODO: raw byte eneityt not allowed
-    val decimalSep = decimalSepRaw.replace("%%", "")
-    context.schemaDefinitionUnless(decimalSep.length > 0, "textStandardDecimalSeparator must not be empty")
-    context.schemaDefinitionUnless(!decimalSep.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
-    context.schemaDefinitionUnless(!decimalSep.contains("%WSP;"), "textStandardDecimalSeparator cannot contain WSP")
-    context.schemaDefinitionUnless(!decimalSep.contains("%WSP*;"), "textStandardDecimalSeparator cannot contain WSP*")
-    context.schemaDefinitionUnless(!decimalSep.contains("%WSP+;"), "textStandardDecimalSeparator cannot contain WSP+")
-    context.schemaDefinitionUnless(!decimalSep.contains("%ES;"), "textStandardDecimalSeparator cannot contain ES")
+  protected def getDecimalSepList(decimalSepRaw: String, context: ThrowsSDE): List[Character] = {
 
-    val dsl = new ListOfSingleCharacterLiteral(decimalSepRaw, context).cooked
+    val dsl = TextStandardDecimalSeparatorCooker.cookCharacters(decimalSepRaw, context, forUnparse = false)
     // TODO: ICU only supports a single separator
-    Assert.notYetImplemented(dsl.length != 1, "lists of textStandardDeciamalSeparator")
+    Assert.notYetImplemented(dsl.length != 1, "lists of textStandardDecimalSeparator")
     dsl
   }
 
@@ -530,29 +520,14 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
    * polymorphically in the CacheDynamic/Maybe frameworks which require AnyRef
    */
   protected def getGroupingSep(groupingSepRaw: String, context: ThrowsSDE): Character = {
-    // TODO: raw byte entity not allowed
-    val groupingSep = groupingSepRaw.replace("%%", "")
-    context.schemaDefinitionUnless(groupingSep.length > 0, "textStandardGroupingSeparator must not be empty")
-    context.schemaDefinitionUnless(!groupingSep.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
-    context.schemaDefinitionUnless(!groupingSep.contains("%WSP;"), "textStandardGroupingSeparator cannot contain WSP")
-    context.schemaDefinitionUnless(!groupingSep.contains("%WSP*;"), "textStandardGroupingSeparator cannot contain WSP*")
-    context.schemaDefinitionUnless(!groupingSep.contains("%WSP+;"), "textStandardGroupingSeparator cannot contain WSP+")
-    context.schemaDefinitionUnless(!groupingSep.contains("%ES;"), "textStandardGroupingSeparator cannot contain ES")
 
-    val gs = new SingleCharacterLiteral(groupingSepRaw, context).cooked
+    val gs = TextStandardGroupingSeparatorCooker.convertConstant(groupingSepRaw, context, forUnparse = false)
     gs(0)
   }
 
   protected def getExponentRep(exponentRepRaw: String, context: ThrowsSDE): String = {
-    // TODO: raw byte entity not allowed
-    val exponentRep = exponentRepRaw.replace("%%", "")
-    context.schemaDefinitionUnless(!exponentRep.contains("%NL;"), "textStandardExponentRep cannot contain NL")
-    context.schemaDefinitionUnless(!exponentRep.contains("%WSP;"), "textStandardExponentRep cannot contain WSP")
-    context.schemaDefinitionUnless(!exponentRep.contains("%WSP*;"), "textStandardExponentRep cannot contain WSP*")
-    context.schemaDefinitionUnless(!exponentRep.contains("%WSP+;"), "textStandardExponentRep cannot contain WSP+")
-    context.schemaDefinitionUnless(!exponentRep.contains("%ES;"), "textStandardExponentRep cannot contain ES")
 
-    val er = new StringValueAsLiteral(exponentRepRaw, context).cooked
+    val er = TextStandardExponentRepCooker.convertConstant(exponentRepRaw, context, forUnparse = false)
     er
   }
 
@@ -574,9 +549,9 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Maybe[CompiledExpression],
-  groupingSepExp: Maybe[CompiledExpression],
-  exponentRepExp: CompiledExpression,
+  decimalSepExp: Maybe[CompiledExpression[String]],
+  groupingSepExp: Maybe[CompiledExpression[String]],
+  exponentRepExp: CompiledExpression[String],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -592,16 +567,16 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   val decSep =
     if (decimalSepExp.isEmpty) Nope else One {
       val dse = decimalSepExp.value
-      getDecimalSepList(dse.constantAsString, context)
+      getDecimalSepList(dse.constant, context)
     }
 
   val groupSep =
     if (groupingSepExp.isEmpty) Nope else One {
       val gse = groupingSepExp.value
-      getGroupingSep(gse.constantAsString, context)
+      getGroupingSep(gse.constant, context)
     }
 
-  val expRep = getExponentRep(exponentRepExp.constantAsString, context)
+  val expRep = getExponentRep(exponentRepExp.constant, context)
 
   val roundingInc: MaybeDouble = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, context) }
 
@@ -637,9 +612,9 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
 class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Maybe[CompiledExpression],
-  groupingSepExp: Maybe[CompiledExpression],
-  exponentRepExp: CompiledExpression,
+  decimalSepExp: Maybe[CompiledExpression[String]],
+  groupingSepExp: Maybe[CompiledExpression[String]],
+  exponentRepExp: CompiledExpression[String],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -650,19 +625,19 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   extends NumberFormatFactoryBase[S](parserHelper)
   with Dynamic {
 
-  val decimalSepListCached: Maybe[CachedDynamic[List[Char]]] =
+  val decimalSepListCached: Maybe[CachedDynamic[String, List[Character]]] =
     cacheConstantExpressionMaybe(decimalSepExp) {
-      (a: Any) => getDecimalSepList(a.asInstanceOf[String], staticContext)
+      (a: String) => getDecimalSepList(a, staticContext)
     }
 
-  val groupingSepCached: Maybe[CachedDynamic[Character]] =
+  val groupingSepCached: Maybe[CachedDynamic[String, Character]] =
     cacheConstantExpressionMaybe(groupingSepExp) {
-      (a: Any) => getGroupingSep(a.asInstanceOf[String], staticContext)
+      (a: String) => getGroupingSep(a, staticContext)
     }
 
-  val exponentRepCached: CachedDynamic[String] =
+  val exponentRepCached: CachedDynamic[String, String] =
     cacheConstantExpression(exponentRepExp) {
-      (a: Any) => getExponentRep(a.asInstanceOf[String], staticContext)
+      (a: String) => getExponentRep(a, staticContext)
     }
 
   checkUnique(getStaticMaybe(decimalSepListCached),
@@ -678,23 +653,23 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
 
     val decimalSepList = evalWithConversionMaybe(state, decimalSepListCached) {
-      (s: ParseOrUnparseState, c: Any) =>
+      (s: ParseOrUnparseState, c: String) =>
         {
-          getDecimalSepList(c.asInstanceOf[String], s)
+          getDecimalSepList(c, s)
         }
     }
 
     val groupingSep = evalWithConversionMaybe(state, groupingSepCached) {
-      (s: ParseOrUnparseState, c: Any) =>
+      (s: ParseOrUnparseState, c: String) =>
         {
-          getGroupingSep(c.asInstanceOf[String], s)
+          getGroupingSep(c, s)
         }
     }
 
     val exponentRep = evalWithConversion(state, exponentRepCached) {
-      (s: ParseOrUnparseState, c: Any) =>
+      (s: ParseOrUnparseState, c: String) =>
         {
-          getExponentRep(c.asInstanceOf[String], s)
+          getExponentRep(c, s)
         }
     }
 

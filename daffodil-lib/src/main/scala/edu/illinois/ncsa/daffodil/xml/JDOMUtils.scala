@@ -76,7 +76,7 @@ object JDOMUtils {
         val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
         val ns = (prefix, attrNS) match {
           //
-          // to make our test cases less cluttered and more compact visually, we're 
+          // to make our test cases less cluttered and more compact visually, we're
           // going to specifically allow for an attribute named xsi:nil where xsi prefix
           // is NOT defined.
           //
@@ -104,9 +104,10 @@ object JDOMUtils {
 
     for (child <- node.child) {
       child.label match {
+        case "#PI" => // drop ProcInstrs
         case "#PCDATA" => jdomNode.addContent(child.toString)
         case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
-        case "#REM" =>
+        case "#REM" => // leave out comments
         case _ => jdomNode.addContent(elem2Element(child))
       }
     }

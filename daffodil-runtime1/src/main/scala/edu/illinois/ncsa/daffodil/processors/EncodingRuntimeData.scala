@@ -68,7 +68,7 @@ import edu.illinois.ncsa.daffodil.util.TransientParam
 trait KnownEncodingMixin { self: ThrowsSDE =>
 
   def isKnownEncoding: Boolean
-  def encoding: CompiledExpression
+  def encoding: CompiledExpression[String]
   def utf16Width: UTF16Width
   def knownEncodingAlignmentInBits: Int
 
@@ -77,12 +77,11 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
    */
   final lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = encoding.constantAsString.toUpperCase()
+    val res = encoding.constant.trim.toUpperCase()
     res
   }
 
   final lazy val knownEncodingCharset = {
-    schemaDefinitionUnless(isKnownEncoding, "Runtime expressions for encodings are not supported in this version of Daffodil.")
     new DFDLCharset(knownEncodingName)
   }
 
@@ -162,42 +161,42 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
 final class EncodingRuntimeData(
   @TransientParam termRuntimeDataArg: => TermRuntimeData,
+  @TransientParam encodingEvArg: => EncodingEv,
+  @TransientParam decoderEvArg: => DecoderEv,
+  @TransientParam encoderEvArg: => EncoderEv,
   override val schemaFileLocation: SchemaFileLocation,
-  val encoding: CompiledExpression,
+  val encoding: CompiledExpression[String],
   val optionUTF16Width: Option[UTF16Width],
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
-  val termChildrenEncodingInfo: Seq[EncodingRuntimeData],
   val summaryEncoding: EncodingLattice,
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int)
   extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
-  private def getCharset(state: ParseOrUnparseState): Charset = {
-    if (isKnownEncoding) return knownEncodingCharset.charset
-    val encAsAny = encoding.evaluate(state)
-    val encString = encAsAny.asInstanceOf[String]
-    val cs = CharsetUtils.getCharset(encString)
-    cs
-  }
+  lazy val termRuntimeData = termRuntimeDataArg
+  lazy val encodingEv = encodingEvArg
+  lazy val decoderEv = decoderEvArg
+  lazy val encoderEv = encoderEvArg
+
+  lazy val runtimeDependencies = List(encodingEv, decoderEv, encoderEv)
 
   def getDecoder(state: ParseOrUnparseState): CharsetDecoder = {
-    val cs = getCharset(state)
-    val decoder = state.getDecoder(cs)
-    decoder
+    val dfdlDecoder = decoderEv.evaluate(state)
+    dfdlDecoder.decoder
   }
 
   def getEncoder(state: ParseOrUnparseState): CharsetEncoder = {
-    val cs = getCharset(state)
-    val encoder = state.getEncoder(cs)
-    encoder
+    val dfdlEncoder = encoderEv.evaluate(state)
+    dfdlEncoder.encoder
   }
-
-  lazy val termRuntimeData = termRuntimeDataArg
 
   override def preSerialization: Any = {
     super.preSerialization
     termRuntimeData
+    encodingEv
+    decoderEv
+    encoderEv
   }
 
   @throws(classOf[java.io.IOException])

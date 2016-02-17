@@ -39,15 +39,15 @@ import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
+/**
+ * Moves to above the root element so that an absolute path
+ * that begins with the name of the root element will descend into
+ * the root element.
+ */
 case object ToRoot extends RecipeOp {
   override def run(dstate: DState) {
-    var now = dstate.currentElement
-    var parent = now.diParent
-    while (parent ne null) {
-      now = parent
-      parent = now.diParent
-    }
-    dstate.setCurrentNode(now)
+    val rootDoc = dstate.currentElement.toRootDoc
+    dstate.setCurrentNode(rootDoc)
   }
 }
 case object SelfMove extends RecipeOp {
@@ -61,10 +61,7 @@ case object SelfMove extends RecipeOp {
 case object UpMove extends RecipeOp {
   override def run(dstate: DState) {
     val now = dstate.currentElement
-    val n = {
-      Assert.invariant(now.diParent ne null) // UpMove past root. Should never happen since an expression like that won't typecheck statically.
-      now.diParent
-    }
+    val n = now.toParent
     dstate.setCurrentNode(n)
   }
 }
@@ -135,7 +132,8 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     val arr = now.getChildArray(info)
 
-    if ((arr eq null) || arr.length == 0) throw new InfosetNoSuchChildElementException(now, info)
+    if ((arr eq null) || arr.length == 0) 
+      throw new InfosetNoSuchChildElementException(now, info)
   }
 
   override def toXML = {

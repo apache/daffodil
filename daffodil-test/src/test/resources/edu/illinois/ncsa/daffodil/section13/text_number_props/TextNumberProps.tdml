@@ -1341,7 +1341,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardDecimalSeparator must not be empty</tdml:error>
+      <tdml:error>textStandardDecimalSeparator</tdml:error>
+      <tdml:error>exactly 1</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1432,7 +1433,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardDecimalSeparator cannot contain WSP</tdml:error>
+      <tdml:error>textStandardDecimalSeparator cannot contain %WSP;</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1731,7 +1732,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardGroupingSeparator must not be empty</tdml:error>
+      <tdml:error>textStandardGroupingSeparator</tdml:error>
+      <tdml:error>exactly 1</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1860,7 +1862,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardGroupingSeparator cannot contain NL</tdml:error>
+      <tdml:error>textStandardGroupingSeparator cannot contain %NL;</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3340,9 +3342,12 @@
     <xs:element name="expCaseSensitive" dfdl:lengthKind="delimited" dfdl:terminator="]" dfdl:ignoreCase="no"
     dfdl:textStandardExponentRep="abc" type="xsd:double" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
 
-    <xs:element name="expRawByte" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
-    dfdl:textStandardExponentRep="%#r" />
+    <xs:element name="expRawByteInvalid" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%#r44" />
 
+    <xs:element name="expRawByteNotAllowed" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%#r44;" />
+    
     <xs:element name="expCharClasses" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
     dfdl:textStandardExponentRep="%NL;" />
 
@@ -3511,10 +3516,14 @@
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[%NL;|^|1^234^567_89]]]></tdml:documentPart>
     </tdml:document>
-	
-	<tdml:errors>
-		<tdml:error>Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
-	</tdml:errors>
+
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>textStandardDecimalSeparator</tdml:error>
+    <tdml:error>cannot</tdml:error>
+    <tdml:error>contain</tdml:error>
+    <tdml:error>%NL;</tdml:error>
+  </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -3525,17 +3534,20 @@
                 In this case the computed value is not valid.
   -->
 
-  <tdml:parserTestCase name="dynamicNeg2" root="dynamic"
-    model="textprops"
+  <tdml:parserTestCase name="dynamicNeg2" root="dynamic" model="textprops" 
     description="Dynamically reads an invalid grouping separator" roundTrip="true">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|%WSP+;|1^234^567_89]]]></tdml:documentPart>
     </tdml:document>
-	
-	<tdml:errors>
-		<tdml:error>Schema Definition Error: textStandardGroupingSeparator cannot contain WSP+</tdml:error>
-	</tdml:errors>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardGroupingSeparator</tdml:error>
+      <tdml:error>cannot</tdml:error>
+      <tdml:error>contain</tdml:error>
+      <tdml:error>%WSP+;</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!--
@@ -3608,9 +3620,13 @@
       <tdml:documentPart type="text"><![CDATA[_|%ES;|1234567_89@2]]]></tdml:documentPart>
     </tdml:document>
 
-	<tdml:errors>
-		<tdml:error>Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
-	</tdml:errors>
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>textStandardExponentRep</tdml:error>
+    <tdml:error>cannot</tdml:error>
+    <tdml:error>contain</tdml:error>
+    <tdml:error>ES</tdml:error>
+  </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="dynamicExpInvalid" root="dynamicExpInvalid"
@@ -3655,8 +3671,23 @@
       <tdml:error>Convert to Double (for xs:double): Unable to parse '1234567.89AbC2'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="expRawByteInvalid" root="expRawByteInvalid"
+    model="textprops"
+    description="textStandardExponentRep with raw byte that is invalid." roundTrip="true">
 
-  <tdml:parserTestCase name="expRawByte" root="expRawByte"
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity</tdml:error><tdml:error>#r44</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expRawByteNotAllowed" root="expRawByteNotAllowed"
     model="textprops"
     description="textStandardExponentRep with raw byte is not allowed." roundTrip="true">
 
@@ -3666,7 +3697,8 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+      <tdml:error>DFDL Byte Entity (%#r44;)</tdml:error>
+      <tdml:error>not allowed</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -3681,7 +3713,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardExponentRep cannot contain NL</tdml:error>
+      <tdml:error>textStandardExponentRep cannot contain %NL;</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -3885,7 +3917,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+      <tdml:error>Invalid DFDL Entity</tdml:error><tdml:error>#r</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -3900,7 +3932,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+      <tdml:error>Invalid DFDL Entity</tdml:error><tdml:error>r</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -3945,7 +3977,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardNaNRep cannot contain NL</tdml:error>
+      <tdml:error>textStandardNaNRep cannot contain %NL;</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -3975,7 +4007,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardInfinityRep cannot contain NL</tdml:error>
+      <tdml:error>textStandardInfinityRep cannot contain %NL;</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

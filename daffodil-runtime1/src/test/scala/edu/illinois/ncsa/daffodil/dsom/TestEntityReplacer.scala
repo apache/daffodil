@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import junit.framework.Assert.assertEquals
+import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 
@@ -47,13 +47,13 @@ class TestEntityReplacer {
   @Test def testEscapeScheme = {
     EntityReplacer { er =>
       val f1 = intercept[Exception] { er.replaceAll("Text%Text") }
-      assertEquals("Invalid DFDL Entity (%Text) found in \"Text%Text\"", f1.getMessage()) // Works basic case
-      assertEquals("Text%Text", er.replaceAll("Text%%Text")) // Works basic case
-      assertEquals("Text%#%Text", { er.replaceAll("Text%%#%%Text") }) // Works multiple
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%Text) found in \"Text%Text\"")) // Works basic case
+      assertEquals("Text%Text", er.replaceAll("Text%%Text", forUnparse = true)) // Works basic case
+      assertEquals("Text%#%Text", { er.replaceAll("Text%%#%%Text", forUnparse = true) }) // Works multiple
 
       val f2 = intercept[Exception] { { er.replaceAll("Text%%%#%%Text") } }
-      assertEquals("Invalid DFDL Entity (%#) found in \"Text%%%#%%Text\"", f2.getMessage) // Works multiple
-      assertEquals("Text%AText", { er.replaceAll("Text%%%#65;Text") }) // Works multiple
+      assertTrue(f2.getMessage().contains("Invalid DFDL Entity (%#) found in \"Text%%%#%%Text\"")) // Works multiple
+      assertEquals("Text%AText", { er.replaceAll("Text%%%#65;Text", forUnparse = true) }) // Works multiple
     }
   }
 
@@ -62,7 +62,7 @@ class TestEntityReplacer {
       assertEquals("Text\u0000Text", { er.replaceAll("Text%NUL;Text") }) // Works basic case
 
       val f1 = intercept[Exception] { { er.replaceAll("Text%NUL;%NULText") } }
-      assertEquals("Invalid DFDL Entity (%NULText) found in \"Text%NUL;%NULText\"", f1.getMessage) // Works basic case
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%NULText) found in \"Text%NUL;%NULText\"")) // Works basic case
       assertEquals("Text\u0000\u0007Text", { er.replaceAll("Text%NUL;%BEL;Text") }) // Works basic case
     }
   }
@@ -73,7 +73,7 @@ class TestEntityReplacer {
       assertEquals("Text\u0000Text\u000D", { er.replaceAll("Text%#x0000;Text%#x000D;") }) // Works multiple hex
 
       val f1 = intercept[Exception] { { er.replaceAll("Text%#x0000;Text%#x000D") } }
-      assertEquals("Invalid DFDL Entity (%#x000D) found in \"Text%#x0000;Text%#x000D\"", f1.getMessage()) // Works one proper, one improper
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%#x000D) found in \"Text%#x0000;Text%#x000D\"")) // Works one proper, one improper
     }
   }
 
@@ -85,7 +85,7 @@ class TestEntityReplacer {
       assertEquals("TextATextB", { er.replaceAll("Text%#65;Text%#000000000066;") }) // Works multiple w/ padding
 
       val f1 = intercept[Exception] { { er.replaceAll("Text%#65;Text%#66") } }
-      assertEquals("Invalid DFDL Entity (%#66) found in \"Text%#65;Text%#66\"", f1.getMessage) // Works one proper, one improper
+      assertTrue(f1.getMessage.contains("Invalid DFDL Entity (%#66) found in \"Text%#65;Text%#66\"")) // Works one proper, one improper
     }
   }
 
@@ -95,23 +95,23 @@ class TestEntityReplacer {
       assertEquals("ÿ ú", { er.replaceAll("%#rFF; %#rFA;") })
 
       val f1 = intercept[Exception] { { er.replaceAll("%#rFF; %#rFA") } }
-      assertEquals("Invalid DFDL Entity (%#rFA) found in \"%#rFF; %#rFA\"", f1.getMessage)
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%#rFA) found in \"%#rFF; %#rFA\""))
     }
   }
 
   @Test def testInvalidDfdlEntities = {
     EntityReplacer { er =>
       val f1 = intercept[Exception] { { er.replaceAll("%#rTT;") } }
-      assertEquals("Invalid DFDL Entity (%#rTT;) found in \"%#rTT;\"", f1.getMessage) // Verify fails: Raw Byte
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%#rTT;) found in \"%#rTT;\"")) // Verify fails: Raw Byte
 
       val f2 = intercept[Exception] { { er.replaceAll("%#A;") } }
-      assertEquals("Invalid DFDL Entity (%#A;) found in \"%#A;\"", f2.getMessage) // Verify fails: Decimal Code Point
+      assertTrue(f2.getMessage().contains("Invalid DFDL Entity (%#A;) found in \"%#A;\"")) // Verify fails: Decimal Code Point
 
       val f3 = intercept[Exception] { { er.replaceAll("%#xTT;") } }
-      assertEquals("Invalid DFDL Entity (%#xTT;) found in \"%#xTT;\"", f3.getMessage) // Verify fails: Hexadecimal Code Point
+      assertTrue(f3.getMessage().contains("Invalid DFDL Entity (%#xTT;) found in \"%#xTT;\"")) // Verify fails: Hexadecimal Code Point
 
       val f4 = intercept[Exception] { { er.replaceAll("%SomeInvalidName;") } }
-      assertEquals("Invalid DFDL Entity (%SomeInvalidName;) found in \"%SomeInvalidName;\"", f4.getMessage) // Verify fails: Dfdl Entity
+      assertTrue(f4.getMessage().contains("Invalid DFDL Entity (%SomeInvalidName;) found in \"%SomeInvalidName;\"")) // Verify fails: Dfdl Entity
     }
   }
 
@@ -119,21 +119,21 @@ class TestEntityReplacer {
     EntityReplacer { er =>
       val testString = new StringBuilder
       testString.append("Text#%%Text")
-      testString.append("Text%#x0000;Text%%#x000D")
+      testString.append("Text%#x0042;Text%%#x000D")
       testString.append("Text%#65;Text")
       testString.append("%#rFF; %#rFA;")
-      testString.append("Text%NUL;%BEL;Text")
+      testString.append("Text%SP;%BEL;Text")
       testString.append("Text%NL;Text")
 
       val solutionString = new StringBuilder
       solutionString.append("Text#%Text")
-      solutionString.append("Text\u0000Text%#x000D")
+      solutionString.append("TextBText%#x000D")
       solutionString.append("TextAText")
-      solutionString.append("ÿ ú")
-      solutionString.append("Text\u0000\u0007Text")
+      solutionString.append("\u00FF \u00FA")
+      solutionString.append("Text \u0007Text")
       solutionString.append("Text%NL;Text")
 
-      val resultString = er.replaceAll(testString.toString())
+      val resultString = er.replaceAll(testString.toString(), forUnparse = true)
 
       assertEquals(solutionString.toString(), resultString)
     }
@@ -155,27 +155,31 @@ class TestEntityReplacer {
       val testString9 = "Text1%%%%%%%%%%Text2%%"
       val solution9 = "Text1%%%%%Text2%"
 
-      assertEquals(solution1, { er.replaceAll(testString1, None) })
+      assertEquals(solution1, { er.replaceAll(testString1, None, forUnparse = true) })
 
-      val f1 = intercept[Exception] { { er.replaceAll(testString2, None) } }
-      assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2\"", f1.getMessage)
+      val f1 = intercept[Exception] {
+        {
+          er.replaceAll(testString2, None)
+        }
+      }
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2\""))
 
       val f2 = intercept[Exception] { { er.replaceAll(testString3, None) } }
-      assertEquals("Invalid DFDL Entity (%) found in \"Text1%%%%%%%%%%Text2%\"", f2.getMessage)
+      assertTrue(f2.getMessage().contains("Invalid DFDL Entity (%) found in \"Text1%%%%%%%%%%Text2%\""))
 
       val f3 = intercept[Exception] { { er.replaceAll(testString4) } }
-      assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%\"", f3.getMessage)
+      assertTrue(f3.getMessage().contains("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%\""))
 
-      assertEquals(solution5, { er.replaceAll(testString5, None) })
+      assertEquals(solution5, { er.replaceAll(testString5, None, forUnparse = true) })
 
       val f4 = intercept[Exception] { { er.replaceAll(testString6) } }
-      assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%%\"", f4.getMessage)
+      assertTrue(f4.getMessage().contains("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%%\""))
 
       val f5 = intercept[Exception] { { er.replaceAll(testString7) } }
-      assertEquals("Invalid DFDL Entity (%) found in \"%%Text1%%%%%%%%%%Text2%\"", f5.getMessage)
+      assertTrue(f5.getMessage().contains("Invalid DFDL Entity (%) found in \"%%Text1%%%%%%%%%%Text2%\""))
 
-      assertEquals(solution8, { er.replaceAll(testString8, None) })
-      assertEquals(solution9, { er.replaceAll(testString9, None) })
+      assertEquals(solution8, { er.replaceAll(testString8, None, forUnparse = true) })
+      assertEquals(solution9, { er.replaceAll(testString9, None, forUnparse = true) })
     }
   }
 

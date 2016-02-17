@@ -207,7 +207,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
           addEventHandler(debugger)
           state.notifyDebugging(true)
         }
-        state.dataProc.init(ssrd.parser)
+        state.dataProc.get.init(ssrd.parser)
         doParse(ssrd.parser, state)
         val pr = new ParseResult(this, state)
         pr.validateResult(state)
@@ -222,7 +222,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         val s = state
         val dp = s.dataProc
         val ssrdParser = ssrd.parser
-        dp.fini(ssrdParser)
+        if (dp.isDefined) dp.value.fini(ssrdParser)
       }
     }
   }
@@ -254,7 +254,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
       case procErr: ProcessingError => {
         val x = procErr
-        Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
+        // Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
+        state.setFailed(x.toParseError)
       }
       case sde: SchemaDefinitionError => {
         // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
@@ -304,7 +305,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         addEventHandler(debugger)
         unparserState.notifyDebugging(true)
       }
-      unparserState.dataProc.init(ssrd.unparser)
+      unparserState.dataProc.get.init(ssrd.unparser)
       unparse(unparserState)
       unparserState.evalSuspendedExpressions() // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
@@ -314,7 +315,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.unparseResult
       }
     } finally {
-      unparserState.dataProc.fini(ssrd.unparser)
+      if (unparserState.dataProc.isDefined) unparserState.dataProc.value.fini(ssrd.unparser)
     }
   }
 

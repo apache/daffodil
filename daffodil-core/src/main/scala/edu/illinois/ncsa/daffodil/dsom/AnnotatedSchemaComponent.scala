@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -69,7 +69,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     // Check that any unprefixed properties are disjoint with ALL DFDL property names.
     // Warning otherwise
     // Insure that some prefix is bound to the dfdl namespace. Warn otherwise.
-    // Warn if dfdl: is bound to something else than the DFDL namespace. 
+    // Warn if dfdl: is bound to something else than the DFDL namespace.
     shortFormAnnotationsAreValid
   }
 
@@ -102,19 +102,19 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     val seq = sources.map { _.chainFindProperty(pname) }
     val optFound = seq.collectFirst { case found: Found => found }
     val result = optFound match {
-      case Some(f @ Found(_, _)) => f
+      case Some(f @ Found(_, _, _)) => f
       case None => {
         // merge all the NotFound stuff.
         val nonDefaults = seq.flatMap {
-          case NotFound(nd, d) => nd
+          case NotFound(nd, d, _) => nd
           case _: Found => Assert.invariantFailed()
         }
         val defaults = seq.flatMap {
-          case NotFound(nd, d) => d
+          case NotFound(nd, d, _) => d
           case _: Found => Assert.invariantFailed()
         }
         Assert.invariant(defaults.isEmpty)
-        val nf = NotFound(nonDefaults, defaults)
+        val nf = NotFound(nonDefaults, defaults, pname)
         nf
       }
     }
@@ -125,7 +125,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     val result = findDefaultOrNonDefaultProperty(pname, nonDefaultPropertySources)
     result match {
       case f: Found => f
-      case NotFound(nd, d) =>
+      case NotFound(nd, d, _) =>
         Assert.invariant(d.isEmpty)
     }
     result
@@ -135,9 +135,9 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     val result = findDefaultOrNonDefaultProperty(pname, defaultPropertySources)
     val fixup = result match {
       case f: Found => f
-      case NotFound(nd, d) =>
+      case NotFound(nd, d, pn) =>
         Assert.invariant(d.isEmpty)
-        NotFound(Seq(), nd) // we want the places we searched shown as default locations searched
+        NotFound(Seq(), nd, pn) // we want the places we searched shown as default locations searched
     }
     fixup
   }
@@ -148,18 +148,18 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     val regularResult = findNonDefaultProperty(pname)
     regularResult match {
       case f: Found => f
-      case NotFound(nonDefaultLocsTried1, defaultLocsTried1) => {
+      case NotFound(nonDefaultLocsTried1, defaultLocsTried1, _) => {
         Assert.invariant(defaultLocsTried1.isEmpty)
         val defaultResult = findDefaultProperty(pname)
         defaultResult match {
           case f: Found => f
-          case NotFound(nonDefaultLocsTried2, defaultLocsTried2) => {
+          case NotFound(nonDefaultLocsTried2, defaultLocsTried2, _) => {
             Assert.invariant(nonDefaultLocsTried2.isEmpty)
-            // did not find it at all. Return a NotFound with all the places we 
+            // did not find it at all. Return a NotFound with all the places we
             // looked non-default and default.
             val nonDefaultPlaces = nonDefaultLocsTried1
             val defaultPlaces = defaultLocsTried2
-            NotFound(nonDefaultPlaces, defaultPlaces)
+            NotFound(nonDefaultPlaces, defaultPlaces, pname)
           }
         }
       }
@@ -176,8 +176,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
  *
  */
 trait AnnotatedMixin
-  extends CommonRuntimeValuedPropertiesMixin
-  with EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
+  extends EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
   def xml: Node
   def prettyName: String
@@ -213,11 +212,11 @@ trait AnnotatedMixin
             val officialAppinfoSourceAttributeNS = XMLUtils.dfdlAppinfoSource
             //
             // Note: use of the strongly typed =:= operator below.
-            // 
+            //
             // I got sick of mysterious behavior where turns out we are
             // comparing two things of different types.
             //
-            // This fixes a bug where we were comparing a string to a NS 
+            // This fixes a bug where we were comparing a string to a NS
             // and getting false, where the types should have been the same.
             //
             val hasRightSource = (sourceNS =:= officialAppinfoSourceAttributeNS)
@@ -276,11 +275,4 @@ trait AnnotatedMixin
     res
   }.value
 
-  protected final lazy val defaultEncodingErrorPolicy = {
-    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
-      encodingErrorPolicy
-    } else {
-      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
-    }
-  }
 }

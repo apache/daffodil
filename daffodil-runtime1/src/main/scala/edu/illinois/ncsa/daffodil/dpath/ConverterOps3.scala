@@ -40,18 +40,20 @@ import AsIntConverters.asBigInt
 import AsIntConverters.asInt
 import AsIntConverters.asLong
 import edu.illinois.ncsa.daffodil.util.Misc
+import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
+import AsIntConverters._
 
 case object NumericToString extends ToString
 case object DateTimeToString extends ToString
 case object HexBinaryToString extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val bytes = a.asInstanceOf[Array[Byte]]
     val hex = Misc.bytes2Hex(bytes)
     hex
   }
 }
 case object HexStringToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res =
       try {
         val str = a.asInstanceOf[String]
@@ -62,11 +64,11 @@ case object HexStringToLong extends Converter {
           throw e
         }
       }
-    res
+    asAnyRef(res)
   }
 }
 case object HexStringToUnsignedLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res =
       try {
         val str = a.asInstanceOf[String]
@@ -81,42 +83,42 @@ case object HexStringToUnsignedLong extends Converter {
   }
 }
 case object BigIntToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigInt(a)
     if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
-    res.toLong
+    asLong(res)
   }
 }
 case object IntToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }
 case object UnsignedLongToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
-    val res = asBigDecimal(a)
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+    val res = asBigInt(a)
     if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
-    res.toLong
+    asLong(res)
   }
 }
 case object UnsignedIntToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     // Assert.invariant(a.isInstanceOf[Long])
     asLong(a)
   }
 }
 case object ArrayIndexToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     asLong(a)
   }
 }
 case object ShortToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }
 case object UnsignedShortToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }
 case object ByteToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }
 case object UnsignedByteToLong extends Converter {
-  override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }

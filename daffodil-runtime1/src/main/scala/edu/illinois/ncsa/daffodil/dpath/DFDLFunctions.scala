@@ -50,6 +50,7 @@ import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import AsIntConverters._
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
@@ -68,14 +69,14 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
 }
 
 case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = {
+  override def computeValue(str: AnyRef, dstate: DState) = {
     val dfdlString = EntityReplacer { _.replaceAll(str.asInstanceOf[String], None) }
     dfdlString
   }
 }
 
 case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = constructLiteral(str.asInstanceOf[String])
+  override def computeValue(str: AnyRef, dstate: DState) = constructLiteral(str.asInstanceOf[String])
 
   def constructLiteral(s: String) = {
     val sb = new StringBuilder
@@ -127,8 +128,8 @@ case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) =
-    EntityReplacer { _.hasDfdlEntity(str.asInstanceOf[String]) }
+  override def computeValue(str: AnyRef, dstate: DState) =
+    EntityReplacer { x => asAnyRef(x.hasDfdlEntity(str.asInstanceOf[String])) }
 }
 
 /**
@@ -144,7 +145,7 @@ case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kin
 case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
 
-  override def computeValue(value: Any, dstate: DState) = {
+  override def computeValue(value: AnyRef, dstate: DState) = {
     val calendar = value.asInstanceOf[DFDLCalendar]
 
     val res = if (calendar.hasTimeZone) { calendar.getTimeZoneString } else { "" }

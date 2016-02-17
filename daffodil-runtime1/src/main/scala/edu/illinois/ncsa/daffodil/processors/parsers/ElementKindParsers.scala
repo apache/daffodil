@@ -32,14 +32,14 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
-  extends Parser(rd) {
+  extends ParserObject(rd) {
   override def nom = "ComplexType"
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -81,19 +81,19 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the delimiter DFAs (bring them out of scope) after
  * the internal/body parser has completed.
  */
-class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
-  separatorOpt: Option[CompiledExpression],
-  terminatorOpt: Option[CompiledExpression],
+class DelimiterStackParser(initiatorOpt: Option[CompiledExpression[String]],
+  separatorOpt: Option[CompiledExpression[String]],
+  terminatorOpt: Option[CompiledExpression[String]],
   initiatorLoc: (String, String),
   separatorLocOpt: Option[(String, String)],
   terminatorLoc: (String, String),
   isLengthKindDelimited: Boolean,
   rd: RuntimeData, bodyParser: Parser)
-  extends PrimParser(rd)
+  extends PrimParserObject(rd)
   with EvaluatesStaticDynamicTextParser {
 
-  private def unlessEmptyString(ce: Option[CompiledExpression]): Option[CompiledExpression] =
-    ce.flatMap { ce => if (ce.isConstant && ce.constantAsString == "") None else Some(ce) }
+  private def unlessEmptyString(ce: Option[CompiledExpression[String]]): Option[CompiledExpression[String]] =
+    ce.flatMap { ce => if (ce.isConstant && ce.constant == "") None else Some(ce) }
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else {
@@ -149,7 +149,7 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
  */
 class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
   rd: RuntimeData, bodyParser: Parser)
-  extends Parser(rd)
+  extends ParserObject(rd)
   with EvaluatesStaticDynamicTextParser {
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -193,7 +193,7 @@ class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
 
 class EscapeSchemeNoneStackParser(
   rd: RuntimeData, bodyParser: Parser)
-  extends Parser(rd) {
+  extends ParserObject(rd) {
 
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -211,7 +211,7 @@ class EscapeSchemeNoneStackParser(
 }
 
 class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
-  extends Parser(rd) {
+  extends ParserObject(rd) {
   override def nom = "Sequence"
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -233,7 +233,7 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
  * which has a more complicated unparser that differs from an AltCompUnparser.
  */
 class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
-  extends Parser(rd) {
+  extends ParserObject(rd) {
   override def nom = "Choice"
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -243,7 +243,7 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   }
 }
 
-class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends Parser(erd) {
+class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends ParserObject(erd) {
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -255,7 +255,8 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     bodyParser.parse1(start)
     if (start.status ne Success) return
 
-    val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate =
+      start.dataProc.isDefined && start.dataProc.value.getValidationMode != ValidationMode.Off
 
     val actualOccurs = start.mpstate.arrayIndexStack.pop()
     start.mpstate.occursBoundsStack.pop()

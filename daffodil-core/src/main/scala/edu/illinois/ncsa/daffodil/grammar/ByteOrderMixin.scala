@@ -33,15 +33,12 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.dsom.NotFound
-import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.processors.ByteOrderChange
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-trait ByteOrderMixin extends GrammarMixin { self: Term =>
-
+trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
   final protected lazy val thereIsAByteOrderDefined: Boolean = {
     val byteOrdLookup = this.findPropertyOption("byteOrder")
     byteOrdLookup match {
@@ -51,22 +48,23 @@ trait ByteOrderMixin extends GrammarMixin { self: Term =>
   }
 
   protected lazy val isKnownSameByteOrder: Boolean = {
-    val optPrior = nearestPriorPhysicalTermSatisfying(_.thereIsAByteOrderDefined)
-    optPrior match {
-      case None => false
-      case Some(prior) => {
-        val priorByteOrder = prior.byteOrder
-        val thisByteOrder = byteOrder
-        if (thisByteOrder.isConstant && priorByteOrder.isConstant &&
-          thisByteOrder.constantAsString =:= priorByteOrder.constantAsString) true
-        else false
-      }
-    }
+    val optPrior = nearestPriorPhysicalTermSatisfying(term =>
+      term.isInstanceOf[ElementBase] &&
+        term.thereIsAByteOrderDefined).asInstanceOf[Option[ElementBase]]
+    val optThis = this match { case e: ElementBase => Some(e); case _ => None }
+    val optPriorByteOrder = optPrior.map { _.byteOrderEv.optConstant }
+    val optThisByteOrder = optThis.map { _.byteOrderEv.optConstant }
+    val res = optThisByteOrder =:= optPriorByteOrder
+    res
   }
 
   protected lazy val hasUniformByteOrderThroughout: Boolean = termChildren.map { t =>
     t.thereIsAByteOrderDefined && t.isKnownSameByteOrder && t.hasUniformByteOrderThroughout
   }.forall(x => x)
+
+}
+
+trait ByteOrderMixin extends ByteOrderAnalysisMixin { self: ElementBase =>
 
   protected final lazy val byteOrderChange =
     prod("byteOrderChange",

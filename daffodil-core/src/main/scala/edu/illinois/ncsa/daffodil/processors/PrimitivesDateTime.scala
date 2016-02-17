@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,13 +36,27 @@ import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.Converter
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCalendarUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import java.text.ParsePosition
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.GregorianCalendar
+import com.ibm.icu.util.TimeZone
+import com.ibm.icu.util.ULocale
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
@@ -74,12 +88,6 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     }
 
     p
-  }
-
-  lazy val locale: ULocale = {
-    val canonicalCalLang = ULocale.canonicalize(e.calendarLanguage)
-    val l = new ULocale(canonicalCalLang)
-    l
   }
 
   val firstDay = e.calendarFirstDayOfWeek match {
@@ -142,13 +150,22 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     res
   }
 
-  override lazy val parser: Parser = new ConvertTextCalendarParser(
+  private lazy val localeEv = new CalendarLanguageEv(e.calendarLanguage, e.erd) // will get compiled by CalendarEv which uses it.
+
+  private lazy val calendarEv = {
+    val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.erd)
+    cev.compile()
+    cev
+  }
+
+  override lazy val parser = new ConvertTextCalendarParser(
     e.elementRuntimeData,
     xsdType,
     prettyType,
     pattern,
     hasTZ,
-    locale,
+    localeEv,
+    calendarEv,
     infosetPattern,
     firstDay,
     calendarDaysInFirstWeek,
@@ -156,7 +173,20 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     calendarTz,
     TimeZone.GMT_ZONE)
 
-  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
+  override lazy val unparser = new ConvertTextCalendarUnparser(
+    e.elementRuntimeData,
+    xsdType,
+    prettyType,
+    pattern,
+    hasTZ,
+    localeEv,
+    calendarEv,
+    infosetPattern,
+    firstDay,
+    calendarDaysInFirstWeek,
+    calendarCheckPolicy,
+    calendarTz,
+    TimeZone.GMT_ZONE)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

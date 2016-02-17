@@ -37,26 +37,32 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+// import java.lang.{ Boolean => JBoolean }
 
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
 abstract class ExpressionEvaluationParser(
-  expr: CompiledExpression,
+  expr: CompiledExpression[AnyRef],
   rd: RuntimeData)
-  extends Parser(rd) with WithParseErrorThrowing {
+  extends ParserObject(rd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
 
   /**
-   * Returns a pair. Modifies the PState
+   * Modifies the PState
    */
-  protected def eval(start: PState): Any = {
-    expr.evaluate(start)
+  protected def eval(start: PState): AnyRef = {
+    try {
+      expr.evaluate(start)
+    } catch {
+      case i: InfosetException => rd.SDE("Expression evaluation failed: %s", i)
+      case v: VariableException => rd.SDE("Expression evaluation failed: %s", v)
+    }
   }
 }
 
-class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
+class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
   extends ExpressionEvaluationParser(expr, e) {
   Assert.invariant(e.isSimpleType)
 
@@ -73,7 +79,7 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
     }
 }
 
-class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
+class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData)
   extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): Unit = {
@@ -92,7 +98,7 @@ class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
 
 class NewVariableInstanceStartParser(
   decl: RuntimeData)
-  extends PrimParser(decl) {
+  extends PrimParserObject(decl) {
   decl.notYetImplemented("newVariableInstance")
   def parse(pstate: PState) = {
     decl.notYetImplemented("newVariableInstance")
@@ -101,7 +107,7 @@ class NewVariableInstanceStartParser(
 
 class NewVariableInstanceEndParser(
   decl: RuntimeData)
-  extends PrimParser(decl) {
+  extends PrimParserObject(decl) {
   decl.notYetImplemented("newVariableInstance")
   def parse(pstate: PState) = {
     decl.notYetImplemented("newVariableInstance")
@@ -112,7 +118,7 @@ class AssertExpressionEvaluationParser(
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
-  expr: CompiledExpression)
+  expr: CompiledExpression[AnyRef])
   extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): Unit =

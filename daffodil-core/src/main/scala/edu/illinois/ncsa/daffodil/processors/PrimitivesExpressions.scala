@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
@@ -97,7 +98,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt), stmt.message, discrim, assertKindName)
+  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test"), stmt.message, discrim, assertKindName)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
@@ -180,8 +181,10 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def nodeKind: NodeInfo.Kind
 
+  private def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
+
   lazy val expr = LV('expr) {
-    ExpressionCompiler.compile(
+    ExpressionCompilers.AnyRef.compile(qn,
       nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false)
   }.value
 }
@@ -213,11 +216,11 @@ case class ValueCalc(
     new IVCParser(expr, e.elementRuntimeData)
   }
 
-  override def unparser: DaffodilUnparser = {
+  override def unparser = {
     val ovcRepUnparser = ovcRepUnparserGram.unparser
-    new ElementOutputValueCalcUnparser(e.elementRuntimeData, ovcRepUnparser)
+    val unp = new ElementOutputValueCalcUnparser(e.elementRuntimeData, ovcRepUnparser)
+    unp
   }
-
 }
 
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)

@@ -67,7 +67,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {
-      case None => NotFound(Seq(this), Nil) // attribute was not found
+      case None => NotFound(Seq(this), Nil, pname) // attribute was not found
       case Some(nodeseq) => {
         //
         // Interesting that attributeName="" produces a Nil nodeseq, not an empty string.
@@ -79,49 +79,51 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
         //
         nodeseq match {
-          case Nil => Found("", this) // we want to hand back the empty string as a value.
-          case _ => Found(nodeseq.toString, this)
+          case Nil => Found("", this, pname) // we want to hand back the empty string as a value.
+          case _ => Found(nodeseq.toString, this, pname)
         }
       }
     }
   }
 
   final def optionEscapeCharacter = LV('optionEscapeCharacter) {
+    val qn = this.qNameForProperty("escapeCharacter")
     escapeCharacterRaw match {
-      case Found("", loc) => None
-      case found @ Found(v, loc) => Some(ExpressionCompiler.compile(NodeInfo.NonEmptyString, found))
+      case Found("", loc, _) => None
+      case found @ Found(v, loc, _) => Some(ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, found))
     }
   }.value
 
   final def optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
+    val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
-      case Found("", loc) => None
-      case found @ Found(v, loc) => {
+      case Found("", loc, _) => None
+      case found @ Found(v, loc, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        Some(ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, found))
+        Some(ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found))
       }
     }
   }.value
 
   final def optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
     extraEscapedCharactersRaw match {
-      case Found("", loc) => None
-      case Found(v, loc) => Some(v)
+      case Found("", loc, _) => None
+      case Found(v, loc, _) => Some(v)
     }
   }.value
 
   final def optionEscapeBlockStart = LV('optionEscapeBlockStart) {
     escapeBlockStartRaw match {
-      case Found("", loc) => None
-      case Found(v, loc) => Some(v)
+      case Found("", loc, _) => None
+      case Found(v, loc, _) => Some(v)
     }
   }.value
 
   final def optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
     escapeBlockEndRaw match {
-      case Found("", loc) => None
-      case Found(v, loc) => Some(v)
+      case Found("", loc, _) => None
+      case Found(v, loc, _) => Some(v)
     }
   }.value
 
@@ -138,7 +140,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   final lazy val (isKnownEscapeCharacter, knownEscapeCharacter) = {
     optionEscapeCharacter match {
       case None => (None, None) // there isn't one
-      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
+      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constant))
       case _ => (Some(false), None) // must evaluate at runtime
     }
   }
@@ -146,7 +148,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   final lazy val (isKnownEscapeEscapeCharacter, knownEscapeEscapeCharacter) = {
     optionEscapeEscapeCharacter match {
       case None => (None, None) // there isn't one
-      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
+      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constant))
       case _ => (Some(false), None) // must evaluate at runtime
     }
   }

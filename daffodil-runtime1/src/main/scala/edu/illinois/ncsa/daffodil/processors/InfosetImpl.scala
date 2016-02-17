@@ -59,15 +59,34 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
+import scala.collection.JavaConversions._
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 sealed trait DINode {
-  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
-  def asSimple: DISimple = this.asInstanceOf[DISimple]
-  def asComplex: DIComplex = this.asInstanceOf[DIComplex]
+  def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
+
+  def asSimple: DISimple = {
+    this match {
+      case diSimple: DISimple => diSimple
+      case _ =>
+        throw new InfosetWrongNodeType(this)
+    }
+  }
+
+  def asComplex: DIComplex = {
+    this match {
+      case diComplex: DIComplex => diComplex
+      case _ =>
+        throw new InfosetWrongNodeType(this)
+    }
+  }
+
   def children: Stream[DINode]
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
   def totalElementCount: Long
@@ -108,6 +127,23 @@ sealed trait DINode {
 
 }
 
+trait InfosetException extends DiagnosticImplMixin with ThinThrowable
+
+/**
+ * This is thrown if an expression is evaluated at the wrong place
+ * Eg., in the debugger if you set a breakpoint, and then
+ *
+ *     condition 1 xsd:string(.) eq '3'
+ *
+ * Well that condition expression is going to get evaluated even at times
+ * when "." is bound to a DIComplex node. (The focus of "." seems to not
+ * be assured of being on the breakpoint node. This expression can get evaluated
+ * at least when "." is the parent of the breakpoint element.)
+ */
+class InfosetWrongNodeType(val node: DINode)
+  extends ProcessingError("Error", Nope, Nope, "Wrong type (simple when complex expected or vice versa)", node)
+  with InfosetException
+
 /**
  * Exception thrown if infoset doesn't have a child corresponding to the
  * slot being probed. E.g., expression evaluation reaching to a forward
@@ -115,9 +151,27 @@ sealed trait DINode {
  */
 class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
   extends ProcessingError("Error", Nope, Nope, "Child element %s does not exist.", info.namedQName)
+  with InfosetException
+
+class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
+  extends ProcessingError("Error", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
+  with InfosetException
+
+class InfosetNoDataException(val diSimple: DISimple, val erd: ElementRuntimeData)
+  extends ProcessingError("Error", Nope, Nope, "Element %s does not have a value.", erd.namedQName)
+  with InfosetException
 
 class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
   extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
+  with InfosetException
+
+class InfosetNoRootException(val diElement: DIElement, val erd: ElementRuntimeData)
+  extends ProcessingError("Error", Nope, Nope, "No root element reachable from element %s.", erd.namedQName)
+  with InfosetException
+
+class InfosetNoParentException(val diElement: DIElement, val erd: ElementRuntimeData)
+  extends ProcessingError("Error", Nope, Nope, "No parent element for element %s.", erd.namedQName)
+  with InfosetException
 
 /**
  * Used to determine if expressions can be evaluated without any nodes.
@@ -127,7 +181,7 @@ class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Lon
 final class FakeDINode extends DISimple(null) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
-  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = die
+  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = die
   override def captureState(): InfosetElementState = die
   override def removeHiddenElements(): InfosetElement = die
   override def restoreState(state: InfosetElementState): Unit = die
@@ -142,9 +196,9 @@ final class FakeDINode extends DISimple(null) {
   override def valid = die
   override def setValid(validity: Boolean): Unit = die
 
-  private var _value: Any = null
-  override def dataValue: Any = _value
-  override def setDataValue(s: Any): Unit = { _value = s }
+  private var _value: AnyRef = null
+  override def dataValue: AnyRef = _value
+  override def setDataValue(s: AnyRef): Unit = { _value = asAnyRef(s) }
 
   override def dataValueAsString: String = _value.toString
   override def isDefaulted: Boolean = die
@@ -154,15 +208,194 @@ final class FakeDINode extends DISimple(null) {
 }
 
 /**
+ * Base for all terms, as there are these pseudo-nodes like DISequence which can have
+ * runtime-valued properties, but which aren't infoset items.
+ */
+sealed trait DITerm {
+
+  def parentTerm: DITerm
+
+  final lazy val parserEvalCache = new EvalCache
+  final lazy val unparserEvalCache = new EvalCache
+
+  def evalCache(state: ParseOrUnparseState) = state match {
+    case p: PState => parserEvalCache
+    case _ => unparserEvalCache
+  }
+
+  def trd: TermRuntimeData
+
+  protected final def dafPrefix = {
+    val ee = trd.dpathCompileInfo.immediateEnclosingCompileInfo.getOrElse {
+      trd.dpathCompileInfo
+    }
+    val pre = ee.namespaces.getPrefix(XMLUtils.dafintURI.uri.toString())
+    Assert.invariant(pre ne null)
+    pre
+  }
+
+  /**
+   * String suitable for use in the text of a Processing Instruction.
+   *
+   * The text is a pseudo-XML string.
+   */
+  protected def fmtInfo: Maybe[String]
+
+  protected final def addFmtInfo(elem: scala.xml.Elem, showFormatInfo: Boolean): scala.xml.Elem = {
+    if (!showFormatInfo) return elem
+    val maybeFI = fmtInfo
+    val res =
+      if (maybeFI.isEmpty) elem
+      else {
+        val fi = maybeFI.value
+        val pi = new scala.xml.ProcInstr("formatInfo", fi)
+        val res = elem.copy(child = elem.child :+ pi)
+        res
+      }
+    res
+  }
+}
+
+private[processors] sealed trait HasModelGroupMixin { self: DITerm =>
+
+  final lazy val modelGroups: java.util.Map[ModelGroupRuntimeData, DIModelGroup] = new java.util.LinkedHashMap[ModelGroupRuntimeData, DIModelGroup]
+
+  def modelGroup(mgrd: ModelGroupRuntimeData): DIModelGroup = {
+    val got = modelGroups.get(mgrd)
+    val tNode = if (got ne null) got
+    else {
+      val newTNode = mgrd match {
+        case srd: SequenceRuntimeData => new DISequence(srd, self)
+        case crd: ChoiceRuntimeData => new DIChoice(crd, self)
+      }
+      modelGroups.put(mgrd, newTNode)
+      newTNode
+    }
+    tNode
+  }
+
+  protected final def modelGroupsPseudoXML: String = {
+    val pxml = mapAsScalaMap(modelGroups).map {
+      case (_, mg) =>
+        mg.toPseudoXML()
+    }
+    pxml.mkString("\n")
+  }
+
+  protected def fmtInfo = {
+    val mgXML = modelGroupsPseudoXML
+    val pecXML = parserEvalCache.toPseudoXML()
+    val uecXML = unparserEvalCache.toPseudoXML()
+    val puxml = {
+      mgXML +
+        (if (pecXML =:= "") "" else "\n" + pecXML) +
+        (if (uecXML =:= "") "" else "\n" + uecXML)
+    }
+    Maybe(if (puxml =:= "") null else puxml)
+  }
+}
+
+sealed abstract class DIModelGroup(val mgrd: ModelGroupRuntimeData, val parentTerm: DITerm) extends DITerm with HasModelGroupMixin {
+  override final def trd = mgrd
+
+  /**
+   * Name for use in pseudo-xml representation
+   */
+  protected def nom: String
+
+  def toPseudoXML(): String = {
+    val relPath = trd.dpathCompileInfo.relativePath
+    val pecXML = parserEvalCache.toPseudoXML()
+    val uecXML = unparserEvalCache.toPseudoXML()
+    val ecXMLString = (if (pecXML =:= "") "" else "\n" + pecXML) + (if (uecXML =:= "") "" else "\n" + uecXML)
+    "<" + dafPrefix + ":" + nom + " " + "path=\"" + relPath + "\"" + ecXMLString + ">"
+  }
+}
+
+sealed class DISequence(srd: SequenceRuntimeData, parentTerm: DITerm) extends DIModelGroup(srd, parentTerm) {
+  /**
+   * Name for use in pseudo-xml representation.
+   *
+   * Could have been derived from the class name, but only at the cost of allocating strings.
+   *
+   * Converting to XML, even though this stuff is only "for debug", the overhead still
+   * matters to some extent.
+   */
+  override final def nom = "sequence"
+}
+
+sealed class DIChoice(crd: ChoiceRuntimeData, parentTerm: DITerm) extends DIModelGroup(crd, parentTerm) {
+
+  /**
+   * See DISequence.nom
+   */
+  override final def nom = "choice"
+}
+
+/**
  * Base for non-array elements. That is either scalar or optional (
  * minOccurs 0, maxOccurs 1)
  */
-sealed trait DIElement extends DINode with InfosetElement {
+sealed trait DIElement extends DINode with DITerm with InfosetElement {
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
+  override final def trd = erd
 
-  def isRoot = parent.isInstanceOf[DIDocument]
+  /**
+   * This is purely to make debugging easier.
+   */
+  override def toString = {
+    val cl = Misc.getNameFromClass(this)
+    val n = trd.name
+    cl + "(name='" + n + "')"
+  }
+
+  def isRoot = parent match {
+    case doc: DIDocument => !doc.isCompileExprFalseRoot
+    case _ => false
+  }
+
+  def isRootDoc = this match {
+    case doc: DIDocument => !doc.isCompileExprFalseRoot
+    case _ => false
+  }
+
+  def toRootDoc: DIComplex = toRootDoc1(this)
+
+  private def toRootDoc1(orig: DIElement): DIComplex = {
+    if (isRootDoc) this.asInstanceOf[DIDocument]
+    else if (isRoot) diParent
+    else {
+      parent match {
+        case null =>
+          throw new InfosetNoRootException(orig, erd)
+        case elt: DIElement => elt.toRootDoc1(orig)
+        case _ =>
+          throw new InfosetNoRootException(orig, erd)
+      }
+    }
+  }
+
+  def toParent = {
+    if (parent eq null)
+      throw new InfosetNoParentException(this, erd)
+    diParent
+  }
+
+  def parentTerm: DITerm = {
+    if (parentModelGroup.isDefined) parentModelGroup.get
+    else diParent
+  }
+
+  def parentModelGroup: Maybe[DIModelGroup] = {
+    val trd = erd.immediateEnclosingTermRuntimeData.get
+    val pt = trd match {
+      case mg: ModelGroupRuntimeData => One(diParent.modelGroup(mg)) // elements always appear within a model group
+      case _ => Nope // exception for the root element which appears inside the DIDocument, which is not a model group
+    }
+    pt
+  }
 
   /**
    * Note: there is no infoset data member for isHidden. A hidden group is
@@ -276,8 +509,8 @@ final class DIArray(
 
   final def length: Long = _contents.length
 
-  final def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
-    _contents.flatMap { _.toXML(removeHidden) }
+  final def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
+    _contents.flatMap { _.toXML(removeHidden, showFormatInfo) }
   }
 
   final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
@@ -300,7 +533,7 @@ final class DIArray(
  * evaluation of the OVC expression.
  */
 case class OutputValueCalcEvaluationException(val diSimple: DISimple)
-  extends Exception with ThinThrowable
+  extends Exception with ThinThrowable with DiagnosticImplMixin
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement
@@ -310,11 +543,11 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   protected var _isDefaulted: Boolean = false
 
-  private var _value: Any = null
+  private var _value: AnyRef = null
 
   override def children: Stream[DINode] = Stream.Empty
 
-  def setDefaultedDataValue(defaultedValue: Any) = {
+  def setDefaultedDataValue(defaultedValue: AnyRef) = {
     setDataValue(defaultedValue)
     _isDefaulted = true
   }
@@ -324,14 +557,13 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _isNilled = true
   }
 
-  override def setDataValue(x: Any) {
+  override def setDataValue(x: AnyRef) {
     Assert.invariant(!hasValue)
     overwriteDataValue(x) // conversions for text numbers displace the string with the number.
   }
 
-  def overwriteDataValue(x: Any) {
-    Assert.invariant(x != null)
-    Assert.invariant(!x.isInstanceOf[(Any, Any)])
+  def overwriteDataValue(x: AnyRef) {
+    Assert.invariant(!x.isInstanceOf[(Any, Any)]) // legacy code created these pairs. TODO: Remove?
     //
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string.
@@ -358,7 +590,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _isNilled = false
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
-    _value = x
+    _value = asAnyRef(x)
   }
 
   def hasValue: Boolean = !_isNilled && _value != null
@@ -366,17 +598,14 @@ sealed class DISimple(override val erd: ElementRuntimeData)
    * Obtain the data value. Implements default
    * values, and outputValueCalc for unparsing.
    */
-  override def dataValue: Any = {
+  override def dataValue: AnyRef = {
     if (_value == null)
       if (erd.optDefaultValue.isDefined) {
         val defaultVal = erd.optDefaultValue.get
         _value = defaultVal
         _isDefaulted = true
-      } else if (erd.outputValueCalcExpr.isDefined) {
-        // want calling context to evaluate the expression.
-        // It has the information needed to provide the proper
-        // context
-        throw new OutputValueCalcEvaluationException(this)
+      } else {
+        throw new InfosetNoDataException(this, erd)
       }
     this.erd.schemaDefinitionUnless(_value != null, "Value has not been set.")
     _value
@@ -386,7 +615,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     dataValue match {
       case s: String => s
       case arr: Array[Byte] => Misc.bytes2Hex(arr)
-      case d: Double => {
+      case d: java.lang.Double => {
         //
         // Print these as needed in XML/XSD
         //
@@ -394,7 +623,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         else if (d == Double.NegativeInfinity) XMLUtils.NegativeInfinityString
         else d.toString
       }
-      case f: Float => {
+      case f: java.lang.Float => {
         if (f == Float.PositiveInfinity) XMLUtils.PositiveInfinityString
         else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
         else f.toString
@@ -446,7 +675,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   private def remapped = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
 
-  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
+  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
     if (isHidden && removeHidden) Nil
     else {
       val elem =
@@ -476,8 +705,19 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           // no value yet
           scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true)
         }
-      elem
+      val res = addFmtInfo(elem, showFormatInfo)
+      res
     }
+  }
+
+  protected def fmtInfo = {
+    val pecXML = parserEvalCache.toPseudoXML()
+    val uecXML = unparserEvalCache.toPseudoXML()
+    val str =
+      pecXML + (if (pecXML !=:= "") "\n" else "") + (if (uecXML =:= "") "" else "\n" + uecXML)
+    val res =
+      if (str =:= "") Nope else Maybe(str)
+    res
   }
 
   //TODO: make these use a pool of these DISimpleState objects
@@ -497,7 +737,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   case class DISimpleState(var isNilled: Boolean,
     var isDefaulted: Boolean,
     var validity: MaybeBoolean,
-    var value: Any) extends InfosetElementState
+    var value: AnyRef) extends InfosetElementState
 
 }
 
@@ -523,7 +763,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
  * The DIArray object's length gives the number of occurrences.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
-  extends DIElement with InfosetComplexElement {
+  extends DIElement with InfosetComplexElement
+  with HasModelGroupMixin {
 
   final override def isEmpty: Boolean = false
 
@@ -557,19 +798,16 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   final def getChildMaybe(info: DPathElementCompileInfo): InfosetElement = {
     val slot = info.slotIndexInParent
-    val res = getChildOrNull(slot)
+    val res =
+      if (slot >= slots.length) Assert.invariantFailed("slot number out of range") // null // TODO should this out-of-range be an exception?
+      else {
+        val s = _slots(slot)
+        s.asInstanceOf[InfosetElement]
+      }
     if (res ne null) res
     else {
       throw new InfosetNoSuchChildElementException(this, info)
     }
-  }
-
-  /**
-   * Returns null if there is no child element in that slot
-   */
-  final def getChildOrNull(slot: Int): InfosetElement = {
-    val s = _slots(slot)
-    s.asInstanceOf[InfosetElement]
   }
 
   final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
@@ -673,7 +911,14 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val lastSlotAdded: Int, val arraySize: MaybeInt)
     extends InfosetElementState
 
-  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
+  /**
+   * Converts into XML as in a scala.xml.NodeSeq
+   *
+   * If there are items in the evalCache or modelGroups contained within, then
+   * those are included as an XML Processing Instruction which is appended as a final child of
+   * the Node making up the NodeSeq.
+   */
+  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
     if (isHidden && removeHidden) Nil
     else {
       val elem =
@@ -683,7 +928,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
           val nonHiddenChildren = children.flatMap { slot => slot.toXML(removeHidden) }
           scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.minimizedScope, true, nonHiddenChildren: _*)
         }
-      elem
+      val res = addFmtInfo(elem, showFormatInfo)
+      res
     }
   }
 
@@ -712,6 +958,13 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
   with InfosetDocument {
   var root: DIElement = null
 
+  /**
+   * Set if this DIDocument is being attached to a DIElement just to establish the
+   * invariant that there is a parent while we evaluate the expression to see if it has
+   * a constant value
+   */
+  var isCompileExprFalseRoot: Boolean = false
+
   override def nSlots = 1
 
   def setRootElement(rootElement: InfosetElement) {
@@ -729,7 +982,7 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
     root
   }
 
-  override def toXML(removeHidden: Boolean = true) =
+  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false) =
     if (root != null) root.toXML(removeHidden)
     else <document/>
 
@@ -750,6 +1003,10 @@ object Infoset {
     new DIDocument(erd)
   }
 
+  /**
+   * isCompileExprFalseRoot is used when we create nodes in isolation for
+   * purposes of compiling to see if things are constant.
+   */
   def newDocument(root: InfosetElement): InfosetDocument = {
     val doc = newDocument(root.runtimeData)
     doc.setRootElement(root)
@@ -973,7 +1230,7 @@ object Infoset {
     }
   }
 
-  private[processors] def valueOrNullForNil(erd: ElementRuntimeData, node: scala.xml.Node): Any = {
+  private[processors] def valueOrNullForNil(erd: ElementRuntimeData, node: scala.xml.Node): AnyRef = {
     Assert.usage(erd.isSimpleType)
     val primType = erd.optPrimType.get
     val rep =

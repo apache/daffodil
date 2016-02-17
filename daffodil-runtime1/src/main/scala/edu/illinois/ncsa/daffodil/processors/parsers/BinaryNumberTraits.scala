@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-
+import java.lang.{ Long => JLong }
 
 trait HasKnownLengthInBits {
   def lengthInBits: Int
@@ -48,7 +48,7 @@ trait HasKnownLengthInBits {
 trait HasRuntimeExplicitLength {
   def e: ElementRuntimeData
   def lUnits: LengthUnits // get at compile time, not runtime.
-  def lengthExpr: CompiledExpression
+  def lengthExpr: CompiledExpression[JLong]
 
   // binary numbers will use this conversion. Others won't.
   lazy val toBits = lUnits match {
@@ -58,8 +58,8 @@ trait HasRuntimeExplicitLength {
   }
 
   def getBitLength(s: PState): Int = {
-    val nBytesAsAny = lengthExpr.evaluate(s)
-    val nBytes = AsIntConverters.asInt(nBytesAsAny)
+    val nBytesAsJLong = lengthExpr.evaluate(s)
+    val nBytes = AsIntConverters.asInt(nBytesAsJLong)
     nBytes * toBits
   }
 }

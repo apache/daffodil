@@ -40,6 +40,8 @@ import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.xml.StepQName
@@ -63,8 +65,8 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
     val infosetRootElem = Infoset.elem2Infoset(erd, infosetAsXML)
-
-    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
+    val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
+    val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = Infoset.newDocument(erd)
     doc.setRootElement(infosetRootElem)

@@ -2,7 +2,7 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
@@ -18,10 +18,11 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
+import java.lang.{ Long => JLong }
 
-abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
+abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
-  extends DaffodilParser(erd)
+  extends ParserObject(erd)
   with WithParseErrorThrowing {
 
   override lazy val childProcessors = Seq(eParser)
@@ -67,7 +68,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
 }
 
 class SpecifiedLengthPatternParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
   pattern: java.util.regex.Pattern)
   extends SpecifiedLengthParserBase(eParser, erd) {
@@ -93,9 +94,9 @@ class SpecifiedLengthPatternParser(
 }
 
 class SpecifiedLengthExplicitBitsParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression,
+  length: CompiledExpression[JLong],
   toBits: Int)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
@@ -107,7 +108,7 @@ class SpecifiedLengthExplicitBitsParser(
 }
 
 class SpecifiedLengthExplicitBitsFixedParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
   nBits: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
@@ -116,9 +117,9 @@ class SpecifiedLengthExplicitBitsFixedParser(
 }
 
 class SpecifiedLengthExplicitBytesParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression)
+  length: CompiledExpression[JLong])
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = {
@@ -129,7 +130,7 @@ class SpecifiedLengthExplicitBytesParser(
 }
 
 class SpecifiedLengthExplicitBytesFixedParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
   nBytes: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
@@ -153,7 +154,7 @@ class SpecifiedLengthExplicitBytesFixedParser(
  * parsed to not use this base, and that could boost performance (maybe...) for nilLiteral-intensive formats.
  */
 abstract class SpecifiedLengthExplicitCharactersParserBase(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
@@ -187,7 +188,7 @@ abstract class SpecifiedLengthExplicitCharactersParserBase(
 }
 
 final class SpecifiedLengthExplicitCharactersFixedParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
   nChars: Long)
   extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
@@ -197,9 +198,9 @@ final class SpecifiedLengthExplicitCharactersFixedParser(
 }
 
 final class SpecifiedLengthExplicitCharactersParser(
-  eParser: DaffodilParser,
+  eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression)
+  length: CompiledExpression[JLong])
   extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
 
   def getLength(s: PState): Long = {

@@ -33,12 +33,21 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 import scala.xml.NamespaceBinding
+import java.lang.{ Long => JLong, Boolean => JBoolean }
 
-trait ExpressionCompilerBase {
+trait ExpressionCompilerBase[T <: AnyRef] {
 
-  def compile(nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
+  def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression
+    isEvaluatedAbove: Boolean): CompiledExpression[T]
 
+}
+
+abstract class ExpressionCompilerClass {
+  def String: ExpressionCompilerBase[String]
+  def JLong: ExpressionCompilerBase[JLong]
+  def AnyRef: ExpressionCompilerBase[AnyRef]
+  def JBoolean: ExpressionCompilerBase[JBoolean]
 }

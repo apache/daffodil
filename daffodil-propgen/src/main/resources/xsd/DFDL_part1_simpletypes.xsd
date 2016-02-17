@@ -73,8 +73,23 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <!-- used alone, this type will allow empty string -->
   <xsd:simpleType name="ListOfDFDLStringLiteral">
-    <xsd:list itemType="xsd:token" />
+    <xsd:list itemType="xsd:token"/>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="NonEmptyStringLiteral">
+    <xsd:restriction base="xsd:token">
+      <xsd:minLength value="1"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="NonEmptyListOfDFDLStringLiteral">
+    <xsd:restriction base="dfdl:ListOfDFDLStringLiteral">
+    <!-- used for dfdl:nilValue. We can give a much clearer diagnostic with a suggestion
+         on what the user should do instead. So we don't check this here. -->
+      <!-- <xsd:minLength value="1"/> --> 
+    </xsd:restriction>
   </xsd:simpleType>
 
   <xsd:simpleType name="DFDLNonNegativeInteger">
@@ -338,11 +353,18 @@
     
   </xsd:simpleType>
 
-  <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarLanguageType">
-    <xsd:restriction base="xsd:string">
-      <xsd:pattern value="([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)" />
-    </xsd:restriction>
+    <xsd:union>
+      <xsd:simpleType>
+        <xsd:restriction base="dfdl:DFDLStringLiteral">
+        <!-- A pattern is used instead of an enumeration for compactness -->
+          <xsd:pattern value="([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType>
+        <xsd:restriction base="dfdl:DFDLExpression"/>
+      </xsd:simpleType>
+    </xsd:union>
   </xsd:simpleType>
 
   <xsd:simpleType name="CalendarFirstDayOfWeekEnum">

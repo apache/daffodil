@@ -50,8 +50,8 @@ object MyProp extends Enum[MyPropType] // with ThrowsSDE
   forceConstruction(PropVal1)
   case object PropVal2 extends MyPropType
   forceConstruction(PropVal2)
-  def apply(name: String): MyPropType = stringToEnum("myProp", name, context)
-
+  def apply(name: String): MyPropType = apply(name, context)
+  def apply(name: String, context: ThrowsSDE) = stringToEnum("myProp", name, context)
 }
 
 class MyPropMixin {
@@ -92,7 +92,7 @@ class TestPropertyRuntime {
     def schemaFileLocation: edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation = ???
 
     def findPropertyOption(pname: String) =
-      Found("left", this)
+      Found("left", this, pname)
     override val xml = <foo/>
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty

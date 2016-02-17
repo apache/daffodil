@@ -53,7 +53,7 @@
 
   <tdml:parserTestCase name="entity_fail_01" root="root"
     model="sch1"
-    description="Separator cannot contain ES.  %ES; is used only in nilValue - DFDL-6-046R">
+    description="Separator cannot contain ES. - DFDL-6-046R">
     <tdml:document>
       <tdml:documentPart type="text">0,1</tdml:documentPart>
     </tdml:document>
@@ -65,7 +65,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:defineSchema name="sch2">
+  <tdml:defineSchema name="sch2" elementFormDefault="unqualified">
     <dfdl:format ref="ex:daffodilTest1" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -79,16 +79,17 @@
     </xs:element>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="entity_fail_02" root="root"
-    model="sch2"
-    description="Initiator cannot contain ES.  %ES; is used only in nilValue - DFDL-6-046R">
+  <tdml:parserTestCase name="entity_fail_02" root="root" model="sch2" description="Initiator cannot contain ES.  %ES; is used only in nilValue - DFDL-6-046R
+    Note: Revised - DFDL Spec. now allows ES for Initiators as long as it is not the only entry in the list.">
     <tdml:document>0,1</tdml:document>
-    <tdml:errors>
-      <tdml:error>Initiator</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>contain</tdml:error>
-      <tdml:error>ES</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <a>0</a>
+          <b>1</b>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch3">
@@ -107,14 +108,17 @@
 
   <tdml:parserTestCase name="entity_fail_03" root="root"
     model="sch3"
-    description="Terminator cannot contain ES. %ES; is used only in nilValue - DFDL-6-046R">
+    description="Terminator cannot contain ES. %ES; is used only in nilValue - DFDL-6-046R
+    Note: Revised - DFDL Spec. now allows ES for Initiators as long as it is not the only entry in the list.">
     <tdml:document>0,1</tdml:document>
-    <tdml:errors>
-      <tdml:error>Terminator</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>contain</tdml:error>
-      <tdml:error>ES</tdml:error>
-    </tdml:errors>
+     <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <a>0</a>
+          <b>1</b>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch4">
@@ -155,6 +159,7 @@
       encoding="ASCII" representation="binary" occursCountKind="parsed"
       nilValueDelimiterPolicy="none" nilValue="" nilKind="literalValue"
       textNumberRep="standard" ignoreCase="no" byteOrder="bigEndian" />
+      
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:terminator=";">
@@ -179,17 +184,15 @@
     
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="entity_fail_05" root="root"
-    model="sch5"
+  <tdml:parserTestCase name="entity_fail_05" root="root" model="sch5" 
     description="nilValue when nilKind='literalValue' and representation='binary' cannot be empty - DFDL-13-235R">
     <tdml:document>
       <tdml:documentPart type="byte">000000002C3B</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
+      <tdml:error>Schema definition error</tdml:error>
       <tdml:error>nilValue</tdml:error>
-      <tdml:error>cannot</tdml:error>
-      <tdml:error>be</tdml:error>
-      <tdml:error>empty</tdml:error>
+      <tdml:error>empty string</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -252,11 +255,11 @@
       <tdml:documentPart type="byte">000000002C3B</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
+      <tdml:error>Schema definition error</tdml:error>
       <tdml:error>nilValue</tdml:error>
-      <tdml:error>can</tdml:error>
-      <tdml:error>only</tdml:error>
+      <tdml:error>cannot</tdml:error>
       <tdml:error>contain</tdml:error>
-      <tdml:error>ES</tdml:error>
+      <tdml:error>NL</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

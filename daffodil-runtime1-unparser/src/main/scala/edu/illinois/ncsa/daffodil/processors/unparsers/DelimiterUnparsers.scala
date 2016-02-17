@@ -1,7 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -10,9 +9,9 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
-class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
+class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression[String],
   delimiterType: DelimiterTextType.Type)
-  extends PrimUnparser(erd) with TextUnparserRuntimeMixin {
+  extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"

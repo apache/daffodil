@@ -81,6 +81,8 @@ case object Blocking extends EvalMode
 case class DState() {
   import AsIntConverters._
 
+  var isCompile = false
+
   var opIndex: Int = 0
 
   val withArray8 = new LocalStack[Array[Int]](new Array[Int](8))
@@ -90,7 +92,7 @@ case class DState() {
    * the expression 5 + $x, then none of those literals, nor their
    * nor variable value, nor their sum, has an element associated with it.
    */
-  private var _currentValue: Any = null
+  private var _currentValue: AnyRef = null
 
   private var _mode: EvalMode = NonBlocking
 
@@ -106,14 +108,14 @@ case class DState() {
     _currentValue = null
   }
 
-  def currentValue: Any = {
-    if (_currentValue == null) currentSimple.dataValue
+  def currentValue: AnyRef = {
+    if (_currentValue eq null) currentSimple.dataValue
     else _currentValue
   }
 
   def setCurrentValue(v: Any) {
     Assert.invariant(!v.isInstanceOf[(Any, Any)])
-    _currentValue = v
+    _currentValue = asAnyRef(v)
     _currentNode = null
   }
 
@@ -164,7 +166,7 @@ case class DState() {
   def currentSimple = {
     Assert.usage(currentNode != null)
     Assert.usage(mode != null)
-    val cs = currentNode.asInstanceOf[DISimple]
+    val cs = currentNode.asSimple
     //
     // If this is a computed value (for unparsing for dfdl:outputValueCalc property)
     // then if it is not yet computed, compute it.
@@ -181,7 +183,7 @@ case class DState() {
 
   def currentElement = currentNode.asInstanceOf[DIElement]
   def currentArray = currentNode.asInstanceOf[DIArray]
-  def currentComplex = currentNode.asInstanceOf[DIComplex]
+  def currentComplex = currentNode.asComplex
 
   private var _vmap: VariableMap = null
 
@@ -205,10 +207,10 @@ case class DState() {
   private var _bitLimit1b: MaybeULong = MaybeULong.Nope
   private var _dataStream: Maybe[DataStreamCommon] = Nope
 
-  def setLocationInfo(bitPos1b: Long, bitLimit1b: MaybeULong, dataStream: DataStreamCommon) {
+  def setLocationInfo(bitPos1b: Long, bitLimit1b: MaybeULong, dataStream: Maybe[DataStreamCommon]) {
     _bitPos1b = MaybeULong(bitPos1b)
     _bitLimit1b = bitLimit1b
-    _dataStream = One(dataStream)
+    _dataStream = dataStream
   }
 
   def setLocationInfo() {
@@ -218,7 +220,7 @@ case class DState() {
   }
 
   def contextLocation: Maybe[DataLocation] = {
-    if (_bitPos1b.isDefined) {
+    if (_bitPos1b.isDefined && _dataStream.isDefined) {
       val either = _dataStream.get match {
         case dis: DataInputStream => Right(dis)
         case dos: DataOutputStream => Left(dos)

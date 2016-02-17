@@ -113,8 +113,8 @@ class TestXMLCatalogAndValidate {
 
     //This version doesn't seem to read a catalog this way
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath())
-    System.setProperty("xml.catalog.ignoreMissing", "false")
-    System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
+    System.setProperty("xml.catalog.ignoreMissing", "true") // silence warning about missing Catalog.properties
+    // System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
     val testSchema =
       <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
@@ -172,8 +172,8 @@ class TestXMLCatalogAndValidate {
     val tmpCatalogFileName = tempFileName("_cat.catalog.xml")
 
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath)
-    System.setProperty("xml.catalog.ignoreMissing", "no")
-    System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
+    System.setProperty("xml.catalog.ignoreMissing", "true")
+    // System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
     val testSchema1 =
       <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:ex2={ ex2 }>
@@ -271,7 +271,7 @@ class TestXMLCatalogAndValidate {
 
   @Test def test4() {
     // lets make sure we're not using files that would naturally be on the classpath
-    System.setProperty("xml.catalog.ignoreMissing", "false")
+    System.setProperty("xml.catalog.ignoreMissing", "true")
 
     val testSuite = <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <annotation><appinfo source="http://www.ogf.org/dfdl/">
@@ -320,7 +320,7 @@ object XMLLoaderFactory {
 // From http://stackoverflow.com/questions/1627111/how-does-one-validate-the-schema-of-an-xml-file-using-scala
 
 class SchemaAwareFactoryAdapter()
-    extends NoBindingFactoryAdapter {
+  extends NoBindingFactoryAdapter {
 
   var fileName: String = ""
 
@@ -445,16 +445,16 @@ class SchemaAwareFactoryAdapter()
     xr.setErrorHandler(new org.xml.sax.ErrorHandler() {
 
       def warning(exception: SAXParseException) = {
-        System.err.println(exception.getMessage())
+        // System.err.println(exception.getMessage())
         exceptionList :+= exception
       }
 
       def error(exception: SAXParseException) = {
-        System.err.println("Error: " + exception.getMessage())
+        // System.err.println("Error: " + exception.getMessage())
         exceptionList :+= exception
       }
       def fatalError(exception: SAXParseException) = {
-        System.err.println(exception.getMessage())
+        // System.err.println(exception.getMessage())
         exceptionList :+= exception
       }
     })
@@ -487,20 +487,20 @@ class SchemaAwareFactoryAdapter()
  * uris/urns to files.
  */
 class MyResolver()
-    extends org.apache.xerces.xni.parser.XMLEntityResolver
-    with org.w3c.dom.ls.LSResourceResolver
-    with org.xml.sax.EntityResolver
-    with org.xml.sax.ext.EntityResolver2 {
+  extends org.apache.xerces.xni.parser.XMLEntityResolver
+  with org.w3c.dom.ls.LSResourceResolver
+  with org.xml.sax.EntityResolver
+  with org.xml.sax.ext.EntityResolver2 {
   val cm = new CatalogManager()
   val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
   // println("catalog files: " + catFiles)
   cm.setIgnoreMissingProperties(false)
   cm.setRelativeCatalogs(true)
-  cm.setVerbosity(4)
-  cm.debug.setDebug(100)
+  // cm.setVerbosity(4)
+  // cm.debug.setDebug(100)
   val delegate = // new org.apache.xerces.util.XMLCatalogResolver() // cl)
     new Catalog(cm) {
-      catalogManager.debug.setDebug(100)
+      // catalogManager.debug.setDebug(100)
     }
   delegate.setupReaders()
   delegate.loadSystemCatalogs()
@@ -531,19 +531,19 @@ class MyResolver()
   }
 
   def resolveEntity(publicId: String, systemID: String) = {
-    println("resolveEntity2")
+    // println("resolveEntity2")
     fail()
     null
   }
 
   def getExternalSubset(name: String, baseURI: String) = {
-    println("getExternalSubset name = %s, baseURI = %s".format(name, baseURI))
+    // println("getExternalSubset name = %s, baseURI = %s".format(name, baseURI))
     // delegate.getExternalSubset(name, baseURI)
     null
   }
 
   def resolveEntity(name: String, publicId: String, baseURI: String, systemID: String) = {
-    println("resolveEntity3")
+    // println("resolveEntity3")
     fail()
     null
   }

@@ -33,6 +33,9 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.InfosetNoInfosetException
+import edu.illinois.ncsa.daffodil.util.Maybe
+import Maybe._
 
 case object FNCount extends RecipeOp {
   override def run(dstate: DState) {
@@ -77,6 +80,8 @@ case object FNExactlyOne extends RecipeOp {
 case object DFDLOccursIndex extends RecipeOp {
   override def run(dstate: DState) {
     Assert.invariant(dstate.arrayPos >= 1)
+    if (dstate.isCompile)
+      throw new InfosetNoInfosetException(Nope)
     dstate.setCurrentValue(dstate.arrayPos)
   }
 }

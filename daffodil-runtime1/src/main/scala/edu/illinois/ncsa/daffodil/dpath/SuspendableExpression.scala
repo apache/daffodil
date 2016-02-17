@@ -12,7 +12,7 @@ import edu.illinois.ncsa.daffodil.equality._
 
 object SuspendableExpression {
 
-  def apply(diSimple: DISimple, ce: CompiledExpression, ustate: UState, unparserForOVCRep: Unparser) = {
+  def apply(diSimple: DISimple, ce: CompiledExpression[AnyRef], ustate: UState, unparserForOVCRep: Unparser) = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
@@ -42,7 +42,7 @@ object SuspendableExpression {
 
 class SuspendableExpression private (
   val diSimple: DISimple,
-  val expr: CompiledExpression,
+  val expr: CompiledExpression[AnyRef],
   val ustate: UState,
   val unparserForOVCRep: Unparser) {
 
@@ -74,11 +74,11 @@ class SuspendableExpression private (
   def evaluate() {
     println("Starting suspendable expression for " + erd.name + ", expr=" + erd.outputValueCalcExpr.get.prettyExpr)
     val v = expr.evaluateForwardReferencing(ustate)
-    if (v != null) {
+    if (v.isDefined) {
       // we got the answer
       Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
       val diSimple = ustate.currentInfosetNodeMaybe.get.asSimple
-      diSimple.setDataValue(v)
+      diSimple.setDataValue(v.get)
       //
       // now we have to unparse the value.
       //

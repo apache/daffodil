@@ -52,7 +52,7 @@ import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable.ArraySeq
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
-  extends Unparser(rd) {
+  extends UnparserObject(rd) {
   override def nom = "ComplexType"
 
   override lazy val childProcessors = Seq(bodyUnparser)
@@ -108,7 +108,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
               val c = ev.asComplex
               //ok. We've peeked ahead and found the end of the complex element
               //that this sequence is the model group of.
-              val optParentRD = termRuntimeData.immediateEnclosingRuntimeData
+              val optParentRD = termRuntimeData.immediateEnclosingElementRuntimeData
               optParentRD match {
                 case Some(e: ElementRuntimeData) =>
                   Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
@@ -174,17 +174,17 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   }
 }
 
-class DelimiterStackUnparser(outputNewLine: CompiledExpression,
-  initiatorOpt: Option[CompiledExpression],
-  separatorOpt: Option[CompiledExpression],
-  terminatorOpt: Option[CompiledExpression],
+class DelimiterStackUnparser(outputNewLine: CompiledExpression[String],
+  initiatorOpt: Option[CompiledExpression[String]],
+  separatorOpt: Option[CompiledExpression[String]],
+  terminatorOpt: Option[CompiledExpression[String]],
   initiatorLoc: (String, String),
   separatorLocOpt: Option[(String, String)],
   terminatorLoc: (String, String),
   isLengthKindDelimited: Boolean,
   rd: RuntimeData,
   bodyUnparser: Unparser)
-  extends Unparser(rd) with EvaluatesStaticDynamicTextUnparser {
+  extends UnparserObject(rd) with EvaluatesStaticDynamicTextUnparser {
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -224,7 +224,7 @@ class DelimiterStackUnparser(outputNewLine: CompiledExpression,
 }
 
 class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeData, bodyUnparser: Unparser)
-  extends Unparser(rd) {
+  extends UnparserObject(rd) {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
@@ -267,7 +267,7 @@ class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeDat
 
 class EscapeSchemeNoneStackUnparser(
   rd: RuntimeData, bodyUnparser: Unparser)
-  extends Unparser(rd) {
+  extends UnparserObject(rd) {
 
   override def nom = "EscapeSchemeStack"
 
@@ -305,7 +305,8 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
       UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Needed end of array, but found %s.", event)
     }
 
-    val shouldValidate = state.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate =
+      (state.dataProc.isDefined) && state.dataProc.value.getValidationMode != ValidationMode.Off
 
     val actualOccurs = state.arrayIndexStack.pop()
     state.occursBoundsStack.pop()
@@ -330,7 +331,7 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) extends Unparser(erd) {
+class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) extends UnparserObject(erd) {
   override def nom = "Optional"
   override lazy val childProcessors = Seq(bodyUnparser)
 

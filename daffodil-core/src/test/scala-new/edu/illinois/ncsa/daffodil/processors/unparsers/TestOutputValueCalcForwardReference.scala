@@ -43,7 +43,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
+      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" textTrimKind="padChar" textStringPadCharacter="%SP;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>

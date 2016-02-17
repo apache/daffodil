@@ -32,6 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
+import java.lang.{ Number => JNumber }
+import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
+
 trait HexBinaryKind {
 
   /**
@@ -75,8 +78,11 @@ trait HexBinaryKind {
       case i: Int => HexBinaryConversions.toByteArray(i)
       case l: Long if (l <= Int.MaxValue && l >= Int.MinValue) => reduce(l.toInt)
       case l: Long => HexBinaryConversions.toByteArray(l)
-      case bi: BigInt if (bi.isValidLong) => reduce(bi.toLong)
-      case bd: BigDecimal if (bd.isValidLong) => reduce(bd.toLong)
+      case bi: JBigInt if (bi.bitLength <= 63) => reduce(bi.longValue())
+      case bi: JBigInt => bi.toByteArray()
+      case bd: JBigDecimal if (try { bd.toBigIntegerExact(); true } catch { case e: ArithmeticException => false }) => reduce(bd.toBigIntegerExact())
+      case bi: BigInt => reduce(bi.bigInteger)
+      case bd: BigDecimal if (bd.isWhole()) => reduce(bd.toBigInt)
       case str: String => reduce(BigInt(str))
       case _ => throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
     }
@@ -99,7 +105,7 @@ case class XSHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) with HexBinaryKind {
   val name = "XSHexBinary"
 
-  override def computeValue(a: Any, dstate: DState): Any = {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     // Check for:
     // 1. Even number of characters
     // 2. Valid hex (0-9 A-F)

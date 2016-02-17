@@ -49,6 +49,14 @@ trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
   lazy val refQName = resolveQName(ref)
 }
 
+object ResolvesQNames {
+  def qNameForProperty(local: String, ns: NS, namespaces: scala.xml.NamespaceBinding) = {
+    val pre = namespaces.getPrefix(ns.uri.toString)
+    val prefix = Some(if (pre eq null) "daf" else pre)
+    GlobalQName(prefix, local, ns)
+  }
+}
+
 trait ResolvesQNames
   extends ThrowsSDE {
   def namespaces: scala.xml.NamespaceBinding
@@ -63,6 +71,8 @@ trait ResolvesQNames
     val res = eQN.recover { ThrowSDE }.get
     res
   }
+
+  def qNameForProperty(local: String, ns: NS = XMLUtils.DFDL_NAMESPACE) = ResolvesQNames.qNameForProperty(local, ns, namespaces)
 
   /**
    * Just chop off the prefix.

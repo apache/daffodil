@@ -412,7 +412,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStringPadCharacter cannot contain WSP+!</tdml:error>
+      <tdml:error>textStringPadCharacter cannot contain %WSP+;</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -428,10 +428,13 @@
         <ex:e16 xmlns:ex="http://example.com">0</ex:e16>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStringPadCharacter cannot contain NL!</tdml:error>
-    </tdml:errors>
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>textStringPadCharacter</tdml:error>
+    <tdml:error>cannot</tdml:error>
+    <tdml:error>contain</tdml:error>
+    <tdml:error>NL</tdml:error>
+  </tdml:errors>
   </tdml:unparserTestCase>
 
 <!--
@@ -446,10 +449,13 @@
         <ex:e17 xmlns:ex="http://example.com">0</ex:e17>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStringPadCharacter cannot contain ES!</tdml:error>
-    </tdml:errors>
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>textStringPadCharacter</tdml:error>
+    <tdml:error>cannot</tdml:error>
+    <tdml:error>contain</tdml:error>
+    <tdml:error>ES</tdml:error>
+  </tdml:errors>
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="pattern">

@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Cursor
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -10,8 +9,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.DecoderCache
-import edu.illinois.ncsa.daffodil.processors.EncoderCache
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
@@ -53,10 +50,8 @@ class UState(
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[SuspendableExpression] = new mutable.Queue[SuspendableExpression],
-  initialDecoderCache: DecoderCache = new DecoderCache(),
-  initialEncoderCache: EncoderCache = new EncoderCache())
-  extends ParseOrUnparseState(vmap, diagnosticsArg, dataProcArg, initialDecoderCache, initialEncoderCache)
+  initialSuspendedExpressions: mutable.Queue[SuspendableExpression] = new mutable.Queue[SuspendableExpression])
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), Success)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def toString = {
@@ -70,9 +65,8 @@ class UState(
       Nil, // no diagnostics for now. Any that accumulate here must eventually be output.
       dataProcArg, // same data proc.
       newDOS,
-      this.suspendedExpressions, // inherit same place to put these OVC suspensions from original.
-      this.decoderCache,
-      this.encoderCache)
+      this.suspendedExpressions // inherit same place to put these OVC suspensions from original.
+      )
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
     clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
     clone.currentEscapeScheme = this.currentEscapeScheme
@@ -102,7 +96,7 @@ class UState(
   //      newDstate
   //    }
   //  }
-  override def dataStream: DataStreamCommon = dataOutputStream
+  override def dataStream = Maybe(dataOutputStream)
 
   final val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
   final val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
@@ -172,6 +166,8 @@ class UState(
     if (currentInfosetNodeMaybe.isEmpty) null
     else currentInfosetNodeMaybe.get
 
+  override def currentNode = currentInfosetNodeMaybe
+
   def currentInfosetNodeMaybe: Maybe[DINode] =
     if (currentInfosetNodeStack.isEmpty) Nope
     else currentInfosetNodeStack.top
@@ -182,7 +178,7 @@ class UState(
     currentInfosetEvent_ = ev
   }
 
-  override def hasInfoset = Maybe.WithNulls.isDefined(currentInfosetNode)
+  override def hasInfoset = currentInfosetNodeMaybe.isDefined
 
   override def infoset = {
     Assert.invariant(Maybe.WithNulls.isDefined(currentInfosetNode))
@@ -202,10 +198,6 @@ class UState(
       case a: DIArray => a.parent
     }
   }
-
-  private var status_ : ProcessorResult = Success
-
-  override def status = status_
 
   val unparseResult = new UnparseResult(dataProcArg, this)
 
@@ -229,8 +221,7 @@ class UState(
   def currentLocation: DataLocation = {
     val m = maybeCurrentInfosetElement
     new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),
-      if (m.isDefined) Maybe(m.value.runtimeData) else Nope
-      )
+      if (m.isDefined) Maybe(m.value.runtimeData) else Nope)
   }
 
   val currentInfosetNodeStack = new MStack.OfMaybe[DINode]

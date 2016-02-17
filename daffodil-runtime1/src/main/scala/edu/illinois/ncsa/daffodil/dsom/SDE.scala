@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.CompileState
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
@@ -63,7 +64,12 @@ class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
-    Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
+    Some(schemaContext),
+    (runtimeContext match { // TODO: this is ugly.
+      case cs: CompileState => None
+      case _ => Some(runtimeContext)
+    }),
+    None, kind, args: _*) {
   val diagnosticKind = "Error"
 }
 

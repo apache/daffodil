@@ -645,7 +645,7 @@
 
   </tdml:defineSchema>
   
-  <tdml:defineSchema name="absolutePath">
+  <tdml:defineSchema name="absolutePath" elementFormDefault="qualified">
     
   <dfdl:format ref="ex:daffodilTest1"/>
     

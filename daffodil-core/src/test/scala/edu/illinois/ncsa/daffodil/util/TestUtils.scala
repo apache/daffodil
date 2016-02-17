@@ -158,7 +158,7 @@ object TestUtils {
     }
   }
 
-  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler)
+  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
   def runSchemaOnData(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false) = {
     val compiler = Compiler()

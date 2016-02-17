@@ -54,7 +54,6 @@ import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DState
@@ -63,8 +62,6 @@ import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import java.io.StringReader
 import org.apache.commons.io.input.ReaderInputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.Charset
 import scala.collection.mutable
 import java.nio.charset.CharsetEncoder
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
@@ -204,9 +201,6 @@ case class TupleForDebugger(
   val bitLimit0b: MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
-class DecoderCache extends mutable.HashMap[Charset, CharsetDecoder]
-class EncoderCache extends mutable.HashMap[Charset, CharsetEncoder]
-
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -221,12 +215,25 @@ class EncoderCache extends mutable.HashMap[Charset, CharsetEncoder]
 abstract class ParseOrUnparseState(
   var variableMap: VariableMap,
   var diagnostics: List[Diagnostic],
-  var dataProc: DataProcessor,
-  initialDecoderCache: DecoderCache = new DecoderCache(),
-  initialEncoderCache: EncoderCache = new EncoderCache()) extends DFDL.State
+  var dataProc: Maybe[DataProcessor],
+  protected var status_ : ProcessorResult = Success) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE with SavesErrorsAndWarnings
   with LocalBufferMixin {
+
+  def status = status_
+
+  def setFailed(failureDiagnostic: Diagnostic) {
+    // threadCheck()
+    status_ = new Failure(failureDiagnostic)
+    diagnostics = failureDiagnostic :: diagnostics
+  }
+
+  def setSuccess() {
+    status_ = Success
+  }
+
+  def currentNode: Maybe[DINode]
 
   private val _dState = new DState
 
@@ -253,7 +260,7 @@ abstract class ParseOrUnparseState(
 
   override def schemaFileLocation = getContext().schemaFileLocation
 
-  def dataStream: DataStreamCommon
+  def dataStream: Maybe[DataStreamCommon]
 
   def bitPos0b: Long
   def bitLimit0b: MaybeULong
@@ -300,74 +307,123 @@ abstract class ParseOrUnparseState(
   def notifyDebugging(flag: Boolean): Unit
 
   def SDE(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
+    // ExecutionMode.requireRuntimeMode // not any more. More code is shared between compile and runtime now, so these requirements gotta go
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
   }
 
   def SDEButContinue(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
+    // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsde :: diagnostics
   }
 
   def SDW(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
+    // ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
   }
+}
 
+/**
+ * State used when compiling Evaluatable[T] objects
+ *  So they don't require a "real" state.
+ *
+ *  This serves two purposes. First it lets us obey the regular API for evaluation, so we don't need
+ *  one way to evaluate and another very similar thing for analyzing expressions to see if they are constnat.
+ *
+ *  Second, it serves as a detector of when an expression is non-constant by blowing up when things
+ *  inconsistent with constant-value are attempted to be extracted from the state. By "blow up" it throws
+ *  a structured set of exceptions, typically children of InfosetException or VariableException.
+ */
+class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
+  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
   /**
-   * The reason for these caches is that otherwise to
-   * get a decoder you have to take the Charset and call
-   * newDecoder which allocates. We always want the same one for a given
-   * thread using Daffodil to parse/unparse with a particular PState/UState.
+   * As seen from class CompileState, the missing signatures are as follows.
+   *  *  For convenience, these are usable as stub implementations.
    */
-  protected val decoderCache = initialDecoderCache
-  protected val encoderCache = initialEncoderCache
+  // Members declared in edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+  def arrayPos: Long = 1L
+  def bitLimit0b: MaybeULong = MaybeULong.Nope
+  def bitPos0b: Long = 0L
+  def childPos: Long = 0L
+  def dataStream = Nope
+  def groupPos: Long = 0L
+  def hasInfoset: Boolean = infoset_.isDefined
 
-  def getDecoder(charset: Charset): CharsetDecoder = {
-    // threadCheck()
-    var optDecoder = decoderCache.get(charset)
-    if (optDecoder.isEmpty) {
-      val decoder = charset.newDecoder()
-      decoderCache.put(charset, decoder)
-      optDecoder = Option(decoder)
-    }
-    optDecoder.get
-  }
+  private lazy val infoset_ : Maybe[DIElement] = Nope
+  //  {
+  //    //
+  //    // Establish the invariant that there IS ALWAYS a current node.
+  //    //
+  //    val maybeElt = trd match {
+  //      case erd: ElementRuntimeData if erd.isArray => {
+  //        val complexParent = Infoset.newElement(erd.parent.get).asInstanceOf[DIComplex]
+  //        val child = Infoset.newElement(erd).asInstanceOf[DIElement]
+  //        complexParent.addChild(child) // adds it to the array.
+  //        One(child)
+  //      }
+  //      case erd: ElementRuntimeData => One(Infoset.newElement(erd))
+  //      case mgrd: ModelGroupRuntimeData => One(Infoset.newElement(mgrd.erd))
+  //      case vrd: VariableRuntimeData => {
+  //        // In this case, we're evaluating the default value expression for a variable defined at the top level
+  //        // So truly there is no Term associated. Establishing the invariant that there always is a term
+  //        // is not possible.
+  //        Nope
+  //      }
+  //    }
+  //    if (maybeElt.isDefined) {
+  //      val elt = maybeElt.value
+  //      val diElement = elt.asInstanceOf[DIElement]
+  //      if (diElement.parent eq null) {
+  //        // make a false DIDocument to be the parent of this element
+  //        val doc = new DIDocument(diElement.erd)
+  //        doc.setRootElement(elt)
+  //        doc.isCompileExprFalseRoot = true
+  //      }
+  //      Maybe(diElement)
+  //    } else
+  //      Nope
+  //  }
 
-  def getEncoder(charset: Charset): CharsetEncoder = {
-    // threadCheck()
-    var optEncoder = encoderCache.get(charset)
-    if (optEncoder.isEmpty) {
-      val encoder = charset.newEncoder()
-      encoderCache.put(charset, encoder)
-      optEncoder = Option(encoder)
-    }
-    optEncoder.get
-  }
+  def infoset: InfosetItem =
+    if (infoset_.isDefined)
+      infoset_.value
+    else
+      throw new InfosetNoInfosetException(One(trd)) // for expressions evaluated in debugger, default expressions for top-level variable decls.
 
+  def currentNode = Maybe(infoset.asInstanceOf[DINode])
+
+  def notifyDebugging(flag: Boolean): Unit = {}
+  private val occursBoundsStack_ = new MStack.OfLong
+  def occursBoundsStack: MStack.OfLong = occursBoundsStack_
+
+  def thisElement: InfosetElement = infoset.asInstanceOf[InfosetElement]
+
+  // Members declared in edu.illinois.ncsa.daffodil.processors.StateForDebugger
+  def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 }
 
 final class PState private (
   var infoset: InfosetItem,
   var dataInputStream: DataInputStream,
   vmap: VariableMap,
-  var status: ProcessorResult,
+  status: ProcessorResult,
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var foundDelimiter: Maybe[FoundDelimiterText])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, dataProcArg) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
+
+  override def currentNode = Maybe(infoset.asInstanceOf[DINode])
 
   val discriminatorStack = new MStack.OfBoolean
   discriminatorStack.push(false)
 
-  override def dataStream: DataStreamCommon = dataInputStream
+  override def dataStream = One(dataInputStream)
 
   def saveDelimitedText(foundText: String, originalRepresentation: String) {
     // threadCheck()
@@ -464,12 +520,6 @@ final class PState private (
     diagnostics = vde :: diagnostics
   }
 
-  def setFailed(failureDiagnostic: Diagnostic) {
-    // threadCheck()
-    status = new Failure(failureDiagnostic)
-    diagnostics = failureDiagnostic :: diagnostics
-  }
-
   def pushDiscriminator {
     // threadCheck()
     discriminatorStack.push(false)
@@ -554,7 +604,7 @@ object PState {
       ps.restoreInfosetElementState(this.infosetState)
       ps.dataInputStream.reset(this.disMark)
       ps.variableMap = this.variableMap
-      ps.status = this.status
+      ps.status_ = this.status
       ps.diagnostics = this.diagnostics
       ps.discriminatorStack.reset(this.discriminatorStackMark)
       ps.foundDelimiter = this.foundDelimiter

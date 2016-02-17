@@ -79,9 +79,12 @@ trait DataStreamCommon {
    * UTF-16BE, UTF-16LE, UTF-32BE and UTF-32LE encodings, or
    * by use of the dfdl:unicodeByteOrderMark property.
    * <p>
-   * Note that when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
-   * then the byte order *is* used by the character decoding when a character
-   * code unit spans a byte boundary.
+   * Note that even when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
+   * and a character can span a byte boundary, we STILL don't need byteOrder
+   * to decode characters. Just bitOrder.
+   *
+   * This is because bitOrder alone specifies which end of byte N is adjacent to which
+   * end of byte N+1.
    */
   def setByteOrder(byteOrder: ByteOrder): Unit
   def byteOrder: ByteOrder

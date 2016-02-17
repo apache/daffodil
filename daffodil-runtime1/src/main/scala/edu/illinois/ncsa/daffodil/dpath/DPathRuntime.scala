@@ -35,38 +35,50 @@ package edu.illinois.ncsa.daffodil.dpath
 import scala.xml.NodeSeq.seqToNodeSeq
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.DINode
+import edu.illinois.ncsa.daffodil.processors.InfosetException
+import edu.illinois.ncsa.daffodil.processors.VariableException
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
+import java.lang.{ Number => JNumber }
+import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
+import edu.illinois.ncsa.daffodil.processors.CompileState
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
   def this(ops: List[RecipeOp]) = this(ops.toArray: _*)
 
-  override def toString = toXML.toString
+  override def toString =
+    toXML.toString
 
   def toXML = <CompiledDPath>{ ops.map { _.toXML } }</CompiledDPath>
 
   /**
    * For parsing or for backward-referencing expressions when unparsing.
    */
-  def runExpression(state: ParseOrUnparseState, expr: CompiledExpression) {
+  def runExpression(state: ParseOrUnparseState, restart: Boolean) {
     val dstate = state.dState
-    dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
-    dstate.setVMap(state.variableMap)
-    dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
-    dstate.setArrayPos(state.arrayPos)
-    dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
-    dstate.setErrorOrWarn(state)
-    dstate.resetValue
-    dstate.setMode(NonBlocking)
+    if (!restart) {
+      dstate.opIndex = 0
+      dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
+      dstate.setVMap(state.variableMap)
+      dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
+      dstate.setArrayPos(state.arrayPos)
+      dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
+      dstate.setErrorOrWarn(state)
+      dstate.resetValue
+      dstate.setMode(NonBlocking)
+      dstate.isCompile = state match {
+        case cs: CompileState => true
+        case _ => false
+      }
+    }
     run(dstate)
   }
 
@@ -74,10 +86,10 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    * Used at compilation time to evaluate expressions to determine
    * if they are constant valued.
    *
-   * TODO: constnat folding really should operate on sub-expressions of expressions
+   * TODO: constant folding really should operate on sub-expressions of expressions
    * so that part of an expression can be constant, not necessarily the whole thing.
    */
-  def runExpressionForConstant(sfl: SchemaFileLocation): Option[Any] = {
+  def runExpressionForConstant(sfl: SchemaFileLocation): Option[AnyRef] = {
 
     //
     // we use a special dummy dstate here that errors out via throw
@@ -96,10 +108,11 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         true
       } catch {
         //
-        // We use IllegalStateException to indicate that the DState was manipulated
+        // We use InfosetException to indicate that the DState was manipulated
         // in a way that is not consistent with a constant expression. Such as trying to do
         // anything with the infoset other than saving and restoring current position in the infoset.
-        case e: java.lang.IllegalStateException =>
+        // Ditto trying to read a variable.
+        case _: InfosetException | _: VariableException | _: java.lang.IllegalStateException =>
           false // useful place for breakpoint
         // if the expression is all literals, but illegal such as xs:int("foobar") then
         // all the pieces are constant, but evaluating will throw NumberFormatException
@@ -264,21 +277,26 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue
+    val leftValue = dstate.currentValue.asInstanceOf[JNumber]
     dstate.setCurrentNode(savedNode)
     right.run(dstate)
-    val rightValue = dstate.currentValue
+    val rightValue = dstate.currentValue.asInstanceOf[JNumber]
     val result = nop.operate(leftValue, rightValue)
     dstate.setCurrentValue(result)
   }
 }
 
 trait NumericOp {
+  import scala.language.implicitConversions
+
+  implicit def BigDecimalToJBigDecimal(bd: BigDecimal): JBigDecimal = bd.bigDecimal
+  implicit def BigIntToJBigInt(bi: BigInt): JBigInt = bi.bigInteger
+
   /**
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
    */
-  def operate(v1: Any, v2: Any): Any
+  def operate(v1: JNumber, v2: JNumber): JNumber
 }
 
 abstract class Converter extends RecipeOp {
@@ -310,11 +328,11 @@ abstract class Converter extends RecipeOp {
     dstate.setCurrentValue(res)
   }
 
-  def computeValue(str: Any, dstate: DState): Any
+  def computeValue(str: AnyRef, dstate: DState): AnyRef
 }
 
 trait ToString extends Converter {
-  override def computeValue(a: Any, dstate: DState) = a.toString
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = a.toString
 }
 
 case object StringToNonEmptyString extends RecipeOp {

@@ -33,9 +33,8 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
@@ -46,39 +45,76 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
  * TODO: EscapeScheme's have a few more of these runtime properties
  * escapeCharacter, and escapeEscapeCharacter.
  */
-trait CommonRuntimeValuedPropertiesMixin
+trait TermRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
-  with RawCommonRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
-
-  final lazy val byteOrder = LV('byteOrder) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, byteOrderRaw) }.value
+  with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
   final lazy val encoding = LV('encoding) {
+    val qn = this.qNameForProperty("encoding")
     this match {
       case eb: ElementBase if (eb.isSimpleType && eb.primType =:= PrimType.HexBinary) => {
         //
         // We treat hex binary as a string in iso-8859-1 encoding.
         // That lets us reuse the various string parsing bases to grab the content.
         //
-        ConstantExpression(PrimType.HexBinary, "iso-8859-1")
+        val qn = decl.qNameForProperty("encoding")
+        val exp = ConstantExpression(qn, PrimType.HexBinary, "iso-8859-1")
+        exp
       }
-      case _ => ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw)
+      case _ => ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, encodingRaw)
     }
   }.value
 
+  final lazy val encodingEv = new EncodingEv(encoding, termRuntimeData)
+
+  // these are public so that EncodingChange parsers and unparser can express dependencies on them.
+  lazy val decoderEv = new DecoderEv(encodingEv, termRuntimeData)
+  lazy val encoderEv = new EncoderEv(encodingEv, termRuntimeData)
+
+  /*
+   * Property OutputNewLine
+   *
+   * This has not been cut over to use Evaluatables. There were a number of subtle problems
+   * this lead to. The commented 3 lines below are what this eventually wants to become.
+   *
+   * This transition is best done in an isolated commit.
+   */
+
+  // compatibility with code that expects to look at CompiledExpression
+  final lazy val outputNewLine2 = {
+    outputNewLineEv.compile()
+    outputNewLineExpr
+  }
+
+  private final lazy val outputNewLineExpr = {
+    val qn = this.qNameForProperty("outputNewLine")
+    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
+  }
+
+  lazy val outputNewLineEv =
+    new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
+
+  /**
+   * This is pretty much the original code for outputNewLine with its own ad-hoc checks done
+   * in the static case, and not using the new cookers or anything else.
+   */
+  // @deprecated("2016", "use outputNewLineEv")
   final lazy val outputNewLine = LV('outputNewLine) {
+    val qn = this.qNameForProperty("outputNewLine")
+
     // First compile is just to take advantage of the expression compiler's ability
     // to detect expressions vs. string literals, so we know whether or not to substitute
     // for entities.
-    val ce = ExpressionCompiler.compile(NodeInfo.NonEmptyString, outputNewLineRaw)
-    val exprOrLiteral = if (ce.isConstant) EntityReplacer { _.replaceAll(ce.constantAsString, Some(decl)) } else outputNewLineRaw.value
+    val ce = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
+    val exprOrLiteral = if (ce.isConstant) EntityReplacer { _.replaceAll(ce.constant, Some(decl)) } else outputNewLineRaw.value
 
     val c =
       if (ce.isConstant) {
         // compile again, since we've now substituted for entities
-        ExpressionCompiler.compile(NodeInfo.NonEmptyString, Found(exprOrLiteral, outputNewLineRaw.location))
+        ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, Found(exprOrLiteral, outputNewLineRaw.location, "outputNewLine"))
       } else ce // use what we already compiled.
     if (c.isConstant) {
-      val s = c.constantAsString
+      val s = c.constant
       this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")
       this.schemaDefinitionUnless(!s.contains("%WSP;"), "outputNewLine cannot contain WSP")
       this.schemaDefinitionUnless(!s.contains("%WSP+;"), "outputNewLine cannot contain WSP+")
@@ -96,42 +132,47 @@ trait CommonRuntimeValuedPropertiesMixin
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
-  extends CommonRuntimeValuedPropertiesMixin
-  with RawDelimitedRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
+  extends TermRuntimeValuedPropertiesMixin
+  with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
   // Can be whitespace separated lists, as a result the entity replacement needs to take place elsewhere
   // as it's possible to replace an entity with a whitespace character.
   //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
-  final lazy val initiator = LV('initiator) {
-    val c = {
-      val typeIfStaticallyKnown = NodeInfo.String
-      val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-      ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, initiatorRaw)
-    }
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
-    }
-    c
-  }.value
+
+  // compatibility with code that expects to look at CompiledExpression
+  lazy val initiator = {
+    initiatorEv.compile()
+    initiatorExpr
+  }
+
+  private lazy val initiatorExpr = {
+    val qn = this.qNameForProperty("initiator")
+    val typeIfStaticallyKnown = NodeInfo.String
+    val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, initiatorRaw)
+  }
+
+  lazy val initiatorEv = new InitiatorEv(initiatorExpr, decl.termRuntimeData)
 
   final def initiatorLoc = (this.prettyName, this.path)
 
-  final lazy val terminator = LV('terminator) {
-    val c = {
-      val typeIfStaticallyKnown = NodeInfo.String
-      val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-      ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, terminatorRaw)
-    }
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
-    }
-    c
+  // compatibility with code that expects to look at CompiledExpression
+  lazy val terminator = {
+    terminatorEv.compile()
+    terminatorExpr
+  }
+
+  private lazy val terminatorExpr = LV('terminator) {
+    val qn = this.qNameForProperty("terminator")
+    val typeIfStaticallyKnown = NodeInfo.String
+    val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, terminatorRaw)
   }.value
+
   final def terminatorLoc = (this.prettyName, this.path)
 
+  lazy val terminatorEv = new TerminatorEv(terminatorExpr, decl.termRuntimeData)
 }
 
 trait ElementRuntimeValuedPropertiesMixin
@@ -141,9 +182,21 @@ trait ElementRuntimeValuedPropertiesMixin
   with SimpleTypeRuntimeValuedPropertiesMixin
   with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  final lazy val length = LV('length) {
-    ExpressionCompiler.compile(NodeInfo.UnsignedLong, lengthRaw)
+  private lazy val byteOrderExpr = LV('byteOrder) {
+    val qn = this.qNameForProperty("byteOrder")
+    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, byteOrderRaw)
   }.value
+
+  final lazy val byteOrderEv = LV('byteOrderEv) {
+    new ByteOrderEv(byteOrderExpr, elementRuntimeData)
+  }.value
+
+  final lazy val length = {
+    val qn = this.qNameForProperty("length")
+    ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
+  }
+
+  lazy val lengthEv = new LengthEv(length, erd)
 
   //
   // The occursCount expression is written on the array element, but that expression
@@ -159,9 +212,12 @@ trait ElementRuntimeValuedPropertiesMixin
   // implementation, the ".." does get literally evaluated.
   //
   final lazy val occursCount = LV('occursCount) {
+    val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
-    ExpressionCompiler.compile(NodeInfo.UnsignedLong, occursCountRaw, isEvaluatedAbove) //NodeInfo.UnsignedInt
+    ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, occursCountRaw, isEvaluatedAbove)
   }.value
+
+  lazy val occursCountEv = new OccursCountEv(occursCount, erd)
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -169,72 +225,88 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
-  final lazy val separator = LV('separator) {
-    val c = {
-      val typeIfStaticallyKnown = NodeInfo.String
-      val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-      ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, separatorRaw)
-    }
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
-    }
-    c
-  }.value
+  // compatibility with code that expects to look at CompiledExpression
+  final lazy val separator = {
+    separatorEv.compile()
+    separatorExpr
+  }
+
+  private lazy val separatorExpr = {
+    val qn = this.qNameForProperty("separator")
+    val typeIfStaticallyKnown = NodeInfo.String
+    val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, separatorRaw)
+  }
+
+  lazy val separatorEv = new SeparatorEv(separatorExpr, decl.termRuntimeData)
 
   final def separatorLoc = (this.prettyName, this.path)
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
-  extends CommonRuntimeValuedPropertiesMixin
-  with DFDLSimpleTypeMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
+  extends DFDLSimpleTypeMixin
+  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  final lazy val textStandardDecimalSeparator = LV('textStandardDecimalSeparator) {
-    val c = ExpressionCompiler.compile(NodeInfo.String, textStandardDecimalSeparatorRaw)
+  final lazy val textStandardDecimalSeparator = textStandardDecimalSeparatorExpr
+
+  private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
+    val qn = this.qNameForProperty("textStandardDecimalSeparator")
+    val c = ExpressionCompilers.String.compile(qn, NodeInfo.String, textStandardDecimalSeparatorRaw)
     c
   }.value
 
-  final lazy val textStandardGroupingSeparator = LV('textStandardGroupingSeparator) {
-    val c = ExpressionCompiler.compile(NodeInfo.String, textStandardGroupingSeparatorRaw)
+  final lazy val textStandardDecimalSeparatorEv = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, erd)
+
+  final lazy val textStandardGroupingSeparator = textStandardGroupingSeparatorExpr
+
+  private lazy val textStandardGroupingSeparatorExpr = LV('textStandardGroupingSeparator) {
+    val qn = this.qNameForProperty("textStandardGroupingSeparator")
+    val c = ExpressionCompilers.String.compile(qn, NodeInfo.String, textStandardGroupingSeparatorRaw)
     c
   }.value
 
-  final lazy val textStandardExponentRep = LV('textStandardExponentRep) {
-    val c = ExpressionCompiler.compile(NodeInfo.String, textStandardExponentRepRaw)
+  final lazy val textStandardGroupingSeparatorEv = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, erd)
+
+  final lazy val textStandardExponentRep = textStandardExponentRepExpr
+
+  private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
+    val qn = this.qNameForProperty("textStandardExponentRep")
+    val c = ExpressionCompilers.String.compile(qn, NodeInfo.String, textStandardExponentRepRaw)
     c
   }.value
 
-  final lazy val binaryFloatRep = LV('binaryFloatRep) {
-    ExpressionCompiler.compile(NodeInfo.NonEmptyString, binaryFloatRepRaw)
+  final lazy val textStandardExponentRepEv = new TextStandardExponentRepEv(textStandardExponentRepExpr, erd)
+
+  final lazy val binaryFloatRep = binaryFloatRepExpr
+
+  private lazy val binaryFloatRepExpr = LV('binaryFloatRep) {
+    val qn = this.qNameForProperty("binaryFloatRep")
+    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, binaryFloatRepRaw)
   }.value
 
-  // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.
-  final lazy val textBooleanTrueRep = LV('textBooleanTrueRep) {
-    val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanTrueRep cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textBooleanTrueRep cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textBooleanTrueRep cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textBooleanTrueRep cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanTrueRep cannot contain ES")
-    }
+  final lazy val binaryFloatRepEv = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
+
+  final lazy val textBooleanTrueRep = textBooleanTrueRepExpr
+
+  private lazy val textBooleanTrueRepExpr = LV('textBooleanTrueRep) {
+    val qn = this.qNameForProperty("textBooleanTrueRep")
+    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
+  }.value
+
+  final lazy val textBooleanTrueRepEv = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, erd)
+
+  final lazy val textBooleanFalseRep = textBooleanFalseRepExpr
+
+  private lazy val textBooleanFalseRepExpr = LV('textBooleanFalseRep) {
+    val qn = this.qNameForProperty("textBooleanFalseRep")
+    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
+  }.value
+
+  final lazy val textBooleanFalseRepEv = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, erd)
+
+  final lazy val calendarLanguage = LV('calendarLanguage) {
+    val qn = this.qNameForProperty("calendarLanguage")
+    val c = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, calendarLanguageRaw)
     c
   }.value
-
-  // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanFalseRep in Parser where it is used.
-  final lazy val textBooleanFalseRep = LV('textBooleanFalseRep) {
-    val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "textBooleanFalseRep cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textBooleanFalseRep cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textBooleanFalseRep cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textBooleanFalseRep cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanFalseRep cannot contain ES")
-    }
-    c
-  }.value
-
 }

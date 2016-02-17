@@ -235,6 +235,18 @@ trait QNameBase {
     }
   }
 
+  /**
+   * Creates a string suitable for use in an XML attribute as in 'dfdl:terminator="..."' or
+   * 'xsi:nil="true"'
+   */
+  def toAttributeNameString: String = {
+    (prefix, local, namespace) match {
+      case (None, local, NoNamespace) => local
+      case (None, local, ns) => Assert.invariantFailed("QName has namespace, but no prefix defined.")
+      case _ => toPrettyString
+    }
+  }
+
   def matches[Q <: QNameBase](other: Q): Boolean
 }
 

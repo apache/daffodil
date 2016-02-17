@@ -562,17 +562,25 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
 /**
  * This is handy to keep around for debugging.
  */
-object BasicStderrErrorHandler extends org.xml.sax.ErrorHandler {
+class BasicErrorHandler extends org.xml.sax.ErrorHandler {
+
+  var diagnostics: List[SAXParseException] = Nil
+  var hasError: Boolean = false
 
   def warning(exception: SAXParseException) = {
-    System.err.println("Warning " + exception.getMessage())
+    diagnostics :+= exception
+    // System.err.println("Warning " + exception.getMessage())
   }
 
   def error(exception: SAXParseException) = {
-    System.err.println("Error: " + exception.getMessage())
+    diagnostics :+= exception
+    hasError = true
+    // System.err.println("Error: " + exception.getMessage())
   }
   def fatalError(exception: SAXParseException) = {
-    System.err.println("Fatal: " + exception.getMessage())
+    diagnostics :+= exception
+    hasError = true
+    // System.err.println("Fatal: " + exception.getMessage())
   }
 }
 

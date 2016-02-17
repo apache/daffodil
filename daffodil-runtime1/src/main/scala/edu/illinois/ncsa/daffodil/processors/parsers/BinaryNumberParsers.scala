@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
@@ -43,10 +43,10 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-
+import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
 
 class BinaryFloatParser(e: ElementRuntimeData)
-  extends PrimParser(e) {
+  extends PrimParserObject(e) {
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -56,13 +56,13 @@ class BinaryFloatParser(e: ElementRuntimeData)
       return
     }
 
-    val f = dis.getBinaryFloat()
+    val f: JFloat = dis.getBinaryFloat()
     start.simpleElement.overwriteDataValue(f)
   }
 }
 
 class BinaryDoubleParser(e: ElementRuntimeData)
-  extends PrimParser(e) {
+  extends PrimParserObject(e) {
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -72,24 +72,23 @@ class BinaryDoubleParser(e: ElementRuntimeData)
       return
     }
 
-    val d = dis.getBinaryDouble()
+    val d: JDouble = dis.getBinaryDouble()
     start.simpleElement.overwriteDataValue(d)
   }
 }
-
 
 class BinaryDecimalKnownLengthParser(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthInBits: Int)
   extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 }
 
-class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthExpr: CompiledExpression, val lUnits: LengthUnits)
+class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthExpr: CompiledExpression[JLong], val lUnits: LengthUnits)
   extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 }
 
 abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
-  extends PrimParser(e) {
+  extends PrimParserObject(e) {
 
   protected def getBitLength(s: PState): Int
 
@@ -111,7 +110,7 @@ abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, bin
   }
 }
 
-class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthExpr: CompiledExpression, val lUnits: LengthUnits)
+class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthExpr: CompiledExpression[JLong], val lUnits: LengthUnits)
   extends BinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 }
@@ -122,7 +121,7 @@ class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val
 }
 
 abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
-  extends PrimParser(e) {
+  extends PrimParserObject(e) {
 
   protected def getBitLength(s: PState): Int
 
@@ -135,7 +134,7 @@ abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
       return
     }
 
-    val int: Any =
+    val int: JNumber =
       if (signed) {
         if (nBits > 64) { dis.getSignedBigInt(nBits) }
         else { dis.getSignedLong(nBits) }

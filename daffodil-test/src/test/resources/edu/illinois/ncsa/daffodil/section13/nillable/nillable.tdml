@@ -231,17 +231,22 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  <tdml:parserTestCase name="litNil4b" root="doc_02b"
-    model="s1"
-    description="When the empty string is to be used as a value, the entity %ES; must be used in the corresponding string literal - DFDL-06-036R">
 
+  <tdml:parserTestCase name="litNil4b" root="doc_02b" model="s1" 
+    description="When the empty string is to be used as a value, the entity %ES; must be used in the corresponding string literal - DFDL-06-036R">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[]]>
+      </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-     <tdml:error>Schema Definition Error</tdml:error>
-     <tdml:error>nilValue cannot be empty!</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>nillable</tdml:error>
+      <tdml:error>complex</tdml:error>
+      <tdml:error>elements</tdml:error>
+      <tdml:error>only</tdml:error>
+      <tdml:error>ES</tdml:error>
+      <tdml:error>nilValue</tdml:error>
+      <tdml:error>property</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

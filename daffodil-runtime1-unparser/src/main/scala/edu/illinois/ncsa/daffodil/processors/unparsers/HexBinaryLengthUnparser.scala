@@ -34,14 +34,14 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import java.lang.{ Long => JLong }
 
 abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
-  extends PrimUnparser(erd) {
+  extends PrimUnparserObject(erd) {
 
   protected def getLength(state: UState): Long
 
@@ -75,12 +75,12 @@ final class HexBinaryFixedLengthInBytesUnparser(nBytes: Long, erd: ElementRuntim
   override def getLength(state: UState): Long = nBytes
 }
 
-final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, length: CompiledExpression)
+final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, length: CompiledExpression[JLong])
   extends HexBinaryLengthInBytesUnparser(erd) {
 
   override def getLength(state: UState): Long = {
-    val lengthAsAny = length.evaluate(state)
-    val l = AsIntConverters.asLong(lengthAsAny)
+    val lengthAsAnyRef = length.evaluate(state)
+    val l = AsIntConverters.asLong(lengthAsAnyRef)
     l
   }
 }

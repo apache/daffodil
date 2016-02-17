@@ -107,16 +107,16 @@ trait Dynamic {
   // There shouldn't be a need for NumFormat static and dynamic variants. That's a redundant distinction
   // that is being hidden at this level in theory.
   //
-  type CachedDynamic[A] = Either[CompiledExpression, A]
+  type CachedDynamic[A <: AnyRef, B <: AnyRef] = Either[CompiledExpression[A], B]
 
   // Returns an Either, with Right being the value of the constant, and the
   // Left being the a non-constant compiled expression. The conv variable is
   // used to convert the constant value to a more usable form, and perform and
   // SDE checks. This should be called during initialization/compile time. Not
   // during runtime.
-  def cacheConstantExpression[A](e: CompiledExpression)(conv: (Any) => A): CachedDynamic[A] = {
+  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](e: CompiledExpression[A])(conv: (A) => B): CachedDynamic[A, B] = {
     if (e.isConstant) {
-      val v: Any = e.constant
+      val v: A = e.constant
       Right(conv(v))
     } else {
       Left(e)
@@ -128,48 +128,48 @@ trait Dynamic {
   // with lots of inlining resulted in errors here because a Maybe[T] is an AnyVal aka
   // value class. At compile time Maybe[Foo] and just Foo aren't distinguishable to resolve
   // the overloading. So keep it simple, and just don't overload the names.
-  def cacheConstantExpressionMaybe[A](oe: Maybe[CompiledExpression])(conv: (Any) => A): Maybe[CachedDynamic[A]] = {
+  def cacheConstantExpressionMaybe[A <: AnyRef, B <: AnyRef](oe: Maybe[CompiledExpression[A]])(conv: (A) => B): Maybe[CachedDynamic[A, B]] = {
     //oe.map { e => cacheConstantExpression[A](e)(conv) }
-    if (oe.isDefined) One(cacheConstantExpression[A](oe.get)(conv))
+    if (oe.isDefined) One(cacheConstantExpression[A, B](oe.get)(conv))
     else Nope
   }
 
-  def cacheConstantExpression[A](listOfE: List[CompiledExpression])(conv: (Any) => A): List[CachedDynamic[A]] = {
-    listOfE.map { e => cacheConstantExpression[A](e)(conv) }
+  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](listOfE: List[CompiledExpression[A]])(conv: (A) => B): List[CachedDynamic[A, B]] = {
+    listOfE.map { e => cacheConstantExpression[A, B](e)(conv) }
   }
 
   // For any expression that couldn't be evaluated in cacheConstantExpression,
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, e: CachedDynamic[A])(conv: (ParseOrUnparseState, Any) => A): A = {
+  def evalWithConversion[A <: AnyRef, B <: AnyRef](s: ParseOrUnparseState, e: CachedDynamic[A, B])(conv: (ParseOrUnparseState, A) => B): B = {
     e match {
       case Right(r) => r
       case Left(l) => {
-        val aAsAny = l.evaluate(s)
+        val a: A = l.evaluate(s)
         if (s.status ne Success) {
           // evaluation failed
           // we can't continue this code path
           // have to throw out of here
           throw s.status.asInstanceOf[Failure].cause
         }
-        val a: A = conv(s, aAsAny)
-        a
+        val b: B = conv(s, a)
+        b
       }
     }
   }
 
-  def evalWithConversionMaybe[A <: AnyRef](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
+  def evalWithConversionMaybe[A <: AnyRef, B <: AnyRef](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A, B]])(conv: (ParseOrUnparseState, A) => B): Maybe[B] = {
     if (oe.isDefined) {
-      val a = evalWithConversion[A](s, oe.get)(conv)
-      One(a)
+      val b: B = evalWithConversion[A, B](s, oe.get)(conv)
+      One(b)
     } else Nope
   }
 
-  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, oe: List[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): List[A] = {
+  def evalWithConversion[A <: AnyRef, B <: AnyRef](s: ParseOrUnparseState, oe: List[CachedDynamic[A, B]])(conv: (ParseOrUnparseState, A) => B): List[B] = {
     val state = s
     val listE = oe.map(e => {
-      val exp = evalWithConversion[A](state, e)(conv)
+      val exp: B = evalWithConversion[A, B](state, e)(conv)
       exp
     })
     listE
@@ -179,14 +179,14 @@ trait Dynamic {
   // which is either Some(s) if the value of the property is static, or None
   // otherwise
 
-  def getStatic[A <: AnyRef](e: CachedDynamic[A]): Maybe[A] = {
+  def getStatic[A <: AnyRef, B <: AnyRef](e: CachedDynamic[A, B]): Maybe[B] = {
     e match {
       case Left(l) => Nope
       case Right(r) => One(r)
     }
   }
 
-  def getStaticMaybe[A <: AnyRef](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
+  def getStaticMaybe[A <: AnyRef, B <: AnyRef](oe: Maybe[CachedDynamic[A, B]]): Maybe[B] = {
     if (oe.isDefined) getStatic(oe.get)
     else Nope
   }

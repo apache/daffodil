@@ -57,10 +57,10 @@ class TestGeneratedProperties {
    * retrieves the property if it is present.
    */
   class HasLotsOfProperties
-      extends OOLAGHost(null)
-      with LookupLocation
-      with Format_AnnotationMixin
-      with SeparatorSuppressionPolicyMixin {
+    extends OOLAGHost(null)
+    with LookupLocation
+    with Format_AnnotationMixin
+    with SeparatorSuppressionPolicyMixin {
 
     def columnAttribute: Option[String] = ???
     def fileAttribute: Option[String] = ???
@@ -97,7 +97,7 @@ class TestGeneratedProperties {
     def findPropertyOption(pname: String): PropertyLookupResult = {
       val propNodeSeq = bagOfProps.attribute(pname)
       propNodeSeq match {
-        case None => NotFound(Seq(this), Nil) // attribute was not found
+        case None => NotFound(Seq(this), Nil, pname) // attribute was not found
         case Some(nodeseq) => {
           //
           // Interesting that attributeName="" produces a Nil nodeseq, not an empty string.
@@ -109,8 +109,8 @@ class TestGeneratedProperties {
           // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
           //
           nodeseq match {
-            case Nil => Found("", this) // we want to hand back the empty string as a value.
-            case _ => Found(nodeseq.toString, this)
+            case Nil => Found("", this, pname) // we want to hand back the empty string as a value.
+            case _ => Found(nodeseq.toString, this, pname)
           }
         }
       }
@@ -183,7 +183,6 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.calendarFirstDayOfWeek, "monday")
     comparePropValue(hasProps.calendarDaysInFirstWeek, "4")
     comparePropValue(hasProps.calendarCenturyStart, "53")
-    comparePropValue(hasProps.calendarLanguage, "en-US")
     comparePropValue(hasProps.occursCountKind, "parsed")
     comparePropValue(hasProps.sequenceKind, "ordered")
     //    comparePropValue(hasProps.separator, ",")

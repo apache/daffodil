@@ -43,11 +43,12 @@ class TestQName {
     val data = <xs:element name="one" type={ bigPrefix + ":b" }/>
     val qntext = (data \ "@type").text
 
-    println("length of type attribute = " + qntext.length)
+    // println("length of type attribute = " + qntext.length)
     qntext match {
       case QNameRegex.QName(pre, local) => {
-        println(pre)
-        println(local)
+        // println(pre)
+        // println(local)
+        assertEquals(6001, pre.length + local.length)
       }
     }
   }

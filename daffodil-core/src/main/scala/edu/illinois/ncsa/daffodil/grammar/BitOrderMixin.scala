@@ -37,36 +37,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.equality._
 
-trait BitOrderMixin extends GrammarMixin with ByteOrderMixin { self: Term =>
+trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 
-  private val littleEndian = ByteOrder.LittleEndian.toString
-
-  def checkBitOrderByteOrderCompatibility(bitOrd: BitOrder): BitOrder = {
-    bitOrd match {
-      case BitOrder.LeastSignificantBitFirst => {
-        if (byteOrder.isConstant) {
-          val literalByteOrder = byteOrder.constantAsString
-          schemaDefinitionUnless(literalByteOrder =:= littleEndian,
-            "Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian' but was '%s'.", literalByteOrder)
-        }
-      }
-      case BitOrder.MostSignificantBitFirst => {
-        // ok with either big or little endian.
-      }
-    }
-    bitOrd
-  }
-
-  final lazy val optDefaultBitOrder: Option[BitOrder] = {
+  protected final lazy val optDefaultBitOrder: Option[BitOrder] = {
     val bitOrd =
       if (DaffodilTunableParameters.requireBitOrderProperty) {
-        Some(checkBitOrderByteOrderCompatibility(bitOrder))
+        Some(bitOrder)
       } else {
-        optionBitOrder.map { bitOrd =>
-          // Only need to check compatibility if it is specified
-          // because otherwise it is MostSignificantBitFirst, which can't conflict.
-          checkBitOrderByteOrderCompatibility(bitOrd)
-        }
+        optionBitOrder
       }
     bitOrd
   }

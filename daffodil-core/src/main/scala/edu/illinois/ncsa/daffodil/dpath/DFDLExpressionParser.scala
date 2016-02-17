@@ -55,13 +55,13 @@ import scala.util.parsing.combinator.RegexParsers
  * save it. So hopefully that discards all the state of the combinator
  * stuff as well.
  */
-class DFDLPathExpressionParser(
-    nodeInfoKind: NodeInfo.Kind,
-    namespaces: NamespaceBinding,
-    context: DPathCompileInfo,
-    isEvaluatedAbove: Boolean) extends RegexParsers {
+class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
+  nodeInfoKind: NodeInfo.Kind,
+  namespaces: NamespaceBinding,
+  context: DPathCompileInfo,
+  isEvaluatedAbove: Boolean) extends RegexParsers {
 
-  def compile(expr: String): CompiledExpression = {
+  def compile(expr: String): CompiledExpression[T] = {
     val tree = getExpressionTree(expr)
 
     if (tree.isError) {
@@ -71,14 +71,14 @@ class DFDLPathExpressionParser(
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
     val value = recipe.runExpressionForConstant(context.schemaFileLocation)
-    val res = value match {
+    val res: CompiledExpression[T] = value match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)
-        val res = new ConstantExpression(nodeInfoKind, constantValue)
+        val res = new ConstantExpression[T](qn, nodeInfoKind, constantValue.asInstanceOf[T])
         res
       }
       case None => {
-        new RuntimeExpressionDPath(nodeInfoKind, recipe, expr, context, isEvaluatedAbove)
+        new RuntimeExpressionDPath[T](qn, nodeInfoKind, recipe, expr, context, isEvaluatedAbove)
       }
     }
     res

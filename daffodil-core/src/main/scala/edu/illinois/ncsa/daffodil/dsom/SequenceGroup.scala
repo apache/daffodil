@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,6 +46,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.grammar.SequenceGrammarMixin
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.SequenceRuntimeData
 
 class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
@@ -74,8 +77,8 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   // attribute, not a format property in the usual sense.
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
   //
-  // FIXME: must call findPropertyOption so that it gets a context back which 
-  // allows resolution of a QName using the right scope. 
+  // FIXME: must call findPropertyOption so that it gets a context back which
+  // allows resolution of a QName using the right scope.
   final lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef")
 
   /**
@@ -187,7 +190,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
         val childrenGroupedByName = children.groupBy(child => child.name)
         childrenGroupedByName.foreach {
           case (name, children) =>
-            // Now we're looking at the individual name buckets within the 
+            // Now we're looking at the individual name buckets within the
             // individual namespace bucket.
             if (children.length > 1)
               this.SDE("Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
@@ -257,6 +260,31 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     Some(new UnorderedSequence(newXML, children, parent, position))
 
   } else None
+
+  final lazy val modelGroupRuntimeData = {
+    new SequenceRuntimeData(
+      schemaSet.variableMap,
+      encodingInfo,
+      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
+      schemaFileLocation,
+      dpathCompileInfo,
+      prettyName,
+      path,
+      namespaces,
+      defaultBitOrder,
+      groupMembersRuntimeData,
+      enclosingElement.map { _.elementRuntimeData }.getOrElse(
+        Assert.invariantFailed("model group with no surrounding element.")),
+      enclosingTerm.map { _.termRuntimeData }.getOrElse {
+        Assert.invariantFailed("model group with no surrounding term.")
+      },
+      isRepresented,
+      couldHaveText,
+      alignmentValueInBits,
+      hasNoSkipRegions,
+      fillByteValue,
+      optIgnoreCase)
+  }
 
 }
 

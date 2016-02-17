@@ -35,6 +35,9 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.processors.unparsers.BitOrderChangeUnparser
+import edu.illinois.ncsa.daffodil.util.Maybe
+import Maybe._
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
 
 /**
  * Changes bit order to what the term specifies it is.
@@ -42,8 +45,15 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.BitOrderChangeUnparser
 
 case class BitOrderChange(t: Term) extends Terminal(t, true) {
 
-  override lazy val parser = new BitOrderChangeParser(t.runtimeData, t.defaultBitOrder, t.byteOrder)
+  val maybeByteOrder = t match {
+    case eb: ElementBase => One(eb.byteOrderEv)
+    case _ => Nope
+  }
 
-  override lazy val unparser = new BitOrderChangeUnparser(t.runtimeData, t.defaultBitOrder, t.byteOrder)
+  lazy val checkByteAndBitOrder = new CheckByteAndBitOrderEv(t.termRuntimeData, t.bitOrder, maybeByteOrder)
+
+  override lazy val parser = new BitOrderChangeParser(t.termRuntimeData, t.defaultBitOrder, checkByteAndBitOrder)
+
+  override lazy val unparser = new BitOrderChangeUnparser(t.termRuntimeData, t.defaultBitOrder, checkByteAndBitOrder)
 
 }

@@ -454,7 +454,7 @@ abstract class DFDLCalendar(containsTZ: Boolean)
    */
   def getCalendar() = calendar
   override def toString(): String = {
-    val formatter = tlFormatter.get
+    val formatter: SimpleDateFormat = tlFormatter.get
     formatter.setCalendar(calendar)
 
     val formattedString = try {

@@ -1,13 +1,10 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
@@ -32,9 +29,9 @@ trait EvaluatesStaticDynamicTextCommon { self: Processor =>
 trait EvaluatesStaticDynamicTextParser
   extends EvaluatesStaticDynamicTextCommon { self: Parser =>
 
-  def getStaticAndDynamicText(ceOpt: Option[CompiledExpression],
+  def getStaticAndDynamicText(ceOpt: Option[CompiledExpression[String]],
     context: RuntimeData,
-    errorOnWSPStar: Boolean = false): (Array[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean = false): (Array[DFADelimiter], Option[CompiledExpression[String]]) = {
 
     val res = if (ceOpt.isDefined) {
       val ce = ceOpt.get
@@ -47,13 +44,13 @@ trait EvaluatesStaticDynamicTextParser
     res
   }
 
-  def getStaticAndDynamicText(ce: CompiledExpression,
+  def getStaticAndDynamicText(ce: CompiledExpression[String],
     context: RuntimeData,
-    errorOnWSPStar: Boolean): (Array[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean): (Array[DFADelimiter], Option[CompiledExpression[String]]) = {
 
     val (staticRawOpt, dynamicRawOpt) = {
       if (ce.isConstant) {
-        if (ce.constantAsString.length() > 0) (Some(ce.constantAsString.split("\\s")), None)
+        if (ce.constant.length() > 0) (Some(ce.constant.split("\\s")), None)
         else { (Some(Array.empty[String]), None) }
       } else (None, Some(ce))
     }
@@ -69,14 +66,14 @@ trait EvaluatesStaticDynamicTextParser
     (staticDFAs, dynamicRawOpt)
   }
 
-  def evaluateDynamicText(dynamic: Option[CompiledExpression],
+  def evaluateDynamicText(dynamic: Option[CompiledExpression[String]],
     start: PState,
     context: RuntimeData,
     errorOnWSPStar: Boolean): Array[DFADelimiter] = {
 
     if (dynamic.isDefined) {
       val res = dynamic.get.evaluate(start)
-      val finalValueCooked = new ListOfStringValueAsLiteral(res.toString, context).cooked
+      val finalValueCooked = DelimiterCooker.convertRuntime(res.toString, context, forUnparse = false)
 
       if (errorOnWSPStar) errorIfDelimsHaveWSPStar(finalValueCooked, context)
 
@@ -90,10 +87,10 @@ trait EvaluatesStaticDynamicTextParser
 trait EvaluatesStaticDynamicTextUnparser
   extends EvaluatesStaticDynamicTextCommon { self: Unparser =>
 
-  def getStaticAndDynamicText(ceOpt: Option[CompiledExpression],
-    outputNewLine: CompiledExpression,
+  def getStaticAndDynamicText(ceOpt: Option[CompiledExpression[String]],
+    outputNewLine: CompiledExpression[String],
     context: RuntimeData,
-    errorOnWSPStar: Boolean = false): (Option[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean = false): (Option[DFADelimiter], Option[CompiledExpression[String]]) = {
 
     val res = if (ceOpt.isDefined) {
       val ce = ceOpt.get
@@ -105,14 +102,14 @@ trait EvaluatesStaticDynamicTextUnparser
     res
   }
 
-  def getStaticAndDynamicText(ce: CompiledExpression,
-    outputNewLine: CompiledExpression,
+  def getStaticAndDynamicText(ce: CompiledExpression[String],
+    outputNewLine: CompiledExpression[String],
     context: RuntimeData,
-    errorOnWSPStar: Boolean): (Option[DFADelimiter], Option[CompiledExpression]) = {
+    errorOnWSPStar: Boolean): (Option[DFADelimiter], Option[CompiledExpression[String]]) = {
 
     val (staticRawOpt, dynamicRawOpt) = {
       if (ce.isConstant && outputNewLine.isConstant) {
-        if (ce.constantAsString.length() > 0) (Some(ce.constantAsString.split("\\s")), None)
+        if (ce.constant.length() > 0) (Some(ce.constant.split("\\s+")), None)
         else { return (None, None) }
       } else return (None, Some(ce)) // Dynamic because either CE or outputNewLine was not 'constant'.
     }
@@ -120,14 +117,14 @@ trait EvaluatesStaticDynamicTextUnparser
     val staticCooked = EntityReplacer { _.replaceAll(staticRawOpt.get.head, Some(context)) }
     if (errorOnWSPStar) errorIfDelimsHaveWSPStar(Seq(staticCooked), context)
     val staticDelim = {
-      CreateDelimiterDFA(staticCooked, outputNewLine.constantAsString)
+      CreateDelimiterDFA(staticCooked, outputNewLine.constant)
     }
 
     (Some(staticDelim), dynamicRawOpt)
   }
 
-  def evaluateDynamicText(dynamic: Option[CompiledExpression],
-    outputNewLine: CompiledExpression,
+  def evaluateDynamicText(dynamic: Option[CompiledExpression[String]],
+    outputNewLine: CompiledExpression[String],
     start: UState,
     context: RuntimeData,
     errorOnWSPStar: Boolean): Option[DFADelimiter] = {
@@ -137,12 +134,11 @@ trait EvaluatesStaticDynamicTextUnparser
 
       val outputNL = outputNewLine.evaluate(start)
 
-      val firstValue = res.toString.split("\\s").head
-      val finalValueCooked = new StringValueAsLiteral(firstValue, context).cooked
+      val finalValueCooked = DelimiterCooker.convertRuntime(res, context, forUnparse = true)
 
-      if (errorOnWSPStar) errorIfDelimsHaveWSPStar(Seq(finalValueCooked), context)
+      if (errorOnWSPStar) errorIfDelimsHaveWSPStar(finalValueCooked, context)
 
-      val dfas = CreateDelimiterDFA(finalValueCooked, outputNL.toString)
+      val dfas = CreateDelimiterDFA(finalValueCooked.head, outputNL.toString)
 
       Some(dfas)
     } else { None }

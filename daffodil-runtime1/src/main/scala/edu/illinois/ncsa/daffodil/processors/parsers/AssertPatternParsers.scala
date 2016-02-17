@@ -17,7 +17,7 @@ abstract class AssertPatternParserBase(
   rd: TermRuntimeData,
   testPattern: String,
   message: String)
-  extends PrimParser(rd) {
+  extends PrimParserObject(rd) {
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"

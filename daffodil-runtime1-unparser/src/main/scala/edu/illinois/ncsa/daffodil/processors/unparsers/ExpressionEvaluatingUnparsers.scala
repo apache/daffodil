@@ -45,8 +45,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
  * Common parser base class for any parser that evaluates an expression.
  */
 
-abstract class ExpressionEvaluationUnparser(protected val expr: CompiledExpression, rd: RuntimeData)
-  extends Unparser(rd) with WithParseErrorThrowing {
+abstract class ExpressionEvaluationUnparser(protected val expr: CompiledExpression[AnyRef], rd: RuntimeData)
+  extends UnparserObject(rd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
 
@@ -59,7 +59,7 @@ abstract class ExpressionEvaluationUnparser(protected val expr: CompiledExpressi
   }
 }
 
-class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData, referencingContext: NonTermRuntimeData)
+class SetVariableUnparser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData, referencingContext: NonTermRuntimeData)
   extends ExpressionEvaluationUnparser(expr, decl) {
 
   def unparse(start: UState): Unit = {
@@ -81,7 +81,7 @@ class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData, r
 
 class NewVariableInstanceStartUnparser(
   decl: RuntimeData)
-  extends Unparser(decl) {
+  extends UnparserObject(decl) {
   override lazy val childProcessors = Nil
 
   decl.notYetImplemented("newVariableInstance")
@@ -92,7 +92,7 @@ class NewVariableInstanceStartUnparser(
 
 class NewVariableInstanceEndUnparser(
   decl: RuntimeData)
-  extends Unparser(decl) {
+  extends UnparserObject(decl) {
   override lazy val childProcessors = Nil
 
   decl.notYetImplemented("newVariableInstance")

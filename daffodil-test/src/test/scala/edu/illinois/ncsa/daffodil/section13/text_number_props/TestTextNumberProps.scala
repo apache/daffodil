@@ -108,7 +108,8 @@ class TestTextNumberProps {
   @Test def test_dynamicExp_neg() { runner.runOneTest("dynamicExpNeg") }
   @Test def test_dynamicExpInvalid() { runner.runOneTest("dynamicExpInvalid") }
   @Test def test_expCaseInsensitive() { runner.runOneTest("expCaseInsensitive") }
-  @Test def test_expRawByte() { runner.runOneTest("expRawByte") }
+  @Test def test_expRawByteInvalid() { runner.runOneTest("expRawByteInvalid") }
+  @Test def test_expRawByteNotAllowed() { runner.runOneTest("expRawByteNotAllowed") }
   @Test def test_expCharClasses() { runner.runOneTest("expCharClasses") }
   @Test def test_expCharEntities() { runner.runOneTest("expCharEntities") }
   @Test def test_expCharEntities2() { runner.runOneTest("expCharEntities2") }

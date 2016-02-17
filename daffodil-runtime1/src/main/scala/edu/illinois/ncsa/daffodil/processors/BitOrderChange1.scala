@@ -33,40 +33,20 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.equality._
-
-trait BitOrderChangeMixin {
-
-  def runtimeData: RuntimeData
-  def bitOrder: BitOrder
-  def byteOrder: CompiledExpression
-
-  final protected def checkByteAndBitOrder(state: ParseOrUnparseState) {
-    if (!byteOrder.isConstant) {
-      val byteOrd = byteOrder.evaluate(state).asInstanceOf[String]
-      bitOrder match {
-        case BitOrder.MostSignificantBitFirst => // ok
-        case BitOrder.LeastSignificantBitFirst =>
-          if (byteOrd =:= "bigEndian") {
-            throw new RuntimeSchemaDefinitionError(runtimeData.schemaFileLocation, state,
-              "Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian', but byte order was '%s'.", byteOrd)
-          }
-      }
-    }
-    state.schemaDefinitionUnless(state.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
-  }
-}
 
 class BitOrderChangeParser(
-  val runtimeData: RuntimeData,
+  val termRuntimeData: TermRuntimeData,
   val bitOrder: BitOrder,
-  val byteOrder: CompiledExpression)
-  extends PrimParser(runtimeData) with BitOrderChangeMixin {
+  val checkByteAndBitOrder: CheckByteAndBitOrderEv)
+  extends PrimParser {
+
+  override def context = termRuntimeData
+
+  override lazy val runtimeDependencies = List(checkByteAndBitOrder)
 
   def parse(pstate: PState): Unit = {
     checkByteAndBitOrder(pstate)
+    termRuntimeData.schemaDefinitionUnless(pstate.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
     pstate.dataInputStream.setBitOrder(bitOrder)
   }
 

@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -21,7 +20,7 @@ object StringLiteralForUnparser {
    * avoid demanding it in the cases where it actually doesn't need to force
    * the existence of this property in the schema.
    */
-  def apply(context: TermRuntimeData, outputNewLineByName: => CompiledExpression, stringLiteralRaw: String): StringLiteralForUnparser = {
+  def apply(context: TermRuntimeData, outputNewLineByName: => CompiledExpression[String], stringLiteralRaw: String): StringLiteralForUnparser = {
     lazy val outputNL = outputNewLineByName
     val endMarker = "__daffodil_stringLiteralForUnparser_endMarker__"
     Assert.invariant(!stringLiteralRaw.endsWith(endMarker))
@@ -49,7 +48,7 @@ object StringLiteralForUnparser {
         ConstantStringLiteralForUnparser(chunks.head)
       } else if (outputNL.isConstant) {
         // the outputNL isn't an expression. We have its value directly.
-        val sl = chunks.mkString(outputNL.constantAsString)
+        val sl = chunks.mkString(outputNL.constant)
         ConstantStringLiteralForUnparser(sl)
       } else {
         // There are multiple chunks separated by %NL; and there
@@ -68,7 +67,7 @@ case class ConstantStringLiteralForUnparser(str: String) extends StringLiteralFo
   def evaluate(ustate: UState): String = str
 }
 
-case class RuntimeStringLiteralForUnparser(outputNL: CompiledExpression, chunks: Seq[String]) extends StringLiteralForUnparser {
+case class RuntimeStringLiteralForUnparser(outputNL: CompiledExpression[String], chunks: Seq[String]) extends StringLiteralForUnparser {
   def evaluate(ustate: UState): String = {
     val nlAny = outputNL.evaluate(ustate)
     val nl = nlAny.asInstanceOf[String]

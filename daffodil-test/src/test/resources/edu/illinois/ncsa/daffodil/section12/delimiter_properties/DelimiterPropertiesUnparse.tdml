@@ -337,10 +337,13 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Separator cannot contain ES</tdml:error>
-    </tdml:errors>
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>Separator</tdml:error>
+    <tdml:error>cannot</tdml:error>
+    <tdml:error>contain</tdml:error>
+    <tdml:error>ES</tdml:error>
+  </tdml:errors>
 
   </tdml:unparserTestCase>
 

@@ -109,37 +109,17 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
-  final lazy val modelGroupRuntimeData = {
-
-    val groupMembers = this match {
-      case mg: ModelGroup => mg.groupMembers.map {
-        _ match {
-          case eb: ElementBase => eb.erd
-          case t: Term => t.termRuntimeData
-        }
+  protected lazy val groupMembersRuntimeData = this match {
+    case mg: ModelGroup => mg.groupMembers.map {
+      _ match {
+        case eb: ElementBase => eb.erd
+        case t: Term => t.termRuntimeData
       }
-      case _ => Nil
     }
-    new ModelGroupRuntimeData(
-      schemaSet.variableMap,
-      encodingInfo,
-      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
-      schemaFileLocation,
-      dpathCompileInfo,
-      prettyName,
-      path,
-      namespaces,
-      defaultBitOrder,
-      groupMembers,
-      enclosingElement.map { _.elementRuntimeData }.getOrElse(
-        Assert.invariantFailed("model group with no surrounding element.")),
-      isRepresented,
-      couldHaveText,
-      alignmentValueInBits,
-      hasNoSkipRegions,
-      fillByteValue,
-      optIgnoreCase)
+    case _ => Nil
   }
+
+  def modelGroupRuntimeData: ModelGroupRuntimeData
 
   final lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
   final lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
