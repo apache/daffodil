@@ -66,7 +66,8 @@ abstract class ProcessingError(
 
   /**
    * Used to convert a processing error into a parse error so that it
-   * looks like the same
+   * looks like the same as other parse errors to tests that search for the
+   * "Parse Error" string.
    */
   def toParseError = new ParseError(rd, loc, kind, args: _*)
 

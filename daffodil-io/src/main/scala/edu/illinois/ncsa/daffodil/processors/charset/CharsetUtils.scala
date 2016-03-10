@@ -42,11 +42,23 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
 
+/*
+ * These are needed because the ordinary java/scala Charset, Encoder, and Decoder objects
+ * are not serializable. So we must go back to the string from which they can be created
+ * in order to serialize these.
+ */
+
+/**
+ * Serializable Charset
+ */
 class DFDLCharset(val charsetName: String) extends Serializable {
   charset // Force charset to be evaluted to ensure it's valid at compile time.  It's a lazy val so it will be evaluated when de-serialized
   @transient lazy val charset = CharsetUtils.getCharset(charsetName)
 }
 
+/**
+ * Serializable Encoder
+ */
 class DFDLEncoder(private val dfdlCharset: DFDLCharset) extends Serializable {
   @transient private lazy val encoder_ = dfdlCharset.charset.newEncoder()
 
@@ -56,6 +68,9 @@ class DFDLEncoder(private val dfdlCharset: DFDLCharset) extends Serializable {
   }
 }
 
+/**
+ * Serializable Decoder
+ */
 class DFDLDecoder(private val dfdlCharset: DFDLCharset) extends Serializable {
   @transient private lazy val decoder_ = dfdlCharset.charset.newDecoder()
 
@@ -67,19 +82,27 @@ class DFDLDecoder(private val dfdlCharset: DFDLCharset) extends Serializable {
 
 object CharsetUtils {
 
-  def getCharset(charsetName: String): Charset = {
-    // We should throw if csn is null. Tolerating this would just lead to bugs.
-    Assert.usage(charsetName != null)
-    Assert.usage(charsetName != "")
+  // keep in case we need to put this check back in temporarily
+  // private val noWSNoLowerCasePatern = """[^\sa-z]+""".r.pattern // one or more characters, not whitespace, not lower case.
 
+  def getCharset(charsetName: String): Charset = {
+    Assert.usage(charsetName != null);
+    //    {
+    //      // TODO: expensive check, remove if unnecessary
+    //      //
+    //      // However, encodingEv should guarantee that we already get an upper case token.
+    //      // So we shouldn't need to test this.
+    //      val m = noWSNoLowerCasePatern.matcher(charsetName)
+    //      Assert.usage(m.matches)
+    //    }
     // There is no notion of a default charset in DFDL.
     // So this can be val.
     val csn: String = charsetName
 
     val cs = try {
       val cs =
-        if (csn.toUpperCase() == "US-ASCII-7-BIT-PACKED" || // deprecated name
-          csn.toUpperCase() == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name
+        if (csn == "US-ASCII-7-BIT-PACKED" || // deprecated name
+          csn == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name
           USASCII7BitPackedCharset
         else Charset.forName(csn)
       One(cs)

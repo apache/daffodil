@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.processors.unparsers.PrimUnparserObject
+import edu.illinois.ncsa.daffodil.processors.unparsers.PrimUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
@@ -60,7 +60,8 @@ class NadaParser(context: RuntimeData) extends PrimParserObject(context) {
   }
 }
 
-class NadaUnparser(context: RuntimeData) extends PrimUnparserObject(context) {
+class NadaUnparser(override val context: RuntimeData)
+  extends PrimUnparser {
   override def toString = "Nada"
 
   override def runtimeDependencies = Nil

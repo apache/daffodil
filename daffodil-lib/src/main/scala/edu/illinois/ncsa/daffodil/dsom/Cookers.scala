@@ -48,10 +48,10 @@ object TextStandardGroupingSeparatorCooker extends SingleCharacterLiteralNoCharC
 
 object TextStandardExponentRepCooker extends StringLiteralNoCharClassEntitiesNoByteEntities()
 
-object OutputNewLinePartialCooker extends StringLiteralNoCharClassEntitiesNoByteEntities("outputNewLine")
-
 object OutputNewLineCooker extends SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities()
 
 object TextBooleanTrueRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object TextBooleanFalseRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object EncodingCooker extends UpperCaseToken()

@@ -229,6 +229,12 @@ abstract class ParseOrUnparseState(
     diagnostics = failureDiagnostic :: diagnostics
   }
 
+  /**
+   * Important: If an error is being suppressed, you must call this to reset the state
+   * back so that the prior failure doesn't "last forever" past the point where it is being suppressed.
+   *
+   * This happens, for example, in the debugger when it is evaluating expressions.
+   */
   def setSuccess() {
     status_ = Success
   }
@@ -355,39 +361,6 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
   def hasInfoset: Boolean = infoset_.isDefined
 
   private lazy val infoset_ : Maybe[DIElement] = Nope
-  //  {
-  //    //
-  //    // Establish the invariant that there IS ALWAYS a current node.
-  //    //
-  //    val maybeElt = trd match {
-  //      case erd: ElementRuntimeData if erd.isArray => {
-  //        val complexParent = Infoset.newElement(erd.parent.get).asInstanceOf[DIComplex]
-  //        val child = Infoset.newElement(erd).asInstanceOf[DIElement]
-  //        complexParent.addChild(child) // adds it to the array.
-  //        One(child)
-  //      }
-  //      case erd: ElementRuntimeData => One(Infoset.newElement(erd))
-  //      case mgrd: ModelGroupRuntimeData => One(Infoset.newElement(mgrd.erd))
-  //      case vrd: VariableRuntimeData => {
-  //        // In this case, we're evaluating the default value expression for a variable defined at the top level
-  //        // So truly there is no Term associated. Establishing the invariant that there always is a term
-  //        // is not possible.
-  //        Nope
-  //      }
-  //    }
-  //    if (maybeElt.isDefined) {
-  //      val elt = maybeElt.value
-  //      val diElement = elt.asInstanceOf[DIElement]
-  //      if (diElement.parent eq null) {
-  //        // make a false DIDocument to be the parent of this element
-  //        val doc = new DIDocument(diElement.erd)
-  //        doc.setRootElement(elt)
-  //        doc.isCompileExprFalseRoot = true
-  //      }
-  //      Maybe(diElement)
-  //    } else
-  //      Nope
-  //  }
 
   def infoset: InfosetItem =
     if (infoset_.isDefined)

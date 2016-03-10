@@ -88,7 +88,7 @@ trait EvaluatesStaticDynamicTextUnparser
   extends EvaluatesStaticDynamicTextCommon { self: Unparser =>
 
   def getStaticAndDynamicText(ceOpt: Option[CompiledExpression[String]],
-    outputNewLine: CompiledExpression[String],
+    outputNewLine: OutputNewLineEv,
     context: RuntimeData,
     errorOnWSPStar: Boolean = false): (Option[DFADelimiter], Option[CompiledExpression[String]]) = {
 
@@ -103,7 +103,7 @@ trait EvaluatesStaticDynamicTextUnparser
   }
 
   def getStaticAndDynamicText(ce: CompiledExpression[String],
-    outputNewLine: CompiledExpression[String],
+    outputNewLine: OutputNewLineEv,
     context: RuntimeData,
     errorOnWSPStar: Boolean): (Option[DFADelimiter], Option[CompiledExpression[String]]) = {
 
@@ -117,14 +117,14 @@ trait EvaluatesStaticDynamicTextUnparser
     val staticCooked = EntityReplacer { _.replaceAll(staticRawOpt.get.head, Some(context)) }
     if (errorOnWSPStar) errorIfDelimsHaveWSPStar(Seq(staticCooked), context)
     val staticDelim = {
-      CreateDelimiterDFA(staticCooked, outputNewLine.constant)
+      CreateDelimiterDFA(staticCooked, outputNewLine.optConstant.get)
     }
 
     (Some(staticDelim), dynamicRawOpt)
   }
 
   def evaluateDynamicText(dynamic: Option[CompiledExpression[String]],
-    outputNewLine: CompiledExpression[String],
+    outputNewLine: OutputNewLineEv,
     start: UState,
     context: RuntimeData,
     errorOnWSPStar: Boolean): Option[DFADelimiter] = {
@@ -138,7 +138,7 @@ trait EvaluatesStaticDynamicTextUnparser
 
       if (errorOnWSPStar) errorIfDelimsHaveWSPStar(finalValueCooked, context)
 
-      val dfas = CreateDelimiterDFA(finalValueCooked.head, outputNL.toString)
+      val dfas = CreateDelimiterDFA(finalValueCooked.head, outputNL)
 
       Some(dfas)
     } else { None }

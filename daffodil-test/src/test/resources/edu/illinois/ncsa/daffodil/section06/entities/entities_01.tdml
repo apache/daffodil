@@ -79,7 +79,8 @@
     </xs:element>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="entity_fail_02" root="root" model="sch2" description="Initiator cannot contain ES.  %ES; is used only in nilValue - DFDL-6-046R
+  <tdml:parserTestCase name="entity_fail_02" root="root" model="sch2" 
+    description="Initiator cannot contain ES.  %ES; is used only in nilValue - DFDL-6-046R
     Note: Revised - DFDL Spec. now allows ES for Initiators as long as it is not the only entry in the list.">
     <tdml:document>0,1</tdml:document>
     <tdml:infoset>

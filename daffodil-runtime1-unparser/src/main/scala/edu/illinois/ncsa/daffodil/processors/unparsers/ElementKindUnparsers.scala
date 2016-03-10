@@ -174,7 +174,7 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   }
 }
 
-class DelimiterStackUnparser(outputNewLine: CompiledExpression[String],
+class DelimiterStackUnparser(outputNewLine: OutputNewLineEv,
   initiatorOpt: Option[CompiledExpression[String]],
   separatorOpt: Option[CompiledExpression[String]],
   terminatorOpt: Option[CompiledExpression[String]],

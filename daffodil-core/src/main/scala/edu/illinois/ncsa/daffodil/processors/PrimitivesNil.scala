@@ -47,7 +47,7 @@ case class LiteralNilOfSpecifiedLength(e: ElementBase)
     e.elementRuntimeData)
 
   private lazy val sl =
-    StringLiteralForUnparser(e.elementRuntimeData, e.outputNewLine, e.rawNilValuesForUnparse.head)
+    StringLiteralForUnparser(e.elementRuntimeData, e.outputNewLineEv, e.rawNilValuesForUnparse.head)
 
   override lazy val unparser = new LiteralNilOfSpecifiedLengthUnparser(unparsingPadChar,
     justificationPad,

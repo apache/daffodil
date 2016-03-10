@@ -75,7 +75,7 @@ case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Te
   def parser: DaffodilParser = new DelimiterStackParser(Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
     sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, isLengthKindDelimited, sq.runtimeData, body.parser)
 
-  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(sq.outputNewLine, Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(sq.outputNewLineEv, Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
     sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, isLengthKindDelimited, sq.runtimeData, body.unparser)
 }
 
@@ -87,7 +87,7 @@ case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Termin
   def parser: DaffodilParser = new DelimiterStackParser(Some(ch.initiator), None, Some(ch.terminator),
     ch.initiatorLoc, None, ch.terminatorLoc, isLengthKindDelimited, ch.runtimeData, body.parser)
 
-  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(ch.outputNewLine, Some(ch.initiator), None, Some(ch.terminator),
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(ch.outputNewLineEv, Some(ch.initiator), None, Some(ch.terminator),
     ch.initiatorLoc, None, ch.terminatorLoc, isLengthKindDelimited, ch.runtimeData, body.unparser)
 }
 
@@ -97,7 +97,7 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
   def parser: DaffodilParser = new DelimiterStackParser(Some(e.initiator), None, Some(e.terminator),
     e.initiatorLoc, None, e.terminatorLoc, isLengthKindDelimited, e.runtimeData, body.parser)
 
-  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(e.outputNewLine, Some(e.initiator), None, Some(e.terminator),
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(e.outputNewLineEv, Some(e.initiator), None, Some(e.terminator),
     e.initiatorLoc, None, e.terminatorLoc, isLengthKindDelimited, e.runtimeData, body.unparser)
 }
 

@@ -26,29 +26,15 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * Encoding is a string, so there is no converter.
  */
 class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
-  extends EvaluatableExpression[String](
+  extends EvaluatableConvertedExpression[String, String](
     expr,
+    EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
     trd) {
   override def runtimeDependencies = Nil
 }
 
-sealed trait EncoderDecoderMixin {
-  //
-  //  protected def trd: TermRuntimeData
-  //
-  //  protected val eep = trd.encodingInfo.defaultEncodingErrorPolicy
-  //
-  //  protected def codingErrorAction(eep: EncodingErrorPolicy) = {
-  //    eep match {
-  //      case EncodingErrorPolicy.Replace => CodingErrorAction.REPLACE
-  //      case EncodingErrorPolicy.Error => CodingErrorAction.REPORT
-  //    }
-  //  }
-}
-
 class EncoderEv(encodingEv: EncodingEv,
-  val trd: TermRuntimeData) extends Evaluatable[DFDLEncoder](trd)
-  with EncoderDecoderMixin {
+  val trd: TermRuntimeData) extends Evaluatable[DFDLEncoder](trd) {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 
@@ -65,8 +51,7 @@ class EncoderEv(encodingEv: EncodingEv,
 }
 
 class DecoderEv(encodingEv: EncodingEv,
-  val trd: TermRuntimeData) extends Evaluatable[DFDLDecoder](trd)
-  with EncoderDecoderMixin {
+  val trd: TermRuntimeData) extends Evaluatable[DFDLDecoder](trd){
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 

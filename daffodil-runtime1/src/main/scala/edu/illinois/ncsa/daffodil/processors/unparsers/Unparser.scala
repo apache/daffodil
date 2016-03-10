@@ -115,6 +115,7 @@ trait PrimUnparser
 abstract class UnparserObject(override val context: RuntimeData)
   extends Unparser
 
+@deprecated("2016", "use PrimUnparser trait, and explicitly declare runtimeDependencies.")
 abstract class PrimUnparserObject(override val context: RuntimeData)
   extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil

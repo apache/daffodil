@@ -15,6 +15,7 @@ import edu.illinois.ncsa.daffodil.xml.scalaLib
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -146,7 +147,15 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
   protected final def compileIt(state: State): Option[T] = {
     val res = state match {
       case cs: CompileState => compile(cs)
-      case _ => compile()
+      case u: UState => {
+        Assert.invariantFailed("Evalutable must be compiled at compile time. State indicates this is runtime.")
+      }
+      case p: PState => {
+        // until such time as all parsers are converted to declare runtimeDependencies, this is going to fail
+        // almost every parse. So we'll allow on-demand compile for now.
+        // Assert.invariantFailed("Evalutable must be compiled at compile time. State indicates this is runtime.")
+        compile()
+      }
     }
     if (isConstant) res // propagate constant for compilation
     else
@@ -289,7 +298,7 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
     res
   }
 
-  protected def toRSDE(e: Diagnostic, state: ParseOrUnparseState) = {
+  protected def toSDE(e: Diagnostic, state: ParseOrUnparseState) = {
     state.SDE(e)
   }
 }
@@ -372,8 +381,8 @@ class EvaluatableExpression[+ExprType <: AnyRef](
       try {
         expr.evaluate(state)
       } catch {
-        case i: InfosetException => toRSDE(i, state)
-        case v: VariableException => toRSDE(v, state)
+        case i: InfosetException => toSDE(i, state)
+        case v: VariableException => toSDE(v, state)
       }
     expressionResult
   }
@@ -402,8 +411,8 @@ class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyR
       try {
         expr.evaluate(state)
       } catch {
-        case i: InfosetException => toRSDE(i, state)
-        case v: VariableException => toRSDE(v, state)
+        case i: InfosetException => toSDE(i, state)
+        case v: VariableException => toSDE(v, state)
       }
     val forUnparse = !state.isInstanceOf[PState]
     val converterResult = state match {

@@ -49,7 +49,13 @@ trait TermRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
-  final lazy val encoding = LV('encoding) {
+  @deprecated("2016-03-10", "Use encodingEv instead.")
+  final lazy val encoding = {
+    encodingEv.compile()
+    encodingExpr
+  }
+
+  private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")
     this match {
       case eb: ElementBase if (eb.isSimpleType && eb.primType =:= PrimType.HexBinary) => {
@@ -65,7 +71,7 @@ trait TermRuntimeValuedPropertiesMixin
     }
   }.value
 
-  final lazy val encodingEv = new EncodingEv(encoding, termRuntimeData)
+  final lazy val encodingEv = new EncodingEv(encodingExpr, termRuntimeData)
 
   // these are public so that EncodingChange parsers and unparser can express dependencies on them.
   lazy val decoderEv = new DecoderEv(encodingEv, termRuntimeData)
@@ -73,61 +79,15 @@ trait TermRuntimeValuedPropertiesMixin
 
   /*
    * Property OutputNewLine
-   *
-   * This has not been cut over to use Evaluatables. There were a number of subtle problems
-   * this lead to. The commented 3 lines below are what this eventually wants to become.
-   *
-   * This transition is best done in an isolated commit.
    */
 
-  // compatibility with code that expects to look at CompiledExpression
-  final lazy val outputNewLine2 = {
-    outputNewLineEv.compile()
-    outputNewLineExpr
-  }
-
-  private final lazy val outputNewLineExpr = {
-    val qn = this.qNameForProperty("outputNewLine")
-    ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
-  }
-
-  lazy val outputNewLineEv =
-    new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
-
-  /**
-   * This is pretty much the original code for outputNewLine with its own ad-hoc checks done
-   * in the static case, and not using the new cookers or anything else.
-   */
-  // @deprecated("2016", "use outputNewLineEv")
-  final lazy val outputNewLine = LV('outputNewLine) {
-    val qn = this.qNameForProperty("outputNewLine")
-
-    // First compile is just to take advantage of the expression compiler's ability
-    // to detect expressions vs. string literals, so we know whether or not to substitute
-    // for entities.
-    val ce = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
-    val exprOrLiteral = if (ce.isConstant) EntityReplacer { _.replaceAll(ce.constant, Some(decl)) } else outputNewLineRaw.value
-
-    val c =
-      if (ce.isConstant) {
-        // compile again, since we've now substituted for entities
-        ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, Found(exprOrLiteral, outputNewLineRaw.location, "outputNewLine"))
-      } else ce // use what we already compiled.
-    if (c.isConstant) {
-      val s = c.constant
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "outputNewLine cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "outputNewLine cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "outputNewLine cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "outputNewLine cannot contain ES")
-
-      val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
-      s.foreach(x => {
-        this.schemaDefinitionUnless(validNLs.contains(x), "'" + x + "' is not a valid new line character for outputNewLine!")
-      })
+  lazy val outputNewLineEv = {
+    val outputNewLineExpr = {
+      val qn = this.qNameForProperty("outputNewLine")
+      ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
     }
-    c
-  }.value
+    new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
+  }
 
 }
 
@@ -140,7 +100,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
 
-  // compatibility with code that expects to look at CompiledExpression
+  @deprecated("2016-03-10", "Use initiatorEv instead.")
   lazy val initiator = {
     initiatorEv.compile()
     initiatorExpr
@@ -157,7 +117,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   final def initiatorLoc = (this.prettyName, this.path)
 
-  // compatibility with code that expects to look at CompiledExpression
+  @deprecated("2016-03-10", "Use terminatorEv instead.")
   lazy val terminator = {
     terminatorEv.compile()
     terminatorExpr
@@ -191,12 +151,18 @@ trait ElementRuntimeValuedPropertiesMixin
     new ByteOrderEv(byteOrderExpr, elementRuntimeData)
   }.value
 
+  @deprecated("2016-03-10", "Use lengthEv instead.")
   final lazy val length = {
+    lengthEv.compile()
+    lengthExpr
+  }
+
+  private lazy val lengthExpr = {
     val qn = this.qNameForProperty("length")
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
   }
 
-  lazy val lengthEv = new LengthEv(length, erd)
+  lazy val lengthEv = new LengthEv(lengthExpr, erd)
 
   //
   // The occursCount expression is written on the array element, but that expression
@@ -211,13 +177,20 @@ trait ElementRuntimeValuedPropertiesMixin
   // Not at all sure why this worked with Saxon, but in our new Infoset and DPath
   // implementation, the ".." does get literally evaluated.
   //
-  final lazy val occursCount = LV('occursCount) {
+
+  @deprecated("2016-03-10", "Use occursCountEv instead.")
+  final lazy val occursCount = {
+    occursCountEv.compile()
+    occursCountExpr
+  }
+
+  private lazy val occursCountExpr = LV('occursCount) {
     val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, occursCountRaw, isEvaluatedAbove)
   }.value
 
-  lazy val occursCountEv = new OccursCountEv(occursCount, erd)
+  lazy val occursCountEv = new OccursCountEv(occursCountExpr, erd)
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -225,7 +198,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
-  // compatibility with code that expects to look at CompiledExpression
+  @deprecated("2016-03-10", "Use separatorEv instead.")
   final lazy val separator = {
     separatorEv.compile()
     separatorExpr
@@ -247,6 +220,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   extends DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
+  @deprecated("2016-03-10", "Use textStandardDecimalSeparatorEv instead.")
   final lazy val textStandardDecimalSeparator = textStandardDecimalSeparatorExpr
 
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
@@ -257,6 +231,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardDecimalSeparatorEv = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, erd)
 
+  @deprecated("2016-03-10", "Use textStandardGroupingSeparatorEv instead.")
   final lazy val textStandardGroupingSeparator = textStandardGroupingSeparatorExpr
 
   private lazy val textStandardGroupingSeparatorExpr = LV('textStandardGroupingSeparator) {
@@ -267,6 +242,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardGroupingSeparatorEv = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, erd)
 
+  @deprecated("2016-03-10", "Use textStandardExponentRepEv instead.")
   final lazy val textStandardExponentRep = textStandardExponentRepExpr
 
   private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
@@ -277,6 +253,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textStandardExponentRepEv = new TextStandardExponentRepEv(textStandardExponentRepExpr, erd)
 
+  @deprecated("2016-03-10", "Use binaryFloatRepEv instead.")
   final lazy val binaryFloatRep = binaryFloatRepExpr
 
   private lazy val binaryFloatRepExpr = LV('binaryFloatRep) {
@@ -286,6 +263,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val binaryFloatRepEv = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
 
+  @deprecated("2016-03-10", "Use textBooleanTrueRepEv instead.")
   final lazy val textBooleanTrueRep = textBooleanTrueRepExpr
 
   private lazy val textBooleanTrueRepExpr = LV('textBooleanTrueRep) {
@@ -295,6 +273,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textBooleanTrueRepEv = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, erd)
 
+  @deprecated("2016-03-10", "Use textBooleanFalseRepEv instead.")
   final lazy val textBooleanFalseRep = textBooleanFalseRepExpr
 
   private lazy val textBooleanFalseRepExpr = LV('textBooleanFalseRep) {

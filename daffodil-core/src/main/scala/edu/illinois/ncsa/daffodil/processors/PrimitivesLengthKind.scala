@@ -262,7 +262,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.rawNilValuesForParse)
 
   private lazy val slNilValue =
-    StringLiteralForUnparser(eb.elementRuntimeData, eb.outputNewLine, eb.rawNilValuesForUnparse.head)
+    StringLiteralForUnparser(eb.elementRuntimeData, eb.outputNewLineEv, eb.rawNilValuesForUnparse.head)
 
   override lazy val unparser: DaffodilUnparser =
     new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, slNilValue, justificationPad, parsingPadChar, isDelimRequired)

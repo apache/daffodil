@@ -61,8 +61,11 @@ class StringOfSpecifiedLengthUnparser(
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
   isForString: Boolean)
-  extends PrimUnparserObject(erd)
+  extends PrimUnparser
   with StringLengthMixin {
+
+  override def context = erd
+  override lazy val runtimeDependencies = List(erd.encodingInfo.encoderEv)
 
   final override def justificationTrim = justificationPad
   final override def pad = unparsingPadChar

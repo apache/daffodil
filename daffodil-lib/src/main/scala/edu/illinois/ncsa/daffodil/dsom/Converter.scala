@@ -20,7 +20,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
  * This means that the convert method of the derived must accept at least a JShort (which is what the convert of the base class accepts), but
  * convert of the derived may be more general, and accept more than that.
  *
- * Hence Converter[JInt, String] <: Converter[JShort, String]
+ * Hence Converter[JInt, String] <: Converter[JShort, String] even though JInt >: JShort
  *
  * That's what contravariance means. To create a subtype it doesn't narrow with the derivation, it broadens with the derivation.
  *
@@ -34,11 +34,11 @@ trait Converter[-Before, +After] extends Serializable {
    *
    * This is for things like delimiters or escapeCharacter where it can be "" if
    * it is a constant, but it cannot be "" if it is a runtime expression value.
-   * 
+   *
    * The forUnparse flag is for distinctions needed between parse time and unparse time
    * which is very common thing to have.
-   * 
-   * This is not the same concept as Compile time vs. Runtime. 
+   *
+   * This is not the same concept as Compile time vs. Runtime.
    */
   def convertRuntime(b: Before, context: ThrowsSDE, forUnparse: Boolean): After =
     convert(b, context, forUnparse)

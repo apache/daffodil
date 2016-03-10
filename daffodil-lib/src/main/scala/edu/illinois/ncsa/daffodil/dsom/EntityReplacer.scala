@@ -479,6 +479,16 @@ trait ListStringLiteralCookerMixin extends Converter[String, List[String]] {
   protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String]
 }
 
+abstract class UpperCaseToken(propNameArg: String = null)
+  extends AutoPropNameBase(propNameArg)
+  with Converter[String, String] {
+
+  override protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean) =
+    cook(b, context, forUnparse)
+
+  def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): String = raw.trim.toUpperCase
+}
+
 /**
  * String values in the infoset, string results of DFDL's xpath-like expressions are of this kind.
  *
@@ -628,7 +638,7 @@ class SingleCharacterLiteralESEntityWithByteEntities(pn: String = null)
 class SingleCharacterLiteralOrEmptyString(pn: String, allowByteEntities: Boolean)
   extends StringLiteralBase(pn, allowByteEntities) with SingleCharacterMixin
 
-sealed abstract class AutoPropNameBase(propNameArg: String) {
+sealed abstract class AutoPropNameBase(propNameArg: String) extends Serializable {
 
   private lazy val autoPropName = Misc.stripSuffix(Misc.toInitialLowerCaseUnlessAllUpperCase(Misc.getNameFromClass(this)), "Cooker")
 

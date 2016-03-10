@@ -1559,7 +1559,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
       Assert.usage(this.isInstanceOf[TextDocumentPart])
       res
     }
-  }
+  }.trim.toUpperCase()
 
 }
 

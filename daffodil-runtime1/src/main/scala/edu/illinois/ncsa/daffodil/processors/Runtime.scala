@@ -254,7 +254,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
       case procErr: ProcessingError => {
         val x = procErr
-        // Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
         state.setFailed(x.toParseError)
       }
       case sde: SchemaDefinitionError => {

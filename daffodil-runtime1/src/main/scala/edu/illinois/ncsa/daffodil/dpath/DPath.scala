@@ -108,16 +108,6 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
     }
   }
 
-  //  private def doSDE(e: Throwable, state: ParseOrUnparseState) = {
-  //    val rsde = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, state, "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
-  //    state match {
-  //      case pstate: PState =>
-  //        pstate.setFailed(rsde)
-  //      case _ => throw rsde
-  //    }
-  //    null
-  //  }
-
   private def handleCompileState(e: Diagnostic, state: ParseOrUnparseState) = {
     state match {
       case cs: CompileState => {

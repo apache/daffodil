@@ -75,7 +75,7 @@ sealed trait DINode {
     this match {
       case diSimple: DISimple => diSimple
       case _ =>
-        throw new InfosetWrongNodeType(this)
+        throw new InfosetWrongNodeType(this) // see comment with exception class definition for why this can happen
     }
   }
 
@@ -83,7 +83,7 @@ sealed trait DINode {
     this match {
       case diComplex: DIComplex => diComplex
       case _ =>
-        throw new InfosetWrongNodeType(this)
+        throw new InfosetWrongNodeType(this) // see comment with exception class definition for why this can happen
     }
   }
 
@@ -1003,10 +1003,6 @@ object Infoset {
     new DIDocument(erd)
   }
 
-  /**
-   * isCompileExprFalseRoot is used when we create nodes in isolation for
-   * purposes of compiling to see if things are constant.
-   */
   def newDocument(root: InfosetElement): InfosetDocument = {
     val doc = newDocument(root.runtimeData)
     doc.setRootElement(root)
