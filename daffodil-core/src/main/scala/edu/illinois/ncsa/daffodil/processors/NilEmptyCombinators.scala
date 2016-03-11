@@ -26,9 +26,9 @@ case class SimpleNilOrEmptyOrValue(ctxt: ElementBase, nilGram: Gram, emptyGram: 
   lazy val emptyUnparser = emptyGram.unparser
   lazy val valueUnparser = valueGram.unparser
 
-  override def parser = SimpleNilOrEmptyOrValueParser(context.runtimeData, nilParser, emptyParser, valueParser)
+  override lazy val parser = SimpleNilOrEmptyOrValueParser(context.runtimeData, nilParser, emptyParser, valueParser)
 
-  override def unparser = SimpleNilOrEmptyOrValueUnparser(context.runtimeData, nilUnparser, emptyUnparser, valueUnparser)
+  override lazy val unparser = SimpleNilOrEmptyOrValueUnparser(context.runtimeData, nilUnparser, emptyUnparser, valueUnparser)
 
 }
 
@@ -42,9 +42,9 @@ case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram) e
   lazy val nilUnparser = nilGram.unparser
   lazy val valueUnparser = valueGram.unparser
 
-  override def parser = SimpleNilOrValueParser(context.runtimeData, nilParser, valueParser)
+  override lazy val parser = SimpleNilOrValueParser(context.runtimeData, nilParser, valueParser)
 
-  override def unparser = SimpleNilOrValueUnparser(context.runtimeData, nilUnparser, valueUnparser)
+  override lazy val unparser = SimpleNilOrValueUnparser(context.runtimeData, nilUnparser, valueUnparser)
 
 }
 
@@ -58,9 +58,9 @@ case class SimpleEmptyOrValue(ctxt: ElementBase, emptyGram: Gram, valueGram: Gra
   lazy val emptyUnparser = emptyGram.unparser
   lazy val valueUnparser = valueGram.unparser
 
-  override def parser = SimpleEmptyOrValueParser(context.runtimeData, emptyParser, valueParser)
+  override lazy val parser = SimpleEmptyOrValueParser(context.runtimeData, emptyParser, valueParser)
 
-  override def unparser = SimpleEmptyOrValueUnparser(context.runtimeData, emptyUnparser, valueUnparser)
+  override lazy val unparser = SimpleEmptyOrValueUnparser(context.runtimeData, emptyUnparser, valueUnparser)
 
 }
 
@@ -74,8 +74,8 @@ case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gr
   lazy val nilUnparser = nilGram.unparser
   lazy val contentUnparser = contentGram.unparser
 
-  override def parser = ComplexNilOrContentParser(context.runtimeData, nilParser, contentParser)
+  override lazy val parser = ComplexNilOrContentParser(context.runtimeData, nilParser, contentParser)
 
-  override def unparser = ComplexNilOrContentUnparser(context.runtimeData, nilUnparser, contentUnparser)
+  override lazy val unparser = ComplexNilOrContentUnparser(context.runtimeData, nilUnparser, contentUnparser)
 
 }

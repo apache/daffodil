@@ -8,6 +8,6 @@ class BinaryFloatRepEv(expr: CompiledExpression[String], erd: ElementRuntimeData
     expr,
     BinaryFloatRep,
     erd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
 }

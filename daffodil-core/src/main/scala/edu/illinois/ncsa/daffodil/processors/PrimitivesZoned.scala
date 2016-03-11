@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends UnimplementedPrimitive(e, guard) {
-  // def parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)
+  // lazy val parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)
 }
 
 case class ZonedTextBytePrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)

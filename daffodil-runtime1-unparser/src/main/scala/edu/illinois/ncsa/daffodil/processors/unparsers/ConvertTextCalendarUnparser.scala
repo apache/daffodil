@@ -11,8 +11,8 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   prettyType: String,
   pattern: String,
   hasTZ: Boolean,
-  localeEv: Evaluatable[ULocale],
-  calendarEv: Evaluatable[Calendar],
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
   infosetPattern: String,
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
@@ -27,7 +27,7 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override def runtimeDependencies = Seq(localeEv, calendarEv)
+  override lazy val runtimeDependencies = Seq(localeEv, calendarEv)
 
   def unparse(state: UState): Unit = {
     val locale: ULocale = localeEv.evaluate(state)

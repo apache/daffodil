@@ -11,7 +11,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 
 trait HasNoUnparser {
-  final def unparser: Unparser = hasNoUnparser
+  final lazy val unparser: Unparser = hasNoUnparser
   private def hasNoUnparser = Assert.invariantFailed("no unparser for " + Misc.getNameFromClass(this))
 }
 

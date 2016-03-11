@@ -81,7 +81,7 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
   override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
     e.elementRuntimeData)
 
-  override def unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(nBytes,
+  override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(nBytes,
     e.elementRuntimeData)
 }
 
@@ -94,7 +94,7 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
   override lazy val parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
     e.length)
 
-  override def unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
+  override lazy val unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
     e.length)
 }
 
@@ -211,14 +211,14 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  override def parser: DaffodilParser = new StringDelimitedParser(
+  override lazy val parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
     justificationTrim,
     parsingPadChar,
     fieldFactory,
     parserFactory,
     isDelimRequired)
-  override def unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, parsingPadChar, isDelimRequired)
+  override lazy val unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, parsingPadChar, isDelimRequired)
 
 }
 
@@ -236,7 +236,7 @@ abstract class HexBinaryDelimited(e: ElementBase)
     parserFactory,
     isDelimRequired)
 
-  override def unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(
+  override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(
     e.minLength.longValue,
     e.elementRuntimeData)
 }
@@ -273,7 +273,7 @@ case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.leng
 
 class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
 
-  def parser: DaffodilParser = new OptionalInfixSepParser(term.runtimeData, sep.parser)
+  lazy val parser: DaffodilParser = new OptionalInfixSepParser(term.runtimeData, sep.parser)
 
-  override def unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.runtimeData, sep.unparser)
+  override lazy val unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.runtimeData, sep.unparser)
 }

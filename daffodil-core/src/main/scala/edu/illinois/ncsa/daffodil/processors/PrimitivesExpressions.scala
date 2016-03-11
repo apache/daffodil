@@ -88,7 +88,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   override val forWhat = ForParser
 
-  def parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
+  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
 
   override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 
@@ -136,8 +136,8 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 
   override lazy val nodeKind = stmt.defv.primType
 
-  def parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
-  override def unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData, stmt.nonTermRuntimeData)
+  lazy val parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
+  override lazy val unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData, stmt.nonTermRuntimeData)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
@@ -147,15 +147,15 @@ abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFD
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  def parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
-  override def unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
+  lazy val parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
+  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  def parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
-  override def unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
+  lazy val parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
+  override lazy val unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
 }
 
 /**
@@ -211,12 +211,12 @@ case class ValueCalc(
 
   val exprProp = property.asInstanceOf[Found]
 
-  def parser: DaffodilParser = {
+  lazy val parser: DaffodilParser = {
     Assert.usage(ovcRepUnparserGram eq null)
     new IVCParser(expr, e.elementRuntimeData)
   }
 
-  override def unparser = {
+  override lazy val unparser = {
     val ovcRepUnparser = ovcRepUnparserGram.unparser
     val unp = new ElementOutputValueCalcUnparser(e.elementRuntimeData, ovcRepUnparser)
     unp
@@ -244,7 +244,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  def parser: DaffodilParser = {
+  lazy val parser: DaffodilParser = {
     new AssertPatternParser(eName, kindString, decl.term.termRuntimeData, testPattern, stmt.message)
   }
 
@@ -255,5 +255,5 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
-  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.term.termRuntimeData, stmt.message)
+  lazy val parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.term.termRuntimeData, stmt.message)
 }

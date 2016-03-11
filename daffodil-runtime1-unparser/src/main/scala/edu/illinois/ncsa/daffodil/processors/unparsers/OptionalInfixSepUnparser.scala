@@ -4,7 +4,9 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class OptionalInfixSepUnparser(contextArg: RuntimeData,
   sepUnparser: Unparser)
-  extends PrimUnparserObject(contextArg) {
+  extends UnparserObject(contextArg) {
+
+  override lazy val childProcessors = List(sepUnparser)
 
   def unparse(state: UState): Unit = {
     if (state.arrayPos > 1) sepUnparser.unparse1(state, contextArg)

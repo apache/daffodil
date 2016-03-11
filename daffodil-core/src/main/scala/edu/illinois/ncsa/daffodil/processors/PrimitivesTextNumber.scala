@@ -58,9 +58,9 @@ import edu.illinois.ncsa.daffodil.util.MaybeDouble
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
 
-  def parser = new ConvertTextCombinatorParser(e.runtimeData, value.parser, converter.parser)
+  lazy val parser = new ConvertTextCombinatorParser(e.runtimeData, value.parser, converter.parser)
 
-  override def unparser = new ConvertTextCombinatorUnparser(e.runtimeData, value.unparser, converter.unparser)
+  override lazy val unparser = new ConvertTextCombinatorUnparser(e.runtimeData, value.unparser, converter.unparser)
 }
 
 abstract class ConvertTextNumberPrim[S](e: ElementBase)
@@ -158,9 +158,9 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
     nff
   }
 
-  def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
+  lazy val parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
 
-  override def unparser: Unparser = new ConvertTextNumberUnparser[S](helper, numFormatFactory, e.elementRuntimeData)
+  override lazy val unparser: Unparser = new ConvertTextNumberUnparser[S](helper, numFormatFactory, e.elementRuntimeData)
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {

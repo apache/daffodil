@@ -33,7 +33,10 @@
 package edu.illinois.ncsa.daffodil.processors
 
 class EncodingChangeParser(val termRuntimeData: TermRuntimeData)
-  extends PrimParserObject(termRuntimeData) with TextParserRuntimeMixin {
+  extends PrimParser with TextParserRuntimeMixin {
+
+  override def context = termRuntimeData
+  override lazy val runtimeDependencies = List(termRuntimeData.encodingInfo.decoderEv)
 
   def parse(pstate: PState): Unit = {
     setupDecoder(pstate, termRuntimeData)

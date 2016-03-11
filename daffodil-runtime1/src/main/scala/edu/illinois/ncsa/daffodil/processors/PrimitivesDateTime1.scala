@@ -49,8 +49,8 @@ abstract class ConvertTextCalendarProcessorBase(
   prettyType: String,
   pattern: String,
   hasTZ: Boolean,
-  localeEv: Evaluatable[ULocale],
-  calendarEv: Evaluatable[Calendar],
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
   infosetPattern: String,
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
@@ -110,8 +110,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   prettyType: String,
   pattern: String,
   hasTZ: Boolean,
-  localeEv: Evaluatable[ULocale],
-  calendarEv: Evaluatable[Calendar],
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
   infosetPattern: String,
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
@@ -123,7 +123,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     calendarCheckPolicy, calendarTz, tz)
   with PrimParser {
 
-  override def runtimeDependencies = List(localeEv, calendarEv)
+  // Not needed as reflection finds them now.
+  override lazy val runtimeDependencies = List(localeEv, calendarEv)
 
   def parse(start: PState): Unit = {
     val node = start.simpleElement

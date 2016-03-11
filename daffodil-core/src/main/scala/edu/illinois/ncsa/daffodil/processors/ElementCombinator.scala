@@ -93,7 +93,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
 class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram) with HasNoUnparser {
 
-  def parser: Parser = new ChoiceStatementElementParser(
+  lazy val parser: Parser = new ChoiceStatementElementParser(
     context.erd,
     context.name,
     patDiscrim,

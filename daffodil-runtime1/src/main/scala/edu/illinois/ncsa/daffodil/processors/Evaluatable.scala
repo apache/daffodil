@@ -153,8 +153,9 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
       case p: PState => {
         // until such time as all parsers are converted to declare runtimeDependencies, this is going to fail
         // almost every parse. So we'll allow on-demand compile for now.
-        // Assert.invariantFailed("Evalutable must be compiled at compile time. State indicates this is runtime.")
-        compile()
+        Assert.invariantFailed("Evalutable " + this + " must be compiled at compile time. State indicates this is runtime.")
+        //        (new Exception()).printStackTrace()
+        //        compile()
       }
     }
     if (isConstant) res // propagate constant for compilation
@@ -177,7 +178,7 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
  */
 abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T](trd) {
 
-  override def toString = "(%s, %s)".format(qName, (if (constValue.isDefined) "constant: " + constValue.value else "runtime"))
+  override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (constValue.isDefined) "constant: " + constValue.value else "runtime"))
 
   def toBriefXML(depth: Int = -1): String = if (constValue.isDefined) constValue.value.toString else super.toString
 
@@ -371,7 +372,7 @@ class EvaluatableExpression[+ExprType <: AnyRef](
   trd: RuntimeData)
   extends Evaluatable[ExprType](trd) {
 
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
   override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 
@@ -402,7 +403,7 @@ class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyR
   trd: TermRuntimeData)
   extends Evaluatable[ConvertedType](trd) {
 
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
   override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 

@@ -53,7 +53,7 @@ final class StringOfSpecifiedLengthParser(
   extends PrimParser
   with StringOfSpecifiedLengthMixin with TextParserRuntimeMixin {
 
-  override def runtimeDependencies = List(erd.encInfo.decoderEv)
+  override lazy val runtimeDependencies = List(erd.encInfo.decoderEv)
 
   override def context = erd
 

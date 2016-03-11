@@ -47,7 +47,7 @@ abstract class Primitive(e: Term, guard: Boolean = false)
 abstract class UnimplementedPrimitive(e: Term, guard: Boolean = false)
   extends Primitive(e, guard)
   with HasNoUnparser {
-  override final def parser = hasNoParser
+  override final lazy val parser = hasNoParser
 }
 
 // base stub classes

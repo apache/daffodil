@@ -64,7 +64,7 @@ class NadaUnparser(override val context: RuntimeData)
   extends PrimUnparser {
   override def toString = "Nada"
 
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
   def unparse(start: UState) = {
     // do nothing

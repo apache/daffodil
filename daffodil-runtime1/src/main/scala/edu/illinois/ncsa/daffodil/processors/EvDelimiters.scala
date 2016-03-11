@@ -7,7 +7,7 @@ class InitiatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
     expr,
     InitiatorCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class TerminatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -15,7 +15,7 @@ class TerminatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
     expr,
     TerminatorCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class SeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -23,5 +23,5 @@ class SeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
     expr,
     SeparatorCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }

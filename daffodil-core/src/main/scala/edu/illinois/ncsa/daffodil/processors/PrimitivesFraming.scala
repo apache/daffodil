@@ -61,8 +61,8 @@ abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: St
     case _ => SDE("Skip/Alignment values must have length units of Bits or Bytes.")
   }
 
-  final def parser: Parser = new SkipRegionParser(alignmentInBits, skipLengthInBits, e.runtimeData)
-  final def unparser: Unparser = new SkipRegionUnparser(alignmentInBits, skipLengthInBits, e.runtimeData)
+  final lazy val parser: Parser = new SkipRegionParser(alignmentInBits, skipLengthInBits, e.runtimeData)
+  final lazy val unparser: Unparser = new SkipRegionUnparser(alignmentInBits, skipLengthInBits, e.runtimeData)
 }
 
 case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkip, "leadingSkip")
@@ -91,8 +91,8 @@ case class AlignmentFill(e: Term) extends Terminal(e, true) {
   //    return false
   //  }
 
-  def parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
-  def unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData)
+  lazy val parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
+  lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData)
 }
 
 case class FinalUnusedRegion(e: ElementBase) extends UnimplementedPrimitive(e, false)

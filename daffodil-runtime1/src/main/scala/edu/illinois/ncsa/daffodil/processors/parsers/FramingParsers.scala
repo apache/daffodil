@@ -42,7 +42,7 @@ class SkipRegionParser(
   e: RuntimeData)
   extends AlignmentFillParser(alignmentInBits, e) {
 
-    override def runtimeDependencies = Nil
+    override lazy val runtimeDependencies = Nil
 
   override def parse(pstate: PState) = {
     super.parse(pstate)
@@ -56,7 +56,7 @@ class AlignmentFillParser(
   override val context: RuntimeData)
   extends PrimParser {
   
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
   def parse(pstate: PState): Unit = {
     val dis = pstate.dataInputStream

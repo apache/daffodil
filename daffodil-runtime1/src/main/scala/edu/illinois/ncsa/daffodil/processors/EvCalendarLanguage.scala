@@ -30,7 +30,7 @@ class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: 
     calendarLanguageExpr,
     LocaleConverter,
     erd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class CalendarEv(localeEv: CalendarLanguageEv,

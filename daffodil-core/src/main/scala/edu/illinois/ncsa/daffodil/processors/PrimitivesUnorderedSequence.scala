@@ -94,6 +94,6 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       }
     }
 
-  def parser: Parser = ??? // new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
+  lazy val parser: Parser = ??? // new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
 
 }

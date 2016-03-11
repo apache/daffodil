@@ -81,6 +81,7 @@ trait Unparser
   def unparse(ustate: UState): Unit
 
   final def unparse1(ustate: UState, context: RuntimeData): Unit = {
+    Assert.invariant(isInitialized)
     if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
     //
     // Since the state is being overwritten (in most case) now,
@@ -115,7 +116,6 @@ trait PrimUnparser
 abstract class UnparserObject(override val context: RuntimeData)
   extends Unparser
 
-@deprecated("2016", "use PrimUnparser trait, and explicitly declare runtimeDependencies.")
 abstract class PrimUnparserObject(override val context: RuntimeData)
   extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil

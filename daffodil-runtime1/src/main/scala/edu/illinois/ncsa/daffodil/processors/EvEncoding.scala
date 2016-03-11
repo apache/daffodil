@@ -30,7 +30,7 @@ class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class EncoderEv(encodingEv: EncodingEv,

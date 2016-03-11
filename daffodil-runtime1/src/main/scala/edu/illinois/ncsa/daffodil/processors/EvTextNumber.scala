@@ -7,7 +7,7 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: Term
     expr,
     TextStandardDecimalSeparatorCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -15,7 +15,7 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: Ter
     expr,
     TextStandardGroupingSeparatorCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -23,7 +23,7 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRunti
     expr,
     TextStandardExponentRepCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class TextBooleanTrueRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -31,7 +31,7 @@ class TextBooleanTrueRepEv(expr: CompiledExpression[String], trd: TermRuntimeDat
     expr,
     TextBooleanTrueRepCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -39,5 +39,5 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeDa
     expr,
     TextBooleanFalseRepCooker,
     trd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }

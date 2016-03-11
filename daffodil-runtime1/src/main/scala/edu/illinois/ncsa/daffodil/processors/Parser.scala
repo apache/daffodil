@@ -61,17 +61,49 @@ object Processor {
    * actually end up happening at run time.
    */
   def initialize(proc: Processor) {
-    proc.allPrimProcessors.foreach { pu =>
-      pu.runtimeDependencies.foreach { ev =>
-        initRuntimeDependencies(ev)
+    val allprims = proc.allPrimProcessors.distinct
+    val allRDs = allprims.flatMap { prim =>
+      if (prim.isInitialized) Nil
+      else {
+        prim.isInitialized = true
+        allRuntimeDependencies(prim)
       }
+    }.distinct
+    allRDs.foreach { _.ensureCompiled }
+  }
+
+  /**
+   * Direct runtimeDependencies on Evaluatables. Not transitively. Just immediate.
+   */
+  private def allRuntimeDependencies(containsEvs: Processor): Seq[Evaluatable[AnyRef]] = {
+    containsEvs match {
+      case prim: PrimProcessor => prim.runtimeDependencies
+      case _ => Nil
     }
   }
 
-  private def initRuntimeDependencies(ev: EvaluatableBase[AnyRef]) {
-    ev.ensureCompiled
-    ev.runtimeDependencies.foreach { initRuntimeDependencies(_) }
-  }
+  //  private def allRuntimeDependencies(containsEvs: AnyRef): Seq[Evaluatable[AnyRef]] = {
+  //    val (reflectedPlain, errorsPlain) = FieldFinder.findAllMembersOfType[Evaluatable[AnyRef]](containsEvs)
+  //    val (reflectedOpt, errorsOpt) = FieldFinder.findAllMembersOfType[Option[Evaluatable[AnyRef]]](containsEvs)
+  //    val (reflectedMaybe, errorsMaybe) = FieldFinder.findAllMembersOfType[Maybe[Evaluatable[AnyRef]]](containsEvs)
+  //    val (reflectedColl, errorsColl) = FieldFinder.findAllMembersOfType[Traversable[Evaluatable[AnyRef]]](containsEvs)
+  //    // Where to stop. We could look in any collections, we could look recursively inside any referenced objects....
+  //    val reflected = reflectedPlain ++ reflectedOpt.flatten ++ reflectedMaybe.flatMap { rm =>
+  //      if (rm.isDefined) List(rm.get) else Nil
+  //    } ++ reflectedColl.flatten
+  //    // System.err.println("Detected %s".format(reflected))
+  //    val errors = errorsPlain ++ errorsOpt ++ errorsMaybe ++ errorsColl
+  //    if (!errors.isEmpty) {
+  //      val msg = "Within object %s, these objects %s cannot be automatically depended on because they do not have 'real' locations.\n" +
+  //        "This is due to their being only local values of the constructor call, not object members. This occurs if they are not val, nor var\n" +
+  //        "and not used within the class."
+  //      Assert.invariantFailed(msg.format(containsEvs, errors))
+  //    }
+  //    val distinct = reflected.distinct
+  //    val res = distinct ++ distinct.flatMap { ev => allRuntimeDependencies(ev) }.distinct
+  //    res
+  //  }
+
 }
 
 trait Processor
@@ -81,6 +113,8 @@ trait Processor
   // things common to both unparser and parser go here.
   def context: RuntimeData
   def childProcessors: Seq[Processor]
+
+  var isInitialized: Boolean = false
 
   /**
    * Used to obtain all the potentially-runtime-evaluated computations this processor depends on.
@@ -99,16 +133,25 @@ trait Processor
    * Many schemas and many objects will not have dfdl:outputValueCalc, so we're not going to even
    * compute this thing unless it is really needed.
    */
-  final lazy val allPrimProcessors: Seq[PrimProcessor] = childProcessors.flatMap { c =>
-    c match {
-      case pp: PrimProcessor => {
-        Assert.invariant(pp.childProcessors.isEmpty)
-        List(pp)
+  final lazy val allProcessors: Seq[Processor] = {
+    if (this.isInitialized) Nil
+    else {
+      this match {
+        case prim: PrimProcessor => {
+          Assert.invariant(prim.childProcessors == Nil)
+          List(prim)
+        }
+        case _ => {
+          // non primitive. Mark it right here (this is really just for
+          // error checking & debugging.
+          this.isInitialized = true
+          childProcessors.flatMap { _.allProcessors }
+        }
       }
-      case p: Processor => p.allPrimProcessors
-      case _ => Assert.invariantFailed("all childProcessors of an Unparser must be unparsers")
     }
   }
+
+  final lazy val allPrimProcessors = allProcessors.filter { _.isInstanceOf[PrimProcessor] }
 
 }
 
@@ -138,6 +181,13 @@ trait TextParserUnparserRuntimeBase {
  */
 trait TextParserRuntimeMixin extends TextParserUnparserRuntimeBase {
 
+  def context: RuntimeData
+
+  /**
+   * This is here to get the reflective scanner to find that this parser is dependent
+   * on this decoderEv.
+   */
+  lazy val deps = Seq(context.asInstanceOf[TermRuntimeData].encodingInfo.decoderEv)
   /**
    * Override this in selected derived classes such as the hexBinary ones in order
    * to force use of specific encodings.
@@ -187,6 +237,7 @@ trait Parser
   protected def parse(pstate: PState): Unit
 
   final def parse1(pstate: PState): Unit = {
+    Assert.invariant(isInitialized)
     if (pstate.dataProc.isDefined) pstate.dataProc.get.before(pstate, this)
     parse(pstate)
     if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)

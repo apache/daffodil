@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
@@ -89,8 +88,10 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression[String]],
   terminatorLoc: (String, String),
   isLengthKindDelimited: Boolean,
   rd: RuntimeData, bodyParser: Parser)
-  extends PrimParserObject(rd)
+  extends ParserObject(rd)
   with EvaluatesStaticDynamicTextParser {
+
+  override lazy val childProcessors = List(bodyParser)
 
   private def unlessEmptyString(ce: Option[CompiledExpression[String]]): Option[CompiledExpression[String]] =
     ce.flatMap { ce => if (ce.isConstant && ce.constant == "") None else Some(ce) }

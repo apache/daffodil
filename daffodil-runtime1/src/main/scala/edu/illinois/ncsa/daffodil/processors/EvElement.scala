@@ -7,14 +7,14 @@ class LengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](
     expr,
     rd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class OccursCountEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](
     expr,
     rd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }
 
 class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
@@ -22,5 +22,5 @@ class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
     expr,
     OutputNewLineCooker,
     rd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 }

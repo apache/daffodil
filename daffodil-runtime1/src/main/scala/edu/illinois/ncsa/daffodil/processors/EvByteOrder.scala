@@ -19,7 +19,7 @@ class ByteOrderEv(expr: CompiledExpression[String], erd: ElementRuntimeData)
     expr,
     ByteOrder,
     erd) {
-  override def runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
 }
 

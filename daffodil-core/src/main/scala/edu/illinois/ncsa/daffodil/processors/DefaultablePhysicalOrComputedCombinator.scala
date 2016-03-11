@@ -26,7 +26,7 @@ case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
   lazy val outputValueCalcElementUnparser = outputValueCalcElement.unparser
   lazy val defaultableElementUnparser = defaultableElement.unparser
 
-  override def parser = {
+  override lazy val parser = {
     (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match {
       case (_: NotFound, _: Found) => scalarDefaultablePhysicalParser // outputValueCalc element is just a regular physical element for parser
       case (_: Found, _: NotFound) => inputValueCalcElementParser
@@ -34,7 +34,7 @@ case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
     }
   }
 
-  override def unparser = {
+  override lazy val unparser = {
     val ivcOpt = ctxt.inputValueCalcOption
     val ovcOpt = ctxt.outputValueCalcOption
     (ivcOpt, ovcOpt) match {
