@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -50,6 +50,7 @@ class TestRuntimeCalendarLanguage {
   import TestRuntimeCalendarLanguage._
 
   @Test def test_runtimeCalendarLanguage1() { runner.runOneTest("runtimeCalendarLanguage1") }
+  @Test def test_invalidCalendarLanguage1() { runner.runOneTest("invalidCalendarLanguage1") }
   @Test def test_unparseRuntimeCalendarLanguageOVC() { runner.runOneTest("unparseRuntimeCalendarLanguageOVC") }
   @Test def test_unparseRuntimeCalendarLanguageOVCCacheCheck() { runner.runOneTest("unparseRuntimeCalendarLanguageOVCCacheCheck") }
 }

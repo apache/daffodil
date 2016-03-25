@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -52,7 +52,12 @@
 
   </tdml:defineSchema>
 
-
+<!--
+     Test Name: runtimeCalendarLanguage1
+        Schema: s1
+          Root: r
+       Purpose: This test demonstrates setting the calendarLanguage property at runtime to German.
+-->
   <tdml:parserTestCase name="runtimeCalendarLanguage1" root="r" model="s1" 
   description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
@@ -66,6 +71,23 @@
         </r>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: invalidCalendarLanguage1
+        Schema: s1
+          Root: r
+       Purpose: This test demonstrates setting the calendarLanguage property at runtime to 
+                an invalid value results in a Schema Definition Error.
+-->
+  <tdml:parserTestCase name="invalidCalendarLanguage1" root="r" model="s1" 
+  description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
+
+    <tdml:document><![CDATA[f@1234Freitag März 2013]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:calendarLanguage property syntax error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 
@@ -89,6 +111,12 @@
   </tdml:defineSchema>
 
 
+<!--
+     Test Name: unparseRuntimeCalendarLanguageOVC
+        Schema: s2
+          Root: r
+       Purpose: This test demonstrates setting the calendarLanguage property at runtime with unparse.
+-->
   <tdml:unparserTestCase name="unparseRuntimeCalendarLanguageOVC" root="r" model="s2" 
   description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
@@ -112,7 +140,7 @@
         is not restored, the test will fail.
       </p>
       <p>
-        The way it works is that the outputValueCalc elemnt is followed by a regular element, but it
+        The way it works is that the outputValueCalc element is followed by a regular element, but it
         is also one that gets the calendarLanguage at runtime from data. This will get unparsed normally,
         and when we finally are able to come back to satisfy the outputValueCalc, an element will
         have been unparsed using a different calendarLanguage value than the outputValueCalc'ed element
@@ -146,6 +174,12 @@
   </tdml:defineSchema>
 
 
+<!--
+     Test Name: unparseRuntimeCalendarLanguageOVCCacheCheck
+        Schema: s3
+          Root: r
+       Purpose: This test demonstrates setting the calendarLanguage property at runtime with unparse.
+-->
   <tdml:unparserTestCase name="unparseRuntimeCalendarLanguageOVCCacheCheck" root="r" model="s3" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
     <tdml:document><![CDATA[de,1996,Freitag März 2013,en,us  ,Friday March 2013,2013-03-01]]></tdml:document>
