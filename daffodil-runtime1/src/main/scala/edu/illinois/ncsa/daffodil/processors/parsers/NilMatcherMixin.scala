@@ -77,22 +77,47 @@ trait NilMatcherMixin {
     combineDelimitersRegex(regex, Array.empty[String])
   }
 
-  private lazy val pattern: Pattern = {
+  private lazy val patternLiteralValue: Pattern = {
     val dfdlLiteralRegex = getDfdlLiteralRegex(cookedNilValuesForParse.toSet)
     val p = Pattern.compile(dfdlLiteralRegex)
     p
   }
 
+  private lazy val patternLiteralCharacter: Pattern = {
+    // LiteralCharacter is legal for only fixed length elements.
+    // It's a single character or byte that, when repeated to
+    // length of the element, is the nil representation.
+    //
+    val dfdlLiteralRegex = getDfdlLiteralRegex(cookedNilValuesForParse.toSet)
+    val sb = new StringBuilder(dfdlLiteralRegex)
+    sb.append("+")
+    val p = Pattern.compile(sb.toString())
+    p
+  }
+
   private def newMatcher(): Matcher = {
-    pattern.matcher("")
+    patternLiteralValue.matcher("")
+  }
+
+  private def newLiteralCharacterMatcher(): Matcher = {
+    patternLiteralCharacter.matcher("")
   }
 
   object withFieldNilMatcher extends OnStack[Matcher](newMatcher(), (m: Matcher) => m.reset(""))
+  object withFieldNilLiteralCharacterMatcher extends OnStack[Matcher](newLiteralCharacterMatcher(), (m: Matcher) => m.reset(""))
 
   // TODO: does this handle %ES; or do we have to have outside separate checks for that?
   // There is a separate check right now in LiteralNilDelimitedOrEndOfData.
-  final def isFieldNilLiteral(field: String): Boolean = {
+  final def isFieldNilLiteralValue(field: String): Boolean = {
     withFieldNilMatcher { matcher =>
+      matcher.reset(field)
+      matcher.find()
+      matcher.matches()
+    }
+  }
+
+  final def isFieldNilLiteralCharacter(field: String): Boolean = {
+    withFieldNilLiteralCharacterMatcher { matcher =>
       matcher.reset(field)
       matcher.find()
       matcher.matches()

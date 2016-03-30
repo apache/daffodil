@@ -32,13 +32,26 @@
 
 package edu.illinois.ncsa.daffodil.section13.nillable
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+import org.junit.Test
 
+object TestNillableUnparseNew {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
+
+
+  val runnerLC = Runner(testDir, "literal-character-nils-unparse.tdml")
+
+  @AfterClass def shutDown {
+    runnerLC.reset
+  }
+
+}
 class TestNillableUnparseNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val ln = testDir + "literal-value-nils-unparse.tdml"
-  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  import TestNillable._
+  
+  @Test def test_text_lit_char_01() { runnerLC.runOneTest("text_01") }
 
 }

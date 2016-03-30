@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="literal nils unparsing" description="Tests separation and nested sequences." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="text_nil_only1">
+    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" 
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" 
+      occursCountKind="parsed" nilValueDelimiterPolicy="none"
+      nilValue="nil %ES;" nilKind="literalCharacter" textNumberRep="standard" ignoreCase="no"/>
+    
+    <xs:element name="doc">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="e1" dfdl:lengthKind="explicit" nillable="true" type="xsd:string"
+                  dfdl:nilValue="-" dfdl:length="1" dfdl:lengthUnits="bytes"/>
+			    <xs:element name="e2" dfdl:lengthKind="explicit" nillable="true" type="xsd:string" 
+			      dfdl:nilValue="-" dfdl:length="2" dfdl:lengthUnits="bytes"/>
+			    <xs:element name="e3" dfdl:lengthKind="explicit" nillable="true" type="xsd:string" 
+			      dfdl:nilValue="%#r7E;" dfdl:length="3" dfdl:lengthUnits="bytes"/>
+			    <xs:element name="e4" dfdl:lengthKind="explicit" nillable="true" type="xsd:string" 
+			      dfdl:nilValue="%SP;" dfdl:length="4" dfdl:lengthUnits="bytes"/>
+			    <xs:element name="e5" dfdl:lengthKind="explicit" nillable="true" type="xsd:string" 
+			      dfdl:nilValue="%97;" dfdl:length="5" dfdl:lengthUnits="bytes"/>
+			    <xs:element name="e6" dfdl:lengthKind="explicit" nillable="true" type="xsd:string" 
+			      dfdl:nilValue="%x60;" dfdl:length="6" dfdl:lengthUnits="bytes"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+<!--
+  Test Name: text_01
+     Schema: text_nil_only1
+       Root: doc
+    Purpose: This test demonstrates that you can successfully unparse literal character nils
+-->
+
+  <tdml:unparserTestCase name="text_01" root="doc" model="text_nil_only1" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+            <e1>one</e1>
+            <e2 xsi:nil="true"/>
+            <e3 xsi:nil="true"/>
+            <e4 xsi:nil="true"/>
+            <e5 xsi:nil="true"/>
+            <e6 xsi:nil="true"/>
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[one--~~~    aaaaa``````]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

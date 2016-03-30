@@ -49,10 +49,10 @@ import java.lang.{ Long => JLong }
 /////////////////////////////////////////////////////////////////
 
 trait ElementBaseGrammarMixin
-  extends InitiatedTerminatedMixin
-  with AlignedMixin
-  with ByteOrderMixin
-  with HasStatementsGrammarMixin { self: ElementBase =>
+    extends InitiatedTerminatedMixin
+    with AlignedMixin
+    with ByteOrderMixin
+    with HasStatementsGrammarMixin { self: ElementBase =>
 
   /**
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
@@ -441,7 +441,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val nilLit = prod("nilLit",
-    isNillable && nilKind == NilKind.LiteralValue) {
+    isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))) {
       if (hasDelimiters)
         DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitSimpleOrComplex ~ nilElementTerminator)
       else
@@ -456,24 +456,44 @@ trait ElementBaseGrammarMixin
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
     val nilLength = 0
-    new SpecifiedLengthExplicitBytesFixed(this, LiteralNilOfSpecifiedLength(this), nilLength)
+    new SpecifiedLengthExplicitBytesFixed(this, LiteralValueNilOfSpecifiedLength(this), nilLength)
   }
 
   private lazy val nilLitContent = prod("nilLitContent",
-    isNillable && nilKind == NilKind.LiteralValue) {
-      // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
-      lengthKind match {
-        case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
-        case LengthKind.Pattern => LiteralNilOfSpecifiedLength(this)
-        case LengthKind.Explicit => LiteralNilOfSpecifiedLength(this)
-        case LengthKind.Implicit if isSimpleType => {
-          schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
-          LiteralNilOfSpecifiedLength(this)
+    isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)) {
+
+      nilKind match {
+        case NilKind.LiteralValue => {
+          // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
+          lengthKind match {
+            case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
+            case LengthKind.Pattern => LiteralValueNilOfSpecifiedLength(this)
+            case LengthKind.Explicit => LiteralValueNilOfSpecifiedLength(this)
+            case LengthKind.Implicit if isSimpleType => {
+              schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
+              LiteralValueNilOfSpecifiedLength(this)
+            }
+            case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
+            case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
+            case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
+          }
         }
-        case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
-        case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
-        case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
+        case NilKind.LiteralCharacter => {
+          if (!isFixedLength) { SDE("dfdl:length must be 'fixed' when nilKind='literalCharacter'.") }
+
+          lengthKind match {
+            case LengthKind.Explicit => LiteralCharacterNilOfSpecifiedLength(this)
+            case LengthKind.Implicit if isSimpleType => LiteralCharacterNilOfSpecifiedLength(this)
+            case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
+            case LengthKind.Prefixed => SDE("nilKind='literalCharacter' is not valid for lengthKind='prefixed'")
+            case LengthKind.EndOfParent => SDE("nilKind='literalCharacter' is not valid for lengthKind='endOfParent'")
+            case LengthKind.Delimited => SDE("nilKind='literalCharacter' is not valid for lengthKind='delimited'")
+            case LengthKind.Pattern => SDE("nilKind='literalCharacter' is not valid for lengthKind='pattern'")
+          }
+        }
+        case NilKind.LogicalValue => notYetImplemented("nilLitContent nilKind='logicalValue'")
       }
+
     }
 
   private def withDelimiterStack(body: => Gram) = {

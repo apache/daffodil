@@ -32,13 +32,45 @@
 
 package edu.illinois.ncsa.daffodil.section13.nillable
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+import org.junit.Test
+
+object TestNillableNew {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
+
+  val runnerAA = Runner(testDir, "nillable.tdml")
+  val runnerLN = Runner(testDir, "literal-value-nils.tdml")
+  val runnerLC = Runner(testDir, "literal-character-nils.tdml")
+  val runnerEntity = Runner(testDir_01, "entities_01.tdml")
+
+  @AfterClass def shutDown {
+    runnerAA.reset
+    runnerLN.reset
+    runnerEntity.reset
+    runnerLC.reset
+  }
+
+}
 
 class TestNillableNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val ln = testDir + "literal-value-nils.tdml"
-  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  import TestNillable._
+  
+  /* These should demonstrate that:
+   * 	DFDL Char Classes are not allowed for literalCharacter
+   *  DFDL Char Entities are allowed for literalCharacter
+   *  Raw bytes entities are allowed for literalCharacter
+   *  Only 1 character or byte are allowed for literalCharacter
+   * 
+   *  According to analysis doc, should also work for numeric
+   *  and hex entities.
+   * */
+  @Test def test_text_lit_char_01() { runnerLC.runOneTest("text_01") }
+  @Test def test_text_lit_char_02() { runnerLC.runOneTest("text_02") }
+  @Test def test_text_lit_char_03() { runnerLC.runOneTest("text_03") }
+  @Test def test_text_lit_char_04() { runnerLC.runOneTest("text_04") }
+  @Test def test_binary_lit_char_01() { runnerLC.runOneTest("binary_01") }
 
 }

@@ -38,16 +38,7 @@ import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
-/**
- * Specifically designed to be used inside one of the SpecifiedLength parsers.
- *
- * This grabs a string as long as it can get, depending on the SpecifiedLength context
- * to constrain how much it can get.
- */
-final class LiteralNilOfSpecifiedLengthParser(
-  override val cookedNilValuesForParse: List[String],
-  override val parsingPadChar: MaybeChar,
-  override val justificationTrim: TextJustificationType.Type,
+abstract class LiteralNilOfSpecifiedLengthParserBase(
   erd: ElementRuntimeData)
   extends PrimParserObject(erd)
   with StringOfSpecifiedLengthMixin
@@ -58,6 +49,8 @@ final class LiteralNilOfSpecifiedLengthParser(
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + eName + " nilValue='" + cookedNilValuesForParse + "'/>"
   }
+  
+  def isFieldNilLit(field: String): Boolean 
 
   override def parse(start: PState) {
 
@@ -71,7 +64,7 @@ final class LiteralNilOfSpecifiedLengthParser(
     } else if (isFieldEmpty && !isEmptyAllowed) {
       // Fail!
       PE(start, "%s - Empty field found but not allowed!", eName)
-    } else if (isFieldNilLiteral(field)) {
+    } else if (isFieldNilLit(field)) {
       // Contains a nilValue, Success!
       start.thisElement.setNilled()
     } else {
@@ -79,5 +72,51 @@ final class LiteralNilOfSpecifiedLengthParser(
       PE(start, "%s - Does not contain a nil literal!", eName)
     }
   }
+
+}
+
+/**
+ * Specifically designed to be used inside one of the SpecifiedLength parsers.
+ *
+ * This grabs a string as long as it can get, depending on the SpecifiedLength context
+ * to constrain how much it can get.
+ */
+final class LiteralValueNilOfSpecifiedLengthParser(
+  override val cookedNilValuesForParse: List[String],
+  override val parsingPadChar: MaybeChar,
+  override val justificationTrim: TextJustificationType.Type,
+  erd: ElementRuntimeData)
+  extends LiteralNilOfSpecifiedLengthParserBase(erd){
+
+  private val eName = erd.name
+
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    "<" + eName + " nilValue='" + cookedNilValuesForParse + "'/>"
+  }
+
+  override def isFieldNilLit(field: String): Boolean = isFieldNilLiteralValue(field)
+
+}
+
+/**
+ * Specifically designed to be used inside one of the SpecifiedLength parsers.
+ *
+ * This grabs a string as long as it can get, depending on the SpecifiedLength context
+ * to constrain how much it can get.
+ */
+final class LiteralCharacterNilOfSpecifiedLengthParser(
+  override val cookedNilValuesForParse: List[String],
+  override val parsingPadChar: MaybeChar,
+  override val justificationTrim: TextJustificationType.Type,
+  erd: ElementRuntimeData)
+  extends LiteralNilOfSpecifiedLengthParserBase(erd) {
+
+  private val eName = erd.name
+
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    "<" + eName + " nilValue='" + cookedNilValuesForParse + "'/>"
+  }
+
+  override def isFieldNilLit(field: String): Boolean = isFieldNilLiteralCharacter(field)
 
 }

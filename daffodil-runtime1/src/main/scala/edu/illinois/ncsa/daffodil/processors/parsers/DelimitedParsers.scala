@@ -161,7 +161,7 @@ class LiteralNilDelimitedEndOfDataParser(
       val field = result.field.getOrElse("")
       val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
-      lazy val isNilLiteral = isFieldNilLiteral(field)
+      lazy val isNilLiteral = isFieldNilLiteralValue(field)
       if (isFieldEmpty && !isEmptyAllowed && !isNilLiteral) {
         doPE(state)
         return

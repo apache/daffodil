@@ -42,12 +42,14 @@ object TestNillable {
 
   val runnerAA = Runner(testDir, "nillable.tdml")
   val runnerLN = Runner(testDir, "literal-value-nils.tdml")
+  val runnerLC = Runner(testDir, "literal-character-nils.tdml")
   val runnerEntity = Runner(testDir_01, "entities_01.tdml")
 
   @AfterClass def shutDown {
     runnerAA.reset
     runnerLN.reset
     runnerEntity.reset
+    runnerLC.reset
   }
 
 }
@@ -79,7 +81,7 @@ class TestNillable {
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
-
+  
   @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
   @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
   @Test def test_entity_success_05() { runnerEntity.runOneTest("entity_success_05") }
