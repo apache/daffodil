@@ -71,6 +71,6 @@ trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
     else false
   }
 
-  final lazy val hasSeparator = separator.isKnownNonEmpty
+  final lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
 }
 

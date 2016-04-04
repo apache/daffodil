@@ -402,63 +402,6 @@ class TestDsomCompiler extends Logging {
     assertEquals(BinaryNumberRep.Packed, ge6.binaryNumberRep)
   }
 
-  @Test def testTerminatingMarkup {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
-        <xs:complexType>
-          <xs:sequence dfdl:separator=",">
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:terminator=";"/>
-            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-    val sset = new SchemaSet(testSchema)
-    val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
-    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot()
-    val ct = ge1.elementComplexType
-    val sq = ct.group.asInstanceOf[Sequence]
-    val Seq(s1, _) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
-    val s1tm = s1.terminatingMarkup
-    val Seq(ce) = s1tm
-    assertTrue(ce.isConstant)
-    assertEquals(";", ce.constant)
-  }
-
-  @Test def testTerminatingMarkup2 {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
-        <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never" dfdl:terminator=";">
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" minOccurs="0" dfdl:occursCountKind="parsed"/>
-            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-    val sset = new SchemaSet(testSchema)
-    val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
-
-    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot()
-    val ct = ge1.elementComplexType
-    val sq = ct.group.asInstanceOf[Sequence]
-    val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
-    val s1tm = s1.terminatingMarkup
-    val Seq(ce) = s1tm
-    assertTrue(ce.isConstant)
-    assertEquals(",", ce.constant)
-    val s2tm = s2.terminatingMarkup
-    val Seq(ce1, ce2) = s2tm
-    assertTrue(ce1.isConstant)
-    assertEquals(",", ce1.constant)
-    assertTrue(ce2.isConstant)
-    assertEquals(";", ce2.constant)
-  }
-
   @Test def test_simpleType_base_combining {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
@@ -633,48 +576,6 @@ class TestDsomCompiler extends Logging {
 
     val scope = (xml \ "quux")(0).scope
     scala.xml.Elem("dfdl", "element", scala.xml.Null, scope, true)
-  }
-
-  @Test def test_delim_inheritance {
-    val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml").toURL)
-
-    // val compiler = Compiler()
-    val sset = new SchemaSet(delimiterInheritance)
-    val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
-
-    val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot()
-
-    val seq = ge1.sequence
-
-    val Seq(e1: LocalElementDecl, _ /* e2 */ : ElementBase, e3: ElementBase) = seq.groupMembers
-
-    assertEquals(3, e1.allTerminatingMarkup.length) // 1 Level + ref on global element decl
-    assertEquals("a", e1.allTerminatingMarkup(0)._1.prettyExpr)
-    assertEquals("b", e1.allTerminatingMarkup(1)._1.prettyExpr)
-    assertEquals("g", e1.allTerminatingMarkup(2)._1.prettyExpr)
-
-    val ct2 = e3.asInstanceOf[ElementBase].typeDef.asInstanceOf[ComplexTypeBase]
-    val seq2 = ct2.modelGroup.asInstanceOf[Sequence]
-
-    val Seq(e3_1: ElementBase, e3_2: ElementBase) = seq2.groupMembers
-
-    assertEquals(6, e3_1.allTerminatingMarkup.length) // 2 Level + ref on global element decl
-    assertEquals("e", e3_1.allTerminatingMarkup(0)._1.prettyExpr)
-    assertEquals("c", e3_1.allTerminatingMarkup(1)._1.prettyExpr)
-    assertEquals("d", e3_1.allTerminatingMarkup(2)._1.prettyExpr)
-    assertEquals("a", e3_1.allTerminatingMarkup(3)._1.prettyExpr)
-    assertEquals("b", e3_1.allTerminatingMarkup(4)._1.prettyExpr)
-    assertEquals("g", e3_1.allTerminatingMarkup(5)._1.prettyExpr)
-
-    assertEquals(6, e3_2.allTerminatingMarkup.length) // 2 Level + ref on global element decl + ref on local element decl
-    assertEquals("f", e3_2.allTerminatingMarkup(0)._1.prettyExpr) // f instead of e, due to ref
-    assertEquals("c", e3_2.allTerminatingMarkup(1)._1.prettyExpr)
-    assertEquals("d", e3_2.allTerminatingMarkup(2)._1.prettyExpr)
-    assertEquals("a", e3_2.allTerminatingMarkup(3)._1.prettyExpr)
-    assertEquals("b", e3_2.allTerminatingMarkup(4)._1.prettyExpr)
-    assertEquals("g", e3_2.allTerminatingMarkup(5)._1.prettyExpr)
   }
 
   @Test def test_escapeSchemeOverride = {

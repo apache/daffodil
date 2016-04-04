@@ -61,49 +61,21 @@ object Processor {
    * actually end up happening at run time.
    */
   def initialize(proc: Processor) {
-    val allprims = proc.allPrimProcessors.distinct
-    val allRDs = allprims.flatMap { prim =>
-      if (prim.isInitialized) Nil
-      else {
-        prim.isInitialized = true
-        allRuntimeDependencies(prim)
-      }
-    }.distinct
-    allRDs.foreach { _.ensureCompiled }
+    ensureCompiled(proc)
   }
 
-  /**
-   * Direct runtimeDependencies on Evaluatables. Not transitively. Just immediate.
-   */
-  private def allRuntimeDependencies(containsEvs: Processor): Seq[Evaluatable[AnyRef]] = {
-    containsEvs match {
-      case prim: PrimProcessor => prim.runtimeDependencies
-      case _ => Nil
+  private def ensureCompiled(proc: Processor) {
+    if (!proc.isInitialized) {
+      proc.isInitialized = true
+      proc.runtimeDependencies.foreach { ensureCompiled }
+      proc.childProcessors.foreach { ensureCompiled }
     }
   }
 
-  //  private def allRuntimeDependencies(containsEvs: AnyRef): Seq[Evaluatable[AnyRef]] = {
-  //    val (reflectedPlain, errorsPlain) = FieldFinder.findAllMembersOfType[Evaluatable[AnyRef]](containsEvs)
-  //    val (reflectedOpt, errorsOpt) = FieldFinder.findAllMembersOfType[Option[Evaluatable[AnyRef]]](containsEvs)
-  //    val (reflectedMaybe, errorsMaybe) = FieldFinder.findAllMembersOfType[Maybe[Evaluatable[AnyRef]]](containsEvs)
-  //    val (reflectedColl, errorsColl) = FieldFinder.findAllMembersOfType[Traversable[Evaluatable[AnyRef]]](containsEvs)
-  //    // Where to stop. We could look in any collections, we could look recursively inside any referenced objects....
-  //    val reflected = reflectedPlain ++ reflectedOpt.flatten ++ reflectedMaybe.flatMap { rm =>
-  //      if (rm.isDefined) List(rm.get) else Nil
-  //    } ++ reflectedColl.flatten
-  //    // System.err.println("Detected %s".format(reflected))
-  //    val errors = errorsPlain ++ errorsOpt ++ errorsMaybe ++ errorsColl
-  //    if (!errors.isEmpty) {
-  //      val msg = "Within object %s, these objects %s cannot be automatically depended on because they do not have 'real' locations.\n" +
-  //        "This is due to their being only local values of the constructor call, not object members. This occurs if they are not val, nor var\n" +
-  //        "and not used within the class."
-  //      Assert.invariantFailed(msg.format(containsEvs, errors))
-  //    }
-  //    val distinct = reflected.distinct
-  //    val res = distinct ++ distinct.flatMap { ev => allRuntimeDependencies(ev) }.distinct
-  //    res
-  //  }
-
+  private def ensureCompiled(ev: EvaluatableBase[AnyRef]) {
+    ev.ensureCompiled
+    ev.runtimeDependencies.foreach { ensureCompiled }
+  }
 }
 
 trait Processor
@@ -113,52 +85,13 @@ trait Processor
   // things common to both unparser and parser go here.
   def context: RuntimeData
   def childProcessors: Seq[Processor]
+  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 
   var isInitialized: Boolean = false
-
-  /**
-   * Used to obtain all the potentially-runtime-evaluated computations this processor depends on.
-   *
-   * These may or may not actually be runtime-dependent. If they are runtime-dependent, then
-   * we want to be able to force their evaluation and caching (on the infoset element) of their
-   * values.
-   *
-   * This is only really needed for dfdl:outputValueCalc, where the context for determining
-   * the values of these runtime-valued properties is correct when the unparser first encounters
-   * the element. Later when the dfdl:outputValueCalc'ed value is finally available, the evaluation context
-   * e.g., things like variables having been read/written may have changed. Really all
-   * backward referencing expressions for runtime-valued things must be evaluated when we first
-   * encounter the OVC element, not later after the value has been determined.
-   *
-   * Many schemas and many objects will not have dfdl:outputValueCalc, so we're not going to even
-   * compute this thing unless it is really needed.
-   */
-  final lazy val allProcessors: Seq[Processor] = {
-    if (this.isInitialized) Nil
-    else {
-      this match {
-        case prim: PrimProcessor => {
-          Assert.invariant(prim.childProcessors == Nil)
-          List(prim)
-        }
-        case _ => {
-          // non primitive. Mark it right here (this is really just for
-          // error checking & debugging.
-          this.isInitialized = true
-          childProcessors.flatMap { _.allProcessors }
-        }
-      }
-    }
-  }
-
-  final lazy val allPrimProcessors = allProcessors.filter { _.isInstanceOf[PrimProcessor] }
-
 }
 
 trait PrimProcessor extends Processor {
   override def childProcessors = Nil
-
-  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 }
 
 /**
@@ -250,7 +183,10 @@ trait Parser
 
 // Deprecated and to be phased out. Use the trait Parser instead.
 abstract class ParserObject(override val context: RuntimeData)
-  extends Parser
+  extends Parser {
+
+  override lazy val runtimeDependencies = Nil
+}
 
 /**
  * BriefXML is XML-style output, but intended for specific purposes. It is NOT

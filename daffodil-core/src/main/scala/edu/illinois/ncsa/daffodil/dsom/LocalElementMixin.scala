@@ -57,8 +57,7 @@ trait LocalElementMixin
     nearestEnclosingSequence match {
       case None => false
       case Some(es) => {
-        val res =
-          es.separator.isKnownNonEmpty
+        val res = es.separatorParseEv.isKnownNonEmpty
         res
       }
     }

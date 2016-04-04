@@ -113,9 +113,15 @@ trait PrimUnparser
   extends Unparser
   with PrimProcessor
 
+// Deprecated and to be phased out. Use the trait Unparser instead.
 abstract class UnparserObject(override val context: RuntimeData)
-  extends Unparser
+  extends Unparser {
 
+  override lazy val runtimeDependencies = Nil
+
+}
+
+// Deprecated and to be phased out. Use the trait PrimUnparser instead.
 abstract class PrimUnparserObject(override val context: RuntimeData)
   extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil

@@ -7,10 +7,8 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
-class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression[String],
-  delimiterType: DelimiterTextType.Type)
+class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextType.Type)
   extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {
 
   override lazy val nom = {
@@ -21,7 +19,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression[
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
-    else "<" + nom + ">" + delimExpr + "</" + nom + ">"
+    else "<" + nom + " />"
   }
 
   def unparse(state: UState): Unit = {

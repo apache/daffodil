@@ -40,6 +40,8 @@ object InitiatorCooker extends DelimiterCooker()
 
 object TerminatorCooker extends DelimiterCooker()
 
+object TerminatorCookerNoES extends DelimiterCookerNoES("terminator")
+
 object SeparatorCooker extends DelimiterCookerNoES(null)
 
 object TextStandardDecimalSeparatorCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()

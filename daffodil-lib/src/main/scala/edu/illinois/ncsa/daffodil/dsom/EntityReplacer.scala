@@ -803,8 +803,13 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
        * Only ES is disallowed
        */
       override protected def noCharClassEntities(raw: String, context: ThrowsSDE) {
-        // TODO: also no WSP* alone since that matches ES implicitly
-        context.schemaDefinitionUnless(!raw.contains("%ES;"), "Property dfdl:%s cannot contain %%ES;", propName)
+        // TODO: this isn't quite right, as it will allow combined delimiters
+        // that still match the empty string, e.g. "%ES;%WSP*;". We could check
+        // if raw.contains("%WSP*;"), but that is too general, preventing valid
+        // delimiters like "foo%WSP*;bar". Although the below matches the
+        // specification, it's probably not the intended behavior.
+        context.schemaDefinitionUnless(raw != "%WSP*;", "Property dfdl:%s cannot contain %%WSP*;", propName)
+        context.schemaDefinitionUnless(raw != "%ES;", "Property dfdl:%s cannot contain %%ES;", propName)
       }
     }
 }

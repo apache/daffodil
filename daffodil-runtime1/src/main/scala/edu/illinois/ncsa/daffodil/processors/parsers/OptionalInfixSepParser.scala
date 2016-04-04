@@ -41,6 +41,7 @@ class OptionalInfixSepParser(override val context: RuntimeData, sepParser: Parse
 
   override lazy val nom = "OptionalInfixSep"
   override lazy val childProcessors = Seq(sepParser)
+  override lazy val runtimeDependencies = Nil
 
   def parse(start: PState): Unit = {
     if (start.mpstate.arrayPos > 1) sepParser.parse1(start)

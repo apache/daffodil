@@ -134,13 +134,9 @@ abstract class StringDelimited(e: ElementBase)
 
   lazy val es = e.optionEscapeScheme
 
-  lazy val tm = e.allTerminatingMarkup
   lazy val cname = toString
 
   lazy val eName = e.toString()
-
-  lazy val hasDynamicDelims: Boolean =
-    e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
 
   lazy val leftPaddingOpt: Option[TextPaddingParser] = {
     if (!parsingPadChar.isDefined) None

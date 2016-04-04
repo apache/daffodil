@@ -76,7 +76,7 @@ case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkip, "tr
       e.nearestEnclosingElement.get
     }
   }
-  e.schemaDefinitionWhen(lengthKindContext.lengthKind == LengthKind.Delimited && e.terminator.isConstant && e.terminator.constant == "",
+  e.schemaDefinitionWhen(lengthKindContext.lengthKind == LengthKind.Delimited && !e.hasTerminator,
     "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
 }
 

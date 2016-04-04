@@ -679,8 +679,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  private lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  private lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  private lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  private lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.
@@ -706,13 +706,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       // cause a nil value to be created.
       (isDefinedNilValue && (isSimpleType && (simpleType.primitiveType =:= PrimType.String || simpleType.primitiveType =:= PrimType.HexBinary) && !hasESNilValue)))
 
-  final lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  final lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
+  final lazy val hasEmptyValueInitiator = initTermTestExpression(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
+  final lazy val hasEmptyValueTerminator = initTermTestExpression(terminatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
   // That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false.
-  private def initTermTestExpression(expr: CompiledExpression[AnyRef], prop: => Any, true1: Any, true2: Any): Boolean = {
+  private def initTermTestExpression(expr: DelimiterParseEv, prop: => Any, true1: Any, true2: Any): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
     // prop's value at all unless the first test is true.
     if (expr.isKnownNonEmpty)
@@ -747,10 +747,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       res
     }
   }.value
-
-  final lazy val hasExpressionsInTerminatingMarkup: Boolean = {
-    this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0
-  }
 
   // 11/1/2012 - moved to base since needed by patternValue
   final lazy val isPrimType = typeDef.isInstanceOf[PrimType]

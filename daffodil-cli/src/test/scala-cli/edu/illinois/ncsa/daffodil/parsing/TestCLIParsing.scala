@@ -217,7 +217,7 @@ class TestCLIparsing {
       val cmd = String.format("echo 1/3| %s -vv parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<OptionalInfixSep><Sep>CompiledExpression(/)</Sep></OptionalInfixSep>"))
+      shell.expect(contains("<OptionalInfixSep><Sep /></OptionalInfixSep>"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

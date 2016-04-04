@@ -100,10 +100,11 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
 
-  @deprecated("2016-03-10", "Use initiatorEv instead.")
-  lazy val initiator = {
-    initiatorEv.compile()
-    initiatorExpr
+  lazy val isLengthKindDelimited = {
+    decl match {
+      case mg: ModelGroup => mg.enclosingElement.get.lengthKind == LengthKind.Delimited
+      case eb: ElementBase => eb.lengthKind == LengthKind.Delimited
+    }
   }
 
   private lazy val initiatorExpr = {
@@ -113,15 +114,18 @@ trait DelimitedRuntimeValuedPropertiesMixin
     ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, initiatorRaw)
   }
 
-  lazy val initiatorEv = new InitiatorEv(initiatorExpr, decl.termRuntimeData)
+  lazy val initiatorParseEv = {
+    val ev = new InitiatorParseEv(initiatorExpr, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
+  lazy val initiatorUnparseEv = {
+    val ev = new InitiatorUnparseEv(initiatorExpr, outputNewLineEv, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
 
   final def initiatorLoc = (this.prettyName, this.path)
-
-  @deprecated("2016-03-10", "Use terminatorEv instead.")
-  lazy val terminator = {
-    terminatorEv.compile()
-    terminatorExpr
-  }
 
   private lazy val terminatorExpr = LV('terminator) {
     val qn = this.qNameForProperty("terminator")
@@ -132,7 +136,16 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   final def terminatorLoc = (this.prettyName, this.path)
 
-  lazy val terminatorEv = new TerminatorEv(terminatorExpr, decl.termRuntimeData)
+  lazy val terminatorParseEv = {
+    val ev = new TerminatorParseEv(terminatorExpr, isLengthKindDelimited, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
+  lazy val terminatorUnparseEv = {
+    val ev = new TerminatorUnparseEv(terminatorExpr, isLengthKindDelimited, outputNewLineEv, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
 }
 
 trait ElementRuntimeValuedPropertiesMixin
@@ -198,12 +211,6 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
-  @deprecated("2016-03-10", "Use separatorEv instead.")
-  final lazy val separator = {
-    separatorEv.compile()
-    separatorExpr
-  }
-
   private lazy val separatorExpr = {
     val qn = this.qNameForProperty("separator")
     val typeIfStaticallyKnown = NodeInfo.String
@@ -211,7 +218,16 @@ trait SequenceRuntimeValuedPropertiesMixin
     ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, separatorRaw)
   }
 
-  lazy val separatorEv = new SeparatorEv(separatorExpr, decl.termRuntimeData)
+  lazy val separatorParseEv = {
+    val ev = new SeparatorParseEv(separatorExpr, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
+  lazy val separatorUnparseEv = {
+    val ev = new SeparatorUnparseEv(separatorExpr, outputNewLineEv, decl.termRuntimeData)
+    ev.compile()
+    ev
+  }
 
   final def separatorLoc = (this.prettyName, this.path)
 }

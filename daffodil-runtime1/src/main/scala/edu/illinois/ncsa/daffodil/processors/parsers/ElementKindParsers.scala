@@ -41,11 +41,9 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicTextParser
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
@@ -56,6 +54,9 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.InitiatorParseEv
+import edu.illinois.ncsa.daffodil.processors.SeparatorParseEv
+import edu.illinois.ncsa.daffodil.processors.TerminatorParseEv
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
@@ -80,47 +81,35 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the delimiter DFAs (bring them out of scope) after
  * the internal/body parser has completed.
  */
-class DelimiterStackParser(initiatorOpt: Option[CompiledExpression[String]],
-  separatorOpt: Option[CompiledExpression[String]],
-  terminatorOpt: Option[CompiledExpression[String]],
+class DelimiterStackParser(initiatorOpt: Maybe[InitiatorParseEv],
+  separatorOpt: Maybe[SeparatorParseEv],
+  terminatorOpt: Maybe[TerminatorParseEv],
   initiatorLoc: (String, String),
-  separatorLocOpt: Option[(String, String)],
+  separatorLocOpt: Maybe[(String, String)],
   terminatorLoc: (String, String),
-  isLengthKindDelimited: Boolean,
-  rd: RuntimeData, bodyParser: Parser)
-  extends ParserObject(rd)
-  with EvaluatesStaticDynamicTextParser {
+  override val context: RuntimeData, bodyParser: Parser)
+  extends Parser {
 
   override lazy val childProcessors = List(bodyParser)
 
-  private def unlessEmptyString(ce: Option[CompiledExpression[String]]): Option[CompiledExpression[String]] =
-    ce.flatMap { ce => if (ce.isConstant && ce.constant == "") None else Some(ce) }
+  override lazy val runtimeDependencies = initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else {
       "<DelimiterStack" +
-        unlessEmptyString(initiatorOpt).map { i => " initiator='" + i + "'" }.getOrElse("") +
-        unlessEmptyString(separatorOpt).map { s => " separator='" + s + "'" }.getOrElse("") +
-        unlessEmptyString(terminatorOpt).map { t => " terminator='" + t + "'" }.getOrElse("") + ">" +
+        initiatorOpt.toScalaOption.map { i => " initiator='" + i + "'" }.getOrElse("") +
+        separatorOpt.toScalaOption.map { s => " separator='" + s + "'" }.getOrElse("") +
+        terminatorOpt.toScalaOption.map { t => " terminator='" + t + "'" }.getOrElse("") + ">" +
         bodyParser.toBriefXML(depthLimit - 1) +
         "</DelimiterStack>"
     }
   }
 
-  val (staticInits, dynamicInits) = getStaticAndDynamicText(initiatorOpt, context)
-  val (staticSeps, dynamicSeps) = getStaticAndDynamicText(separatorOpt, context, isLengthKindDelimited)
-  val (staticTerms, dynamicTerms) = getStaticAndDynamicText(terminatorOpt, context, isLengthKindDelimited)
-
   def parse(start: PState): Unit = {
 
-    // Evaluate Delimiters
-    val dynamicInitsSeq = evaluateDynamicText(dynamicInits, start, context, false)
-    val dynamicSepsSeq = evaluateDynamicText(dynamicSeps, start, context, isLengthKindDelimited)
-    val dynamicTermsSeq = evaluateDynamicText(dynamicTerms, start, context, isLengthKindDelimited)
-
-    val allInits: Array[DFADelimiter] = combineStaticAndDynamic(staticInits, dynamicInitsSeq)
-    val allSeps: Array[DFADelimiter] = combineStaticAndDynamic(staticSeps, dynamicSepsSeq)
-    val allTerms: Array[DFADelimiter] = combineStaticAndDynamic(staticTerms, dynamicTermsSeq)
+    val allInits: Array[DFADelimiter] = if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(start) else Array()
+    val allSeps: Array[DFADelimiter] = if (separatorOpt.isDefined) separatorOpt.get.evaluate(start) else Array()
+    val allTerms: Array[DFADelimiter] = if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(start) else Array()
 
     val node = DelimiterStackNode(allInits,
       allSeps,
@@ -150,8 +139,7 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression[String]],
  */
 class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
   rd: RuntimeData, bodyParser: Parser)
-  extends ParserObject(rd)
-  with EvaluatesStaticDynamicTextParser {
+  extends ParserObject(rd) {
 
   override lazy val childProcessors = Seq(bodyParser)
 

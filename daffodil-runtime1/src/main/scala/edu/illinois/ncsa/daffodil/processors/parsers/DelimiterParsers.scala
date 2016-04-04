@@ -149,21 +149,18 @@ abstract class DelimiterTextParserBase(rd: TermRuntimeData,
 
 class DelimiterTextParser(
   rd: TermRuntimeData,
-  delimExpr: CompiledExpression[String],
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,
   delimiterType: DelimiterTextType.Type)
   extends DelimiterTextParserBase(rd, delimiterType) {
 
-  //Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
-
   override lazy val nom = kindString
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
-    else "<" + nom + ">" + delimExpr + "</" + nom + ">"
+    else "<" + nom + " />"
   }
-  override def toString = kindString + "('" + delimExpr + "')"
+  override def toString = kindString
 
   override def parse(start: PState): Unit = withParseErrorThrowing(start) {
 

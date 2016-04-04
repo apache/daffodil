@@ -187,7 +187,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   lazy val textParser = new TextParser(e.termRuntimeData)
 }
 
-abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression[String], e: Term, eb: Term, guard: Boolean = true)
+abstract class DelimiterText(kindString: String, e: Term, eb: Term, guard: Boolean = true)
   extends Text(e, eb, guard) {
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
@@ -196,19 +196,19 @@ abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression[S
 
   def delimiterType: DelimiterTextType.Type
 
-  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, delimExpr, kindString, textParser, positionalInfo, delimiterType)
-  override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimExpr, delimiterType)
+  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, kindString, textParser, positionalInfo, delimiterType)
+  override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
 }
 
-case class Initiator(e: Term) extends DelimiterText("Init", e.initiator, e, e) {
+case class Initiator(e: Term) extends DelimiterText("Init", e, e) {
   Assert.invariant(e.hasInitiator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
-case class Separator(s: Sequence, t: Term) extends DelimiterText("Sep", s.separator, s, t) {
+case class Separator(s: Sequence, t: Term) extends DelimiterText("Sep", s, t) {
   Assert.invariant(s.hasSeparator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
 }
-case class Terminator(e: Term) extends DelimiterText("Term", e.terminator, e, e) {
+case class Terminator(e: Term) extends DelimiterText("Term", e, e) {
   Assert.invariant(e.hasTerminator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Terminator
 }

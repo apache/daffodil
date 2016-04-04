@@ -174,17 +174,15 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   }
 }
 
-class DelimiterStackUnparser(outputNewLine: OutputNewLineEv,
-  initiatorOpt: Option[CompiledExpression[String]],
-  separatorOpt: Option[CompiledExpression[String]],
-  terminatorOpt: Option[CompiledExpression[String]],
+class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
+  separatorOpt: Maybe[SeparatorUnparseEv],
+  terminatorOpt: Maybe[TerminatorUnparseEv],
   initiatorLoc: (String, String),
   separatorLocOpt: Option[(String, String)],
   terminatorLoc: (String, String),
-  isLengthKindDelimited: Boolean,
-  rd: RuntimeData,
+  override val context: RuntimeData,
   bodyUnparser: Unparser)
-  extends UnparserObject(rd) with EvaluatesStaticDynamicTextUnparser {
+  extends Unparser {
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -196,17 +194,15 @@ class DelimiterStackUnparser(outputNewLine: OutputNewLineEv,
         "</DelimiterStack>"
   }
 
-  val (staticInits, dynamicInits) = getStaticAndDynamicText(initiatorOpt, outputNewLine, context)
-  val (staticSeps, dynamicSeps) = getStaticAndDynamicText(separatorOpt, outputNewLine, context, isLengthKindDelimited)
-  val (staticTerms, dynamicTerms) = getStaticAndDynamicText(terminatorOpt, outputNewLine, context, isLengthKindDelimited)
-
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
+
+  override lazy val runtimeDependencies = initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList
 
   def unparse(state: UState): Unit = {
     // Evaluate Delimiters
-    val init = if (staticInits.isDefined) staticInits else evaluateDynamicText(dynamicInits, outputNewLine, state, context, false)
-    val sep = if (staticSeps.isDefined) staticSeps else evaluateDynamicText(dynamicSeps, outputNewLine, state, context, isLengthKindDelimited)
-    val term = if (staticTerms.isDefined) staticTerms else evaluateDynamicText(dynamicTerms, outputNewLine, state, context, isLengthKindDelimited)
+    val init = if (initiatorOpt.isDefined) Maybe.toMaybe(initiatorOpt.get.evaluate(state)) else Nope
+    val sep = if (separatorOpt.isDefined) Maybe.toMaybe(separatorOpt.get.evaluate(state)) else Nope
+    val term = if (terminatorOpt.isDefined) Maybe.toMaybe(terminatorOpt.get.evaluate(state)) else Nope
 
     val node = DelimiterStackUnparseNode(init,
       sep,
@@ -217,7 +213,7 @@ class DelimiterStackUnparser(outputNewLine: OutputNewLineEv,
 
     state.pushDelimiters(node)
 
-    bodyUnparser.unparse1(state, rd)
+    bodyUnparser.unparse1(state, context)
 
     state.popDelimiters
   }
