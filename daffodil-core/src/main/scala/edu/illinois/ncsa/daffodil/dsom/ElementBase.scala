@@ -599,7 +599,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * be fixed or variable width.
    */
   final lazy val isFixedLength = {
-    (lengthKind =:= LengthKind.Explicit && length.isConstant) ||
+    (lengthKind =:= LengthKind.Explicit && lengthEv.isConstant) ||
       isImplicitLengthString
   }
 
@@ -607,7 +607,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val fixedLengthValue: Long = {
     Assert.usage(isFixedLength)
-    if (lengthKind =:= LengthKind.Explicit) length.constant
+    if (lengthKind =:= LengthKind.Explicit) lengthEv.optConstant.get
     else {
       Assert.invariant(lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
@@ -649,7 +649,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   // TODO: Is this used at all?
   final lazy val fixedLength = {
-    if (isFixedLength) length.constant.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
+    if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
   }
 
   /**

@@ -152,6 +152,45 @@ trait DataInputStream
   extends DataStreamCommon {
   import DataInputStream._
 
+  /**
+   * The position is maintained at bit granularity.
+   */
+  def bitPos0b: Long
+  final def bitPos1b: Long = bitPos0b + 1
+
+  /**
+   * The byte position excludes any partial byte. So if the bit position
+   * is not on a byte boundary, then the byte position is as if the bit position
+   * was rounded down to the next byte boundary.
+   * <p>
+   * These are convenience methods only.
+   */
+  final def bytePos0b: Long = bitPos0b >> 3
+  final def bytePos1b: Long = bitPos1b >> 3
+
+  /**
+   * The bit limit is Nope if there is no imposed limit other than end of data.
+   * <p>
+   * The bitLimit1b is the value of the first bitPos1b beyond the end of the data.
+   * Valid bit positions are less than, but not equal to, the bit limit.
+   * <p>
+   * If bitLimit0b is defined, then there IS that much data available at least.
+   */
+  def bitLimit0b: MaybeULong
+  final def bitLimit1b: MaybeULong = if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get + 1)
+
+  def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
+
+  /**
+   * Sets the bit limit to an absolute value and returns true.
+   * Returns false if the new bit limit is beyond the existing bit limit range.
+   */
+  def setBitLimit0b(bitLimit0b: MaybeULong): Boolean
+  final def setBitLimit1b(bitLimit1b: MaybeULong): Boolean = {
+    val newLimit = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
+    setBitLimit0b(newLimit)
+  }
+
   /*
    * Setters for all the text and binary characteristics.
    * <p>
@@ -528,4 +567,25 @@ trait DataInputStream
    */
   def markPos: MarkPos
   def resetPos(m: MarkPos): Unit
+
+  /**
+   * Convenience methods that temporarily set and (reliably) restore the bitLimit.
+   * The argument gives the limit length. Note this is a length, not a bit position.
+   *
+   * This is added to the current bit position to get the limiting bit position
+   * which is then set as the bitLimit when
+   * the body is evaluated. On return the bit limit is restored to its
+   * prior value.
+   * <p>
+   * The return value is false if the new bit limit is beyond the existing bit limit range.
+   * Otherwise the return value is true.
+   * <p>
+   * The prior value is restored even if an Error/Exception is thrown. (ie., via a try-finally)
+   * <p>
+   * These are intended for use implementing specified-length types (simple or complex).
+   * <p>
+   * Note that length limits in lengthUnits Characters are not implemented
+   * this way. See fillCharBuffer(cb) method.
+   */
+  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForInput
 }

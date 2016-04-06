@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRounding
+import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.math.BigInteger
 import com.ibm.icu.text.DecimalFormat
@@ -99,31 +100,31 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         (Nope, Nope)
       }
 
-    val decSep =
+    val decSep: Maybe[Evaluatable[List[String]]] =
       if (!h.isInt && (patternStripped.contains(".") ||
         patternStripped.contains("E") ||
         patternStripped.contains("@"))) {
-        One(e.textStandardDecimalSeparator)
+        One(e.textStandardDecimalSeparatorEv)
       } else {
         Nope
       }
 
     val groupSep =
       if (patternStripped.contains(",")) {
-        One(e.textStandardGroupingSeparator)
+        One(e.textStandardGroupingSeparatorEv)
       } else {
         Nope
       }
 
     val isConstant = ((decSep.isEmpty || decSep.get.isConstant) &&
       (groupSep.isEmpty || groupSep.get.isConstant) &&
-      e.textStandardExponentRep.isConstant)
+      e.textStandardExponentRepEv.isConstant)
 
     val nff = if (isConstant) {
       new NumberFormatFactoryStatic[S](e.runtimeData, h,
         decSep,
         groupSep,
-        e.textStandardExponentRep,
+        e.textStandardExponentRepEv,
         infRep,
         nanRep,
         e.textNumberCheckPolicy,
@@ -135,7 +136,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       new NumberFormatFactoryDynamic[S](e.runtimeData, h,
         decSep,
         groupSep,
-        e.textStandardExponentRep,
+        e.textStandardExponentRepEv,
         infRep,
         nanRep,
         e.textNumberCheckPolicy,

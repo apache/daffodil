@@ -35,21 +35,20 @@ package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
 trait EncodingChangeMixin extends GrammarMixin { self: Term =>
 
-  private lazy val enclosingEncoding = enclosingTerm.map(_.encoding)
-  private lazy val priorSiblingEncoding = priorSibling.map(_.encoding)
-  private lazy val encodingBefore: CompiledExpression[String] = priorSiblingEncoding.getOrElse(enclosingEncoding.getOrElse(encoding))
+  private lazy val enclosingEncoding = enclosingTerm.map(_.encodingEv)
+  private lazy val priorSiblingEncoding = priorSibling.map(_.encodingEv)
+  private lazy val encodingBefore: Evaluatable[String] = priorSiblingEncoding.getOrElse(enclosingEncoding.getOrElse(encodingEv))
 
   protected lazy val isKnownSameEncoding: Boolean = {
     if (enclosingTerm.isEmpty) false // root always gets a encoding change.
     else {
-      val thisEncoding = encoding
+      val thisEncoding = encodingEv
       val otherEncoding = encodingBefore
       if (thisEncoding.isConstant && otherEncoding.isConstant &&
-        thisEncoding.constant =#= otherEncoding.constant)
+        thisEncoding.optConstant.get =:= otherEncoding.optConstant.get)
         true
       else
         false

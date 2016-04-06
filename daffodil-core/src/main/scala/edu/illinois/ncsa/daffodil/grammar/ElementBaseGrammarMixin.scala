@@ -49,10 +49,10 @@ import java.lang.{ Long => JLong }
 /////////////////////////////////////////////////////////////////
 
 trait ElementBaseGrammarMixin
-    extends InitiatedTerminatedMixin
-    with AlignedMixin
-    with ByteOrderMixin
-    with HasStatementsGrammarMixin { self: ElementBase =>
+  extends InitiatedTerminatedMixin
+  with AlignedMixin
+  with ByteOrderMixin
+  with HasStatementsGrammarMixin { self: ElementBase =>
 
   /**
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
@@ -81,8 +81,8 @@ trait ElementBaseGrammarMixin
 
   private lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
-    case LengthKind.Explicit if (length.isConstant) => {
-      val lengthFromProp: JLong = length.constant
+    case LengthKind.Explicit if (lengthEv.isConstant) => {
+      val lengthFromProp: JLong = lengthEv.optConstant.get
       val nbits = lengthUnits match {
         case LengthUnits.Bits => lengthFromProp.longValue()
         case LengthUnits.Bytes => lengthFromProp.longValue() * 8
@@ -294,8 +294,8 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val staticBinaryFloatRep = {
-    subset(binaryFloatRep.isConstant, "Dynamic binaryFloatRep is not supported.")
-    BinaryFloatRep(binaryFloatRep.constant, this)
+    subset(binaryFloatRepEv.isConstant, "Dynamic binaryFloatRep is not supported.")
+    binaryFloatRepEv.optConstant.get
   }
 
   //  private lazy val binary = {

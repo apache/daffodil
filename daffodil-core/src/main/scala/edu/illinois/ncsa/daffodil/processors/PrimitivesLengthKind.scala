@@ -90,13 +90,13 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
   extends HexBinaryLengthInBytes(e) {
 
   lazy val parserName = "HexBinaryVariableLengthInBytes"
-  lazy val lengthText = e.length.prettyExpr
+  lazy val lengthText = e.lengthEv.toString()
 
   override lazy val parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 }
 
 case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {
@@ -143,7 +143,7 @@ abstract class StringDelimited(e: ElementBase)
     if (!parsingPadChar.isDefined) None
     else Some(new TextPaddingParser(parsingPadChar.get, e.elementRuntimeData))
   }
-  
+
   // TODO: move out of parser and into the dsom
   lazy val escapeSchemeParseEvOpt = if (es.isDefined) One(es.get.escapeSchemeParseEv) else Nope
   lazy val escapeSchemeUnparseEvOpt = if (es.isDefined) One(es.get.escapeSchemeUnparseEv) else Nope

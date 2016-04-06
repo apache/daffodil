@@ -102,7 +102,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
       val outStream = state.dataOutputStream
       val nCharsWritten = outStream.putString(paddedValue)
       if (nCharsWritten != paddedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.", nom, paddedValue.length)
-      log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
+      log(LogLevel.Debug, "Ended at bit position " + outStream.relBitPos0b)
     } catch {
       // Characters in infoset element cannot be encoded without error.
       //

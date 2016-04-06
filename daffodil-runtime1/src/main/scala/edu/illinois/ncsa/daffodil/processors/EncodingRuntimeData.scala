@@ -65,7 +65,7 @@ import edu.illinois.ncsa.daffodil.util.TransientParam
 trait KnownEncodingMixin { self: ThrowsSDE =>
 
   def isKnownEncoding: Boolean
-  def encoding: CompiledExpression[String]
+  def encodingEv: Evaluatable[String]
   def utf16Width: UTF16Width
   def knownEncodingAlignmentInBits: Int
 
@@ -74,7 +74,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
    */
   final lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = encoding.constant.trim.toUpperCase()
+    val res = encodingEv.optConstant.get.trim.toUpperCase()
     res
   }
 
@@ -162,7 +162,6 @@ final class EncodingRuntimeData(
   @TransientParam decoderEvArg: => DecoderEv,
   @TransientParam encoderEvArg: => EncoderEv,
   override val schemaFileLocation: SchemaFileLocation,
-  val encoding: CompiledExpression[String],
   val optionUTF16Width: Option[UTF16Width],
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
   val summaryEncoding: EncodingLattice,

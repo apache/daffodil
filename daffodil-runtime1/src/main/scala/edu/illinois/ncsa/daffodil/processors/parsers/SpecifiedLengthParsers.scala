@@ -5,8 +5,8 @@ import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -90,12 +90,12 @@ class SpecifiedLengthPatternParser(
 class SpecifiedLengthExplicitBitsParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression[JLong],
+  lengthEv: Evaluatable[JLong],
   toBits: Int)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = {
-    val nBytesAsAny = length.evaluate(s)
+    val nBytesAsAny = lengthEv.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
     nBytes * toBits
   }
@@ -113,11 +113,11 @@ class SpecifiedLengthExplicitBitsFixedParser(
 class SpecifiedLengthExplicitBytesParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression[JLong])
+  lengthEv: Evaluatable[JLong])
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = {
-    val nBytesAsAny = length.evaluate(s)
+    val nBytesAsAny = lengthEv.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
     nBytes * 8
   }
@@ -194,11 +194,11 @@ final class SpecifiedLengthExplicitCharactersFixedParser(
 final class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  length: CompiledExpression[JLong])
+  lengthEv: Evaluatable[JLong])
   extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
 
   def getLength(s: PState): Long = {
-    val nBytesAsAny = length.evaluate(s)
+    val nBytesAsAny = lengthEv.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
     nBytes
   }

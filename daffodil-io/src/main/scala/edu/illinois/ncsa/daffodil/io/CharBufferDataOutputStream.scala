@@ -49,13 +49,16 @@ final class CharBufferDataOutputStream
   override def putByteBuffer(bb: java.nio.ByteBuffer): Long = notToBeUsed
   override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  final override protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  final override protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def skip(nBits: Long): Boolean = notToBeUsed
-  override def bitLimit0b: MaybeULong = notToBeUsed
-  override def bitPos0b: Long = notToBeUsed
-  // override def setBitPos0b(bitPos0b: Long) = notToBeUsed
+  override def maybeRelBitLimit0b: MaybeULong = notToBeUsed
+  override def relBitPos0b: ULong = notToBeUsed
+  override def maybeAbsBitLimit0b: edu.illinois.ncsa.daffodil.util.MaybeULong = notToBeUsed
+  override def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: edu.illinois.ncsa.daffodil.util.MaybeULong): Boolean = notToBeUsed
   override def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
-  override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = notToBeUsed
   override def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed
   override def byteOrder: ByteOrder = notToBeUsed
   override def validateFinalStreamState { /* do nothing */ }

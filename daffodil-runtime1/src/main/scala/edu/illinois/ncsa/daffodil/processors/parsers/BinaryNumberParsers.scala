@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
@@ -77,7 +77,7 @@ class BinaryDecimalKnownLengthParser(e: ElementRuntimeData, signed: YesNo, binar
   with HasKnownLengthInBits {
 }
 
-class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthExpr: CompiledExpression[JLong], val lUnits: LengthUnits)
+class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
   extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 }
@@ -105,7 +105,7 @@ abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, bin
   }
 }
 
-class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthExpr: CompiledExpression[JLong], val lUnits: LengthUnits)
+class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
   extends BinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 }

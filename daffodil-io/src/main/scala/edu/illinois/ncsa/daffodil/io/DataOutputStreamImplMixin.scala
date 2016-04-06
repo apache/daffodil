@@ -6,6 +6,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets
@@ -36,8 +37,87 @@ class DataOutputStreamState extends DataStreamCommonState {
 
   var codingErrorAction: CodingErrorAction = defaultCodingErrorAction
 
-  var bitPos0b: Long = 0
-  var bitLimit0b: MaybeULong = MaybeULong.Nope
+  /**
+   * Absolute bit position zero based.
+   * Absolute as in relative the the start of the output data stream.
+   *
+   * This is a Maybe type because we might not know this value, but still need
+   * to do unparsing into a buffer.
+   */
+  var maybeAbsBitPos0b: MaybeULong = MaybeULong.Nope
+
+  /**
+   * Relative bit position zero based.
+   * Relative to the start of the current buffer.
+   */
+  private var relBitPos0b_ : ULong = ULong(0)
+  def relBitPos0b = relBitPos0b_
+
+  /**
+   * Besides setting the relBitPos, it also maintains the value of
+   * the absolute bit pos, if it is known.
+   */
+  def setRelBitPos0b(newRelBitPos0b: ULong) {
+    val delta: Long = (newRelBitPos0b - relBitPos0b_).toLong
+    if (maybeAbsBitPos0b.isDefined) {
+      maybeAbsBitPos0b = MaybeULong(maybeAbsBitPos0b.get + delta)
+    }
+    relBitPos0b_ = ULong(relBitPos0b_ + delta)
+  }
+
+  /**
+   * Absolute bit limit zero based
+   *
+   * If defined it is the position 1 bit past the last bit location that can be written.
+   * So if we at starting at bitPos0b of 0, and we allow only 100 bits, then the bit positions are
+   * 0 to 99, and the bit limit is 100.
+   */
+  var maybeAbsBitLimit0b: MaybeULong = MaybeULong.Nope
+
+  /**
+   * Relative bit limit zero based
+   */
+  private var maybeRelBitLimit0b_ : MaybeULong = MaybeULong.Nope
+  def maybeRelBitLimit0b = maybeRelBitLimit0b_
+
+  /**
+   * sets, but also maintains the absolute bit limit, if that is defined.
+   *
+   * Returns false if the set was unsuccessful, meaning one is setting a limit that
+   * extends past a pre-existing limit.
+   */
+  def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong): Boolean = {
+    Assert.invariant((maybeAbsBitLimit0b.isDefined && maybeRelBitLimit0b.isDefined) || maybeAbsBitLimit0b.isEmpty)
+    if (newMaybeRelBitLimit0b.isEmpty) {
+      maybeRelBitLimit0b_ = MaybeULong.Nope
+      maybeAbsBitLimit0b = MaybeULong.Nope
+    } else if (maybeRelBitLimit0b.isEmpty) {
+      maybeRelBitLimit0b_ = newMaybeRelBitLimit0b
+      // absolute limit doesn't getchanged (it must be undefined)
+    } else {
+      val delta = maybeRelBitLimit0b.get - newMaybeRelBitLimit0b.get // this is how much the relative value is changing.
+      if (delta < 0) {
+        // we're trying to lengthen past an existing limit. This isn't allowed.
+        return false
+      }
+      maybeRelBitLimit0b_ = MaybeULong(maybeRelBitLimit0b.get + delta)
+      if (maybeAbsBitLimit0b.isDefined) {
+        // adjust absolute value by the same amount.
+        maybeAbsBitLimit0b = MaybeULong(maybeAbsBitLimit0b.get + delta)
+      }
+    }
+    true // in all other cases, we return true because we're successful.
+  }
+
+  /**
+   * Offset within the first byte to the first bit. This is the number of bits to skip.
+   * Value is from 0 to 7.
+   */
+  var bitStartOffset0b: Int = 0
+
+  final def remainingBits: MaybeULong = {
+    if (maybeRelBitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong)
+  }
 
   var byteOrder: ByteOrder = ByteOrder.BigEndian
   var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
@@ -47,8 +127,10 @@ class DataOutputStreamState extends DataStreamCommonState {
     this.fillByte = other.fillByte
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.encoder = other.encoder
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.codingErrorAction = other.codingErrorAction
-    this.bitPos0b = other.bitPos0b
-    this.bitLimit0b = other.bitLimit0b
+    this.maybeAbsBitPos0b = other.maybeAbsBitPos0b
+    this.relBitPos0b_ = other.relBitPos0b_
+    this.maybeAbsBitLimit0b = other.maybeAbsBitLimit0b
+    this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
     this.byteOrder = other.byteOrder
     this.debugOutputStream = other.debugOutputStream
   }
@@ -159,12 +241,19 @@ trait DataOutputStreamImplMixin extends DataOutputStream
 
   final override def setDebugging(setting: Boolean) {
     Assert.usage(isWritable)
-    Assert.usage(!areDebugging)
-    super.setDebugging(setting)
-    val dataCopyStream = new ByteArrayOutputStream()
-    st.debugOutputStream = One(dataCopyStream)
-    val teeStream = new TeeOutputStream(realStream, dataCopyStream)
-    setJavaOutputStream(teeStream)
+    if (setting) {
+      Assert.usage(!areDebugging)
+      val dataCopyStream = new ByteArrayOutputStream()
+      st.debugOutputStream = One(dataCopyStream)
+      val teeStream = new TeeOutputStream(realStream, dataCopyStream)
+      setJavaOutputStream(teeStream)
+      this.cst.debugging = true
+    } else {
+      // turn debugging off
+      this.cst.debugging = false
+      st.debugOutputStream = Nope
+      setJavaOutputStream(new ByteArrayOutputStream())
+    }
   }
 
   def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = {
@@ -173,25 +262,25 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   }
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
-    val endBitPos0b = bitPos0b + (lengthInBytes * 8)
-    if (bitLimit0b.isDefined &&
-      endBitPos0b > bitLimit0b.get) true
+    val relEndBitPos0b = relBitPos0b + ULong(lengthInBytes * 8)
+    if (maybeRelBitLimit0b.isDefined &&
+      (relEndBitPos0b > maybeRelBitLimit0b.getULong)) true
     else false
   }
 
   def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = {
     Assert.usage(isWritable)
-    Assert.notYetImplemented(st.bitPos0b % 8 != 0, "non-byte-aligned data")
+    Assert.notYetImplemented(st.relBitPos0b % 8 != 0, "non-byte-aligned data")
     val nBytes =
       if (exceedsBitLimit(lengthInBytes)) {
-        val n = (bitLimit0b.get - bitPos0b) / 8
+        val n = (maybeRelBitLimit0b.getULong - relBitPos0b) / 8
         Assert.invariant(n >= 0)
         n
       } else {
         lengthInBytes
       }
     realStream.write(ba, byteStartOffset0b, nBytes.toInt)
-    st.bitPos0b += nBytes * 8
+    st.setRelBitPos0b(st.relBitPos0b + ULong(nBytes * 8))
     nBytes
   }
 
@@ -203,11 +292,11 @@ trait DataOutputStreamImplMixin extends DataOutputStream
       if (bb.hasArray) {
         putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining())
       } else {
-        Assert.notYetImplemented(st.bitPos0b % 8 != 0, "non-byte-aligned data")
+        Assert.notYetImplemented(st.relBitPos0b % 8 != 0, "non-byte-aligned data")
         val lengthInBytes = bb.remaining
         if (exceedsBitLimit(lengthInBytes)) return 0
         val chan = Channels.newChannel(realStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
-        st.bitPos0b += lengthInBytes * 8
+        st.setRelBitPos0b(st.relBitPos0b + ULong(lengthInBytes * 8))
         chan.write(bb)
       }
     nTransferred
@@ -255,39 +344,77 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = putLong(unsignedLong.longValue, bitLengthFrom1To64)
 
   def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
-    // must respect bitLimit0b if defined
+    Assert.usage(bitLengthFrom1To64 >= 1 && bitLengthFrom1To64 <= 64)
     Assert.usage(isWritable)
-    ???
+    //
+    // do we have enough room for ALL the bits?
+    // if not return false.
+    //
+    if (st.maybeRelBitLimit0b.isDefined) {
+      if (st.maybeRelBitLimit0b.get < st.relBitPos0b + bitLengthFrom1To64) return false
+    }
+    //
+    // based on bit and byte order, dispatch to specific code
+    //
+    if (st.byteOrder eq ByteOrder.BigEndian) {
+      Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
+      putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
+    } else {
+      Assert.invariant(st.byteOrder eq ByteOrder.LittleEndian)
+      if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
+        putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
+      } else {
+        Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
+        putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
+      }
+    }
   }
+
+  protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
+  protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
+  protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
 
   def skip(nBits: Long): Boolean = {
     Assert.usage(isWritable)
     Assert.notYetImplemented(nBits % 8 != 0, "skips that aren't a multiple of 8 bits")
-    if (bitLimit0b.isDefined) {
-      val lim = bitLimit0b.get
-      if (bitPos0b + nBits > lim) return false
+    if (maybeRelBitLimit0b.isDefined) {
+      val lim = maybeRelBitLimit0b.getULong
+      if (relBitPos0b + ULong(nBits) > lim) return false
     }
     var nBytes = nBits / 8
     while (nBytes > 0) {
       nBytes -= 1
-      st.bitPos0b += 8
+      st.setRelBitPos0b(st.relBitPos0b + ULong(8))
       realStream.write(st.fillByte)
     }
     true
   }
 
-  // Members declared in DataStreamCommon
-  def bitLimit0b: MaybeULong = {
+  override def maybeRelBitLimit0b: MaybeULong = {
     Assert.usage(isReadable)
-    st.bitLimit0b
+    st.maybeRelBitLimit0b
   }
-  def bitPos0b: Long = {
+
+  override def maybeAbsBitLimit0b: MaybeULong = st.maybeAbsBitLimit0b
+  override def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong): Boolean = st.setMaybeRelBitLimit0b(newMaybeRelBitLimit0b)
+
+  override def relBitPos0b: ULong = {
     Assert.usage(isReadable)
-    st.bitPos0b
+    st.relBitPos0b
   }
-  def setBitPos0b(bitPos0b: Long) = {
+
+  override def maybeAbsBitPos0b: MaybeULong = {
+    st.maybeAbsBitPos0b
+  }
+
+  override def maybeAbsBitPos1b: MaybeULong = {
+    if (maybeAbsBitPos0b.isDefined) MaybeULong(maybeAbsBitPos0b.get.toLong + 1)
+    else MaybeULong.Nope
+  }
+
+  override def setRelBitPos0b(newRelBitPos0b: ULong) = {
     Assert.usage(isWritable)
-    st.bitPos0b = bitPos0b
+    st.setRelBitPos0b(newRelBitPos0b)
   }
 
   def futureData(nBytesRequested: Int): ByteBuffer = {
@@ -311,17 +438,9 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     }
   }
 
-  def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = {
+  override final def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     Assert.usage(isWritable)
-    if (st.bitLimit0b.isDefined && bitLimit0b.isDefined)
-      if (bitLimit0b.get > st.bitLimit0b.get) return false
-    st.bitLimit0b = bitLimit0b
-    true
-  }
-
-  final override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
-    Assert.usage(isWritable)
-    st.bitLimit0b = savedBitLimit0b
+    st.setMaybeRelBitLimit0b(savedBitLimit0b)
   }
 
   def setByteOrder(byteOrder: ByteOrder): Unit = {
@@ -337,4 +456,25 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   def validateFinalStreamState {
     // nothing to validate
   }
+
+  final override def isAligned(bitAlignment1b: Int): Boolean = {
+    Assert.usage(bitAlignment1b >= 1)
+    if (bitAlignment1b =#= 1) true
+    else {
+      Assert.usage(st.maybeAbsBitPos0b.isDefined)
+      val alignment = st.maybeAbsBitPos0b.get % bitAlignment1b
+      val res = alignment == 0
+      res
+    }
+  }
+
+  final override def align(bitAlignment1b: Int): Boolean = {
+    if (isAligned(bitAlignment1b)) true
+    else {
+      val deltaBits = bitAlignment1b - (relBitPos0b.toLong % bitAlignment1b)
+      skip(deltaBits)
+    }
+  }
+
+  final override def remainingBits = st.remainingBits
 }

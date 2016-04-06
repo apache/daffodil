@@ -46,7 +46,6 @@ import java.text.ParsePosition
 import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }
@@ -504,28 +503,29 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     df
   }
 
-  protected def getDecimalSepList(decimalSepRaw: String, context: ThrowsSDE): List[Character] = {
+  protected def getDecimalSepList(decimalSeps: List[String], context: ThrowsSDE): List[Character] = {
 
-    val dsl = TextStandardDecimalSeparatorCooker.cookCharacters(decimalSepRaw, context, forUnparse = false)
     // TODO: ICU only supports a single separator
-    Assert.notYetImplemented(dsl.length != 1, "lists of textStandardDecimalSeparator")
-    dsl
+    Assert.notYetImplemented(decimalSeps.length != 1, "lists of textStandardDecimalSeparator")
+    List(decimalSeps.head(0))
   }
 
   /**
    * Returns java.lang.Character on purpose since that is an AnyRef and this gets used
    * polymorphically in the CacheDynamic/Maybe frameworks which require AnyRef
    */
-  protected def getGroupingSep(groupingSepRaw: String, context: ThrowsSDE): Character = {
+  protected def getGroupingSep(groupingSep: String, context: ThrowsSDE): Character = {
 
-    val gs = TextStandardGroupingSeparatorCooker.convertConstant(groupingSepRaw, context, forUnparse = false)
-    gs(0)
+    //    val gs = TextStandardGroupingSeparatorCooker.convertConstant(groupingSepRaw, context, forUnparse = false)
+    //    gs(0)
+    groupingSep(0)
   }
 
-  protected def getExponentRep(exponentRepRaw: String, context: ThrowsSDE): String = {
+  protected def getExponentRep(exponentRep: String, context: ThrowsSDE): String = {
 
-    val er = TextStandardExponentRepCooker.convertConstant(exponentRepRaw, context, forUnparse = false)
-    er
+    //    val er = TextStandardExponentRepCooker.convertConstant(exponentRepRaw, context, forUnparse = false)
+    //    er
+    exponentRep
   }
 
   protected def getRoundingIncrement(roundingInc: Double, context: ThrowsSDE): Double = {
@@ -546,9 +546,9 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Maybe[CompiledExpression[String]],
-  groupingSepExp: Maybe[CompiledExpression[String]],
-  exponentRepExp: CompiledExpression[String],
+  decimalSepExpEv: Maybe[Evaluatable[List[String]]],
+  groupingSepExpEv: Maybe[Evaluatable[String]],
+  exponentRepExpEv: Evaluatable[String],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -557,23 +557,26 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: MaybeDouble)
   extends NumberFormatFactoryBase[S](parserHelper) {
-  Assert.invariant((!decimalSepExp.isDefined || decimalSepExp.get.isConstant) &&
-    (!groupingSepExp.isDefined || groupingSepExp.get.isConstant) &&
-    exponentRepExp.isConstant)
+  Assert.invariant((!decimalSepExpEv.isDefined || decimalSepExpEv.get.isConstant) &&
+    (!groupingSepExpEv.isDefined || groupingSepExpEv.get.isConstant) &&
+    exponentRepExpEv.isConstant)
 
   val decSep =
-    if (decimalSepExp.isEmpty) Nope else One {
-      val dse = decimalSepExp.value
-      getDecimalSepList(dse.constant, context)
+    if (decimalSepExpEv.isEmpty) Nope else One {
+      val dse = decimalSepExpEv.get.optConstant.get
+      getDecimalSepList(dse, context)
     }
 
   val groupSep =
-    if (groupingSepExp.isEmpty) Nope else One {
-      val gse = groupingSepExp.value
-      getGroupingSep(gse.constant, context)
+    if (groupingSepExpEv.isEmpty) Nope else One {
+      val gse = groupingSepExpEv.get.optConstant.get
+      getGroupingSep(gse, context)
     }
 
-  val expRep = getExponentRep(exponentRepExp.constant, context)
+  val expRep = {
+    Assert.invariant(exponentRepExpEv.isConstant)
+    getExponentRep(exponentRepExpEv.optConstant.get, context)
+  }
 
   val roundingInc: MaybeDouble = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, context) }
 
@@ -609,9 +612,9 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
 class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Maybe[CompiledExpression[String]],
-  groupingSepExp: Maybe[CompiledExpression[String]],
-  exponentRepExp: CompiledExpression[String],
+  decimalSepExpEv: Maybe[Evaluatable[List[String]]],
+  groupingSepExpEv: Maybe[Evaluatable[String]],
+  exponentRepExpEv: Evaluatable[String],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -622,18 +625,18 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   extends NumberFormatFactoryBase[S](parserHelper)
   with Dynamic {
 
-  val decimalSepListCached: Maybe[CachedDynamic[String, List[Character]]] =
-    cacheConstantExpressionMaybe(decimalSepExp) {
-      (a: String) => getDecimalSepList(a, staticContext)
+  val decimalSepListCached: Maybe[CachedDynamic[List[String], List[Character]]] =
+    cacheConstantExpressionMaybe(decimalSepExpEv) {
+      (a: List[String]) => getDecimalSepList(a, staticContext)
     }
 
   val groupingSepCached: Maybe[CachedDynamic[String, Character]] =
-    cacheConstantExpressionMaybe(groupingSepExp) {
+    cacheConstantExpressionMaybe(groupingSepExpEv) {
       (a: String) => getGroupingSep(a, staticContext)
     }
 
   val exponentRepCached: CachedDynamic[String, String] =
-    cacheConstantExpression(exponentRepExp) {
+    cacheConstantExpression(exponentRepExpEv) {
       (a: String) => getExponentRep(a, staticContext)
     }
 
@@ -650,7 +653,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
 
     val decimalSepList = evalWithConversionMaybe(state, decimalSepListCached) {
-      (s: ParseOrUnparseState, c: String) =>
+      (s: ParseOrUnparseState, c: List[String]) =>
         {
           getDecimalSepList(c, s)
         }

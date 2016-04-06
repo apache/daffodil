@@ -1137,7 +1137,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def pastData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
-    if (!areDebugging) throw new IllegalStateException("Must be debugging.")
+    if (!areDebugging)
+      throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
     val bb = data.duplicate()
     val posOffset = math.min(bytePos0b, nBytesRequested).toInt
@@ -1148,7 +1149,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def futureData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
-    if (!areDebugging) throw new IllegalStateException("Must be debugging.")
+    if (!areDebugging)
+      throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
     if (nBytesRequested == 0) return ByteBuffer.allocate(0)
     val bb = data.duplicate()

@@ -34,15 +34,15 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import java.lang.{ Long => JLong }
 
 trait HasVariableLength { self: PrimParser =>
-  def length: CompiledExpression[JLong]
+  def lengthEv: Evaluatable[JLong]
 
   def getLength(pstate: PState): Long = {
-    val lengthAsJLong = length.evaluate(pstate)
+    val lengthAsJLong = lengthEv.evaluate(pstate)
     val l = AsIntConverters.asLong(lengthAsJLong)
     l
   }

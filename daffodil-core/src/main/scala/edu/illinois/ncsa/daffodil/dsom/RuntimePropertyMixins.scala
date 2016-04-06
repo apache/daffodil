@@ -49,12 +49,6 @@ trait TermRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
-  @deprecated("2016-03-10", "Use encodingEv instead.")
-  final lazy val encoding = {
-    encodingEv.compile()
-    encodingExpr
-  }
-
   private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")
     this match {
@@ -164,18 +158,16 @@ trait ElementRuntimeValuedPropertiesMixin
     new ByteOrderEv(byteOrderExpr, elementRuntimeData)
   }.value
 
-  @deprecated("2016-03-10", "Use lengthEv instead.")
-  final lazy val length = {
-    lengthEv.compile()
-    lengthExpr
-  }
-
   private lazy val lengthExpr = {
     val qn = this.qNameForProperty("length")
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
   }
 
-  lazy val lengthEv = new LengthEv(lengthExpr, erd)
+  lazy val lengthEv = {
+    val ev = new LengthEv(lengthExpr, erd)
+    ev.compile()
+    ev
+  }
 
   //
   // The occursCount expression is written on the array element, but that expression
@@ -191,19 +183,17 @@ trait ElementRuntimeValuedPropertiesMixin
   // implementation, the ".." does get literally evaluated.
   //
 
-  @deprecated("2016-03-10", "Use occursCountEv instead.")
-  final lazy val occursCount = {
-    occursCountEv.compile()
-    occursCountExpr
-  }
-
   private lazy val occursCountExpr = LV('occursCount) {
     val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, occursCountRaw, isEvaluatedAbove)
   }.value
 
-  lazy val occursCountEv = new OccursCountEv(occursCountExpr, erd)
+  lazy val occursCountEv = {
+    val ev = new OccursCountEv(occursCountExpr, erd)
+    ev.compile()
+    ev
+  }
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -236,19 +226,17 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   extends DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  @deprecated("2016-03-10", "Use textStandardDecimalSeparatorEv instead.")
-  final lazy val textStandardDecimalSeparator = textStandardDecimalSeparatorExpr
-
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
     val qn = this.qNameForProperty("textStandardDecimalSeparator")
     val c = ExpressionCompilers.String.compile(qn, NodeInfo.String, textStandardDecimalSeparatorRaw)
     c
   }.value
 
-  final lazy val textStandardDecimalSeparatorEv = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, erd)
-
-  @deprecated("2016-03-10", "Use textStandardGroupingSeparatorEv instead.")
-  final lazy val textStandardGroupingSeparator = textStandardGroupingSeparatorExpr
+  final lazy val textStandardDecimalSeparatorEv = {
+    val ev = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val textStandardGroupingSeparatorExpr = LV('textStandardGroupingSeparator) {
     val qn = this.qNameForProperty("textStandardGroupingSeparator")
@@ -256,10 +244,11 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }.value
 
-  final lazy val textStandardGroupingSeparatorEv = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, erd)
-
-  @deprecated("2016-03-10", "Use textStandardExponentRepEv instead.")
-  final lazy val textStandardExponentRep = textStandardExponentRepExpr
+  final lazy val textStandardGroupingSeparatorEv = {
+    val ev = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
     val qn = this.qNameForProperty("textStandardExponentRep")
@@ -267,37 +256,44 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }.value
 
-  final lazy val textStandardExponentRepEv = new TextStandardExponentRepEv(textStandardExponentRepExpr, erd)
-
-  @deprecated("2016-03-10", "Use binaryFloatRepEv instead.")
-  final lazy val binaryFloatRep = binaryFloatRepExpr
+  final lazy val textStandardExponentRepEv = {
+    val ev = new TextStandardExponentRepEv(textStandardExponentRepExpr, erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val binaryFloatRepExpr = LV('binaryFloatRep) {
     val qn = this.qNameForProperty("binaryFloatRep")
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, binaryFloatRepRaw)
   }.value
 
-  final lazy val binaryFloatRepEv = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
-
-  @deprecated("2016-03-10", "Use textBooleanTrueRepEv instead.")
-  final lazy val textBooleanTrueRep = textBooleanTrueRepExpr
+  final lazy val binaryFloatRepEv = {
+    val ev = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val textBooleanTrueRepExpr = LV('textBooleanTrueRep) {
     val qn = this.qNameForProperty("textBooleanTrueRep")
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
   }.value
 
-  final lazy val textBooleanTrueRepEv = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, erd)
-
-  @deprecated("2016-03-10", "Use textBooleanFalseRepEv instead.")
-  final lazy val textBooleanFalseRep = textBooleanFalseRepExpr
+  final lazy val textBooleanTrueRepEv = {
+    val ev = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val textBooleanFalseRepExpr = LV('textBooleanFalseRep) {
     val qn = this.qNameForProperty("textBooleanFalseRep")
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
   }.value
 
-  final lazy val textBooleanFalseRepEv = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, erd)
+  final lazy val textBooleanFalseRepEv = {
+    val ev = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, erd)
+    ev.compile()
+    ev
+  }
 
   final lazy val calendarLanguage = LV('calendarLanguage) {
     val qn = this.qNameForProperty("calendarLanguage")

@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class DataStreamCommonState {
 
@@ -72,10 +71,6 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
   //  final override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = { cst.encodingMandatoryAlignmentInBits = bitAlignment }
   final override def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = { cst.maybeUTF16Width = maybeUTF16Width }
 
-  final override def remainingBits: MaybeULong = {
-    if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get - bitPos0b)
-  }
-
   final def isFixedWidthEncoding = cst.maybeCharWidthInBits.isDefined
 
   final override def limits: DataStreamCommon.Limits = cst.limits_
@@ -90,21 +85,4 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
 
   final override def areDebugging = cst.debugging
 
-  override def setDebugging(setting: Boolean) {
-    if (bitPos0b > 0) throw new IllegalStateException("Must call before any access to data")
-    cst.debugging = setting
-  }
-
-  final override def isAligned(bitAlignment1b: Int): Boolean = {
-    Assert.usage(bitAlignment1b >= 1)
-    val alignment = bitPos0b % bitAlignment1b
-    val res = alignment == 0
-    res
-  }
-
-  final override def align(bitAlignment1b: Int): Boolean = {
-    if (isAligned(bitAlignment1b)) return true
-    val deltaBits = bitAlignment1b - (bitPos0b % bitAlignment1b)
-    skip(deltaBits)
-  }
 }

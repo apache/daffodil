@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
@@ -106,16 +105,16 @@ trait Dynamic {
   // There shouldn't be a need for NumFormat static and dynamic variants. That's a redundant distinction
   // that is being hidden at this level in theory.
   //
-  type CachedDynamic[A <: AnyRef, B <: AnyRef] = Either[CompiledExpression[A], B]
+  type CachedDynamic[A <: AnyRef, B <: AnyRef] = Either[Evaluatable[A], B]
 
   // Returns an Either, with Right being the value of the constant, and the
   // Left being the a non-constant compiled expression. The conv variable is
   // used to convert the constant value to a more usable form, and perform and
   // SDE checks. This should be called during initialization/compile time. Not
   // during runtime.
-  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](e: CompiledExpression[A])(conv: (A) => B): CachedDynamic[A, B] = {
+  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](e: Evaluatable[A])(conv: (A) => B): CachedDynamic[A, B] = {
     if (e.isConstant) {
-      val v: A = e.constant
+      val v: A = e.optConstant.get
       Right(conv(v))
     } else {
       Left(e)
@@ -127,13 +126,13 @@ trait Dynamic {
   // with lots of inlining resulted in errors here because a Maybe[T] is an AnyVal aka
   // value class. At compile time Maybe[Foo] and just Foo aren't distinguishable to resolve
   // the overloading. So keep it simple, and just don't overload the names.
-  def cacheConstantExpressionMaybe[A <: AnyRef, B <: AnyRef](oe: Maybe[CompiledExpression[A]])(conv: (A) => B): Maybe[CachedDynamic[A, B]] = {
+  def cacheConstantExpressionMaybe[A <: AnyRef, B <: AnyRef](oe: Maybe[Evaluatable[A]])(conv: (A) => B): Maybe[CachedDynamic[A, B]] = {
     //oe.map { e => cacheConstantExpression[A](e)(conv) }
     if (oe.isDefined) One(cacheConstantExpression[A, B](oe.get)(conv))
     else Nope
   }
 
-  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](listOfE: List[CompiledExpression[A]])(conv: (A) => B): List[CachedDynamic[A, B]] = {
+  def cacheConstantExpression[A <: AnyRef, B <: AnyRef](listOfE: List[Evaluatable[A]])(conv: (A) => B): List[CachedDynamic[A, B]] = {
     listOfE.map { e => cacheConstantExpression[A, B](e)(conv) }
   }
 

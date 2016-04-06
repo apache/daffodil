@@ -25,9 +25,9 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
 
   final lazy val isKnownEncoding = {
-    val isKnown = encoding.isConstant
+    val isKnown = this.encodingEv.isConstant
     if (isKnown) {
-      val encName = encoding.constant.toUpperCase()
+      val encName = encodingEv.optConstant.get.toUpperCase()
       if (encName.startsWith("UTF-16")) {
         utf16Width // demand this so checking is done
         true
@@ -58,7 +58,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, encodingEv, decoderEv, encoderEv, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
+    new EncodingRuntimeData(termRuntimeData, encodingEv, decoderEv, encoderEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
       summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
 
   /**

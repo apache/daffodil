@@ -118,13 +118,13 @@ class SpecifiedLengthExplicitBits(e: ElementBase, eGram: => Gram)
   lazy val parser: Parser = new SpecifiedLengthExplicitBitsParser(
     eParser,
     e.elementRuntimeData,
-    e.length,
+    e.lengthEv,
     toBits)
 
   lazy val unparser: Unparser = new SpecifiedLengthExplicitBitsUnparser(
     eUnparser,
     e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 
 }
 
@@ -152,12 +152,12 @@ class SpecifiedLengthExplicitBytes(e: ElementBase, eGram: => Gram)
   lazy val parser: Parser = new SpecifiedLengthExplicitBytesParser(
     eParser,
     e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 
   lazy val unparser: Unparser = new SpecifiedLengthExplicitBytesUnparser(
     eUnparser,
     e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 }
 
 class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nChars: Long)
@@ -185,10 +185,10 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
   lazy val parser: Parser = new SpecifiedLengthExplicitCharactersParser(
     eParser,
     e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 
   lazy val unparser: Unparser = new SpecifiedLengthExplicitCharactersUnparser(
     eUnparser,
     e.elementRuntimeData,
-    e.length)
+    e.lengthEv)
 }

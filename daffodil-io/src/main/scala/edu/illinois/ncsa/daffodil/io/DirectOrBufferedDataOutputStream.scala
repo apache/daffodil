@@ -6,6 +6,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import passera.unsigned.ULong
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -52,10 +53,16 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     lazy val buf = bufferingJOS.getBuf()
     lazy val max16ByteArray = buf.slice(0, 16)
     lazy val upTo16BytesInHex = Misc.bytes2Hex(max16ByteArray)
+    lazy val bitPos0b = if (isBuffering) relBitPos0b.toLong else {
+      Assert.invariant(st.maybeAbsBitPos0b.isDefined)
+      st.maybeAbsBitPos0b.get
+    }
     val toDisplay = "DOS(" + dosState +
       (if (isBuffering) ", Buffered" else ", Direct") +
       ", bitPos0b=" + bitPos0b +
-      (if (bitLimit0b.isDefined) ", bitLimit0b=" + bitLimit0b.get else "") +
+      (if (st.maybeAbsBitLimit0b.isDefined) ", bitLimit0b=" + st.maybeAbsBitLimit0b.get
+      else if (st.maybeRelBitLimit0b.isDefined) ", bitLimit0b=" + st.maybeRelBitLimit0b.get
+      else "") +
       (if (isBuffering) ", data=" + upTo16BytesInHex else "") +
       (if (_following.isDefined) " with Following DOS" else "") +
       ")"
@@ -85,6 +92,8 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   override def setJavaOutputStream(newOutputStream: java.io.OutputStream) {
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
+    Assert.usage(newOutputStream ne bufferingJOS) // these are born buffering, and evolve into direct.
+    st.maybeAbsBitPos0b = MaybeULong(0)
   }
 
   override def getJavaOutputStream() = {
@@ -108,9 +117,9 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     val newBufStr = new DirectOrBufferedDataOutputStream()
     _following = One(newBufStr)
     newBufStr.assignFrom(this)
-    val savedBP = bitPos0b
-    newBufStr.setBitPos0b(0)
-    if (bitLimit0b.isDefined) newBufStr.setBitLimit0b(MaybeULong(bitLimit0b.get - savedBP))
+    val savedBP = relBitPos0b.toLong
+    newBufStr.setRelBitPos0b(ULong(0))
+    if (maybeRelBitLimit0b.isDefined) newBufStr.st.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
     newBufStr
   }
 
@@ -121,6 +130,7 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   private def convertToDirect(oldDirectDOS: ThisType) {
     Assert.usage(isBuffering)
     setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
+    this.st.maybeAbsBitPos0b = oldDirectDOS.maybeAbsBitPos0b // preserve the absolute position.
     Assert.invariant(isDirect)
   }
 
@@ -174,6 +184,17 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     }
   }
 
+  final override protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+    ???
+  }
+
+  final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+    ???
+  }
+
+  final override protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+    ???
+  }
 }
 
 object DirectOrBufferedDataOutputStream {
@@ -184,10 +205,10 @@ object DirectOrBufferedDataOutputStream {
    */
   private def deliverBufferContent(newDirectDOS: DirectOrBufferedDataOutputStream, bufDOS: DirectOrBufferedDataOutputStream) = {
     val ba = bufDOS.bufferingJOS.getBuf
-    val bufferNBits = bufDOS.bitPos0b
-    val realBitPos0b = newDirectDOS.bitPos0b
+    val bufferNBits = bufDOS.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
+    val realBitPos0b = newDirectDOS.relBitPos0b
 
-    newDirectDOS.withBitLengthLimit(bufferNBits) {
+    newDirectDOS.withBitLengthLimit(bufferNBits.toLong) {
       //
       // TODO/FIXME : This must transfer any fractional byte as well in case
       // the last bit is not on a byte boundary.

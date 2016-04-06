@@ -45,8 +45,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 import edu.illinois.ncsa.daffodil.util.Misc
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
-  override lazy val parser = new BinaryIntegerRuntimeLengthParser(e.elementRuntimeData, signed, e.length, e.lengthUnits)
-  
+  override lazy val parser = new BinaryIntegerRuntimeLengthParser(e.elementRuntimeData, signed, e.lengthEv, e.lengthUnits)
+
   override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
@@ -57,8 +57,8 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
 }
 
 class BinaryDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
-  override lazy val parser = new BinaryDecimalRuntimeLengthParser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, e.length, e.lengthUnits)
-  
+  override lazy val parser = new BinaryDecimalRuntimeLengthParser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, e.lengthEv, e.lengthUnits)
+
   override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 

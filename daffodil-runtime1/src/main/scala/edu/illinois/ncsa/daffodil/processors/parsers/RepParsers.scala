@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -42,6 +41,7 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
@@ -274,18 +274,18 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   }
 }
 
-class OccursCountExpressionParser(occursCount: CompiledExpression[JLong], erd: ElementRuntimeData)
+class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: ElementRuntimeData)
   extends ParserObject(erd) with WithParseErrorThrowing {
 
   override lazy val childProcessors = Nil
 
   def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
     try {
-      val oc = occursCount.evaluate(pstate)
+      val oc = occursCountEv.evaluate(pstate)
       val ocLong = AsIntConverters.asLong(oc)
       if (ocLong < 0 ||
         ocLong > DaffodilTunableParameters.maxOccursBounds) {
-        PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCount.prettyExpr, ocLong)
+        PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCountEv, ocLong)
         return
       }
       pstate.mpstate.updateBoundsHead(ocLong)
@@ -298,7 +298,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression[JLong], erd: E
         // parsers or the expression subsystem should be catching the narrow
         // set of things that are "real" and allowing anything else to ripple to
         // the top as a bug.
-        PE(pstate, "Evaluation of occursCount expression %s threw exception %s", occursCount.prettyExpr, e)
+        PE(pstate, "Evaluation of occursCount expression %s threw exception %s", occursCountEv, e)
         return
     }
   }
@@ -306,7 +306,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression[JLong], erd: E
   override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
 
   override def toBriefXML(depthLimit: Int = -1) = {
-    "<OccursCount>" + occursCount.prettyExpr + "</OccursCount>"
+    "<OccursCount>" + occursCountEv.toString + "</OccursCount>"
   }
 }
 

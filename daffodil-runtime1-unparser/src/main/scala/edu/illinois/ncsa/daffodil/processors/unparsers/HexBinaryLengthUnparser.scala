@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
@@ -73,11 +73,11 @@ final class HexBinaryFixedLengthInBytesUnparser(nBytes: Long, erd: ElementRuntim
   override def getLength(state: UState): Long = nBytes
 }
 
-final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, length: CompiledExpression[JLong])
+final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong])
   extends HexBinaryLengthInBytesUnparser(erd) {
 
   override def getLength(state: UState): Long = {
-    val lengthAsAnyRef = length.evaluate(state)
+    val lengthAsAnyRef = lengthEv.evaluate(state)
     val l = AsIntConverters.asLong(lengthAsAnyRef)
     l
   }

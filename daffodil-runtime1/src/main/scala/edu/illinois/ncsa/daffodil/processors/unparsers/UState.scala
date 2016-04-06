@@ -35,10 +35,9 @@ import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.dpath.Blocking
-import scala.collection.mutable
+import passera.unsigned.ULong
 
 class UState(
   private val infosetCursor: InfosetCursor,
@@ -104,8 +103,8 @@ class UState(
     pair => pair match {
       case (baos, dos) =>
         baos.reset()
-        dos.setBitLimit0b(MaybeULong.Nope)
-        dos.setBitPos0b(0L)
+        dos.setMaybeRelBitLimit0b(MaybeULong.Nope)
+        dos.setRelBitPos0b(ULong(0L))
     })
 
   @inline final def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
@@ -260,8 +259,8 @@ class UState(
     }.toList
   }
 
-  def bitPos0b = dataOutputStream.bitPos0b
-  def bitLimit0b = dataOutputStream.bitLimit0b
+  def bitPos0b = dataOutputStream.relBitPos0b.toLong
+  def bitLimit0b = dataOutputStream.maybeRelBitLimit0b
 
   def charPos = -1L
 

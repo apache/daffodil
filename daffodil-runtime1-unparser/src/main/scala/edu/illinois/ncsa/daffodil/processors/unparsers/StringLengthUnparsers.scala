@@ -59,7 +59,7 @@ class StringOfSpecifiedLengthUnparser(
     state.withByteArrayOutputStream {
       case (_, dos) =>
         val nChars = dos.putString(str)
-        val nBits = dos.bitPos0b
+        val nBits = dos.relBitPos0b.toLong
         (nBits, nChars)
     }
   }

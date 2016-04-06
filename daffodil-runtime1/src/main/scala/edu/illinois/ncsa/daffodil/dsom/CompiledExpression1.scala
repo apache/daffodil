@@ -98,7 +98,7 @@ abstract class CompiledExpression[+T <: AnyRef](
    *
    * isConstant must be true or this will throw.
    */
-  // @deprecated("2016-02-18", "code should not test for constantness and access directly. Code should just call evaluate(...)")
+  @deprecated("2016-02-18", "Code should just call evaluate(...) on an Evaluatable object.")
   def constant: T
   def isConstant: Boolean
 
