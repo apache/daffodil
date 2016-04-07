@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.WSP
 import edu.illinois.ncsa.daffodil.processors.NL
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 
 /**
  * This base class handles the connections from state to state (which form a directed graph)
@@ -91,14 +92,12 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
   def printStr(): String = states.mkString
   override def toString(): String = stateName + "_" + stateNum
 
-  def couldBeFirstChar(charIn: Char, delims: Array[DFADelimiter]): Boolean = {
-    var i: Int = 0
-    val limit = delims.length
-    while (i < limit) {
-      if (couldBeFirstChar(charIn, delims(i))) {
+  def couldBeFirstChar(charIn: Char, delimIter: DelimiterIterator): Boolean = {
+    delimIter.reset()
+    while (delimIter.hasNext()) {
+      if (couldBeFirstChar(charIn, delimIter.next())) {
         return true
       }
-      i += 1
     }
     false
   }
@@ -114,7 +113,7 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
    * if it's present.
    *
    */
-  private def couldBeFirstChar(charIn: Char, d: DFADelimiter): Boolean = {
+  protected def couldBeFirstChar(charIn: Char, d: DFADelimiter): Boolean = {
     val states = d.states
     val pTerm0 = states(0)
     val res =
@@ -164,7 +163,7 @@ class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: MaybeC
 
   val stateName: String = "StartState"
   val rules = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && EC.isDefined && r.data0 == EEC.get } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => EC.isDefined && r.data0 == EC.get } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
@@ -184,7 +183,7 @@ class StartState(states: => ArrayBuffer[State], val stateNum: Int)
   val stateName: String = "StartState"
   val rules = ArrayBuffer(
     Rule { (r: Registers) =>
-      couldBeFirstChar(r.data0, r.delimiters)
+      couldBeFirstChar(r.data0, r.delimitersIter)
     } { (r: Registers) =>
       r.status = StateKind.Paused
     },
@@ -228,10 +227,9 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
 class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
   val stateName: String = "StartState"
-  val arrayBlockEnd = Array(blockEnd)
 
   val rules = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, arrayBlockEnd) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
     Rule { (r: Registers) => true } { (r: Registers) =>
@@ -250,8 +248,8 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
   val stateName: String = "StartState"
 
   val rules_NO_EEC_BUT_EC_TERM_SAME = ArrayBuffer(
-    Rule { (r: Registers) => (r.data0 == EC) && couldBeFirstChar(r.data1, r.delimiters) } { (r: Registers) => r.nextState = ECState },
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => (r.data0 == EC) && couldBeFirstChar(r.data1, r.delimitersIter) } { (r: Registers) => r.nextState = ECState },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { r.data0 == EC } } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => { r.nextState = DFA.EndOfData } },
     Rule { (r: Registers) => true } { (r: Registers) =>
@@ -263,7 +261,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
     })
 
   val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != EC } } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
@@ -276,7 +274,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
     })
 
   val rules_EEC_TERM_SAME_NOT_EC = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => { r.status = StateKind.Paused } },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => { r.status = StateKind.Paused } },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { r.data0 == EC } } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
@@ -299,7 +297,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
         r.nextState = StartState
       }
     },
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { r.data0 == EC } } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
@@ -312,7 +310,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
     })
 
   val rules_EC_EEC_TERM_SAME = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EEC.get } } {
       (r: Registers) => r.nextState = EECState
     },
@@ -340,7 +338,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
     })
 
   val rules_Unambiguous = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => r.status = StateKind.Paused },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } { (r: Registers) => r.status = StateKind.Paused },
     Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get } } { (r: Registers) => r.nextState = EECState },
     Rule { (r: Registers) => { r.data0 == EC } } { (r: Registers) => r.nextState = ECState },
     Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
@@ -358,7 +356,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
    * action by rules(n).act().
    */
   override def run(r: Registers): Unit = {
-    val rules = getRules(r.delimiters) // TODO: Performance - this should be determined at schema-compilation time.
+    val rules = getRules(r.delimitersIter) // TODO: Performance - this should be determined at schema-compilation time.
     // even though the specific delimiters may be runtime determined, there are guaranteed to be delimiters, escape chars etc.
     // such that we can choose the right DFA based on what is defined even if the specific character(s) we're using
     // come later.
@@ -368,11 +366,11 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
   /**
    * Determines what rules to execute based on combinations of EC/EEC
    */
-  def getRules(delims: Array[DFADelimiter]): ArrayBuffer[Rule] = {
+  def getRules(delimIter: DelimiterIterator): ArrayBuffer[Rule] = {
 
     val result = {
       if (!EEC.isDefined) {
-        if (couldBeFirstChar(EC, delims)) {
+        if (couldBeFirstChar(EC, delimIter)) {
           // EC == PTERM0
           rules_NO_EEC_BUT_EC_TERM_SAME
         } else {
@@ -381,19 +379,19 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, va
         }
       } else if (EEC.isDefined) {
         val escEsc = EEC.get
-        if (!couldBeFirstChar(escEsc, delims) && !couldBeFirstChar(EC, delims) && escEsc != EC) {
+        if (!couldBeFirstChar(escEsc, delimIter) && !couldBeFirstChar(EC, delimIter) && escEsc != EC) {
           // EC != EEC != PTERM0
           rules_Unambiguous
-        } else if (EC == escEsc && couldBeFirstChar(escEsc, delims)) {
+        } else if (EC == escEsc && couldBeFirstChar(escEsc, delimIter)) {
           // EC == EEC == PTERM0
           rules_EC_EEC_TERM_SAME
-        } else if (couldBeFirstChar(escEsc, delims) && !couldBeFirstChar(EC, delims)) {
+        } else if (couldBeFirstChar(escEsc, delimIter) && !couldBeFirstChar(EC, delimIter)) {
           // (EEC == PTERM0) != EC
           rules_EEC_TERM_SAME_NOT_EC
-        } else if (!couldBeFirstChar(escEsc, delims) && couldBeFirstChar(EC, delims)) {
+        } else if (!couldBeFirstChar(escEsc, delimIter) && couldBeFirstChar(EC, delimIter)) {
           // (EC == PTERM0) != EEC
           rules_EC_TERM_SAME_NOT_EEC
-        } else if (EC == escEsc && !couldBeFirstChar(escEsc, delims)) {
+        } else if (EC == escEsc && !couldBeFirstChar(escEsc, delimIter)) {
           // (EC == EEC) != PTERM0
           rules_EEC_EC_SAME_NOT_TERM
         } else throw new Exception("Unexpected case.")
@@ -413,7 +411,7 @@ class ECState(states: => ArrayBuffer[State], val EC: Char, val stateNum: Int)
   val rules = ArrayBuffer(
     // ECState, means that data0 is EC
     //
-    Rule { (r: Registers) => couldBeFirstChar(r.data1, r.delimiters) } { (r: Registers) =>
+    Rule { (r: Registers) => couldBeFirstChar(r.data1, r.delimitersIter) } { (r: Registers) =>
       {
         // constituent character
         r.dropChar(r.data0)
@@ -462,7 +460,7 @@ class EECState(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: Char, 
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimitersIter) } {
       (r: Registers) => r.status = StateKind.Paused //PTERMState
     },
     Rule { (r: Registers) => { r.data1 == EC } } { (r: Registers) =>
@@ -496,7 +494,6 @@ class EECState(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: Char, 
 class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
-  val arrayBlockEnd = Array(blockEnd)
   val stateName = "EECState"
   val rules = ArrayBuffer(
     // Because this is about EC and EEC we can
@@ -506,10 +503,10 @@ class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val E
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, arrayBlockEnd) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd) } {
       (r: Registers) => r.status = StateKind.Paused //PTERMState
     },
-    Rule { (r: Registers) => couldBeFirstChar(r.data1, arrayBlockEnd) } { (r: Registers) =>
+    Rule { (r: Registers) => couldBeFirstChar(r.data1, blockEnd) } { (r: Registers) =>
       {
         // EEC followed by possible blockEnd
         r.dropChar(r.data0)

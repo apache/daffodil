@@ -442,10 +442,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val nilLit = prod("nilLit",
     isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))) {
-      if (hasDelimiters)
-        DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitSimpleOrComplex ~ nilElementTerminator)
-      else
-        nilLitSimpleOrComplex
+      nilElementInitiator ~ nilLitSimpleOrComplex ~ nilElementTerminator
     }
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
@@ -497,7 +494,7 @@ trait ElementBaseGrammarMixin
     }
 
   private def withDelimiterStack(body: => Gram) = {
-    if (hasDelimiters) DelimiterStackCombinatorElement(this, body)
+    if (hasDelimiters || enclosingTerm.map(_.hasDelimiters).getOrElse(false)) DelimiterStackCombinatorElement(this, body)
     else body
   }
 
@@ -525,11 +522,11 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
-    withDelimiterStack(nilOrEmptyOrValue)
+    nilOrEmptyOrValue
   }
 
   private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
-    withDelimiterStack(nilOrValue || nonNilNonEmptyParsedValue)
+    nilOrValue || nonNilNonEmptyParsedValue
   }
 
   /**
@@ -583,9 +580,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
-    if (hasDelimiters)
-      DelimiterStackCombinatorElement(this, initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion)
-    else specifiedLength(complexContent)
+    initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion
   }
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
@@ -610,11 +605,11 @@ trait ElementBaseGrammarMixin
   // it, get default values for simple type elements in the complex type structure,
   // yet consume zero bits.
   lazy val scalarDefaultableContent = prod("scalarDefaultableContent") {
-    withEscapeScheme(scalarDefaultableSimpleContent || scalarComplexContent)
+    withDelimiterStack(withEscapeScheme(scalarDefaultableSimpleContent || scalarComplexContent))
   }
 
   lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
-    withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent)
+    withDelimiterStack(withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent))
   }
 
   /**

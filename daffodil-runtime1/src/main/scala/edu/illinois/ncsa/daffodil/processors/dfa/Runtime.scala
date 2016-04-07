@@ -33,6 +33,8 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 
 /**
  * In order to be very fast, a DFA should run without allocating
@@ -93,14 +95,14 @@ trait DFA {
 
 }
 
-final class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
+final class DFADelimiterImpl(override val delimType: DelimiterTextType.Type, val states: Array[State], val lookingFor: String, override val location: SchemaFileLocation)
   extends DFADelimiter
   with Serializable {
 
   def unparseValue: String = Assert.invariantFailed("Parser should not ask for unparseValue")
 
 }
-final class DFADelimiterImplUnparse(val states: Array[State], val lookingFor: String, val unparseValue: String)
+final class DFADelimiterImplUnparse(override val delimType: DelimiterTextType.Type, val states: Array[State], val lookingFor: String, val unparseValue: String, override val location: SchemaFileLocation)
   extends DFADelimiter
   with Serializable {
 
@@ -139,8 +141,11 @@ trait DFAField extends DFA {
 }
 
 trait DFADelimiter extends DFA {
+  def delimType: DelimiterTextType.Type
   def lookingFor: String
-  override def toString(): String = "<DFA lookingFor='%s' />".format(lookingFor)
+  def location: SchemaFileLocation
+  var indexInDelimiterStack: Int = -1
+  override def toString(): String = "<DFA type='%s' lookingFor='%s' index='%d' />".format(delimType, lookingFor, indexInDelimiterStack)
 
   final override def run(r: Registers): Unit = runLoop(r, DFA.FinalState, StateKind.Succeeded)
 

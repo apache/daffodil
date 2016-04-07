@@ -39,7 +39,7 @@ class ByteOrderChangeParser(val elementRuntimeData: ElementRuntimeData, byteOrdE
 
   override lazy val runtimeDependencies = List(check)
 
-  override def briefXMLAttributes = "byteOrder=" + byteOrdEv.toBriefXML()
+  override def briefXMLAttributes = "byteOrder='%s'".format(byteOrdEv.toBriefXML())
 
   def parse(pstate: PState): Unit = {
     check(pstate)

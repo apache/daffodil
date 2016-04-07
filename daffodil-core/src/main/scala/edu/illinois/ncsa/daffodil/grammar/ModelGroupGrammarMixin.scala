@@ -60,10 +60,9 @@ trait ModelGroupGrammarMixin
   }
 
   private lazy val _content = prod("_content") {
-    val content = initiatorRegion ~ groupContent ~ terminatorRegion
-
     val finalContent =
-      if (hasDelimiters) {
+      if (hasDelimiters || enclosingTerm.map(_.hasDelimiters).getOrElse(false)) {
+        val content = initiatorRegion ~ groupContent ~ terminatorRegion
         self match {
           case c: Choice => DelimiterStackCombinatorChoice(c, content)
           case s: Sequence => DelimiterStackCombinatorSequence(s, content)

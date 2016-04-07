@@ -34,6 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.processors.Delimiter
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 
 object CreatePaddingDFA {
 
@@ -41,7 +43,7 @@ object CreatePaddingDFA {
    * Constructs a DFADelimiter object that specifically
    * looks for padChar.
    */
-  def apply(padChar: Char): DFADelimiter = {
+  def apply(padChar: Char, rd: RuntimeData): DFADelimiter = {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
@@ -51,14 +53,14 @@ object CreatePaddingDFA {
 
     allStates.insert(0, startState)
 
-    new DFADelimiterImpl(allStates.toArray, padChar.toString())
+    new DFADelimiterImpl(DelimiterTextType.Other, allStates.toArray, padChar.toString(), rd.schemaFileLocation)
   }
 
   /**
    * Constructs a DFADelimiter object that specifically
    * looks for padChar.
    */
-  def apply(padChar: Char, outputNewLine: String): DFADelimiter = {
+  def apply(padChar: Char, outputNewLine: String, rd: RuntimeData): DFADelimiter = {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
@@ -73,6 +75,6 @@ object CreatePaddingDFA {
 
     val unparseValue = d.delimBuf.map { _.unparseValue("") }.mkString
 
-    new DFADelimiterImplUnparse(allStates.toArray, padChar.toString(), unparseValue)
+    new DFADelimiterImplUnparse(DelimiterTextType.Other, allStates.toArray, padChar.toString(), unparseValue, rd.schemaFileLocation)
   }
 }

@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.processors.NLDelim
 import edu.illinois.ncsa.daffodil.processors.WSPDelim
 import edu.illinois.ncsa.daffodil.processors.WSPPlusDelim
 import edu.illinois.ncsa.daffodil.processors.WSPStarDelim
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 
 object CreateDelimiterDFA {
 
@@ -48,57 +50,57 @@ object CreateDelimiterDFA {
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, outputNewLine: String): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
     buildTransitions(delimiter, allStates)
 
     val unparseValue = delimiter.map { _.unparseValue(outputNewLine) }.mkString
-    new DFADelimiterImplUnparse(allStates.reverse.toArray, delimiterStr, unparseValue)
+    new DFADelimiterImplUnparse(delimType, allStates.reverse.toArray, delimiterStr, unparseValue, rd.schemaFileLocation)
   }
 
   /**
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimiter: Seq[DelimBase], delimiterStr: String): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
     buildTransitions(delimiter, allStates)
 
-    new DFADelimiterImpl(allStates.reverse.toArray, delimiterStr)
+    new DFADelimiterImpl(delimType, allStates.reverse.toArray, delimiterStr, rd.schemaFileLocation)
   }
 
   /**
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimiterStr: String): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr)
     val db = d.delimBuf
-    apply(db, delimiterStr)
+    apply(delimType, rd, db, delimiterStr)
   }
 
   /**
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimiterStr: String, outputNewLine: String = ""): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, outputNewLine: String): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr)
     val db = d.delimBuf
-    apply(db, delimiterStr, outputNewLine)
+    apply(delimType, rd, db, delimiterStr, outputNewLine)
   }
 
   /**
    * Converts a Seq of String to a Seq of
    * DFA's representing each String.
    */
-  def apply(delimiters: Seq[String]): Array[DFADelimiter] = {
-    delimiters.map(d => apply(d)).toArray
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String]): Array[DFADelimiter] = {
+    delimiters.map(d => apply(delimType, rd, d)).toArray
   }
 
   /**

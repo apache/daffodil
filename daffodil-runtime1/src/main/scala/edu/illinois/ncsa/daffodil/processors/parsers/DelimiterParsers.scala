@@ -32,258 +32,157 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.PrimParser
-
-trait ComputesValueFoundInstead {
-  //
-  // TODO: DFDL-1370 - This really should be replaced by having the DFA that matches delimiters
-  // extract the non-matching data found instead. This way of doing it separately is expensive
-  // and cannot be avoided every time we backtrack due to a non-found delimiter.
-  //
-  def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    // val ei = state.getContext().encodingInfo
-    val foundInstead = state.dataInputStream.getSomeString(maxDelimiterLength)
-    val result = if (foundInstead.isDefined) foundInstead.get else ""
-    result
-  }
-}
-
-abstract class DelimiterValues extends Serializable
-
-class InitiatorDelimiterValues(val init: String, context: TermRuntimeData)
-  extends StaticTextDelimiterValues(init, List.empty, context)
-
-class StaticTextDelimiterValues(
-  val delim: String,
-  allTerminatingMarkup: List[(CompiledExpression[String], String, String)],
-  context: TermRuntimeData)
-  extends DelimiterValues {
-
-  val delimsRaw = allTerminatingMarkup.map {
-    case (delimValue, elemName, elemPath) => (delimValue.constant, elemName, elemPath)
-  }
-
-  val textParser = new TextParser(context)
-}
+import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
+import edu.illinois.ncsa.daffodil.processors.LocalTypedDelimiterIterator
+import edu.illinois.ncsa.daffodil.processors.RemoteTypedDelimiterIterator
+import edu.illinois.ncsa.daffodil.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.Misc
+import scala.collection.mutable.ArrayBuffer
 
 object DelimiterTextType extends Enum {
   abstract sealed trait Type extends EnumValueType
   case object Initiator extends Type
   case object Separator extends Type
   case object Terminator extends Type
-}
-
-abstract class DelimiterTextParserBase(rd: TermRuntimeData,
-  delimiterType: DelimiterTextType.Type)
-  extends PrimParser
-  with ComputesValueFoundInstead with TextParserRuntimeMixin {
-
-  override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
-  override def context = rd
-
-  val isInitiator: Boolean = delimiterType == DelimiterTextType.Initiator
-
-  def isLocalText(originalRepresentation: String, state: PState): Boolean = {
-    val res =
-      if (delimiterType == DelimiterTextType.Initiator)
-        state.mpstate.localDelimiters.existsInInitiator(originalRepresentation)
-      else if (delimiterType == DelimiterTextType.Separator)
-        state.mpstate.localDelimiters.existsInSeparator(originalRepresentation)
-      else
-        state.mpstate.localDelimiters.existsInTerminator(originalRepresentation)
-    res
-  }
-
-  def isRemoteText(originalRepresentation: String, state: PState): Boolean = !isLocalText(originalRepresentation, state)
-
-  def hasLocalES(state: PState): Boolean = state.mpstate.localDelimiters.hasEmptyString(delimiterType)
-  def hasRemoteES(state: PState): Boolean = {
-    val remote = state.mpstate.remoteDelimiters
-    remote.exists(r => r.hasEmptyString(delimiterType))
-  }
-
-  def getMatchedDelimiterInfo(originalDelimRep: String,
-    state: PState) = {
-
-    val delimiters = state.mpstate.getAllDelimitersWithPos
-    val (remoteDelimValue, remoteElemName, remoteElemPath, _) =
-      {
-        val findResult = delimiters.map {
-          case (delimValueList, elemName, elemPath) => {
-            val findResult = delimValueList.find(delim => delim == originalDelimRep)
-            val res = findResult match {
-              case Some(d) => (d, elemName, elemPath, true)
-              case None => (delimValueList.mkString(","), elemName, elemPath, false)
-            }
-            res
-          }
-        }.toSet.filter { x => x._4 == true }
-
-        if (findResult.size == 0)
-          Assert.impossibleCase()
-        findResult.head
-      }
-    (remoteDelimValue, remoteElemName, remoteElemPath)
-  }
+  case object Other extends Type /* for DelimiterDFAs that are things like escapes that we have other ways of tracking what they are */
 }
 
 class DelimiterTextParser(
   rd: TermRuntimeData,
-  kindString: String,
   textParser: TextParser,
   positionalInfo: String,
   delimiterType: DelimiterTextType.Type)
-  extends DelimiterTextParserBase(rd, delimiterType) {
+  extends PrimParser 
+  with TextParserRuntimeMixin {
 
-  override lazy val nom = kindString
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..."
-    else "<" + nom + " />"
+  override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
+  override def context = rd
+
+  override val nom = delimiterType.toString
+
+  private def containsLocalMatch(delimiters: ArrayBuffer[DFADelimiter], state: PState): Boolean = {
+    var i = delimiters.length - 1
+    // scan matches in reverse. local matches are going to be at the end
+    while (i >= 0) {
+      val dfa = delimiters(i)
+      if (dfa.indexInDelimiterStack < state.mpstate.delimitersLocalIndexStack.top) {
+        // we found a remote delim. since all remote delimiters are first, and
+        // we are traversing this in reverse, we know all remaining delims are
+        // remotes, so we can return early
+        return false
+      }
+      // note, it is possible for dfaIndex to be greater than the length of the
+      // found delimiters. This just means a found delimiter went out of scope
+      // (and thus, not a local delimiter)
+      if (dfa.delimType == delimiterType && dfa.indexInDelimiterStack < state.mpstate.delimiters.length) {
+        // found a local delim
+        return true
+      }
+      i -= 1
+    }
+    return false
   }
-  override def toString = kindString
 
-  override def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  private def findES(delimIter: DelimiterIterator): Maybe[DFADelimiter] = {
+    delimIter.reset()
+    while (delimIter.hasNext()) {
+      val d = delimIter.next()
+      if (d.lookingFor == "%ES;") {
+        return One(d)
+      }
+    }
+    Nope
+  }
+
+  private def findLocalES(state: PState): Maybe[DFADelimiter] = {
+    val delimIter = new LocalTypedDelimiterIterator(delimiterType, state.mpstate.delimiters, state.mpstate.delimitersLocalIndexStack)
+    findES(delimIter)
+  }
+
+  private def findRemoteES(state: PState): Maybe[DFADelimiter] = {
+    val delimIter = new RemoteTypedDelimiterIterator(delimiterType, state.mpstate.delimiters, state.mpstate.delimitersLocalIndexStack)
+    findES(delimIter)
+  }
+
+  override def parse(start: PState): Unit = {
 
     setupEncoding(start, rd)
 
-    val localDelimsCooked = start.mpstate.localDelimiters.getAllDelimiters
-
-    // val bytePos = (start.bitPos >> 3).toInt
-
-    if (isInitiator || !start.foundDelimiter.isDefined) {
-      //
-      // We are going to scan for delimiter text.
-      //
-      // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the separator
-      // cannot be relevant, or if we're in the middle of a group with required elements following so
-      // the terminator cannot be relevant.
-      //
-      // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
-      // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
-      // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
-      // these things at run time.
-      //
-      val delims = {
-        val localDelims =
-          if (delimiterType == DelimiterTextType.Initiator)
-            start.mpstate.localDelimiters.getInitiators.getOrElse(Assert.impossible("Initiator should always find at least one initiator on stack."))
-          else if (delimiterType == DelimiterTextType.Separator)
-            start.mpstate.localDelimiters.getSeparators.getOrElse(Assert.impossible("Separator should always find at least one separator on stack."))
-          else
-            start.mpstate.localDelimiters.getTerminators.getOrElse(Assert.impossible("Terminator should always find at least one terminator on stack."))
-
+    val foundDelimiter =
+      if (delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined) {
+        //
+        // We are going to scan for delimiter text.
+        //
+        // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the separator
+        // cannot be relevant, or if we're in the middle of a group with required elements following so
+        // the terminator cannot be relevant.
+        //
+        // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
+        // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
+        // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
+        // these things at run time.
+        //
         // FIXME: This is incorrect. It is going to get too many delimiters. See above.
         // Nowever, code below does assume that we always find a match, even to incorrect markup, so fixing this is
         // more than just getting the right set of remote delims here.
-        val remoteDelims = // start.mpstate.getAllTerminatingMarkup
-          start.mpstate.remoteDelimiters.flatMap { rd =>
-            rd.getTerminatingMarkup
-          } // FIXME: Performance - this is going to allocate a structure or several even
+        //
+        // Note: It isn't even as simple as precalculating all the delimiters
+        // (which isn't easy to start with). For example, sometimes we do not
+        // know if we're at the last in the group until runtime due to an
+        // expression that determines occursCount. So this functions needs to
+        // make a runtime calculation to determine if it is the last in a
+        // group, which might be difficult to do.
+        val delimIter = new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack)
 
-        localDelims ++ remoteDelims
+        val result = textParser.parse(start.dataInputStream, delimIter, true)
+        result
+      } else {
+        start.delimitedParseResult
       }
 
-      val result = textParser.parse(start.dataInputStream, delims, true)
+    if (foundDelimiter.isDefined) {
+      if (!containsLocalMatch(foundDelimiter.get.matchedDFAs, start)) {
+        // It was a remote delimiter but we should have found a local one.
+        PE(start, "Found out of scope delimiter: %s", Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get))
+        return
+      }
 
-      if (!result.isDefined) {
-        //
-        // Did not find delimiter.
-        //
-        // Still can be ok if ES is a delimiter. That's allowed when we're not lengthKind='delimited'
-        // That is, it is allowed if the delimiter is just part of the data syntax, but is not being
-        // used to determine length.
-        //
-        if (hasLocalES(start)) {
-          // found local ES, regardless if there was a remote ES
-          //          val numBits = 0
-          //          val endBitPosDelim = numBits + start.bitPos
-
-          start.clearDelimitedText
-          return
-        } else if (hasRemoteES(start)) {
+      // Consume the found local delimiter
+      val nChars = foundDelimiter.get.matchedDelimiterValue.get.length
+      val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
+      Assert.invariant(wasDelimiterTextSkipped)
+      start.clearDelimitedParseResult()
+    } else {
+      // Did not find delimiter.
+      //
+      // Still can be ok if ES is a delimiter. That's allowed when we're not lengthKind='delimited'
+      // That is, it is allowed if the delimiter is just part of the data syntax, but is not being
+      // used to determine length.
+      if (findLocalES(start).isDefined) {
+        // found local ES, nothing to consume
+        return
+      } else {
+        val rES = findRemoteES(start)
+        if (rES.isDefined) {
           // has remote but not local (PE)
-          val (remoteDelimValue, _, remoteElemPath) =
-            getMatchedDelimiterInfo("%ES;", start)
-
-          PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-            this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
-            kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+          PE(start, "Found out of scope delimiter: %ES;")
           return
         } else {
           // no match and no ES in delims
-          val maxDelimLength = start.mpstate.localDelimiters.getMaxDelimiterLength
-
-          val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-          PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-            this.toString(), rd.prettyName, delims.mkString(", "),
-            Misc.remapStringToVisibleGlyphs(foundInstead))
+          PE(start, "Delimiter not found.")
           return
         }
-        //
-        // end of !result.isDefined
-      } else {
-        Assert.invariant(result.isDefined)
-        //
-        // Found a delimiter
-        //
-        val res = result.get
-
-        if (!isLocalText(res.originalDelimiterRep, start)) {
-          //
-          // It was a remote delimiter but we should have found a local one.
-          //
-          // ??? Do not understand why we know it should have been a local one.
-          // An element that is last in a group can be terminated by the terminator of some enclosing
-          // parent group that is not even the immediate parent.
-          //
-          val (remoteDelimValue, _, remoteElemPath) =
-            getMatchedDelimiterInfo(res.originalDelimiterRep, start)
-
-          PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-            this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
-            kindString, delims.mkString(" "), rd.path, positionalInfo)
-          return
-        }
-        //
-        // It was a local delimiter.
-        //
-        val nChars = res.matchedDelimiterValue.get.length
-        val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
-        Assert.invariant(wasDelimiterTextSkipped)
-        start.clearDelimitedText
-        return
-      }
-    } else {
-      //
-      // A delimiter was found and cached as part of parsing a previous term.
-      // We will not scan for a delimiter. We will check that the cached one matches
-      // what we expect.
-      //
-      // An invariant here is that the input stream has NOT been advanced yet
-      // past the delimiter. So we have to advance it here.
-      //
-      val found = start.foundDelimiter.get
-      if (!isLocalText(found.originalRepresentation, start)) {
-        val (remoteDelimValue, _ /* remoteElemName */ , remoteElemPath) =
-          getMatchedDelimiterInfo(found.originalRepresentation, start)
-        PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s for %s %s",
-          this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath, localDelimsCooked.mkString(" "), this.context.path, positionalInfo)
-        return
-      } else {
-        val nChars = found.foundText.length
-        val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
-        Assert.invariant(wasDelimiterTextSkipped)
-        start.clearDelimitedText
       }
     }
-
   }
 }

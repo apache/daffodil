@@ -3,6 +3,7 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
+import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 
 private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
   override def initialValue = new RegistersPool()
@@ -37,7 +38,7 @@ class Registers() extends Serializable {
   var state: Int = -1
   var nextState: Int = -1 // used to determine the next state to go to, should only be used when status == StateKind.Parsing
   var status: StateKind.Value = StateKind.Parsing
-  var delimiters: Array[DFADelimiter] = null
+  var delimitersIter: DelimiterIterator = null
 
   /**
    * Very important. We don't want to create these
@@ -48,7 +49,7 @@ class Registers() extends Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(input: DataInputStream, delims: Array[DFADelimiter], m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
+  def reset(input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
     if (m !=#= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
     resetChars
@@ -64,7 +65,7 @@ class Registers() extends Serializable {
     state = 0
     nextState = 0
     status = StateKind.Parsing
-    delimiters = delims
+    delimitersIter = delimIter
   }
 
   def resetChars {

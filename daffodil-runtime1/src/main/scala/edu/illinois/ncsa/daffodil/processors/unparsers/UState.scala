@@ -254,6 +254,11 @@ class UState(
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top
+  def allTerminatingMarkup = {
+    delimiterStack.iterator.flatMap { dnode =>
+      (dnode.separator.toList ++ dnode.terminator.toList)
+    }.toList
+  }
 
   def bitPos0b = dataOutputStream.bitPos0b
   def bitLimit0b = dataOutputStream.bitLimit0b

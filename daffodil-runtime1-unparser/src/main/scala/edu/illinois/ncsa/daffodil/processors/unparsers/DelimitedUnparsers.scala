@@ -57,24 +57,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
       val escapedValue: String =
         if (schemeOpt.isDefined) {
           state.withUnparserDataInputStream { dis =>
-            val inscopeDelimiters =
-              if (state.delimiterStack.isEmpty) {
-                // no delimiters.
-                // This is a bit of a corner case, but if unparsing a string that is delimited, but that has
-                // no delimiters specified (so must be end-of-something, e.g., very last thing in the data perhaps)
-                //
-                // We can still end up needing to escape-ify the data however, if it happens to contain
-                // an escapeBlockEnd, or an escapeCharacter (depending on the escapeScheme).
-                //
-                Seq()
-              } else {
-                val localDelimNode = state.localDelimiters
-                val sep = if (localDelimNode.separator.isDefined) Seq(localDelimNode.separator.get)
-                else Seq.empty
-                val term = if (localDelimNode.terminator.isDefined) Seq(localDelimNode.terminator.get)
-                else Seq.empty
-                sep ++ term
-              }
+            val terminatingMarkup = state.allTerminatingMarkup
 
             dis.reset(valueString)
 
@@ -83,8 +66,8 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
             val (result, _) = {
               if (scheme.isInstanceOf[EscapeSchemeCharUnparserHelper]) {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
-                val hasEscCharAsDelimiter = inscopeDelimiters.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =#= theScheme.ec)
-                val thingsToEscape = (inscopeDelimiters ++ scheme.lookingFor).toArray
+                val hasEscCharAsDelimiter = terminatingMarkup.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =#= theScheme.ec)
+                val thingsToEscape = (terminatingMarkup ++ scheme.lookingFor).toArray
 
                 textUnparser.escapeCharacter(dis, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec, theScheme.eec, state)
               } else {
@@ -93,7 +76,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
                 def hasInscopeTerminatingDelimiters(): Boolean = {
                   // Need to do this so we can 'break' the loop early
                   //
-                  for (d <- inscopeDelimiters) {
+                  for (d <- terminatingMarkup) {
                     if (valueString.contains(d.lookingFor)) return true
                   }
                   false

@@ -966,10 +966,10 @@ is multiple bytes in UTF-8 encoding that is used"
   <tdml:parserTestCase name="errorEncoding" root="e2" model="utf16schema.dfdl.xsd"
     description="">
     <tdml:document>
-      <tdml:documentPart type="byte">00 74 24 0A 00 65</tdml:documentPart>
+      <tdml:documentPart type="byte">00 41 00 0A 00 0A 00 42 00 0A 00 0A</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>␊</tdml:error>
+      <tdml:error>␊␊</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

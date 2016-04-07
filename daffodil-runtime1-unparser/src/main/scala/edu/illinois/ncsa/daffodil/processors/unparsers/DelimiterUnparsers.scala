@@ -29,10 +29,10 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextTy
 
     val localDelimNode = state.localDelimiters
 
-    val (delimDFAOpt, _ /* location */ ) = {
-      if (delimiterType == DelimiterTextType.Initiator) (localDelimNode.initiator, localDelimNode.initiatorLoc)
-      else if (delimiterType == DelimiterTextType.Separator) (localDelimNode.separator, localDelimNode.separatorLoc)
-      else (localDelimNode.terminator, localDelimNode.terminatorLoc)
+    val delimDFAOpt = {
+      if (delimiterType == DelimiterTextType.Initiator) localDelimNode.initiator
+      else if (delimiterType == DelimiterTextType.Separator) localDelimNode.separator
+      else localDelimNode.terminator
     }
 
     if (!delimDFAOpt.isDefined) Assert.invariantFailed("Expected a delimiter of type " + delimiterType + " on the stack, but was not found.")

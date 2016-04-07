@@ -39,13 +39,7 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.InitiatorParseEv
-import edu.illinois.ncsa.daffodil.processors.SeparatorParseEv
-import edu.illinois.ncsa.daffodil.processors.TerminatorParseEv
+import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
@@ -63,61 +57,45 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
 }
 
 /**
- * This parser should only ever be called when delimiters exist.
- *
  * The purpose of this parser is to create/evaluate delimiter DFAs
  * and push them to the delimiter stack (bring them in scope) for
  * subsequent (internal/body) parse steps.  Then on the way out pop
  * the delimiter DFAs (bring them out of scope) after
  * the internal/body parser has completed.
  */
-class DelimiterStackParser(initiatorOpt: Maybe[InitiatorParseEv],
-  separatorOpt: Maybe[SeparatorParseEv],
-  terminatorOpt: Maybe[TerminatorParseEv],
-  initiatorLoc: (String, String),
-  separatorLocOpt: Maybe[(String, String)],
-  terminatorLoc: (String, String),
+class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
   override val context: RuntimeData, bodyParser: Parser)
   extends Parser {
 
   override lazy val childProcessors = List(bodyParser)
 
-  override lazy val runtimeDependencies = initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList
-
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else {
-      "<DelimiterStack" +
-        initiatorOpt.toScalaOption.map { i => " initiator='" + i + "'" }.getOrElse("") +
-        separatorOpt.toScalaOption.map { s => " separator='" + s + "'" }.getOrElse("") +
-        terminatorOpt.toScalaOption.map { t => " terminator='" + t + "'" }.getOrElse("") + ">" +
-        bodyParser.toBriefXML(depthLimit - 1) +
-        "</DelimiterStack>"
-    }
-  }
+  override lazy val runtimeDependencies = delimiters.toSeq
 
   def parse(start: PState): Unit = {
+    
+    val newLocalIndex = start.mpstate.delimiters.length
+    start.mpstate.delimitersLocalIndexStack.push(newLocalIndex)
 
-    val allInits: Array[DFADelimiter] = if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(start) else Array()
-    val allSeps: Array[DFADelimiter] = if (separatorOpt.isDefined) separatorOpt.get.evaluate(start) else Array()
-    val allTerms: Array[DFADelimiter] = if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(start) else Array()
+    // evaluate and add delimiters to the stack
+    var i: Int = 0
+    while (i < delimiters.length) {
+      start.mpstate.delimiters ++= delimiters(i).evaluate(start)
+      i += 1
+    }
 
-    val node = DelimiterStackNode(allInits,
-      allSeps,
-      allTerms,
-      { if (allInits.isEmpty) Nope else One(initiatorLoc) },
-      separatorLocOpt,
-      { if (allTerms.isEmpty) Nope else One(terminatorLoc) })
+    // set the index of the newly added delimiters
+    val newDelimLen = start.mpstate.delimiters.length
+    i = newLocalIndex
+    while (i < newDelimLen) {
+      start.mpstate.delimiters(i).indexInDelimiterStack = i
+      i += 1
+    }
 
-    // Push Delimiters
-    start.mpstate.pushDelimiters(node)
-
-    // Parse
+    // parse
     bodyParser.parse1(start)
 
-    // Pop Delimiters
-    start.mpstate.popDelimiters
-    start.clearDelimitedText
-    ()
+    // pop delimiters
+    start.mpstate.delimiters.reduceToSize(start.mpstate.delimitersLocalIndexStack.pop)
   }
 }
 

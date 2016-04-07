@@ -32,61 +32,54 @@
 
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 
 class TextParser(
   override val context: TermRuntimeData)
-  extends DelimitedParser {
+  extends Parser {
 
   lazy val name: String = "TextParser"
   lazy val info: String = "" // Nothing additional to add here
 
-  def parse(input: DataInputStream, delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
-    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
-    //val initialCharPos = input.characterPos
+  def parse(input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
+
+    val lmt = new LongestMatchTracker()
 
     var m = input.markPos
-    delims.foreach(d => {
+    delimIter.reset()
+    while (delimIter.hasNext()) {
+      val d = delimIter.next()
       val reg = TLRegistersPool.getFromPool()
-      reg.reset(input, delims, m)
+      reg.reset(input, delimIter, m)
       m = input.markPos
       d.run(reg)
-      val dfaStatus = reg.status
-      dfaStatus match {
-        case StateKind.Succeeded => successes += (d -> reg)
-        case _ => {
-          // Continue
-          TLRegistersPool.returnToPool(reg)
-        }
+      if (reg.status == StateKind.Succeeded) {
+        lmt.successfulMatch(reg.matchStartPos, reg.delimString, d, delimIter.currentIndex)
       }
-    })
+      TLRegistersPool.returnToPool(reg)
+    }
     input.resetPos(m)
 
-    val lm = longestMatch(successes)
     val result = {
-      if (!lm.isDefined) {
+      if (lmt.longestMatches.isEmpty) {
         if (isDelimRequired) Nope
         else {
           val totalNumCharsRead = 0
           input.getString(totalNumCharsRead)
-          One(new ParseResult(Nope, Nope, ""))
+          One(new ParseResult(Nope, Nope, lmt.longestMatches))
         }
       } else {
-        val (dfa, r) = lm.get
         val delim: Maybe[String] = {
-          One(r.delimString.toString)
+          One(lmt.longestMatchedString.toString)
         }
-        val lookingFor = dfa.lookingFor
-        // val totalNumCharsRead = r.numCharsRead
-
-        One(new ParseResult(Nope, delim, lookingFor))
+        One(new ParseResult(Nope, delim, lmt.longestMatches))
       }
     }
-    successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
+
     TLRegistersPool.pool.finalCheck
 
     result

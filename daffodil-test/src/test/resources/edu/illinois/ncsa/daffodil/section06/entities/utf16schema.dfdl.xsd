@@ -59,11 +59,11 @@
     </xs:complexType>
   </xs:element>
 
-  <xs:element name="e2">
+  <xs:element name="e2" dfdl:terminator="%NL;%NL;">
     <xs:complexType>
-      <xs:sequence dfdl:separator="%NL;">
-        <xs:element name="e2" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
-        <xs:element name="e3" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="e2" type="xs:string" />
+        <xs:element name="e3" type="xs:string" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

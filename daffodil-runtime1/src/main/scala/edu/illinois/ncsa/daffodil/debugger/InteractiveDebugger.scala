@@ -1116,7 +1116,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoUnparser, InfoPath)
+      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoUnparser, InfoPath)
 
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
@@ -1281,6 +1281,35 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
+      object InfoDelimiterStack extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "delmiterStack"
+        val desc = "display the delimiter stack"
+        val longDesc = desc
+        override lazy val short = "ds"
+
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s:".format(name))
+
+          state match {
+            case pstate: PState => {
+              var i = 0
+              while (i < pstate.mpstate.delimiters.length) {
+                val typeString = if (i < pstate.mpstate.delimitersLocalIndexStack.top) "remote:" else "local: "
+                val delim = pstate.mpstate.delimiters(i)
+                debugPrintln("%s %s (%s)".format(typeString, delim.lookingFor, delim.delimType.toString.toLowerCase), "  ")
+                i += 1
+              }
+            }
+            case ustate: UState => {
+              // TODO
+            }
+            case _ => Assert.impossibleCase()
+          }
+
+          DebugState.Pause
+        }
+      }
+
       object InfoDiff extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "diff"
         override lazy val short = "diff"
@@ -1346,6 +1375,32 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                 debugPrintln("%s%s: %s".format(d.id, enabledStr, d.cmd.mkString(" ")), "  ")
               }
             }
+          }
+          DebugState.Pause
+        }
+      }
+
+      object InfoFoundDelimiter extends DebugCommand with DebugCommandValidateZeroArgs {
+        val name = "foundDelimiter"
+        override lazy val short = "fd"
+        val desc = "display the current found delimiter"
+        val longDesc = desc
+        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          state match {
+            case pstate: PState => {
+              if (pstate.delimitedParseResult.isDefined) {
+                val pr = pstate.delimitedParseResult.get
+                debugPrintln("%s:".format(name))
+                debugPrintln("foundField: %s".format(pr.field.get), "  ")
+                debugPrintln("foundDelimiter: %s".format(pr.matchedDelimiterValue.get), "  ")
+              } else {
+                debugPrintln("%s: nothing found".format(name))
+              }
+            }
+            case ustate: UState => {
+               // TODO
+            }
+            case _ => Assert.impossibleCase()
           }
           DebugState.Pause
         }

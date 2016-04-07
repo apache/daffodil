@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.processors.AllDelimiterIterator
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data
@@ -62,7 +63,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
 
-    val arrayBlockEnd = Array(blockEnd)
+    val blockEndDelimIter = new AllDelimiterIterator(ArrayBuffer(blockEnd))
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
 
     // We need to recognize the blockEnd in addition to the other pieces of
@@ -70,7 +71,13 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     //
     val fieldReg: Registers = TLRegistersPool.getFromPool()
 
-    fieldReg.reset(input, blockEnd +: delims)
+    val fieldEscapesIter = {
+      val ab = ArrayBuffer((blockEnd +: delims): _*)
+      new AllDelimiterIterator(ab)
+    }
+    val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
+
+    fieldReg.reset(input, fieldEscapesIter)
 
     // val initialCharPos = 0
 
@@ -105,7 +112,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           // generate an escape block
           //
           val blockEndReg: Registers = TLRegistersPool.getFromPool()
-          blockEndReg.reset(input, arrayBlockEnd)
+          blockEndReg.reset(input, blockEndDelimIter)
           blockEnd.run(blockEndReg)
           val blockEndStatus = blockEndReg.status
           blockEndStatus match {
@@ -142,11 +149,13 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               // Looking for the blockEnd failed, check for the other pieces
               // of text we should generate an escape block for
               //
-              delims.foreach(d => { // Pick up where field left off
+              delimIter.reset()
+              while (delimIter.hasNext()) {
+                val d = delimIter.next()
                 val delimReg: Registers = TLRegistersPool.getFromPool()
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
-                delimReg.reset(input, delims)
+                delimReg.reset(input, delimIter)
                 d.run(delimReg)
                 val delimStatus = delimReg.status
                 delimStatus match {
@@ -166,7 +175,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                     TLRegistersPool.returnToPool(delimReg)
                   }
                 }
-              })
+              }
               input.resetPos(beforeDelimiter)
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               fieldReg.resetChars
@@ -221,7 +230,9 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val fieldReg: Registers = TLRegistersPool.getFromPool()
 
-    fieldReg.reset(input, delims)
+    val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
+
+    fieldReg.reset(input, delimIter)
 
     var stillSearching: Boolean = true
     fieldReg.state = 0 // initial state is 0
@@ -249,9 +260,11 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
-          delims.foreach(d => { // Pick up where field left off
+          delimIter.reset()
+          while (delimIter.hasNext()) {
+            val d = delimIter.next()
             val delimReg: Registers = TLRegistersPool.getFromPool()
-            delimReg.reset(input, delims)
+            delimReg.reset(input, delimIter)
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
             d.run(delimReg)
@@ -264,7 +277,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 TLRegistersPool.returnToPool(delimReg)
               }
             }
-          })
+          }
           if (!successes.isEmpty) {
             val (matchedDelim, matchedReg) = longestMatch(successes).get
             if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar) {

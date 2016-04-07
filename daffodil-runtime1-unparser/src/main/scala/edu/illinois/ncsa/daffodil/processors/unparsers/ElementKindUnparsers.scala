@@ -168,9 +168,6 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
 class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
-  initiatorLoc: (String, String),
-  separatorLocOpt: Option[(String, String)],
-  terminatorLoc: (String, String),
   override val context: RuntimeData,
   bodyUnparser: Unparser)
   extends Unparser {
@@ -195,12 +192,7 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
     val sep = if (separatorOpt.isDefined) Maybe.toMaybe(separatorOpt.get.evaluate(state)) else Nope
     val term = if (terminatorOpt.isDefined) Maybe.toMaybe(terminatorOpt.get.evaluate(state)) else Nope
 
-    val node = DelimiterStackUnparseNode(init,
-      sep,
-      term,
-      { if (!init.isDefined) Nope else One(initiatorLoc) },
-      separatorLocOpt,
-      { if (!term.isDefined) Nope else One(terminatorLoc) })
+    val node = DelimiterStackUnparseNode(init, sep, term)
 
     state.pushDelimiters(node)
 

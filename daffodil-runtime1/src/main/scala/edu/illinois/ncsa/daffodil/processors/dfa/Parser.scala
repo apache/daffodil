@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
@@ -49,56 +48,47 @@ abstract class Parser extends Serializable {
   override def toString(): String = name + "(context='" + context + "', " + info + ")"
 }
 
-/**
- * Parent class for 'delimited' DFA text parsers.  Needs 'longest match'
- * functionality.
- */
-abstract class DelimitedParser extends Parser {
-  /**
-   * This function takes in a list of matches (in an ArrayBuffer for constant
-   * append and random access) and returns the match that starts earliest in
-   * the data. If multiple matches start at the same point in the data, the
-   * match with the longer delimiter length is used as a tie breaker
-   */
-  protected def longestMatch(matches: ArrayBuffer[(DFADelimiter, Registers)]): Maybe[(DFADelimiter, Registers)] = {
-    val len = matches.length
-    if (len == 0) return Nope
-    if (len == 1) return Some(matches(0))
+class LongestMatchTracker {
+  val longestMatches: ArrayBuffer[DFADelimiter] = ArrayBuffer.empty
+  var longestMatchedStartPos: Int = Int.MaxValue
+  var longestMatchedString: String = null
 
-    // these variables hold the Match/Registers of the match that starts earliest in
-    // the data, using longest delimiter length as a tie breaker. Assume the
-    // first match is the earliest longest to begin.
-    var firstLongestMatchSoFar = matches(0)
-    var (_, firstLongestRegSoFar) = firstLongestMatchSoFar
-
-    var currIndex = 1 // skip the zeroth match since we assumed it was the first longest
-    while (currIndex < len) {
-      val currMatch = matches(currIndex)
-      val (_, currReg) = currMatch
-      if (currReg.matchStartPos < firstLongestRegSoFar.matchStartPos ||
-        (currReg.matchStartPos == firstLongestRegSoFar.matchStartPos && currReg.delimString.length > firstLongestRegSoFar.delimString.length)) {
-        firstLongestRegSoFar = currReg
-        firstLongestMatchSoFar = currMatch
+  def successfulMatch(matchedStartPos: Int, matchedString: StringBuilder, dfa: DFADelimiter, dfaIndex: Int) {
+    if (longestMatches.isEmpty) {
+      // first match, make it the longest
+      longestMatchedStartPos = matchedStartPos
+      longestMatchedString = matchedString.toString
+      longestMatches.append(dfa)
+    } else if (matchedStartPos < longestMatchedStartPos) {
+      // match starts earlier than previous matches, make it the longest
+      longestMatchedStartPos = matchedStartPos
+      longestMatchedString = matchedString.toString
+      longestMatches.reduceToSize(0)
+      longestMatches.append(dfa)
+    } else if (matchedStartPos == longestMatchedStartPos) {
+      if (matchedString.length > longestMatchedString.length) {
+        // match starts at the same point as previous matches, but
+        // is longer. make it the only match
+        longestMatchedString = matchedString.toString
+        longestMatches.reduceToSize(0)
+        longestMatches.append(dfa)
+      } else if (matchedString.length == longestMatchedString.length) {
+        // match starts at the same point as previous matches,
+        // and is the same length. add it to matches
+        longestMatches.append(dfa)
       }
-
-      currIndex += 1
     }
-
-    One(firstLongestMatchSoFar)
   }
 }
 
 class ParseResult(val field: Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val originalDelimiterRep: String) {
+  val matchedDFAs: ArrayBuffer[DFADelimiter]) {
 
-  private val format = "<DFAParseResult field='%s' foundDelimiter='%s' searchedFor='%s'/>"
-
-  private lazy val fieldStr = field.getOrElse("NOT-FOUND")
-  private lazy val matchedDelimStr = matchedDelimiterValue.getOrElse("NOT-FOUND")
-  private lazy val originalDelimiterStr = originalDelimiterRep
-
-  private lazy val formattedString = format.format(fieldStr, matchedDelimStr, originalDelimiterStr)
-
-  override def toString(): String = formattedString
+  override def toString(): String = {
+  
+    val fieldStr = field.getOrElse("NOT-FOUND")
+    val matchedDelimStr = matchedDelimiterValue.getOrElse("NOT-FOUND")
+    "<DFAParseResult field='%s' foundDelimiter='%s' />".format(fieldStr, matchedDelimStr)
+  }
 }

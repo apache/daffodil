@@ -97,7 +97,7 @@ class EscapeSchemeCharUnparseEv(escapeChar: EscapeCharEv,
   def compute(state: ParseOrUnparseState) = {
     val escChar = escapeChar.evaluate(state).charAt(0)
     val optEscEscChar = evalAndConvertEEC(state)
-    new EscapeSchemeCharUnparserHelper(escChar, optEscEscChar, extraEscapedCharsCooked)
+    new EscapeSchemeCharUnparserHelper(escChar, optEscEscChar, extraEscapedCharsCooked, rd)
   }
 }
 
@@ -114,7 +114,7 @@ class EscapeSchemeBlockParseEv(blockStart: String,
 
   def compute(state: ParseOrUnparseState) = {
     val optEscEscChar = evalAndConvertEEC(state)
-    new EscapeSchemeBlockParserHelper(optEscEscChar, bs, be)
+    new EscapeSchemeBlockParserHelper(optEscEscChar, bs, be, rd)
   }
 }
 
@@ -133,6 +133,6 @@ class EscapeSchemeBlockUnparseEv(blockStart: String,
 
   def compute(state: ParseOrUnparseState) = {
     val optEscEscChar = evalAndConvertEEC(state)
-    new EscapeSchemeBlockUnparserHelper(optEscEscChar, bs, be, extraEscapedCharsCooked, generateEscapeBlock)
+    new EscapeSchemeBlockUnparserHelper(optEscEscChar, bs, be, extraEscapedCharsCooked, generateEscapeBlock, rd)
   }
 }

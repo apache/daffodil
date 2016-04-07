@@ -115,8 +115,8 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, rParser)
       if (pstate.status ne Success) {
         val cause = pstate.status.asInstanceOf[Failure].cause
-        PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s). Cause: %s.",
-          context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n,
+        PE(pstate, "Failed to populate %s[%s].  Expected %s item(s). Cause: %s.",
+          context.prefixedName, pstate.mpstate.arrayPos, n,
           cause) // they all must succeed, otherwise we fail here.
         return
       }
@@ -189,8 +189,8 @@ class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeDa
     Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
 
     if (pstate.status ne Success) {
-      PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-        context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+      PE(pstate, "Failed to populate %s[%s].  Expected %s item(s).",
+        context.prefixedName, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
     }
   }
 }
@@ -317,8 +317,8 @@ class RepAtMostOccursCountParser(rParser: Parser, intN: Long, erd: ElementRuntim
     val n = math.min(pstate.mpstate.occursBounds, erd.minOccurs.get)
     Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
     if (pstate.status ne Success) {
-      PE(pstate, "Failed to populate %s:%s[%s].  Expected at most %s items.",
-        erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+      PE(pstate, "Failed to populate %s[%s].  Expected at most %s items.",
+        erd.prefixedName, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
       return
     }
   }
@@ -330,8 +330,8 @@ class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
     val ocInt = pstate.mpstate.occursBounds.toInt
     Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
     if (pstate.status ne Success) {
-      PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-        erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
+      PE(pstate, "Failed to populate %s[%s].  Expected %s item(s).",
+        erd.prefixedName, pstate.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
       return
     }
   }

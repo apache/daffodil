@@ -425,6 +425,14 @@ final class ElementRuntimeData(
     else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, minimizedScope, true))
   }
 
+  def prefixedName = {
+    if (thisElementsNamespacePrefix != null) {
+      thisElementsNamespacePrefix + ":" + name
+    } else {
+      name
+    }
+  }
+
 }
 
 sealed abstract class ModelGroupRuntimeData(

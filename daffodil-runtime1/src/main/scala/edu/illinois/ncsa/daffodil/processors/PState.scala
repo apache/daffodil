@@ -54,6 +54,8 @@ import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
+import scala.collection.mutable
 
 object MPState {
   class Mark {
@@ -62,7 +64,6 @@ object MPState {
     var groupIndexStackMark: MStack.Mark = _
     var childIndexStackMark: MStack.Mark = _
     var occursBoundsStackMark: MStack.Mark = _
-    var delimiterStackMark: MStack.Mark = _
 
     clear()
 
@@ -71,7 +72,6 @@ object MPState {
       groupIndexStackMark = MStack.nullMark
       childIndexStackMark = MStack.nullMark
       occursBoundsStackMark = MStack.nullMark
-      delimiterStackMark = MStack.nullMark
     }
 
     def setMarkFrom(mp: MPState) {
@@ -79,14 +79,12 @@ object MPState {
       groupIndexStackMark = mp.groupIndexStack.mark
       childIndexStackMark = mp.childIndexStack.mark
       occursBoundsStackMark = mp.occursBoundsStack.mark
-      delimiterStackMark = mp.delimiterStack.mark
     }
     def resetFromMark(mp: MPState) {
       mp.arrayIndexStack.reset(this.arrayIndexStackMark)
       mp.groupIndexStack.reset(this.groupIndexStackMark)
       mp.childIndexStack.reset(this.childIndexStackMark)
       mp.occursBoundsStack.reset(this.occursBoundsStackMark)
-      mp.delimiterStack.reset(this.delimiterStackMark)
     }
   }
 }
@@ -116,39 +114,12 @@ case class MPState() {
   }
   def occursBounds = occursBoundsStack.top
 
-  var currentDelimsCooked: Maybe[List[String]] = Nope
-
-  val delimiterStack = new MStack.Of[DelimiterStackNode]
-  def pushDelimiters(node: DelimiterStackNode) = {
-    Assert.usage(node != null)
-    delimiterStack.push(node)
+  val delimiters = new mutable.ArrayBuffer[DFADelimiter]
+  val delimitersLocalIndexStack = {
+    val s = new MStack.OfInt
+    s.push(-1)
+    s
   }
-  def popDelimiters() = {
-    val res = delimiterStack.pop
-    Assert.invariant(res != null)
-    res
-  }
-  def localDelimiters = delimiterStack.top
-  def remoteDelimiters = {
-    val iter = delimiterStack.iterator // PERFORMANCE: Allocates an iterator object
-    if (iter.hasNext) iter.next // skip top element. We want the "tail" of the stack
-    iter
-  }
-  def getAllTerminatingMarkup = delimiterStack.iterator.flatMap {
-    dsNode =>
-      {
-        Assert.invariant(dsNode != null)
-        dsNode.getTerminatingMarkup
-      }
-  }.toArray
-
-  def getAllDelimitersWithPos = delimiterStack.iterator.flatMap {
-    dsNode =>
-      {
-        Assert.invariant(dsNode != null)
-        dsNode.getDelimitersWithPos
-      }
-  }.toArray
 
   val escapeSchemeEVCache = new MStack.OfMaybe[EscapeSchemeParserHelper]
 }
@@ -364,7 +335,7 @@ final class PState private (
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
-  var foundDelimiter: Maybe[FoundDelimiterText])
+  var delimitedParseResult: Maybe[dfa.ParseResult])
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
 
   override def currentNode = Maybe(infoset.asInstanceOf[DINode])
@@ -374,15 +345,14 @@ final class PState private (
 
   override def dataStream = One(dataInputStream)
 
-  def saveDelimitedText(foundText: String, originalRepresentation: String) {
+  def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]) {
     // threadCheck()
-    val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation) // TODO: Performance - allocates every time
-    this.foundDelimiter = One(newDelimiter)
+    this.delimitedParseResult = result
   }
 
-  def clearDelimitedText() {
+  def clearDelimitedParseResult() {
     // threadCheck()
-    this.foundDelimiter = Nope
+    this.delimitedParseResult = Nope
   }
 
   override def hasInfoset = true
@@ -524,7 +494,7 @@ object PState {
     var status: ProcessorResult = _
     var diagnostics: List[Diagnostic] = _
     var discriminatorStackMark: MStack.Mark = _
-    var foundDelimiter: Maybe[FoundDelimiterText] = Nope
+    var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
 
     val mpStateMark = new MPState.Mark
 
@@ -535,7 +505,7 @@ object PState {
       status = null
       diagnostics = null
       discriminatorStackMark = MStack.nullMark
-      foundDelimiter = Nope
+      delimitedParseResult = Nope
       mpStateMark.clear()
     }
 
@@ -556,7 +526,7 @@ object PState {
       ps.status_ = this.status
       ps.diagnostics = this.diagnostics
       ps.discriminatorStack.reset(this.discriminatorStackMark)
-      ps.foundDelimiter = this.foundDelimiter
+      ps.delimitedParseResult = this.delimitedParseResult
       mpStateMark.resetFromMark(ps.mpstate)
     }
 

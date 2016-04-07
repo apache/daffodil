@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -43,24 +42,25 @@ import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
   override val parsingPadChar: MaybeChar,
   override val context: TermRuntimeData)
-  extends DelimitedParser with PaddingRuntimeMixin {
+  extends Parser with PaddingRuntimeMixin {
 
   private lazy val padCharInfo = if (parsingPadChar.isDefined) parsingPadChar.toString else "NONE"
   lazy val info: String = "justification='" + justificationTrim + "', padChar='" + padCharInfo + "'"
 
-  final def parse(input: DataInputStream, field: DFAField, delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
-    Assert.invariant(delims != null)
+  final def parse(input: DataInputStream, field: DFAField, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(field != null)
 
-    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
+    val lmt = new LongestMatchTracker()
+
     val fieldReg: Registers = TLRegistersPool.getFromPool()
 
-    fieldReg.reset(input, delims) // Initialization
+    fieldReg.reset(input, delimIter) // Initialization
 
     var stillSearching: Boolean = true
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
@@ -75,21 +75,20 @@ abstract class TextDelimitedParserBase(
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
 
-          delims.foreach(d => { // Pick up where field left off
+          delimIter.reset()
+          while (delimIter.hasNext()) {
+            val d = delimIter.next()
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
             val delimReg: Registers = TLRegistersPool.getFromPool()
-            delimReg.reset(input, delims)
+            delimReg.reset(input, delimIter)
             d.run(delimReg)
-            delimReg.status match {
-              case StateKind.Succeeded => successes += (d -> delimReg)
-              case _ => {
-                // nothing. Just try the other delims
-                TLRegistersPool.returnToPool(delimReg)
-              }
+            if (delimReg.status == StateKind.Succeeded) {
+              lmt.successfulMatch(delimReg.matchStartPos, delimReg.delimString, d, delimIter.currentIndex)
             }
-          })
-          if (!successes.isEmpty) { stillSearching = false }
+            TLRegistersPool.returnToPool(delimReg)
+          }
+          if (!lmt.longestMatches.isEmpty) { stillSearching = false }
           else {
             // resume field parse
             // TODO: Please explain here why this is the way one resumes the field dfa?
@@ -122,9 +121,8 @@ abstract class TextDelimitedParserBase(
     }
     Assert.invariant(beforeDelimiter != DataInputStream.MarkPos.NoMarkPos)
     input.resetPos(beforeDelimiter)
-    val lm = longestMatch(successes)
     val result = {
-      if (!lm.isDefined) {
+      if (lmt.longestMatches.isEmpty) {
         // there were no delimiter matches
         if (isDelimRequired) Nope
         else {
@@ -137,29 +135,22 @@ abstract class TextDelimitedParserBase(
             val fieldNoPadding = trimByJustification(str)
             One(fieldNoPadding)
           }
-          // val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
-          One(new ParseResult(fieldValue, Nope, ""))
+          One(new ParseResult(fieldValue, Nope, lmt.longestMatches))
         }
       } else {
-        val (dfa, r) = lm.get
-        // TODO: Performance - Use of a tuple here implies allocation when longestMatch is called.
-        // Try to avoid an allocated structure here. Likely it can be part of the PState.
         val fieldValue: Maybe[String] = {
           val str = fieldReg.resultString.toString // TODO: Performance see above.
           val fieldNoPadding = trimByJustification(str)
           One(fieldNoPadding)
         }
         val delim: Maybe[String] = {
-          One(r.delimString.toString)
+          One(lmt.longestMatchedString)
         }
-        val lookingFor = dfa.lookingFor
-        //        val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
-        //        input.skipChars(totalNumCharsRead)
-        One(new ParseResult(fieldValue, delim, lookingFor))
+
+        One(new ParseResult(fieldValue, delim, lmt.longestMatches))
       }
     }
 
-    successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
     TLRegistersPool.returnToPool(fieldReg)
     TLRegistersPool.pool.finalCheck
 
@@ -196,23 +187,23 @@ class TextDelimitedParserWithEscapeBlock(
 
   val leftPadding: DFADelimiter = {
     justificationTrim match {
-      case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => CreatePaddingDFA(parsingPadChar.get)
+      case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => CreatePaddingDFA(parsingPadChar.get, context)
       case _ => null
     }
   }
 
   val rightPadding: DFADelimiter = {
     justificationTrim match {
-      case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => CreatePaddingDFA(parsingPadChar.get)
+      case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => CreatePaddingDFA(parsingPadChar.get, context)
       case _ => null
     }
   }
 
-  protected def removeLeftPadding(input: DataInputStream, delims: Array[DFADelimiter]): Unit = {
+  protected def removeLeftPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => {
         val leftPaddingRegister = TLRegistersPool.getFromPool()
-        leftPaddingRegister.reset(input, delims)
+        leftPaddingRegister.reset(input, delimIter)
         leftPadding.run(leftPaddingRegister)
         TLRegistersPool.returnToPool(leftPaddingRegister)
       }
@@ -220,11 +211,11 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def removeRightPadding(input: DataInputStream, delims: Array[DFADelimiter]): Unit = {
+  protected def removeRightPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => {
         val rightPaddingRegister = TLRegistersPool.getFromPool()
-        rightPaddingRegister.reset(input, delims)
+        rightPaddingRegister.reset(input, delimIter)
         rightPadding.run(rightPaddingRegister)
         TLRegistersPool.returnToPool(rightPaddingRegister)
       }
@@ -232,9 +223,9 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delims: Array[DFADelimiter]): Boolean = {
+  protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delimIter: DelimiterIterator): Boolean = {
     val startBlockRegister = TLRegistersPool.getFromPool()
-    startBlockRegister.reset(input, delims)
+    startBlockRegister.reset(input, delimIter)
 
     startBlock.run(startBlockRegister) // find the block start, fail otherwise
     val startStatus = startBlockRegister.status
@@ -252,12 +243,12 @@ class TextDelimitedParserWithEscapeBlock(
   protected def parseRemainder(input: DataInputStream,
     fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
-    delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+    delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
 
-    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
+    val lmt = new LongestMatchTracker()
 
     val fieldRegister = TLRegistersPool.getFromPool()
-    fieldRegister.reset(input, delims)
+    fieldRegister.reset(input, delimIter)
 
     var stillSearching: Boolean = true
     var foundBlockEnd: Boolean = false
@@ -277,7 +268,7 @@ class TextDelimitedParserWithEscapeBlock(
           // Pick up where field left off, we are looking for
           // the blockEnd.
           val endBlockRegister = TLRegistersPool.getFromPool()
-          endBlockRegister.reset(input, delims) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
+          endBlockRegister.reset(input, delimIter) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
 
           endBlock.run(endBlockRegister)
           val endBlockStatus = endBlockRegister.status
@@ -287,26 +278,24 @@ class TextDelimitedParserWithEscapeBlock(
             case StateKind.Succeeded => {
               // Found the unescaped block end, now we need to
               // find any padding.
-              this.removeRightPadding(input, delims)
+              this.removeRightPadding(input, delimIter)
               beforeDelimiter = input.markPos
 
-              // Finally, we can look for the delimiter.
-              delims.foreach(d => { // Pick up where end of block/padding left off
+              delimIter.reset()
+              while (delimIter.hasNext()) {
+                // Finally, we can look for the delimiter.
+                val d = delimIter.next() // Pick up where end of block/padding left off
                 val delimRegister = TLRegistersPool.getFromPool()
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
-                delimRegister.reset(input, delims)
+                delimRegister.reset(input, delimIter)
 
                 d.run(delimRegister)
-                val delimStatus = delimRegister.status
-                delimStatus match {
-                  case StateKind.Succeeded => successes += (d -> delimRegister)
-                  case _ => {
-                    // No delimiter found
-                    TLRegistersPool.returnToPool(delimRegister)
-                  }
+                if (delimRegister.status == StateKind.Succeeded) {
+                  lmt.successfulMatch(delimRegister.matchStartPos, delimRegister.delimString, d, delimIter.currentIndex)
                 }
-              })
+                TLRegistersPool.returnToPool(delimRegister)
+              }
               foundBlockEnd = true
               stillSearching = false
             }
@@ -339,9 +328,8 @@ class TextDelimitedParserWithEscapeBlock(
     } // End While
     Assert.invariant(beforeDelimiter !=#= DataInputStream.MarkPos.NoMarkPos)
     input.resetPos(beforeDelimiter)
-    val lm = longestMatch(successes)
     val result = {
-      if (!lm.isDefined) {
+      if (lmt.longestMatches.isEmpty) {
         //
         // No delimiter found
         // that may or may not be ok
@@ -356,51 +344,40 @@ class TextDelimitedParserWithEscapeBlock(
           val fieldValue: Maybe[String] = {
             One(fieldRegister.resultString.toString)
           }
-          One(new ParseResult(fieldValue, Nope, ""))
+          One(new ParseResult(fieldValue, Nope, lmt.longestMatches))
         }
       } else {
         //
         // A delimiter was found
         //
-        Assert.invariant(lm.isDefined)
-        val (dfa, r) = lm.get
         val fieldValue: Maybe[String] = {
           One(fieldRegister.resultString.toString)
         }
         val delim: Maybe[String] = {
-          One(r.delimString.toString)
+          One(lmt.longestMatchedString)
         }
-        val lookingFor = dfa.lookingFor
-        //
-        // Note: we have not consumed the delimiter from
-        // the input. That's an invariant. When a parser ends,
-        // any delimiter is NOT consumed. It gets consumed
-        // later when the Delimiter parser consumes it (normally
-        // by recognizing it in the foundDelimiter 'cache' slot.
-        //
-        One(new ParseResult(fieldValue, delim, lookingFor))
+        One(new ParseResult(fieldValue, delim, lmt.longestMatches))
       }
     }
-    successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
+
     TLRegistersPool.returnToPool(fieldRegister)
     result
   }
 
   def parse(input: DataInputStream, field: DFAField, fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
-    delims: Array[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
-    Assert.invariant(delims != null)
+    delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(fieldEsc != null)
     Assert.invariant(field != null)
     Assert.invariant(startBlock != null)
     Assert.invariant(endBlock != null)
 
-    removeLeftPadding(input, delims)
-    val foundStartBlock = parseStartBlock(input, startBlock, delims)
+    removeLeftPadding(input, delimIter)
+    val foundStartBlock = parseStartBlock(input, startBlock, delimIter)
     val res = if (!foundStartBlock) {
-      super.parse(input, field, delims, isDelimRequired)
+      super.parse(input, field, delimIter, isDelimRequired)
     } else {
-      parseRemainder(input, fieldEsc, startBlock, endBlock, delims, isDelimRequired)
+      parseRemainder(input, fieldEsc, startBlock, endBlock, delimIter, isDelimRequired)
     }
     TLRegistersPool.pool.finalCheck
 

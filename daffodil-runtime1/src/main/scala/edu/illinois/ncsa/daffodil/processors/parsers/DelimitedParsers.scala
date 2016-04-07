@@ -32,23 +32,21 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.processors.AllTerminatingMarkupDelimiterIterator
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -69,7 +67,7 @@ class StringDelimitedParser(
       val field = result.field.getOrElse("")
       state.simpleElement.setDataValue(field)
       if (result.matchedDelimiterValue.isDefined)
-        state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        state.saveDelimitedParseResult(parseResult)
     }
 
   }
@@ -81,21 +79,18 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val delims = start.mpstate.getAllTerminatingMarkup
+    val delimIter = new AllTerminatingMarkupDelimiterIterator(start.mpstate.delimiters)
     val fieldDFA = fieldDFAEv.evaluate(start)
 
-    start.clearDelimitedText
+    start.clearDelimitedParseResult
 
-    val result = try {
+    val result = {
       if (textParser.isInstanceOf[TextDelimitedParserWithEscapeBlock]) {
         val s = fieldDFAEv.escapeSchemeEv.get.evaluate(start).asInstanceOf[EscapeSchemeBlockParserHelper]
-        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delimIter, isDelimRequired)
       } else {
-        textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
+        textParser.parse(start.dataInputStream, fieldDFA, delimIter, isDelimRequired)
       }
-    } catch {
-      case mie: MalformedInputException =>
-        throw new ParseError(One(erd.schemaFileLocation), One(start.currentLocation), "Malformed input, length: %s", mie.getInputLength())
     }
     processResult(result, start)
   }
@@ -139,7 +134,7 @@ class LiteralNilDelimitedEndOfDataParser(
         isNilLiteral) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
-        if (result.matchedDelimiterValue.isDefined) state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
         return
       } else {
         doPE(state)
@@ -179,7 +174,7 @@ class HexBinaryDelimitedParser(
       // val endBitPos = state.bitPos + numBits
       val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
       state.simpleElement.setDataValue(hexStr)
-      if (result.matchedDelimiterValue.isDefined) state.saveDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+      if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
       return
     }
   }

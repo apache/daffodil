@@ -55,32 +55,44 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
+  lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty)  One(sq.initiatorParseEv)  else Nope
+  lazy val pSep  = if (sq.separatorParseEv.isKnownNonEmpty)  One(sq.separatorParseEv)  else Nope
+  lazy val pTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorParseEv) else Nope
+  
+  lazy val uInit = if (sq.initiatorParseEv.isKnownNonEmpty)  One(sq.initiatorUnparseEv)  else Nope
+  lazy val uSep  = if (sq.separatorParseEv.isKnownNonEmpty)  One(sq.separatorUnparseEv)  else Nope
+  lazy val uTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorUnparseEv) else Nope
 
-  lazy val parser: DaffodilParser = new DelimiterStackParser(Some(sq.initiatorParseEv), Some(sq.separatorParseEv), Some(sq.terminatorParseEv),
-    sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, sq.runtimeData, body.parser)
+  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pSep.toList ++ pTerm.toList).toArray, sq.runtimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(Some(sq.initiatorUnparseEv), Some(sq.separatorUnparseEv), Some(sq.terminatorUnparseEv),
-    sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, sq.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, uSep, uTerm, sq.runtimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Terminal(ch, !body.isEmpty) {
+  lazy val pInit = if (ch.initiatorParseEv.isKnownNonEmpty)  One(ch.initiatorParseEv)  else Nope
+  lazy val pTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorParseEv) else Nope
+  
+  lazy val uInit = if (ch.initiatorParseEv.isKnownNonEmpty)  One(ch.initiatorUnparseEv)  else Nope
+  lazy val uTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorUnparseEv) else Nope
 
-  lazy val parser: DaffodilParser = new DelimiterStackParser(Some(ch.initiatorParseEv), None, Some(ch.terminatorParseEv),
-    ch.initiatorLoc, None, ch.terminatorLoc, ch.runtimeData, body.parser)
+  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, ch.runtimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(Some(ch.initiatorUnparseEv), None, Some(ch.terminatorUnparseEv),
-    ch.initiatorLoc, None, ch.terminatorLoc, ch.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, ch.runtimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+  lazy val pInit = if (e.initiatorParseEv.isKnownNonEmpty)  One(e.initiatorParseEv)  else Nope
+  lazy val pTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorParseEv) else Nope
+  
+  lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty)  One(e.initiatorUnparseEv)  else Nope
+  lazy val uTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorUnparseEv) else Nope
 
-  lazy val parser: DaffodilParser = new DelimiterStackParser(Some(e.initiatorParseEv), None, Some(e.terminatorParseEv),
-    e.initiatorLoc, None, e.terminatorLoc, e.runtimeData, body.parser)
+  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, e.runtimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(Some(e.initiatorUnparseEv), None, Some(e.terminatorUnparseEv),
-    e.initiatorLoc, None, e.terminatorLoc, e.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, e.runtimeData, body.unparser)
 }
 
 case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
