@@ -43,13 +43,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryStatic
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.processors.InitiatorParseEv
 import edu.illinois.ncsa.daffodil.processors.SeparatorParseEv
 import edu.illinois.ncsa.daffodil.processors.TerminatorParseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
@@ -130,40 +127,17 @@ class DelimiterStackParser(initiatorOpt: Maybe[InitiatorParseEv],
  *
  * Evaluates the escape scheme and brings it in and out of scope.
  */
-class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
-  rd: RuntimeData, bodyParser: Parser)
-  extends ParserObject(rd) {
+class EscapeSchemeStackParser(escapeScheme: EscapeSchemeParseEv,
+  override val context: RuntimeData, bodyParser: Parser)
+  extends Parser {
 
   override lazy val childProcessors = Seq(bodyParser)
 
-  val scheme = {
-    {
-      val isConstant = escapeScheme.escapeKind match {
-        case EscapeKind.EscapeBlock => {
-          (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
-            escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-        case EscapeKind.EscapeCharacter => {
-          (escapeScheme.optionEscapeCharacter.isEmpty ||
-            escapeScheme.optionEscapeCharacter.get.isConstant) &&
-            (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
-              escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-      }
-      val theScheme = {
-        if (isConstant) EscapeSchemeFactoryStatic(escapeScheme, rd)
-        else EscapeSchemeFactoryDynamic(escapeScheme, rd)
-      }
-      theScheme
-    }
-  }
+  override lazy val runtimeDependencies = List(escapeScheme)
 
   def parse(start: PState): Unit = {
-    // Evaluate
-    val escScheme = scheme.getEscapeSchemeParser(start)
-
     // Set Escape Scheme
-    start.mpstate.currentEscapeScheme = One(escScheme)
+    start.mpstate.currentEscapeScheme = One(escapeScheme.evaluate(start))
 
     // Parse
     bodyParser.parse1(start)

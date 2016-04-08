@@ -70,7 +70,7 @@ object CreateFieldDFA {
    * Constructs a DFAField object with EscapeSchemeKind.Character
    */
   def apply(
-    EC: MaybeChar, EEC: MaybeChar): DFAField = {
+    EC: Char, EEC: MaybeChar): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 

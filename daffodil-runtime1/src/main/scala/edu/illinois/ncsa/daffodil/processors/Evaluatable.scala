@@ -399,8 +399,8 @@ class EvaluatableExpression[+ExprType <: AnyRef](
 class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyRef](
   expr: CompiledExpression[ExprType],
   converter: Converter[ExprType, ConvertedType],
-  trd: TermRuntimeData)
-  extends Evaluatable[ConvertedType](trd) {
+  rd: RuntimeData)
+  extends Evaluatable[ConvertedType](rd) {
 
   override lazy val runtimeDependencies = Nil
 
@@ -421,8 +421,8 @@ class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyR
       // However, the converters are also used in many static-only situations where there is no state
       // to use. Seems easier to just separate here.
       //
-      case cs: CompileState => converter.convertConstant(expressionResult, trd, forUnparse)
-      case _ => converter.convertRuntime(expressionResult, trd, forUnparse)
+      case cs: CompileState => converter.convertConstant(expressionResult, rd, forUnparse)
+      case _ => converter.convertRuntime(expressionResult, rd, forUnparse)
     }
     converterResult
   }

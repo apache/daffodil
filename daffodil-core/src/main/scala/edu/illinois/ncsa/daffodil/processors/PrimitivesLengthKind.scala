@@ -143,56 +143,30 @@ abstract class StringDelimited(e: ElementBase)
     else Some(new TextPaddingParser(parsingPadChar.get, e.elementRuntimeData))
   }
 
-  lazy val isEscapeSchemeConstant = {
-    if (es.isDefined) {
-      val scheme = es.get
-      val isConstant = scheme.escapeKind match {
-        case EscapeKind.EscapeBlock => {
-          (scheme.optionEscapeEscapeCharacter.isEmpty ||
-            scheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-        case EscapeKind.EscapeCharacter => {
-          (scheme.optionEscapeCharacter.isEmpty ||
-            scheme.optionEscapeCharacter.get.isConstant) &&
-            (scheme.optionEscapeEscapeCharacter.isEmpty ||
-              scheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-      }
-      isConstant
-    } else false
-  }
-
-  lazy val escapeSchemeFactory = createEscSchemeFactory
   lazy val fieldFactory = createFieldFactory
   lazy val parserFactory = createParserFactory
 
-  def createEscSchemeFactory: Option[EscapeSchemeFactoryBase] = {
-    if (es.isDefined) {
-      val scheme = es.get
-
-      val theScheme = {
-        if (isEscapeSchemeConstant) EscapeSchemeFactoryStatic(scheme.escapeScheme, context.runtimeData)
-        else EscapeSchemeFactoryDynamic(scheme.escapeScheme, context.runtimeData)
-      }
-
-      Some(theScheme)
-    } else None
-  }
-
   def createFieldFactory: FieldFactoryBase = {
     val fieldDFAFact = {
-      if (escapeSchemeFactory.isDefined) {
-        if (isEscapeSchemeConstant) FieldFactoryStatic(escapeSchemeFactory, context.runtimeData)
-        else FieldFactoryDynamic(escapeSchemeFactory, context.runtimeData)
-      } else { FieldFactoryStatic(escapeSchemeFactory, context.runtimeData) }
+      if (es.isDefined) {
+        val escapeScheme = Some(es.get.escapeSchemeParseEv) // TODO: this should really be different between parse and unparse, that will be fixed when the field factory is switched to use EV
+        if (escapeScheme.get.isConstant) {
+          FieldFactoryStatic(escapeScheme, context.runtimeData)
+        } else {
+          FieldFactoryDynamic(escapeScheme, context.runtimeData)
+        }
+      } else {
+        FieldFactoryStatic(None, context.runtimeData)
+      }
     }
 
     fieldDFAFact
   }
 
   def createParserFactory: TextDelimitedParserFactory = {
+    val isBlockEscapeScheme = es.isDefined && es.get.escapeKind == EscapeKind.EscapeBlock
     val theParserFact = TextDelimitedParserFactory(
-      justificationTrim, parsingPadChar, fieldFactory, escapeSchemeFactory, e.elementRuntimeData)
+      justificationTrim, parsingPadChar, fieldFactory, isBlockEscapeScheme, e.elementRuntimeData)
     theParserFact
   }
 

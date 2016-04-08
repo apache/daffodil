@@ -86,14 +86,15 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
 
 case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
-  val schemeOpt = e.optionEscapeScheme.map { _.escapeScheme }
+  val schemeParseOpt = e.optionEscapeScheme.map { _.escapeSchemeParseEv }
+  val schemeUnparseOpt = e.optionEscapeScheme.map { _.escapeSchemeUnparseEv }
 
   lazy val parser: DaffodilParser =
-    if (schemeOpt.isDefined) new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
+    if (schemeParseOpt.isDefined) new EscapeSchemeStackParser(schemeParseOpt.get, e.runtimeData, body.parser)
     else new EscapeSchemeNoneStackParser(e.runtimeData, body.parser)
 
   override lazy val unparser: DaffodilUnparser =
-    if (schemeOpt.isDefined) new EscapeSchemeStackUnparser(schemeOpt.get, e.runtimeData, body.unparser)
+    if (schemeUnparseOpt.isDefined) new EscapeSchemeStackUnparser(schemeUnparseOpt.get, e.runtimeData, body.unparser)
     else new EscapeSchemeNoneStackUnparser(e.runtimeData, body.unparser)
 }
 

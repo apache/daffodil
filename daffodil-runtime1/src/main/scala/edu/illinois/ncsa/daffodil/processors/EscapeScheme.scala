@@ -9,15 +9,13 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 sealed abstract class EscapeSchemeParserHelper
-case class EscapeSchemeCharParserHelper(private val escChar: Maybe[String], private val escEscChar: Maybe[String])
+case class EscapeSchemeCharParserHelper(val ec: Char, val eec: MaybeChar)
   extends EscapeSchemeParserHelper {
-  val ec: MaybeChar = if (escChar.isDefined) MaybeChar(escChar.get.charAt(0)) else MaybeChar.Nope
-  val eec: MaybeChar = if (escEscChar.isDefined) MaybeChar(escEscChar.get.charAt(0)) else MaybeChar.Nope
 
-  override def toString() = "<EscapeSchemeChar escapeChar='" + escChar.getOrElse("") +
-    "' escapeEscapeChar='" + escEscChar.getOrElse("") + "'/>"
+  override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
+    "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") + "'/>"
 }
-case class EscapeSchemeBlockParserHelper(private val escEscChar: Maybe[String],
+case class EscapeSchemeBlockParserHelper(val eec: MaybeChar,
   blockStart: String,
   blockEnd: String)
   extends EscapeSchemeParserHelper {
@@ -25,32 +23,25 @@ case class EscapeSchemeBlockParserHelper(private val escEscChar: Maybe[String],
   // the whether or not the delimiters are constant or not.
   // As a result, it cannot be generated here.
 
-  val eec: MaybeChar = if (escEscChar.isDefined) MaybeChar(escEscChar.get.charAt(0)) else MaybeChar.Nope
   val blockStartDFA: DFADelimiter = CreateDelimiterDFA(blockStart)
   val blockEndDFA: DFADelimiter = CreateDelimiterDFA(blockEnd)
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
 
-  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + escEscChar.getOrElse("") +
+  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") +
     "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "'/>"
 }
 
 sealed abstract class EscapeSchemeUnparserHelper {
   def lookingFor: Array[DFADelimiter]
 }
-case class EscapeSchemeCharUnparserHelper(private val escChar: Maybe[String], private val escEscChar: Maybe[String], private val extraEscChar: Maybe[Seq[String]])
+case class EscapeSchemeCharUnparserHelper(val ec: Char, val eec: MaybeChar, extraEscChar: Seq[Char])
   extends EscapeSchemeUnparserHelper {
-
-  // For unparsing, we need to have the characters to insert for escaping
-  // the escapeCharacter and extraEscapedCharacters if they are found.
-  //
-  val ec: MaybeChar = if (escChar.isDefined) MaybeChar(escChar.get.charAt(0)) else MaybeChar.Nope
-  val eec: MaybeChar = if (escEscChar.isDefined) MaybeChar(escEscChar.get.charAt(0)) else MaybeChar.Nope
 
   // We need to look for the escapeCharacter and the extraEscapedCharacters
   //
-  val escCharDFA: DFADelimiter = CreateDelimiterDFA(escChar.get)
-  val escEscCharDFA: Maybe[DFADelimiter] = if (escEscChar.isDefined) One(CreateDelimiterDFA(escEscChar.get)) else Nope
-  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
+  val escCharDFA: DFADelimiter = CreateDelimiterDFA(ec.toString)
+  val escEscCharDFA: Maybe[DFADelimiter] = if (eec.isDefined) One(CreateDelimiterDFA(eec.toString)) else Nope
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.map(_.toString))
 
   override val lookingFor = {
     val res: Array[DFADelimiter] =
@@ -59,33 +50,25 @@ case class EscapeSchemeCharUnparserHelper(private val escChar: Maybe[String], pr
     res
   }
 
-  override def toString() = "<EscapeSchemeChar escapeChar='" + escChar.getOrElse("") +
-    "' escapeEscapeChar='" + escEscChar.getOrElse("") + "' extraEscapedChars='" + 
-    (
-        if (extraEscChar.isEmpty) Nope else One(extraEscChar.value.mkString(" ") )
-        ) + "'/>"
+  override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
+    "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") + "' extraEscapedChars='" + extraEscChar.mkString(" ") + "'/>"
 }
-case class EscapeSchemeBlockUnparserHelper(private val escEscChar: Maybe[String],
+case class EscapeSchemeBlockUnparserHelper(val eec: MaybeChar,
   blockStart: String,
   blockEnd: String,
-  private val extraEscChar: Maybe[Seq[String]],
+  private val extraEscChar: Seq[Char],
   generateEscapeBlock: GenerateEscape)
   extends EscapeSchemeUnparserHelper {
-
-  // For unparsing we need to have the character to insert for escaping
-  // the blockEnd if it's found.
-  //
-  val eec: MaybeChar = if (escEscChar.isDefined) MaybeChar(escEscChar.get.charAt(0)) else MaybeChar.Nope
 
   // We need to look for the blockEnd
   //
   val blockEndDFA: DFADelimiter = CreateDelimiterDFA(blockEnd)
   val blockStartDFA: DFADelimiter = CreateDelimiterDFA(blockStart)
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
-  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(extraEscChar.map(_.toString))
 
   override val lookingFor = blockStartDFA +: extraEscCharsDFAs
 
-  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + escEscChar.getOrElse("") +
+  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") +
     "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "' generateEscapeBlock='" + generateEscapeBlock + "'/>"
 }

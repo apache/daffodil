@@ -78,10 +78,10 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
             val (result, _) = {
               if (scheme.isInstanceOf[EscapeSchemeCharUnparserHelper]) {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
-                val hasEscCharAsDelimiter = inscopeDelimiters.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =#= theScheme.ec.get)
+                val hasEscCharAsDelimiter = inscopeDelimiters.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =#= theScheme.ec)
                 val thingsToEscape = (inscopeDelimiters ++ scheme.lookingFor).toArray
 
-                textUnparser.escapeCharacter(dis, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec.get, theScheme.eec, state)
+                textUnparser.escapeCharacter(dis, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec, theScheme.eec, state)
               } else {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
 

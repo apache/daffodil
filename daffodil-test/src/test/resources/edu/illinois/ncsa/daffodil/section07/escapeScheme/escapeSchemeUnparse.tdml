@@ -57,6 +57,11 @@
           escapeKind="escapeCharacter" escapeEscapeCharacter="\" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
 
+      <dfdl:defineEscapeScheme name="invalidEEC">
+        <dfdl:escapeScheme escapeCharacter='/'
+          escapeKind="escapeCharacter" escapeEscapeCharacter="\" extraEscapedCharacters="A BB C" generateEscapeBlock="whenNeeded" />
+      </dfdl:defineEscapeScheme>
+
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," >
@@ -131,6 +136,14 @@
         <xs:complexType>
           <xs:sequence dfdl:separator="," >
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="slashes" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="e9">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="invalidEEC" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -374,6 +387,29 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>one/,two,three,four\/,five</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseInvalidExtraEscapedCharacters
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates an SDE when extra escaped characters contains a non-single character string
+-->
+  <tdml:unparserTestCase name="unparseInvalidExtraEscapedCharacters" model="delimitedStringsEscapeScheme" root="e9" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>three</ex:s1>
+          <ex:s1>four/</ex:s1>
+          <ex:s1>five</ex:s1>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>extraEscapedCharacters</tdml:error>
+      <tdml:error>exactly 1 character</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="foo">

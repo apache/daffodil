@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
@@ -43,7 +42,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryBase
 import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
@@ -422,25 +420,17 @@ case class TextDelimitedParserFactory(
   justArg: TextJustificationType.Type,
   parsingPadChar: MaybeChar,
   fieldFact: FieldFactoryBase,
-  escapeSchemeFact: Option[EscapeSchemeFactoryBase],
+  isBlockEscape: Boolean,
   context: TermRuntimeData)
   extends Logging with Serializable {
 
   val preConstructedParser = {
-    if (escapeSchemeFact.isDefined) {
-      val scheme = escapeSchemeFact.get
-      scheme.escapeKind match {
-        case EscapeKind.EscapeBlock => {
-          val parser =
-            new TextDelimitedParserWithEscapeBlock(justArg, parsingPadChar, context)
-          parser
-        }
-        case EscapeKind.EscapeCharacter => {
-          val parser = new TextDelimitedParser(justArg, parsingPadChar, context)
-          parser
-        }
-      }
-    } else { new TextDelimitedParser(justArg, parsingPadChar, context) }
+    val parser = if (isBlockEscape) {
+      new TextDelimitedParserWithEscapeBlock(justArg, parsingPadChar, context)
+    } else {
+      new TextDelimitedParser(justArg, parsingPadChar, context)
+    }
+    parser
   }
 
   protected def constructParser(state: PState) = {

@@ -669,7 +669,7 @@ is multiple bytes in UTF-8 encoding that is used"
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>The string ([ start ]) must not contain any whitespace</tdml:error>
       <tdml:error>Use DFDL Entities</tdml:error>
-      <tdml:error>Schema context: element.element1</tdml:error>
+      <tdml:error>element.element1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

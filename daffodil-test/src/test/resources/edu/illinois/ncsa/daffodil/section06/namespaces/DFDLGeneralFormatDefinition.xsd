@@ -166,7 +166,7 @@ Assumes 'block' style escaping.
 escapeKind="escapeBlock"
 escapeBlockStart='"' escapeBlockEnd='"'
 escapeEscapeCharacter='"' generateEscapeBlock="whenNeeded"
-extraEscapedCharacters="z; x;">
+extraEscapedCharacters="z x">
 </dfdl:escapeScheme>
 </dfdl:defineEscapeScheme>
 

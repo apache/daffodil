@@ -36,9 +36,17 @@ import scala.xml.Node
 import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeCharEv
+import edu.illinois.ncsa.daffodil.processors.EscapeEscapeCharEv
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
@@ -72,71 +80,49 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }
 
-  final def optionEscapeCharacter = LV('optionEscapeCharacter) {
+  final def escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
-    escapeCharacterRaw match {
-      case Found("", loc, _) => None
-      case found @ Found(v, loc, _) => Some(ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, found))
-    }
+    val expr = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, escapeCharacterRaw)
+    new EscapeCharEv(expr, runtimeData)
   }.value
 
-  final def optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
+  final def optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
     val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
-      case Found("", loc, _) => None
+      case Found("", loc, _) => Nope
       case found @ Found(v, loc, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        Some(ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found))
+        val expr = ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found)
+        val ev = new EscapeEscapeCharEv(expr, runtimeData)
+        One(ev)
       }
     }
   }.value
 
   final def optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
     extraEscapedCharactersRaw match {
-      case Found("", loc, _) => None
-      case Found(v, loc, _) => Some(v)
+      case Found("", _, _) => Nope
+      case Found(v, _, _) => One(v)
     }
   }.value
 
-  final def optionEscapeBlockStart = LV('optionEscapeBlockStart) {
-    escapeBlockStartRaw match {
-      case Found("", loc, _) => None
-      case Found(v, loc, _) => Some(v)
+  final lazy val escapeSchemeParseEv: EscapeSchemeParseEv = {
+    val espev = escapeKind match {
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlockParseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, runtimeData)
+      case EscapeKind.EscapeCharacter => new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, runtimeData)
     }
-  }.value
-
-  final def optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
-    escapeBlockEndRaw match {
-      case Found("", loc, _) => None
-      case Found(v, loc, _) => Some(v)
-    }
-  }.value
-
-  final lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
-    case EscapeKind.EscapeBlock => EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd, this.optionExtraEscapedCharacters, this.generateEscapeBlock)
-    case EscapeKind.EscapeCharacter => EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None, this.optionExtraEscapedCharacters, GenerateEscape.WhenNeeded)
+    espev.compile()
+    espev
   }
-
-  //
-  // These are sort of tri-state. We can know it is non-existant,
-  // we can know it and have its value, or we must check at runtime,
-  // which means there WILL be an escape character, we just don't know what it is.
-  // Represent as follows None, Some(true), Some(false)
-  final lazy val (isKnownEscapeCharacter, knownEscapeCharacter) = {
-    optionEscapeCharacter match {
-      case None => (None, None) // there isn't one
-      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constant))
-      case _ => (Some(false), None) // must evaluate at runtime
+  
+  final lazy val escapeSchemeUnparseEv: EscapeSchemeUnparseEv = {
+    val esuev = escapeKind match {
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlockUnparseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, generateEscapeBlock, runtimeData)
+      case EscapeKind.EscapeCharacter => new EscapeSchemeCharUnparseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, runtimeData)
     }
-  }
-
-  final lazy val (isKnownEscapeEscapeCharacter, knownEscapeEscapeCharacter) = {
-    optionEscapeEscapeCharacter match {
-      case None => (None, None) // there isn't one
-      case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constant))
-      case _ => (Some(false), None) // must evaluate at runtime
-    }
+    esuev.compile()
+    esuev
   }
 
 }

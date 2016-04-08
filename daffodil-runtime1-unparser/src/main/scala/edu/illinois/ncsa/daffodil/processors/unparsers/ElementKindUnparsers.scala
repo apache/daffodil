@@ -34,11 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -213,39 +210,15 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   }
 }
 
-class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeData, bodyUnparser: Unparser)
+class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeUnparseEv, rd: RuntimeData, bodyUnparser: Unparser)
   extends UnparserObject(rd) {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
 
-  val scheme =
-    {
-      val isConstant = escapeScheme.escapeKind match {
-        case EscapeKind.EscapeBlock => {
-          (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
-            escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-        case EscapeKind.EscapeCharacter => {
-          (escapeScheme.optionEscapeCharacter.isEmpty ||
-            escapeScheme.optionEscapeCharacter.get.isConstant) &&
-            (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
-              escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
-        }
-      }
-      val theScheme: EscapeSchemeFactoryBase = {
-        if (isConstant) EscapeSchemeFactoryStatic(escapeScheme, rd)
-        else EscapeSchemeFactoryDynamic(escapeScheme, rd)
-      }
-      theScheme
-    }
-
   def unparse(state: UState): Unit = {
-    // Evaluate
-    val escScheme = scheme.getEscapeSchemeUnparser(state)
-
     // Set Escape Scheme
-    state.currentEscapeScheme = One(escScheme)
+    state.currentEscapeScheme = One(escapeScheme.evaluate(state))
 
     // Unparse
     bodyUnparser.unparse1(state, rd)

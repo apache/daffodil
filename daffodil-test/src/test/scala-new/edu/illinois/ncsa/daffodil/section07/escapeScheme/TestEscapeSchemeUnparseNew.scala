@@ -48,4 +48,5 @@ class TestEscapeSchemeUnparseNew {
 
   import TestEscapeSchemeUnparse._
 
+  @Test def test_unparseInvalidExtraEscapedCharacters() { runner.runOneTest("unparseInvalidExtraEscapedCharacters") }
 }

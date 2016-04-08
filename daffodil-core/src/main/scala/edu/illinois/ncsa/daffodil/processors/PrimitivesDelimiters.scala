@@ -49,15 +49,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
 
-  lazy val oes = {
-    val oes = e.optionEscapeScheme
-    oes.foreach { es =>
-      e.schemaDefinitionUnless(es.isKnownEscapeCharacter != Some(false), "Runtime expressions for escapeCharacters are not supported.")
-      e.schemaDefinitionUnless(es.isKnownEscapeEscapeCharacter != Some(false), "Runtime expressions for escapeEscapeCharacters are not supported.")
-    }
-    oes
-  }
-
   lazy val eName = e.toString()
 
   lazy val positionalInfo = {
