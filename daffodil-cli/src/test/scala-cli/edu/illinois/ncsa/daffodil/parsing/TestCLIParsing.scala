@@ -225,6 +225,25 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_3739_CLI_Parsing_SimpleParse_DFDL1485_fix() {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo 1/3| %s -vv parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains("InitiatorParseEv"))
+      shell.expect(contains("SeparatorParseEv"))
+      shell.expect(contains("TerminatorParseEv"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
     val file = new File(tmp_filename)
