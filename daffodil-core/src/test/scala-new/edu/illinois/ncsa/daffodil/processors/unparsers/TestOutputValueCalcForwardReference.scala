@@ -89,13 +89,18 @@ class TestOutputValueCalcForwardReference {
       </xs:element>, elementFormDefault = "unqualified")
     val infoset = <ex:e1 xmlns:ex={ example }></ex:e1>
     val areTracing = false
-    val exc = intercept[SuspendedExpressionsDeadlockException] {
+    
+    try {
       TestUtils.testUnparsing(sch, infoset, "222", areTracing)
+      fail("Expected SuspendedExpressionsDeadlockException")
+    } catch {
+      case e: Exception => {
+        val msg = e.getMessage.toLowerCase()
+        assertTrue(msg.contains("deadlocked"))
+        assertTrue(msg.contains("runtime schema definition error"))
+      }
     }
-    // println(exc)
-    val msg = exc.getMessage().toLowerCase()
-    assertTrue(msg.contains("deadlocked"))
-    assertTrue(msg.contains("runtime schema definition error"))
+
   }
 
   @Test def testOutputValueCalcConstant() {

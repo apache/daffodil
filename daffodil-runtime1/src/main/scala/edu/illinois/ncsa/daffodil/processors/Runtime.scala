@@ -313,6 +313,30 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.addUnparseError(ue)
         unparserState.unparseResult
       }
+      case procErr: ProcessingError => {
+        val x = procErr
+        unparserState.setFailed(x.toUnparseError)
+        unparserState.unparseResult
+      }
+      case sde: SchemaDefinitionError => {
+        // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+        // These are fatal, and there's no notion of backtracking them, so they propagate to top level
+        // here.
+        unparserState.setFailed(sde)
+        unparserState.unparseResult
+      }
+      case rsde: RuntimeSchemaDefinitionError => {
+        unparserState.setFailed(rsde)
+        unparserState.unparseResult
+      }
+      case e: ErrorAlreadyHandled => {
+        unparserState.setFailed(e.th)
+        unparserState.unparseResult
+      }
+      case e: TunableLimitExceededError => {
+        unparserState.setFailed(e)
+        unparserState.unparseResult
+      }
     } finally {
       if (unparserState.dataProc.isDefined) unparserState.dataProc.value.fini(ssrd.unparser)
     }
