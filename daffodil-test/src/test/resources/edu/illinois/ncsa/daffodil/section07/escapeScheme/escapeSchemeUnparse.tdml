@@ -388,9 +388,33 @@
             escapeBlockEnd="'" escapeKind="escapeBlock"
             escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="" />
         </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='quoteSlash3'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd="'" escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters=", | ;" />
+        </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='quoteSlash4'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd="'" escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="%SP; %#126; %#x21; , | ;" />
+        </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='quoteSlash5'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd="'" escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="%#r0A; , | ;" />
+        </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='quoteSlash6'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd="'" escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="%#WSP*; , | ;" />
+        </dfdl:defineEscapeScheme>
 
       <xs:element name="foo" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash"/>
       <xs:element name="foo2" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash2"/>
+      <xs:element name="foo3" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash3"/>
+      <xs:element name="foo4" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash4"/>
+      <xs:element name="foo5" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash5"/>
+      <xs:element name="foo6" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash6"/>
  
    </tdml:defineSchema>
     
@@ -439,5 +463,120 @@
     </tdml:infoset>
     <tdml:document>/*one#*/two*/</tdml:document>
  </tdml:unparserTestCase>
+ 
+<!--
+      Test Name: unparseDelimitedEscapedString15
+      Schema: foo3
+      Purpose: This test demonstrates unparsing escaping a block end character during unparse
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString15" model="foo" root="foo3" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo3>This contains an extra escaped character , followed by more text</ex:foo3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"This contains an extra escaped character , followed by more text'</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString16
+      Schema: foo4
+      Purpose: This test demonstrates unparsing extraEscapedCharacters using Basic DFDL entity SP
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString16" model="foo" root="foo4" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo4>Spaces are the extra escaped character.</ex:foo4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"Spaces are the extra escaped character.'</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString17
+      Schema: foo4
+      Purpose: This test demonstrates unparsing extraEscapedCharacters using basic DFDL entity SP but
+               no spaces are present, so the text is not escaped by the block.
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString17" model="foo" root="foo4" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo4>Spaces_are_the_extra_escaped_character.</ex:foo4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>Spaces_are_the_extra_escaped_character.</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString18
+      Schema: foo4
+      Purpose: This test demonstrates unparsing extraEscapedCharacters using basic DFDL decimal entity for tilde.
+               Because the tilde is present, the text is escaped by the blocks.
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString18" model="foo" root="foo4" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo4>Tilde_is_the_extra~escaped_character.</ex:foo4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"Tilde_is_the_extra~escaped_character.'</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString19
+      Schema: foo5
+      Purpose: This test demonstrates unparsing extraEscapedCharacters cannot have raw bytes.
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString19" model="foo" root="foo5" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo5>This should error. Raw bytes are not allowed for extraEscapedCharacters.</ex:foo5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Byte Entity</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString20
+      Schema: foo4
+      Purpose: This test demonstrates unparsing extraEscapedCharacters are escaped using basic DFDL hex entity for
+               the exclamation point.  Because it is present, the text is escaped by the block.
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString20" model="foo" root="foo4" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo4>Exclamation_is_the_extra!escaped_character.</ex:foo4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"Exclamation_is_the_extra!escaped_character.'</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedEscapedString21
+      Schema: foo6
+      Purpose: This test demonstrates unparsing extraEscapedCharacters fail for DFDL Character Classes
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString21" model="foo" root="foo6" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo6>This should error. DFDL Character Class Entities are not allowed for extraEscapedCharacters.</ex:foo6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

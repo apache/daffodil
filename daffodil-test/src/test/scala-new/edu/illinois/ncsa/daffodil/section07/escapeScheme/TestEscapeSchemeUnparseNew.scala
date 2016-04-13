@@ -32,12 +32,38 @@
 
 package edu.illinois.ncsa.daffodil.section07.escapeScheme
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
+import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class TestEscapeSchemeUnparseNew {
+object TestEscapeSchemeUnparseNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
-  val aa = testDir + "escapeSchemeUnparse.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
+  val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
+
+  @AfterClass def tearDown() {
+    runner.reset
+  }
+}
+class TestEscapeSchemeUnparseNew {
+
+  import TestEscapeSchemeUnparse._
+
+  /* 
+   * The following tests demonstrate that for extraEscapedCharacters during Unparsing that:
+   * 
+   * 1. DFDL Character Class entities are not allowed
+   * 2. DFDL raw byte entities are not allowed
+   * 3. DFDL hex entities are allowed
+   * 4. DFDL basic entities are allowed (like SP, VT, etc)
+   * 5. DFDL decimal entities are allowed
+   * 6. When an extra escaped character is not present, the text is not escaped.
+   * */
+  @Test def test_unparseDelimitedEscapedString15() { runner.runOneTest("unparseDelimitedEscapedString15") }
+  @Test def test_unparseDelimitedEscapedString16() { runner.runOneTest("unparseDelimitedEscapedString16") }
+  @Test def test_unparseDelimitedEscapedString17() { runner.runOneTest("unparseDelimitedEscapedString17") }
+  @Test def test_unparseDelimitedEscapedString18() { runner.runOneTest("unparseDelimitedEscapedString18") }
+  @Test def test_unparseDelimitedEscapedString19() { runner.runOneTest("unparseDelimitedEscapedString19") }
+  @Test def test_unparseDelimitedEscapedString20() { runner.runOneTest("unparseDelimitedEscapedString20") }
+  @Test def test_unparseDelimitedEscapedString21() { runner.runOneTest("unparseDelimitedEscapedString21") }
 
 }
