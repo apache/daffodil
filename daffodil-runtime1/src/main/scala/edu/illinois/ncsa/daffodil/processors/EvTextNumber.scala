@@ -6,7 +6,8 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: Term
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextStandardDecimalSeparatorCooker,
-    trd) {
+    trd)
+  with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -14,7 +15,8 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: Ter
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardGroupingSeparatorCooker,
-    trd) {
+    trd)
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -22,7 +24,8 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRunti
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardExponentRepCooker,
-    trd) {
+    trd)
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -30,7 +33,8 @@ class TextBooleanTrueRepEv(expr: CompiledExpression[String], trd: TermRuntimeDat
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextBooleanTrueRepCooker,
-    trd) {
+    trd)
+  with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -38,6 +42,7 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeDa
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextBooleanFalseRepCooker,
-    trd) {
+    trd)
+  with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Nil
 }

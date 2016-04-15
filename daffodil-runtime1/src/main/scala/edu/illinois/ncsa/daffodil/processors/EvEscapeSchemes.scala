@@ -4,13 +4,16 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 
 class EscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EscapeCharacterCooker,
-    rd) {
+    rd)
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -18,7 +21,8 @@ class EscapeEscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EscapeEscapeCharacterCooker,
-    rd) {
+    rd)
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -39,11 +43,22 @@ trait EscapeSchemeCommonEv {
 
 abstract class EscapeSchemeParseEv(rd: RuntimeData)
   extends Evaluatable[EscapeSchemeParserHelper](rd)
-  with EscapeSchemeCommonEv
+  with ManuallyCachedEvaluatable[EscapeSchemeParserHelper]
+  with EscapeSchemeCommonEv {
+
+  protected def getCacheStack(state: State): MStack.OfMaybe[EscapeSchemeParserHelper] = {
+    state.asInstanceOf[PState].mpstate.escapeSchemeEVCache
+  }
+}
 
 abstract class EscapeSchemeUnparseEv(rd: RuntimeData)
   extends Evaluatable[EscapeSchemeUnparserHelper](rd)
+  with ManuallyCachedEvaluatable[EscapeSchemeUnparserHelper]
   with EscapeSchemeCommonEv {
+
+  protected def getCacheStack(state: State): MStack.OfMaybe[EscapeSchemeUnparserHelper] = {
+    state.asInstanceOf[UState].escapeSchemeEVCache
+  }
 
   def extraEscapedChars: Maybe[String]
 

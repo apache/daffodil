@@ -54,8 +54,6 @@ import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
 
 object MPState {
   class Mark {
@@ -65,7 +63,6 @@ object MPState {
     var childIndexStackMark: MStack.Mark = _
     var occursBoundsStackMark: MStack.Mark = _
     var delimiterStackMark: MStack.Mark = _
-    var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
 
     clear()
 
@@ -75,7 +72,6 @@ object MPState {
       childIndexStackMark = MStack.nullMark
       occursBoundsStackMark = MStack.nullMark
       delimiterStackMark = MStack.nullMark
-      currentEscapeScheme = Nope
     }
 
     def setMarkFrom(mp: MPState) {
@@ -84,7 +80,6 @@ object MPState {
       childIndexStackMark = mp.childIndexStack.mark
       occursBoundsStackMark = mp.occursBoundsStack.mark
       delimiterStackMark = mp.delimiterStack.mark
-      currentEscapeScheme = mp.currentEscapeScheme
     }
     def resetFromMark(mp: MPState) {
       mp.arrayIndexStack.reset(this.arrayIndexStackMark)
@@ -92,7 +87,6 @@ object MPState {
       mp.childIndexStack.reset(this.childIndexStackMark)
       mp.occursBoundsStack.reset(this.occursBoundsStackMark)
       mp.delimiterStack.reset(this.delimiterStackMark)
-      mp.currentEscapeScheme = this.currentEscapeScheme
     }
   }
 }
@@ -122,10 +116,7 @@ case class MPState() {
   }
   def occursBounds = occursBoundsStack.top
 
-  var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
   var currentDelimsCooked: Maybe[List[String]] = Nope
-  var currentFieldDFA: Maybe[DFAField] = Nope
-  var currentParser: Maybe[TextDelimitedParserBase] = Nope
 
   val delimiterStack = new MStack.Of[DelimiterStackNode]
   def pushDelimiters(node: DelimiterStackNode) = {
@@ -158,6 +149,8 @@ case class MPState() {
         dsNode.getDelimitersWithPos
       }
   }.toArray
+
+  val escapeSchemeEVCache = new MStack.OfMaybe[EscapeSchemeParserHelper]
 }
 
 /**

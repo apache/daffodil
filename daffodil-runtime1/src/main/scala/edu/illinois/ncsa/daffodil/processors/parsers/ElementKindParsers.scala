@@ -123,11 +123,15 @@ class DelimiterStackParser(initiatorOpt: Maybe[InitiatorParseEv],
 
 /**
  * *
- * This parser should only ever be called when an escape scheme exists.
+ * This parser should only ever be called when a dynamic escape scheme exists
+ * so the escape scheme is evaluated in the right scope. If a constant
+ * escape scheme exists, the Evaluatable should store the constant and this
+ * should never be called.
  *
- * Evaluates the escape scheme and brings it in and out of scope.
+ * Note that the escape scheme evaluatable (and its dependencies) are manually
+ * cached, so upon exiting scope the cache must be invalidated.
  */
-class EscapeSchemeStackParser(escapeScheme: EscapeSchemeParseEv,
+class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   override val context: RuntimeData, bodyParser: Parser)
   extends Parser {
 
@@ -136,33 +140,17 @@ class EscapeSchemeStackParser(escapeScheme: EscapeSchemeParseEv,
   override lazy val runtimeDependencies = List(escapeScheme)
 
   def parse(start: PState): Unit = {
-    // Set Escape Scheme
-    start.mpstate.currentEscapeScheme = One(escapeScheme.evaluate(start))
+    // evaluate the dynamic escape scheme in the correct scope. the resulting
+    // value is cached in the Evaluatable (since it is manually cached) and
+    // future parsers that use this escape scheme will use that cached value.
+    escapeScheme.newCache(start)
+    escapeScheme.evaluate(start)
 
     // Parse
     bodyParser.parse1(start)
 
-    // Clear EscapeScheme
-    start.mpstate.currentEscapeScheme = Nope
-  }
-}
-
-class EscapeSchemeNoneStackParser(
-  rd: RuntimeData, bodyParser: Parser)
-  extends ParserObject(rd) {
-
-  override lazy val childProcessors = Seq(bodyParser)
-
-  def parse(start: PState): Unit = {
-
-    // Clear EscapeScheme
-    start.mpstate.currentEscapeScheme = Nope
-
-    // Parse
-    bodyParser.parse1(start)
-
-    // Clear EscapeScheme
-    start.mpstate.currentEscapeScheme = Nope
+    // invalidate the escape scheme cache
+    escapeScheme.invalidateCache(start)
   }
 }
 

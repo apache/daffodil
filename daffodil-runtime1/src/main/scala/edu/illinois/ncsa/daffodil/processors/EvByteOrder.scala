@@ -12,7 +12,8 @@ class ByteOrderEv(expr: CompiledExpression[String], erd: ElementRuntimeData)
   extends EvaluatableConvertedExpression[String, ByteOrder](
     expr,
     ByteOrder,
-    erd) {
+    erd)
+  with InfosetCachedEvaluatable[ByteOrder] {
   override lazy val runtimeDependencies = Nil
 
 }
@@ -27,7 +28,8 @@ class Ok private () extends Serializable {
 object Ok extends Ok()
 
 class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder, maybeByteOrder: Maybe[ByteOrderEv])
-  extends Evaluatable[Ok](t) { // can't use unit here, not <: AnyRef
+  extends Evaluatable[Ok](t)
+  with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
   override lazy val runtimeDependencies =
     if (maybeByteOrder.isEmpty) Nil

@@ -34,18 +34,17 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.dfa
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets
@@ -55,10 +54,12 @@ class StringDelimitedParser(
   erd: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
   pad: MaybeChar,
-  ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactory,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean)
   extends PrimParserObject(erd) {
+
+  override val runtimeDependencies = List(fieldDFAEv)
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
@@ -80,44 +81,18 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    pf.getParser(start)
-
-    // Must check that currentParser and currentFieldDFA are populated.
-    // currentParser, currentFieldDFA should always be populated by the
-    // TextDelimitedParser and FieldFactory code.
-    //
-    // This is a performance optimization to replace the tuple returned
-    // previously.
-    //
-    if (!start.mpstate.currentParser.isDefined) Assert.invariantFailed("currentParser was not populated.")
-    if (!start.mpstate.currentFieldDFA.isDefined) Assert.invariantFailed("currentFieldDFA was not populated.")
-
-    val textParser = start.mpstate.currentParser.get
     val delims = start.mpstate.getAllTerminatingMarkup
-    val fieldDFA = start.mpstate.currentFieldDFA.get
-    val scheme = start.mpstate.currentEscapeScheme
-    // TODO: Performance. Allocates a tuple
-
-    //    val bytePos = (start.bitPos >> 3).toInt
-    //
-    //    val hasDelim = delimsCooked.length > 0
+    val fieldDFA = fieldDFAEv.evaluate(start)
 
     start.clearDelimitedText
 
     val result = try {
-      if (scheme.isDefined) {
-        scheme.get match {
-          case s: EscapeSchemeBlockParserHelper => {
-            textParser match {
-              case textParser: TextDelimitedParserWithEscapeBlock =>
-                textParser.parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
-              case _ => Assert.invariantFailed("EscapeSchemeBlockParserHelper goes with TextDelimitedParserWithEscapeBlock")
-            }
-          }
-          case s: EscapeSchemeCharParserHelper =>
-            textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
-        }
-      } else textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
+      if (textParser.isInstanceOf[TextDelimitedParserWithEscapeBlock]) {
+        val s = fieldDFAEv.escapeSchemeEv.get.evaluate(start).asInstanceOf[EscapeSchemeBlockParserHelper]
+        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+      } else {
+        textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
+      }
     } catch {
       case mie: MalformedInputException =>
         throw new ParseError(One(erd.schemaFileLocation), One(start.currentLocation), "Malformed input, length: %s", mie.getInputLength())
@@ -130,11 +105,11 @@ class LiteralNilDelimitedEndOfDataParser(
   erd: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
   pad: MaybeChar,
-  ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactory,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
   override val cookedNilValuesForParse: List[String],
   rawNilValuesForParse: List[String])
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false)
+  extends StringDelimitedParser(erd, justificationTrim, pad, textParser, fieldDFAEv, false)
   with NilMatcherMixin {
 
   val isDelimRequired: Boolean = false
@@ -176,10 +151,10 @@ class LiteralNilDelimitedEndOfDataParser(
 
 class HexBinaryDelimitedParser(
   erd: ElementRuntimeData,
-  ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactory,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean)
-  extends StringDelimitedParser(erd, TextJustificationType.None, MaybeChar.Nope, ff, pf, isDelimRequired) {
+  extends StringDelimitedParser(erd, TextJustificationType.None, MaybeChar.Nope, textParser, fieldDFAEv, isDelimRequired) {
 
   /**
    * HexBinary is just a string in iso-8859-1 encoding.

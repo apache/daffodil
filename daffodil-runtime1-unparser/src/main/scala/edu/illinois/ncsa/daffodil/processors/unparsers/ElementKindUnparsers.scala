@@ -210,45 +210,30 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   }
 }
 
-class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeUnparseEv, rd: RuntimeData, bodyUnparser: Unparser)
-  extends UnparserObject(rd) {
+class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override val context: RuntimeData, bodyUnparser: Unparser)
+  extends Unparser {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
 
+  override lazy val runtimeDependencies = Seq(escapeScheme)
+
   def unparse(state: UState): Unit = {
-    // Set Escape Scheme
-    state.currentEscapeScheme = One(escapeScheme.evaluate(state))
+    // evaluate the dynamic escape scheme in the correct scope. the resulting
+    // value is cached in the Evaluatable (since it is manually cached) and
+    // future parsers/evaluatables that use this escape scheme will use that
+    // cached value.
+    escapeScheme.newCache(state)
+    escapeScheme.evaluate(state)
 
     // Unparse
-    bodyUnparser.unparse1(state, rd)
+    bodyUnparser.unparse1(state, context)
 
-    // Clear EscapeScheme
-    state.currentEscapeScheme = Nope
+    // invalidate the escape scheme cache
+    escapeScheme.invalidateCache(state)
   }
 }
 
-class EscapeSchemeNoneStackUnparser(
-  rd: RuntimeData, bodyUnparser: Unparser)
-  extends UnparserObject(rd) {
-
-  override def nom = "EscapeSchemeStack"
-
-  override lazy val childProcessors = Seq(bodyUnparser)
-
-  def unparse(state: UState): Unit = {
-
-    // Clear Escape Scheme
-    state.currentEscapeScheme = Nope
-
-    // Unparse
-    bodyUnparser.unparse1(state, rd)
-
-    // Clear EscapeScheme
-    state.currentEscapeScheme = Nope
-
-  }
-}
 class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
   extends TermUnparser(erd) {
   override def nom = "Array"

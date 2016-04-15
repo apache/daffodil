@@ -6,14 +6,16 @@ import java.lang.{ Long => JLong }
 class LengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](
     expr,
-    rd) {
+    rd)
+  with InfosetCachedEvaluatable[JLong] {
   override lazy val runtimeDependencies = Nil
 }
 
 class OccursCountEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](
     expr,
-    rd) {
+    rd)
+  with InfosetCachedEvaluatable[JLong] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -21,6 +23,7 @@ class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     OutputNewLineCooker,
-    rd) {
+    rd)
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }

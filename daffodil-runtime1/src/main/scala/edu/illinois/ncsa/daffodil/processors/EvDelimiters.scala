@@ -33,6 +33,7 @@ trait DelimiterEvMixin[+T <: AnyRef] { self: Evaluatable[T] =>
 
 abstract class DelimiterParseEv(override val expr: CompiledExpression[String], override val trd: TermRuntimeData)
   extends Evaluatable[Array[DFADelimiter]](trd)
+  with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
   
   override lazy val runtimeDependencies = Nil
@@ -55,6 +56,7 @@ abstract class DelimiterParseEv(override val expr: CompiledExpression[String], o
 
 abstract class DelimiterUnparseEv(override val expr: CompiledExpression[String], outputNewLine: OutputNewLineEv, override val trd: TermRuntimeData)
   extends Evaluatable[Option[DFADelimiter]](trd)
+  with InfosetCachedEvaluatable[Option[DFADelimiter]]
   with DelimiterEvMixin[Option[DFADelimiter]] {
   
   override lazy val runtimeDependencies = Seq(outputNewLine)

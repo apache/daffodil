@@ -22,9 +22,9 @@ import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
@@ -65,7 +65,6 @@ class UState(
       )
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
     clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
-    clone.currentEscapeScheme = this.currentEscapeScheme
     val dstate = clone.dState
     dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
     dstate.setVMap(variableMap)
@@ -249,7 +248,7 @@ class UState(
 
   def occursBounds = occursBoundsStack.top
 
-  var currentEscapeScheme: Maybe[EscapeSchemeUnparserHelper] = Nope
+  val escapeSchemeEVCache = new MStack.OfMaybe[EscapeSchemeUnparserHelper]
 
   val delimiterStack = new MStack.Of[DelimiterStackUnparseNode]()
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)

@@ -35,12 +35,9 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
 import edu.illinois.ncsa.daffodil.io.DataInputStream
@@ -409,36 +406,5 @@ class TextDelimitedParserWithEscapeBlock(
 
     res
   }
-
-}
-
-/**
- * The parser is instantiated but field setting is deferred until
- * run-time.
- */
-case class TextDelimitedParserFactory(
-  justArg: TextJustificationType.Type,
-  parsingPadChar: MaybeChar,
-  fieldFact: FieldFactoryBase,
-  isBlockEscape: Boolean,
-  context: TermRuntimeData)
-  extends Logging with Serializable {
-
-  val preConstructedParser = {
-    val parser = if (isBlockEscape) {
-      new TextDelimitedParserWithEscapeBlock(justArg, parsingPadChar, context)
-    } else {
-      new TextDelimitedParser(justArg, parsingPadChar, context)
-    }
-    parser
-  }
-
-  protected def constructParser(state: PState) = {
-    fieldFact.getFieldDFA(state)
-    
-    state.mpstate.currentParser = One(preConstructedParser)
-  }
-
-  def getParser(state: PState) = constructParser(state)
 
 }

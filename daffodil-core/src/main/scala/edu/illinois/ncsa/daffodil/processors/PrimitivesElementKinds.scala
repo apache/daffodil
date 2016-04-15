@@ -46,16 +46,15 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
-import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeStackParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.DynamicEscapeSchemeParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DynamicEscapeSchemeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
@@ -84,18 +83,17 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
     e.initiatorLoc, None, e.terminatorLoc, e.runtimeData, body.unparser)
 }
 
-case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
   val schemeParseOpt = e.optionEscapeScheme.map { _.escapeSchemeParseEv }
   val schemeUnparseOpt = e.optionEscapeScheme.map { _.escapeSchemeUnparseEv }
 
-  lazy val parser: DaffodilParser =
-    if (schemeParseOpt.isDefined) new EscapeSchemeStackParser(schemeParseOpt.get, e.runtimeData, body.parser)
-    else new EscapeSchemeNoneStackParser(e.runtimeData, body.parser)
+  Assert.invariant(schemeParseOpt.isDefined && !schemeParseOpt.get.isConstant)
+  Assert.invariant(schemeUnparseOpt.isDefined && !schemeUnparseOpt.get.isConstant)
 
-  override lazy val unparser: DaffodilUnparser =
-    if (schemeUnparseOpt.isDefined) new EscapeSchemeStackUnparser(schemeUnparseOpt.get, e.runtimeData, body.unparser)
-    else new EscapeSchemeNoneStackUnparser(e.runtimeData, body.unparser)
+  lazy val parser: DaffodilParser = new DynamicEscapeSchemeParser(schemeParseOpt.get, e.runtimeData, body.parser)
+
+  override lazy val unparser: DaffodilUnparser = new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.runtimeData, body.unparser)
 }
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {

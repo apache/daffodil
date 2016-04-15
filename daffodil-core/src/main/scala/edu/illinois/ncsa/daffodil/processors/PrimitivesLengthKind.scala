@@ -52,9 +52,9 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytes
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryFixedLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthPars
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringLiteralForUnparser
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends Terminal(e, true) {
@@ -142,32 +143,23 @@ abstract class StringDelimited(e: ElementBase)
     if (!parsingPadChar.isDefined) None
     else Some(new TextPaddingParser(parsingPadChar.get, e.elementRuntimeData))
   }
+  
+  // TODO: move out of parser and into the dsom
+  lazy val escapeSchemeParseEvOpt = if (es.isDefined) One(es.get.escapeSchemeParseEv) else Nope
+  lazy val escapeSchemeUnparseEvOpt = if (es.isDefined) One(es.get.escapeSchemeUnparseEv) else Nope
 
-  lazy val fieldFactory = createFieldFactory
-  lazy val parserFactory = createParserFactory
-
-  def createFieldFactory: FieldFactoryBase = {
-    val fieldDFAFact = {
-      if (es.isDefined) {
-        val escapeScheme = Some(es.get.escapeSchemeParseEv) // TODO: this should really be different between parse and unparse, that will be fixed when the field factory is switched to use EV
-        if (escapeScheme.get.isConstant) {
-          FieldFactoryStatic(escapeScheme, context.runtimeData)
-        } else {
-          FieldFactoryDynamic(escapeScheme, context.runtimeData)
-        }
-      } else {
-        FieldFactoryStatic(None, context.runtimeData)
-      }
-    }
-
-    fieldDFAFact
+  // TODO: move out of parser and into the dsom
+  lazy val fieldDFAParseEv = {
+    new FieldDFAParseEv(escapeSchemeParseEvOpt, context.runtimeData)
   }
 
-  def createParserFactory: TextDelimitedParserFactory = {
+  val textDelimitedParser = {
     val isBlockEscapeScheme = es.isDefined && es.get.escapeKind == EscapeKind.EscapeBlock
-    val theParserFact = TextDelimitedParserFactory(
-      justificationTrim, parsingPadChar, fieldFactory, isBlockEscapeScheme, e.elementRuntimeData)
-    theParserFact
+    if (isBlockEscapeScheme) {
+      new TextDelimitedParserWithEscapeBlock(justificationTrim, parsingPadChar, e.elementRuntimeData)
+    } else {
+      new TextDelimitedParser(justificationTrim, parsingPadChar, e.elementRuntimeData)
+    }
   }
 
   /**
@@ -185,10 +177,10 @@ abstract class StringDelimited(e: ElementBase)
     e.elementRuntimeData,
     justificationTrim,
     parsingPadChar,
-    fieldFactory,
-    parserFactory,
+    textDelimitedParser,
+    fieldDFAParseEv,
     isDelimRequired)
-  override lazy val unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, parsingPadChar, isDelimRequired)
+  override lazy val unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, parsingPadChar, escapeSchemeUnparseEvOpt, isDelimRequired)
 
 }
 
@@ -202,8 +194,8 @@ abstract class HexBinaryDelimited(e: ElementBase)
 
   override lazy val parser: DaffodilParser = new HexBinaryDelimitedParser(
     e.elementRuntimeData,
-    fieldFactory,
-    parserFactory,
+    textDelimitedParser,
+    fieldDFAParseEv,
     isDelimRequired)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(
@@ -226,8 +218,8 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.elementRuntimeData,
       justificationTrim,
       parsingPadChar,
-      fieldFactory,
-      parserFactory,
+      textDelimitedParser,
+      fieldDFAParseEv,
       eb.cookedNilValuesForParse,
       eb.rawNilValuesForParse)
 

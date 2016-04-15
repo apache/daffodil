@@ -8,6 +8,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.xml.scalaLib
@@ -171,6 +172,92 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
   protected def dafName(local: String) = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
 }
 
+trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
+
+  protected def getCachedOrComputeAndCache(state: State): T = {
+    Assert.invariant(state.currentNode.isDefined)
+    val cn = state.currentNode.get
+    val termNode = cn match {
+      case t: DITerm => t
+      case _ => Assert.invariantFailed("current node was not a term.")
+    }
+    val cache = termNode.evalCache(state)
+    val optHit = cache.get(this)
+    if (optHit.isDefined) optHit.get.asInstanceOf[T]
+    else {
+      val v = compute(state)
+      cache.put(this, v)
+      v
+    }
+  }
+}
+
+/**
+ * This is a method of caching that requires the parsers to create new cache
+ * slots, evaluate, then invalidate the cache slots when it goes out of scope.
+ * This differs from the InfosetCachedEvaluatable, which caches values in the
+ * infoset and relies on backtracking and removal of infoset nodes to
+ * invalidate the cache.
+ *
+ * The Evaluatable implementing this must have an MStack stored in the PState
+ * or UState, and getCacheStack will be used to retrieve that stack. Before
+ * calling evaluate for the first time, the parser must call newCache. All
+ * other calls to evaluate will use this evaluated value. When the evaluatable
+ * goes out of scope, the parser must then invalidate this cache by calling
+ * invalidateCace.
+ *
+ * The motivating use case for this is for DFAFieldEV and EscapeEschemeEV.
+ * DFAField is dependent on the escape scheme. The logical way to handle is to
+ * make the EscapeSchemeEv a runtime dependent on the DFAFieldEv. This is
+ * convenient since if the EscapeSchemeEv is constant, we can calcuclate the
+ * DFAFieldEv at compile time.
+ *
+ * However, say the EscapeSchemeEv is not constant. The problem is that it
+ * needs to be evaluated in a different scope than when the DFAFieldEv is
+ * evaluated. So this manual caching thing is a way to force evaluation of the
+ * Ev at the appropriate time (via the DynamicEscapeSchemeParser), and cache it
+ * in the PState. Then when the DFAField is evaluated it can use that
+ * cached value. Note that the problem with storing the cached value in the
+ * infoset (ala InfosetCachedEvaluatable) is that the current infoset element
+ * may have changed in between the time the EscapeSchemeEv was evaluated and
+ * the time the DFAField is evaluated. So if we cached on the infoset, when the
+ * DFAField asks for the EscapeSchemeEv, it will look at the currentInfoset
+ * cache and it wouldn't be there, and then evaluate the escape scheme again in
+ * the wrong scope.
+ */
+trait ManuallyCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
+
+  protected def getCacheStack(state: State): MStack.OfMaybe[T]
+
+  protected def getCachedOrComputeAndCache(state: State): T = {
+    val cs = getCacheStack(state)
+    val manualCache = cs.top
+    if (manualCache.isDefined) {
+      manualCache.get
+    } else {
+      val v = compute(state)
+      cs.pop
+      cs.push(One(v))
+      v
+    }
+  }
+
+  def newCache(state: State) {
+    getCacheStack(state).push(Nope)
+  }
+
+  def invalidateCache(state: State) {
+    getCacheStack(state).pop
+  }
+}
+
+trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
+  protected def getCachedOrComputeAndCache(state: State): T = {
+    compute(state)
+  }
+}
+
+
 /**
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
@@ -182,6 +269,8 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
   def toBriefXML(depth: Int = -1): String = if (constValue.isDefined) constValue.value.toString else super.toString
 
   override lazy val qName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
+
+  protected def getCachedOrComputeAndCache(state: State): T
 
   final override def apply(state: State): T = {
     if (!isCompiled) {
@@ -221,23 +310,7 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
           v
         }
         case _ => {
-          //
-          // we're running. Check cache. If not then compute and cache it.
-          //
-          assert(state.currentNode.isDefined)
-          val cn = state.currentNode.get
-          val termNode = cn match {
-            case t: DITerm => t
-            case _ => Assert.invariantFailed("current node was not a term.")
-          }
-          val cache = termNode.evalCache(state)
-          val optHit = cache.get(this)
-          if (optHit.isDefined) optHit.get.asInstanceOf[T]
-          else {
-            val v = compute(state)
-            cache.put(this, v)
-            v
-          }
+          getCachedOrComputeAndCache(state)
         }
       }
     }
@@ -366,7 +439,7 @@ final class EvalCache {
  * Use for expressions when what you want out really is just the string value
  * of the property.
  */
-class EvaluatableExpression[+ExprType <: AnyRef](
+abstract class EvaluatableExpression[+ExprType <: AnyRef](
   expr: CompiledExpression[ExprType],
   trd: RuntimeData)
   extends Evaluatable[ExprType](trd) {
@@ -396,7 +469,7 @@ class EvaluatableExpression[+ExprType <: AnyRef](
  *
  * See the cookers for string literals such as TextStandardInfinityRepCooker.
  */
-class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyRef](
+abstract class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyRef](
   expr: CompiledExpression[ExprType],
   converter: Converter[ExprType, ConvertedType],
   rd: RuntimeData)

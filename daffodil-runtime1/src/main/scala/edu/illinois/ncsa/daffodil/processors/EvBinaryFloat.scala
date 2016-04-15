@@ -7,7 +7,9 @@ class BinaryFloatRepEv(expr: CompiledExpression[String], erd: ElementRuntimeData
   extends EvaluatableConvertedExpression[String, BinaryFloatRep](
     expr,
     BinaryFloatRep,
-    erd) {
+    erd)
+  with InfosetCachedEvaluatable[BinaryFloatRep] {
+
   override lazy val runtimeDependencies = Nil
 
 }

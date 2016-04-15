@@ -11,13 +11,18 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
   override val pad: MaybeChar,
-  isDelimRequired: Boolean)
+  escapeScheme: Maybe[EscapeSchemeUnparseEv],
+  isDelimRequired: Boolean
+  )
   extends PrimUnparserObject(erd) with PaddingRuntimeMixin with TextUnparserRuntimeMixin {
 
   val fieldDFA = CreateFieldDFA()
@@ -44,7 +49,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
 
     setupEncoding(state, erd)
 
-    val schemeOpt = state.currentEscapeScheme
+    val schemeOpt = if (escapeScheme.isDefined) One(escapeScheme.get.evaluate(state)) else Nope
 
     try {
       val valueString = theString(state)
@@ -133,7 +138,7 @@ class LiteralNilDelimitedEndOfDataUnparser(
   justPad: TextJustificationType.Type,
   padChar: MaybeChar,
   isDelimRequired: Boolean)
-  extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired) {
+  extends StringDelimitedUnparser(erd, justPad, padChar, Nope, isDelimRequired) {
 
   final override def theString(ustate: UState) = outputNilValue.evaluate(ustate)
 

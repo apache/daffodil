@@ -29,12 +29,14 @@ class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
-    trd) {
+    trd) 
+  with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
-class EncoderEv(encodingEv: EncodingEv,
-  val trd: TermRuntimeData) extends Evaluatable[DFDLEncoder](trd) {
+class EncoderEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
+  extends Evaluatable[DFDLEncoder](trd)
+  with InfosetCachedEvaluatable[DFDLEncoder] {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 
@@ -50,8 +52,9 @@ class EncoderEv(encodingEv: EncodingEv,
   }
 }
 
-class DecoderEv(encodingEv: EncodingEv,
-  val trd: TermRuntimeData) extends Evaluatable[DFDLDecoder](trd){
+class DecoderEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
+  extends Evaluatable[DFDLDecoder](trd)
+  with InfosetCachedEvaluatable[DFDLDecoder] {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 

@@ -29,7 +29,8 @@ class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: 
   extends EvaluatableConvertedExpression[String, ULocale](
     calendarLanguageExpr,
     LocaleConverter,
-    erd) {
+    erd)
+  with InfosetCachedEvaluatable[ULocale] {
   override lazy val runtimeDependencies = Nil
 }
 
@@ -38,7 +39,9 @@ class CalendarEv(localeEv: CalendarLanguageEv,
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
   calendarCheckPolicy: Boolean,
-  erd: ElementRuntimeData) extends Evaluatable[Calendar](erd) {
+  erd: ElementRuntimeData)
+  extends Evaluatable[Calendar](erd)
+  with InfosetCachedEvaluatable[Calendar] {
 
   override lazy val runtimeDependencies = Seq(localeEv)
 
