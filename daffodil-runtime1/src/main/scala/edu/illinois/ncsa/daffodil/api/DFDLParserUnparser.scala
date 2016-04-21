@@ -32,15 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import scala.xml.Node
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.xml.XMLEventCursor
 

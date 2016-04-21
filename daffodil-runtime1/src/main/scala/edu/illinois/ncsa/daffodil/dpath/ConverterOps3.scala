@@ -32,15 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import scala.math.BigDecimal.long2bigDecimal
 import scala.math.BigInt.long2bigInt
 
-import AsIntConverters.asBigDecimal
 import AsIntConverters.asBigInt
-import AsIntConverters.asInt
 import AsIntConverters.asLong
 import edu.illinois.ncsa.daffodil.util.Misc
-import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import AsIntConverters._
 
 case object NumericToString extends ToString

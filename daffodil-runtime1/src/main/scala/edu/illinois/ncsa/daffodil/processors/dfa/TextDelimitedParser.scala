@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.util.Logging

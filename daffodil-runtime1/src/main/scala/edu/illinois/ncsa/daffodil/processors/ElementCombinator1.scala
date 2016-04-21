@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode

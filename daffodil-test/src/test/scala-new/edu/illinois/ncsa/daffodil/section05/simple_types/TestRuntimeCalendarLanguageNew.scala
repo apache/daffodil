@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.section05.simple_types
 
-import org.junit.Test
 import org.junit.AfterClass
 import edu.illinois.ncsa.daffodil.tdml.Runner
 
@@ -47,6 +46,5 @@ object TestRuntimeCalendarLanguageNew {
 }
 
 class TestRuntimeCalendarLanguageNew {
-  import TestRuntimeCalendarLanguageNew._
 
 }

@@ -3,17 +3,9 @@ package edu.illinois.ncsa.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CharsetDecoder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.util.regex.Matcher
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.LocalStack
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeULong

@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Bits
 import scala.language.postfixOps
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**

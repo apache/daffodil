@@ -35,14 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.Misc
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
-import java.io.FileOutputStream
-import java.nio.channels.WritableByteChannel
-import java.io.FileWriter
-import java.io.File
-import java.nio.ByteBuffer
 import org.junit.Test
 
 class TestDsomCompiler2 extends Logging {

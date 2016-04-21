@@ -34,19 +34,11 @@ package edu.illinois.ncsa.daffodil.performance
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import junit.framework.Assert.assertEquals
-import java.io.File
 import edu.illinois.ncsa.daffodil.CLI.Util
-import net.sf.expectit.Expect
 import net.sf.expectit.ExpectIOException
 import net.sf.expectit.matcher.Matchers.contains
-import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.matcher.Matchers.anyString
-import scala.language.postfixOps
 import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestCLIPerformance {

@@ -5,7 +5,6 @@ import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.equality._
-import scala.io.Source
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor

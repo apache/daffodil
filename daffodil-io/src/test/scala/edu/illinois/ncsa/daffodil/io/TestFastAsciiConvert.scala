@@ -35,8 +35,6 @@ package edu.illinois.ncsa.daffodil.io
 import java.nio.ByteBuffer
 import junit.framework.Assert._
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 class TestFastAsciiConvert {
 

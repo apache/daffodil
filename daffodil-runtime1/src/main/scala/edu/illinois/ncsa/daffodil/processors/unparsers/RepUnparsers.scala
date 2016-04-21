@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
-import edu.illinois.ncsa.daffodil.util.Maybe
 
 abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData, baseName: String)
   extends UnparserObject(context) {

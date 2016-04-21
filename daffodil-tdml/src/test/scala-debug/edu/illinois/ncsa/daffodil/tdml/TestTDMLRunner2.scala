@@ -32,20 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.tdml
 
-import java.io.File
-import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Node
-import scala.xml.NodeSeq
-import scala.xml.Utility
-import scala.xml.XML
-import edu.illinois.ncsa.daffodil.Implicits.using
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
 
 class TestTDMLRunner2 {

@@ -31,23 +31,12 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.Infoset
-import edu.illinois.ncsa.daffodil.processors.DIDocument
-import edu.illinois.ncsa.daffodil.util.Misc
 
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,

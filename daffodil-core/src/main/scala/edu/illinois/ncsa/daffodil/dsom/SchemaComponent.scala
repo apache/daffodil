@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
@@ -43,8 +42,6 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 

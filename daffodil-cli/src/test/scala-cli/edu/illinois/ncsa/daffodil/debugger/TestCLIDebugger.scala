@@ -33,12 +33,7 @@
 package edu.illinois.ncsa.daffodil.debugger
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.CLI.Util
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.allOf
 import net.sf.expectit.matcher.Matchers.times

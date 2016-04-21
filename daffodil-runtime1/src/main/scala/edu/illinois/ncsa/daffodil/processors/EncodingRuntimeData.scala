@@ -39,11 +39,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.NoSchemaFileLocation
 import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.Charset

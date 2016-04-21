@@ -36,9 +36,6 @@ import scala.xml.Node
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)

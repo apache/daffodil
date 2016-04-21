@@ -38,9 +38,7 @@ import scala.math.BigInt.int2bigInt
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
-import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
-import java.lang.{ Number => JNumber }
+import java.lang.{ Integer => JInt, Long => JLong, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 trait CompareOpBase {

@@ -37,19 +37,13 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
-import edu.illinois.ncsa.daffodil.xml.QNameBase
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._
-import scala.collection.mutable.ArraySeq
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends UnparserObject(rd) {

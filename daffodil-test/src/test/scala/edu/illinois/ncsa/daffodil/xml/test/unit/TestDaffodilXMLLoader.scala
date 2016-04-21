@@ -39,8 +39,6 @@ import junit.framework.Assert._
 import org.junit.Test
 import java.io.File
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 

@@ -35,14 +35,9 @@ package edu.illinois.ncsa.daffodil.dsom
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert._
@@ -50,13 +45,8 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.NS
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import scala.xml.NodeSeq
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import java.io.File
 import edu.illinois.ncsa.daffodil.Implicits._
-import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml.QName
 
 /**

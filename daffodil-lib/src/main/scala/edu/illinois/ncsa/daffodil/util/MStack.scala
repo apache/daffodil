@@ -1,9 +1,7 @@
 package edu.illinois.ncsa.daffodil.util
 
-import scala.collection.AbstractIterator
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 // import edu.illinois.ncsa.daffodil.equality._ // TODO: Scala compiler bug - can't use =#= in this file (scalac 2.11.7) because we get a spurious compile error (unable to find ViewEquality in package equality.)
-import scala.collection.AbstractIterable
 import Maybe._
 
 object MStack {

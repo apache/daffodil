@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.propGen
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
-import org.xml.sax.InputSource
 import scala.xml._
 import java.io.FileNotFoundException
 import java.io.FileInputStream
@@ -638,8 +637,6 @@ object PropertyGenerator {
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.Found
-import edu.illinois.ncsa.daffodil.dsom.NotFound
 
 """
 

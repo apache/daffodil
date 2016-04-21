@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import edu.illinois.ncsa.daffodil.exceptions.Assert

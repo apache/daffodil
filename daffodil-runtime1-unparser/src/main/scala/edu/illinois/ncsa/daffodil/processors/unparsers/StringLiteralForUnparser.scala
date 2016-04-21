@@ -1,7 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert

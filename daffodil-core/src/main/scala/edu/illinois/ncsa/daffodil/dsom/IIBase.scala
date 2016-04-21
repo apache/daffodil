@@ -33,26 +33,15 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.util.Misc
-import java.net.URL
 import scala.xml.Node
-import scala.xml.Elem
-import scala.xml.Attribute
-import scala.xml.Null
 import scala.collection.immutable.ListMap
-import org.apache.xerces.util.XMLResourceIdentifierImpl
-import java.io.IOException
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.util._
 import IIUtils._
 import java.io.File
 import java.net.URI
-import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
-import java.net.URLDecoder
 import java.net.URLEncoder
 import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.URISchemaSource

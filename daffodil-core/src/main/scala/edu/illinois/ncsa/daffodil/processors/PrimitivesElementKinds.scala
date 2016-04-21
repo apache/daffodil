@@ -36,12 +36,7 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
@@ -52,8 +47,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparse
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeStackParser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
@@ -61,11 +54,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparse
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
-import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.processors.unparsers.TermUnparser
-import scala.collection.mutable.ArraySeq
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 

@@ -33,29 +33,16 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.processors._
-import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import java.text.ParsePosition
-import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
-import java.nio.ByteBuffer
 import AsIntConverters._
 import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.calendar.DFDLTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(v: AnyRef, dstate: DState) = {

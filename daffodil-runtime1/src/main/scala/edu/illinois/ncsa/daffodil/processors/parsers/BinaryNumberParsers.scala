@@ -34,14 +34,9 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
 

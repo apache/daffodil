@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.util.Misc
 
 class TestByteBufferDataInputStream3 {
 

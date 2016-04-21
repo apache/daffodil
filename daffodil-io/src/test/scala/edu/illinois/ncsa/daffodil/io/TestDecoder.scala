@@ -8,8 +8,6 @@ import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CoderResult
-import java.nio.charset.CharsetDecoder
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import org.junit.Test
 import org.junit.Assert._
 

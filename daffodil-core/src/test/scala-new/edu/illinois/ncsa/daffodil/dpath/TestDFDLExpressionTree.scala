@@ -34,9 +34,7 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
 import edu.illinois.ncsa.daffodil.xml._

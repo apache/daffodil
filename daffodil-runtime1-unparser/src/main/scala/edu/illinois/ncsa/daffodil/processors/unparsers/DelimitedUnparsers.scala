@@ -2,11 +2,8 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
@@ -14,11 +11,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,

@@ -32,12 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import AsIntConverters._
-import java.lang.{ Number => JNumber }
+import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.Kind)

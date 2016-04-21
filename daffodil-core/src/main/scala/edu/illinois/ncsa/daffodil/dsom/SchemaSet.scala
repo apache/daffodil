@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.collection.JavaConversions.asScalaIterator
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
@@ -42,19 +41,14 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import java.io.File
-import org.xml.sax.InputSource
-import java.net.URI
 import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
 import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has

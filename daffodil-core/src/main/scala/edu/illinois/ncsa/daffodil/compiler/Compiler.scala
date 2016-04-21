@@ -39,7 +39,6 @@ import java.nio.channels.Channels
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
@@ -61,14 +60,11 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import java.io.StreamCorruptedException
-import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.Processor
 
-import scala.util.DynamicVariable
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying

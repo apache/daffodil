@@ -3,15 +3,12 @@ package edu.illinois.ncsa.daffodil.io
 import org.junit.Test
 import org.junit.Assert._
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.util.Maybe
 import passera.unsigned.ULong
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.Implicits._
-import java.nio.charset.CharacterCodingException
 import java.nio.charset.MalformedInputException
 import java.util.regex.Pattern
-import scala.collection.mutable.ArrayBuffer
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder

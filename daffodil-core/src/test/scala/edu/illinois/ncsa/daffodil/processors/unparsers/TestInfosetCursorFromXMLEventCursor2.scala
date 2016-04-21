@@ -5,15 +5,12 @@ import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.equality._
-import scala.io.Source
-import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class TestInfosetCursorFromXMLEventCursor2 {
 

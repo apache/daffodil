@@ -1,19 +1,15 @@
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import scala.collection.mutable.ArrayBuilder
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
-import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CharsetDecoder
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UProperty
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Bits
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.

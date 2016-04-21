@@ -32,27 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.collection.immutable.ListMap
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Utility
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.VariableUtils
 import com.ibm.icu.impl.UnicodeRegex
 import java.util.regex.PatternSyntaxException
 import java.util.regex.Pattern

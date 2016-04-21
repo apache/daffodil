@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding

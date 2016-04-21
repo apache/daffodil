@@ -7,7 +7,6 @@ import edu.illinois.ncsa.daffodil.xml.StepQName
 import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 

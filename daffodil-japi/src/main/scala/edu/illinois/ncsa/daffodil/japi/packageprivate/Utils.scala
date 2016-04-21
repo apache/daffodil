@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.japi.debugger._
 import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
 import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 

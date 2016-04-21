@@ -1,13 +1,10 @@
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.charset.CharsetEncoder
@@ -20,7 +17,6 @@ import java.nio.charset.CoderResult
 import java.nio.channels.Channels
 import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
-import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
 

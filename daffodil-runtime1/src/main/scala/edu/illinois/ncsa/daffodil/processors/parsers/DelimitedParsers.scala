@@ -32,9 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringLiteral
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.PState
@@ -43,14 +41,11 @@ import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
-import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets

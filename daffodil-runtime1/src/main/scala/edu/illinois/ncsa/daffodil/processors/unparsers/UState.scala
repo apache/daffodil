@@ -9,7 +9,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -22,14 +21,12 @@ import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.util.MStack
@@ -38,7 +35,6 @@ import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.NonAllocatingMap
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.dpath.Blocking

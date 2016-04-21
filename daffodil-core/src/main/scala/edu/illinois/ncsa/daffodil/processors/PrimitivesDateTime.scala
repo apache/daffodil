@@ -34,29 +34,14 @@ package edu.illinois.ncsa.daffodil.processors
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.Converter
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCalendarUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import java.text.ParsePosition
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {

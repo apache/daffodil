@@ -34,11 +34,6 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass

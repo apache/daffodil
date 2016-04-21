@@ -33,14 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 final class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)

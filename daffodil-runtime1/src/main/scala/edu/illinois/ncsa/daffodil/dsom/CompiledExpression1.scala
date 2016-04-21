@@ -34,31 +34,16 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EvalCache
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.processors.PState
-import scala.xml.Node
-import scala.collection.immutable.Queue
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dpath._
-import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.{ One, Nope }
 import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
 
 /**

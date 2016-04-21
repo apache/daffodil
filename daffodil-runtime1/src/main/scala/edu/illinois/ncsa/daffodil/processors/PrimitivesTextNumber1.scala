@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberCheckPol
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRounding
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
@@ -48,8 +47,6 @@ import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }

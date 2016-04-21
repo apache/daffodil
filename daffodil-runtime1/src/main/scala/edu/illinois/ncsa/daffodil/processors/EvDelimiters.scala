@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
 trait DelimiterEvMixin[+T <: AnyRef] { self: Evaluatable[T] =>
 

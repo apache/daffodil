@@ -34,14 +34,9 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.util.Maybe
-import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsFixedUnparser

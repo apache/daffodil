@@ -34,10 +34,7 @@ package edu.illinois.ncsa.daffodil.xml
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
-import java.net.URL
 import java.io.File
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 

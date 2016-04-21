@@ -34,8 +34,6 @@ package edu.illinois.ncsa.daffodil.util
 
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml._
-import java.io.File
-import java.io.FileNotFoundException
 import edu.illinois.ncsa.daffodil.Implicits._
 
 /*

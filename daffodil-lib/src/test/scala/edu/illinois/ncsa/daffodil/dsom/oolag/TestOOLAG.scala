@@ -34,14 +34,9 @@ package edu.illinois.ncsa.daffodil.dsom.oolag
 
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.Abort
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.Implicits._
 
 class MyException(msg: String)

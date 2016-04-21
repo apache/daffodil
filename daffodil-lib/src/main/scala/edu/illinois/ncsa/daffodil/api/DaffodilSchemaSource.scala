@@ -38,7 +38,6 @@ import java.io.FileInputStream
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
 import java.io.File
-import java.nio.file.Path
 import java.nio.file.Paths
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._

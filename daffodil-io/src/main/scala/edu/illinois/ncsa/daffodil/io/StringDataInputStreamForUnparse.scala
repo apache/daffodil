@@ -1,14 +1,9 @@
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeULong

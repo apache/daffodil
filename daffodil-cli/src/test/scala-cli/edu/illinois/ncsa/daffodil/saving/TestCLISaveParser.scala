@@ -37,14 +37,8 @@ import org.junit.Test
 import org.junit.Before
 import org.junit.After
 import scala.sys.process._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.CLI.Util
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import junit.framework.Assert.assertEquals
 import java.io.File
-import java.nio.file.Files
-import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import scala.language.postfixOps

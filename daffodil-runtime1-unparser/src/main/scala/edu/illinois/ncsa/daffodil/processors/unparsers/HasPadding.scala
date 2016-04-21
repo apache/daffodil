@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**

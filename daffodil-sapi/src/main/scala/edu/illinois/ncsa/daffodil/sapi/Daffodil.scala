@@ -33,19 +33,15 @@
 package edu.illinois.ncsa.daffodil.sapi
 
 import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.sapi.debugger._
 import edu.illinois.ncsa.daffodil.sapi.logger._
 import edu.illinois.ncsa.daffodil.sapi.packageprivate._
-import edu.illinois.ncsa.daffodil.debugger.{ Debugger => SDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
-import java.io.IOException
 import java.nio.channels.ReadableByteChannel
-import java.nio.channels.WritableByteChannel
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
@@ -56,19 +52,13 @@ import edu.illinois.ncsa.daffodil.processors.{ DataProcessor => SDataProcessor }
 import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
 import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
 import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
-import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
 import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
-import edu.illinois.ncsa.daffodil.processors.{ VariableMap => SVariableMap }
-import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
-import org.xml.sax.InputSource
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 

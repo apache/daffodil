@@ -1,13 +1,9 @@
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
@@ -18,19 +14,13 @@ import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.CharacterCodingException
 import java.nio.CharBuffer
 import java.nio.channels.FileChannel
 import java.nio.channels.Channels
-import java.util.ArrayList
-import java.nio.LongBuffer
 import edu.illinois.ncsa.daffodil.util.Bits
 import passera.unsigned.ULong
-import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.nio.charset.CoderResult
-import edu.illinois.ncsa.daffodil.Implicits
-import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.MStack

@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.xml.test.unit
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import junit.framework.Assert._
 import org.junit.Test
 

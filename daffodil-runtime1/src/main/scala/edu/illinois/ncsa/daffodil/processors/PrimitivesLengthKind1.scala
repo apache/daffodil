@@ -32,14 +32,10 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.util.Maybe

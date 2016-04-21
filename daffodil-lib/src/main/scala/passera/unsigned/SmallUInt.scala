@@ -1,6 +1,5 @@
 package passera.unsigned
 
-import scala.math.{ ScalaNumber, ScalaNumericConversions }
 
 /**
  * Supertrait of UByte, UShort, UInt

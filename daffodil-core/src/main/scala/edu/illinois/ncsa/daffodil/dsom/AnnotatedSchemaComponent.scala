@@ -36,9 +36,6 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import scala.xml.Text
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.equality._
 

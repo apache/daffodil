@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.io
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import java.nio.charset.StandardCharsets

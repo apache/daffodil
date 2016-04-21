@@ -12,7 +12,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.util.Cursor
 import edu.illinois.ncsa.daffodil.util.Accessor
-import edu.illinois.ncsa.daffodil.util.IteratorWithPeek
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert

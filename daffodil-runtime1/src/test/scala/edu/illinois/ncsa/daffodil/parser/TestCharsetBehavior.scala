@@ -36,14 +36,12 @@ import junit.framework.Assert._
 import java.io._
 import java.nio._
 import java.nio.charset._
-import java.util.Iterator
 import Converter._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
 
-import scala.language.implicitConversions
 
 /**
  * These tests characterize behavior of the Java libraries for character sets. We're going to have to rely on

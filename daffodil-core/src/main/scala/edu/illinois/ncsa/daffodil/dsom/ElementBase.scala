@@ -39,15 +39,11 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
-import edu.illinois.ncsa.daffodil.dpath.CompiledDPath
 import edu.illinois.ncsa.daffodil.dpath.WholeExpression
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.SeveralPossibilitiesForNextElement
@@ -60,7 +56,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
 import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import java.lang.{ Integer => JInt, Number => JNumber }
+import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.processors._
 
 /**

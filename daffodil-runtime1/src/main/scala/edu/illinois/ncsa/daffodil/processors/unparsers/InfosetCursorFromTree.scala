@@ -4,9 +4,6 @@ import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetDocument
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InfosetItem
-import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 

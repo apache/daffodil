@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE

@@ -6,7 +6,6 @@ import edu.illinois.ncsa.daffodil.processors.NadaParser
 import edu.illinois.ncsa.daffodil.processors.NadaUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**

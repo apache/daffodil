@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetException
 import edu.illinois.ncsa.daffodil.processors.VariableException
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState

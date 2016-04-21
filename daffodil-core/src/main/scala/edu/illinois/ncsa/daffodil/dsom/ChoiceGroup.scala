@@ -32,12 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Attribute
-import scala.xml.Elem
 import scala.xml.Node
-import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Null
-import scala.xml.Text
 import scala.xml._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
@@ -45,9 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ChoiceRuntimeData
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
 
 /**
  * Choices are a bit complicated.

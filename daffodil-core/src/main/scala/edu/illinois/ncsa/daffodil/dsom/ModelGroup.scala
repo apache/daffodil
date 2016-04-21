@@ -32,17 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import java.util.UUID
 import scala.Option.option2Iterable
-import scala.xml.Attribute
-import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Null
 import scala.xml.Text
 import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData

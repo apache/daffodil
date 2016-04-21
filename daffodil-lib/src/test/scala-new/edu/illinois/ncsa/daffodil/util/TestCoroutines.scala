@@ -1,12 +1,7 @@
 package edu.illinois.ncsa.daffodil.util
 
-import java.util.concurrent.ArrayBlockingQueue
 import org.junit.Test
 import org.junit.Assert._
-import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.Implicits._
 
 private class TestException(e: String) extends Exception(e)

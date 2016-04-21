@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.Nada
 import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
-import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser

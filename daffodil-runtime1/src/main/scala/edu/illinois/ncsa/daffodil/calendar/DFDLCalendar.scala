@@ -37,8 +37,6 @@ import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import com.ibm.icu.impl.OlsonTimeZone
-import java.text.ParsePosition
 import scala.collection.mutable.ArraySeq
 import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
 

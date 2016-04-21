@@ -32,15 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import java.nio.ByteBuffer
-import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
@@ -48,10 +44,8 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
-import java.nio.charset.StandardCharsets
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
 

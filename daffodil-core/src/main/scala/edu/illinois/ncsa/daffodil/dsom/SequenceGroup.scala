@@ -47,7 +47,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.grammar.SequenceGrammarMixin
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.SequenceRuntimeData
 
 class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)

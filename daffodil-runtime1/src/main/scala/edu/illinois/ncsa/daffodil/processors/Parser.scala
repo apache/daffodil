@@ -32,27 +32,13 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util._
 import Maybe._
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import java.nio.charset.CharsetDecoder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 
 object Processor {
   /**

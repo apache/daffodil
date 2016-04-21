@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 trait PaddingRuntimeMixin {

@@ -36,12 +36,10 @@ package edu.illinois.ncsa.daffodil.processors
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import scala.collection.mutable.Queue
-import scala.util.control.Breaks
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.EntitySyntaxException
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType

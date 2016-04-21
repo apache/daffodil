@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.util
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.io.ByteArrayOutputStream
 import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream

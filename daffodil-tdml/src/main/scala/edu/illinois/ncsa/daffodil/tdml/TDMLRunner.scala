@@ -33,18 +33,12 @@
 package edu.illinois.ncsa.daffodil.tdml
 
 import java.io.File
-import java.io.FileInputStream
-import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.net.URI
-import java.net.URL
-import scala.io.Codec.string2codec
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
-import scala.xml.Utility
-import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.Tak
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -68,13 +62,11 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Misc.bits2Bytes
-import edu.illinois.ncsa.daffodil.util.Misc.bytes2Bits
 import edu.illinois.ncsa.daffodil.util.Misc.hex2Bits
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.debugger._
@@ -82,21 +74,14 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
-import java.io.InputStream
 import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
 import scala.language.postfixOps
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.Files
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
-import edu.illinois.ncsa.daffodil.processors.{ Infoset => RealInfoset }
-import javax.xml.stream.XMLInputFactory
 import edu.illinois.ncsa.daffodil.equality._
-import scala.collection.mutable
 import org.apache.commons.io.IOUtils
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"

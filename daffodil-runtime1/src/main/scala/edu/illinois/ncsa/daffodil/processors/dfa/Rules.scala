@@ -33,11 +33,9 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.processors.WSP
 import edu.illinois.ncsa.daffodil.processors.NL
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**

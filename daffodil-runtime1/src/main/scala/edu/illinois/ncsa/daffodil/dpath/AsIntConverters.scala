@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
-import scala.language.implicitConversions
 
 object AsIntConverters {
 

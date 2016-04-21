@@ -4,7 +4,6 @@ import org.junit.Test
 import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.nio.ByteBuffer
-import scala.collection.mutable.Buffer
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.Misc
 

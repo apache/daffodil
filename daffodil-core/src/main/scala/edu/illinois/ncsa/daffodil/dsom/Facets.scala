@@ -35,8 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import java.math.BigInteger
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Enum
-import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 trait Facets { self: SimpleTypeDefBase =>

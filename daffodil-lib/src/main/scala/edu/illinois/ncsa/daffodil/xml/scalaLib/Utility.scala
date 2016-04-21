@@ -19,7 +19,6 @@ package edu.illinois.ncsa.daffodil.xml.scalaLib
 
 import scala.xml._
 import scala.collection.mutable
-import parsing.XhtmlEntities
 import scala.language.implicitConversions
 
 /**
@@ -111,7 +110,7 @@ object Utility extends AnyRef with parsing.TokenTests {
     val escMap = pairs map { case (s, c) => c -> ("&%s;" format s) }
     val unescMap = pairs ++ Map("apos" -> '\'')
   }
-  import Escapes.{ escMap, unescMap }
+  import Escapes.unescMap
 
   /**
    * Appends escaped string to `s`.

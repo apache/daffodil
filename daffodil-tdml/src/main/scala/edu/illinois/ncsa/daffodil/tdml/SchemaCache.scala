@@ -1,10 +1,8 @@
 package edu.illinois.ncsa.daffodil.tdml
 
-import java.io.File
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarnTDML { EqualitySuppressUnusedImportWarning() }
 import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.api.Diagnostic

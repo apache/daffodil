@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.dsom.NotFound
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 

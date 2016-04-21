@@ -40,19 +40,17 @@ import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
-import java.nio.channels.ReadableByteChannel
 import java.nio.charset.StandardCharsets
 import java.net.URI
 import scala.xml.SAXParseException
 import org.rogach.scallop
-import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
+import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.util.Glob
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LogWriter
@@ -74,27 +72,20 @@ import scala.reflect.runtime.universe._
 import org.rogach.scallop.ScallopOption
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.api.InputStreamSchemaSource
 import edu.illinois.ncsa.daffodil.tdml.TDMLException
 import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
-import scala.xml.pull.XMLEventReader
 import scala.io.Source
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 class NullOutputStream extends OutputStream {

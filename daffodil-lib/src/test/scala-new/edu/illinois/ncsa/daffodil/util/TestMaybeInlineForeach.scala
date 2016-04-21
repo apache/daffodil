@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import org.junit.Test
 import org.junit.Assert._
 
 final class TestMaybeInlineForeach {

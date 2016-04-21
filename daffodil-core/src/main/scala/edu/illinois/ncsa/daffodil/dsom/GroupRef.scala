@@ -32,28 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import java.util.UUID
-import scala.Option.option2Iterable
-import scala.xml.Attribute
-import scala.xml.Elem
 import scala.xml.Node
-import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Null
-import scala.xml.Text
 import scala.xml._
-import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
-import edu.illinois.ncsa.daffodil.util.ListUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
 
 /**

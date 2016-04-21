@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import org.jdom2.Namespace
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.util.Validator
@@ -50,19 +49,14 @@ import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.util.ValidationException
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import scala.xml.Node
 import java.io.File
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import java.nio.channels.Channels
-import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.channels.FileChannel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.io.ObjectOutputStream
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
@@ -74,11 +68,9 @@ import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
-import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.xml.XMLEvent
 
 /**
  * Implementation mixin - provides simple helper methods

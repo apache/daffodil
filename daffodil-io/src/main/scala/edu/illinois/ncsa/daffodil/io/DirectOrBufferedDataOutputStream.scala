@@ -2,21 +2,10 @@ package edu.illinois.ncsa.daffodil.io
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._
-import scala.collection.mutable
-import java.nio.charset.CharsetEncoder
-import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{
-  BinaryFloatRep,
-  BitOrder,
-  ByteOrder,
-  EncodingErrorPolicy,
-  UTF16Width
-}
-import edu.illinois.ncsa.daffodil.util.Pool
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.

@@ -40,21 +40,14 @@ package edu.illinois.ncsa.daffodil.xml
 
 import java.io.File
 import java.net.URI
-import java.net.URL
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.xml.Attribute
 import scala.xml.Elem
 import scala.xml.InputSource
-import scala.xml.MetaData
-import scala.xml.NamespaceBinding
 import scala.xml.Node
-import scala.xml.Null
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
-import scala.xml.Text
 import scala.xml.TopScope
 import scala.xml.parsing.NoBindingFactoryAdapter
-import org.apache.xerces.dom.DOMInputImpl
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
@@ -69,10 +62,7 @@ import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.SchemaFactory
 import java.io.InputStream
 import java.io.BufferedInputStream
-import org.w3c.dom.ls.LSResourceResolver
 import java.io.Reader
-import java.io.FileInputStream
-import org.xml.sax.ext.DefaultHandler2
 import javax.xml.transform.sax.SAXSource
 
 /**

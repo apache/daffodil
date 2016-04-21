@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Enum
 
 object ValidationMode extends Enum {

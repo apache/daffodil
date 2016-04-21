@@ -36,7 +36,6 @@ import java.io.File
 import scala.xml.{ SAXParseException, InputSource }
 import scala.xml.parsing.NoBindingFactoryAdapter
 import scala.xml.{ TopScope, Node, Elem }
-import org.apache.xerces.dom.DOMInputImpl
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.{ CatalogManager, Catalog }
 import org.junit.Test
@@ -50,9 +49,6 @@ import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text
 import scala.language.reflectiveCalls
-import java.net.URI
-import java.net.URL
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.collection.mutable

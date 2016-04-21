@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.util
 
-import java.io.FileNotFoundException
-import java.io.FileInputStream
 import java.io.InputStream
 import java.io.File
 import java.net.URL
@@ -42,8 +40,6 @@ import java.io.ByteArrayInputStream
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.io.ByteArrayOutputStream
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.language.reflectiveCalls
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
 import java.nio.CharBuffer

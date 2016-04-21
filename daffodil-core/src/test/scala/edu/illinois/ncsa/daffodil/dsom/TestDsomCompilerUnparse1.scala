@@ -1,7 +1,5 @@
 package edu.illinois.ncsa.daffodil.dsom
 
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._

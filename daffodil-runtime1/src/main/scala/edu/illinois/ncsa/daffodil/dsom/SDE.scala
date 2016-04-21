@@ -34,9 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.CompileState

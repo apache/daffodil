@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import java.lang.NumberFormatException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import java.text.ParsePosition

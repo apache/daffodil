@@ -33,12 +33,8 @@
 package edu.illinois.ncsa.daffodil.usertests
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers

@@ -2,23 +2,18 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 import XMLEvent._
-import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.util.InvertControl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.processors.ProcessingError

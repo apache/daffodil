@@ -2,14 +2,8 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.equality._
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.

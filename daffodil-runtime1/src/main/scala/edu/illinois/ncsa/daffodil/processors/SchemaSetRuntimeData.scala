@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.api.Diagnostic

@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals

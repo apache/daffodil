@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppres
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * This mixin for setting up all the characteristics of charset encoding

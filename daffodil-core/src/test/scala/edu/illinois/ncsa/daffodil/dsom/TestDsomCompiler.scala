@@ -46,8 +46,6 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Fakes
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TestDsomCompiler extends Logging {
 

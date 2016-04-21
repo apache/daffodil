@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
  * Takes a compiled expression and a conversion, and if the expression is a constant,

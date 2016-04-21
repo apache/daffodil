@@ -34,15 +34,10 @@ package edu.illinois.ncsa.daffodil.parsing
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import junit.framework.Assert.assertEquals
 import java.io.File
 import edu.illinois.ncsa.daffodil.CLI.Util
-import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
-import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestCLIparsing {
 

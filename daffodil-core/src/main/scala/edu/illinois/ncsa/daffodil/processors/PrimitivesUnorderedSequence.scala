@@ -33,19 +33,11 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.Sequence
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import scala.collection.mutable.Buffer
-import scala.collection.mutable.ListBuffer
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
-import scala.xml.Elem
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
 object UnorderedSequence {

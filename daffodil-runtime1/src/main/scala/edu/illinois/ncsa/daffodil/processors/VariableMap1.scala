@@ -69,11 +69,8 @@ package edu.illinois.ncsa.daffodil.processors
  * Extensively modified - little of the original remains. - Mike Beckerle 2012.
  */
 
-import scala.collection.mutable.Set
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import javax.xml.namespace.QName
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._

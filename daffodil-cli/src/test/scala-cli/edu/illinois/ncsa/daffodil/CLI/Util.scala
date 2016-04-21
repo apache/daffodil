@@ -35,9 +35,7 @@ package edu.illinois.ncsa.daffodil.CLI
 import edu.illinois.ncsa.daffodil.util._
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
-import net.sf.expectit.echo.EchoOutput
 import net.sf.expectit.filter.Filters.replaceInString
-import java.io.File
 import java.nio.file.Paths
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit

@@ -38,7 +38,6 @@ import scala.language.reflectiveCalls
 import java.net.URISyntaxException
 import java.net.URI
 import scala.util.Try
-import scala.util.Success
 
 /**
  * Please centralize QName handling here.

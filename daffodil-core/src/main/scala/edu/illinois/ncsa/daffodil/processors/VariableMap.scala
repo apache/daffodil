@@ -36,7 +36,6 @@ package edu.illinois.ncsa.daffodil.processors
  * Note. None of the original NCSA-written code remains, so banner and such removed.
  */
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE

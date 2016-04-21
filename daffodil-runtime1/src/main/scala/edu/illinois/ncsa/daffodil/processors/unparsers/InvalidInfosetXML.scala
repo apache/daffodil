@@ -1,11 +1,9 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLEvent
 import edu.illinois.ncsa.daffodil.xml.XMLElementEvent
 import edu.illinois.ncsa.daffodil.xml.XMLEventCursor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**

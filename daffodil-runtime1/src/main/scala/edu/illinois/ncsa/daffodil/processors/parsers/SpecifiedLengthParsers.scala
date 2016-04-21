@@ -1,21 +1,15 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
 import java.lang.{ Long => JLong }

@@ -37,11 +37,7 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.NamedGram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputValueCalcUnparser

@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.charset
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.nio.charset.Charset
 import java.nio.charset.IllegalCharsetNameException

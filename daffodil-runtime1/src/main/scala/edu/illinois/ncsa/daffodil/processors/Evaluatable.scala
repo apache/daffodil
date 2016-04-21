@@ -9,7 +9,6 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import scala.collection.mutable
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.xml.scalaLib
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException

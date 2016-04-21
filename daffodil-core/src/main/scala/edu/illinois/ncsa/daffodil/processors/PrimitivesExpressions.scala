@@ -38,15 +38,10 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceStartParser
 import edu.illinois.ncsa.daffodil.processors.parsers.AssertExpressionEvaluationParser
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
@@ -55,12 +50,10 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternParser
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
 import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
-import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,

@@ -1,6 +1,5 @@
 package passera.unsigned
 
-import scala.math.{ ScalaNumber, ScalaNumericConversions }
 
 case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULong, ULong, Long] with Serializable {
   private[unsigned] def rep = longValue

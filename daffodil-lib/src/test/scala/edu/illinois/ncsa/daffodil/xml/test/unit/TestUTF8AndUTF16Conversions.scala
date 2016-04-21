@@ -33,9 +33,6 @@
 package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import junit.framework.Assert._
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.util.Arrays;
 import org.junit.Test
 
 /**

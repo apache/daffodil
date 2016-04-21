@@ -41,19 +41,12 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
-import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryStatic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.InitiatorParseEv
 import edu.illinois.ncsa.daffodil.processors.SeparatorParseEv
 import edu.illinois.ncsa.daffodil.processors.TerminatorParseEv

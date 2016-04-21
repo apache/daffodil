@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.lang.{
   Long => JLong,
-  Number => JNumber,
   Double => JDouble,
   Float => JFloat,
   Integer => JInt,
@@ -54,15 +53,8 @@ import java.lang.{
   Byte => JByte,
   Boolean => JBoolean
 }
-import java.text.ParsePosition
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 /**
  * We need to have a data structure that lets us represent a type, and

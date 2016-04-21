@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.ByteOrderChange
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
   final protected lazy val thereIsAByteOrderDefined: Boolean = {

@@ -33,16 +33,10 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.xml.{ NamedQName, XMLUtils }
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.processors._
-import scala.xml.Node
-import scala.collection.immutable.Queue
 import edu.illinois.ncsa.daffodil.dsom._
-import com.ibm.icu.util.Calendar
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
@@ -51,7 +45,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import AsIntConverters._
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)

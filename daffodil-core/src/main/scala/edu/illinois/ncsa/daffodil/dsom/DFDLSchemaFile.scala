@@ -34,20 +34,14 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import org.xml.sax.SAXParseException
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
-import java.net.URL
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
-import java.io.File
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
-import java.net.URI
-import edu.illinois.ncsa.daffodil.util.Misc
 import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import org.xml.sax.InputSource
 
 /**
  * represents one schema document file

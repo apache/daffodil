@@ -32,26 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import scala.xml.Node
-import scala.collection.immutable.Queue
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dpath._
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 
 object ExpressionCompilers extends ExpressionCompilerClass {

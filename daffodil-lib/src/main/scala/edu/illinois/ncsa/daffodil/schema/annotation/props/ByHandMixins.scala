@@ -38,10 +38,10 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.schema.annotation.props
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
-import java.lang.{ Integer => JInt, Number => JNumber }
+import java.lang.{ Integer => JInt }
+
 
 /**
  * We don't want to make the code generator so sophisticated as to be

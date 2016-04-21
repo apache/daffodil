@@ -4,17 +4,11 @@ import org.junit.Test
 import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedEncoder
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedDecoder
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**

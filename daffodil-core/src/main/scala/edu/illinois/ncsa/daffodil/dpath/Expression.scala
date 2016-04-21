@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
@@ -40,7 +39,6 @@ import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 import scala.util.{ Success, Failure }
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.equality._

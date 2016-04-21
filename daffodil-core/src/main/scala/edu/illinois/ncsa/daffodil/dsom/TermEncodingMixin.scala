@@ -4,9 +4,6 @@ import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 

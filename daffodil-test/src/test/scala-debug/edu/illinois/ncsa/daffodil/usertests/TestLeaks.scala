@@ -32,12 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.usertests
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestLeaks {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"

@@ -34,12 +34,10 @@ package edu.illinois.ncsa.daffodil.section07.variables
 
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.util.Fakes
 import edu.illinois.ncsa.daffodil.tdml.Runner

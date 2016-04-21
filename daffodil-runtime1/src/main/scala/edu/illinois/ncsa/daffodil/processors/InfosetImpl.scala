@@ -37,27 +37,20 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import com.ibm.icu.util.Calendar
 import edu.illinois.ncsa.daffodil.xml.NS
-import scala.xml.PrefixedAttribute
 import com.ibm.icu.util.GregorianCalendar
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.xml.Elem
-import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.MetaData
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
 import scala.xml.Null
-import scala.util.DynamicVariable
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.equality._
@@ -66,7 +59,6 @@ import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq

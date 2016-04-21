@@ -32,24 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import scala.annotation.migration
-import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.PrimParser

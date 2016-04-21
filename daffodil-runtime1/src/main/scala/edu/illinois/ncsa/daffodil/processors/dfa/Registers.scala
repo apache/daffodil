@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool

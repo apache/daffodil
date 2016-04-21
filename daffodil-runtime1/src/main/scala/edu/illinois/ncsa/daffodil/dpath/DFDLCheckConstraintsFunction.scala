@@ -35,22 +35,11 @@ package edu.illinois.ncsa.daffodil.dpath
 // TODO: replace these with our own Infoset implementation objects
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import scala.xml.NamespaceBinding
-import javax.xml.XMLConstants
-import java.util.HashMap
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.Implicits._; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
-import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
-import scala.xml.NodeSeq
-import scala.math.BigDecimal
-import org.w3c.dom.NodeList
-import javax.xml.xpath.XPathFunction
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 

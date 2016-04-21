@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import java.io.File
@@ -46,7 +45,6 @@ import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerClass
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo

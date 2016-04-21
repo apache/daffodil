@@ -32,26 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.{ PrimParser, PrimParserObject }
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.equality._
-import java.io.ByteArrayOutputStream
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong

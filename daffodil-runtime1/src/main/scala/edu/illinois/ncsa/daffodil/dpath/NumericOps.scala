@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import AsIntConverters._
 import java.lang.{ Number => JNumber }
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 case object PlusDecimal extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) + asBigDecimal(v2) }

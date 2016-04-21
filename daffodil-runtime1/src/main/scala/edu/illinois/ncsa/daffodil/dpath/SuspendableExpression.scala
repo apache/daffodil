@@ -7,7 +7,6 @@ import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.equality._
 
 object SuspendableExpression {

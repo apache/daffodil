@@ -1,14 +1,9 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors._
-import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.PreSerialization
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.util.OnStack
 
 abstract class AssertPatternParserBase(

@@ -32,13 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import com.ibm.icu.text.NumberFormat
 import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
 
 trait InitiatedTerminatedMixin

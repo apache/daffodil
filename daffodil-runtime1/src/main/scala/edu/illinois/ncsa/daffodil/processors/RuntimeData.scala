@@ -50,28 +50,22 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.RefQName
-import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.FacetTypes
 import scala.xml.NamespaceBinding
-import scala.xml.PrefixedAttribute
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.

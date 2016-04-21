@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.util
 
-import org.junit.Test
 
 class TestMaybe {
 

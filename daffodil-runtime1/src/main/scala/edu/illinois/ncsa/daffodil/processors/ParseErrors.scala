@@ -32,27 +32,16 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 

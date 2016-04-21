@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**

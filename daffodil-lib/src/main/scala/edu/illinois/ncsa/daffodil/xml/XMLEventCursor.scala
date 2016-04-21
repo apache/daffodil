@@ -9,7 +9,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.equality._
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.xml._
 import scala.xml.parsing.MarkupHandler
 import scala.xml.parsing.MarkupParser

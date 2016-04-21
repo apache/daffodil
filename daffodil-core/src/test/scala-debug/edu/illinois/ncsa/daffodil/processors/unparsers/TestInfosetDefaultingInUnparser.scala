@@ -12,8 +12,6 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
-import edu.illinois.ncsa.daffodil.util.TestUtils
 
 /*
  * These are all tests of default-value insertion.

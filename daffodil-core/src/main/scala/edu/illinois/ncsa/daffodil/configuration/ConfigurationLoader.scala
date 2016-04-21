@@ -34,17 +34,8 @@ package edu.illinois.ncsa.daffodil.configuration
 
 import java.io.File
 import java.net.URI
-import scala.io.Codec.string2codec
 import scala.xml.Node
-import scala.xml.parsing.ConstructingParser
-import org.jdom2.Element
-import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc.determineEncoding
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.SchemaFactory
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 

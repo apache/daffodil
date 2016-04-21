@@ -35,13 +35,11 @@ package edu.illinois.ncsa.daffodil.dsom.oolag
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.Glob
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.Maybe._
 

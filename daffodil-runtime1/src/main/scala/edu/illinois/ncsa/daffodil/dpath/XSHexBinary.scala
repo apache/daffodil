@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import java.lang.{ Number => JNumber }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 trait HexBinaryKind {

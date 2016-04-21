@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 case class ConvertTextCombinatorUnparser(
   rd: RuntimeData,

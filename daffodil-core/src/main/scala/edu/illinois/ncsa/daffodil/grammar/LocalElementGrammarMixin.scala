@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 

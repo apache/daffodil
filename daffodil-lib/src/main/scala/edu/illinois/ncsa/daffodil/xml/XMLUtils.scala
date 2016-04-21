@@ -32,20 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.xml
 
-import java.io.FileInputStream
 import java.io.File
-import java.io.InputStream
-import org.jdom2.input.SAXBuilder
 import scala.xml._
-import java.io.{ OutputStream, PrintWriter, StringWriter }
-import java.util.regex.Pattern
-import scala.collection.mutable.LinkedList
-import scala.xml.MetaData
 import edu.illinois.ncsa.daffodil.exceptions._
-import java.io.StringReader
-import edu.illinois.ncsa.daffodil.util.Misc
-import javax.xml.namespace.{ QName => JQName }
-import javax.xml.XMLConstants
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.io.IOUtils

@@ -32,10 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import com.ibm.icu.text.NumberFormat
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**

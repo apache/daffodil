@@ -4,7 +4,7 @@ name := "daffodil"
 
 organization in ThisBuild := "edu.illinois.ncsa"
 
-scalaVersion in ThisBuild := "2.11.7"
+scalaVersion in ThisBuild := "2.11.8"
 
 // incOptions := incOptions.value.withNameHashing(true) // 2.11 experimental incremental compilation improvements (perhaps not working right?)
 
