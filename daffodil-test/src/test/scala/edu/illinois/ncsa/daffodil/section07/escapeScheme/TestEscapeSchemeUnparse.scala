@@ -64,6 +64,24 @@ class TestEscapeSchemeUnparse {
   @Test def test_unparseDelimitedEscapedString13() { runner.runOneTest("unparseDelimitedEscapedString13") }
   @Test def test_unparseDelimitedEscapedString14() { runner.runOneTest("unparseDelimitedEscapedString14") }
 
+  /* 
+   * The following tests demonstrate that for extraEscapedCharacters during Unparsing that:
+   * 
+   * 1. DFDL Character Class entities are not allowed
+   * 2. DFDL raw byte entities are not allowed
+   * 3. DFDL hex entities are allowed
+   * 4. DFDL basic entities are allowed (like SP, VT, etc)
+   * 5. DFDL decimal entities are allowed
+   * 6. When an extra escaped character is not present, the text is not escaped.
+   * */
+  @Test def test_unparseDelimitedEscapedString15() { runner.runOneTest("unparseDelimitedEscapedString15") }
+  @Test def test_unparseDelimitedEscapedString16() { runner.runOneTest("unparseDelimitedEscapedString16") }
+  @Test def test_unparseDelimitedEscapedString17() { runner.runOneTest("unparseDelimitedEscapedString17") }
+  @Test def test_unparseDelimitedEscapedString18() { runner.runOneTest("unparseDelimitedEscapedString18") }
+  @Test def test_unparseDelimitedEscapedString19() { runner.runOneTest("unparseDelimitedEscapedString19") }
+  @Test def test_unparseDelimitedEscapedString20() { runner.runOneTest("unparseDelimitedEscapedString20") }
+  @Test def test_unparseDelimitedEscapedString21() { runner.runOneTest("unparseDelimitedEscapedString21") }
+
   @Test def test_parseDelimitedEscapedString01() { runner.runOneTest("parseDelimitedEscapedString01") }
   @Test def test_parseDelimitedEscapedString03() { runner.runOneTest("parseDelimitedEscapedString03") }
   @Test def test_parseDelimitedEscapedString04() { runner.runOneTest("parseDelimitedEscapedString04") }
