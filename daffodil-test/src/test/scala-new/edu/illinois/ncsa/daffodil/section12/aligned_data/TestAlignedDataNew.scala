@@ -32,12 +32,28 @@
 
 package edu.illinois.ncsa.daffodil.section12.aligned_data
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestAlignedDataNew {
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
+  val runner1 = Runner(testDir_01, "Aligned_Data.tdml")
+  val runner2 = Runner(testDir_01, "BinaryInput_01.tdml")
+
+  @AfterClass def shutDown {
+    runner1.reset
+    runner2.reset
+  }
+}
 
 class TestAlignedDataNew {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
-  val tdml1 = testDir_01 + "Aligned_Data.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  import TestAlignedDataNew._
+
+  // DFDL-930
+  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
+
+  // See DFDL-929
+  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
 
 }

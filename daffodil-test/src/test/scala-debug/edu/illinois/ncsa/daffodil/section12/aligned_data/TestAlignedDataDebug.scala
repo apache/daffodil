@@ -54,12 +54,6 @@ class TestAlignedDataDebug {
   //DFDL-1426
   @Test def test_fillByte_01() = { runner1.runOneTest("fillByte_01") }
 
-  // DFDL-930
-  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
-
-  // See DFDL-929
-  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
-
   // DFDL-1217
   @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
 }

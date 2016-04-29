@@ -203,9 +203,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         doParse(ssrd.parser, state)
         val pr = new ParseResult(this, state)
         pr.validateResult(state)
-        return pr
+        pr
       } catch {
-        case s: scala.util.control.ControlThrowable => throw s
+        case s: scala.util.control.ControlThrowable => throw s 
         case u: UnsuppressableException => throw u
         case th: Throwable =>
           System.err.println("Unexpected throw of " + th)

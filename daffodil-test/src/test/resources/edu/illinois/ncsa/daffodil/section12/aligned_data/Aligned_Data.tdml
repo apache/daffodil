@@ -2119,10 +2119,10 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e12>
+        <e12withTerm>
           <bits>10</bits>
           <string>nope</string>
-        </e12>
+        </e12withTerm>
       </tdml:dfdlInfoset>
     </tdml:infoset>
       
