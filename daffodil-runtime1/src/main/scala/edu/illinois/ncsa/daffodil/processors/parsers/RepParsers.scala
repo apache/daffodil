@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.PState
@@ -280,27 +279,14 @@ class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: Elemen
   override lazy val childProcessors = Nil
 
   def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
-    try {
-      val oc = occursCountEv.evaluate(pstate)
-      val ocLong = AsIntConverters.asLong(oc)
-      if (ocLong < 0 ||
-        ocLong > DaffodilTunableParameters.maxOccursBounds) {
-        PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCountEv, ocLong)
-        return
-      }
-      pstate.mpstate.updateBoundsHead(ocLong)
-    } catch {
-      case s: scala.util.control.ControlThrowable => throw s
-      case u: UnsuppressableException => throw u
-      case r: RuntimeException => throw r
-      case e: Exception =>
-        // TODO: get rid of this. Really we shouldn't have this general catch.
-        // parsers or the expression subsystem should be catching the narrow
-        // set of things that are "real" and allowing anything else to ripple to
-        // the top as a bug.
-        PE(pstate, "Evaluation of occursCount expression %s threw exception %s", occursCountEv, e)
-        return
+    val oc = occursCountEv.evaluate(pstate)
+    val ocLong = AsIntConverters.asLong(oc)
+    if (ocLong < 0 ||
+      ocLong > DaffodilTunableParameters.maxOccursBounds) {
+      PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCountEv, ocLong)
+      return
     }
+    pstate.mpstate.updateBoundsHead(ocLong)
   }
 
   override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"

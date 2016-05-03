@@ -70,7 +70,6 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -193,29 +192,23 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def parse(state: PState): ParseResult = {
     ExecutionMode.usingRuntimeMode {
-      try {
-        if (areDebugging) {
-          Assert.invariant(optDebugger.isDefined)
-          addEventHandler(debugger)
-          state.notifyDebugging(true)
-        }
-        state.dataProc.get.init(ssrd.parser)
-        doParse(ssrd.parser, state)
-        val pr = new ParseResult(this, state)
-        pr.validateResult(state)
-        pr
-      } catch {
-        case s: scala.util.control.ControlThrowable => throw s 
-        case u: UnsuppressableException => throw u
-        case th: Throwable =>
-          System.err.println("Unexpected throw of " + th)
-          throw th // place for a breakpoint
-      } finally {
-        val s = state
-        val dp = s.dataProc
-        val ssrdParser = ssrd.parser
-        if (dp.isDefined) dp.value.fini(ssrdParser)
+
+      if (areDebugging) {
+        Assert.invariant(optDebugger.isDefined)
+        addEventHandler(debugger)
+        state.notifyDebugging(true)
       }
+      state.dataProc.get.init(ssrd.parser)
+      doParse(ssrd.parser, state)
+      val pr = new ParseResult(this, state)
+      pr.validateResult(state)
+
+      val s = state
+      val dp = s.dataProc
+      val ssrdParser = ssrd.parser
+      if (dp.isDefined) dp.value.fini(ssrdParser)
+
+      pr
     }
   }
 
@@ -263,9 +256,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       case e: TunableLimitExceededError => {
         state.setFailed(e)
       }
-    } finally {
-      state.dataInputStream.validateFinalStreamState
     }
+
+    state.dataInputStream.validateFinalStreamState
   }
 
   def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = {

@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util._
 import Maybe._
 import edu.illinois.ncsa.daffodil.api._
@@ -261,14 +260,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           pBefore = pstate.mark
           parser.parse1(pstate)
         } catch {
-          case s: scala.util.control.ControlThrowable => { pstate.discard(pBefore); throw s }
-          case u: UnsuppressableException => { pstate.discard(pBefore); throw u }
           case rsde: RuntimeSchemaDefinitionError => { pstate.discard(pBefore); throw rsde }
-          // Don't catch very general exception classes. Only very specific
-          // ones. Otherwise it makes it
-          // hard to debug whatever caused the exception (e.g., class casts)
-          // because they're getting caught and converted into rSDEs which makes them
-          // look to be DFDL Schema or parser issues when they are code problems.
         }
         if (pstate.status eq Success) {
           log(LogLevel.Debug, "Choice alternative success: %s", parser)
