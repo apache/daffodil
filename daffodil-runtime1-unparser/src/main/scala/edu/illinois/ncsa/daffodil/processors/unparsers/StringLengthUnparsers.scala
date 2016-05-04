@@ -50,7 +50,7 @@ class StringOfSpecifiedLengthUnparser(
   with StringLengthMixin {
 
   override def context = erd
-  override lazy val runtimeDependencies = List(erd.encodingInfo.encoderEv)
+  override lazy val runtimeDependencies = List(erd.encodingInfo.charsetEv)
 
   final override def justificationTrim = justificationPad
   final override def pad = unparsingPadChar

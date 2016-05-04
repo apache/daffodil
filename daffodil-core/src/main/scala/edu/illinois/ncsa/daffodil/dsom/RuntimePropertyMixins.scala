@@ -67,9 +67,7 @@ trait TermRuntimeValuedPropertiesMixin
 
   final lazy val encodingEv = new EncodingEv(encodingExpr, termRuntimeData)
 
-  // these are public so that EncodingChange parsers and unparser can express dependencies on them.
-  lazy val decoderEv = new DecoderEv(encodingEv, termRuntimeData)
-  lazy val encoderEv = new EncoderEv(encodingEv, termRuntimeData)
+  final lazy val charsetEv = new CharsetEv(encodingEv, termRuntimeData)
 
   /*
    * Property OutputNewLine

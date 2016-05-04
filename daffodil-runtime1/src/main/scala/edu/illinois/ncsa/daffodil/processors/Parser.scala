@@ -105,7 +105,7 @@ trait TextParserRuntimeMixin extends TextParserUnparserRuntimeBase {
    * This is here to get the reflective scanner to find that this parser is dependent
    * on this decoderEv.
    */
-  lazy val deps = Seq(context.asInstanceOf[TermRuntimeData].encodingInfo.decoderEv)
+  lazy val deps = Seq(context.asInstanceOf[TermRuntimeData].encodingInfo.charsetEv)
   /**
    * Override this in selected derived classes such as the hexBinary ones in order
    * to force use of specific encodings.

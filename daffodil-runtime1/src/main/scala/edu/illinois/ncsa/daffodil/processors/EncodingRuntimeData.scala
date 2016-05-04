@@ -65,7 +65,7 @@ import edu.illinois.ncsa.daffodil.util.TransientParam
 trait KnownEncodingMixin { self: ThrowsSDE =>
 
   def isKnownEncoding: Boolean
-  def encodingEv: Evaluatable[String]
+  def charsetEv: CharsetEv
   def utf16Width: UTF16Width
   def knownEncodingAlignmentInBits: Int
 
@@ -74,7 +74,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
    */
   final lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = encodingEv.optConstant.get.trim.toUpperCase()
+    val res = charsetEv.optConstant.get.charsetName.trim.toUpperCase()
     res
   }
 
@@ -158,9 +158,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
 final class EncodingRuntimeData(
   @TransientParam termRuntimeDataArg: => TermRuntimeData,
-  @TransientParam encodingEvArg: => EncodingEv,
-  @TransientParam decoderEvArg: => DecoderEv,
-  @TransientParam encoderEvArg: => EncoderEv,
+  @TransientParam charsetEvArg: => CharsetEv,
   override val schemaFileLocation: SchemaFileLocation,
   val optionUTF16Width: Option[UTF16Width],
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
@@ -171,28 +169,26 @@ final class EncodingRuntimeData(
   extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
   lazy val termRuntimeData = termRuntimeDataArg
-  lazy val encodingEv = encodingEvArg
-  lazy val decoderEv = decoderEvArg
-  lazy val encoderEv = encoderEvArg
+  lazy val charsetEv = charsetEvArg
 
-  lazy val runtimeDependencies = List(encodingEv, decoderEv, encoderEv)
+  lazy val runtimeDependencies = List(charsetEv)
 
   def getDecoder(state: ParseOrUnparseState): CharsetDecoder = {
-    val dfdlDecoder = decoderEv.evaluate(state)
-    dfdlDecoder.decoder
+    val cs = charsetEv.evaluate(state)
+    val dec = state.getDecoder(cs.charset)
+    dec
   }
 
   def getEncoder(state: ParseOrUnparseState): CharsetEncoder = {
-    val dfdlEncoder = encoderEv.evaluate(state)
-    dfdlEncoder.encoder
+    val cs = charsetEv.evaluate(state)
+    val enc = state.getEncoder(cs.charset)
+    enc
   }
 
   override def preSerialization: Any = {
     super.preSerialization
     termRuntimeData
-    encodingEv
-    decoderEv
-    encoderEv
+    charsetEv
   }
 
   @throws(classOf[java.io.IOException])

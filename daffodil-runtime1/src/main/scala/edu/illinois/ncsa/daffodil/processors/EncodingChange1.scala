@@ -36,7 +36,7 @@ class EncodingChangeParser(val termRuntimeData: TermRuntimeData)
   extends PrimParser with TextParserRuntimeMixin {
 
   override def context = termRuntimeData
-  override lazy val runtimeDependencies = List(termRuntimeData.encodingInfo.decoderEv)
+  override lazy val runtimeDependencies = List(termRuntimeData.encodingInfo.charsetEv)
 
   def parse(pstate: PState): Unit = {
     setupDecoder(pstate, termRuntimeData)

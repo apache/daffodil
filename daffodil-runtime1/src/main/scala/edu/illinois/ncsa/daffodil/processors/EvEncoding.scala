@@ -1,7 +1,8 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.charset._
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /*
@@ -29,14 +30,14 @@ class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
-    trd) 
+    trd)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
-class EncoderEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
-  extends Evaluatable[DFDLEncoder](trd)
-  with InfosetCachedEvaluatable[DFDLEncoder] {
+class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
+  extends Evaluatable[DFDLCharset](trd)
+  with InfosetCachedEvaluatable[DFDLCharset] {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
 
@@ -44,28 +45,6 @@ class EncoderEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
     val encString = encodingEv.evaluate(state)
     val cs = CharsetUtils.getCharset(encString)
     Assert.invariant(cs ne null)
-    // removed - redundant: Data Streams are responsible for this.
-    //    val cea = codingErrorAction(eep)
-    //    c.onMalformedInput(cea)
-    //    c.onUnmappableCharacter(cea)
-    new DFDLEncoder(new DFDLCharset(encString))
-  }
-}
-
-class DecoderEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
-  extends Evaluatable[DFDLDecoder](trd)
-  with InfosetCachedEvaluatable[DFDLDecoder] {
-
-  override lazy val runtimeDependencies = Seq(encodingEv)
-
-  override def compute(state: ParseOrUnparseState) = {
-    val encString = encodingEv.evaluate(state)
-    val cs = CharsetUtils.getCharset(encString)
-    Assert.invariant(cs ne null)
-    // removed - redundant: Data Streams are responsible for this.
-    //    val cea = codingErrorAction(eep)
-    //    c.onMalformedInput(cea)
-    //    c.onUnmappableCharacter(cea)
-    new DFDLDecoder(new DFDLCharset(encString))
+    new DFDLCharset(encString)
   }
 }

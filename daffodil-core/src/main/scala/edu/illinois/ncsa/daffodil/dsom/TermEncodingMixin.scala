@@ -58,7 +58,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, encodingEv, decoderEv, encoderEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
+    new EncodingRuntimeData(termRuntimeData, charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
       summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
 
   /**

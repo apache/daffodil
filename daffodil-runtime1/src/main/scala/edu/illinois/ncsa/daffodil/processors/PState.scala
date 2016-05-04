@@ -56,6 +56,9 @@ import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import scala.collection.mutable
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.Charset
+import java.nio.charset.CharsetEncoder
 
 object MPState {
   class Mark {
@@ -278,6 +281,39 @@ abstract class ParseOrUnparseState(
     val ctxt = getContext()
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
+  }
+
+  /**
+   * The reason for these caches is that otherwise to
+   * get a decoder you have to take the Charset and call
+   * newDecoder which allocates. We always want the same one for a given
+   * thread using Daffodil to parse/unparse with a particular PState/UState.
+   *
+   * Using java.util.HashMap because scala hash maps return option types, which
+   * might be allocated objects. Use of java hash maps insures this does not allocate
+   * except when adding a new not-seen-before encoder or decoder.
+   */
+  private val decoderCache = new java.util.HashMap[Charset, CharsetDecoder]
+  private val encoderCache = new java.util.HashMap[Charset, CharsetEncoder]
+
+  def getDecoder(charset: Charset): CharsetDecoder = {
+    // threadCheck()
+    var decoder = decoderCache.get(charset)
+    if (decoder eq null) {
+      decoder = charset.newDecoder()
+      decoderCache.put(charset, decoder)
+    }
+    decoder
+  }
+
+  def getEncoder(charset: Charset): CharsetEncoder = {
+    // threadCheck()
+    var encoder = encoderCache.get(charset)
+    if (encoder eq null) {
+      encoder = charset.newEncoder()
+      encoderCache.put(charset, encoder)
+    }
+    encoder
   }
 }
 

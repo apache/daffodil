@@ -55,29 +55,29 @@ class DFDLCharset(val charsetName: String) extends Serializable {
   @transient lazy val charset = CharsetUtils.getCharset(charsetName)
 }
 
-/**
- * Serializable Encoder
- */
-class DFDLEncoder(private val dfdlCharset: DFDLCharset) extends Serializable {
-  @transient private lazy val encoder_ = dfdlCharset.charset.newEncoder()
-
-  def encoder = {
-    encoder_.reset() // each time this is asked for it gets reset.
-    encoder_
-  }
-}
-
-/**
- * Serializable Decoder
- */
-class DFDLDecoder(private val dfdlCharset: DFDLCharset) extends Serializable {
-  @transient private lazy val decoder_ = dfdlCharset.charset.newDecoder()
-
-  def decoder = {
-    decoder_.reset() // each time this is asked for it gets reset.
-    decoder_
-  }
-}
+///**
+// * Serializable Encoder
+// */
+//class DFDLEncoder(private val dfdlCharset: DFDLCharset) extends Serializable {
+//  @transient private lazy val encoder_ = dfdlCharset.charset.newEncoder()
+//
+//  def encoder = {
+//    encoder_.reset() // each time this is asked for it gets reset.
+//    encoder_
+//  }
+//}
+//
+///**
+// * Serializable Decoder
+// */
+//class DFDLDecoder(private val dfdlCharset: DFDLCharset) extends Serializable {
+//  @transient private lazy val decoder_ = dfdlCharset.charset.newDecoder()
+//
+//  def decoder = {
+//    decoder_.reset() // each time this is asked for it gets reset.
+//    decoder_
+//  }
+//}
 
 object CharsetUtils {
 
