@@ -150,7 +150,9 @@ abstract class StringDelimited(e: ElementBase)
 
   // TODO: move out of parser and into the dsom
   lazy val fieldDFAParseEv = {
-    new FieldDFAParseEv(escapeSchemeParseEvOpt, context.runtimeData)
+    val ev = new FieldDFAParseEv(escapeSchemeParseEvOpt, context.runtimeData)
+    ev.compile()
+    ev
   }
 
   val textDelimitedParser = {

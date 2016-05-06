@@ -40,7 +40,11 @@ import Maybe._
 
 case class ByteOrderChange(e: ElementBase) extends Terminal(e, true) {
 
-  lazy val checkByteAndBitOrder = new CheckByteAndBitOrderEv(e.erd, e.defaultBitOrder, One(e.byteOrderEv))
+  lazy val checkByteAndBitOrder = {
+    val ev = new CheckByteAndBitOrderEv(e.erd, e.defaultBitOrder, One(e.byteOrderEv))
+    ev.compile()
+    ev
+  }
 
   override lazy val parser = new ByteOrderChangeParser(e.erd, e.byteOrderEv, checkByteAndBitOrder)
 

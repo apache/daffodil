@@ -50,7 +50,11 @@ case class BitOrderChange(t: Term) extends Terminal(t, true) {
     case _ => Nope
   }
 
-  lazy val checkByteAndBitOrder = new CheckByteAndBitOrderEv(t.termRuntimeData, t.bitOrder, maybeByteOrder)
+  lazy val checkByteAndBitOrder = {
+    val ev = new CheckByteAndBitOrderEv(t.termRuntimeData, t.bitOrder, maybeByteOrder)
+    ev.compile()
+    ev
+  }
 
   override lazy val parser = new BitOrderChangeParser(t.termRuntimeData, t.defaultBitOrder, checkByteAndBitOrder)
 

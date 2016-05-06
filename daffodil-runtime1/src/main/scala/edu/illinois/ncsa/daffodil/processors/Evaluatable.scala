@@ -15,7 +15,6 @@ import edu.illinois.ncsa.daffodil.xml.scalaLib
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -41,7 +40,7 @@ object EvalCache {
 /**
  * Potentially runtime-evaluated things are instances of this base.
  */
-abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializable {
+abstract class EvaluatableBase[+T <: AnyRef](protected val rd: RuntimeData) extends Serializable {
 
   /**
    * QName to be associated with this evaluatable.
@@ -93,8 +92,7 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
   def isConstant: Boolean
 
   def compile(): Option[T] = {
-    val compState = new CompileState(trd,
-      Nope)
+    val compState = new CompileState(rd, Nope)
     compile(compState)
   }
   /**
@@ -102,7 +100,7 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
    */
   var isCompiled = false
   final def ensureCompiled {
-    if (!isCompiled) compile() //throw new IllegalStateException("Not compiled")
+    Assert.invariant(isCompiled)
   }
 
   /**
@@ -111,14 +109,18 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
    */
   def compile(state: CompileState): Option[T] = {
     if (isCompiled) throw new IllegalStateException("already compiled")
-    isCompiled = true // must assign before call to apply.
-    // println("compiling " + this.qName)
+
+    // must assign before call to apply since that requires it to be compiled
+    // (the first evaluation is compilation)
+    isCompiled = true
+
     //
     // detonation chamber. Evaluate it. Did it blow up because it needs
     // data, not just static information, to succeed?
     //
-    val x = try {
-      apply(state)
+    val result = try {
+      val v = apply(state)
+      Some(v)
     } catch {
       //
       // Really what this should be catching are the special-purpose exceptions thrown
@@ -133,34 +135,11 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
       //
       // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
       // or there is no data, etc.
-      case e: ExpressionEvaluationException =>
-        return None
-      case e: InfosetException =>
-        return None
-      case e: VariableException =>
-        return None
+      case e: ExpressionEvaluationException => None
+      case e: InfosetException => None
+      case e: VariableException => None
     }
-    val y = Some(x.asInstanceOf[T])
-    y
-  }
-
-  protected final def compileIt(state: State): Option[T] = {
-    val res = state match {
-      case cs: CompileState => compile(cs)
-      case u: UState => {
-        Assert.invariantFailed("Evalutable must be compiled at compile time. State indicates this is runtime.")
-      }
-      case p: PState => {
-        // until such time as all parsers are converted to declare runtimeDependencies, this is going to fail
-        // almost every parse. So we'll allow on-demand compile for now.
-        Assert.invariantFailed("Evalutable " + this + " must be compiled at compile time. State indicates this is runtime.")
-        //        (new Exception()).printStackTrace()
-        //        compile()
-      }
-    }
-    if (isConstant) res // propagate constant for compilation
-    else
-      None // not a constant
+    result
   }
 
   /**
@@ -175,19 +154,29 @@ abstract class EvaluatableBase[+T <: AnyRef](trd: RuntimeData) extends Serializa
 trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
 
   protected def getCachedOrComputeAndCache(state: State): T = {
-    Assert.invariant(state.currentNode.isDefined)
-    val cn = state.currentNode.get
-    val termNode = cn match {
-      case t: DITerm => t
-      case _ => Assert.invariantFailed("current node was not a term.")
-    }
-    val cache = termNode.evalCache(state)
-    val optHit = cache.get(this)
-    if (optHit.isDefined) optHit.get.asInstanceOf[T]
-    else {
-      val v = compute(state)
-      cache.put(this, v)
-      v
+    self.rd match {
+      case erd: ElementRuntimeData if erd.outputValueCalcExpr.isDefined => {
+        // we only care a about caching when an evaluatable is part of an
+        // outputValueCalc since we need to maintain the state. Otherwise, it
+        // is more memory efficient to just recalculate any evaluatables
+        Assert.invariant(state.currentNode.isDefined)
+        val cn = state.currentNode.get
+        val termNode = cn match {
+          case t: DITerm => t
+          case _ => Assert.invariantFailed("current node was not a term.")
+        }
+        val cache = termNode.evalCache(state)
+        val optHit = cache.get(this)
+        if (optHit.isDefined) optHit.get.asInstanceOf[T]
+        else {
+          val v = compute(state)
+          cache.put(this, v)
+          v
+        }
+      }
+      case _ => {
+        compute(state)
+      }
     }
   }
 }
@@ -262,7 +251,7 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
  */
-abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T](trd) {
+abstract class Evaluatable[+T <: AnyRef](rd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T](rd) {
 
   override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (constValue.isDefined) "constant: " + constValue.value else "runtime"))
 
@@ -273,41 +262,17 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
   protected def getCachedOrComputeAndCache(state: State): T
 
   final override def apply(state: State): T = {
-    if (!isCompiled) {
-      //
-      // Compiling the Evaluatable mutates state of the ERD/TRD objects which are shared across threads.
-      //
-      // In theory, all Evaluatables should be compiled by the compiler before the processors are handed off
-      // but in case that doesn't happen, we can avoid difficult bugs by just insuring only one thread can
-      // compile a Evaluatable.
-      synchronized {
-        if (!isCompiled) {
-          //
-          // Compile on-demand.
-          //
-          val v = compileIt(state)
-          constValue_ = v
-        }
-      }
-    }
-    //
-    // it's compiled. Is it already known to be a static constant
-    //
+    ensureCompiled
+
     if (isConstant) constValue.get
     else {
-      //
-      // Have to evaluate.
-      //
-      // check cache, compute and cache if necessary
-      //
       state match {
-        case cs: CompileState => {
-          //
-          // we're compiling. If we get a value, it's our constant value.
-          //
-          val v = compute(cs)
-          constValue_ = Some(v)
-          v
+        case _: CompileState => {
+          // Do not worry about caching at compile time. Just try to compute it
+          // to see if it is constant. If it isn't constant, something will
+          // throw. If it is constant, compilation will store the value in the
+          // Evaluatable and the cache will never be used at runtime.
+          compute(state)
         }
         case _ => {
           getCachedOrComputeAndCache(state)
@@ -319,12 +284,11 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
   private var constValue_ : Option[AnyRef] = None
   protected def constValue = constValue_.asInstanceOf[Option[T]]
 
-  def optConstant = { ensureCompiled; constValue }
+  def optConstant = {
+    ensureCompiled
+    constValue
+  }
 
-  /**
-   * Note that right now asking isConstant does't force compilation to happen. It just
-   * checks and errors if not compiled.
-   */
   def isConstant = {
     ensureCompiled
     constValue.isDefined
@@ -381,7 +345,7 @@ abstract class Evaluatable[+T <: AnyRef](trd: RuntimeData, qNameArg: NamedQName 
  * even considered as a possibility for a constant.
  */
 
-//abstract class Rv[+T <: AnyRef](trd: RuntimeData) extends EvaluatableBase[T](trd) {
+//abstract class Rv[+T <: AnyRef](rd: RuntimeData) extends EvaluatableBase[T](rd) {
 //
 //  final override def isConstant = false // this is always to be computed
 //
@@ -441,8 +405,8 @@ final class EvalCache {
  */
 abstract class EvaluatableExpression[+ExprType <: AnyRef](
   expr: CompiledExpression[ExprType],
-  trd: RuntimeData)
-  extends Evaluatable[ExprType](trd) {
+  rd: RuntimeData)
+  extends Evaluatable[ExprType](rd) {
 
   override lazy val runtimeDependencies = Nil
 

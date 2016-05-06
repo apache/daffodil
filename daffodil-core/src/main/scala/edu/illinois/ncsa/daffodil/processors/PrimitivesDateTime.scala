@@ -135,7 +135,11 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     res
   }
 
-  private lazy val localeEv = new CalendarLanguageEv(e.calendarLanguage, e.erd) // will get compiled by CalendarEv which uses it.
+  private lazy val localeEv = {
+    val ev = new CalendarLanguageEv(e.calendarLanguage, e.erd)
+    ev.compile()
+    ev
+  }
 
   private lazy val calendarEv = {
     val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.erd)

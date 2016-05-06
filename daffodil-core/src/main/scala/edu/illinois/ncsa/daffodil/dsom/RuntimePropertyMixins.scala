@@ -65,9 +65,17 @@ trait TermRuntimeValuedPropertiesMixin
     }
   }.value
 
-  final lazy val encodingEv = new EncodingEv(encodingExpr, termRuntimeData)
+  final lazy val encodingEv = {
+    val ev = new EncodingEv(encodingExpr, termRuntimeData)
+    ev.compile()
+    ev
+  }
 
-  final lazy val charsetEv = new CharsetEv(encodingEv, termRuntimeData)
+  final lazy val charsetEv = {
+    val ev = new CharsetEv(encodingEv, termRuntimeData)
+    ev.compile()
+    ev
+  }
 
   /*
    * Property OutputNewLine
@@ -78,7 +86,9 @@ trait TermRuntimeValuedPropertiesMixin
       val qn = this.qNameForProperty("outputNewLine")
       ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, outputNewLineRaw)
     }
-    new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
+    val ev = new OutputNewLineEv(outputNewLineExpr, termRuntimeData)
+    ev.compile()
+    ev
   }
 
 }
@@ -153,7 +163,9 @@ trait ElementRuntimeValuedPropertiesMixin
   }.value
 
   final lazy val byteOrderEv = LV('byteOrderEv) {
-    new ByteOrderEv(byteOrderExpr, elementRuntimeData)
+    val ev = new ByteOrderEv(byteOrderExpr, elementRuntimeData)
+    ev.compile()
+    ev
   }.value
 
   private lazy val lengthExpr = {
