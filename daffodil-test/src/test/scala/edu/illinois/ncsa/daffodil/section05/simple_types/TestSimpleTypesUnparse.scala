@@ -48,15 +48,15 @@ object TestSimpleTypesUnparse {
 
 class TestSimpleTypesUnparse {
   import TestSimpleTypesUnparse._
- 
+
   //DFDL-1454
-  //dfdl:hexBinary not behaving like xs:hexBinary 
-  //@Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
-  
+  //dfdl:hexBinary not behaving like xs:hexBinary
+  // @Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
+
   //DFDL-1455
   //result doesn't match example in the spec
-  //@Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
-  
+  // @Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
+
   @Test def test_hexBinary_unparse_01() { runner.runOneTest("hexBinary_unparse_01") }
   @Test def test_hexBinary_unparse_02() { runner.runOneTest("hexBinary_unparse_02") }
   @Test def test_hexBinary_unparse_03() { runner.runOneTest("hexBinary_unparse_03") }

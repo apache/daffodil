@@ -50,7 +50,9 @@
 					bitOrder="mostSignificantBitFirst" outputNewLine="%LF;" textPadKind="none"
                     fillByte="%#r20;" truncateSpecifiedLengthString="yes" 
                     textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;" 
-                    textBooleanPadCharacter="%SP;" textCalendarPadCharacter="%SP;" />
+                    textBooleanPadCharacter="%SP;" textCalendarPadCharacter="%SP;" 
+                    textCalendarJustification="left"
+                    textNumberJustification="right"/>
 			</dfdl:defineFormat>
 
 		</xs:appinfo>

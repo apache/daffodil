@@ -80,7 +80,7 @@
   <xs:element name="ehb_09">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="hb_09" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
+        <xs:element name="hb_09" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:outputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -154,9 +154,10 @@
         <ex:hb_01>A1B1C1D1E1</ex:hb_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1e1]]></tdml:documentPart>
-    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Data length 5</tdml:error>
+      </tdml:errors>
   </tdml:unparserTestCase>
 
   <!--
@@ -221,11 +222,11 @@
       model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_02>A1B1C1D1E1</ex:hb_02>
+        <ex:hb_02>A1B1C1D1</ex:hb_02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1e1]]></tdml:documentPart>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

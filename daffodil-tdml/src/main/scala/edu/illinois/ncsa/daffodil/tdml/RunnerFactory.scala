@@ -10,12 +10,19 @@ import edu.illinois.ncsa.daffodil.util.Misc
  *
  * Provides a reset method to be called from @AfterClass to drop
  * the test suite object (and avoid memory leak).
+ *
+ * defaultRoundTripDefault if true the round trip default for the test suite will be
+ * this value, if the test suite does not specify defaultRoundTrip attribute.
  */
 object Runner {
   def apply(dir: String, file: String,
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
-    compileAllTopLevel: Boolean = false): Runner = new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel)
+    compileAllTopLevel: Boolean = false,
+    defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault): Runner = new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+    defaultRoundTripDefault)
+
+  def defaultRoundTripDefaultDefault = false
 }
 
 /**
@@ -25,9 +32,10 @@ object Runner {
  * Note however, that each thread will get its own copy of the DFDLTestSuite
  */
 class Runner private (dir: String, file: String,
-    validateTDMLFile: Boolean,
-    validateDFDLSchemas: Boolean,
-    compileAllTopLevel: Boolean) {
+  validateTDMLFile: Boolean,
+  validateDFDLSchemas: Boolean,
+  compileAllTopLevel: Boolean,
+  defaultRoundTripDefault: Boolean) {
 
   private def getTS = {
     if (ts == null) {
@@ -35,7 +43,8 @@ class Runner private (dir: String, file: String,
       // are not file-system paths that have to be made platform-specific.
       // In other words, we don't need to use "\\" for windows here. "/" works there as well.
       val d = if (dir.endsWith("/")) dir else dir + "/"
-      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel))
+      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+        defaultRoundTripDefault))
     }
     ts
   }

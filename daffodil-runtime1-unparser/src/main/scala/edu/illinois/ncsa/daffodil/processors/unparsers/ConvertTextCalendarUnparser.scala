@@ -5,6 +5,7 @@ import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import edu.illinois.ncsa.daffodil.calendar._
 import edu.illinois.ncsa.daffodil.processors._
+import com.ibm.icu.util.GregorianCalendar
 
 case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   xsdType: String,
@@ -45,9 +46,12 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
 
     val node = state.currentInfosetNode.asSimple
 
-    val dfdlCal = node.dataValue.asInstanceOf[DFDLCalendar]
+    val calValue = node.dataValue match {
+      case dc: DFDLCalendar => dc.calendar
+      case gc: GregorianCalendar => gc
+    }
 
-    val str = df.format(dfdlCal.calendar)
+    val str = df.format(calValue)
 
     node.overwriteDataValue(str)
   }

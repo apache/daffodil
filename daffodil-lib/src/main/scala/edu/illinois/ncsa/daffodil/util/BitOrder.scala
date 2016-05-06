@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.util
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.ByteBuffer
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 object Bits {
 
@@ -97,7 +98,7 @@ object Bits {
     var i: Int = 0
     val len = a.length
     while (i < (len >> 1)) {
-      // swap positions end to end, 
+      // swap positions end to end,
       // Do this in-place to avoid unnecessary further allocation.
       val upperByte = a(len - i - 1)
       val lowerByte = a(i)
@@ -112,7 +113,7 @@ object Bits {
     var i: Int = 0
     val len = bb.remaining
     while (i < (len >> 1)) {
-      // swap positions end to end, 
+      // swap positions end to end,
       // Do this in-place to avoid unnecessary further allocation.
       val upperByte = bb.get(len - i - 1)
       val lowerByte = bb.get(i)
@@ -123,7 +124,9 @@ object Bits {
   }
 
   /**
-   * Treat a byte buffer like a logical shift register
+   * Treat a byte buffer like a logical shift register.
+   * Assumes MostSignificantBitFirst, so bits move to lower-numbered
+   * positions.
    * <p>
    * Tempting, but using BigInt for this is a pain because it
    * does sign extension, or removes zero leading bytes
@@ -145,6 +148,10 @@ object Bits {
     }
   }
 
+  /**
+   * Assumes MostSignificantBitFirst bit order. Shifts "right" meaning
+   * Bits increase in position.
+   */
   def shiftRight(bb: ByteBuffer, n: Int) {
     Assert.usage(n < 8 && n >= 0)
     Assert.usage(bb.position() == 0)
@@ -159,6 +166,29 @@ object Bits {
       val v = ((b >>> n) | leftBits) & 0xFF
       bb.put(i, asSignedByte(v))
       i = i + 1
+    }
+  }
+
+  /**
+   * The bit at position p is shifted to be at position p + n..
+   *
+   * The terms shiftRight and shiftLeft are ambiguous.
+   *
+   * Given a bit order, every bit in the bit stream is assigned a number.
+   *
+   *
+   * In the case of MSBF, the least significant bits of byteN become the most significant of byte N+1.
+   * In the case of LSBF, the most significant bits of byteN become the least significant of byte N+1.
+   * For LSBF, if you write the bytes in order right-to-left, then shiftToHigherBitPosition
+   * becomes a leftward movement of the bits displayed this way.
+   */
+  def shiftToHigherBitPosition(bitOrder: BitOrder, bb: ByteBuffer, n: Int) {
+    if (bitOrder eq BitOrder.MostSignificantBitFirst) {
+      shiftRight(bb, n)
+    } else {
+      reverseBitsWithinBytes(bb)
+      shiftRight(bb, n)
+      reverseBitsWithinBytes(bb)
     }
   }
 

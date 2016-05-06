@@ -7,6 +7,9 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.util.Bits
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import java.nio.ByteBuffer
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -14,6 +17,7 @@ import passera.unsigned.ULong
  */
 private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOutputStream {
   def getBuf() = buf
+  def getCount() = count
 
   def toDebugContent = {
     val content = toString("iso-8859-1")
@@ -77,6 +81,16 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   private val bufferingJOS = new ByteArrayOutputStreamWithGetBuf()
 
   /**
+   * Returns a byte buffer containing all the whole bytes that have been buffered.
+   *  Does not contain any bits of the fragment byte (if there is one).
+   */
+  def getByteBuffer = {
+    Assert.usage(isBuffering)
+    val bb = ByteBuffer.wrap(bufferingJOS.getBuf())
+    bb
+  }
+
+  /**
    * Switched to point a either the buffering or direct java output stream in order
    * to change modes from buffering to direct (and back if these objects get reused.)
    */
@@ -116,6 +130,21 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     Assert.usage(_following.isEmpty)
     val newBufStr = new DirectOrBufferedDataOutputStream()
     _following = One(newBufStr)
+    //
+    // PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
+    // just in case after an outputValueCalc element we go off for a long time and lots of things
+    // change about these format settings.
+    //
+    // Really the expected case is that an OVC element and an IVC element form pairs. Often they'll
+    // be adjacent elements even, and it's very unlikely that any of the format properties vary as we
+    // go from the OVC element to the most distant element the OVC expression references
+    //
+    // So algorithmically, we'd like to share the DataOutputStream state, and UState, and split so they
+    // can differ only if we need to.
+    //
+    // Seems we need one more indirection to the state, so that we can share it, but on any write operation, we
+    // can split it by copying, and then change our indirection pointer to the copy, and then modify that.
+    //
     newBufStr.assignFrom(this)
     val savedBP = relBitPos0b.toLong
     newBufStr.setRelBitPos0b(ULong(0))
@@ -171,7 +200,10 @@ final class DirectOrBufferedDataOutputStream private[io] ()
         first.flush()
         setDOSState(Uninitialized)
       } else {
-        // nothing following
+        // nothing following, so we're setting finished at the very end of everything.
+        if (cst.fragmentLastByteLimit > 0)
+          // must not omit the fragment byte on the end.
+          this.getJavaOutputStream().write(cst.fragmentLastByte)
         setDOSState(Uninitialized) // not just finished. We're dead now.
       }
     } else if (isBuffering) {
@@ -185,7 +217,81 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   }
 
   final override protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
-    ???
+    // Note: we don't have to check for bit limit. That check was already done.
+    //
+    // steps are
+    // add bits to the fragmentByte (if there is one)
+    // if the fragmentByte is full, write it.
+    // so now there is no fragment byte
+    // if we have more bits still to write, then
+    // do we have a multiple of 8 bits left (all whole bytes) or are we going to have a final fragment byte?
+    // shift long until MSB is first bit to be output
+    // for all whole bytes, take most-significant byte of the long, and write it out. shift << 8 bits
+    // set the fragment byte to the remaining most significant byte.
+    var nBitsRemaining = bitLengthFrom1To64
+    var bits = signedLong
+
+    if (st.fragmentLastByteLimit > 0) {
+      //
+      // there is a frag byte, to which we are writing first.
+      // We will write at least 1 bit to the frag.
+      //
+      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+      val nBitsOfFragToBeFilled =
+        if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
+        else bitLengthFrom1To64
+      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+
+      val bitsToGoIntoFrag = bits >> (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
+      val bitsToGoIntoFragInPosition = bitsToGoIntoFrag << (8 - nFragBitsAfter)
+
+      val newFragByte = st.fragmentLastByte | bitsToGoIntoFragInPosition.toInt
+      Assert.invariant(newFragByte < 255 && newFragByte > -128)
+
+      val shift1 = 64 - (bitLengthFrom1To64 + nBitsOfFragToBeFilled)
+      bits = (bits << shift1) >>> shift1
+      nBitsRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
+
+      if (nFragBitsAfter == 8) {
+        // we filled the entire frag byte. Write it out, then zero it
+        realStream.write(newFragByte.toByte)
+        st.setFragmentLastByte(0, 0)
+      } else {
+        // we did not fill up the frag byte. We added bits to it (at least 1), but
+        // it's not filled up yet.
+        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+      }
+
+    }
+    // at this point we have bits and nBitsRemaining
+
+    Assert.invariant(nBitsRemaining >= 0)
+    if (nBitsRemaining == 0)
+      true // we are done
+    else {
+      // we have more bits to write. Could be as many as 64 still.
+      Assert.invariant(st.fragmentLastByteLimit == 0) // there is no frag byte.
+      val nWholeBytes = nBitsRemaining / 8
+      val nFragBits = nBitsRemaining % 8
+
+      // we want to shift the bits so that the 1st byte is in 0xFF00000000000000 position.
+      val shift = 64 - nBitsRemaining
+      var shiftedBits = bits << shift
+
+      var i = 0
+      while (i < nWholeBytes) {
+        val byt = shiftedBits >>> 56
+        Assert.invariant(byt <= 255)
+        realStream.write(byt.toByte)
+        shiftedBits = shiftedBits << 8
+        i += 1
+      }
+      if (nFragBits > 0) {
+        val newFragByte = Bits.asUnsignedByte((shiftedBits >> 56).toByte)
+        st.setFragmentLastByte(newFragByte, nFragBits)
+      }
+      true
+    }
   }
 
   final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
@@ -197,28 +303,109 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   }
 }
 
+/**
+ * Throw to indicate that bitOrder changed, but not on a byte boundary.
+ *
+ * Must be caught at higher level and turned into a RuntimeSDE.
+ */
+class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream,
+  bufDOS: DirectOrBufferedDataOutputStream) extends Exception with ThinThrowable
+
 object DirectOrBufferedDataOutputStream {
 
   /**
    * This is over here to be sure it isn't operating on other members
    * of the object. This operates on the arguments only.
+   *
+   * Delivers the bits of bufDOS into directDOS's output stream. Deals with the possibility that
+   * the directDOS ends with a fragment byte, or the bufDOS does, or both.
    */
-  private def deliverBufferContent(newDirectDOS: DirectOrBufferedDataOutputStream, bufDOS: DirectOrBufferedDataOutputStream) = {
+  private def deliverBufferContent(directDOS: DirectOrBufferedDataOutputStream, bufDOS: DirectOrBufferedDataOutputStream) {
+    Assert.invariant(bufDOS.isBuffering)
+    Assert.invariant(!directDOS.isBuffering)
+
     val ba = bufDOS.bufferingJOS.getBuf
     val bufferNBits = bufDOS.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
-    val realBitPos0b = newDirectDOS.relBitPos0b
 
-    newDirectDOS.withBitLengthLimit(bufferNBits.toLong) {
-      //
-      // TODO/FIXME : This must transfer any fractional byte as well in case
-      // the last bit is not on a byte boundary.
-      //
-      // Temporary restrictions
-      Assert.notYetImplemented(realBitPos0b % 8 != 0)
-      Assert.notYetImplemented(bufferNBits % 8 != 0)
+    if (bufDOS.cst.bitOrder ne directDOS.cst.bitOrder) {
+      if (!directDOS.isEndOnByteBoundary) {
+        //
+        // If the bit order changes, it has to be on a byte boundary
+        // It's simply not meaningful for it to change otherwise.
+        //
+        throw new BitOrderChangeException(directDOS, bufDOS)
+      }
+    }
 
-      val nBytes = (bufferNBits / 8).toInt
-      newDirectDOS.putBytes(ba, 0, nBytes)
+    // cases
+    // no fragment bytes anywhere - just take the bytes
+    // fragment byte on directDOS, fragment byte on bufDOS, or both.
+
+    directDOS.withBitLengthLimit(bufferNBits.toLong) {
+
+      if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
+
+        val nBytes = (bufferNBits / 8).toInt
+        val nBytesPut = directDOS.putBytes(ba, 0, nBytes)
+        Assert.invariant(nBytesPut == nBytes)
+
+      } else {
+        // there is a fragment byte on directDOS, or on bufDOS or both.
+        if (bufDOS.cst.fragmentLastByteLimit > 0) {
+          val bufDosStream = bufDOS.getJavaOutputStream()
+          bufDosStream.write(bufDOS.cst.fragmentLastByte.toByte) // add the fragment onto the end so it's all shifted together
+          bufDosStream.write(0) // add another zero byte. Gives us room to shift into when we shift by the directDOS frag length.
+        }
+        val bb = bufDOS.getByteBuffer
+        if (directDOS.cst.fragmentLastByteLimit > 0) {
+          //
+          // PERFORMANCE: consider writing a one-pass here vs this shifting thing.
+          // (However, we should see if this matters anyway. It's only relevant if we have
+          // frag bytes involved around splits of direct and buffered. May not matter.
+          //
+          Bits.shiftToHigherBitPosition(bufDOS.cst.bitOrder, bb, directDOS.cst.fragmentLastByteLimit)
+          // at this point we've shifted the whole bytes right
+          // merge the directDOS frag byte with the first byte of bb.
+          val shiftedFirstByte = bb.get(0)
+          val newFirstByte = shiftedFirstByte | directDOS.cst.fragmentLastByte // works for any bitOrder
+          bb.put(0, newFirstByte.toByte)
+        }
+        // now we have to determine whether anything was shifted into the final byte, or
+        // if that one can be dropped
+        val numFragmentBitsBothDOS = directDOS.cst.fragmentLastByteLimit + bufDOS.cst.fragmentLastByteLimit
+        val hasBitsInLastByte = numFragmentBitsBothDOS > 8
+        if (!hasBitsInLastByte) {
+          bb.limit(bb.limit - 1) // trims it off the end.
+        }
+        val numFinalFragBits =
+          if (hasBitsInLastByte) numFragmentBitsBothDOS - 8
+          else numFragmentBitsBothDOS
+        val finalFrag = if (numFinalFragBits > 0) {
+          val finalFrag = bb.get(bb.limit - 1)
+          bb.limit(bb.limit - 1) // trim frag from end of bb
+          finalFrag
+        } else {
+          0.toByte
+        }
+
+        //
+        // At this point bb contains the whole bytes, finalFrag the final frag byte,
+        // and numFinalFragBits contains the count of bits in use in finalFrag
+        //
+        val arr = bb.array()
+        val startPos = bb.position
+        val len = bb.limit - bb.position
+        val os = directDOS.getJavaOutputStream()
+        os.write(arr, startPos, len)
+        if (numFinalFragBits == 8) {
+          // special case - the frag bits from direct and frag from buffered result in
+          // exactly a whole byte, so we just add this byte to the direct, and there is no frag.
+          os.write(finalFrag)
+          directDOS.cst.setFragmentLastByte(0, 0)
+        } else {
+          directDOS.cst.setFragmentLastByte(finalFrag, numFinalFragBits)
+        }
+      }
     }
   }
 

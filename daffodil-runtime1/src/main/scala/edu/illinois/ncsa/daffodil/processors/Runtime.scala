@@ -341,6 +341,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   def unparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
     rootUnparser.unparse(state)
+    if (!state.dataOutputStream.isFinished) state.dataOutputStream.setFinished()
   }
 
 }

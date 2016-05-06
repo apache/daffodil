@@ -63,6 +63,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringLiteralForUnparser
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryDelimitedMinLengthInBytesUnparser
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends Terminal(e, true) {
@@ -200,7 +201,7 @@ abstract class HexBinaryDelimited(e: ElementBase)
     fieldDFAParseEv,
     isDelimRequired)
 
-  override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(
+  override lazy val unparser: DaffodilUnparser = new HexBinaryDelimitedMinLengthInBytesUnparser(
     e.minLength.longValue,
     e.elementRuntimeData)
 }

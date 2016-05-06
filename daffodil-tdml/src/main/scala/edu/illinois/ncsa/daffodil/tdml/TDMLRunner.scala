@@ -90,7 +90,6 @@ import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 private[tdml] object DFDLTestSuite {
   type CompileResult = Either[Seq[Diagnostic], DFDL.DataProcessor]
   type CompileFailure = Left[Seq[Diagnostic], DFDL.DataProcessor]
-
 }
 //
 // TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
@@ -113,12 +112,16 @@ private[tdml] object DFDLTestSuite {
  *
  * Without this, you can't get to the validation errors, because it
  * rejects the TDML file itself.
+ *
+ * defaultRoundTripDefault if true the round trip default for the test suite will be
+ * taken from this value if it is not specified on the testSuite itself.
  */
 
 class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
   val validateDFDLSchemas: Boolean = true,
-  val compileAllTopLevel: Boolean = false)
+  val compileAllTopLevel: Boolean = false,
+  val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault)
   extends Logging with HasSetDebugger {
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
@@ -222,6 +225,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
+  val defaultRoundTrip = {
+    val str = (ts \ "@defaultRoundTrip").text
+    if (str == "") defaultRoundTripDefault else str.toBoolean
+  }
   val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
   val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
 
@@ -356,6 +363,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
+  lazy val defaultRoundTrip: Boolean = parent.defaultRoundTrip
+
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
    * through a serialize then unserialize path to get a processor as if
@@ -417,7 +426,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
   lazy val tcRoundTrip = (testCaseXML \ "@roundTrip").text
-  lazy val roundTrip = tcRoundTrip != "" && tcRoundTrip.toBoolean
+  lazy val roundTrip: Boolean =
+    if (tcRoundTrip == "") defaultRoundTrip else tcRoundTrip.toBoolean
   lazy val description = (testCaseXML \ "@description").text
   lazy val unsupported = (testCaseXML \ "@unsupported").text match {
     case "true" => true
@@ -687,7 +697,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
         // val uActual =
-        processor.unparse(output, actual.result)
+        val unparseResult = processor.unparse(output, actual.result)
+        if (unparseResult.isError) {
+          throw new TDMLException(unparseResult.getDiagnostics)
+        }
         output.close()
 
         try {

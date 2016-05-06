@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -41,7 +41,7 @@ import java.lang.{ Long => JLong }
 
 trait HasKnownLengthInBits {
   def lengthInBits: Int
-  def getBitLength(s: PState) = lengthInBits
+  def getBitLength(s: ParseOrUnparseState) = lengthInBits
 }
 
 trait HasRuntimeExplicitLength {
@@ -56,7 +56,7 @@ trait HasRuntimeExplicitLength {
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def getBitLength(s: PState): Int = {
+  def getBitLength(s: ParseOrUnparseState): Int = {
     val nBytesAsJLong = lengthEv.evaluate(s)
     val nBytes = AsIntConverters.asInt(nBytesAsJLong)
     nBytes * toBits

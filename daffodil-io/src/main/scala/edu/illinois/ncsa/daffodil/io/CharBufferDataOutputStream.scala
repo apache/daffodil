@@ -5,7 +5,6 @@ import passera.unsigned.ULong
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 
 private[io] class CharBufferDataOutputStreamState extends DataOutputStreamState
@@ -49,14 +48,12 @@ final class CharBufferDataOutputStream
   override def putByteBuffer(bb: java.nio.ByteBuffer): Long = notToBeUsed
   override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  override def putBinaryFloat(float: Float): Boolean = notToBeUsed
+  override def putBinaryDouble(double: Double): Boolean = notToBeUsed
   final override protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   final override protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def skip(nBits: Long): Boolean = notToBeUsed
-  override def maybeRelBitLimit0b: MaybeULong = notToBeUsed
-  override def relBitPos0b: ULong = notToBeUsed
-  override def maybeAbsBitLimit0b: edu.illinois.ncsa.daffodil.util.MaybeULong = notToBeUsed
-  override def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: edu.illinois.ncsa.daffodil.util.MaybeULong): Boolean = notToBeUsed
   override def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
   override def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed

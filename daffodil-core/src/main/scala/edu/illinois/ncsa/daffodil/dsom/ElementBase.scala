@@ -422,9 +422,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   private lazy val optTruncateSpecifiedLengthString =
-    if (isSimpleType && simpleType.primitiveType.isInstanceOf[NodeInfo.String.Kind]) {
-      Option(truncateSpecifiedLengthString =:= YesNo.Yes)
-    } else None // don't need this property for non-strings
+    Option(truncateSpecifiedLengthString =:= YesNo.Yes)
+  // because of the way text numbers are unparsed, we don't know that
+  // a the string is for a number. So we need this for numbers and other text
+  // simple types also.
+  //    if (isSimpleType && simpleType.primitiveType.isInstanceOf[NodeInfo.String.Kind]) {
+  //      Option(truncateSpecifiedLengthString =:= YesNo.Yes)
+  //    } else None // don't need this property for non-strings
+
   /**
    *  This QName should contain the prefix from the element reference
    */

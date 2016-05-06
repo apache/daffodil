@@ -138,11 +138,33 @@ trait DataOutputStream extends DataStreamCommon {
   def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean
 
   /**
+   * Float and Double
+   * <p>
+   * These are unparsed per the currently set BinaryFloatRep, byteOrder, and bitOrder
+   * <p>
+   * Returns false if there are not 32 bits or 64 bits (respectively) available.
+   */
+  def putBinaryFloat(v: Float): Boolean
+  def putBinaryDouble(v: Double): Boolean
+
+  /**
    * Returns number of bytes transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
   def putByteBuffer(bb: ByteBuffer): Long
   def putBytes(ba: Array[Byte]): Long
+
+  /**
+   * Returns number of bits transferred. The last byte of the byte buffer
+   * can be a fragment byte.
+   */
+  def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long): Long
+
+  /**
+   * Returns number of bits transferred. The last byte of the byte buffer
+   * can be a fragment byte.
+   */
+  def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long): Long
 
   /**
    * Returns number of characters transferred. Stops when the bitLimit is
@@ -153,6 +175,16 @@ trait DataOutputStream extends DataStreamCommon {
 
   /**
    * Force buffered content to output if possible.
+   *
+   * Idempotent. That is dos.flush(); dos.flush(); means the same thing as just one call.
+   * However, suppose this DOS is connected to a java.io.OutputStream which is connected to a pipe,
+   * and some process is trying to read from that pipe.
+   *
+   * This operation writes and flushes only WHOLE BYTES to the java.io.OutputStream. If this
+   * DOS has a fragment of a byte (less than 8 bits) at the end, then those bits are not written
+   * to the java.io.OutputStream.
+   *
+   * To insure these final bits are in fact written, one must call dos.setFinished().
    */
   def flush(): Unit
 

@@ -106,6 +106,7 @@ abstract class Gram(contextArg: SchemaComponent)
   def parser: Parser
 
   protected final def hasNoParser: Parser = Assert.invariantFailed("Has no parser.")
+  protected final def hasNoUnparser: Parser = Assert.invariantFailed("Has no unparser.")
 
   def unparser: Unparser // = DummyUnparser(Misc.getNameFromClass(this)) // context.runtimeData
 

@@ -58,6 +58,7 @@
       <attribute name="suiteName" type="xs:token" use="optional"/>
       <attribute name="ID" type="xs:token" use="optional"/>
       <attribute name="description" type="xs:string" use="optional"/>
+      <attribute name="defaultRoundTrip" type="xs:boolean" use="optional"/>
     </complexType>
     <unique name="unique-parserTestCase-name">
       <selector xpath="parserTestCase"/>

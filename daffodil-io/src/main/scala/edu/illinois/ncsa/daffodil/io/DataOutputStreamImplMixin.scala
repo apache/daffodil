@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.util.Bits
 
 class DataOutputStreamState extends DataStreamCommonState {
 
@@ -32,7 +33,35 @@ class DataOutputStreamState extends DataStreamCommonState {
     enc
   }
 
-  var fillByte: Int = 0
+  private var fillByte_ : Int = 0
+  def fillByte = fillByte_
+
+  /**
+   * The fillLong is a long that has been pre-filled with the fill byte.
+   *
+   * If the fillByte changes, then the fillLong is updated to track it.
+   */
+  private var fillLong_ : Long = 0L
+  def fillLong = fillLong_
+
+  def setFillByte(newFillByte: Int) {
+    Assert.usage(newFillByte <= 255 && newFillByte >= 0)
+    fillByte_ = newFillByte
+    fillLong_ = {
+      if (fillByte_ == 0) 0L
+      else {
+        var fl: Long = 0L
+        var i = 0
+        while (i < 8) {
+          fl = fl << 8
+          fl = fl | fillByte_
+          i += 1
+        }
+        fl
+      }
+    }
+  }
+
   var encoder: CharsetEncoder = initialEncoder
 
   var codingErrorAction: CodingErrorAction = defaultCodingErrorAction
@@ -122,9 +151,49 @@ class DataOutputStreamState extends DataStreamCommonState {
   var byteOrder: ByteOrder = ByteOrder.BigEndian
   var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
 
+  /**
+   * When there is a partial byte on the end that is also to be
+   * considered part of the output, but as a partial byte only it
+   * can't be written to the underlying java.io.OutputStream, that
+   * partial byte is held here.
+   */
+  private var fragmentLastByte_ : Int = 0
+  def fragmentLastByte = fragmentLastByte_
+
+  /**
+   * Within the fragmentLastByte, how many bits are in use.
+   *
+   * Always between 0 and 7 inclusive.
+   */
+  private var fragmentLastByteLimit_ : Int = 0
+  def fragmentLastByteLimit = fragmentLastByteLimit_
+
+  def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int) {
+    Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
+    Assert.usage(newFragmentByte >= 0 && newFragmentByte <= 255) // no bits above first byte are in use.
+    if (nBitsInUse == 0) {
+      Assert.usage(newFragmentByte == 0)
+    } else {
+      // nBitsInUse is 1..7
+      // based on the bitOrder, create a mask for the bits we are using.
+      val usedBitsMask = if (bitOrder eq BitOrder.MostSignificantBitFirst) {
+        128.toByte >> (nBitsInUse - 1)
+      } else {
+        // LeastSignificantBitFirst
+        (1 << nBitsInUse) - 1
+      }
+      // create mask for bits we're not using
+      val unusedBitsMask = ~usedBitsMask
+      Assert.usage((newFragmentByte & unusedBitsMask) == 0) // all unused bits must be zero.
+    }
+    fragmentLastByte_ = newFragmentByte
+    fragmentLastByteLimit_ = nBitsInUse
+  }
+
   def assignFrom(other: DataOutputStreamState) = {
     super.assignFrom(other)
-    this.fillByte = other.fillByte
+    this.fillByte_ = other.fillByte_
+    this.fillLong_ = other.fillLong_
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.encoder = other.encoder
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.codingErrorAction = other.codingErrorAction
     this.maybeAbsBitPos0b = other.maybeAbsBitPos0b
@@ -133,6 +202,7 @@ class DataOutputStreamState extends DataStreamCommonState {
     this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
     this.byteOrder = other.byteOrder
     this.debugOutputStream = other.debugOutputStream
+    this.setFragmentLastByte(other.fragmentLastByte, other.fragmentLastByteLimit)
   }
 
 }
@@ -145,6 +215,8 @@ private[io] case object Uninitialized extends DOSState
 trait DataOutputStreamImplMixin extends DataOutputStream
   with DataStreamCommonImplMixin
   with LocalBufferMixin {
+
+  def isEndOnByteBoundary = st.fragmentLastByteLimit == 0
 
   private var _dosState: DOSState = Active // active when new.
 
@@ -217,7 +289,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
 
   final def setFillByte(fillByte: Int) {
     Assert.usage(isWritable)
-    st.fillByte = fillByte
+    st.setFillByte(fillByte)
   }
 
   protected def setJavaOutputStream(newOutputStream: java.io.OutputStream): Unit
@@ -237,7 +309,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   /**
    * just a synonym
    */
-  private final def realStream = getJavaOutputStream()
+  protected final def realStream = getJavaOutputStream()
 
   final override def setDebugging(setting: Boolean) {
     Assert.usage(isWritable)
@@ -258,7 +330,83 @@ trait DataOutputStreamImplMixin extends DataOutputStream
 
   def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = {
     Assert.usage(isWritable)
-    ???
+    if (bitLengthFrom1 <= 64) {
+      // output as a long
+      val longInt = bigInt.toLong
+      putLong(longInt, bitLengthFrom1)
+    } else {
+      ???
+      //
+      // DELETE THIS COMMENT ONCE THIS IS IMPLEMENTED
+      //
+      // The code below is "a good try", but far from correct.
+      // For now, just leaving it here with the ??? above.
+      //
+      // The API is actually wrong. We need to distinguish signed from unsigned here
+      // because BigInts are stored sign and magnitude, so there's really no way for us
+      // to acertain whether to add another bit for the sign bit, or not.
+      //
+      val numWholeBytes = bitLengthFrom1 / 8
+      val numBitsLastByte = bitLengthFrom1 % 8
+
+      val bytes = {
+        //
+        // We have to pad the bigInt out to the number of bytes required for bitLengthFrom1
+        // because a bigInt in principle extends infinitely to the left (most significant bits of 0, or extended sign 1 bits)
+        //
+        val byteCapacity = numWholeBytes + (if (numBitsLastByte > 0) 1 else 0)
+        val numBytes = bigInt.toByteArray
+        Assert.notYetImplemented(numBytes.length > byteCapacity)
+        val bytes = new Array[Byte](byteCapacity)
+        numBytes.copyToArray(bytes, byteCapacity - numBytes.length, numBytes.length)
+        bytes
+      }
+      //
+      // TODO: we have to truncate off bits if the bitLengthFrom1 does not take all the bits
+      //
+      if (st.byteOrder eq ByteOrder.LittleEndian) {
+        Bits.reverseBytes(bytes)
+        if (st.bitOrder eq BitOrder.LeastSignificantBitFirst) {
+          val nBits = putBits(bytes, 0, bitLengthFrom1)
+          Assert.invariant(nBits == bitLengthFrom1)
+        } else {
+          val lastByte = bytes(bytes.length - 1)
+          val numBitsLastByte = bitLengthFrom1 % 8
+          val lastByteShiftLeft = 8 - numBitsLastByte
+          val newLastByte = (lastByte << lastByteShiftLeft).toByte
+          bytes(bytes.length - 1) = newLastByte
+          val nBits = putBits(bytes, 0, bitLengthFrom1)
+          Assert.invariant(nBits == bitLengthFrom1)
+        }
+      } else {
+        // BigEndian case
+        Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
+        val wholeNumShiftLeft = 8 - numBitsLastByte
+        val bigIntShifted = bigInt << wholeNumShiftLeft // this can be a byte bigger
+        val bytes = {
+          //
+          // We have to pad the bigInt out to the number of bytes required for bitLengthFrom1
+          // because a bigInt in principle extends infinitely to the left (most significant bits of 0, or extended sign 1 bits)
+          //
+          val numBytes = bigIntShifted.toByteArray
+          val byteCapacity = numWholeBytes + (if (numBitsLastByte > 0) 1 else 0)
+          Assert.notYetImplemented(numBytes.length > byteCapacity)
+          val bytes = new Array[Byte](byteCapacity)
+          numBytes.copyToArray(bytes, byteCapacity - numBytes.length, numBytes.length)
+          bytes
+        }
+        val nBits = putBits(bytes, 0, bitLengthFrom1)
+        Assert.invariant(nBits == bitLengthFrom1)
+      }
+      //
+      // PERFORMANCE: algorithm idea. To avoid heap allocated things, you could do this
+      // by recursively calling, putting each 64-bit chunk of the bigInt into
+      // a local val chunk: Long = ...least significant 64 bit chunk ...
+      // If little endian, then the chunk is output before we recurse (on the way down)
+      // If big endian, then the chunk is output after we recurse (on the way back up)
+      //
+      true
+    }
   }
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
@@ -268,23 +416,94 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     else false
   }
 
+  def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long): Long = {
+    Assert.usage((ba.length - byteStartOffset0b) * 8 >= lengthInBits)
+    val nWholeBytes = (lengthInBits / 8).toInt
+    val nFragBits = (lengthInBits % 8).toInt
+    val nBytesWritten = putBytes(ba, byteStartOffset0b, nWholeBytes)
+    val nBitsWritten = nBytesWritten * 8
+    if (nBytesWritten < nWholeBytes) {
+      nBytesWritten * 8
+    } else {
+      val isFragWritten =
+        if (nFragBits > 0) {
+          var fragByte: Long = ba(byteStartOffset0b + nWholeBytes)
+          if (st.bitOrder == BitOrder.MostSignificantBitFirst) {
+            // we need to shift the bits. We want the most significant bits of the byte
+            fragByte = fragByte >>> (8 - nFragBits)
+          }
+          putLong(fragByte, nFragBits)
+        } else
+          true
+      if (isFragWritten) nBitsWritten + nFragBits
+      else nBitsWritten
+    }
+  }
+
   def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = {
     Assert.usage(isWritable)
-    Assert.notYetImplemented(st.relBitPos0b % 8 != 0, "non-byte-aligned data")
-    val nBytes =
-      if (exceedsBitLimit(lengthInBytes)) {
-        val n = (maybeRelBitLimit0b.getULong - relBitPos0b) / 8
-        Assert.invariant(n >= 0)
-        n
-      } else {
-        lengthInBytes
+    if (isEndOnByteBoundary) {
+      val nBytes =
+        if (exceedsBitLimit(lengthInBytes)) {
+          val n = (maybeRelBitLimit0b.getULong - relBitPos0b) / 8
+          Assert.invariant(n >= 0)
+          n
+        } else {
+          lengthInBytes
+        }
+      realStream.write(ba, byteStartOffset0b, nBytes.toInt)
+      st.setRelBitPos0b(st.relBitPos0b + ULong(nBytes * 8))
+      nBytes
+    } else {
+      // the data currently ends with some bits in the fragment byte.
+      //
+      // rather than duplicate all this shifting logic here, we're going to output
+      // each byte separately as an 8-bit chunk using putLong
+      //
+      var i = 0
+      var continue = true
+      while ((i < lengthInBytes) && continue) {
+        continue = putLong(ba(i), 8) // returns false if we hit the limit.
+        if (continue) i += 1
       }
-    realStream.write(ba, byteStartOffset0b, nBytes.toInt)
-    st.setRelBitPos0b(st.relBitPos0b + ULong(nBytes * 8))
-    nBytes
+      i
+    }
   }
 
   def putBytes(ba: Array[Byte]): Long = putBytes(ba, 0, ba.length)
+
+  def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long): Long = {
+    Assert.usage(bb.remaining() * 8 >= lengthInBits)
+    val nWholeBytes = (lengthInBits / 8).toInt
+    val nFragBits = (lengthInBits % 8).toInt
+    //
+    // The position and limit of the buffer must be consistent with lengthInBits
+    //
+    val numBytesForLengthInBits = nWholeBytes + (if (nFragBits > 0) 1 else 0)
+
+    Assert.usage(bb.remaining() == numBytesForLengthInBits)
+
+    if (nFragBits > 0) bb.limit(bb.limit - 1) // last byte is the frag byte
+    val nBytesWritten = putByteBuffer(bb) // output all but the frag byte if there is one.
+    val nBitsWritten = nBytesWritten * 8
+    if (nBytesWritten < nWholeBytes) {
+      nBytesWritten * 8
+    } else {
+      val isFragWritten =
+        if (nFragBits > 0) {
+          bb.limit(bb.limit + 1)
+          var fragByte: Long = bb.get(bb.limit - 1)
+          if (st.bitOrder == BitOrder.MostSignificantBitFirst) {
+            // we need to shift the bits. We want the most significant bits of the byte
+            fragByte = fragByte >>> (8 - nFragBits)
+          }
+          putLong(fragByte, nFragBits)
+        } else
+          true
+      if (isFragWritten) nBitsWritten + nFragBits
+      else nBitsWritten
+    }
+  }
 
   def putByteBuffer(bb: java.nio.ByteBuffer): Long = {
     Assert.usage(isWritable)
@@ -292,12 +511,27 @@ trait DataOutputStreamImplMixin extends DataOutputStream
       if (bb.hasArray) {
         putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining())
       } else {
-        Assert.notYetImplemented(st.relBitPos0b % 8 != 0, "non-byte-aligned data")
-        val lengthInBytes = bb.remaining
-        if (exceedsBitLimit(lengthInBytes)) return 0
-        val chan = Channels.newChannel(realStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
-        st.setRelBitPos0b(st.relBitPos0b + ULong(lengthInBytes * 8))
-        chan.write(bb)
+        if (isEndOnByteBoundary) {
+          val lengthInBytes = bb.remaining
+          if (exceedsBitLimit(lengthInBytes)) return 0
+          val chan = Channels.newChannel(realStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
+          st.setRelBitPos0b(st.relBitPos0b + ULong(lengthInBytes * 8))
+          chan.write(bb)
+        } else {
+          // not on a byte boundary
+          //
+          // rather than duplicate all this shifting logic here, we're going to output
+          // each byte separately as an 8-bit chunk using putLong
+          //
+          var i = 0
+          var continue = true
+          val limit = bb.remaining()
+          while ((i < limit) && continue) {
+            continue = putLong(bb.get(i), 8) // returns false if we hit the limit.
+            if (continue) i += 1
+          }
+          i
+        }
       }
     nTransferred
   }
@@ -325,10 +559,27 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     // must handle non-byte-sized characters (e.g., 7-bit), so that bit-granularity positioning
     // works.
     withLocalByteBuffer { lbb =>
+      //
+      // TODO: data size limit. For utf-8, this will limit the max number of chars
+      // in cb to below 1/4 the max number of bytes in a bytebuffer, because the maxBytesPerChar
+      // is 4, even though it is going to be on average much closer to 1 or 2.
+      //
       val nBytes = math.ceil(cb.remaining * st.encoder.maxBytesPerChar()).toLong
       val bb = lbb.getBuf(nBytes)
-      Assert.notYetImplemented(st.encoder.charset.isInstanceOf[NonByteSizeCharsetEncoderDecoder])
-      val cr = st.encoder.encode(cb, bb, true) // unavoidable copying/encoding of characters
+      val encoder = st.encoder match {
+        case encoderWithBits: NonByteSizeCharsetEncoderDecoder => {
+          //
+          // FIXME: These calls don't make sense for setting up encoding of characters
+          // The NonByteSizeCharsetEncoderDecoder trait may have to split into a
+          // decoder-specific and encoder-specific trait.
+          //
+          encoderWithBits.setInitialBitOffset(???)
+          encoderWithBits.setFinalByteBitLimitOffset0b(???)
+          encoderWithBits
+        }
+        case other => other
+      }
+      val cr = encoder.encode(cb, bb, true) // unavoidable copying/encoding of characters
       cr match {
         case CoderResult.UNDERFLOW => //ok. Normal termination
         case CoderResult.OVERFLOW => Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
@@ -356,38 +607,104 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     //
     // based on bit and byte order, dispatch to specific code
     //
-    if (st.byteOrder eq ByteOrder.BigEndian) {
-      Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
-      putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
-    } else {
-      Assert.invariant(st.byteOrder eq ByteOrder.LittleEndian)
-      if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
-        putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
+    val res =
+      if (st.byteOrder eq ByteOrder.BigEndian) {
+        Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
+        putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
       } else {
-        Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
-        putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
+        Assert.invariant(st.byteOrder eq ByteOrder.LittleEndian)
+        if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
+          putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
+        } else {
+          Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
+          putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
+        }
       }
+
+    if (res) {
+      st.setRelBitPos0b(st.relBitPos0b + ULong(bitLengthFrom1To64))
     }
+    res
   }
 
   protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
   protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
   protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean
 
+  /*
+   * These members are like a C language union. We write as float, we get back same storage
+   * as int. Ditto double to long.
+   */
+  private val bb = ByteBuffer.allocate(8)
+  private val db = bb.asDoubleBuffer()
+  private val fb = bb.asFloatBuffer()
+  private val ib = bb.asIntBuffer()
+  private val lb = bb.asLongBuffer()
+
+  def putBinaryFloat(v: Float): Boolean = {
+    fb.put(0, v)
+    val i = ib.get(0)
+    putLong(i, 32)
+  }
+
+  def putBinaryDouble(v: Double): Boolean = {
+    db.put(0, v)
+    val l = lb.get(0)
+    putLong(l, 64)
+  }
+
   def skip(nBits: Long): Boolean = {
     Assert.usage(isWritable)
-    Assert.notYetImplemented(nBits % 8 != 0, "skips that aren't a multiple of 8 bits")
     if (maybeRelBitLimit0b.isDefined) {
       val lim = maybeRelBitLimit0b.getULong
       if (relBitPos0b + ULong(nBits) > lim) return false
     }
-    var nBytes = nBits / 8
-    while (nBytes > 0) {
-      nBytes -= 1
-      st.setRelBitPos0b(st.relBitPos0b + ULong(8))
-      realStream.write(st.fillByte)
+    if (nBits <= 64) {
+      putLong(st.fillLong, nBits.toInt)
+    } else {
+      // more than 64 bits to skip
+      //
+      // break into 3 skips
+      //
+      // first is the small skip that fills in any remaining bits of the fragment byte
+      //
+      // second is a skip of whole bytes done by writing whole fillbytes
+      //
+      // third is a skip that re-creates the fragment byte to hold whatever part of that fragment
+      // is part of the skipped bits.
+      //
+      // often there will be no fragment byte at the beginning or at the end
+
+      var nBitsRemaining = nBits
+
+      if (st.fragmentLastByteLimit > 0) {
+        // there is a fragment byte.
+        val numRemainingFragmentBits = 8 - st.fragmentLastByteLimit
+        val isInitialFragDone = putLong(st.fillByte, numRemainingFragmentBits)
+        Assert.invariant(isInitialFragDone)
+        nBitsRemaining -= numRemainingFragmentBits
+        Assert.invariant(st.fragmentLastByteLimit == 0) // no longer is a fragment byte on the end
+      }
+      //
+      // now the whole bytes
+      //
+      var nBytes = nBitsRemaining / 8 // computes floor
+      while (nBytes > 0) {
+        nBytes -= 1
+        st.setRelBitPos0b(st.relBitPos0b + ULong(8))
+        realStream.write(st.fillByte)
+        nBitsRemaining -= 8
+      }
+      //
+      // now any final fragment
+      //
+      Assert.invariant(nBitsRemaining < 8)
+      if (nBitsRemaining > 0) {
+        val isFinalFragDone = putLong(st.fillByte, nBitsRemaining.toInt)
+        Assert.invariant(isFinalFragDone)
+      }
+      true
     }
-    true
   }
 
   override def maybeRelBitLimit0b: MaybeULong = {

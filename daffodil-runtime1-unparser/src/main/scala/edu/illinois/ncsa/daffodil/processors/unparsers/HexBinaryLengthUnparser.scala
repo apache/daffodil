@@ -47,18 +47,25 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData)
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
+    val minLengthInBytes =
+      if (erd.minLength.isEmpty) 0 else erd.minLength.get.intValue()
+    val lengthInBytes = getLength(state)
+    val lengthForFill = math.max(minLengthInBytes, lengthInBytes)
+
+    if (value.length > lengthForFill) {
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Data length %d exceeds explicit length value: %d", value.length, lengthInBytes)
+    }
 
     val dos = state.dataOutputStream
 
     val ret = dos.putBytes(value)
     if (ret != value.length) {
-      UnparseError(Nope, One(state.currentLocation), "Expected to write %d hexBinary bytes, but wrote %d.", value.length, ret)
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Expected to write %d hexBinary bytes, but wrote %d.", value.length, ret)
     }
 
-    val minLengthInBytes = getLength(state)
-    val nFillBytes = minLengthInBytes - value.length
+    val nFillBytes = lengthForFill - value.length
     if (nFillBytes > 0) {
-      dos.setFillByte(erd.fillByteValue)
+      dos.setFillByte(erd.fillByteValue) // TODO: PEFORMANCE: this and many other settings should be set via a changeFillByte processor, so that it is always pre-set???
       val ret = dos.skip(nFillBytes * 8)
       if (!ret) {
         UnparseError(Nope, One(state.currentLocation), "Failed to skip %d bytes.", nFillBytes)
@@ -71,6 +78,14 @@ final class HexBinaryFixedLengthInBytesUnparser(nBytes: Long, erd: ElementRuntim
   extends HexBinaryLengthInBytesUnparser(erd) {
 
   override def getLength(state: UState): Long = nBytes
+}
+
+final class HexBinaryDelimitedMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData)
+  extends HexBinaryLengthInBytesUnparser(erd) {
+
+  override def getLength(state: UState): Long = {
+    state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length
+  }
 }
 
 final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong])

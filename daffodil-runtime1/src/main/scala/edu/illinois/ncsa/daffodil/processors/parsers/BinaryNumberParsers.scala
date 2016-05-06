@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 class BinaryFloatParser(e: ElementRuntimeData)
   extends PrimParserObject(e) {
@@ -85,7 +86,7 @@ class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo,
 abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
   extends PrimParserObject(e) {
 
-  protected def getBitLength(s: PState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
@@ -118,7 +119,7 @@ class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val
 abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
   extends PrimParserObject(e) {
 
-  protected def getBitLength(s: PState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
