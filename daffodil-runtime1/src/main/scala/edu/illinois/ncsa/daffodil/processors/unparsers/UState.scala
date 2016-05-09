@@ -126,6 +126,7 @@ class UState(
   override def advanceAccessor: InfosetAccessor = infosetCursor.advanceAccessor
   override def inspect: Boolean = infosetCursor.inspect
   override def inspectAccessor: InfosetAccessor = infosetCursor.inspectAccessor
+  override def fini: Unit = {}
 
   /**
    * Use this so if there isn't an event we get a clean diagnostic message saying

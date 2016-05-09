@@ -82,6 +82,8 @@ class FakeXMLEventCursor(nRepeats: Long,
   }
 
   override def getXMLErrorInfo(pos: Int, str: String): String = ???
+
+  override def fini: Unit = {}
 }
 
 class TestXMLEventCursor {

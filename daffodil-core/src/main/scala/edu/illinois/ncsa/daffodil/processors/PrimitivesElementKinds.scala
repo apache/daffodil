@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.FinalizeProcessingUnparser
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -175,4 +176,10 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
 
     new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
   }
+}
+
+case class FinalizeProcessing(e: GlobalElementDecl) extends Terminal(e, true) {
+  lazy val parser: DaffodilParser = new NadaParser(e.runtimeData)
+
+  override lazy val unparser: DaffodilUnparser = new FinalizeProcessingUnparser(e.elementRuntimeData)
 }

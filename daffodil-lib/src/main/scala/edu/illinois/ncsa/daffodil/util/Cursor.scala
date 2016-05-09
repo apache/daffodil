@@ -92,6 +92,12 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
     if (inspect) One(inspectAccessor)
     else Nope
   }
+
+  /**
+   * Cause this cursor to finish and cleanup anything that may be necessary,
+   * regardless of if it is complete or not
+   */
+  def fini: Unit
 }
 
 trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[AccessorType] =>

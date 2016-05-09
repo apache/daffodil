@@ -289,3 +289,14 @@ class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser
     state.occursBoundsStack.pop()
   }
 }
+
+class FinalizeProcessingUnparser(val context: ElementRuntimeData) extends PrimUnparser {
+  override val runtimeDependencies = Nil
+
+  def unparse(state: UState) {
+    val ev = state.advanceMaybe
+    if (ev.isDefined) {
+      UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received: %s.", ev.get)
+    }
+  }
+}

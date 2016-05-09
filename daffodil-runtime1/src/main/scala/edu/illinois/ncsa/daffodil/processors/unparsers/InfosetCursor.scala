@@ -62,6 +62,7 @@ object NonUsableInfosetCursor extends InfosetCursor {
   override lazy val inspectAccessor = doNotUse
   override def advance = doNotUse
   override def inspect = doNotUse
+  override def fini = doNotUse
 }
 
 // TODO - Performance - It's silly to use both a StartKind and EndKind accessor when

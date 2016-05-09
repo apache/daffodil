@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.ElementDeclMixin
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 
 trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
@@ -49,7 +50,10 @@ trait GlobalElementDeclGrammarMixin
   { self: GlobalElementDecl =>
 
   final lazy val document = prod("document") {
-    UnicodeByteOrderMark(this) ~ scalarDefaultable
+    UnicodeByteOrderMark(this) ~ scalarDefaultable ~ finalizeProcessing
   }
 
+  lazy val finalizeProcessing = prod("finalizeProcessing", true, forWhat = ForUnparser) {
+    FinalizeProcessing(this)
+  }
 }

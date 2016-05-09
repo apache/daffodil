@@ -283,7 +283,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         out,
         this,
         infosetCursor) // TODO also want to pass here the externally set variables, other flags/settings.
-    try {
+    val res = try {
       if (areDebugging) {
         Assert.invariant(optDebugger.isDefined)
         addEventHandler(debugger)
@@ -322,9 +322,20 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.setFailed(e)
         unparserState.unparseResult
       }
-    } finally {
-      if (unparserState.dataProc.isDefined) unparserState.dataProc.value.fini(ssrd.unparser)
+      case se: org.xml.sax.SAXException => {
+        unparserState.setFailed(new UnparseError(None, None, se.getMessage))
+        unparserState.unparseResult
+      }
+      case e: scala.xml.parsing.FatalError => {
+        unparserState.setFailed(new UnparseError(None, None, e.getMessage))
+        unparserState.unparseResult
+      }
     }
+
+    if (unparserState.dataProc.isDefined) unparserState.dataProc.value.fini(ssrd.unparser)
+    infosetCursor.fini
+
+    res
   }
 
   def unparse(state: UState): Unit = {

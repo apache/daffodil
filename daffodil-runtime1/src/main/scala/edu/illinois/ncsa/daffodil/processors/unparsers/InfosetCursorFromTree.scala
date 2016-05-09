@@ -70,4 +70,6 @@ private[unparsers] class InfosetCursorFromTree(item: InfosetItem)
     }
     true
   }
+
+  override def fini: Unit = {}
 }

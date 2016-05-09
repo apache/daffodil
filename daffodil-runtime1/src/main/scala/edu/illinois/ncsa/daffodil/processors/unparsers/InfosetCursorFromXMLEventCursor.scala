@@ -84,6 +84,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
   //    println(this)
   //  }
 
+
   def body {
     try {
       nodeStack.push(diDoc)
@@ -93,6 +94,8 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
     } catch {
       case rsde: RuntimeSchemaDefinitionError => iter.setFinal(rsde)
       case pe: ProcessingError => iter.setFinal(pe)
+    } finally {
+      xmlCursor.fini // we finished, tell the xmlCursor to finish too
     }
   }
 
@@ -109,19 +112,15 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         handleEvStart(evStart, parents)
       }
       case evEnd: EvEnd => {
-        val thisOne = parents.top
-        handleEvEnd(evEnd, parents)
+        val ended = handleEvEnd(evEnd, parents)
         level -= 1
         //        println(indent + "ending event: " + xmlEvent)
         //        dumpState
-        thisOne match {
+        ended match {
           case e: DIElement if (e.erd =:= rootElementInfo) => return // just ended the root
-          case _ => //ok
-        }
-        thisOne match {
           case s: DISimple => Assert.invariant(s.hasValue || s.isNilled)
           case c: DIComplex => Assert.invariant((c.totalElementCount > 0) || c.isNilled)
-          case _ => // ok // TBD invariant failed. Can this ever be an array?
+          case _: DIArray => Assert.impossible() // DIArray should not have ended without also ending something else afterwards in handleEvEnd
         }
       }
       case evText: EvText => {
@@ -292,7 +291,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
     newNode
   }
 
-  private def handleEvEnd(evEnd: EvEnd, parents: NodeStack) {
+  private def handleEvEnd(evEnd: EvEnd, parents: NodeStack) = {
     //
     // an important invariant, is that when recursing over an element, we push the node onto the
     // parents node stack while recursing over the children. So the parent during the

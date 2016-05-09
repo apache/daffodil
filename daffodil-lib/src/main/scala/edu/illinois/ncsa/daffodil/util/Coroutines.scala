@@ -52,6 +52,13 @@ trait CoroutineAny {
     }
   }
 
+  def fini: Unit = {
+    if (!isMain && thread_.isDefined) {
+      thread_.get.interrupt
+      thread_ = None
+    }
+  }
+
   /**
    * Call when a co-routine resumes another (to provide a result of some sort)
    * and then terminates. The coroutine calling this must return from the run()
@@ -89,9 +96,15 @@ trait CoroutineAny {
     Assert.invariant(x ne null)
     x match {
       case ce: CoroutineException => {
-        // Indicates that the other coroutine exited abnormally.
-        Assert.invariantFailed("Other coroutine exited abnormally: " +
-          DiagnosticUtils.getSomeMessage(ce).getOrElse("an unknown error"))
+        ce.getCause match {
+          case e: org.xml.sax.SAXException => throw e
+          case e: scala.xml.parsing.FatalError => throw e
+          case _ => {
+            // Indicates that the other coroutine exited abnormally.
+            Assert.invariantFailed("Other coroutine exited abnormally: " +
+              DiagnosticUtils.getSomeMessage(ce).getOrElse("an unknown error"))
+          }
+        }
       }
       case th: Throwable => {
         // Passed us an object to rethrow on this side.
@@ -172,12 +185,12 @@ trait InvertControl[S <: AnyRef] extends IteratorWithPeek[S] with Coroutine[S] {
         body
         resumeAnyFinal(consumer, endOfData)
       } catch {
+        case ie: InterruptedException => // do nothing, consumer killed us
         case th: Throwable => {
           // tell consumer we're exiting via a throw
           // but not to rethrow it necessarily.
           val ce = new CoroutineException(th)
           setFinal(ce)
-          throw th
         }
       }
     }
@@ -196,6 +209,9 @@ trait InvertControl[S <: AnyRef] extends IteratorWithPeek[S] with Coroutine[S] {
 
   final def setFinal(s: AnyRef) =
     producer.setFinal(s)
+
+  override def fini: Unit =
+    producer.fini
 
   private val producer = new Producer(this)
 
