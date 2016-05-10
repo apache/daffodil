@@ -4,6 +4,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.
@@ -31,9 +32,7 @@ class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder, maybeByteOr
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
-  override lazy val runtimeDependencies =
-    if (maybeByteOrder.isEmpty) Nil
-    else maybeByteOrder.value +: maybeByteOrder.value.runtimeDependencies
+  override lazy val runtimeDependencies = maybeByteOrder.toList
 
   final protected def compute(state: ParseOrUnparseState): Ok = {
     if (maybeByteOrder.isEmpty) return Ok
@@ -46,6 +45,27 @@ class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder, maybeByteOr
           t.schemaDefinitionError("Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian', but byte order was '%s'.", byteOrder)
         }
     }
+
+    Ok
+  }
+}
+
+class CheckBitOrderAndCharsetEv(t: TermRuntimeData, bitOrder: BitOrder, charsetEv: CharsetEv)
+  extends Evaluatable[Ok](t)
+  with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
+
+  override lazy val runtimeDependencies = List(charsetEv)
+
+  final protected def compute(state: ParseOrUnparseState): Ok = {
+    val dfdlCS = charsetEv.evaluate(state)
+    dfdlCS.charset match {
+      case nbsc: NonByteSizeCharset =>
+        if (nbsc.requiredBitOrder !=:= bitOrder) {
+          t.schemaDefinitionError("Encoding '%s' requires bit order '%s', but bit order was '%s'.", dfdlCS.charsetName, nbsc.requiredBitOrder, bitOrder)
+        }
+      case _ => // do nothing
+    }
+
     Ok
   }
 }

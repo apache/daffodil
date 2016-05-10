@@ -75,7 +75,7 @@ import java.nio.CharBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.io.ByteArrayInputStream
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
 import scala.language.postfixOps
 import java.nio.file.Paths
 import java.nio.file.Files
@@ -1374,7 +1374,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoderDecoder]
+    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoder]
     val nBits = s.length * enc.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)

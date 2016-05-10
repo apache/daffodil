@@ -361,7 +361,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       }
     } else {
       cs match {
-        case decoderWithBits: NonByteSizeCharsetEncoderDecoder => {
+        case decoderWithBits: NonByteSizeCharset => {
           st.encodingMandatoryAlignmentInBits = 1
           st.maybeCharWidthInBits = MaybeInt(decoderWithBits.bitWidthOfACodeUnit)
         }
@@ -874,7 +874,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     var nBytesConsumed: Int = 0
     st.decoder.reset()
     val decoder = st.decoder match {
-      case decoderWithBits: NonByteSizeCharsetEncoderDecoder => {
+      case decoderWithBits: NonByteSizeCharsetDecoder => {
         decoderWithBits.setInitialBitOffset(st.bitOffset0b)
         decoderWithBits.setFinalByteBitLimitOffset0b(st.maybeBitLimitOffset0b)
         decoderWithBits

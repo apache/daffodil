@@ -38,9 +38,10 @@ import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Bits
-import scala.language.postfixOps
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetDecoder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Some encodings are not byte-oriented.
@@ -53,10 +54,11 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
  * implement packed decimals of various sorts.)
  */
 
-trait USASCII7BitPackedEncoderDecoderMixin
-  extends NonByteSizeCharsetEncoderDecoderImpl {
+trait USASCII7BitPackedCharsetMixin
+  extends NonByteSizeCharset {
 
   val bitWidthOfACodeUnit = 7 // in units of bits
+  val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 
   /**
    * Returns a string of '1' and '0' characters for a single unsigned byte.
@@ -69,50 +71,9 @@ trait USASCII7BitPackedEncoderDecoderMixin
   }
 }
 
-/**
- * Mixin for Charsets which support initial bit offsets so that
- * their character codepoints need not be byte-aligned.
- */
-trait NonByteSizeCharsetEncoderDecoderImpl
-  extends NonByteSizeCharsetEncoderDecoder {
-
-  private var startBitOffset = 0
-  private var startBitOffsetHasBeenSet = false
-  private var startBitOffsetHasBeenUsed = false
-  private var maybeBitLimitOffset0b: MaybeULong = MaybeULong.Nope
-
-  final def setInitialBitOffset(bitOffset0to7: Int) {
-    Assert.usage(!startBitOffsetHasBeenSet, "Already set. Cannot set again until decoder is reset().")
-    Assert.usage(bitOffset0to7 <= 7 && bitOffset0to7 >= 0)
-    startBitOffset = bitOffset0to7
-    startBitOffsetHasBeenSet = true
-  }
-
-  final def setFinalByteBitLimitOffset0b(bitLimitOffset0b: MaybeULong) {
-    maybeBitLimitOffset0b = bitLimitOffset0b
-  }
-
-  final protected def getFinalByteBitLimitOffset0b() = maybeBitLimitOffset0b
-
-  final protected def getStartBitOffset() = {
-    if (startBitOffsetHasBeenUsed) 0 // one time we return the value. After that 0 until a reset.
-    else {
-      startBitOffsetHasBeenUsed = true
-      startBitOffset
-    }
-  }
-
-  final protected def resetStartBit() {
-    startBitOffsetHasBeenUsed = false
-    startBitOffset = 0
-    startBitOffsetHasBeenSet = false
-  }
-
-}
-
 object USASCII7BitPackedCharset
   extends java.nio.charset.Charset("X-DFDL-US-ASCII-7-BIT-PACKED", Array("US-ASCII-7-BIT-PACKED"))
-  with USASCII7BitPackedEncoderDecoderMixin {
+  with USASCII7BitPackedCharsetMixin {
 
   def contains(cs: Charset): Boolean = false
 
@@ -134,7 +95,8 @@ class USASCII7BitPackedDecoder
   extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset,
     USASCII7BitPackedCharset.charsPerByte, // average
     USASCII7BitPackedCharset.charsPerByte) // maximum
-  with USASCII7BitPackedEncoderDecoderMixin {
+  with NonByteSizeCharsetDecoder
+  with USASCII7BitPackedCharsetMixin {
 
   override def implReset() {
     // println("Reset")
@@ -384,32 +346,76 @@ class USASCII7BitPackedEncoder
   extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset,
     USASCII7BitPackedCharset.bytesPerChar, // average
     USASCII7BitPackedCharset.bytesPerChar) // maximum
-  with USASCII7BitPackedEncoderDecoderMixin {
+  with NonByteSizeCharsetEncoder
+  with USASCII7BitPackedCharsetMixin {
 
-  // TODO: make this efficient. Right now it is inflating things to
-  // strings of "0" and "1". However, the only use is TDML currently.
-  def encodeLoop(cb: CharBuffer, bb: ByteBuffer): CoderResult = {
-    val bits =
-      if (cb.length == 0) Seq.empty
-      else {
-        val charsAsBits = (1 to cb.length).map { x =>
-          val charCode = cb.get()
-          val all8Bits = asBits(charCode.toInt)
-          val just7Bits = all8Bits.slice(1, 8)
-          just7Bits
+  override def implReset() {
+    partialByte = 0
+    partialByteLenInBits = 0
+  }
+
+  private var partialByte: Int = 0
+  private var partialByteLenInBits: Int = 0
+
+  def encodeLoop(in: CharBuffer, out: ByteBuffer): CoderResult = {
+
+    while (true) {
+      val inHasRemainingData = in.hasRemaining()
+      val outHasRemainingSpace = out.hasRemaining()
+
+      if (!inHasRemainingData) {
+        if (partialByteLenInBits > 0) {
+          if (!outHasRemainingSpace) {
+            // no remaining input, but there's a partial byte we need to write,
+            // and nowhere to write it to
+            return CoderResult.OVERFLOW
+          } else {
+            // no remaining input, but there's a partal byte, write the partial
+            // byte (includes padding) and finish
+            out.put(partialByte.toByte)
+            partialByte = 0
+            partialByteLenInBits = 0
+            return CoderResult.UNDERFLOW
+          }
+        } else {
+          // no remaining input, and no partial byte, nothing left to
+          // encode/write, finish
+          return CoderResult.UNDERFLOW
         }
-        charsAsBits
+      } else {
+        if (!outHasRemainingSpace) {
+          // there's input to encode, but nowhere to write it to
+          return CoderResult.OVERFLOW
+        }
+
+        // there's data to encode and enough space to write a byte, encode the
+        // character
+
+        val char = in.get()
+        val charCode = char.toInt
+        if (charCode > 127) {
+          // character must fit in 7-bits
+          return CoderResult.unmappableForLength(1)
+        }
+
+        if (partialByteLenInBits == 0) {
+          // no partial byte exists, make this the partial byte
+          partialByte = charCode
+          partialByteLenInBits = 7
+        } else {
+          // there's a partial byte, add enough bits to make it a full byte and
+          // write it, then save whatever is remaining (could be 0 bits
+          // remaining) as a partial byte
+          partialByte |= (charCode << partialByteLenInBits) & 0xFF
+          out.put(partialByte.toByte)
+
+          val usedBits = 8 - partialByteLenInBits
+          partialByte = charCode >> usedBits
+          partialByteLenInBits = 7 - usedBits
+        }
       }
-    Assert.invariant(!cb.hasRemaining)
-    val len = bits.map { _.length } sum
-    val padBits = if ((len % 8) == 0) "" else "0" * (8 - (len % 8))
-    //
-    // This is specific to bitOrder leastSignificantBitFirst
-    //
-    val bitsAsFullBytes = (bits.map { _.reverse }.mkString + padBits).reverse
-    //
-    val bytes = bitsAsFullBytes.sliding(8, 8).map { Integer.parseInt(_, 2).toByte }.toArray.reverse
-    bb.put(bytes)
-    CoderResult.UNDERFLOW
+    }
+
+    Assert.impossible("Incorrect return from encodeLoop")
   }
 }

@@ -37,15 +37,17 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 class BitOrderChangeParser(
   val termRuntimeData: TermRuntimeData,
   val bitOrder: BitOrder,
-  val checkByteAndBitOrder: CheckByteAndBitOrderEv)
+  val checkByteAndBitOrder: CheckByteAndBitOrderEv,
+  val checkBitOrderAndCharset: CheckBitOrderAndCharsetEv)
   extends PrimParser {
 
   override def context = termRuntimeData
 
-  override lazy val runtimeDependencies = List(checkByteAndBitOrder)
+  override lazy val runtimeDependencies = List(checkByteAndBitOrder, checkBitOrderAndCharset)
 
   def parse(pstate: PState): Unit = {
     checkByteAndBitOrder(pstate)
+    checkBitOrderAndCharset(pstate)
     termRuntimeData.schemaDefinitionUnless(pstate.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
     pstate.dataInputStream.setBitOrder(bitOrder)
   }

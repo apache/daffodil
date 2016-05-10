@@ -108,8 +108,7 @@
 
 
   <tdml:parserTestCase name="TestMIL2045_47001D_Page70_TableB_I_with_string"
-    root="tabBI" model="s" description="Verification that user's test works for DFDL-677"
-    roundTrip="false">
+    root="tabBI" model="s" description="Verification that user's test works for DFDL-677">
     <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
       <documentPart type="bits" byteOrder="RTL">Version                         XXXX 0011</documentPart>
       <documentPart type="bits" byteOrder="RTL">FPI                             XXX0 XXXX</documentPart>

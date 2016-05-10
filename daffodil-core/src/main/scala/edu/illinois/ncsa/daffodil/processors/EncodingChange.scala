@@ -38,8 +38,14 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.EncodingChangeUnparser
 
 case class EncodingChange(t: Term) extends Terminal(t, true) {
 
-  override lazy val parser = new EncodingChangeParser(t.termRuntimeData)
+  lazy val checkBitOrderAndCharset = {
+    val ev = new CheckBitOrderAndCharsetEv(t.termRuntimeData, t.defaultBitOrder, t.charsetEv)
+    ev.compile()
+    ev
+  }
 
-  override lazy val unparser = new EncodingChangeUnparser(t.termRuntimeData)
+  override lazy val parser = new EncodingChangeParser(t.termRuntimeData, checkBitOrderAndCharset)
+
+  override lazy val unparser = new EncodingChangeUnparser(t.termRuntimeData, checkBitOrderAndCharset)
 
 }

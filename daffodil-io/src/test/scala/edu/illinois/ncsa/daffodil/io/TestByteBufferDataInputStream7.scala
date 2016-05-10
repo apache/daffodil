@@ -42,7 +42,7 @@ object Bitte {
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = Misc.bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoderDecoder]
+    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoder]
     val nBits = s.length * enc.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
@@ -279,6 +279,23 @@ class TestByteBufferDataInputStream7 {
     assertEquals('c', iter.next)
     assertEquals(42, dis.bitPos0b)
 
+  }
+
+  @Test def testUSASCII7BitEncoderOverflowError {
+    val encoder = new USASCII7BitPackedEncoder
+    val bb = ByteBuffer.allocate(1) // only big enough for a single byte
+    val cb = CharBuffer.wrap("ab") // two characters will cause overflow
+    val coderResult = encoder.encode(cb, bb, true)
+    assertTrue(coderResult == CoderResult.OVERFLOW)
+  }
+
+  @Test def testUSASCII7BitEncoderMalformedError {
+    val encoder = new USASCII7BitPackedEncoder
+    val bb = ByteBuffer.allocate(3)
+    val cb = CharBuffer.wrap("ab" + 128.toChar) // 128 is not encodable in 7 bits
+    val coderResult = encoder.encode(cb, bb, true)
+    assertTrue(coderResult.isUnmappable())
+    assertEquals(coderResult.length, 1)
   }
 
 }

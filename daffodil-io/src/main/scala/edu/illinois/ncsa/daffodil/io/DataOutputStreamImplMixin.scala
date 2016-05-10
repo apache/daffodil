@@ -252,7 +252,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
         else (MaybeInt.Nope, 8)
       else {
         cs match {
-          case encoderWithBits: NonByteSizeCharsetEncoderDecoder =>
+          case encoderWithBits: NonByteSizeCharset =>
             (MaybeInt(encoderWithBits.bitWidthOfACodeUnit), 1)
           case _ => {
             val maxBytes = encoder.maxBytesPerChar()
@@ -557,7 +557,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     // otherwise we can't get precise encodingErrorPolicy='error' behavior.
     // must handle non-byte-sized characters (e.g., 7-bit), so that bit-granularity positioning
     // works.
-    withLocalByteBuffer { lbb =>
+    val res = withLocalByteBuffer { lbb =>
       //
       // TODO: data size limit. For utf-8, this will limit the max number of chars
       // in cb to below 1/4 the max number of bytes in a bytebuffer, because the maxBytesPerChar
@@ -565,20 +565,14 @@ trait DataOutputStreamImplMixin extends DataOutputStream
       //
       val nBytes = math.ceil(cb.remaining * st.encoder.maxBytesPerChar()).toLong
       val bb = lbb.getBuf(nBytes)
-      val encoder = st.encoder match {
-        case encoderWithBits: NonByteSizeCharsetEncoderDecoder => {
-          //
-          // FIXME: These calls don't make sense for setting up encoding of characters
-          // The NonByteSizeCharsetEncoderDecoder trait may have to split into a
-          // decoder-specific and encoder-specific trait.
-          //
-          encoderWithBits.setInitialBitOffset(???)
-          encoderWithBits.setFinalByteBitLimitOffset0b(???)
-          encoderWithBits
-        }
-        case other => other
-      }
-      val cr = encoder.encode(cb, bb, true) // unavoidable copying/encoding of characters
+      val encoder = st.encoder
+      // Note that encode reads the charbuffer and encodes the character into a
+      // local byte buffer. The contents of the local byte buffer are then
+      // copied to the DOS byte buffer using putBitBuffer, which handles
+      // bitPosiition/bitLimit/fragment bytes. So because we encode to a
+      // temporary output buffer, the encode loop does not need to be aware of
+      // bit position/limit.
+      val cr = encoder.encode(cb, bb, true)
       cr match {
         case CoderResult.UNDERFLOW => //ok. Normal termination
         case CoderResult.OVERFLOW => Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
@@ -586,9 +580,14 @@ trait DataOutputStreamImplMixin extends DataOutputStream
         case _ if cr.isUnmappable() => cr.throwException()
       }
       bb.flip
-      if (putByteBuffer(bb) == 0) return 0 // byte buffer length exceeded bit limit
+
+      val bitsToWrite = encoder match {
+        case encoderWithBits: NonByteSizeCharsetEncoder => encoderWithBits.bitWidthOfACodeUnit * nToTransfer
+        case _ => bb.remaining * 8
+      }
+      if (putBitBuffer(bb, bitsToWrite) == 0) 0 else nToTransfer
     }
-    nToTransfer
+    res
   }
 
   def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = putLong(unsignedLong.longValue, bitLengthFrom1To64)

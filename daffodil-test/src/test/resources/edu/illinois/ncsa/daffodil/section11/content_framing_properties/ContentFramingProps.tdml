@@ -179,7 +179,7 @@
   <tdml:defineSchema name="packed7BitASCII">
 
     <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
-      lengthUnits="characters"/>
+      lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
       dfdl:length="2" />
@@ -270,7 +270,7 @@
   -->
 
   <tdml:parserTestCase name="packed7BitASCII1" root="e1"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
        0110010 0110100
@@ -292,7 +292,7 @@
   -->
 
   <tdml:parserTestCase name="packed7BitASCII2" root="e2"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
@@ -321,7 +321,7 @@
   -->
 
   <tdml:parserTestCase name="packed7BitASCII3" root="e3"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document  bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0101100 0110001  
@@ -483,7 +483,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII" root="e6"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110100 0110010
@@ -503,7 +503,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_02" root="e7"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL">  0110010 0110100 01010</tdml:documentPart>
     </tdml:document>
@@ -522,7 +522,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_03" root="e8"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[0110010 0110100]]></tdml:documentPart>
     </tdml:document>
@@ -541,7 +541,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_04" root="e9"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[ 0110100 0110010 11]]></tdml:documentPart>
     </tdml:document>
@@ -560,7 +560,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_05" root="e10"
-    model="packed7BitASCII">
+    model="packed7BitASCII" roundTrip="true">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[0110100 0110010]]></tdml:documentPart>
     </tdml:document>
