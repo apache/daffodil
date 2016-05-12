@@ -424,7 +424,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private lazy val optTruncateSpecifiedLengthString =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
   // because of the way text numbers are unparsed, we don't know that
-  // a the string is for a number. So we need this for numbers and other text
+  // the string is for a text number. So we need this property for numbers and other text
   // simple types also.
   //    if (isSimpleType && simpleType.primitiveType.isInstanceOf[NodeInfo.String.Kind]) {
   //      Option(truncateSpecifiedLengthString =:= YesNo.Yes)

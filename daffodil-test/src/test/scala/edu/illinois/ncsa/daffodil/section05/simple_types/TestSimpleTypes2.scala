@@ -83,6 +83,8 @@ class TestSimpleTypes2 {
   @Test def test_whiteSpaceDuringStrict() { runner2.runOneTest("whiteSpaceDuringStrict") }
   @Test def test_whiteSpaceAfterStrict() { runner2.runOneTest("whiteSpaceAfterStrict") }
 
+  // THIS TEST won't round trip until encoding for 7-bit ascii is implemented
+  // Currently this is set to roundTrip="false"
   @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
   @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
   @Test def test_LSBFirstSpan3Bytes() { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
@@ -92,6 +94,7 @@ class TestSimpleTypes2 {
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
+  @Test def test_bitOrderChangeInvalid2Unparser() { runner1.runOneTest("bitOrderChangeInvalid2Unparser") }
 
   @Test def test_simpleTypeDerivedFromPrimType() { runnerST.runOneTest("simpleTypeDerivedFromPrimType") }
   @Test def test_simpleTypeChainedDerivations() { runnerST.runOneTest("simpleTypeChainedDerivations") }

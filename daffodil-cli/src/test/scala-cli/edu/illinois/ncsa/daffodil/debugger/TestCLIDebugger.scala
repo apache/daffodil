@@ -519,11 +519,13 @@ class TestCLIdebugger {
 
       shell.sendLine("step")
       shell.sendLine("step")
+      shell.sendLine("step")
       shell.expect(contains("<cell>0</cell>"))
 
       shell.sendLine("continue")
       shell.expect(contains("<cell/>"))
 
+      shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
       shell.expect(contains("<cell>1</cell>"))
@@ -558,6 +560,7 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       shell.expect(contains("<cell/>"))
 
+      shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
       shell.expect(contains("<cell>2</cell>")) // lacks tns: prefix because debugger explicitly strips them.

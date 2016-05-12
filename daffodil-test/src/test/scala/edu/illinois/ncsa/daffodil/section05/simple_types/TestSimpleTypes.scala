@@ -101,8 +101,7 @@ class TestSimpleTypes {
   @Test def test_dateTimePattern03() { runner.runOneTest("dateTimePattern03") }
 
   @Test def test_dateEpochFillIn() { runner.runOneTest("dateEpochFillIn") }
-  // JIRA DFDL-XYZZY - no longer parses.
-  // @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
+  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
   @Test def test_dateEpochFillIn3() { runner.runOneTest("dateEpochFillIn3") }
   @Test def test_datePattern08() { runner.runOneTest("datePattern08") }
   @Test def test_datePattern08b() { runner.runOneTest("datePattern08b") }
@@ -127,8 +126,7 @@ class TestSimpleTypes {
   @Test def test_timeSymbols() { runner.runOneTest("timeSymbols") }
   @Test def test_timeSymbols2() { runner.runOneTest("timeSymbols2") }
   @Test def test_epochFillIn() { runner.runOneTest("epochFillIn") }
-  // JIRA DFDL-XYZZY - no longer parses
-  // @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
+  @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
   @Test def test_epochFillIn3() { runner.runOneTest("epochFillIn3") }
 
   @Test def test_timeTrim01() { runner.runOneTest("timeTrim01") }

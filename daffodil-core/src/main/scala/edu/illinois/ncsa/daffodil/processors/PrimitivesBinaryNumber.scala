@@ -55,7 +55,10 @@ class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Te
 }
 
 class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits: Long) extends Terminal(e, true) {
-  override lazy val parser = new BinaryIntegerKnownLengthParser(e.elementRuntimeData, signed, lengthInBits.toInt)
+
+  override lazy val parser = {
+    new BinaryIntegerKnownLengthParser(e.elementRuntimeData, signed, lengthInBits.toInt)
+  }
 
   override lazy val unparser: Unparser = new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, signed, lengthInBits.toInt)
 }

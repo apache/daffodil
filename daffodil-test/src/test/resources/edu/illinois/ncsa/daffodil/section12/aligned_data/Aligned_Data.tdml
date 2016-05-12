@@ -33,7 +33,8 @@
 -->
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
 
   <tdml:defineSchema name="s1">
@@ -477,7 +478,7 @@
   <tdml:defineSchema name="implicitAlignmentSchema">
 
     <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="ascii" 
-      lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary"/>
+      lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary" textNumberPattern="###0.###;-###0.###"/>
 
     <xs:element name="string" dfdl:lengthKind="implicit" dfdl:length="4" dfdl:encoding="ascii" 
       dfdl:lengthUnits="characters" dfdl:alignment="implicit" dfdl:leadingSkip="4">
@@ -520,10 +521,10 @@
     dfdl:representation="text"/>
   
     <dfdl:defineFormat name="textImp">
-      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bytes" />
+      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bytes" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="textImpBitAlign">
-      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bits" />
+      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bits" />
     </dfdl:defineFormat>
   
     <xs:element name="uIntT" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
@@ -559,7 +560,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentBitOrder">
-      <dfdl:format ref="ex:daffodilTest1" lengthUnits='bits' representation='binary'
+      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
       binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'
       byteOrder="littleEndian"/>
 
@@ -1760,7 +1761,10 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDoubleT" root="doubleT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R"
+    roundTrip="false">
+
+    <!-- Test does not round trip due to floating point text conversion and comparison issues. -->
 
     <tdml:document>
       <tdml:documentPart type="byte">2A</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1769,7 +1773,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doubleT>5.325762300373444E10</doubleT>
+        <doubleT>5.325762300373444E10</doubleT> <!-- 5.3257623003734E10 -->
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

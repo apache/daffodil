@@ -255,7 +255,6 @@ trait DataOutputStreamImplMixin extends DataOutputStream
           case encoderWithBits: NonByteSizeCharsetEncoderDecoder =>
             (MaybeInt(encoderWithBits.bitWidthOfACodeUnit), 1)
           case _ => {
-            val encoder = cs.newEncoder()
             val maxBytes = encoder.maxBytesPerChar()
             if (maxBytes == encoder.averageBytesPerChar())
               (MaybeInt((maxBytes * 8).toInt), 8)
@@ -337,7 +336,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     } else {
       ???
       //
-      // DELETE THIS COMMENT ONCE THIS IS IMPLEMENTED
+      // TODO: DELETE THIS COMMENT ONCE THIS IS IMPLEMENTED
       //
       // The code below is "a good try", but far from correct.
       // For now, just leaving it here with the ??? above.
@@ -399,7 +398,7 @@ trait DataOutputStreamImplMixin extends DataOutputStream
         Assert.invariant(nBits == bitLengthFrom1)
       }
       //
-      // PERFORMANCE: algorithm idea. To avoid heap allocated things, you could do this
+      // TODO: PERFORMANCE: algorithm idea. To avoid heap allocated things, you could do this
       // by recursively calling, putting each 64-bit chunk of the bigInt into
       // a local val chunk: Long = ...least significant 64 bit chunk ...
       // If little endian, then the chunk is output before we recurse (on the way down)
@@ -635,21 +634,21 @@ trait DataOutputStreamImplMixin extends DataOutputStream
    * These members are like a C language union. We write as float, we get back same storage
    * as int. Ditto double to long.
    */
-  private val bb = ByteBuffer.allocate(8)
-  private val db = bb.asDoubleBuffer()
-  private val fb = bb.asFloatBuffer()
-  private val ib = bb.asIntBuffer()
-  private val lb = bb.asLongBuffer()
+  protected val unionByteBuffer = ByteBuffer.allocate(8)
+  private val unionDoubleBuffer = unionByteBuffer.asDoubleBuffer()
+  private val unionFloatBuffer = unionByteBuffer.asFloatBuffer()
+  private val unionIntBuffer = unionByteBuffer.asIntBuffer()
+  protected val unionLongBuffer = unionByteBuffer.asLongBuffer()
 
   def putBinaryFloat(v: Float): Boolean = {
-    fb.put(0, v)
-    val i = ib.get(0)
+    unionFloatBuffer.put(0, v)
+    val i = unionIntBuffer.get(0)
     putLong(i, 32)
   }
 
   def putBinaryDouble(v: Double): Boolean = {
-    db.put(0, v)
-    val l = lb.get(0)
+    unionDoubleBuffer.put(0, v)
+    val l = unionLongBuffer.get(0)
     putLong(l, 64)
   }
 
@@ -716,7 +715,6 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   override def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong): Boolean = st.setMaybeRelBitLimit0b(newMaybeRelBitLimit0b)
 
   override def relBitPos0b: ULong = {
-    Assert.usage(isReadable)
     st.relBitPos0b
   }
 

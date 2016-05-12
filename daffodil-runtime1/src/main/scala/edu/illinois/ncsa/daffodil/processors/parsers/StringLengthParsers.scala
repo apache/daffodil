@@ -64,7 +64,6 @@ final class StringOfSpecifiedLengthParser(
   }
 
   override def parse(start: PState) {
-    setupEncoding(start, erd) //TODO: Is this needed here, or is this always used in a context where it would already be done?
     val field = parseString(start)
     start.simpleElement.setDataValue(field)
   }

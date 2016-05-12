@@ -49,6 +49,8 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
     val calValue = node.dataValue match {
       case dc: DFDLCalendar => dc.calendar
       case gc: GregorianCalendar => gc
+      // TODO: either always put GregorianCalendars in the infoset, or never.
+      // This match/case should be unnecessary. See JIRA DFDL-1504
     }
 
     val str = df.format(calValue)

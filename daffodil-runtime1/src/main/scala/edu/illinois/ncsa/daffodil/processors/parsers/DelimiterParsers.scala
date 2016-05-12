@@ -129,7 +129,8 @@ class DelimiterTextParser(
         //
         // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
         // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
-        // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
+        // 
+        // TODO: PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
         // these things at run time.
         //
         // FIXME: This is incorrect. It is going to get too many delimiters. See above.

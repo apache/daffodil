@@ -24,8 +24,6 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
 
   final def unparse(state: UState): Unit = {
 
-    setupEncoding(state, erd) // TODO: remove - should be happening in EncodingChangeUnparser now.
-
     val nBits = getBitLength(state)
     if (state.status _ne_ Success) return
     val dos = state.dataOutputStream
@@ -128,8 +126,6 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
   protected def getCharLength(s: UState): Long
 
   override final def unparse(state: UState) {
-
-    setupEncoding(state, erd)
 
     val nChars = getCharLength(state)
 

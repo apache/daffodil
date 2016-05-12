@@ -41,7 +41,10 @@ import java.lang.{ Long => JLong }
 
 trait HasKnownLengthInBits {
   def lengthInBits: Int
-  def getBitLength(s: ParseOrUnparseState) = lengthInBits
+
+  def getBitLength(s: ParseOrUnparseState) = {
+    lengthInBits
+  }
 }
 
 trait HasRuntimeExplicitLength {

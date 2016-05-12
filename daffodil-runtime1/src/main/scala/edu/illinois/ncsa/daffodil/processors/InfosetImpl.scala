@@ -536,6 +536,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   protected var _isDefaulted: Boolean = false
 
   private var _value: AnyRef = null
+  private var _stringRep: String = null
 
   override def children: Stream[DINode] = Stream.Empty
 
@@ -549,40 +550,78 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _isNilled = true
   }
 
+  /**
+   * Parsing of a text number first does setDataValue to a string, then a conversion does overwrite data value
+   * with a number. Unparsing does setDataValue to a value, then overwriteDataValue to a string.
+   */
   override def setDataValue(x: AnyRef) {
     Assert.invariant(!hasValue)
-    overwriteDataValue(x) // conversions for text numbers displace the string with the number.
+    overwriteDataValue(x)
   }
 
   def overwriteDataValue(x: AnyRef) {
-    Assert.invariant(!x.isInstanceOf[(Any, Any)]) // legacy code created these pairs. TODO: Remove?
     //
     // let's find places where we're putting a string in the infoset
-    // but the simple type is not string.
+    // but the simple type is not string. That happens when parsing or unparsing text Numbers, text booleans, text Date/Times.
+    //
+    //
+    // There are 4 states to consider given _value and _stringRep
+    //  _value null, _stringRep null
+    //  _value not null, _stringRep null
+    //  _value null, _stringRep not null
+    //  both not null.
+    //
+    // Those go with parse x unparse, and whether the type of the DISimple node is String or not.
+    //
+    // when parsing or unparsing, if the incoming x is a string, then there are two cases
+    // If the type of the DISimple element is String, then there is no distinction between textual _stringRep,
+    // and _value.
+    // If the type of the DISimple element is not String, then the incoming string is the textual data representation of
+    // the value. The represetnation is a string for a textNumber, textBoolean, or textCalendar type.
+
+    // If the incoming x is not a string, then _stringRep is only used as a cache of the text logical representation, as
+    // for converting to XML, or for debugging print statements.
     //
     val nodeKind = erd.optPrimType.get
-    if (x.isInstanceOf[String]) {
-      if (!nodeKind.isInstanceOf[NodeInfo.String.Kind]) {
-        // This is normal behavior for text numbers. First we parse the string
-        // based on length rules and/or delimiters
-        // then we run a quasi-parser which takes the value and converts
-        // it by parsing it as a textual number. It then overwrites
-        // the value with the value of the number type.
+    x match {
+      case xs: String => {
+        if (nodeKind.isInstanceOf[NodeInfo.String.Kind]) {
+          // the value is a string, and the type of the node is string.
+          // so we set the value and stringRep to the same thing.
+          _value = x
+          _stringRep = xs
+        } else {
+          //
+          // A string is being passed, but the type of the element is NOT string
+          //
+          // This is normal behavior for text numbers. First we parse the string
+          // based on length rules and/or delimiters
+          // then we run a quasi-parser which takes the value and converts
+          // it by parsing it as a textual number. It then overwrites
+          // the value with the value of the number type.
+          //
+          // So we set the stringRep, but not the value. (The value might be there if unparsing, or not if parsing)
+          // When the converter runs, it will ask for the dataValueAsString which will take
+          // the stringRep because we have defined it here.
+          _stringRep = x.asInstanceOf[String]
+        }
+      }
+      case _ => {
+        // we've been given a non-string value.
         //
-        // This comment code block is here because it is such a useful
-        // place to put a breakpoint for debugging.
+        Assert.invariant(!nodeKind.isInstanceOf[NodeInfo.String.Kind])
         //
-        // TODO: chase down places that a string is being put in the infoset
-        // but as the representation of a type, not as a temporary thing
-        // that is to be immediately converted to the 'real' type by the
-        // next parser.
-        // println("assigning a string where " + nodeKind + " is required.")
+        // In this case we set the stringRep to null. If we need the dataValueAsString, then it is NOT
+        // to get a text physical representation in the data, it is to get a textual representation of the
+        // logical value for debug or for XML output.
+        //
+        _stringRep = null
+        _value = asAnyRef(x)
       }
     }
     _isNilled = false
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
-    _value = asAnyRef(x)
   }
 
   def hasValue: Boolean = !_isNilled && _value != null
@@ -604,25 +643,28 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   }
 
   override def dataValueAsString = {
-    dataValue match {
-      case s: String => s
-      case arr: Array[Byte] => Misc.bytes2Hex(arr)
-      case d: java.lang.Double => {
-        //
-        // Print these as needed in XML/XSD
-        //
-        if (d == Double.PositiveInfinity) XMLUtils.PositiveInfinityString
-        else if (d == Double.NegativeInfinity) XMLUtils.NegativeInfinityString
-        else d.toString
+    if (_stringRep ne null) _stringRep
+    else {
+      dataValue match {
+        case s: String => s
+        case arr: Array[Byte] => Misc.bytes2Hex(arr)
+        case d: java.lang.Double => {
+          //
+          // Print these as needed in XML/XSD
+          //
+          if (d == Double.PositiveInfinity) XMLUtils.PositiveInfinityString
+          else if (d == Double.NegativeInfinity) XMLUtils.NegativeInfinityString
+          else d.toString
+        }
+        case f: java.lang.Float => {
+          if (f == Float.PositiveInfinity) XMLUtils.PositiveInfinityString
+          else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
+          else f.toString
+        }
+        case _ => dataValue.toString
       }
-      case f: java.lang.Float => {
-        if (f == Float.PositiveInfinity) XMLUtils.PositiveInfinityString
-        else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
-        else f.toString
-      }
-      case _ => dataValue.toString
     }
-  } // TODO: caching these strings
+  }
 
   override def isDefaulted: Boolean = {
     dataValue // access this for side-effect that checks for default value.

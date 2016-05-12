@@ -22,6 +22,13 @@ object Runner {
     defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault): Runner = new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
     defaultRoundTripDefault)
 
+  // Yes, that's a lot of defaults.....
+  // but really it is 3-tiers deep:
+  // roundTrip - on test case
+  // defaultRoundTrip - on test suite
+  // defaultRoundTripDefault - on runner aka test suite factory
+  // defaultRoundTripDefaultDefault - on runner factory
+  //
   def defaultRoundTripDefaultDefault = false
 }
 

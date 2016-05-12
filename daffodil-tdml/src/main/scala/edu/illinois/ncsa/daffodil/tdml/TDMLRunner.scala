@@ -82,6 +82,7 @@ import java.nio.file.Files
 import edu.illinois.ncsa.daffodil.equality._
 import org.apache.commons.io.IOUtils
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
+import edu.illinois.ncsa.daffodil.processors.UnparseResult
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -627,7 +628,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean) {
+    roundTripArg: Boolean) {
+
+    val roundTrip = roundTripArg // change to true to force all parse tests to round trip (to see which fail to round trip)
 
     if (processor.isError) {
       val diagObjs = processor.getDiagnostics
@@ -696,8 +699,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        // val uActual =
-        val unparseResult = processor.unparse(output, actual.result)
+        val unparseResult = processor.unparse(output, actual.result).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           throw new TDMLException(unparseResult.getDiagnostics)
         }
@@ -705,14 +707,35 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
         try {
           VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(testData)), outStream)
+          //
+          // if verification passes, we're done
           stillTesting = false
         } catch {
           case e: TDMLException => {
+            // if verification threw (failed)
+            // consider this:
+            //    infoset1 = parse(data1)
+            //    data2 = unparse(infoset1)
+            // if comparing expected output to data2 failed, then we want to try again:
+            //    infoset2 = parse(data2)
+            //    data3 = unparse(infoset2)
+            // if comparing data2 to data 3 fails, then the test fails
+            //
+            // As an example of why this is needed.
+            // If the input data is 64 bits all 1s, parsing that as a double produces a NaN as
+            // do many bit patterns. Unparsing this produces the cannonical NaN (which is *not* all 1s)
+            // However, parsing this cannnonical NaN bit pattern produces a NaN again, and unparsing
+            // it again produces the same cannoical NaN bits. So this second comparison will succeed.
+            //
+            // Any time a parse+unparse is a many to 1 mapping, a parser test case isn't necessarily
+            // going to invert into an unparser test.
+            //
             if (testPass == 1) {
               // Try again
               testData = outStream.toByteArray
-              testDataLength = testData.length * 8
-            } else throw e
+              testDataLength = unparseResult.resultState.bitPos0b // testData.length * 8
+            } else
+              throw e
           }
         }
 
@@ -914,21 +937,15 @@ object VerifyTestCase {
   def verifyUnparserTestData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
 
-    val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
-    val readCount = expectedData.read(inbuf)
-    expectedData.close()
-    if (readCount == -1) {
-      // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
-      if (actualBytes.length > 0) {
-        throw new TDMLException("Unexpected data was created.")
-      }
-      return // we're done. Nothing equals nothing.
+    val expectedDataStream = Channels.newInputStream(expectedData)
+    val expectedBytes = IOUtils.toByteArray(expectedDataStream)
+    // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
+    if (expectedBytes.length == 0 && actualBytes.length > 0) {
+      throw new TDMLException("Unexpected data was created.")
     }
 
-    Assert.invariant(readCount == inbuf.position())
+    val readCount = expectedBytes.length
 
-    // compare expected data to what was output.
-    val expectedBytes = inbuf.array().toList.slice(0, readCount)
     if (actualBytes.length != readCount) {
       throw new TDMLException("output data length " + actualBytes.length + " for " + actualBytes.toList +
         " doesn't match expected value " + readCount + " for " + expectedBytes)

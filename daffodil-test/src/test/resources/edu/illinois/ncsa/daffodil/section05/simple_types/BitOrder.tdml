@@ -35,7 +35,8 @@
   description="new property bitOrder='leastSignificantBitFirst'" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
-  xmlns:tns="http://example.com">
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
 
 
   <tdml:defineSchema name="s">
@@ -107,7 +108,8 @@
 
 
   <tdml:parserTestCase name="TestMIL2045_47001D_Page70_TableB_I_with_string"
-    root="tabBI" model="s" description="Verification that user's test works for DFDL-677">
+    root="tabBI" model="s" description="Verification that user's test works for DFDL-677"
+    roundTrip="false">
     <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
       <documentPart type="bits" byteOrder="RTL">Version                         XXXX 0011</documentPart>
       <documentPart type="bits" byteOrder="RTL">FPI                             XXX0 XXXX</documentPart>
@@ -369,6 +371,22 @@
       <tdml:error>byte boundary</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:unparserTestCase name="bitOrderChangeInvalid2Unparser"
+    root="switchOrder" model="s2" description="Tests changing bitOrder when not on a byte boundary and should produce an error.">
+    <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <switchOrder xmlns="http://example.com">
+        <A>9</A><B>13</B><C>5</C><D>0</D>
+      </switchOrder>
+    </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>bitOrder</tdml:error>
+      <tdml:error>byte boundary</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s6">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"

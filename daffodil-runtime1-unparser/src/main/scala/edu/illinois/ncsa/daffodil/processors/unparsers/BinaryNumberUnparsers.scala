@@ -57,6 +57,8 @@ class BinaryIntegerKnownLengthUnparser(e: ElementRuntimeData, signed: Boolean, o
 class BinaryIntegerRuntimeLengthUnparser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
   extends BinaryIntegerBaseUnparser(e, signed)
   with HasRuntimeExplicitLength {
+
+  override val runtimeDependencies = List(lengthEv)
 }
 
 class BinaryFloatUnparser(e: ElementRuntimeData)
@@ -88,6 +90,8 @@ class BinaryDecimalKnownLengthUnparser(e: ElementRuntimeData, signed: YesNo, bin
 class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
   extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
+
+  override val runtimeDependencies = List(lengthEv)
 }
 
 abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)

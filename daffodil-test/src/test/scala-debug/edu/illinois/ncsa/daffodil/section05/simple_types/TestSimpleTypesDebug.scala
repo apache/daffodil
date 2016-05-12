@@ -75,11 +75,6 @@ class TestSimpleTypesDebug {
     assertTrue(exc.getMessage().contains("Did not find"))
   }
 
-  // JIRA DFDL-XYZZY - no longer parses. Something to do with calendarPattern="" (emptyString)
-  @Test def test_epochFillIn2() { runner.runOneTest("epochFillIn2") }
-  // JIRA DFDL-XYZZY - no longer parses. Something to do with calendarPattern="" (emptyString)
-  @Test def test_dateEpochFillIn2() { runner.runOneTest("dateEpochFillIn2") }
-
   //DFDL-1454
   //dfdl:hexBinary not behaving like xs:hexBinary
   @Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }

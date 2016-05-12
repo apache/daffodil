@@ -96,7 +96,7 @@ class UState(
   final val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
   final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
     {
-      val baos = new ByteArrayOutputStream() // PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
+      val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
       val dos = DirectOrBufferedDataOutputStream(baos).asInstanceOf[DirectOrBufferedDataOutputStream]
       (baos, dos)
     },

@@ -131,7 +131,7 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     val newBufStr = new DirectOrBufferedDataOutputStream()
     _following = One(newBufStr)
     //
-    // PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
+    // TODO: PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
     // just in case after an outputValueCalc element we go off for a long time and lots of things
     // change about these format settings.
     //
@@ -245,8 +245,8 @@ final class DirectOrBufferedDataOutputStream private[io] ()
       val bitsToGoIntoFrag = bits >> (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
       val bitsToGoIntoFragInPosition = bitsToGoIntoFrag << (8 - nFragBitsAfter)
 
-      val newFragByte = st.fragmentLastByte | bitsToGoIntoFragInPosition.toInt
-      Assert.invariant(newFragByte < 255 && newFragByte > -128)
+      val newFragByte = Bits.asUnsignedByte((st.fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
+      Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
       val shift1 = 64 - (bitLengthFrom1To64 + nBitsOfFragToBeFilled)
       bits = (bits << shift1) >>> shift1
@@ -295,11 +295,180 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   }
 
   final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
-    ???
+    // Note: we don't have to check for bit limit. That check was already done.
+    //
+    // LE_MSBF is most complicated of all.
+    // Frag byte contents must be shifted to MSB position
+    // But we take MSBs of the least-significant byte of the signedLong to put into that FragByte.
+
+    var bits = signedLong
+    //
+    // The long we're writing has a last byte (from byteOrder LittleEndian perspective).
+    // If this last byte is partial, we have to shift left to put the bits in the MSBs of
+    // that byte, since we're storing data MSBF.
+    //
+    val nWholeBytesAtStart = bitLengthFrom1To64 / 8
+    val nUsedBitsLastByte = (bitLengthFrom1To64 % 8)
+    val nUnusedBitsLastByte = if (nUsedBitsLastByte == 0) 0 else 8 - nUsedBitsLastByte
+    val indexOfLastByteLE = nWholeBytesAtStart - (if (nUnusedBitsLastByte > 0) 0 else 1)
+
+    unionLongBuffer.put(0, bits)
+    Bits.reverseBytes(unionByteBuffer)
+
+    // bytes are now in unionByteBuffer in LE order
+
+    val lastByte = unionByteBuffer.get(indexOfLastByteLE) // last byte is the most significant byte
+    val newLastByte = ((lastByte << nUnusedBitsLastByte) & 0xFF).toByte
+    unionByteBuffer.put(indexOfLastByteLE, newLastByte)
+
+    //
+    // bytes of the number are now in LE order, but with bits MSBF
+    //
+    var nBitsOfFragToBeFilled = 0
+
+    if (st.fragmentLastByteLimit > 0) {
+      //
+      // there is a frag byte, to which we are writing first.
+      // We will write at least 1 bit to the frag.
+      //
+      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+
+      // the bits we're writing might not fill the frag, so the number
+      // we will fill is the lesser of the size of available space in the frag, and the bitLength argument.
+      nBitsOfFragToBeFilled =
+        if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
+        else bitLengthFrom1To64
+
+      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+
+      // Now get the bits that will go into the frag, from the least significant (first) byte.
+      val newFragBitsMask = 0x80.toByte >> (nBitsOfFragToBeFilled - 1)
+      val LSByte = unionByteBuffer.get(0)
+      val bitsToGoIntoFragInPosition = ((LSByte & newFragBitsMask) >>> st.fragmentLastByteLimit).toInt
+
+      val newFragByte = Bits.asUnsignedByte((st.fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
+      Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
+
+      if (nFragBitsAfter == 8) {
+        // we filled the entire frag byte. Write it out, then zero it
+        realStream.write(newFragByte.toByte)
+        st.setFragmentLastByte(0, 0)
+      } else {
+        // we did not fill up the frag byte. We added bits to it (at least 1), but
+        // it's not filled up yet.
+        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+      }
+
+      //
+      // Now we have to remove the bits that went into the
+      // current frag byte
+      //
+      // This is a strange operation. Were creating a long from the littleEndian bytes.
+      // The value of this will be very strange, but shifting left moves bits from more significant
+      // bytes into less significant bytes,
+      bits = unionLongBuffer.get(0)
+      bits = bits << nBitsOfFragToBeFilled
+      unionLongBuffer.put(0, bits)
+
+    }
+    //
+    // now we have the unionByteBuffer containing the correct LE bytes, in LE order.
+    //
+    val bitLengthRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
+    Assert.invariant(bitLengthRemaining >= 0)
+
+    if (bitLengthRemaining > 0) {
+      val nWholeBytesNow = bitLengthRemaining / 8
+      val nBitsInFinalFrag = bitLengthRemaining % 8
+      val indexOfFinalFragByte = nWholeBytesNow
+
+      var i = 0
+      while (i < nWholeBytesNow) {
+        realStream.write(unionByteBuffer.get(i))
+        i += 1
+      }
+      if (nBitsInFinalFrag > 0) {
+        val finalFragByte = Bits.asUnsignedByte(unionByteBuffer.get(indexOfFinalFragByte))
+        st.setFragmentLastByte(finalFragByte, nBitsInFinalFrag)
+      }
+    }
+    true
   }
 
   final override protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
-    ???
+    // Note: we don't have to check for bit limit. That check was already done.
+    //
+    // Interestingly, LE_LSBF is slightly simpler than BE_MSBF as we don't have to shift bytes to get the
+    // bits into MSBF position.
+    //
+    // steps are
+    // add bits to the fragmentByte (if there is one)
+    // if the fragmentByte is full, write it.
+    // so now there is no fragment byte
+    // if we have more bits still to write, then
+    // do we have a multiple of 8 bits left (all whole bytes) or are we going to have a final fragment byte?
+    // for all whole bytes, take least-significant byte of the long, and write it out. shift >> 8 bits
+    // set the fragment byte to the remaining most significant byte.
+    var nBitsRemaining = bitLengthFrom1To64
+    var bits = signedLong
+
+    if (st.fragmentLastByteLimit > 0) {
+      //
+      // there is a frag byte, to which we are writing first.
+      // We will write at least 1 bit to the frag.
+      //
+      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+      val nBitsOfFragToBeFilled =
+        if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
+        else bitLengthFrom1To64
+      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+
+      val bitsToGoIntoFragInPosition = ((bits << st.fragmentLastByteLimit) & 0xFF).toInt
+
+      val newFragByte = st.fragmentLastByte | bitsToGoIntoFragInPosition
+      Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
+
+      bits = bits >>> nBitsOfFragToBeFilled
+      nBitsRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
+
+      if (nFragBitsAfter == 8) {
+        // we filled the entire frag byte. Write it out, then zero it
+        realStream.write(newFragByte.toByte)
+        st.setFragmentLastByte(0, 0)
+      } else {
+        // we did not fill up the frag byte. We added bits to it (at least 1), but
+        // it's not filled up yet.
+        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+      }
+
+    }
+    // at this point we have bits and nBitsRemaining
+
+    Assert.invariant(nBitsRemaining >= 0)
+    if (nBitsRemaining == 0)
+      true // we are done
+    else {
+      // we have more bits to write. Could be as many as 64 still.
+      Assert.invariant(st.fragmentLastByteLimit == 0) // there is no frag byte.
+      val nWholeBytes = nBitsRemaining / 8
+      val nFragBits = nBitsRemaining % 8
+      val fragUsedBitsMask = ((1 << nFragBits) - 1)
+
+      var shiftedBits = bits
+
+      var i = 0
+      while (i < nWholeBytes) {
+        val byt = shiftedBits & 0xFF
+        realStream.write(byt.toByte)
+        shiftedBits = shiftedBits >>> 8
+        i += 1
+      }
+      if (nFragBits > 0) {
+        val newFragByte = Bits.asUnsignedByte((shiftedBits & fragUsedBitsMask).toByte)
+        st.setFragmentLastByte(newFragByte, nFragBits)
+      }
+      true
+    }
   }
 }
 
@@ -359,7 +528,7 @@ object DirectOrBufferedDataOutputStream {
         val bb = bufDOS.getByteBuffer
         if (directDOS.cst.fragmentLastByteLimit > 0) {
           //
-          // PERFORMANCE: consider writing a one-pass here vs this shifting thing.
+          // TODO: PERFORMANCE: consider writing a one-pass here vs this shifting thing.
           // (However, we should see if this matters anyway. It's only relevant if we have
           // frag bytes involved around splits of direct and buffered. May not matter.
           //

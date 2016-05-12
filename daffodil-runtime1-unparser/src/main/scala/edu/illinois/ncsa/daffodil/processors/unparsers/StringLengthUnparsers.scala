@@ -58,6 +58,7 @@ class StringOfSpecifiedLengthUnparser(
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
     state.withByteArrayOutputStream {
       case (_, dos) =>
+        dos.setEncoder(state.dataOutputStream.encoder)
         val nChars = dos.putString(str)
         val nBits = dos.relBitPos0b.toLong
         (nBits, nChars)

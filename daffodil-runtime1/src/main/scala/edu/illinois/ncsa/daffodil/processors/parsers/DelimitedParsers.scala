@@ -170,10 +170,8 @@ class HexBinaryDelimitedParser(
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")
-      // val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
-      // val endBitPos = state.bitPos + numBits
-      val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
-      state.simpleElement.setDataValue(hexStr)
+      val fieldBytes = field.getBytes(StandardCharsets.ISO_8859_1)
+      state.simpleElement.setDataValue(fieldBytes)
       if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
       return
     }
