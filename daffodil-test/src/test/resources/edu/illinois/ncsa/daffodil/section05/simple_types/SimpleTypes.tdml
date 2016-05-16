@@ -4907,7 +4907,8 @@
 -->
   
   <tdml:parserTestCase name="timeZoneFormats7" root="time05b"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
+    roundTrip="false">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
