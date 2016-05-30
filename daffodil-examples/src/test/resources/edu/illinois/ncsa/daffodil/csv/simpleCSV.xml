@@ -1,0 +1,26 @@
+<ex:file xmlns:ex="http://example.com">
+  <header>
+    <title>last</title>
+    <title>first</title>
+    <title>middle</title>
+    <title>DOB</title>
+  </header>
+  <record>
+    <item>smith</item>
+    <item>robert</item>
+    <item>brandon</item>
+    <item>1988-03-24</item>
+  </record>
+  <record>
+    <item>johnson</item>
+    <item>john</item>
+    <item>henry</item>
+    <item>1986-01-23</item>
+  </record>
+  <record>
+    <item>jones</item>
+    <item>arya</item>
+    <item>cat</item>
+    <item>1986-02-19</item>
+  </record>
+</ex:file>
