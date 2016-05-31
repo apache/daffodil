@@ -252,7 +252,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains(output9))
       shell.sendLine("exit")
@@ -268,7 +268,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
       shell.expect(contains(output10))
@@ -285,7 +285,7 @@ class TestCLIparsing {
     val shell = Util.start("")
 
     try {
-      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo -n test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
       shell.expect(contains(output10))

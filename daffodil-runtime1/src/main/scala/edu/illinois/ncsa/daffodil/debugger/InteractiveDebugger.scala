@@ -403,8 +403,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     Assert.invariant(xml.length == 1)
     val elem = xml(0)
     val xmlClean = XMLUtils.removeAttributes(elem) // strip them all , Seq(XMLUtils.INT_NS_OBJECT))
-    val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-    val pp = new PrettyPrinter(wrap, 2)
+    val pp = new PrettyPrinter(2)
     val xmlString = pp.format(xmlClean)
     debugPrintln(xmlString)
   }
@@ -1448,8 +1447,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val infoset = getInfoset(state.infoset)
-          val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-          val pp = new PrettyPrinter(wrap, 2)
+          val pp = new PrettyPrinter(2)
           debugPrintln("%s:".format(name))
           val xml = pp.format(infoset)
           val lines = xml.split("\n")

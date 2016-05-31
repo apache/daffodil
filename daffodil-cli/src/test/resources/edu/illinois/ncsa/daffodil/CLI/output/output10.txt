@@ -1,5 +1,5 @@
 <rabbitHole>
   <nestSequence>
-    <nest>test </nest>
+    <nest>test</nest>
   </nestSequence>
 </rabbitHole>
