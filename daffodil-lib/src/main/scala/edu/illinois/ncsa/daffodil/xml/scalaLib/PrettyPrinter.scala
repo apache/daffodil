@@ -142,7 +142,7 @@ class PrettyPrinter(step: Int) {
     n match {
       case e: Elem => {
         sb.append(" " * cur)
-        val Elem(_, _, _, scope, child @ _*) = e
+        val child = e.child
         if (child.isEmpty || allAreLeaves(child)) {
           // simple and empty element case
           sb.append(e.toString)
