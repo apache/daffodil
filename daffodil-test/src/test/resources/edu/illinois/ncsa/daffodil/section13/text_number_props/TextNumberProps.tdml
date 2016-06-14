@@ -208,7 +208,7 @@
        dfdl:textNumberCheckPolicy="strict"/>
      
      <xs:element name="hexBinaryPad1" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center" 
-       dfdl:textNumberCheckPolicy="strict" dfdl:representation="binary"/>
+       dfdl:textNumberCheckPolicy="strict" dfdl:representation="binary" dfdl:encoding="ISO-8859-1"/>
      
      <xs:element name="tnp69" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00" />
      <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />

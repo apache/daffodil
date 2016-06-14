@@ -48,10 +48,19 @@ trait EncodingChangeMixin extends GrammarMixin { self: Term =>
       val thisEncoding = encodingEv
       val otherEncoding = encodingBefore
       if (thisEncoding.isConstant && otherEncoding.isConstant &&
-        thisEncoding.optConstant.get =:= otherEncoding.optConstant.get)
-        true
-      else
+        thisEncoding.optConstant.get =:= otherEncoding.optConstant.get) {
+        if (priorSiblingEncoding.isDefined) {
+          // in addition to having the same encoding as the prior sibling, all
+          // children of that prior sibling must have the same encoding.
+          // Otherwise, a child could change the encoding and it might not be
+          // the same as ours.
+          priorSibling.get.hasUniformEncodingThroughout
+        } else {
+          true
+        }
+      } else {
         false
+      }
     }
   }
 

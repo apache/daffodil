@@ -3696,7 +3696,7 @@
     <xs:element name="ceil05">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
           <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -3775,7 +3775,7 @@
     <xs:element name="floor06">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
           <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(xs:hexBinary(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>

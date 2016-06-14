@@ -44,21 +44,21 @@
     <xs:element name="hb_02" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="{ $FOUR }" />
     <xs:element name="hb_03" type="xs:hexBinary" dfdl:fillByte="1" dfdl:lengthKind="explicit" dfdl:length="5" />
     <xs:element name="hb_04" type="xs:hexBinary" dfdl:fillByte="b" dfdl:lengthKind="explicit" dfdl:length="2" />
-    <xs:element name="hb_05" dfdl:fillByte="b" dfdl:lengthKind="delimited">
+    <xs:element name="hb_05" dfdl:fillByte="b" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1">
       <xs:simpleType>
         <xs:restriction base="xs:hexBinary">
           <xs:minLength value="10"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="hb_06" dfdl:fillByte="0" dfdl:lengthKind="delimited">
+    <xs:element name="hb_06" dfdl:fillByte="0" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1">
       <xs:simpleType>
         <xs:restriction base="xs:hexBinary">
           <xs:minLength value="2"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="hb_07" dfdl:fillByte="a" dfdl:lengthKind="implicit">
+    <xs:element name="hb_07" dfdl:fillByte="a" dfdl:lengthKind="implicit" dfdl:encoding="ISO-8859-1">
       <xs:simpleType>
         <xs:restriction base="xs:hexBinary">
           <xs:minLength value="3"/>
@@ -121,7 +121,7 @@
       </xs:simpleType>
     </xs:element>
     
-    <xs:element name="hb_16" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="delimited"/>
+    <xs:element name="hb_16" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
 
   </tdml:defineSchema>
 

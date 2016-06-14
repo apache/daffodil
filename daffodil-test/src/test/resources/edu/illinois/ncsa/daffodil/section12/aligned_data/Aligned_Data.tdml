@@ -46,7 +46,7 @@
     <xs:element name="e2" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:leadingSkip="3000000" />
     
-    <xs:element name="e3" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="10" dfdl:lengthKind="explicit" dfdl:length="3"/>
+    <xs:element name="e3" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="10" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
 
   </tdml:defineSchema>
   
@@ -490,8 +490,8 @@
       </xs:simpleType>
     </xs:element>
 
-    <xs:element name="hB" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" />
-    <xs:element name="hB2" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" />
+    <xs:element name="hB" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4" dfdl:encoding="ISO-8859-1" />
+    <xs:element name="hB2" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:alignment="implicit" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:encoding="ISO-8859-1" />
 
     <xs:element name="uInt" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="32" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
     <xs:element name="uShort" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="1"/>
