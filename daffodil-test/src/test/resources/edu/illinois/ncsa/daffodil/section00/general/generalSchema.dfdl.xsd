@@ -52,8 +52,8 @@
   <element name="e3" dfdl:lengthKind="implicit">
     <complexType>
       <sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
-        <element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
-        <element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
+        <element name="s1" type="xs:string" dfdl:lengthKind="delimited" />
+        <element name="s2" type="xs:string" dfdl:lengthKind="delimited" />
       </sequence>
     </complexType>
   </element>

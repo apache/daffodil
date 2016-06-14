@@ -382,8 +382,8 @@ class TestCLIunparsing {
     try {
       val cmd = String.format("echo '<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>'| %s -t unparse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("parser: <Element name='nest'><seq>......</seq></Element>"))
-      shell.expect(contains("parser: <Element name='rabbitHole'><seq>"))
+      shell.expect(contains("parser: <Element name='nest'>"))
+      shell.expect(contains("parser: <Element name='rabbitHole'>"))
       shell.expect(contains("test"))
       shell.sendLine("exit")
       shell.expect(eof)
