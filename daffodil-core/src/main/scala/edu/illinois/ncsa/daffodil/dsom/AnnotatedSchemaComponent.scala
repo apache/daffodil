@@ -183,7 +183,7 @@ trait AnnotatedMixin
    * Anything annotated must be able to construct the
    * appropriate DFDLAnnotation object from the xml.
    */
-  protected def annotationFactory(node: Node): DFDLAnnotation
+  protected def annotationFactory(node: Node): Option[DFDLAnnotation]
 
   private lazy val annotationNode = {
     val ann = xml \ "annotation"
@@ -237,7 +237,7 @@ trait AnnotatedMixin
     dais.flatMap { dai =>
       {
         val children = dai.child
-        val res = children.filter { _.isInstanceOf[scala.xml.Elem] }.map { child =>
+        val res = children.filter { _.isInstanceOf[scala.xml.Elem] }.flatMap { child =>
           {
             annotationFactory(child)
           }

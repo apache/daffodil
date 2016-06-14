@@ -231,6 +231,21 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="more_count4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="array" minOccurs="1" maxOccurs="10">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="i1" type="xs:int" dfdl:initiator="#:" />
+                <xs:element name="count" type="xs:int" dfdl:inputValueCalc="{ fn:count(..) }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="stringLiteralFromString">
       <xs:complexType>
@@ -3136,6 +3151,40 @@
           </array>
           <occurs>1</occurs>
         </more_count3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: more_count_4
+       Schema: Functions.dfdl.xsd
+         Root: more_count3
+      Purpose: This test demonstrates the use .. as the last step in count function.
+-->
+
+  <tdml:parserTestCase name="more_count_4" root="more_count4"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[#:10,#:11,#:12]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <more_count4>
+          <array>
+            <i1>10</i1>
+            <count>1</count>
+          </array>
+          <array>
+            <i1>11</i1>
+            <count>2</count>
+          </array>
+          <array>
+            <i1>12</i1>
+            <count>3</count>
+          </array>
+        </more_count4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

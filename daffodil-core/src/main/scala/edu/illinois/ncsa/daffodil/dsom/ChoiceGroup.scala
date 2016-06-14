@@ -83,9 +83,9 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   protected final override lazy val myPeers = choicePeers
 
-  protected final override def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
+      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }

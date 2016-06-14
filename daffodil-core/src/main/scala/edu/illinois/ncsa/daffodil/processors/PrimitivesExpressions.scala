@@ -50,11 +50,14 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternParser
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
 import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcRuntimeLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcStaticLengthUnparser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -182,10 +185,10 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   }.value
 }
 
-abstract class ValueCalcBase(e: ElementBase)
+abstract class ValueCalcBase(e: ElementBase,
+  property: PropertyLookupResult)
   extends ExpressionEvaluatorBase(e) {
 
-  def exprProp: Found
   override lazy val exprText = exprProp.value
   override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
@@ -193,25 +196,74 @@ abstract class ValueCalcBase(e: ElementBase)
   lazy val pt = e.primType //.typeRuntimeData
   override lazy val nodeKind = pt
   lazy val ptn = pt.name
+
+  lazy val exprProp = property.asInstanceOf[Found]
+
 }
 
-case class ValueCalc(
-  override val baseName: String,
-  e: ElementBase,
-  property: PropertyLookupResult,
-  ovcRepUnparserGram: Gram = null)
-  extends ValueCalcBase(e) {
+case class InputValueCalc(e: ElementBase,
+  property: PropertyLookupResult)
+  extends ValueCalcBase(e, property) {
 
-  val exprProp = property.asInstanceOf[Found]
+  override def baseName = "inputValueCalc"
 
-  lazy val parser: DaffodilParser = {
-    Assert.usage(ovcRepUnparserGram eq null)
+  override lazy val parser: DaffodilParser = {
     new IVCParser(expr, e.elementRuntimeData)
   }
 
+  override lazy val unparser = Assert.usageError("Not to be called on InputValueCalc class.")
+}
+
+case class OutputValueCalcStaticLength(e: ElementBase,
+  property: PropertyLookupResult,
+  ovcRepUnparserGram: Gram,
+  knownLengthInBits: Long)
+  extends ValueCalcBase(e, property) {
+
+  override def baseName = "outputValueCalc"
+
+  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
+
   override lazy val unparser = {
     val ovcRepUnparser = ovcRepUnparserGram.unparser
-    val unp = new ElementOutputValueCalcUnparser(e.elementRuntimeData, ovcRepUnparser)
+    val unp = new ElementOutputValueCalcStaticLengthUnparser(e.elementRuntimeData, ovcRepUnparser, MaybeULong(knownLengthInBits))
+    unp
+  }
+}
+
+case class OutputValueCalcRuntimeLength(e: ElementBase,
+  property: PropertyLookupResult,
+  ovcRepUnparserGram: Gram,
+  lengthEv: LengthEv,
+  lengthUnits: LengthUnits)
+  extends ValueCalcBase(e, property) {
+
+  override def baseName = "outputValueCalc"
+
+  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
+
+  override lazy val unparser = {
+    val ovcRepUnparser = ovcRepUnparserGram.unparser
+    val unp = new ElementOutputValueCalcRuntimeLengthUnparser(e.elementRuntimeData, ovcRepUnparser, lengthEv, lengthUnits)
+    unp
+  }
+}
+
+case class OutputValueCalcVariableLength(e: ElementBase,
+  property: PropertyLookupResult,
+  ovcRepUnparserGram: Gram)
+  extends ValueCalcBase(e, property) {
+
+  override def baseName = "outputValueCalc"
+
+  override lazy val parser = Assert.usageError("Not to be called on OutputValueCalc class.")
+
+  override lazy val unparser = {
+    val ovcRepUnparser = ovcRepUnparserGram.unparser
+    //
+    // same "static length" unparser, but the length is optional, so in this case we don't provide it.
+    //
+    val unp = new ElementOutputValueCalcStaticLengthUnparser(e.elementRuntimeData, ovcRepUnparser, MaybeULong.Nope)
     unp
   }
 }

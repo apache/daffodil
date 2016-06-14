@@ -38,18 +38,18 @@ trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {
   protected final lazy val optionByteOrderRaw = findPropertyOption("byteOrder")
   protected final lazy val byteOrderRaw = requireProperty(optionByteOrderRaw)
-  protected final lazy val optionEncodingRaw = findProperty("encoding")
+  protected final lazy val optionEncodingRaw = findPropertyOption("encoding")
   protected final lazy val encodingRaw = requireProperty(optionEncodingRaw)
-  protected final lazy val optionOutputNewLineRaw = findProperty("outputNewLine")
+  protected final lazy val optionOutputNewLineRaw = findPropertyOption("outputNewLine")
   protected final lazy val outputNewLineRaw = requireProperty(optionOutputNewLineRaw)
 }
 
 trait RawDelimitedRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionInitiatorRaw = findProperty("initiator")
+  protected final lazy val optionInitiatorRaw = findPropertyOption("initiator")
   protected final lazy val initiatorRaw = requireProperty(optionInitiatorRaw)
-  protected final lazy val optionTerminatorRaw = findProperty("terminator")
+  protected final lazy val optionTerminatorRaw = findPropertyOption("terminator")
   protected final lazy val terminatorRaw = requireProperty(optionTerminatorRaw)
 }
 
@@ -59,16 +59,16 @@ trait RawElementRuntimeValuedPropertiesMixin
 
   // these are almost certainly not in scope, but on the local object
   // but not always. A type might define fixed length things for example.
-  protected final lazy val optionLengthRaw = findProperty("length")
+  protected final lazy val optionLengthRaw = findPropertyOption("length")
   protected final lazy val lengthRaw = requireProperty(optionLengthRaw)
-  protected final lazy val optionOccursCountRaw = findProperty("occursCount")
+  protected final lazy val optionOccursCountRaw = findPropertyOption("occursCount")
   protected final lazy val occursCountRaw = requireProperty(optionOccursCountRaw)
 }
 
 trait RawSequenceRuntimeValuedPropertiesMixin
   extends RawDelimitedRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionSeparatorRaw = findProperty("separator")
+  protected final lazy val optionSeparatorRaw = findPropertyOption("separator")
   protected final lazy val separatorRaw = requireProperty(optionSeparatorRaw)
 }
 
@@ -76,15 +76,15 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
   // package private because used in unit test
-  private[dsom] final lazy val optionEscapeCharacterRaw = findProperty("escapeCharacter")
+  private[dsom] final lazy val optionEscapeCharacterRaw = findPropertyOption("escapeCharacter")
   private[dsom] final lazy val escapeCharacterRaw = requireProperty(optionEscapeCharacterRaw)
-  protected final lazy val optionEscapeEscapeCharacterRaw = findProperty("escapeEscapeCharacter")
+  protected final lazy val optionEscapeEscapeCharacterRaw = findPropertyOption("escapeEscapeCharacter")
   protected final lazy val escapeEscapeCharacterRaw = requireProperty(optionEscapeEscapeCharacterRaw)
-  protected final lazy val optionEscapeBlockStartRaw = findProperty("escapeBlockStart")
+  protected final lazy val optionEscapeBlockStartRaw = findPropertyOption("escapeBlockStart")
   protected final lazy val escapeBlockStartRaw = requireProperty(optionEscapeBlockStartRaw)
-  protected final lazy val optionEscapeBlockEndRaw = findProperty("escapeBlockEnd")
+  protected final lazy val optionEscapeBlockEndRaw = findPropertyOption("escapeBlockEnd")
   protected final lazy val escapeBlockEndRaw = requireProperty(optionEscapeBlockEndRaw)
-  protected final lazy val optionExtraEscapedCharactersRaw = findProperty("extraEscapedCharacters")
+  protected final lazy val optionExtraEscapedCharactersRaw = findPropertyOption("extraEscapedCharacters")
   protected final lazy val extraEscapedCharactersRaw = requireProperty(optionExtraEscapedCharactersRaw)
 
 }
@@ -92,19 +92,19 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
   extends RawCommonRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionTextStandardDecimalSeparatorRaw = findProperty("textStandardDecimalSeparator")
+  protected final lazy val optionTextStandardDecimalSeparatorRaw = findPropertyOption("textStandardDecimalSeparator")
   protected final lazy val textStandardDecimalSeparatorRaw = requireProperty(optionTextStandardDecimalSeparatorRaw)
-  protected final lazy val optionTextStandardGroupingSeparatorRaw = findProperty("textStandardGroupingSeparator")
+  protected final lazy val optionTextStandardGroupingSeparatorRaw = findPropertyOption("textStandardGroupingSeparator")
   protected final lazy val textStandardGroupingSeparatorRaw = requireProperty(optionTextStandardGroupingSeparatorRaw)
-  protected final lazy val optionTextStandardExponentRepRaw = findProperty("textStandardExponentRep")
+  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep")
   protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
-  protected final lazy val optionBinaryFloatRepRaw = findProperty("binaryFloatRep")
+  protected final lazy val optionBinaryFloatRepRaw = findPropertyOption("binaryFloatRep")
   protected final lazy val binaryFloatRepRaw = requireProperty(optionBinaryFloatRepRaw)
-  protected final lazy val optionTextBooleanTrueRepRaw = findProperty("textBooleanTrueRep")
+  protected final lazy val optionTextBooleanTrueRepRaw = findPropertyOption("textBooleanTrueRep")
   protected final lazy val textBooleanTrueRepRaw = requireProperty(optionTextBooleanTrueRepRaw)
-  protected final lazy val optionTextBooleanFalseRepRaw = findProperty("textBooleanFalseRep")
+  protected final lazy val optionTextBooleanFalseRepRaw = findPropertyOption("textBooleanFalseRep")
   protected final lazy val textBooleanFalseRepRaw = requireProperty(optionTextBooleanFalseRepRaw)
-  protected final lazy val optionCalendarLanguageRaw = findProperty("calendarLanguage")
+  protected final lazy val optionCalendarLanguageRaw = findPropertyOption("calendarLanguage")
   protected final lazy val calendarLanguageRaw = requireProperty(optionCalendarLanguageRaw)
 
 }

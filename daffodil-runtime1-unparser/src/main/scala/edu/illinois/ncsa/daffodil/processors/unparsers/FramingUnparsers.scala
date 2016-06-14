@@ -22,6 +22,14 @@ class AlignmentFillUnparser(
 
   def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
-    if (!dos.align(alignmentInBits)) UE(state, "Unable to align to %s(bits).", alignmentInBits)
+    if (dos.maybeAbsBitPos0b.isDefined) {
+      if (!dos.align(alignmentInBits)) UE(state, "Unable to align to %s(bits).", alignmentInBits)
+    } else {
+      // We don't have the absolute bit position, so we can't do alignment.
+      // TODO: implement delayed alignment (creates another buffering of DOS and suspends
+      // performning the alignment until the absolute bit pos is determined (after some earlier OVC element
+      // of variable length, the data for it is computed so we can determine its length).
+      e.SDE("Unable to align - preceding variable-length dfdl:outputValueCalc element is not yet defined.")
+    }
   }
 }

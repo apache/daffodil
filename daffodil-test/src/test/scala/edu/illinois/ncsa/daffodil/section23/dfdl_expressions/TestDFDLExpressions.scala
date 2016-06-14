@@ -911,6 +911,8 @@ class TestDFDLExpressions {
   @Test def test_more_count_3() { runner2.runOneTest("more_count_3") }
   @Test def test_more_count_3b() { runner2.runOneTest("more_count_3b") }
 
+  @Test def test_more_count_4() { runner2.runOneTest("more_count_4") }
+
   //  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   //  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
 

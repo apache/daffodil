@@ -44,8 +44,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputVal
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
-class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGram, eAfterGram) {
+class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
+  extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {
 
   lazy val parser: Parser =
     if (context.isRepresented)
@@ -57,6 +57,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
         pSetVar,
         testDiscrim,
         testAssert,
+        eBeforeParser,
         eParser,
         eAfterParser)
     else
@@ -68,26 +69,28 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
         pSetVar,
         testDiscrim,
         testAssert,
+        eBeforeParser,
         eParser,
         eAfterParser)
 
   override lazy val unparser: Unparser = {
     if (context.isRepresented) {
       if (context.isOutputValueCalc) {
-        new StatementElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
+        new StatementElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       } else {
-        new StatementElementUnparser(context.erd, context.name, uSetVar, eUnparser, eAfterUnparser)
+        new StatementElementUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       }
     } else {
-      // When "not represented" (meaning inputValueCalc), then we don't
-      // unparse anything. And we don't expect any infoset events either.
-      new StatementElementUnparserNoRep(context.erd, context.name, uSetVar)
+      // dfdl:inputValueCalc case.
+      // This unparser will assume the events are in the event stream, having been inferred and put 
+      // in place by the next element resolver.
+        new StatementElementUnparserNoRep(context.erd, context.name, uSetVar)
     }
   }
 }
 
-class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGram, eAfterGram) with HasNoUnparser {
+class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
+  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) with HasNoUnparser {
 
   lazy val parser: Parser = new ChoiceStatementElementParser(
     context.erd,
@@ -97,12 +100,13 @@ class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gra
     pSetVar,
     testDiscrim,
     testAssert,
+    eBeforeParser,
     eParser,
     eAfterParser)
 
 }
 
-abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAfter: Gram)
+abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram)
   extends NamedGram(context) {
 
   // The order of things matters in some cases, so to be consistent we'll always use the
@@ -141,6 +145,10 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   }
   lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
 
+  lazy val eBeforeParser: Maybe[Parser] =
+    if (eGramBefore.isEmpty) Maybe.Nope
+    else Maybe(eGramBefore.parser)
+
   lazy val eParser: Maybe[Parser] =
     if (eGram.isEmpty) Maybe.Nope
     else Maybe(eGram.parser)
@@ -152,6 +160,11 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   def parser: Parser
 
   lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser).toArray
+
+  lazy val eBeforeUnparser: Maybe[Unparser] =
+    if (eGramBefore.isEmpty) Maybe.Nope
+    else Maybe(eGramBefore.unparser)
+
   lazy val eUnparser: Maybe[Unparser] =
     if (eGram.isEmpty) Maybe.Nope
     else Maybe(eGram.unparser)

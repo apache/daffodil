@@ -61,22 +61,19 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   /**
    * For parsing or for backward-referencing expressions when unparsing.
    */
-  def runExpression(state: ParseOrUnparseState, restart: Boolean) {
-    val dstate = state.dState
-    if (!restart) {
-      dstate.opIndex = 0
-      dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
-      dstate.setVMap(state.variableMap)
-      dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
-      dstate.setArrayPos(state.arrayPos)
-      dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
-      dstate.setErrorOrWarn(state)
-      dstate.resetValue
-      dstate.setMode(NonBlocking)
-      dstate.isCompile = state match {
-        case cs: CompileState => true
-        case _ => false
-      }
+  def runExpression(state: ParseOrUnparseState, dstate: DState) {
+    dstate.opIndex = 0
+    dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
+    dstate.setVMap(state.variableMap)
+    dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
+    dstate.setArrayPos(state.arrayPos)
+    dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
+    dstate.setErrorOrWarn(state)
+    dstate.resetValue
+    dstate.setMode(NonBlocking)
+    dstate.isCompile = state match {
+      case cs: CompileState => true
+      case _ => false
     }
     run(dstate)
   }
@@ -129,9 +126,9 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   }
 
   /**
-   * Keeps track of which op it is currenly running in the dstate.
+   * Keeps track of which op it is currently running in the dstate.
    *
-   * This allows a restart at that same location inorder to retry
+   * This allows a restart at that same location in order to retry
    * exactly what it was doing before.
    */
   def run(dstate: DState) {

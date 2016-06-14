@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import edu.illinois.ncsa.daffodil.util.Maybe
 
 /**
  * Saved for backtracking. Used to restore to prior Infoset element content.
@@ -58,6 +59,9 @@ trait InfosetElement extends InfosetItem {
 
   def parent: InfosetComplexElement
   def setParent(p: InfosetComplexElement): Unit
+
+  def array: Maybe[InfosetArray]
+  def setArray(a: InfosetArray): Unit
 
   def isNilled: Boolean
   def setNilled(): Unit

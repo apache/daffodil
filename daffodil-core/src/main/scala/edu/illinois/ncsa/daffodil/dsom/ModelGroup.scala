@@ -303,9 +303,15 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case s: Sequence => {
         groupMembersNoRefs.headOption match {
           case None => Nil
-          case Some(e: ElementBase) if e.canBeAbsentFromUnparseInfoset => Seq(e) ++ e.possibleNextSiblingTerms
+          case Some(e: ElementBase) if e.canBeAbsentFromUnparseInfoset => {
+            // this case covers optional elements, arrrays with minOccurs = 0,
+            // and elements with outputValueCalc. In each of these cases, the
+            // first child could be first, but so could any siblings that
+            // follow it
+            Seq(e) ++ e.possibleNextSiblingTerms
+          }
+          case Some(s: Sequence) if s.hiddenGroupRefOption.isDefined => s.possibleNextSiblingTerms
           case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
-          case Some(e: ElementBase) if e.isOutputValueCalc => e.possibleNextSiblingTerms
           case Some(e: ElementBase) => Seq(e)
           case Some(mg: ModelGroup) => Seq(mg)
         }
@@ -314,13 +320,20 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     firstTerms
   }.value
 
-  protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
-    if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
-      parent.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
-    } else {
-      Nil
+  final lazy val nextParentElements: Seq[ElementBase] = {
+    Assert.invariant(enclosingTerm.isDefined)
+    val et = enclosingTerm.get
+    et match {
+      case mg: ModelGroup if (!this.hasRequiredNextSiblingElement) =>
+        mg.possibleNextChildElementsInInfoset
+      case e: ElementBase =>
+        // This changes the contract. It doesn't stop at an enclosing element boundary.
+        // e.possibleNextChildElementsInInfoset
+        Nil
+      case mg: ModelGroup =>
+        Nil
     }
-  }.value
+  }
 
   // model groups can't be elements.
   protected final def couldBeLastElementInModelGroup: Boolean = false
@@ -330,7 +343,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
    * required elements. This essentially determines if this could contain
    * the last element in the model group.
    */
-  final def hasRequiredNextSiblingElement: Boolean = LV('hasRequiredNextSiblingElement) {
+  private def hasRequiredNextSiblingElement: Boolean = LV('hasRequiredNextSiblingElement) {
     val hasRequired = enclosingTerm match {
       case None => false
       case Some(s: Sequence) if s.isOrdered => {
@@ -350,11 +363,14 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   }.value
 
   /*
-   * Determines if this model group must have a required element, or if it is
-   * possible for this model group to provide nothing towards the infoset.
+   * Determines if this model group must have at least one required element, or
+   * if everything in the model group is is optional and thus, might not cause
+   * any unparse events. This is used to determine next children/sibling
+   * elements used during unparsing.
    */
   final def mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
     this match {
+      case s: Sequence if s.hiddenGroupRefOption.isDefined => false
       case s: Sequence if s.isOrdered =>
         groupMembersNoRefs.exists {
           case e: ElementBase => !e.canBeAbsentFromUnparseInfoset

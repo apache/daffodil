@@ -246,7 +246,6 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
   }
 }
 
-
 /**
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
@@ -410,7 +409,7 @@ abstract class EvaluatableExpression[+ExprType <: AnyRef](
 
   override lazy val runtimeDependencies = Nil
 
-  override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
+  override final def toBriefXML(depth: Int = -1) = expr.toBriefXML(depth)
 
   override protected def compute(state: ParseOrUnparseState): ExprType = {
 
@@ -418,7 +417,11 @@ abstract class EvaluatableExpression[+ExprType <: AnyRef](
       try {
         expr.evaluate(state)
       } catch {
-        case i: InfosetException => toSDE(i, state)
+        // Intentionally do not catch InfosetException. These need to propagate
+        // up so that the retry-loop for forward-referencing expressions can
+        // catch this and retry the expression.
+        //
+        // case i: InfosetException => toSDE(i, state)
         case v: VariableException => toSDE(v, state)
       }
     expressionResult

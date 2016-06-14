@@ -49,7 +49,7 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  * buffer. When direct, all output goes into a "real" DataOutputStream.
  *
  */
-final class DirectOrBufferedDataOutputStream private[io] ()
+final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectOrBufferedDataOutputStream)
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
@@ -57,16 +57,12 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     lazy val buf = bufferingJOS.getBuf()
     lazy val max16ByteArray = buf.slice(0, 16)
     lazy val upTo16BytesInHex = Misc.bytes2Hex(max16ByteArray)
-    lazy val bitPos0b = if (isBuffering) relBitPos0b.toLong else {
-      Assert.invariant(st.maybeAbsBitPos0b.isDefined)
-      st.maybeAbsBitPos0b.get
-    }
     val toDisplay = "DOS(" + dosState +
       (if (isBuffering) ", Buffered" else ", Direct") +
-      ", bitPos0b=" + bitPos0b +
-      (if (st.maybeAbsBitLimit0b.isDefined) ", bitLimit0b=" + st.maybeAbsBitLimit0b.get
-      else if (st.maybeRelBitLimit0b.isDefined) ", bitLimit0b=" + st.maybeRelBitLimit0b.get
-      else "") +
+      ", relBitPos0b=" + relBitPos0b +
+      (if (st.maybeAbsBitPos0b.isDefined) ", absBitPos0b=" + st.maybeAbsBitPos0b.get) +
+      (if (st.maybeAbsBitLimit0b.isDefined) ", absBitLimit0b=" + st.maybeAbsBitLimit0b.get) +
+      (if (st.maybeRelBitLimit0b.isDefined) ", relBitLimit0b=" + st.maybeRelBitLimit0b.get) +
       (if (isBuffering) ", data=" + upTo16BytesInHex else "") +
       (if (_following.isDefined) " with Following DOS" else "") +
       ")"
@@ -87,6 +83,7 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   def getByteBuffer = {
     Assert.usage(isBuffering)
     val bb = ByteBuffer.wrap(bufferingJOS.getBuf())
+    bb.limit(bufferingJOS.getCount)
     bb
   }
 
@@ -101,13 +98,11 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     res
   }
 
-  @inline private[io] final def isDirect: Boolean = !isBuffering
-
   override def setJavaOutputStream(newOutputStream: java.io.OutputStream) {
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
     Assert.usage(newOutputStream ne bufferingJOS) // these are born buffering, and evolve into direct.
-    st.maybeAbsBitPos0b = MaybeULong(0)
+    st.setMaybeAbsBitPos0b(MaybeULong(0))
   }
 
   override def getJavaOutputStream() = {
@@ -128,7 +123,7 @@ final class DirectOrBufferedDataOutputStream private[io] ()
    */
   def addBuffered: DirectOrBufferedDataOutputStream = {
     Assert.usage(_following.isEmpty)
-    val newBufStr = new DirectOrBufferedDataOutputStream()
+    val newBufStr = new DirectOrBufferedDataOutputStream(this)
     _following = One(newBufStr)
     //
     // TODO: PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
@@ -159,30 +154,16 @@ final class DirectOrBufferedDataOutputStream private[io] ()
   private def convertToDirect(oldDirectDOS: ThisType) {
     Assert.usage(isBuffering)
     setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
-    this.st.maybeAbsBitPos0b = oldDirectDOS.maybeAbsBitPos0b // preserve the absolute position.
+    this.st.setMaybeAbsBitPos0b(oldDirectDOS.maybeAbsBitPos0b) // preserve the absolute position.
+    // after the old bufferedDOS has been completely written to the
+    // oldDirectDOS, there may have been a fragment byte left over. We must
+    // copy that fragment byte to the new directDOS
+    this.st.setFragmentLastByte(oldDirectDOS.st.fragmentLastByte, oldDirectDOS.st.fragmentLastByteLimit)
     Assert.invariant(isDirect)
-  }
-
-  override def flush() {
-    Assert.usage(!isFinished)
-
-    if (isBuffering) return
-    //
-    // output any finished buffers - walk forward through any
-    // finished buffering streams following this direct one.
-    // Grab their content, and output it "for real"
-    //
-    while (_following.isDefined && _following.get.isFinished) {
-      val following = _following.get
-      DirectOrBufferedDataOutputStream.deliverBufferContent(this, following)
-      following.setDOSState(Uninitialized)
-      _following = following._following
-    }
   }
 
   override def setFinished() {
     Assert.usage(!isFinished)
-    flush() //
     // if we are direct, and there's a buffer following this one
     //
     // we know it isn't finished (because of flush() above)
@@ -190,28 +171,60 @@ final class DirectOrBufferedDataOutputStream private[io] ()
     // It must take over being the direct one.
     //
     if (isDirect) {
-      if (_following.isDefined) {
-        Assert.invariant(!_following.get.isFinished)
-        val first = _following.get
-        DirectOrBufferedDataOutputStream.deliverBufferContent(this, first)
-        // so now the first one is an EMPTY not finished buffered DOS
+      var directStream = this
+      var keepMerging = true
+      while (directStream._following.isDefined && keepMerging) {
+        val first = directStream._following.get
+        keepMerging = first.isFinished // continue until AFTER we merge forward into the first non-finished successor
+        Assert.invariant(first.isBuffering)
+        DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first) // from first, into direct stream's buffers
+        // so now the first one is an EMPTY not necessarily a finished buffered DOS
         //
-        first.convertToDirect(this)
-        first.flush()
-        setDOSState(Uninitialized)
+        first.convertToDirect(this) // first is now the direct stream
+        directStream.setDOSState(Uninitialized) // old direct stream is now dead
+        directStream = first // long live the new direct stream!
+      }
+      if (directStream._following.isDefined) {
+        Assert.invariant(!keepMerging) // we stopped because we merged forward into an active stream.
+        // that active stream isn't finished
+        Assert.invariant(directStream.isActive)
+        // we still have a following stream, but it might be finished or might still be active.
+        Assert.invariant(directStream._following.get.isActive ||
+          directStream._following.get.isFinished)
       } else {
         // nothing following, so we're setting finished at the very end of everything.
-        if (cst.fragmentLastByteLimit > 0)
-          // must not omit the fragment byte on the end.
-          this.getJavaOutputStream().write(cst.fragmentLastByte)
-        setDOSState(Uninitialized) // not just finished. We're dead now.
+        // However, the last thing we merged forward into may or may not be finished.
+        // So you can setFinished() on a stream, that stream becomes dead (state uninitialized),
+        // and the stream it merges forward into remains active. Funny, but no stream ends up in state "finished".
+        if (keepMerging) {
+          // the last stream we merged into was finished. So we're completely done.
+          // flush the final frag byte if there is one.
+          if (directStream.cst.fragmentLastByteLimit > 0) {
+            // must not omit the fragment byte on the end.
+            directStream.getJavaOutputStream().write(directStream.cst.fragmentLastByte)
+            directStream.cst.setFragmentLastByte(0, 0) // zero out so we don't end up thinking it is still there.
+          }
+          directStream.setDOSState(Uninitialized) // not just finished. We're dead now.
+        } else {
+          // the last stream we merged forward into was not finished.
+          Assert.invariant(directStream.isActive)
+        }
       }
-    } else if (isBuffering) {
+      // that ends everything for a direct stream being set finished.
+    } else {
+      Assert.invariant(isBuffering)
       //
       // setFinished() on a unfinished buffered DOS
       // we want to become read-only. So that after the
       // setFinished, any bugs if someone still tries to
       // operate on this, are caught.
+      //
+      // However, we don't merge forward, because that involves copying the bytes
+      // and we want to do that exactly once, which is when the direct DOS "catches up"
+      // and merges itself forward into all the buffered streams.
+      //
+      // So we just change state here.
+      //
       setDOSState(Finished)
     }
   }
@@ -245,10 +258,10 @@ final class DirectOrBufferedDataOutputStream private[io] ()
       val bitsToGoIntoFrag = bits >> (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
       val bitsToGoIntoFragInPosition = bitsToGoIntoFrag << (8 - nFragBitsAfter)
 
-      val newFragByte = Bits.asUnsignedByte((st.fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
+      val newFragByte = Bits.asUnsignedByte(st.fragmentLastByte | bitsToGoIntoFragInPosition)
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
-      val shift1 = 64 - (bitLengthFrom1To64 + nBitsOfFragToBeFilled)
+      val shift1 = 64 - (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
       bits = (bits << shift1) >>> shift1
       nBitsRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
 
@@ -259,7 +272,7 @@ final class DirectOrBufferedDataOutputStream private[io] ()
       } else {
         // we did not fill up the frag byte. We added bits to it (at least 1), but
         // it's not filled up yet.
-        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+        st.setFragmentLastByte(newFragByte.toInt, nFragBitsAfter)
       }
 
     }
@@ -287,8 +300,8 @@ final class DirectOrBufferedDataOutputStream private[io] ()
         i += 1
       }
       if (nFragBits > 0) {
-        val newFragByte = Bits.asUnsignedByte((shiftedBits >> 56).toByte)
-        st.setFragmentLastByte(newFragByte, nFragBits)
+        val newFragByte = shiftedBits >>> 56
+        st.setFragmentLastByte(newFragByte.toInt, nFragBits)
       }
       true
     }
@@ -519,67 +532,19 @@ object DirectOrBufferedDataOutputStream {
         Assert.invariant(nBytesPut == nBytes)
 
       } else {
-        // there is a fragment byte on directDOS, or on bufDOS or both.
         if (bufDOS.cst.fragmentLastByteLimit > 0) {
-          val bufDosStream = bufDOS.getJavaOutputStream()
-          bufDosStream.write(bufDOS.cst.fragmentLastByte.toByte) // add the fragment onto the end so it's all shifted together
-          bufDosStream.write(0) // add another zero byte. Gives us room to shift into when we shift by the directDOS frag length.
-        }
-        val bb = bufDOS.getByteBuffer
-        if (directDOS.cst.fragmentLastByteLimit > 0) {
-          //
-          // TODO: PERFORMANCE: consider writing a one-pass here vs this shifting thing.
-          // (However, we should see if this matters anyway. It's only relevant if we have
-          // frag bytes involved around splits of direct and buffered. May not matter.
-          //
-          Bits.shiftToHigherBitPosition(bufDOS.cst.bitOrder, bb, directDOS.cst.fragmentLastByteLimit)
-          // at this point we've shifted the whole bytes right
-          // merge the directDOS frag byte with the first byte of bb.
-          val shiftedFirstByte = bb.get(0)
-          val newFirstByte = shiftedFirstByte | directDOS.cst.fragmentLastByte // works for any bitOrder
-          bb.put(0, newFirstByte.toByte)
-        }
-        // now we have to determine whether anything was shifted into the final byte, or
-        // if that one can be dropped
-        val numFragmentBitsBothDOS = directDOS.cst.fragmentLastByteLimit + bufDOS.cst.fragmentLastByteLimit
-        val hasBitsInLastByte = numFragmentBitsBothDOS > 8
-        if (!hasBitsInLastByte) {
-          bb.limit(bb.limit - 1) // trims it off the end.
-        }
-        val numFinalFragBits =
-          if (hasBitsInLastByte) numFragmentBitsBothDOS - 8
-          else numFragmentBitsBothDOS
-        val finalFrag = if (numFinalFragBits > 0) {
-          val finalFrag = bb.get(bb.limit - 1)
-          bb.limit(bb.limit - 1) // trim frag from end of bb
-          finalFrag
-        } else {
-          0.toByte
+          val bufDOSStream = bufDOS.getJavaOutputStream()
+          bufDOSStream.write(bufDOS.cst.fragmentLastByte.toByte)
         }
 
-        //
-        // At this point bb contains the whole bytes, finalFrag the final frag byte,
-        // and numFinalFragBits contains the count of bits in use in finalFrag
-        //
-        val arr = bb.array()
-        val startPos = bb.position
-        val len = bb.limit - bb.position
-        val os = directDOS.getJavaOutputStream()
-        os.write(arr, startPos, len)
-        if (numFinalFragBits == 8) {
-          // special case - the frag bits from direct and frag from buffered result in
-          // exactly a whole byte, so we just add this byte to the direct, and there is no frag.
-          os.write(finalFrag)
-          directDOS.cst.setFragmentLastByte(0, 0)
-        } else {
-          directDOS.cst.setFragmentLastByte(finalFrag, numFinalFragBits)
-        }
+        val nBitsPut = directDOS.putBitBuffer(bufDOS.getByteBuffer, bufferNBits.toLong)
+        Assert.invariant(nBitsPut == bufferNBits.toLong)
       }
     }
   }
 
-  def apply(realDOS: java.io.OutputStream) = {
-    val dbdos = new DirectOrBufferedDataOutputStream()
+  def apply(realDOS: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
+    val dbdos = new DirectOrBufferedDataOutputStream(creator)
     dbdos.setJavaOutputStream(realDOS)
     dbdos
   }

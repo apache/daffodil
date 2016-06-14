@@ -10,14 +10,12 @@ class TestDataOutputStream3 {
   @Test def testPutLongDirect1_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(-1L, 32)
-
-    out.flush()
 
     val buf = baos.getBuf()
 
@@ -33,14 +31,13 @@ class TestDataOutputStream3 {
   @Test def testPutLongDirect1Bit_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(1, 1)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -53,14 +50,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect2Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(3, 2)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -73,14 +69,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect7Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(0xA5, 7)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -93,14 +88,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect8Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(0xA5, 8)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -113,14 +107,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect9Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(0xA5A5, 9)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -134,14 +127,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect63Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(0xA5A5A5A5A5A5A5A5L, 63)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -161,14 +153,13 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirect64Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)
 
     out.putLong(0xA5A5A5A5A5A5A5A5L, 64)
 
-    out.flush()
     out.setFinished()
 
     val buf = baos.getBuf()
@@ -193,7 +184,7 @@ class TestDataOutputStream3 {
   @Test def testPutLongBuffered1_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -218,7 +209,7 @@ class TestDataOutputStream3 {
   @Test def testPutLongBuffered1Bit_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -239,7 +230,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered2Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -260,7 +251,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered7Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -281,7 +272,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered8Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -302,7 +293,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered9Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -324,7 +315,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered63Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -352,7 +343,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongBuffered64Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -385,7 +376,7 @@ class TestDataOutputStream3 {
   @Test def testPutLongDirectAndBuffered1_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -415,7 +406,7 @@ class TestDataOutputStream3 {
   @Test def testPutLongDirectAndBuffered1Bit_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -437,7 +428,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered2Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -459,7 +450,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered7Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -482,7 +473,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered8Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -505,7 +496,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered9Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -529,7 +520,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered63BitPlus1Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -558,7 +549,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered63BitPlus63Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -596,7 +587,7 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered64BitPlus64Bit_LE_LSBF {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val direct = DirectOrBufferedDataOutputStream(baos)
+    val direct = DirectOrBufferedDataOutputStream(baos, null)
     direct.setBitOrder(BitOrder.LeastSignificantBitFirst)
     direct.setByteOrder(ByteOrder.LittleEndian)
 
@@ -635,7 +626,7 @@ class TestDataOutputStream3 {
   @Test def testPutLong5_4Bits_LE_LSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.LeastSignificantBitFirst)
     out.setByteOrder(ByteOrder.LittleEndian)

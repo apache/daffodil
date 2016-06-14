@@ -161,7 +161,6 @@ trait ElementDeclMixin
 
   final lazy val defaultValueAsString = {
     Assert.usage(hasDefaultValue)
-    Assert.usage(!isOutputValueCalc)
     val dv = defaultAttr.get.text
     schemaDefinitionWhen(dv =:= "" && !(primType =:= PrimType.String), "Type was %s, but only type xs:string can have XSD default=\"\".",
       primType.toString)

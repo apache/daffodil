@@ -919,7 +919,13 @@ case class Self2(s: String, predArg: Option[PredicateExpression])
 }
 
 case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
-  override lazy val compiledDPath = new CompiledDPath(UpMove)
+  override lazy val compiledDPath = {
+    if (isLastStep && stepElement.isArray && targetType == NodeInfo.Array) {
+      new CompiledDPath(UpMoveArray)
+    } else {
+      new CompiledDPath(UpMove)
+    }
+  }
 
   override def text = ".." // + "{" + stepElement.path + "}"
 
@@ -1055,11 +1061,11 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         rootElement
       } else {
         // since we're first we start from the element, or nearest enclosing
-        val nc = compileInfo.elementCompileInfo.getOrElse{
+        val nc = compileInfo.elementCompileInfo.getOrElse {
           // happens for example if you have defaultValue="false" since false looks like a path step, but is really illegal. should be fn:false().
           compileInfo.SDE("The expression path step '%s' has no defined enclosing element.", s)
         }.findNamedChild(stepQName)
-          nc
+        nc
       }
     } else {
       // not first step so we are extension of prior step
@@ -1443,11 +1449,22 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.ArrayIndex, NodeInfo.String, FNStringLength(_, _))
       }
 
-      case (RefQName(_, "contentLength", DFDL), _) =>
-        SDE("dfdl:contentLength is not valid during parsing.")
+      case (RefQName(_, "contentLength", DFDL), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Long, NodeInfo.Exists, NodeInfo.String, DFDLContentLength(_))
+      // The above specifies Exists, because we want to know a node exists, but
+      // it has to be a node, not a simple value. E.g., dfdl:contentLength("foobar", "bits") makes no sense.
+      // The first argument has to be a path to a node, otherwise we don't have format properties and so
+      // can't determine a content length.
+      //
+      // One might argue that dfdl:contentLength("foobar", "characters") is meaningful and should be 6.
+      // But that's fairly pointless.
 
-      case (RefQName(_, "valueLength", DFDL), _) =>
-        SDE("dfdl:valueLength is not valid during parsing.")
+      case (RefQName(_, "valueLength", DFDL), args) => {
+        SDE("dfdl:valueLength function is not supported.")
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Long, NodeInfo.AnySimpleExists, NodeInfo.String, DFDLValueLength(_))
+      }
 
       case (RefQName(_, "lower-case", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,

@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="outputValueCalc" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" xmlns:fn="http://www.w3.org/2005/xpath-functions" defaultRoundTrip="false">
+
+  <tdml:defineSchema name="ovc1" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+
+    <xs:group name="IPSrcGrp">
+      <xs:sequence>
+      <!-- VERY PAINFUL.
+      Until we have dfdl:newVariableInstance, we can't share subexpressions we need here.
+      
+      Even once we do have variables, they will need to be evaluated in a manner that accepts 
+      forward references. Though one might trick it by having a outputValueCalc that forces us
+      to wait until the future item is in the infoset, and then the setVariables will just work because
+      the forward-thing they want is already present in the infoset.
+      
+      But in general I believe variable expression evaluation must be done in a forward-reference-tolerant
+      way when unparsing.
+       -->
+        <xs:element name="IPSrcByte1" type="xs:unsignedByte" dfdl:outputValueCalc="{ 
+        xs:unsignedByte( fn:substring-before(../IPSrc, '.'))
+         }"/>
+        <xs:element name="IPSrcByte2" type="xs:unsignedByte" dfdl:outputValueCalc="{
+         xs:unsignedByte( fn:substring-before(
+           fn:substring-after(../IPSrc, fn:concat(
+             fn:substring-before(../IPSrc, '.'), '.')), '.')) 
+         }"/>
+        <xs:element name="IPSrcByte3" type="xs:unsignedByte" dfdl:outputValueCalc="{
+         xs:unsignedByte( fn:substring-before(fn:substring-after(../IPSrc, fn:concat(fn:substring-before(
+           fn:substring-after(../IPSrc, fn:concat(
+             fn:substring-before(../IPSrc, '.'), '.')), '.'), '.')), '.')) 
+         }"/>
+        <xs:element name="IPSrcByte4" type="xs:unsignedByte" dfdl:outputValueCalc="{
+         xs:unsignedByte( fn:substring-after(../IPSrc, fn:concat(fn:substring-before(fn:substring-after(../IPSrc, fn:concat(fn:substring-before(
+           fn:substring-after(../IPSrc, fn:concat(
+             fn:substring-before(../IPSrc, '.'), '.')), '.'), '.')), '.'), '.'))) 
+         }"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="checksum" type="xs:int"/>
+          <xs:sequence dfdl:hiddenGroupRef="ex:IPSrcGrp"/>
+          <xs:element name="IPSrc" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="0" dfdl:inputValueCalc="{ fn:concat(../IPSrcByte1, '.', ../IPSrcByte2, '.', ../IPSrcByte3, '.', ../IPSrcByte4) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="IPv4Header">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="checksum" type="xs:int"/>
+                <xs:sequence dfdl:hiddenGroupRef="ex:IPSrcGrp"/>
+                <xs:element name="IPSrc" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="7" dfdl:inputValueCalc="{ fn:concat(../IPSrcByte1, '.', ../IPSrcByte2, '.', ../IPSrcByte3, '.', ../IPSrcByte4) }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="ovcHiddenCalculations1" root="root" model="ovc1" description="ovc test that computes 1.2.3.4 from 4 binary bytes, and invert of that for unparse.">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000005 01 02 03 04</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <checksum>5</checksum>
+          <IPSrc>1.2.3.4</IPSrc>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+
+  <tdml:unparserTestCase name="ovcHiddenCalculations2" root="root2" model="ovc1" description="ovc test that computes 1.2.3.4 from 4 binary bytes, and invert of that for unparse.">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000005 01 02 03 04</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root2>
+          <IPv4Header>
+            <checksum>5</checksum>
+            <IPSrc>1.2.3.4</IPSrc>
+          </IPv4Header>
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="ovc2" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+
+    <xs:group name="IPSrcGrp">
+      <xs:sequence>
+        <xs:element name="sbyte1" default="0" type="xs:unsignedByte" 
+        dfdl:outputValueCalc="{ xs:unsignedByte(../IPSrc) }"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="IPv4Header">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="checksum" type="xs:int"/>
+                <xs:sequence dfdl:hiddenGroupRef="ex:IPSrcGrp"/>
+                <xs:element name="IPSrc" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:inputValueCalc="{ ../sbyte1 }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="ovcHiddenCalculations3" root="root" model="ovc2">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000005 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <IPv4Header>
+            <checksum>5</checksum>
+            <IPSrc>1</IPSrc>
+          </IPv4Header>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="ovc3" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"  lengthUnits="bytes"/>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="elem2ovc" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ 255 }" />
+          <xs:element name="elem3" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="ovcIgnoreOVCElem" root="root" model="ovc3" description="ovc test accepts missing OVC in the infoset">
+    <tdml:document>
+      <tdml:documentPart type="byte">01 FF 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <elem1>1</elem1>
+          <elem2ovc>2</elem2ovc> <!-- this element is ignored -->
+          <elem3>3</elem3>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovcAllowMissingOVCElem" root="root" model="ovc3" description="ovc test that allows an OVC element to be missing">
+    <tdml:document>
+      <tdml:documentPart type="byte">01 FF 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <elem1>1</elem1>
+          <elem3>3</elem3>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+
+</tdml:testSuite>

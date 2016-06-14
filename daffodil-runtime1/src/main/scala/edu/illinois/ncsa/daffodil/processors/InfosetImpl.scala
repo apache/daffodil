@@ -57,8 +57,10 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
-import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -131,8 +133,11 @@ trait InfosetException extends DiagnosticImplMixin with ThinThrowable
  * when "." is bound to a DIComplex node. (The focus of "." seems to not
  * be assured of being on the breakpoint node. This expression can get evaluated
  * at least when "." is the parent of the breakpoint element.)
+ *
+ * These are all case classes so we get the automatic equals function that compares
+ * the constructor args for equality.
  */
-class InfosetWrongNodeType(val node: DINode)
+case class InfosetWrongNodeType(val node: DINode)
   extends ProcessingError("Error", Nope, Nope, "Wrong type (simple when complex expected or vice versa)", node)
   with InfosetException
 
@@ -141,29 +146,46 @@ class InfosetWrongNodeType(val node: DINode)
  * slot being probed. E.g., expression evaluation reaching to a forward
  * sibling that has not yet been parsed.
  */
-class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
+case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
   extends ProcessingError("Error", Nope, Nope, "Child element %s does not exist.", info.namedQName)
   with InfosetException
 
-class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
+case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
   extends ProcessingError("Error", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
   with InfosetException
 
-class InfosetNoDataException(val diSimple: DISimple, val erd: ElementRuntimeData)
+case class InfosetNoDataException(val diSimple: DISimple, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "Element %s does not have a value.", erd.namedQName)
   with InfosetException
 
-class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
+case class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
   extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
   with InfosetException
 
-class InfosetNoRootException(val diElement: DIElement, val erd: ElementRuntimeData)
+/**
+ * Don't catch this one. It's not restartable.
+ */
+case class InfosetFatalArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
+  extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
+  with InfosetException
+
+case class InfosetNoRootException(val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "No root element reachable from element %s.", erd.namedQName)
   with InfosetException
 
-class InfosetNoParentException(val diElement: DIElement, val erd: ElementRuntimeData)
+case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "No parent element for element %s.", erd.namedQName)
   with InfosetException
+
+sealed abstract class InfosetLengthUnknownException(kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
+  extends ProcessingError("Error", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
+  with InfosetException
+
+case class InfosetContentLengthUnknownException(override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetLengthUnknownException("Content", diElement, erd)
+
+case class InfosetValueLengthUnknownException(override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetLengthUnknownException("Value", diElement, erd)
 
 /**
  * Used to determine if expressions can be evaluated without any nodes.
@@ -205,8 +227,6 @@ final class FakeDINode extends DISimple(null) {
  */
 sealed trait DITerm {
 
-  def parentTerm: DITerm
-
   final lazy val parserEvalCache = new EvalCache
   final lazy val unparserEvalCache = new EvalCache
 
@@ -231,7 +251,17 @@ sealed trait DITerm {
    *
    * The text is a pseudo-XML string.
    */
-  protected def fmtInfo: Maybe[String]
+  protected final def fmtInfo: Maybe[String] = {
+    // val mgXML = modelGroupsPseudoXML
+    val pecXML = parserEvalCache.toPseudoXML()
+    val uecXML = unparserEvalCache.toPseudoXML()
+    val puxml = {
+      // mgXML +
+      (if (pecXML =:= "") "" else "\n" + pecXML) +
+        (if (uecXML =:= "") "" else "\n" + uecXML)
+    }
+    Maybe(if (puxml =:= "") null else puxml)
+  }
 
   protected final def addFmtInfo(elem: scala.xml.Elem, showFormatInfo: Boolean): scala.xml.Elem = {
     if (!showFormatInfo) return elem
@@ -248,81 +278,23 @@ sealed trait DITerm {
   }
 }
 
-private[processors] sealed trait HasModelGroupMixin { self: DITerm =>
-
-  final lazy val modelGroups: java.util.Map[ModelGroupRuntimeData, DIModelGroup] = new java.util.LinkedHashMap[ModelGroupRuntimeData, DIModelGroup]
-
-  def modelGroup(mgrd: ModelGroupRuntimeData): DIModelGroup = {
-    val got = modelGroups.get(mgrd)
-    val tNode = if (got ne null) got
-    else {
-      val newTNode = mgrd match {
-        case srd: SequenceRuntimeData => new DISequence(srd, self)
-        case crd: ChoiceRuntimeData => new DIChoice(crd, self)
-      }
-      modelGroups.put(mgrd, newTNode)
-      newTNode
-    }
-    tNode
-  }
-
-  protected final def modelGroupsPseudoXML: String = {
-    val pxml = mapAsScalaMap(modelGroups).map {
-      case (_, mg) =>
-        mg.toPseudoXML()
-    }
-    pxml.mkString("\n")
-  }
-
-  protected def fmtInfo = {
-    val mgXML = modelGroupsPseudoXML
-    val pecXML = parserEvalCache.toPseudoXML()
-    val uecXML = unparserEvalCache.toPseudoXML()
-    val puxml = {
-      mgXML +
-        (if (pecXML =:= "") "" else "\n" + pecXML) +
-        (if (uecXML =:= "") "" else "\n" + uecXML)
-    }
-    Maybe(if (puxml =:= "") null else puxml)
-  }
+trait DIElementState extends InfosetElementState {
+  var maybeContentStartDataOutputStream: Maybe[DirectOrBufferedDataOutputStream] = Nope
+  var maybeContentStartPos0bInBits: MaybeULong = MaybeULong.Nope
+  var maybeContentEndDataOutputStream: Maybe[DirectOrBufferedDataOutputStream] = Nope
+  var maybeContentEndPos0bInBits: MaybeULong = MaybeULong.Nope
 }
 
-sealed abstract class DIModelGroup(val mgrd: ModelGroupRuntimeData, val parentTerm: DITerm) extends DITerm with HasModelGroupMixin {
-  override final def trd = mgrd
+class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val lastSlotAdded: Int, val arraySize: MaybeInt)
+  extends DIElementState
 
-  /**
-   * Name for use in pseudo-xml representation
-   */
-  protected def nom: String
-
-  def toPseudoXML(): String = {
-    val relPath = trd.dpathCompileInfo.relativePath
-    val pecXML = parserEvalCache.toPseudoXML()
-    val uecXML = unparserEvalCache.toPseudoXML()
-    val ecXMLString = (if (pecXML =:= "") "" else "\n" + pecXML) + (if (uecXML =:= "") "" else "\n" + uecXML)
-    "<" + dafPrefix + ":" + nom + " " + "path=\"" + relPath + "\"" + ecXMLString + ">"
-  }
-}
-
-sealed class DISequence(srd: SequenceRuntimeData, parentTerm: DITerm) extends DIModelGroup(srd, parentTerm) {
-  /**
-   * Name for use in pseudo-xml representation.
-   *
-   * Could have been derived from the class name, but only at the cost of allocating strings.
-   *
-   * Converting to XML, even though this stuff is only "for debug", the overhead still
-   * matters to some extent.
-   */
-  override final def nom = "sequence"
-}
-
-sealed class DIChoice(crd: ChoiceRuntimeData, parentTerm: DITerm) extends DIModelGroup(crd, parentTerm) {
-
-  /**
-   * See DISequence.nom
-   */
-  override final def nom = "choice"
-}
+case class DISimpleState(var isNilled: Boolean,
+  var isDefaulted: Boolean,
+  var validity: MaybeBoolean,
+  var value: AnyRef //  ,
+  //  var maybeValueLengthInCharacters: MaybeULong,
+  //  var maybeValueLengthInBits: MaybeULong
+  ) extends DIElementState
 
 /**
  * Base for non-array elements. That is either scalar or optional (
@@ -375,20 +347,6 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
     diParent
   }
 
-  def parentTerm: DITerm = {
-    if (parentModelGroup.isDefined) parentModelGroup.get
-    else diParent
-  }
-
-  def parentModelGroup: Maybe[DIModelGroup] = {
-    val trd = erd.immediateEnclosingTermRuntimeData.get
-    val pt = trd match {
-      case mg: ModelGroupRuntimeData => One(diParent.modelGroup(mg)) // elements always appear within a model group
-      case _ => Nope // exception for the root element which appears inside the DIDocument, which is not a model group
-    }
-    pt
-  }
-
   /**
    * Note: there is no infoset data member for isHidden. A hidden group is
    * a DFDL schema characteristic for a model group. Elements inside it will
@@ -413,6 +371,13 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
   override def setParent(p: InfosetComplexElement) {
     Assert.invariant(_parent eq null)
     _parent = p
+  }
+
+  private var _array: Maybe[InfosetArray] = Nope
+  override def array = _array
+  override def setArray(a: InfosetArray) = {
+    Assert.invariant(_array == Nope)
+    _array = One(a)
   }
 
   override def isNilled: Boolean = _isNilled
@@ -447,6 +412,118 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
       writeContents(writer, removeHidden)
       writer.write(endTag)
     }
+  }
+
+  /*
+   * These four members are used to allow computation of contentLength but in a manner
+   * than can block if it is unable to be computed yet.
+   *
+   * If only the maybeContentStartPos... is defined, then it is an absolute position.
+   * If both the maybeContentStartPos... is defined AND the corresponding maybeContentStartDataOutputStream
+   * are defined, then that start pos is a relative start pos, and we'll need to compute the
+   * absolute start pos once we find out the absolute start pos of the data output stream.
+   */
+  private var maybeContentStartDataOutputStream_ : Maybe[DirectOrBufferedDataOutputStream] = Nope
+  private var maybeContentStartPos0bInBits_ : MaybeULong = MaybeULong.Nope
+  private var maybeContentEndDataOutputStream_ : Maybe[DirectOrBufferedDataOutputStream] = Nope
+  private var maybeContentEndPos0bInBits_ : MaybeULong = MaybeULong.Nope
+
+  def maybeAbsoluteContentStartPos0bInBits: MaybeULong = {
+    val absStartPos0b: ULong = {
+      if (maybeContentStartPos0bInBits_.isDefined) {
+        if (maybeContentStartDataOutputStream_.isEmpty) {
+          maybeContentStartPos0bInBits_.getULong
+        } else if (maybeContentStartDataOutputStream_.get.maybeAbsBitPos0b.isDefined) {
+          ??? // compute the absolute pos equivalent of the relative pos  we have
+          // save in the start pos, and then set the DataOutputStream to Nope to indicate
+          // that we've got an absolute position (and to allow the data output stream to be GC'ed
+          // and return the absolute position
+        } else {
+          throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+        }
+      } else {
+        throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+      }
+    }
+
+    val absEndPos0b: ULong = {
+      if (maybeContentEndPos0bInBits_.isDefined) {
+        if (maybeContentEndDataOutputStream_.isEmpty) {
+          maybeContentEndPos0bInBits_.getULong
+        } else if (maybeContentEndDataOutputStream_.get.maybeAbsBitPos0b.isDefined) {
+          ??? // compute the absolute pos equivalent of the relative pos  we have
+          // save in the End pos, and then set the DataOutputStream to Nope to indicate
+          // that we've got an absolute position (and to allow the data output stream to be GC'ed
+          // and return the absolute position
+        } else {
+          throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+        }
+      } else {
+        throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+      }
+    }
+
+    // TODO: all over this code base we use ULong, yet we assume we can just take longValue and do arithmetic.
+    // This only works so long as the value is less than Long.maxValue. If we start using the ULong values that
+    // are represented by negative longs, then all this arithmetic becomes dubious.
+
+    val contentLength = absEndPos0b.longValue - absStartPos0b.longValue
+    Assert.invariant(contentLength >= 0)
+    MaybeULong(contentLength)
+  }
+
+  override def restoreState(st: InfosetElementState): Unit = {
+    val ss = st.asInstanceOf[DIElementState]
+    maybeContentStartDataOutputStream_ = ss.maybeContentStartDataOutputStream
+    maybeContentStartPos0bInBits_ = ss.maybeContentStartPos0bInBits
+    maybeContentEndDataOutputStream_ = ss.maybeContentEndDataOutputStream
+    maybeContentEndPos0bInBits_ = ss.maybeContentEndPos0bInBits
+  }
+
+  protected final def captureStateInto(st: InfosetElementState) {
+    val ss = st.asInstanceOf[DIElementState]
+    ss.maybeContentStartDataOutputStream = this.maybeContentStartDataOutputStream_
+    ss.maybeContentStartPos0bInBits = this.maybeContentStartPos0bInBits_
+    ss.maybeContentEndDataOutputStream = this.maybeContentEndDataOutputStream_
+    ss.maybeContentEndPos0bInBits = this.maybeContentEndPos0bInBits_
+  }
+
+  def contentLengthInBits: ULong = {
+    val startPos =
+      if (maybeContentStartPos0bInBits_.isDefined) maybeContentStartPos0bInBits_.getULong
+      else throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+    val endPos =
+      if (maybeContentEndPos0bInBits_.isDefined) maybeContentEndPos0bInBits_.getULong
+      else throw new InfosetContentLengthUnknownException(this, this.runtimeData)
+    val result = endPos.longValue - startPos.longValue
+    Assert.invariant(result >= 0)
+    ULong(result)
+  }
+
+  def contentLengthInBytes: ULong = {
+    // TODO: assert check for length in bytes makes sense - length units is bytes, or is characters, but characters
+    // are byte based (that is not 7-bit or 6-bit)
+    // or is bits, but for some reason we know it's a multiple of 8.
+    // For now, this is just going to round up to the next number of bytes whenever there is a frag byte.
+    val clbits = contentLengthInBits
+    val wholeBytes = math.ceil(clbits.toDouble / 8.0).toLong
+    ULong(wholeBytes)
+  }
+
+  def setContentStartPos0bInBits(absPosInBits0b: ULong) {
+    maybeContentStartPos0bInBits_ = MaybeULong(absPosInBits0b.longValue)
+  }
+
+  def setContentStartDataOutputStream(dos: DirectOrBufferedDataOutputStream) {
+    maybeContentStartDataOutputStream_ = One(dos)
+  }
+
+  def setContentEndPos0bInBits(absPosInBits0b: ULong) {
+    maybeContentEndPos0bInBits_ = MaybeULong(absPosInBits0b.longValue)
+  }
+
+  def setContentEndDataOutputStream(dos: DirectOrBufferedDataOutputStream) {
+    maybeContentEndDataOutputStream_ = One(dos)
   }
 }
 
@@ -488,8 +565,10 @@ final class DIArray(
    * Note that occursIndex argument starts at position 1.
    */
   def getOccurrence(occursIndex1b: Long) = {
-    if (occursIndex1b > length || occursIndex1b < 1)
-      throw new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length)
+    if (occursIndex1b < 1)
+      throw new InfosetFatalArrayIndexOutOfBoundsException(this, occursIndex1b, length) // no blocking.
+    if (occursIndex1b > length)
+      throw new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length) // can be retried after blocking.
     _contents(occursIndex1b.toInt - 1)
   }
 
@@ -497,6 +576,7 @@ final class DIArray(
 
   def append(ie: InfosetElement): Unit = {
     _contents += ie.asInstanceOf[DIElement]
+    ie.setArray(this)
   }
 
   final def length: Long = _contents.length
@@ -744,35 +824,72 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     }
   }
 
-  protected def fmtInfo = {
-    val pecXML = parserEvalCache.toPseudoXML()
-    val uecXML = unparserEvalCache.toPseudoXML()
-    val str =
-      pecXML + (if (pecXML !=:= "") "\n" else "") + (if (uecXML =:= "") "" else "\n" + uecXML)
-    val res =
-      if (str =:= "") Nope else Maybe(str)
-    res
-  }
-
   //TODO: make these use a pool of these DISimpleState objects
   // so as to avoid allocating and discarding when really we only need
   // a handful of them and they obey a stack discipline.
   //
-  override def captureState(): InfosetElementState =
-    DISimpleState(_isNilled, _isDefaulted, _validity, _value)
+  override def captureState(): InfosetElementState = {
+    val st = DISimpleState(_isNilled, _isDefaulted, _validity, _value //        ,
+    //        this.maybeValueLengthInCharacters_,
+    //        this.maybeValueLengthInBits_
+    )
+    captureStateInto(st)
+    st
+  }
+
   override def restoreState(st: InfosetElementState): Unit = {
+    super.restoreState(st)
     val ss = st.asInstanceOf[DISimpleState]
     _isNilled = ss.isNilled
     _validity = ss.validity
     _isDefaulted = ss.isDefaulted
     _value = ss.value
+    //    maybeValueLengthInCharacters_ = ss.maybeValueLengthInCharacters
+    //    maybeValueLengthInBits_ = ss.maybeValueLengthInBits
   }
-
-  case class DISimpleState(var isNilled: Boolean,
-    var isDefaulted: Boolean,
-    var validity: MaybeBoolean,
-    var value: AnyRef) extends InfosetElementState
-
+  //
+  //  private var maybeValueLengthInCharacters_ : MaybeULong = MaybeULong.Nope
+  //  private var maybeValueLengthInBits_ : MaybeULong = MaybeULong.Nope
+  //
+  //  def valueLengthInCharacters: ULong = {
+  //    erd.SDE("dfdl:valueLength with length units 'characters' is not supported.")
+  //    // TODO: when fixing the above, consider that parsers and unparsers that deal with text
+  //    // must all participate in keeping track of number of characters. At runtime, if the
+  //    // element is not scannable, then units of characters isn't meaningful.
+  //    //
+  //    // Also: keep in mind that valueLength *includes* escape characters, escape-escape, and escapeBlockStart/End characters,
+  //    // but excludes padding characters.
+  //    //
+  //    if (maybeValueLengthInCharacters_.isDefined) maybeValueLengthInCharacters_.getULong
+  //    else throw new InfosetValueLengthUnknownException(this, this.runtimeData)
+  //  }
+  //
+  //  def valueLengthInBits: ULong = {
+  //    if (maybeValueLengthInBits_.isDefined) maybeValueLengthInBits_.getULong
+  //    else throw new InfosetValueLengthUnknownException(this, this.runtimeData)
+  //  }
+  //
+  //  def valueLengthInBytes: ULong = {
+  //    // TODO: assert check for length in bytes makes sense - length units is bytes, or is characters, but characters
+  //    // are byte based (that is not 7-bit or 6-bit)
+  //    // or is bits, but for some reason we know it's a multiple of 8.
+  //    // For now, this is just going to round up to the next number of bytes whenever there is a frag byte.
+  //    val clbits = valueLengthInBits
+  //    val wholeBytes = math.ceil(clbits.toDouble / 8.0).toLong
+  //    ULong(wholeBytes)
+  //  }
+  //
+  //  def setValueLengthInBits(len: ULong) {
+  //    maybeValueLengthInBits_ = MaybeULong(len.longValue)
+  //  }
+  //
+  //  def setValueLengthInCharacters(len: ULong) {
+  //    maybeValueLengthInCharacters_ = MaybeULong(len.longValue)
+  //  }
+  //
+  //  def setValueLengthInBytes(len: ULong) {
+  //    maybeValueLengthInBits_ = MaybeULong(len * 8)
+  //  }
 }
 
 /**
@@ -797,8 +914,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
  * The DIArray object's length gives the number of occurrences.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
-  extends DIElement with InfosetComplexElement
-  with HasModelGroupMixin {
+  extends DIElement with InfosetComplexElement // with HasModelGroupMixin
+  { diComplex =>
 
   final override def isEmpty: Boolean = false
 
@@ -922,10 +1039,13 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       } else {
         MaybeInt.Nope
       }
-    new DIComplexState(_isNilled, _validity, _lastSlotAdded, arrSize)
+    val st = new DIComplexState(_isNilled, _validity, _lastSlotAdded, arrSize)
+    captureStateInto(st)
+    st
   }
 
   final override def restoreState(st: InfosetElementState): Unit = {
+    super.restoreState(st)
     val ss = st.asInstanceOf[DIComplexState]
     _isNilled = ss.isNilled
     _validity = ss.validity
@@ -941,9 +1061,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(ss.arraySize.get)
     }
   }
-
-  class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val lastSlotAdded: Int, val arraySize: MaybeInt)
-    extends InfosetElementState
 
   /**
    * Converts into XML as in a scala.xml.NodeSeq

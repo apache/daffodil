@@ -258,7 +258,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="BigInteger1" root="mersenne"
-    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R"
+    roundTrip="false">
 
     <tdml:document><![CDATA[686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715]]></tdml:document>
     <tdml:infoset>
@@ -3576,7 +3577,8 @@
   -->
   
   <tdml:parserTestCase name="dateTime_calendarTimeZone_EmptyString" root="dateTime14"
-    model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR">
+    model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR"
+    roundTrip="false">
 
     <tdml:document><![CDATA[1995-03-24 01:30:00]]></tdml:document>
     <tdml:infoset>
@@ -5274,7 +5276,8 @@
   -->
 
   <tdml:parserTestCase name="time_calendarTimeZone_EmptyString" root="time31" model="dateTimeSchema"
-    description="Section 13 - Simple Types - xs:time calendarTimeZone Empty String  - DFDL-13-XXXR">
+    description="Section 13 - Simple Types - xs:time calendarTimeZone Empty String  - DFDL-13-XXXR"
+    roundTrip="false">
 
     <tdml:document>
       <tdml:documentPart type="text">12:49:00</tdml:documentPart>

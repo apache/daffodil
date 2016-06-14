@@ -44,6 +44,9 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
+import edu.illinois.ncsa.daffodil.util.Coroutine
+import edu.illinois.ncsa.daffodil.processors.InfosetException
+import edu.illinois.ncsa.daffodil.processors.InfosetException
 
 /**
  * There are two modes for expression evaluation.
@@ -77,6 +80,10 @@ case object Blocking extends EvalMode
 
 /**
  * expression evaluation side-effects this state block.
+ *
+ * For DPath expressions, all infoset content must be obtained via methods on this object so that
+ * if used in a forward referencing expression the expression can block until the information
+ * becomes available.
  */
 case class DState() {
   import AsIntConverters._
@@ -104,12 +111,39 @@ case class DState() {
   }
   def mode = _mode
 
+  private var thisExpressionCoroutine_ : Maybe[Coroutine[AnyRef]] = Nope
+
+  def setThisExpressionCoroutine(co: Maybe[Coroutine[AnyRef]]) {
+    Assert.usage(mode eq Blocking)
+    thisExpressionCoroutine_ = co
+  }
+
+  def thisExpressionCoroutine = {
+    Assert.usage(mode eq Blocking)
+    thisExpressionCoroutine_
+  }
+
+  private var coroutineToResumeIfBlocked_ : Maybe[Coroutine[AnyRef]] = Nope
+
+  def setCoroutineToResumeIfBlocked(co: Maybe[Coroutine[AnyRef]]) {
+    Assert.usage(mode eq Blocking)
+    coroutineToResumeIfBlocked_ = co
+  }
+
+  def coroutineToResumeIfBlocked = {
+    Assert.usage(mode eq Blocking)
+    coroutineToResumeIfBlocked_
+  }
+
   def resetValue() {
     _currentValue = null
   }
 
   def currentValue: AnyRef = {
-    if (_currentValue eq null) currentSimple.dataValue
+    if (_currentValue eq null)
+      withRetryIfBlocking {
+        currentSimple.dataValue
+      }
     else _currentValue
   }
 
@@ -253,11 +287,44 @@ case class DState() {
   // for real is a no-op, but when we're evaluating an expression to see if
   // it is a constant, the expression "." aka self, isn't constant.
   // Similarly, if you call fn:exists(....) and the contents are not gong to
-  // exist at constnat fold time. But we don't want fn:exists to say the result
+  // exist at constant fold time. But we don't want fn:exists to say the result
   // is always a constant (false) because at constant folding time, hey, nothing
   // exists... this hook lets us change behavior for constant folding to throw.
   def selfMove(): Unit = {}
   def fnExists(): Unit = {}
+
+  @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
+  final def withRetryIfBlocking[T](body: => T): T =
+    DState.withRetryIfBlocking(this)(body)
+}
+
+object DState {
+
+  private object ToBeIgnored
+
+  @inline
+  final def withRetryIfBlocking[T](ds: DState)(body: => T): T = { // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
+    if (ds.mode eq NonBlocking) body
+    else {
+      var isDone = false
+      var res: T = null.asInstanceOf[T]
+      while (!isDone) {
+        try {
+          res = body
+          isDone = true
+        } catch {
+          case e: InfosetException => {
+            // we're to block here, and retry subsequently.
+            isDone = false
+            Assert.invariant(ds.thisExpressionCoroutine.isDefined)
+            Assert.invariant(ds.coroutineToResumeIfBlocked.isDefined)
+            ds.thisExpressionCoroutine.get.resume(ds.coroutineToResumeIfBlocked.get, ToBeIgnored)
+          }
+        }
+      }
+      res
+    }
+  }
 }
 
 class DStateForConstantFolding extends DState {

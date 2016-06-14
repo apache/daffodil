@@ -28,10 +28,6 @@ final class CharBufferDataOutputStream
     target = cb
   }
 
-  override def flush() {
-    // do nothing
-  }
-
   protected override val st = new CharBufferDataOutputStreamState
 
   private def notToBeUsed = Assert.usageError("not to be used")

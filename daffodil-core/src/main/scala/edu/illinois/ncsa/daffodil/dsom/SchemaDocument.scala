@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -164,9 +164,9 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     requiredEvaluations(defineEscapeSchemes)
     requiredEvaluations(defineFormats)
     requiredEvaluations(defineVariables)
-    // TODO: about defineVariables: 
-    // only include these if they have default values or external values. 
-    // Those then have to be evaluated before any processing, 
+    // TODO: about defineVariables:
+    // only include these if they have default values or external values.
+    // Those then have to be evaluated before any processing,
     // and may depend on other variables with default values or external values.
     // Not these, because we'll pick these up when elements reference them.
     // And we don't compile them independently of that (since they could be very
@@ -174,7 +174,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     //
     // Note: don't include these. They get checked if used.
     //    globalSimpleTypeDefs
-    //    globalComplexTypeDefs 
+    //    globalComplexTypeDefs
     //    globalGroupDefs
   }
 
@@ -187,9 +187,9 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   //  lazy val shortFormAnnotationsAreValid: Boolean = {
   //    val dfdlns = XMLUtils.DFDL_NAMESPACE
   //    val attrs = xml.attributes
-  // 
-  //    
-  //    // Check that any prefixed properties in the DFDL namespace are allowed on 
+  //
+  //
+  //    // Check that any prefixed properties in the DFDL namespace are allowed on
   //    // this specific annotated schema component.
   //
   //    val dfdlAttrs = attrs.filter{ a => a.isPrefixed && a.}
@@ -202,8 +202,8 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     seq
   }.value
 
-  protected def annotationFactory(node: Node): DFDLAnnotation = {
-    node match {
+  protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    val res = node match {
       case <dfdl:format>{ content @ _* }</dfdl:format> => new DFDLFormat(node, this)
       case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => new DFDLDefineFormat(node, this)
       case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => new DFDLDefineEscapeSchemeFactory(node, this)
@@ -215,6 +215,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
         this.SDE("Invalid dfdl annotation found: %s", prefix + node.label)
       }
     }
+    Some(res)
   }
 
   protected def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
@@ -229,7 +230,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    * their meaning.
    *
    * This works as is, so long as the DFDL Schema doesn't have recursion in it. Recursion would create
-   * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting 
+   * an infinite tree of local sites and copies. (There's an issue: DFDL-80 in Jira about putting
    * in the check to rule out recursion)
    *
    * But recursion would be a very cool experimental feature, potentially useful for investigations
@@ -237,7 +238,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    *
    * What's cool: if these factories are changed to memoize. That is, return the exact same global def/decl
    * object if they are called from the same local site, then recursion "just works". Nothing will diverge
-   * creating infinite structures, but furthermore, the "contextual" information will be right. That 
+   * creating infinite structures, but furthermore, the "contextual" information will be right. That
    * is to say, the first place some global structure is used is the "top" entry. It gets a copy.
    * If that global ultimately has someplace that recurses back to that global structure, it has to be from some other
    * local site inside it, so that's a different local site, so it will get a copy of the global. But
@@ -245,7 +246,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    * would be returned the exact same def/decl object.
    *
    * Of course there are runtime/backend complexities also. Relative paths, variables with newVariableInstance
-   * all of which can go arbitrarily deep in the recursive case. 
+   * all of which can go arbitrarily deep in the recursive case.
    */
   lazy val globalElementDecls = {
     val xmlelts = (xml \ "element")

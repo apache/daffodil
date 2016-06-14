@@ -123,6 +123,7 @@ abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
+    if (nBits == 0) return // zero length is used for outputValueCalc often.
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {

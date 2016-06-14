@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,21 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.pcap
+package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestPCAP {
+object TestOutputValueCalc1 {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
 
-  lazy val runner = Runner("/edu/illinois/ncsa/daffodil/pcap/", "pcap.tdml")
+  val runner = Runner(testDir, "outputValueCalc.tdml")
 
-  @Test def test_pcap_test_dns() = // Debugger.withDebugger
-    { runner.runOneTest("pcap_test_dns") }
-  @Test def test_pcap_test_http_ipv6() = { runner.runOneTest("pcap_test_http_ipv6") }
-  @Test def test_pcap_test_icmp() { runner.runOneTest("pcap_test_icmp") }
-  @Test def test_pcap_test_tcp_ecn() { runner.runOneTest("pcap_test_tcp_ecn") }
+  @AfterClass def shutdown {
+    runner.reset
+  }
+}
 
-  @Test def test_pcap_test_icmp_unparse1() { runner.runOneTest("pcap_test_icmp_unparse1") }
+class TestOutputValueCalc1 {
+  import TestOutputValueCalc1._
 
+  @Test def test_ovcHiddenCalculations1() { runner.runOneTest("ovcHiddenCalculations1") }
+  @Test def test_ovcHiddenCalculations2() { runner.runOneTest("ovcHiddenCalculations2") }
+  @Test def test_ovcHiddenCalculations3() { runner.runOneTest("ovcHiddenCalculations3") }
+
+  @Test def test_ovcAllowMissingOVCElem() { runner.runOneTest("ovcAllowMissingOVCElem") }
+  @Test def test_ovcIgnoreOVCElem() { runner.runOneTest("ovcIgnoreOVCElem") }
 }

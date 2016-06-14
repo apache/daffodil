@@ -304,9 +304,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     import UnparserInfo._
     if (isScalar && isDefaultable) ScalarDefaultable
     else if (isArray && isDefaultable) ArrayDefaultable
+    else if (!isRepresented) Computed
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
-    else if (isArray) Optional
+    else if (isArray && !isRequiredArrayElement) Optional
     else MustExist
   }
 
@@ -319,8 +320,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   //    isOutputValueCalc
   //  }
 
-  final lazy val nextElementResolver: NextElementResolver =
+  final lazy val nextElementResolver: NextElementResolver = {
     computeNextElementResolver(possibleNextChildElementsInInfoset, SiblingResolver)
+  }
 
   final lazy val childElementResolver: NextElementResolver =
     computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
@@ -529,9 +531,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  protected final def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
+      case <dfdl:element>{ contents @ _* }</dfdl:element> => Some(new DFDLElement(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
@@ -606,6 +608,37 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val isFixedLength = {
     (lengthKind =:= LengthKind.Explicit && lengthEv.isConstant) ||
       isImplicitLengthString
+    // TODO: there are lots of other cases where things are fixed length
+    // e.g., implicit length hexBinary uses maxLength for length in bytes
+    // e.g., implicit length fixed-precision binary numbers (byte, short, int, long and unsigned thereof)
+    // In general the things in this file about fixed length seem to miss hexBinary.
+  }
+
+  /**
+   * Tells us if we have a specific length that can be determined in
+   * bits without having to know the value of the element.
+   *
+   * This is focused on unparsing. For example lengthKind 'prefixed' specifies a length
+   * when parsing, but when unparsing the value is needed to compute the prefix value,
+   * so we need the value.
+   *
+   * Can be false meaning "we can't tell until runtime", but if true
+   * then we definitely can determine the length in bits without the value.
+   *
+   * This eliminates the possibility of explicit or implicit length, but in lengthUnits 'characters'
+   * and a variable-width encoding.
+   */
+  final lazy val hasKnownUnparserSpecifiedLengthInBits = {
+    Assert.usage(isSimpleType)
+    import Representation._
+    import LengthKind._
+    (lengthKind, impliedRepresentation) match {
+      case (Explicit, Text) if knownEncodingIsFixedWidth => true
+      case (Implicit, Text) if knownEncodingIsFixedWidth => true
+      case (Explicit, Binary) => true
+      case (Implicit, Binary) => true
+      case _ => false
+    }
   }
 
   final def isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
@@ -1080,11 +1113,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     couldBeLast
   }.value
 
-  protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
+  final lazy val nextParentElements: Seq[ElementBase] = {
     if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
       enclosingTerm.get.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
     } else {
       Nil
     }
-  }.value
+  }
 }

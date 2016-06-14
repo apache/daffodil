@@ -42,7 +42,9 @@ object Bits {
    * Convert signed Byte type to Int that is the unsigned equivalent.
    */
   def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
-  def asSignedByte(i: Int) = {
+  def asUnsignedByte(b: Long): Int = (b & 0xFF).toInt
+  
+  def asSignedByte(i: Long): Byte = {
     Assert.usage(i >= 0)
     val res = if (i > 127) i - 256 else i
     res.toByte

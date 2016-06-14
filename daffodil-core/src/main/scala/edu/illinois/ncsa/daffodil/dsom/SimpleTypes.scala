@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -78,9 +78,9 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
-  protected final def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
+      case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => Some(new DFDLSimpleType(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
@@ -160,8 +160,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   }
 
   final lazy val combinedBaseFacets: Seq[FacetValue] = {
-//    val localF = localBaseFacets
-//    val remoteF = remoteBaseFacets
+    //    val localF = localBaseFacets
+    //    val remoteF = remoteBaseFacets
 
     val combined: Queue[FacetValue] = Queue.empty
 
@@ -224,8 +224,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
    * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
    */
   final lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
-  // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations 
-  // for a particular annotation point, checking that there is only one format annotation, that 
+  // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations
+  // for a particular annotation point, checking that there is only one format annotation, that
   // asserts and discriminators are properly excluding each-other, etc.
   // Code should be sharable for many kinds of annotation points, perhaps specialized for groups, complex type
   // elements, and simple type elements.

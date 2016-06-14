@@ -170,6 +170,29 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
   override def toXML = toXML(recipes.map { _.toXML })
 }
 
+abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
+  extends RecipeOpWithSubRecipes(recipes) {
+  override def run(dstate: DState) {
+
+    val List(recipe1, recipe2) = recipes
+
+    val savedNode = dstate.currentNode
+    dstate.resetValue()
+    recipe1.run(dstate)
+    val arg1 = dstate.currentNode
+
+    dstate.setCurrentNode(savedNode)
+    recipe2.run(dstate)
+    val arg2 = dstate.currentValue
+
+    dstate.setCurrentValue(computeValue(arg1, arg2, dstate))
+  }
+
+  def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef
+
+  override def toXML = toXML(recipes.map { _.toXML })
+}
+
 abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 

@@ -562,7 +562,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val dataToParse = optDataToParse.get
 
     val processor = getProcessor(schemaSource, useSerializedProcessor)
-    processor.right.foreach { setupDebugOrTrace(_) }
+    processor.right.foreach {
+      setupDebugOrTrace(_)
+      }
 
     (optExpectedInfoset, optErrors) match {
       case (Some(infoset), None) => {
@@ -696,10 +698,15 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       // thrown either during the run of the test or during the comparison.
 
       if (roundTrip && testPass < 2) {
-
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        val unparseResult = processor.unparse(output, actual.result).asInstanceOf[UnparseResult]
+        val stringWriter = new java.io.StringWriter()
+        actual.toWriter(stringWriter)
+        val string = stringWriter.toString
+        //println("Parse Result: " + string)
+
+        val xmlEventCursor = new XMLEventCursorFromInput(scala.io.Source.fromString(string))
+        val unparseResult = processor.unparse(output, xmlEventCursor).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           throw new TDMLException(unparseResult.getDiagnostics)
         }

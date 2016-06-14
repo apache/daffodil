@@ -116,22 +116,11 @@ abstract class CompiledExpression[+T <: AnyRef](
 
   /**
    * Use for outputValueCalc.
-   */
-  def evaluateForwardReferencing(state: ParseOrUnparseState): Maybe[T]
-
-  /**
-   * If evaluateForwardReferencing returned One(x), then this is MaybeULong.Nope.
    *
-   * If evaluateForwardReferencing returned Nope, then result.get is a ULong that
-   * is unique for each distinct place that the expression can block. If the same
-   * ULong value is returned after evaluating the expression a second time, that
-   * indicates that the expression is still blocked on the same issue.
-   *
-   * If all forward referencing expressions that are outstanding are returning
-   * the same value for this repeatedly, then there is a deadlock, where expressions
-   * are co-referencing.
+   * The whereBlockedLocation is modified via its block(...) method to indicate where the
+   * expression blocked (for forward progress checking).
    */
-  def expressionEvaluationBlockLocation: MaybeULong
+  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: WhereBlockedLocation): Maybe[T]
 
   override def toString(): String = "CompiledExpression(" + valueForDebugPrinting.toString + ")"
 }
@@ -154,7 +143,11 @@ final case class ConstantExpression[+T <: AnyRef](
     value
   }
 
-  final def evaluateForwardReferencing(state: ParseOrUnparseState): Maybe[T] = Maybe(evaluate(state))
+  final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: WhereBlockedLocation): Maybe[T] = {
+    // whereBlockedLocation is ignored since a constant expression cannot block.
+    whereBlockedLocation.setDone
+    Maybe(evaluate(state))
+  }
 
   def expressionEvaluationBlockLocation = MaybeULong.Nope
 

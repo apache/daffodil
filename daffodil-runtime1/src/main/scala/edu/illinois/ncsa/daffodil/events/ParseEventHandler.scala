@@ -95,9 +95,17 @@ trait MultipleEventHandler extends EventHandler with Serializable {
 
   override def afterRepetition(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.afterRepetition(state, processor) } }
 
-  override def startElement(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.startElement(state, processor) } }
+  override def startElement(state: PState, processor: Parser) {
+    if (!(handlers eq Nil)) handlers.foreach {
+      _.startElement(state, processor)
+    }
+  }
 
-  override def endElement(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.endElement(state, processor) } }
+  override def endElement(state: PState, processor: Parser) {
+    if (!(handlers eq Nil)) handlers.foreach {
+      _.endElement(state, processor)
+    }
+  }
 
   override def startArray(state: PState, processor: Parser) { if (!(handlers eq Nil)) handlers.foreach { _.startArray(state, processor) } }
 

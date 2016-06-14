@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="Namespaces"
-  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<tdml:testSuite suiteName="PCAP"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <!--
@@ -28301,7 +28301,11 @@
                       <pcap:Type>8</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>10844</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002100]]></pcap:Data>
+                      <pcap:EchoRequest>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8448</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoRequest>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28343,7 +28347,11 @@
                       <pcap:Type>0</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>12892</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002100]]></pcap:Data>
+                      <pcap:EchoReply>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8448</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoReply>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28385,7 +28393,11 @@
                       <pcap:Type>8</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>10588</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002200]]></pcap:Data>
+                      <pcap:EchoRequest>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8704</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoRequest>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28427,7 +28439,11 @@
                       <pcap:Type>0</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>12636</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002200]]></pcap:Data>
+                      <pcap:EchoReply>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8704</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoReply>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28469,7 +28485,11 @@
                       <pcap:Type>8</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>10332</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002300]]></pcap:Data>
+                      <pcap:EchoRequest>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8960</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoRequest>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28511,7 +28531,11 @@
                       <pcap:Type>0</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>12380</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002300]]></pcap:Data>
+                      <pcap:EchoReply>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>8960</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoReply>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28553,7 +28577,11 @@
                       <pcap:Type>8</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>10076</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002400]]></pcap:Data>
+                      <pcap:EchoRequest>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>9216</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoRequest>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28595,7 +28623,11 @@
                       <pcap:Type>0</pcap:Type>
                       <pcap:Code>0</pcap:Code>
                       <pcap:Checksum>12124</pcap:Checksum>
-                      <pcap:Data><![CDATA[02002400]]></pcap:Data>
+                      <pcap:EchoReply>
+                        <pcap:Identifier>512</pcap:Identifier>
+                        <pcap:SequenceNumber>9216</pcap:SequenceNumber>
+                        <pcap:Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</pcap:Payload>
+                      </pcap:EchoReply>
                     </pcap:ICMPv4>
                   </pcap:IPv4>
                 </pcap:NetworkLayer>
@@ -28607,4 +28639,71 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-</testSuite>
+  
+   <tdml:unparserTestCase name="pcap_test_icmp_unparse1" root="PCAP"
+    model="pcap.dfdl.xsd" description="pcap test">
+    <tdml:document>
+      <tdml:documentPart type="file">icmp1.cap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
+          <PCAPHeader>
+            <MagicNumber>D4C3B2A1</MagicNumber>
+            <Version>
+              <Major>2</Major>
+              <Minor>4</Minor>
+            </Version>
+            <Zone>0</Zone>
+            <SigFigs>0</SigFigs>
+            <SnapLen>65535</SnapLen>
+            <Network>1</Network>
+          </PCAPHeader>
+          <Packet>
+            <PacketHeader>
+              <Seconds>1371631556</Seconds>
+              <USeconds>838904</USeconds>
+            </PacketHeader>
+            <pcap:LinkLayer>
+              <pcap:Ethernet>
+                <MACDest>005056E01449</MACDest>
+                <MACSrc>000C29340BDE</MACSrc>
+                <Ethertype>2048</Ethertype>
+                <pcap:NetworkLayer>
+                  <pcap:IPv4>
+                    <IPv4Header>
+                      <Version>4</Version>
+                      <IHL>5</IHL>
+                      <DSCP>0</DSCP>
+                      <ECN>0</ECN>
+                      <Identification>55107</Identification>
+                      <Flags>0</Flags>
+                      <FragmentOffset>0</FragmentOffset>
+                      <TTL>128</TTL>
+                      <Checksum>11123</Checksum>
+                      <IPSrc>192.168.158.139</IPSrc>
+                      <IPDest>174.137.42.77</IPDest>
+                    </IPv4Header>
+                    <PayloadLength>40</PayloadLength>
+                    <Protocol>1</Protocol>
+                    <pcap:ICMPv4>
+                      <Type>8</Type>
+                      <Code>0</Code>
+                      <Checksum>10844</Checksum>
+                      <EchoRequest>
+                        <Identifier>512</Identifier>
+                        <SequenceNumber>8448</SequenceNumber>
+                        <Payload>6162636465666768696A6B6C6D6E6F7071727374757677616263646566676869</Payload>
+                      </EchoRequest>
+                    </pcap:ICMPv4>
+                  </pcap:IPv4>
+                </pcap:NetworkLayer>
+              </pcap:Ethernet>
+            </pcap:LinkLayer>
+          </Packet>
+        </pcap:PCAP>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+  
+</tdml:testSuite>

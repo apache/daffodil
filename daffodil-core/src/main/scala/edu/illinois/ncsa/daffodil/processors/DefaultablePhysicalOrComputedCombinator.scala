@@ -20,11 +20,11 @@ case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
 
   lazy val scalarDefaultablePhysicalParser = scalarDefaultablePhysical.parser
   lazy val inputValueCalcElementParser = inputValueCalcElement.parser
-  lazy val defaultableElementParser = defaultableElement.parser
 
+  lazy val inputValueCalcElementUnparser =
+    inputValueCalcElement.unparser
   lazy val scalarDefaultablePhysicalUnparser = scalarDefaultablePhysical.unparser
   lazy val outputValueCalcElementUnparser = outputValueCalcElement.unparser
-  lazy val defaultableElementUnparser = defaultableElement.unparser
 
   override lazy val parser = {
     (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match {
@@ -42,8 +42,9 @@ case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
       // when unparsing, inputValueCalc elements don't contribute to the data.
       // They may get referenced from outputValueCalc or other expressions so their
       // element values may need to be in the infoset
-      case (_: Found, _: NotFound) => defaultableElementUnparser
-      case _ => Assert.impossibleCase()
+      case (_: Found, _: NotFound) =>
+        inputValueCalcElementUnparser
+      case _ => scalarDefaultablePhysicalUnparser
     }
   }
 

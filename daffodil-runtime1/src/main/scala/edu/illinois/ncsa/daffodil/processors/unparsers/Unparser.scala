@@ -116,7 +116,7 @@ trait PrimUnparser
 abstract class UnparserObject(override val context: RuntimeData)
   extends Unparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
 }
 

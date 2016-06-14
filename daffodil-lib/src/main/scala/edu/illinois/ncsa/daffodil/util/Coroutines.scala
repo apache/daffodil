@@ -67,7 +67,8 @@ trait CoroutineAny {
    * Pass a throwable as the value of the in argument, to cause the resumed thread
    * to throw.
    */
-  final def resumeAnyFinal(coroutine: CoroutineAny, in: AnyRef): Unit = {
+  final protected def resumeAnyFinal(coroutine: CoroutineAny, in: AnyRef): Unit = {
+    Assert.usage(in ne null)
     coroutine.init
     val q = coroutine.inboundQueue
     q.put(in) // allows other to run  final
@@ -82,7 +83,7 @@ trait CoroutineAny {
    *
    * The current co-routine will be suspended until it is resumed later.
    */
-  final def resumeAny(coroutine: CoroutineAny, in: AnyRef): AnyRef = {
+  final protected def resumeAny(coroutine: CoroutineAny, in: AnyRef): AnyRef = {
     resumeAnyFinal(coroutine, in)
     val res = waitForResumeAny // blocks until it is resumed
     res
@@ -90,7 +91,7 @@ trait CoroutineAny {
 
   private var thrown: Throwable = null
 
-  protected def wasTerminatedByThrow = thrown != null
+  final protected def wasTerminatedByThrow = thrown != null
 
   private def throwFailure(x: AnyRef) = {
     Assert.invariant(x ne null)
@@ -115,7 +116,7 @@ trait CoroutineAny {
     }
   }
 
-  final def waitForResumeAny: AnyRef = {
+  final protected def waitForResumeAny: AnyRef = {
     val q = this.inboundQueue
     val obj = q.take
     throwFailure(obj)
@@ -257,4 +258,4 @@ trait InvertControl[S <: AnyRef] extends IteratorWithPeek[S] with Coroutine[S] {
 
 }
 
-private[util] class CoroutineException(cause: Throwable) extends Exception(cause)
+class CoroutineException(cause: Throwable) extends Exception(cause)

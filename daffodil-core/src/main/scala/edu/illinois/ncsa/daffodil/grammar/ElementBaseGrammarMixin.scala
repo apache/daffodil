@@ -622,16 +622,45 @@ trait ElementBaseGrammarMixin
   private lazy val elementRightFraming = prod("elementRightFraming") { trailingSkipRegion }
 
   private lazy val scalarNonDefaultPhysical = prod("scalarNonDefault") {
-    val body1 = elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent
-    val body2 = elementRightFraming ~ dfdlScopeEnd
+    val bodyBefore = elementLeftFraming ~ dfdlScopeBegin
+    val body = scalarNonDefaultContent
+    val bodyAfter = elementRightFraming ~ dfdlScopeEnd
     if (this.isParentUnorderedSequence)
-      new ChoiceElementCombinator(this, body1, body2)
+      new ChoiceElementCombinator(this, bodyBefore, body, bodyAfter)
     else
-      new ElementCombinator(this, body1, body2)
+      new ElementCombinator(this, bodyBefore, body, bodyAfter)
   }
 
   protected final lazy val scalarDefaultable = prod("scalarDefaultable") {
+    //
+    // check for consistency. If length units is bytes, and we're going to use the length facets
+    // of xs:string for implicit length, the encoding must be SBCS. Otherwise validation could fail when the
+    // number of characters in that many bytes doesn't satisfy the facet.
+    //
+    if (isSimpleType &&
+      primType == PrimType.String &&
+      lengthKind == LengthKind.Implicit &&
+      lengthUnits == LengthUnits.Bytes) {
+      if (!isKnownEncoding) {
+        //
+        // TODO: this check is insisting on this being clear at compile time. But DFDL doesn't strictly speaking, require that.
+        // If encoding is runtime-valued, this check could be done at runtime.
+        //
+        SDE("dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS).")
+      } else if (knownEncodingWidthInBits != 8) {
+        SDE("dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
+          knownEncodingName)
+      }
+    }
+    if (lengthKind != LengthKind.Explicit
+      && optionLengthRaw.isDefined)
+      SDW("dfdl:lengthKind '%s' is not consistent with dfdl:length specified (as %s). The dfdl:length will be ignored.",
+        lengthKind,
+        lengthEv.toBriefXML())
+    if ((lengthKind == LengthKind.Explicit || lengthKind == LengthKind.Implicit) &&
+      impliedRepresentation == Representation.Binary &&
+      lengthUnits == LengthUnits.Characters)
+      SDE("Elements of dfdl:lengthKind '%s' cannot have dfdl:lengthUnits '%s' with binary representation.", lengthKind, lengthUnits)
     (inputValueCalcOption, outputValueCalcOption) match {
       case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
       case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
@@ -651,30 +680,96 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val inputValueCalcElement = prod("inputValueCalcElement",
-    isSimpleType && inputValueCalcOption.isInstanceOf[Found], forWhat = ForParser) {
+    isSimpleType && inputValueCalcOption.isInstanceOf[Found], forWhat = BothParserAndUnparser) {
       // No framing surrounding inputValueCalc elements.
-      new ElementCombinator(this, dfdlScopeBegin ~
-        ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd)
+      // Note that we need these elements even when unparsing, because they appear in the infoset
+      // as regular elements (most times), and so we have to have an unparser that consumes the corresponding events.
+      new ElementCombinator(this, dfdlScopeBegin,
+        InputValueCalc(self, inputValueCalcOption), dfdlScopeEnd)
     }
 
-  private lazy val ovcValueCalcObject =
-    ValueCalc("outputValueCalc", self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent)
+  private lazy val ovcValueCalcObject = {
+    import LengthKind._
+    val UNKNOWN = -1
+    (lengthKind, knownLengthInBits) match {
+      case (Delimited, _) | (Pattern, _) =>
+        OutputValueCalcVariableLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent)
+      case (Explicit, UNKNOWN) =>
+        OutputValueCalcRuntimeLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, lengthEv, lengthUnits)
+      case (Explicit, _) =>
+        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
+      case (Implicit, k) if k != UNKNOWN =>
+        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
+      case other => Assert.invariantFailed("(lengthKind, knownLengthInbits) = " + other)
+    }
+  }
+
+  /**
+   * Returns length in bits, or -1 if not knowable because of the encoding, or because it's runtime valued.
+   */
+  private def knownLengthInBits: Long = {
+    import LengthKind._
+    import Representation._
+    import LengthUnits._
+    import PrimType._
+    val maxLengthLong = if (primType == String || primType == HexBinary) maxLength.longValueExact else -1
+    val result: Long =
+      lengthKind match {
+        case Implicit => {
+          (impliedRepresentation, primType, lengthUnits) match {
+            case (_, HexBinary, _) => maxLengthLong * 8
+            case (Binary, _, _) => this.implicitBinaryLengthInBits
+            case (Text, String, Bytes) => maxLengthLong * 8
+            case (Text, String, Characters) => {
+              if (isKnownEncoding && this.knownEncodingIsFixedWidth)
+                knownFixedWidthEncodingInCharsToBits(maxLengthLong)
+              else -1
+            }
+            case (Text, Boolean, _) => {
+              //
+              // Spec says longest of textBooleanTrueRep and textBooleanFalseRep, but
+              // those can be specified at runtime, so ..... we need an Ev which is the maxLength of those two Ev's value?
+              SDE("Boolean type not supported.")
+            }
+            case _ => Assert.invariantFailed(
+              "Element with dfdl:lengthKind %s and dfdl:outputValueCalc cannot have representation %s, type %s, and lengthUnits %s.".format(
+                lengthKind, impliedRepresentation, primType, lengthUnits))
+          }
+        }
+        case Delimited | Pattern => -1
+        case Explicit if lengthEv.isConstant => {
+          val len: Long = lengthEv.optConstant.get
+          (impliedRepresentation, lengthUnits) match {
+            case (Text, Characters) => len * this.knownEncodingWidthInBits
+            case (_, Bytes) => len * 8
+            case (_, Bits) => len
+            case _ =>
+              Assert.invariantFailed(
+                "Unexpected combination of representation (%s) with lengthUnits (%s).".format(impliedRepresentation, lengthUnits))
+          }
+        }
+        case Explicit => -1
+      }
+    Assert.invariant(result >= 0 || result == -1)
+    result
+  }
 
   protected final lazy val ovcCompiledExpression = ovcValueCalcObject.expr
 
   private lazy val outputValueCalcElement = prod("outputValueCalcElement",
     isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
+
       new ElementCombinator(this,
-        dfdlScopeBegin ~ ovcValueCalcObject,
+        dfdlScopeBegin, ovcValueCalcObject,
         elementRightFraming ~ dfdlScopeEnd)
     }
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
     if (this.isParentUnorderedSequence)
-      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
         scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
     else
-      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
         scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
   }
 

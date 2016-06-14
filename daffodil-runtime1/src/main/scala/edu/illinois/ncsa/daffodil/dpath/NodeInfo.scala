@@ -37,7 +37,6 @@ import scala.BigInt
 import edu.illinois.ncsa.daffodil.calendar._
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
@@ -53,9 +52,8 @@ import java.lang.{
   Byte => JByte,
   Boolean => JBoolean
 }
-import com.ibm.icu.util.Calendar
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+
 /**
  * We need to have a data structure that lets us represent a type, and
  * its relationship (conversion, subtyping) to other types.
@@ -264,7 +262,7 @@ object NodeInfo extends Enum {
   }
 
   /**
-   * For things like fn:exists fn:empty
+   * For things like fn:exists, fn:empty, dfdl:contenLength
    */
   protected sealed trait ExistsKind extends AnyType.Kind
   case object Exists extends TypeNode(AnyType, Nil) with NillableKind {
@@ -276,10 +274,30 @@ object NodeInfo extends Enum {
    * terminologies are used. In DFDL we don't talk of Atomic's much, but
    * lots of XPath and XML Schema materials do, so we have these two types
    * that are very similar really.
+   *
+   * There is a type union feature in DFDL, and perhaps the difference between
+   * AnyAtomic and AnySimpleType is that AnySimpleType admits XSD unions and list types,
+   * where AnyAtomic does not?
    */
   protected sealed trait AnySimpleTypeKind extends Nillable.Kind
-  case object AnySimpleType extends TypeNode(Nillable, List(AnyAtomic)) with AnySimpleTypeKind {
+  case object AnySimpleType extends TypeNode(Nillable, List(AnyAtomic, AnySimpleExists)) with AnySimpleTypeKind {
     type Kind = AnySimpleTypeKind
+  }
+
+  /**
+   * Combines the constraint of Exists with AnySimpleType. I.e, must be an element that exists
+   * and is of simple type.
+   *
+   * This is intended to express the type that must be a path to a simple type element.
+   * That is, /foo/bar where bar is an element of simple type, but not "foobar" which is a string
+   * literal of simple type. The path /foo/bar might be to an element bar with string value "foobar", but
+   * we want to distinguish between a string like "foobar" the value and /foo/bar a path to an element of type string.
+   *
+   * Intended for use in dfdl:valueLength, which takes a path, but only to a simple element.
+   */
+  protected sealed trait AnySimpleExistsKind extends AnySimpleType.Kind with Exists.Kind
+  case object AnySimpleExists extends TypeNode(AnySimpleType, Nil) with AnySimpleExistsKind {
+    type Kind = AnySimpleExistsKind
   }
 
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
@@ -509,16 +527,19 @@ object NodeInfo extends Enum {
     case object Date extends PrimTypeNode(AnyDateTime, Nil) with DateKind {
       type Kind = DateKind
       override def fromXMLString(s: String): AnyRef = {
-        val juDate = TextCalendarConstants.tlDateNoTZInfosetFormatter.get.parse(s)
-        val icuCal = dateToCalendar(juDate)
-        DFDLDate(icuCal, false)
+        StringToDate.computeValue(s, null)
+        //val juDate = TextCalendarConstants.tlDateNoTZInfosetFormatter.get.parse(s)
+        //val icuCal = dateToCalendar(juDate)
+        //DFDLDate(icuCal, false)
       }
 
+/*
       private def dateToCalendar(date: java.util.Date): Calendar = {
         val cal = Calendar.getInstance()
         cal.setTime(date)
         cal
       }
+*/
 
     }
 
@@ -526,7 +547,7 @@ object NodeInfo extends Enum {
     case object DateTime extends PrimTypeNode(AnyDateTime, Nil) with DateTimeKind {
       type Kind = DateTimeKind
       override def fromXMLString(s: String): AnyRef = {
-        TextCalendarConstants.tlDateTimeInfosetFormatter.get.parse(s)
+        StringToDateTime.computeValue(s, null)
       }
     }
 
@@ -534,7 +555,7 @@ object NodeInfo extends Enum {
     case object Time extends PrimTypeNode(AnyDateTime, Nil) with TimeKind {
       type Kind = TimeKind
       override def fromXMLString(s: String): AnyRef = {
-        TextCalendarConstants.tlTimeInfosetFormatter.get.parse(s)
+        StringToTime.computeValue(s, null)
       }
     }
   }
@@ -544,7 +565,7 @@ object NodeInfo extends Enum {
   // list and the definition of these type objects above.
   //
   private lazy val allAbstractTypes = List(
-    AnyType, Nillable, AnySimpleType, AnyAtomic, Exists,
+    AnyType, Nillable, AnySimpleType, AnyAtomic, Exists, AnySimpleExists,
     Numeric, SignedNumeric, UnsignedNumeric, SignedInteger,
     // There is no UnsignedInteger because the concrete type
     // NonNegativeInteger plays that role.

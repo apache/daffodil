@@ -64,11 +64,11 @@ class UState(
       )
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
     clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
+    clone.arrayIndexStack.push(this.arrayIndexStack.top)
     val dstate = clone.dState
     dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
     dstate.setVMap(variableMap)
     dstate.setContextNode(thisElement.asInstanceOf[DINode]) // used for diagnostics
-    dstate.setArrayPos(arrayPos)
     dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
     dstate.setErrorOrWarn(this)
     dstate.resetValue
@@ -97,7 +97,7 @@ class UState(
   final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
     {
       val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
-      val dos = DirectOrBufferedDataOutputStream(baos).asInstanceOf[DirectOrBufferedDataOutputStream]
+      val dos = DirectOrBufferedDataOutputStream(baos, null)
       (baos, dos)
     },
     pair => pair match {
@@ -320,7 +320,7 @@ class SuspendedExpressionsDeadlockException(suspExprs: Seq[SuspendableExpression
     suspExprs(0).diSimple.erd.schemaFileLocation,
     suspExprs(0).ustate,
     "Expressions are circularly deadlocked (mutually defined): %s",
-    suspExprs)
+    suspExprs.map { _.expr })
 
 object UState {
 

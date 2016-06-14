@@ -26,7 +26,12 @@ abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
     val value = node.dataValue.asInstanceOf[JNumber]
     val dos = state.dataOutputStream
 
-    val res = putNumber(dos, value, nBits)
+    val res =
+      if (nBits > 0) {
+        putNumber(dos, value, nBits)
+      } else {
+        true
+      }
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)

@@ -276,7 +276,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
     val outStream = java.nio.channels.Channels.newOutputStream(output)
-    val out = DirectOrBufferedDataOutputStream(outStream)
+    val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
     out.setBitOrder(BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0
     val unparserState =
       UState.createInitialUState(

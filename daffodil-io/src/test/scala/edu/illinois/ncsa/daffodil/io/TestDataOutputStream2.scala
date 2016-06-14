@@ -11,7 +11,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitsDirect0_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)
@@ -32,7 +32,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitsDirect1_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)
@@ -53,7 +53,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitsDirect7_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)
@@ -78,7 +78,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect0_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)
@@ -101,7 +101,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect1_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)
@@ -124,7 +124,7 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect7_BE_MSBF {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val out = DirectOrBufferedDataOutputStream(baos)
+    val out = DirectOrBufferedDataOutputStream(baos, null)
 
     out.setBitOrder(BitOrder.MostSignificantBitFirst)
     out.setByteOrder(ByteOrder.BigEndian)

@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.SeqCompUnparser
 import edu.illinois.ncsa.daffodil.dsom._
@@ -42,9 +41,9 @@ import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 import edu.illinois.ncsa.daffodil.processors.NadaUnparser
 import edu.illinois.ncsa.daffodil.processors.NadaParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.EmptyGramUnparser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr
@@ -164,7 +163,15 @@ object EmptyGram extends Gram(null) {
   override def toString = "Empty"
 
   override lazy val parser = hasNoParser // new EmptyGramParser
-  override lazy val unparser = DummyUnparser(Misc.getNameFromClass(this))
+  override lazy val unparser = // hasNoUnparser
+    // we depend on this unparser being returned, even though it cannot be called to unparse anything.
+    // As there are unit tests which test attributes where those attributes cause a DummyUnparser to be created.
+    // That is later optimized out (or needs to be).
+    //
+    // FIXME: switch back to hasNoUnparser, find where this is being used and have it not ask for
+    // this unparser.
+    new EmptyGramUnparser(null) // DummyUnparser(Misc.getNameFromClass(this))
+
 }
 
 object ErrorGram extends Gram(null) with HasNoUnparser {

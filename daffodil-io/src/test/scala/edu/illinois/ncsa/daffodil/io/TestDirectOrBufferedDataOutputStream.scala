@@ -20,22 +20,18 @@ class TestDirectOrBufferedDataOutputStream {
   @Test def testCollapsingBufferIntoDirect1 {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos)
+    val layered = DirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
     layered.putBytes(hwBytes)
 
-    layered.flush()
-
     assertEquals(hw, getString(baos))
 
     val buf1 = layered.addBuffered
 
     buf1.putBytes("buf1".getBytes("ascii"))
-
-    buf1.flush() // does nothing because this is still buffering
 
     layered.setFinished() // collapses layered into buf1.
 
@@ -51,22 +47,18 @@ class TestDirectOrBufferedDataOutputStream {
   @Test def testCollapsingFinishedBufferIntoLayered {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos)
+    val layered = DirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
     layered.putBytes(hwBytes)
 
-    layered.flush()
-
     assertEquals(hw, getString(baos))
 
     val buf1 = layered.addBuffered
 
     buf1.putBytes("buf1".getBytes("ascii"))
-
-    buf1.flush() // does nothing because this is still buffering
 
     buf1.setFinished()
 
@@ -84,14 +76,12 @@ class TestDirectOrBufferedDataOutputStream {
   @Test def testCollapsingTwoBuffersIntoDirect {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos)
+    val layered = DirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
     layered.putBytes(hwBytes)
-
-    layered.flush()
 
     assertEquals(hw, getString(baos))
 
@@ -103,13 +93,13 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertTrue(buf2.isBuffering)
 
-    buf1.flush() // does nothing because this is still buffering
-
-    buf1.setFinished()
+    buf1.setFinished() // buf1 finished while layered (before it) is still unfinished.
 
     assertTrue(buf1.isFinished)
 
-    layered.setFinished() // collapses layered into buf1.
+    layered.setFinished() // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
+    // and leaves the whole thing finished.
+    // leaves layered dead/unusable.
 
     assertTrue(buf1.isDead) // because it was finished when layered was subsequently finished
     assertTrue(layered.isDead)

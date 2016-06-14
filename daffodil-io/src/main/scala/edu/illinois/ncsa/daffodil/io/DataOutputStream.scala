@@ -67,6 +67,7 @@ trait DataOutputStream extends DataStreamCommon {
 
   def maybeAbsBitPos0b: MaybeULong
   def maybeAbsBitPos1b: MaybeULong
+  def setMaybeAbsBitPos0b(newAbsBitPos0b: ULong): Unit
 
   /**
    * Besides setting the relBitPos, it also maintains the value of
@@ -172,21 +173,6 @@ trait DataOutputStream extends DataStreamCommon {
    */
   def putString(str: String): Long
   def putCharBuffer(cb: CharBuffer): Long
-
-  /**
-   * Force buffered content to output if possible.
-   *
-   * Idempotent. That is dos.flush(); dos.flush(); means the same thing as just one call.
-   * However, suppose this DOS is connected to a java.io.OutputStream which is connected to a pipe,
-   * and some process is trying to read from that pipe.
-   *
-   * This operation writes and flushes only WHOLE BYTES to the java.io.OutputStream. If this
-   * DOS has a fragment of a byte (less than 8 bits) at the end, then those bits are not written
-   * to the java.io.OutputStream.
-   *
-   * To insure these final bits are in fact written, one must call dos.setFinished().
-   */
-  def flush(): Unit
 
   /**
    * close-out this output stream. No more writing to this after.

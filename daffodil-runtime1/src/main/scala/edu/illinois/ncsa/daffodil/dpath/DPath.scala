@@ -47,6 +47,60 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import AsIntConverters._
 
+trait WhereBlockedLocation {
+
+  private var priorNodeOrVar: Maybe[AnyRef] = Nope
+  private var priorInfo: Maybe[AnyRef] = Nope
+  private var priorIndex: MaybeInt = MaybeInt.Nope
+  private var priorExc: Maybe[Exception] = Nope
+
+  private var maybeNodeOrVar: Maybe[AnyRef] = Nope
+  private var maybeInfo: Maybe[AnyRef] = Nope
+  private var maybeIndex: MaybeInt = MaybeInt.Nope
+  private var maybeExc: Maybe[Exception] = Nope
+
+  private var done_ : Boolean = false
+
+  final def setDone {
+    done_ = true
+  }
+
+  final def isDone = done_
+
+  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: Exception) {
+    priorNodeOrVar = maybeNodeOrVar
+    priorInfo = maybeInfo
+    priorIndex = maybeIndex
+    priorExc = maybeExc
+    maybeNodeOrVar = One(nodeOrVar)
+    maybeInfo = One(info)
+    maybeIndex = MaybeInt(index.toInt)
+    maybeExc = One(exc)
+    done_ = false
+  }
+
+  final def isBlocked: Boolean = !done_ && maybeNodeOrVar.isDefined
+
+  final def isBlockedFirstTime: Boolean = {
+    isBlocked &&
+      priorNodeOrVar.isEmpty
+  }
+
+  final def isBlockedSameLocation: Boolean = {
+    isBlocked &&
+      {
+        if (priorNodeOrVar.isEmpty) false
+        else {
+          Assert.invariant(maybeNodeOrVar.isDefined)
+          maybeNodeOrVar.get == priorNodeOrVar.get &&
+            maybeInfo.get == priorInfo.get &&
+            maybeIndex.get == priorIndex.get &&
+            maybeExc.get == priorExc.get
+        }
+      }
+  }
+}
+
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Error",
     One(s.schemaFileLocation),
@@ -114,34 +168,48 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
        * using fn:exists(...) rather than just use the location and expect backtracking
        * if it doesn't exist. An SDE isn't backtracked, so enforces this provision.
        */
-      case _ => throw e // doSDE(e, state)
+      case _ => throw e
     }
   }
 
-  private var blockLocation = MaybeULong.Nope
+  // This was a bug: you can't have state here. These things are shared across threads.
+  // private var blockLocation = MaybeULong.Nope
 
   /**
    * For unparsing of forward-referencing (outputValueCalc) expressions
    *
    * Depends on the dstate havng been properly initialized.
    * E.g., the variable map, current node, mode, etc.
+   *
+   * The whereBlockedInfo is a return data structure that is side-effected to indicate
+   * the block location. I.e., where in the infoset are we blocked. Used for forward-progress-checking
+   * so as to detect deadlocks.
    */
-  def evaluateForwardReferencing(state: ParseOrUnparseState): Maybe[T] = {
-    val value =
-      try {
-        val dstate = evaluateExpression(state, true)
-        processForwardExpressionResults(dstate)
-      } catch {
-        case noChild: InfosetNoSuchChildElementException => { block(noChild); null }
-        case noArrayIndex: InfosetArrayIndexOutOfBoundsException => { block(noArrayIndex); null }
-        case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
-          // we got a no-data exception from an element with outputValueCalc
-          val ovc = new OutputValueCalcEvaluationException(nd.diSimple)
-          block(ovc); null
-        }
-        case ve: VariableException => { block(ve); null }
-        case th: Throwable => handleThrow(th, state)
+  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedInfo: WhereBlockedLocation): Maybe[T] = {
+    var value: Maybe[AnyRef] = Nope
+    try {
+      // TODO: This assumes a distinct state object (with its own dState) for every expression that
+      // can be in evaluation simultaneously.
+      val dstate = evaluateExpression(state, state.dState)
+      value = Maybe(processForwardExpressionResults(dstate))
+      whereBlockedInfo.setDone
+    } catch {
+      case noChild: InfosetNoSuchChildElementException =>
+        whereBlockedInfo.block(noChild.diComplex, noChild.info, 0, noChild)
+      case noArrayIndex: InfosetArrayIndexOutOfBoundsException =>
+        whereBlockedInfo.block(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
+      case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
+        // we got a no-data exception from an element with outputValueCalc
+        // that is, some OVC element requested the value of another OVC element
+        val ovc = new OutputValueCalcEvaluationException(nd.diSimple)
+        whereBlockedInfo.block(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
       }
+      case ve: VariableException =>
+        whereBlockedInfo.block(ve.qname, ve.context, 0, ve)
+      case noLength: InfosetLengthUnknownException =>
+        whereBlockedInfo.block(noLength.diElement, noLength.erd, 0, noLength)
+      case th: Throwable => handleThrow(th, state)
+    }
     val value1 = postProcess(value, state)
     value1
   }
@@ -168,44 +236,8 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
     v
   }
 
-  private def block(noChild: InfosetNoSuchChildElementException) {
-    uniqueULongPerBlockLocation(noChild.diComplex, noChild.info, 0, noChild)
-  }
-
-  private def block(noArrayIndex: InfosetArrayIndexOutOfBoundsException) {
-    uniqueULongPerBlockLocation(noArrayIndex.diArray, noArrayIndex.diArray.erd.dpathElementCompileInfo, noArrayIndex.index, noArrayIndex)
-  }
-
-  private def block(ovc: OutputValueCalcEvaluationException) {
-    uniqueULongPerBlockLocation(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
-  }
-
-  private def block(ovc: VariableException) {
-    uniqueULongPerBlockLocation(ovc.qname, ovc.context, 0, ovc)
-  }
-
-  /**
-   * This is a Long that is unique for each location where expression evaluation can block
-   * on forward reference during unparsing. The purpose of this is to detect if an expression
-   * is blocking on different locations successively, but gradually making forward progress, or
-   * if the expression is stuck and keeps blocking on the exact same missing information,
-   * which means there is a cyclic dependency of some kind in the expression.
-   */
-  private def uniqueULongPerBlockLocation(diNode: AnyRef, info: AnyRef, index: Long, exc: Exception) {
-    //
-    // Not quite correct - this is based on hash codes, and since hash codes can overlap, there is a
-    // slight possibility that this will produce the same value for distinct block locations.
-    // That would make the caller think no forward progress was being made when in fact there is.
-    //
-    val num: Long = scala.math.abs(diNode.hashCode() + info.hashCode() + index + exc.getClass().hashCode())
-    blockLocation = MaybeULong(num)
-  }
-
-  def expressionEvaluationBlockLocation = blockLocation
-
-  private def evaluateExpression(state: ParseOrUnparseState, restart: Boolean): DState = {
-    recipe.runExpression(state, restart) // initializes dstate from state, then runs
-    val dstate = state.dState
+  private def evaluateExpression(state: ParseOrUnparseState, dstate: DState): DState = {
+    recipe.runExpression(state, dstate) // initializes dstate from state, then runs
     state.variableMap = dstate.vmap
     dstate
   }
@@ -217,12 +249,12 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
   private def evaluateMaybe(state: ParseOrUnparseState): Maybe[T] = {
     val value =
       try {
-        val dstate = evaluateExpression(state, false)
+        val dstate = evaluateExpression(state, state.dState)
         processExpressionResults(dstate)
       } catch {
         case th: Throwable => handleThrow(th, state)
       }
-    val value1 = postProcess(value, state)
+    val value1 = postProcess(Maybe(value), state)
     value1
   }
 
@@ -299,53 +331,47 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
    * Note: Can't use a Maybe[T] here because T is required to be an AnyRef, and that would exclude
    * Long, Int, etc. from being used as values.
    */
-  private def postProcess(v: AnyRef, state: ParseOrUnparseState): Maybe[T] = {
-    val value = v
-    value match {
-      case null => {
-        // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger in which case
-        // there is a value, but no node.
-        return Nope
-      }
-      // case m: Maybe[AnyRef] => Assert.invariantFailed("should be null or value, not Maybe object.")
-      case _ => // fall through
-    }
-    val value1 =
-      if (!value.isInstanceOf[DIElement]) {
-        targetType match {
-          case NodeInfo.AnyType => value // ok
-          case NodeInfo.Long => asLong(value)
-          case NodeInfo.UnsignedLong => asLong(value)
-          case NodeInfo.NonEmptyString => {
-            Assert.invariant(value.isInstanceOf[String])
-            ci.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
-              "Non-empty string required.")
-            value
+  private def postProcess(v: Maybe[AnyRef], state: ParseOrUnparseState): Maybe[T] = {
+    if (v.isEmpty) Nope
+    else {
+      val value = v.get
+      val value1 =
+        if (!value.isInstanceOf[DIElement]) {
+          targetType match {
+            case NodeInfo.AnyType => value // ok
+            case NodeInfo.Long => asLong(value)
+            case NodeInfo.UnsignedLong => asLong(value)
+            case NodeInfo.NonEmptyString => {
+              Assert.invariant(value.isInstanceOf[String])
+              ci.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
+                "Non-empty string required.")
+              value
+            }
+            case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {
+              Assert.invariant(value.isInstanceOf[DFDLCalendar])
+              value
+            }
+            case _: NodeInfo.String.Kind => {
+              Assert.invariant(value.isInstanceOf[String])
+              value
+            }
+            case NodeInfo.Boolean => {
+              Assert.invariant(value.isInstanceOf[Boolean])
+              value
+            }
+            case NodeInfo.HexBinary => {
+              Assert.invariant(value.isInstanceOf[Array[Byte]])
+              value
+            }
+            case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number
+              // and date types as well.
+              value
           }
-          case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {
-            Assert.invariant(value.isInstanceOf[DFDLCalendar])
-            value
-          }
-          case _: NodeInfo.String.Kind => {
-            Assert.invariant(value.isInstanceOf[String])
-            value
-          }
-          case NodeInfo.Boolean => {
-            Assert.invariant(value.isInstanceOf[Boolean])
-            value
-          }
-          case NodeInfo.HexBinary => {
-            Assert.invariant(value.isInstanceOf[Array[Byte]])
-            value
-          }
-          case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number
-            // and date types as well.
-            value
+        } else {
+          value
         }
-      } else {
-        value
-      }
-    One(value1.asInstanceOf[T])
+      One(value1.asInstanceOf[T])
+    }
   }
 
 }

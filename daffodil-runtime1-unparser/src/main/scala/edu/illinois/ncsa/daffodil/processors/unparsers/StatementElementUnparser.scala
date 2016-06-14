@@ -37,16 +37,18 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DISimple
+import edu.illinois.ncsa.daffodil.processors.DIElement
 
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
+  eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends TermUnparser(rd) {
 
-  override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
+  override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eBeforeUnparser.toSeq ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
   def move(state: UState): Unit // implement for different kinds of "moving over to next thing"
   def unparseBegin(state: UState): Unit
@@ -96,9 +98,30 @@ abstract class StatementElementUnparserBase(
 
     if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
     unparseBegin(state)
-    // Debugger.startElement(state, this)
+    if (eBeforeUnparser.isDefined) {
+      eBeforeUnparser.get.unparse1(state, rd)
+    }
+
+    Assert.invariant(state.hasInfoset)
+
+    val elem = state.infoset.asInstanceOf[DIElement]
+
+    // capture bit pos before
+    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
+      elem.setContentStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
+    } else {
+      ??? // not yet implemented where the stream is relative
+    }
+
     if (eUnparser.isDefined) {
       eUnparser.get.unparse1(state, rd)
+    }
+
+    // capture bit pos before
+    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
+      elem.setContentEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
+    } else {
+      ??? // not yet implemented where the stream is relative
     }
 
     doSetVars(state) // ?? Do SetVars occur after the element is unparsed when unparsing ??
@@ -116,12 +139,14 @@ class StatementElementUnparser(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
+  eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparserBase(
     erd,
     name,
     setVarUnparsers,
+    eBeforeUnparser,
     eUnparser,
     eAfterUnparser) {
 
@@ -136,7 +161,6 @@ class StatementElementUnparser(
     val event: InfosetAccessor = state.advanceOrError
     event match {
       case e if e.isStart && e.isElement => {
-        Assert.invariant(e.asElement.runtimeData == erd)
         //
         // When the infoset events are being advanced, the currentInfosetNodeStack
         // is pushing and popping to match the events. This provides the proper
@@ -145,7 +169,7 @@ class StatementElementUnparser(
         state.currentInfosetNodeStack.push(One(e.asElement))
       }
       case _ =>
-        UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
+        UnparseError(Nope, One(state.currentLocation), "Expected Start Element event for %s, but received: %s.", erd.namedQName, event)
     }
   }
 
@@ -153,21 +177,17 @@ class StatementElementUnparser(
     val event: InfosetAccessor = state.advanceOrError
     event match {
       case e if e.isEnd && e.isElement => {
-        Assert.invariant(e.asElement.runtimeData == erd)
-
         state.currentInfosetNodeStack.pop
       }
-      case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received: %s.", erd.namedQName, event)
+      case _ =>
+        UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received: %s.", erd.namedQName, event)
     }
     move(state)
   }
 }
 
 /**
- * The dummy unparser used for an element that has inputValueCalc.
- *
- * No events are consumed from the infoset event cursor
- * No pushing/popping context.
+ * The unparser used for an element that has inputValueCalc.
  *
  * The only thing we do is move over one child element, because the
  * inputValueCalc element does take up one child element position.
@@ -184,6 +204,7 @@ class StatementElementUnparserNoRep(
     name,
     setVarUnparsers,
     Nope,
+    Nope,
     Nope) {
 
   /**
@@ -196,10 +217,13 @@ class StatementElementUnparserNoRep(
   }
 
   override def unparseBegin(state: UState) {
-    // do nothing - no stack manipulations
+    val event: InfosetAccessor = state.advanceOrError
+    Assert.invariant(event.asElement.runtimeData == erd)
   }
 
   override def unparseEnd(state: UState) {
+    val event: InfosetAccessor = state.advanceOrError
+    Assert.invariant(event.asElement.runtimeData == erd)
     move(state)
   }
 }
@@ -208,12 +232,14 @@ class StatementElementOutputValueCalcUnparser(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
+  eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
   extends StatementElementUnparser(
     erd,
     name,
     setVarUnparsers,
+    eBeforeUnparser,
     eUnparser,
     eAfterUnparser) {
 
@@ -221,10 +247,27 @@ class StatementElementOutputValueCalcUnparser(
     val e = new DISimple(erd)
     state.currentInfosetNode.asComplex.addChild(e)
     state.currentInfosetNodeStack.push(One(e))
+
+    // outputValueCalc elements are optional in the infoset. If the next event
+    // is for this is for this OVC element, then consume the start/end events.
+    // Otherwise, the next event is for a following element, and we do not want
+    // to consume it.
+    val startEvOpt = state.inspectMaybe
+    if (startEvOpt.isDefined) {
+      val startEv = startEvOpt.get
+      if (startEv.erd == erd) {
+        Assert.invariant(startEv.isStart)
+        state.advanceMaybe // consume the start event
+        val endEv = state.advanceOrError // consume the end event
+        Assert.invariant(endEv.isEnd)
+      }
+    }
   }
 
   override def unparseEnd(state: UState) {
+    // if an OVC element existed, the start AND end events were consumed in
+    // unparseBegin. No need to advance the cursor here.
     state.currentInfosetNodeStack.pop
-    // NOTE: NOT CALLING move(state). TBD: who advances ??
+    move(state)
   }
 }

@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 abstract class StatementElementParserBase(
   rd: RuntimeData,
@@ -47,6 +48,7 @@ abstract class StatementElementParserBase(
   setVarParser: Array[Parser],
   testDiscrimParser: Maybe[Parser],
   testAssertParser: Array[Parser],
+  eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
   extends ParserObject(rd) {
@@ -57,6 +59,7 @@ abstract class StatementElementParserBase(
 
   override lazy val childProcessors: Seq[Processor] = patDiscrimParser.toSeq ++
     patAssertParser ++
+    eBeforeParser.toSeq ++
     eParser.toSeq ++
     setVarParser ++
     testDiscrimParser.toSeq ++
@@ -128,7 +131,14 @@ abstract class StatementElementParserBase(
     }
 
     parseBegin(pstate)
+
     try {
+      // TODO: Performance/Maintainability - get rid of use of return statements.
+
+      if (pstate.status ne Success) return // but finally at the bottom will run!
+
+      if (eBeforeParser.isDefined)
+        eBeforeParser.get.parse1(pstate)
 
       if (pstate.status ne Success) return
 
@@ -138,6 +148,8 @@ abstract class StatementElementParserBase(
 
       if (eParser.isDefined)
         eParser.get.parse1(pstate)
+
+      Assert.invariant(pstate.hasInfoset)
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
 
@@ -209,6 +221,7 @@ class StatementElementParser(
   setVar: Array[Parser],
   testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
+  eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
   extends StatementElementParserBase(
@@ -219,6 +232,7 @@ class StatementElementParser(
     setVar,
     testDiscrim,
     testAssert,
+    eBeforeParser,
     eParser,
     eAfterParser) {
 
@@ -278,6 +292,7 @@ class StatementElementParserNoRep(
   setVar: Array[Parser],
   testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
+  eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
   extends StatementElementParser(
@@ -288,6 +303,7 @@ class StatementElementParserNoRep(
     setVar,
     testDiscrim,
     testAssert,
+    eBeforeParser,
     eParser,
     eAfterParser) {
 
@@ -308,6 +324,7 @@ class ChoiceStatementElementParser(
   setVar: Array[Parser],
   testDiscrim: Maybe[Parser],
   testAssert: Array[Parser],
+  eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
   extends StatementElementParserBase(
@@ -318,6 +335,7 @@ class ChoiceStatementElementParser(
     setVar,
     testDiscrim,
     testAssert,
+    eBeforeParser,
     eParser,
     eAfterParser) {
 

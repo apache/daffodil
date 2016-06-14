@@ -174,7 +174,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       }
 
       if (debugState == DebugState.Pause || debugState == DebugState.Trace) {
-        DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, processor) }
+        val dc = DebuggerConfig
+        val rawDisplays = dc.displays
+        val displays = rawDisplays.filter(_.enabled)
+        displays.foreach { d =>
+          runCommand(d.cmd, before, after, processor)
+        }
 
         if (after.status ne Success) {
           debugPrintln("failure:")
@@ -1131,7 +1136,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
       def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         args.foreach(arg => {
-          subcommands.find(_ == arg).get.act(Seq(), prestate, state, processor)
+          val action = subcommands.find(_ == arg).get
+          action.act(Seq(), prestate, state, processor)
         })
         DebugState.Pause
       }
@@ -1397,7 +1403,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               }
             }
             case ustate: UState => {
-               // TODO
+              // TODO
             }
             case _ => Assert.impossibleCase()
           }

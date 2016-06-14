@@ -69,13 +69,13 @@ trait RealTermMixin { self: Term =>
 
   final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
-    // how do we determine what child node we are? We search. 
+    // how do we determine what child node we are? We search.
     // TODO: better structure for O(1) answer to this.
     es match {
       case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
       case Some(s) => {
         val members = s.groupMembersNoRefs
-        if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality. 
+        if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality.
         else false
       }
     }
@@ -84,11 +84,12 @@ trait RealTermMixin { self: Term =>
   protected def possibleFirstChildTerms: Seq[Term]
 
   /*
-   * Returns list of Elements that could be the first child in the infoset of this model group
+   * Returns list of Elements that could be the first child in the infoset of this model group or element.
    */
   final def possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
     val firstChildren = possibleFirstChildTerms.flatMap {
       case e: ElementBase => Seq(e)
+      case s: Sequence if s.hiddenGroupRefOption.isDefined => Nil
       case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
     }
     firstChildren
@@ -97,19 +98,30 @@ trait RealTermMixin { self: Term =>
   /*
    * Returns a list of Elements that could follow this Term, including
    * siblings, children of siblings, and siblings of the parent and their children.
+   *
+   * What stops this is when the end of an enclosing element has to be next.
    */
   final def possibleNextChildElementsInInfoset: Seq[ElementBase] = LV('possibleNextChildElementsInInfoset) {
     val arrayNext = if (isArray) Seq(this.asInstanceOf[ElementBase]) else Nil
 
-    val nextSiblingElements = possibleNextSiblingTerms.flatMap {
-      case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
+    val nextSiblingElements = {
+      val poss = possibleNextSiblingTerms
+      val res = poss.flatMap {
+        possible =>
+          possible match {
+            case e: ElementBase => Seq(e)
+            case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
+          }
+      }
+      res
     }
 
-    arrayNext ++ nextSiblingElements ++ nextParentElements
+    val nextParentElts = nextParentElements
+    val res = arrayNext ++ nextSiblingElements ++ nextParentElts
+    res
   }.value
 
-  protected def nextParentElements: Seq[ElementBase]
+  def nextParentElements: Seq[ElementBase]
 
   protected def couldBeLastElementInModelGroup: Boolean
 

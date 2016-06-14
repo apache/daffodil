@@ -66,6 +66,15 @@ case object UpMove extends RecipeOp {
   }
 }
 
+case object UpMoveArray extends RecipeOp {
+  override def run(dstate: DState) {
+    val now = dstate.currentElement
+    Assert.invariant(now.toParent.array.isDefined)
+    val n = now.toParent.array.get
+    dstate.setCurrentNode(n.asInstanceOf[DIArray])
+  }
+}
+
 /**
  * Down to a non-array element. Can be optional or scalar.
  */
@@ -75,7 +84,8 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    dstate.setCurrentNode(now.getChild(info).asInstanceOf[DIElement])
+    val c = dstate.withRetryIfBlocking(now.getChild(info))
+    dstate.setCurrentNode(c.asInstanceOf[DIElement])
   }
 
   override def toXML = {
@@ -96,9 +106,9 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
-    val childArrayElementERD: ElementRuntimeData = savedCurrentElement.erd.childERDs(childSlot)
-    val arr = savedCurrentElement.getChildArray(childArrayElementERD)
-    val occurrence = arr.getOccurrence(index) // will throw on out of bounds
+    val childArrayElementERD: ElementRuntimeData = dstate.withRetryIfBlocking(savedCurrentElement.erd.childERDs(childSlot))
+    val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD))
+    val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
@@ -115,7 +125,7 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info)
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(info))
     Assert.invariant(arr ne null)
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
@@ -130,9 +140,9 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info)
+    val arr = dstate.withRetryIfBlocking(now.getChildArray(info))
 
-    if ((arr eq null) || arr.length == 0) 
+    if ((arr eq null) || arr.length == 0)
       throw new InfosetNoSuchChildElementException(now, info)
   }
 
