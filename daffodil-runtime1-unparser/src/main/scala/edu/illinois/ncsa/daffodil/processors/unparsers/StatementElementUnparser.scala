@@ -215,17 +215,6 @@ class StatementElementUnparserNoRep(
     val childIndex = state.childIndexStack.pop()
     state.childIndexStack.push(childIndex + 1)
   }
-
-  override def unparseBegin(state: UState) {
-    val event: InfosetAccessor = state.advanceOrError
-    Assert.invariant(event.asElement.runtimeData == erd)
-  }
-
-  override def unparseEnd(state: UState) {
-    val event: InfosetAccessor = state.advanceOrError
-    Assert.invariant(event.asElement.runtimeData == erd)
-    move(state)
-  }
 }
 
 class StatementElementOutputValueCalcUnparser(
