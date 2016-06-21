@@ -34,13 +34,15 @@
 <tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="Lax.dfdl.xsd">
 
     <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
-        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax" />
+        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax"
+        textPadKind="padChar" />
 
     <xs:element name="uS_02" type="xs:unsignedShort"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />

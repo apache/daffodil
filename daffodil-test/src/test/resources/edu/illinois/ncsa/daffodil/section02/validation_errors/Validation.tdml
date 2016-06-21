@@ -38,6 +38,7 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ex="http://example.com"
     xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true"
   >
 
 	<!-- ===================================================================== 

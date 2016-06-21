@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AL" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
+  defaultRoundTrip="true">
 
   <parserTestCase name="AL000" root="list" model="AL.dfdl.xsd"
     description="xsd:hexBinary type">

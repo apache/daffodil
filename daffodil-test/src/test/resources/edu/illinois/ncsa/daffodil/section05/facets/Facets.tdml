@@ -34,7 +34,8 @@
 <tdml:testSuite suiteName="FacetTests" description="Section 5 - facets"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
   <!-- ===================================================================== 
     Schemas ======================================================================= -->
@@ -281,7 +282,8 @@
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
+      separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" 
+      textNumberPattern="#####" />
 
     <xs:element name="arrays" type="ex:arrayOutter"
       dfdl:lengthKind="implicit" />
@@ -3993,7 +3995,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="e4_1_1" dfdl:lengthKind="delimited">
+    <xs:element name="e4_1_1" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#,##0.#####;-#,##0.#####">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -4020,7 +4022,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    <xs:element name="e4_2" dfdl:lengthKind="delimited">
+    <xs:element name="e4_2" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#,##0.#####;-#,##0.#####">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"

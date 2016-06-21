@@ -33,7 +33,8 @@
 -->
 <tdml:testSuite suiteName="RuntimeCalendarLanguage" description="Section 13.11 - Properties specific to Calendar with Text or Binary Representation" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" 
-  xmlns:tns="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:tns="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
     <dfdl:format ref="ex:daffodilTest1" calendarPatternKind="explicit"/>
@@ -126,6 +127,7 @@
         <tns:r>
           <lang>de</lang>
           <variant>1996</variant>
+          <date>2013-03-01+00:00</date>
           <dateString>2013-03-01</dateString>
         </tns:r>
       </tdml:dfdlInfoset>
@@ -155,14 +157,15 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="lang" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
-          <xs:element name="variant" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
+          <xs:element name="variant" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"
+            dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" />
           <xs:element name="date" type="xs:date" dfdl:calendarPattern="EEEE MMMM yyyy" 
           dfdl:calendarLanguage="{ fn:concat(../lang, '-', ../variant) }" 
           dfdl:lengthKind="delimited" dfdl:encoding="utf-8" 
           dfdl:outputValueCalc="{ xs:date(../dateString) }"/>
           <xs:element name="lang2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
           <xs:element name="variant2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"
-            dfdl:textPadKind='padChar'/>
+            dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" />
           <xs:element name="date2" type="xs:date" dfdl:calendarPattern="EEEE MMMM yyyy" 
           dfdl:calendarLanguage="{ fn:concat(../lang2, '-', ../variant2) }" 
           dfdl:lengthKind="delimited" dfdl:encoding="utf-8"/>
@@ -188,9 +191,10 @@
         <tns:r>
           <lang>de</lang>
           <variant>1996</variant>
+          <date>2013-03-01+00:00</date>
           <lang2>en</lang2>
           <variant2>us</variant2>
-          <date2>2013-03-01</date2>
+          <date2>2013-03-01+00:00</date2>
           <dateString>2013-03-01</dateString>
         </tns:r>
       </tdml:dfdlInfoset>

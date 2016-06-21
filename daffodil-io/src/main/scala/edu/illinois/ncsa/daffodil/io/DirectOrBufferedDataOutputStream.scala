@@ -242,7 +242,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     // for all whole bytes, take most-significant byte of the long, and write it out. shift << 8 bits
     // set the fragment byte to the remaining most significant byte.
     var nBitsRemaining = bitLengthFrom1To64
-    var bits = signedLong
+    val mask = if (bitLengthFrom1To64 == 64) -1.toLong else (1.toLong << bitLengthFrom1To64) - 1
+    var bits = signedLong & mask
 
     if (st.fragmentLastByteLimit > 0) {
       //

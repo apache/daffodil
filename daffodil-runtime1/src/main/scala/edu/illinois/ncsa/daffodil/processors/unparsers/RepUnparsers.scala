@@ -78,7 +78,7 @@ abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntime
  */
 object Rep {
   def loopExactlyTotalN(intN: Int, rUnparser: Unparser, ustate: UState, context: RuntimeData, iParser: Unparser): Unit = {
-    while (ustate.arrayPos <= intN) {
+    while (ustate.arrayPos <= intN && !ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, iParser)
       rUnparser.unparse1(ustate, context)
       // Debugger.afterRepetition(ustate, iParser)
