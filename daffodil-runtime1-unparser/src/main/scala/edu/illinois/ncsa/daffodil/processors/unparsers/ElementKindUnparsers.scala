@@ -165,6 +165,24 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   }
 }
 
+// Choices inside a hidden group ref (i.e. Hidden Choices) are slightly
+// different because we will never see events for any of the branches. Instead,
+// we will just always pick the branch in which every thing is defaultble or
+// OVC, so we can calculated exactly which branch to take in a hidden choice
+// statically at compile time. That logic is in ChoiceCombinator, and the
+// branch to take is passed into this HiddenChoiceCombinatorUnparser.
+class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser: Unparser)
+  extends TermUnparser(mgrd)
+  with ToBriefXMLImpl {
+  override def nom = "HiddenChoice"
+
+  override lazy val childProcessors: Seq[Processor] = Seq(branchUnparser)
+
+  def unparse(state: UState): Unit = {
+    branchUnparser.unparse1(state, mgrd)
+  }
+}
+
 class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],

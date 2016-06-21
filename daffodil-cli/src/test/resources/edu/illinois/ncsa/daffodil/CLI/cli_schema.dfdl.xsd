@@ -82,13 +82,13 @@
   
     <xs:group name="hgNested">
       <xs:sequence>
-        <xs:element name="sneaky" type="xs:int" />
+        <xs:element name="sneaky" type="xs:int" dfdl:outputValueCalc="{ 5 }"/>
       </xs:sequence>
     </xs:group>
     <xs:group name="hg">
       <xs:sequence dfdl:separator="/">
         <xs:sequence dfdl:hiddenGroupRef="ex:hgNested" />
-        <xs:element name="f" type="xs:int" />
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 42 }"/>
       </xs:sequence>
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">

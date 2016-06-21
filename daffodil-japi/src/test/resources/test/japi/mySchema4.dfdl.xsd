@@ -22,7 +22,7 @@
   </element>
   <group name="hg">
     <sequence dfdl:separator="/">
-      <element name="hiddenElement" type="xsd:string" dfdl:lengthKind="explicit" dfdl:length="6" />
+      <element name="hiddenElement" type="xsd:string" dfdl:lengthKind="explicit" dfdl:length="6" dfdl:outputValueCalc="{ 'hidden' }" />
     </sequence>
   </group>
 

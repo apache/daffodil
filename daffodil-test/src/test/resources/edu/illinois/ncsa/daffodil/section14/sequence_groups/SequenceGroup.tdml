@@ -3,7 +3,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
    <tdml:defineSchema name="emptySDEschema">
      <dfdl:format ref="ex:daffodilTest1"/>
@@ -166,7 +167,7 @@
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
     <xs:group name="hg">
       <xs:sequence>
-        <xs:element name="f" type="xs:int" />
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 1 }" />
       </xs:sequence>
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">
@@ -228,7 +229,7 @@
 
     <xs:group name="hg">
       <xs:sequence>
-        <xs:element name="f" type="xs:int">
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 42 }">
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
@@ -316,13 +317,13 @@
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
     <xs:group name="hgNested">
       <xs:sequence>
-        <xs:element name="sneaky" type="xs:int" />
+        <xs:element name="sneaky" type="xs:int" dfdl:outputValueCalc="{ 5 }" />
       </xs:sequence>
     </xs:group>
     <xs:group name="hg">
       <xs:sequence dfdl:separator="/">
         <xs:sequence dfdl:hiddenGroupRef="ex:hgNested" />
-        <xs:element name="f" type="xs:int" />
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 42 }" />
       </xs:sequence>
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">
@@ -336,19 +337,19 @@
     
     <xs:group name="hgNested3">
       <xs:sequence>
-        <xs:element name="sneakier" type="xs:int" />
+        <xs:element name="sneakier" type="xs:int" dfdl:outputValueCalc="{ 6 }" />
       </xs:sequence>
     </xs:group>
     <xs:group name="hgNested2">
       <xs:sequence dfdl:separator="o">
         <xs:sequence dfdl:hiddenGroupRef="ex:hgNested3" />
-        <xs:element name="sneaky" type="xs:int" />
+        <xs:element name="sneaky" type="xs:int" dfdl:outputValueCalc="{ 5 }" />
       </xs:sequence>
     </xs:group>
     <xs:group name="hg2">
       <xs:sequence dfdl:separator="/">
         <xs:sequence dfdl:hiddenGroupRef="ex:hgNested2" />
-        <xs:element name="f" type="xs:int" />
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 42 }" />
       </xs:sequence>
     </xs:group>
 
@@ -408,7 +409,7 @@
     <xs:group name="hg">
           <xs:choice>
             <xs:element name="inty" type="xs:int"
-              dfdl:lengthKind="delimited" />
+              dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 145 }" />
             <xs:element name="stringy" type="xs:string"
               dfdl:lengthKind="delimited" />
           </xs:choice>
@@ -449,9 +450,10 @@
        Schema: hiddenGroupChoice
       Purpose: This test demonstrates that hidden groups can contain a choice.
   -->
-  
+
+  <!-- See DFDL-1553 for enabling round trip -->
   <tdml:parserTestCase name="hiddenGroupChoice2" root="e"
-    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R" roundTrip="false">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
     </tdml:document>
@@ -504,8 +506,9 @@
     </tdml:errors> 
  </tdml:parserTestCase>
 
+  <!-- See DFDL-1552 for enabling round trip -->
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
-    description="hiddenGroupRef">
+    description="hiddenGroupRef" roundTrip="false">
     <tdml:document><![CDATA[Creator: NCSA
 Date: Mon Feb 23 15:20:47 CST 2009
 0,1,2,3,4,5,6,7,8,9
@@ -679,10 +682,12 @@ Date: Mon Feb 23 15:20:47 CST 2009
     <xs:sequence>
       <xs:element name="Creator" type="xs:string" dfdl:terminator="%NL;"
         dfdl:initiator="Creator:" dfdl:encoding="ASCII"
-        dfdl:representation="text" dfdl:lengthKind="delimited" />
+        dfdl:representation="text" dfdl:lengthKind="delimited"
+        dfdl:outputValueCalc="{ ' NCSA' }" />
       <xs:element name="Date" type="xs:string" dfdl:terminator="%NL;"
         dfdl:initiator="Date:" dfdl:encoding="ASCII"
-        dfdl:representation="text" />
+        dfdl:representation="text"
+        dfdl:outputValueCalc="{ ' Mon Feb 23 15:20:47 CST 2009' }" />
     </xs:sequence>
   </xs:complexType>
 
@@ -708,8 +713,8 @@ Date: Mon Feb 23 15:20:47 CST 2009
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
     <xs:group name="ab">
       <xs:sequence>
-        <xs:element name="a" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
-        <xs:element name="b" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" />
+        <xs:element name="a" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" dfdl:outputValueCalc="{ 1 }" />
+        <xs:element name="b" dfdl:length="1" dfdl:lengthKind="explicit" type="xs:int" dfdl:outputValueCalc="{ 2 }" />
       </xs:sequence>
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">
@@ -829,13 +834,15 @@ Date: Mon Feb 23 15:20:47 CST 2009
 
   <xs:group name="xCountGroup">
     <xs:sequence>
-      <xs:element name="xCount" type="xs:int" dfdl:representation="text" />
+      <xs:element name="xCount" type="xs:int" dfdl:representation="text"
+        dfdl:outputValueCalc="{ fn:count(../ex:x) }" />
     </xs:sequence>
   </xs:group>
 
   <xs:group name="yCountGroup">
     <xs:sequence>
-      <xs:element name="yCount" type="xs:int" dfdl:representation="text" />
+      <xs:element name="yCount" type="xs:int" dfdl:representation="text"
+        dfdl:outputValueCalc="{ fn:count(../ex:y) }" />
     </xs:sequence>
   </xs:group>
 
@@ -859,7 +866,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
 
   <xs:group name="leftOver">
     <xs:sequence>
-      <xs:element name="leftOver" type="xs:string" />
+      <xs:element name="leftOver" type="xs:string" dfdl:outputValueCalc="{ '' }" />
     </xs:sequence>
   </xs:group>
   </tdml:defineSchema>
@@ -908,12 +915,12 @@ more ignored input
 
   <xs:group name="data">
     <xs:sequence dfdl:separator="">
-      <xs:element name="x" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" />
-      <xs:element name="y" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" />
-      <xs:element name="z" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" />
+      <xs:element name="_x" type="xs:int" dfdl:representation="text"
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:x }" />
+      <xs:element name="_y" type="xs:int" dfdl:representation="text"
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:y }" />
+      <xs:element name="_z" type="xs:int" dfdl:representation="text"
+        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ ../ex:z }" />
     </xs:sequence>
   </xs:group>
 
@@ -922,14 +929,14 @@ more ignored input
       <xs:sequence>
         <xs:sequence dfdl:hiddenGroupRef="ex:data" />
         <xs:element name="product" type="xs:int"
-          dfdl:inputValueCalc="{ /ex:table/ex:x * /ex:table/ex:y * /ex:table/ex:z }" />
+          dfdl:inputValueCalc="{ /ex:table/ex:_x * /ex:table/ex:_y * /ex:table/ex:_z }" />
         <xs:element name="sum" type="xs:int"
-          dfdl:inputValueCalc="{ /ex:table/ex:x + /ex:table/ex:y + /ex:table/ex:z }" />
+          dfdl:inputValueCalc="{ /ex:table/ex:_x + /ex:table/ex:_y + /ex:table/ex:_z }" />
         <xs:element name="concat" type="xs:string"
-          dfdl:inputValueCalc="{ fn:concat(fn:concat(/ex:table/ex:x,/ex:table/ex:y),/ex:table/ex:z) }" />
-        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ ../ex:x }" />
-        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ ../ex:y }" />
-        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ ../ex:z }" />
+          dfdl:inputValueCalc="{ fn:concat(fn:concat(/ex:table/ex:_x,/ex:table/ex:_y),/ex:table/ex:_z) }" />
+        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ ../ex:_x }" />
+        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ ../ex:_y }" />
+        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ ../ex:_z }" />
         <xs:element name="productAgain" type="xs:string"
           dfdl:inputValueCalc="{ ../ex:product }" />
       </xs:sequence>
@@ -1099,7 +1106,7 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
     <xs:group name="hg">
       <xs:choice>
         <xs:element name="inty" type="xs:int"
-          dfdl:lengthKind="delimited" />
+          dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 1 }" />
         <xs:element name="stringy" type="xs:string"
           dfdl:lengthKind="delimited" />
       </xs:choice>
@@ -1115,8 +1122,9 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
 
   </tdml:defineSchema>
 
+  <!-- See DFDL-1553 for enabling round trip -->
 	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
-		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R">
+		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R" roundTrip="false">
 
 		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
 A,B,C,x,1|D,E,F,y,2|G,H,I,z,3
@@ -1233,5 +1241,84 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="hiddenGroupSeqWithRequiredElements">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:group name="hg">
+      <xs:sequence>
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: hiddenGroupSeqWithRequiredElements
+       Schema: hiddenGroupSeqWithRequiredElements
+      Purpose: This test demonstrates that an SDE is thrown if any elements in a hidden sequence are required
+  -->
+
+  <tdml:parserTestCase name="hiddenGroupSeqWithRequiredElements" root="e"
+    model="hiddenGroupSeqWithRequiredElements" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>hidden group</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>outputValueCalc</tdml:error>
+      <tdml:error>inty</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="hiddenGroupChoiceWithAllRequiredBranches">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:group name="hg">
+      <xs:choice>
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+        <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:group>
+
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="g" type="xs:int" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: hiddenGroupChoiceWithAllRequiredBranches
+       Schema: hiddenGroupChoiceWithAllRequiredBranches
+      Purpose: This test demonstrates that an SDE is thrown if all branches in a hidden choie are required
+  -->
+
+  <tdml:parserTestCase name="hiddenGroupChoiceWithAllRequiredBranches" root="e"
+    model="hiddenGroupChoiceWithAllRequiredBranches" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>choice</tdml:error>
+      <tdml:error>hidden group</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>outputValueCalc</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>

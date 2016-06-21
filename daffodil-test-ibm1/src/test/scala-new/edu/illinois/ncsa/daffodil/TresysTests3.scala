@@ -73,9 +73,14 @@ class TresysTests3 {
   // byte in that would be B2.
   // That's not how TDML works anyway. A1 is first. So by swizzling the indexes
   // the tests were asking for. Voila, they work.
+  //
+  // NOTE: AM.dfdl.xsd isn't a valid schema because it has an array in a hidden
+  // group. Because everything inside a hidden group must be either default or
+  // OVC, and arrays can't have either, they cannot be in hidden groups. It is
+  // not worth fixing this test to work at the moment.
   val am = testDir + "AM.tdml"
   lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
     compileAllTopLevel = true)
-  @Test def test_AM000() { runnerAM.runOneTest("AM000") }
-  @Test def test_AM001() { runnerAM.runOneTest("AM001") }
+  //@Test def test_AM000() { runnerAM.runOneTest("AM000") }
+  //@Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }

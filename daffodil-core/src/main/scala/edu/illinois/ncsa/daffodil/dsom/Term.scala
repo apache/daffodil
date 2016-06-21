@@ -379,4 +379,43 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def isKnownToBePrecededByAllByteLengthItems: Boolean = false
   def hasKnownRequiredSyntax = false
 
+  /*
+   * This function returns at list of simple elements that are descendents of
+   * this term that are not defaultable or OVC. This is a requirement for terms
+   * inside a hidden group. Note that there is an exception for choices, in
+   * which only a single branch be all defaultable or OVC. If any elements in a
+   * hidden group are not defaultable or OVC, then it is an SDE. This function
+   * assumes it is only called on elements inside of a hidden group.
+   */
+  lazy val childrenInHiddenGroupNotDefaultableOrOVC: Seq[ElementBase] = {
+    // this should only be called on hidden elements
+    Assert.invariant(this.isHidden)
+
+    val res = this match {
+      case s: Sequence => {
+        s.groupMembersNoRefs.flatMap { _.childrenInHiddenGroupNotDefaultableOrOVC }
+      }
+      case c: Choice => {
+        val branches = c.groupMembersNoRefs.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
+        val countFullyDefaultableOrOVCBranches = branches.count { _.length == 0 }
+        if (countFullyDefaultableOrOVCBranches == 0) {
+          c.SDE("xs:choice inside a hidden group must contain a branch with all children either defaultable or have the dfdl:outputValueCalc property set.")
+          // TODO: Diagnostics to display which branches contained non-defaultable elements, and what those elements were
+        }
+        Nil
+      }
+      case e: ElementBase if e.isComplexType => {
+        e.elementComplexType.group.childrenInHiddenGroupNotDefaultableOrOVC
+      }
+      case e: ElementBase => {
+        if (!e.canBeAbsentFromUnparseInfoset) {
+          Seq(e)
+        } else {
+          Nil
+        }
+      }
+    }
+    res
+  }
+
 }

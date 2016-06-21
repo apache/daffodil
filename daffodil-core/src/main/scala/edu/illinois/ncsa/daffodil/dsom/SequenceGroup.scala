@@ -57,6 +57,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
+  requiredEvaluations(checkHiddenSequenceIsDefaultableOrOVC)
 
   final override lazy val myPeers = sequencePeers
 
@@ -196,6 +197,15 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
                 "\nNamespace: %s\tName: %s.",
                 this.path, ns, name)
         }
+      }
+    }
+  }
+
+  private def checkHiddenSequenceIsDefaultableOrOVC: Unit = {
+    if (this.isHidden) {
+      val nonDefaultableOrOVC = this.childrenInHiddenGroupNotDefaultableOrOVC
+      if (nonDefaultableOrOVC.length > 0) {
+        this.SDE("Element(s) of hidden group is not defaultable or dfdl:outputValueCalc:\n%s", nonDefaultableOrOVC.mkString("\n"))
       }
     }
   }

@@ -49,12 +49,12 @@
 
   <xs:group name="aGroup">
     <xs:sequence dfdl:separator=".">
-      <xs:element name="aMem01" type="xs:string"/>
-      <xs:element name="aMem02" type="xs:string"/>
-      <xs:element name="aMem03" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
-      <xs:element name="aMem04" type="xs:int"/>
-      <xs:element name="aMem05" type="xs:string"/>
-      <xs:element name="aMem06" type="xs:string"/>
+      <xs:element name="aMem01" type="xs:string" dfdl:outputValueCalc="{ 'these' }" />
+      <xs:element name="aMem02" type="xs:string" dfdl:outputValueCalc="{ 'hidden' }" />
+      <xs:element name="aMem03" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:outputValueCalc="{ 'objs' }" />
+      <xs:element name="aMem04" type="xs:int" dfdl:outputValueCalc="{ 1234 }" />
+      <xs:element name="aMem05" type="xs:string" dfdl:outputValueCalc="{ '()()()()()' }" />
+      <xs:element name="aMem06" type="xs:string" dfdl:outputValueCalc="{ 'abc' }" />
       <xs:element ref="base:cElem"/>
     </xs:sequence>
   </xs:group>

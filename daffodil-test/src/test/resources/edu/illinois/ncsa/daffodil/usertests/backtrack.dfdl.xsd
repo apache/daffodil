@@ -163,13 +163,11 @@
                                               type="pcap:bit" dfdl:length="8" />
                                             <xs:element name="Checksum"
                                               type="pcap:bit" dfdl:length="16" />
-                                            <xs:sequence
-                                              dfdl:hiddenGroupRef="pcap:IPSrcGrp" />
+                                            <xs:group ref="pcap:IPSrcGrp" />
                                             <xs:element name="IPSrc"
                                               type="xs:string"
                                               dfdl:inputValueCalc="{ fn:concat(../IPSrcByte[1], '.', ../IPSrcByte[2], '.', ../IPSrcByte[3], '.', ../IPSrcByte[4]) }" />
-                                            <xs:sequence
-                                              dfdl:hiddenGroupRef="pcap:IPDestGrp" />
+                                            <xs:group ref="pcap:IPDestGrp" />
                                             <xs:element name="IPDest"
                                               type="xs:string"
                                               dfdl:inputValueCalc="{ fn:concat(../IPDestByte[1], '.', ../IPDestByte[2], '.', ../IPDestByte[3], '.', ../IPDestByte[4]) }" />

@@ -140,7 +140,8 @@ This avoids the need for the checkConstraints stuff. -->
   <xsd:group name="booleanRepHack">
     <xsd:sequence>
       <xsd:element name="_boolRep" type="xsd:string"
-        dfdl:lengthPattern="true|false" dfdl:lengthKind="pattern" />
+        dfdl:lengthPattern="true|false" dfdl:lengthKind="pattern"
+        dfdl:outputValueCalc="{ if (../Boolean) then 'true' else 'false' }" />
     </xsd:sequence>
   </xsd:group>
 

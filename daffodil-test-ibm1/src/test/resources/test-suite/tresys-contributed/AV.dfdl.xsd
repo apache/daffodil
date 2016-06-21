@@ -4,7 +4,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:tns="http://example.com">
+  xmlns:tns="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
 
 <include schemaLocation="xsd/built-in-formats.xsd"/>
 
@@ -38,7 +39,8 @@
   <group name="theNextByte">
     <sequence>
       <element name="theNextByte" type="xs:byte"
-        dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="binary" />
+        dfdl:lengthKind="explicit" dfdl:length="1" dfdl:representation="binary"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -87,7 +89,7 @@
     <sequence dfdl:separator="%NL;">
       <element name="junk_line" type="xs:string" minOccurs="1"
         maxOccurs="4" dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="delimited" />
+        dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -95,7 +97,8 @@
     <sequence>
       <element name="blank_space" type="xs:string"
         dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="pattern" dfdl:lengthPattern="[^ ]+\s+" />
+        dfdl:lengthKind="pattern" dfdl:lengthPattern="[^ ]+\s+"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -103,7 +106,8 @@
     <sequence>
       <element name="junk3" type="xs:string" dfdl:terminator=":"
         dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="delimited" />
+        dfdl:lengthKind="delimited"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -111,7 +115,8 @@
     <sequence>
       <element name="junk4" type="xs:string" minOccurs="1"
         maxOccurs="1" dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+" />
+        dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -119,7 +124,8 @@
     <sequence>
       <element name="junk5" type="xs:string" maxOccurs="1"
         dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="delimited" />
+        dfdl:lengthKind="delimited"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -127,7 +133,8 @@
     <sequence>
       <element name="junk6" type="xs:string" maxOccurs="1"
         dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+"
-        dfdl:encoding="ASCII" dfdl:representation="text" />
+        dfdl:encoding="ASCII" dfdl:representation="text"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -135,7 +142,8 @@
     <sequence>
       <element name="junk7" type="xs:string" maxOccurs="1"
         dfdl:terminator=":" dfdl:encoding="ASCII" dfdl:representation="text"
-        dfdl:lengthKind="delimited" />
+        dfdl:lengthKind="delimited"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -144,7 +152,8 @@
     <sequence>
       <element name="junk8" type="xs:string" maxOccurs="1"
         dfdl:lengthKind="pattern" dfdl:lengthPattern="[ ]+"
-        dfdl:encoding="ASCII" dfdl:representation="text" />
+        dfdl:encoding="ASCII" dfdl:representation="text"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -152,7 +161,8 @@
     <sequence>
       <element name="junk4" type="xs:string" maxOccurs="1"
         dfdl:terminator="-%NL;" dfdl:encoding="ASCII"
-        dfdl:representation="text" dfdl:lengthKind="delimited" />
+        dfdl:representation="text" dfdl:lengthKind="delimited"
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -186,7 +196,8 @@
   <group name="EOT">
     <sequence>
       <element name="EOT_BYTE" type="xs:byte" minOccurs="3"
-        maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit" />
+        maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit" 
+        dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -205,7 +216,7 @@
   <group name="header">
     <sequence>
       <element name="header" type="xs:string" dfdl:lengthKind="delimited"
-        dfdl:terminator="Grand%WSP;Total:" />
+        dfdl:terminator="Grand%WSP;Total:" dfdl:outputValueCalc="{ daf:error() }"  />
     </sequence>
   </group>
 
@@ -213,7 +224,7 @@
     <sequence>
       <element name="extraByte" type="xs:byte" minOccurs="1" 
         maxOccurs="3" dfdl:representation="binary" dfdl:lengthKind="implicit"
-        dfdl:occursCountKind='parsed' />
+        dfdl:occursCountKind='parsed' dfdl:outputValueCalc="{ daf:error() }" />
     </sequence>
   </group>
 
@@ -222,7 +233,8 @@
       <sequence dfdl:hiddenGroupRef="tns:header" />
       <element name="value" type="xs:int"
         dfdl:textStringJustification="right"
-        dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;" />
+        dfdl:textStringPadCharacter=" " dfdl:terminator="%NL;"
+        dfdl:outputValueCalc="{ daf:error() }" />
       <sequence dfdl:hiddenGroupRef="tns:extraByte" />
     </sequence>
   </complexType>

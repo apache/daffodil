@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="AV000" root="wholeFile" model="AV.dfdl.xsd"
-    description="HR/CU Medical data">
+    description="HR/CU Medical data" roundTrip="false">
     <document><documentPart type="text" replaceDFDLEntities="true"><![CDATA[%#x1b;E%#x1b;(s5TTR0104                            CENTRAMAX.M                      Page:    1
                                   Triage Calls
                        Call Summary by Presenting Symptom

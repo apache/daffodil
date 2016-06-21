@@ -45,7 +45,15 @@
                       <pcap:TTL>128</pcap:TTL>
                       <pcap:Protocol>1</pcap:Protocol>
                       <pcap:Checksum>11123</pcap:Checksum>
+                      <pcap:IPSrcByte>192</pcap:IPSrcByte>
+                      <pcap:IPSrcByte>168</pcap:IPSrcByte>
+                      <pcap:IPSrcByte>158</pcap:IPSrcByte>
+                      <pcap:IPSrcByte>139</pcap:IPSrcByte>
                       <pcap:IPSrc>192.168.158.139</pcap:IPSrc>
+                      <pcap:IPDestByte>174</pcap:IPDestByte>
+                      <pcap:IPDestByte>137</pcap:IPDestByte>
+                      <pcap:IPDestByte>42</pcap:IPDestByte>
+                      <pcap:IPDestByte>77</pcap:IPDestByte>
                       <pcap:IPDest>174.137.42.77</pcap:IPDest>
                     </pcap:IPv4Header>
                     <pcap:PayloadLength>40</pcap:PayloadLength>

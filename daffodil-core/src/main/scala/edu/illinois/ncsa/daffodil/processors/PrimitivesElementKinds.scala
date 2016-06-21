@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.OptionalCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.HiddenChoiceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DynamicEscapeSchemeParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DynamicEscapeSchemeUnparser
@@ -162,19 +163,40 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
   }
 
   override lazy val unparser: DaffodilUnparser = {
-    val eventRDMap = ch.choiceBranchMap
-    val eventUnparserMap = eventRDMap.mapValues { rd =>
-      alternatives.find(_.context.runtimeData =:= rd).get.unparser
+    if (!ch.isHidden) {
+      val eventRDMap = ch.choiceBranchMap
+      val eventUnparserMap = eventRDMap.mapValues { rd =>
+        alternatives.find(_.context.runtimeData =:= rd).get.unparser
+      }
+
+      // The following line is required because mapValues() creates a "view" of
+      // the map, which is not serializable. map()ing this "view" with the
+      // identity forces evaluation of the "view", creating a map that is
+      // serializable and can be safely passed to a parser. See SI-7005 for
+      // discussions about this issue.
+      val serializableMap = eventUnparserMap.map(identity)
+
+      new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
+    } else {
+      // Choices inside a hidden group ref are slightly different because we
+      // will never see events for any of the branches. Instead, we will just
+      // always pick the branch in which every thing is defaultble or OVC. It
+      // is a warning if more than one of those branches exist. It is an SDE if
+      // such a branch does not exist, which is detected elsewhere
+
+      // this call is necessary since it will throw an SDE if no choice branch
+      // was defaultable
+      ch.childrenInHiddenGroupNotDefaultableOrOVC
+      val defaultableBranches = ch.groupMembersNoRefs.filter { _.childrenInHiddenGroupNotDefaultableOrOVC.length == 0 }
+      Assert.invariant(defaultableBranches.length > 0)
+      if (defaultableBranches.length > 1) {
+        SDW("xs:choice inside a hidden group has unparse ambiguity: multiple branches exist with all children either defaulable or have the dfdl:outputValueCalc property set. The first branch will be chosen during unparse. Defaultable branches are:\n%s",
+          defaultableBranches.mkString("\n"))
+      }
+      val defaultableBranchRD = defaultableBranches(0).runtimeData
+      val defaultableBranchUnparser = alternatives.find(_.context.runtimeData =:= defaultableBranchRD).get.unparser
+      new HiddenChoiceCombinatorUnparser(ch.modelGroupRuntimeData, defaultableBranchUnparser)
     }
-
-    // The following line is required because mapValues() creates a "view" of
-    // the map, which is not serializable. map()ing this "view" with the
-    // identity forces evaluation of the "view", creating a map that is
-    // serializable and can be safely passed to a parser. See SI-7005 for
-    // discussions about this issue.
-    val serializableMap = eventUnparserMap.map(identity)
-
-    new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
   }
 }
 

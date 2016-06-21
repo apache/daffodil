@@ -33,15 +33,30 @@
 package edu.illinois.ncsa.daffodil.section14.sequence_groups
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestSequenceGroups3 {
+
+  val testDir = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+
+  val runner1 = Runner(testDir, "SequenceGroupDelimiters.tdml")
+  val runner2 = Runner(testDir, "SequenceGroup.tdml", validateTDMLFile = false)
+
+  @AfterClass def shutDown {
+    runner1.reset
+    runner2.reset
+  }
+
+}
+
 
 class TestSequenceGroups3 {
-  val testDir = "edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-  val aa = testDir + "SequenceGroupDelimiters.tdml"
-  val res = Misc.getRequiredResource(aa)
-  lazy val runner = new DFDLTestSuite(res)
+  import TestSequenceGroups3._
 
-  @Test def test_lastElts() { runner.runOneTest("lastElts") }
+  @Test def test_lastElts() { runner1.runOneTest("lastElts") }
+
+  @Test def test_hiddenGroupSeqWithRequiredElements() { runner2.runOneTest("hiddenGroupSeqWithRequiredElements") }
+  @Test def test_hiddenGroupChoiceWithAllRequiredBranches() { runner2.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
 
 }
