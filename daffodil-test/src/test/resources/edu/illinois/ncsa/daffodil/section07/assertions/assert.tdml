@@ -34,7 +34,8 @@
 <tdml:testSuite suiteName="Assert" description="Section 7 - Assert"
   xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -455,7 +456,7 @@
   -->
 
   <tdml:parserTestCase name="assertPatternMatch" root="e9"
-    model="s1" description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element">
+    model="s1" description="Section 7 - asserts/discriminators with testKind='pattern' need to be evaluated before the element" roundTrip="false">
     <tdml:document><![CDATA[12345]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -905,7 +906,7 @@
     Purpose: The test shows that assertions are not evaluated during unparsing.
   -->
   <tdml:unparserTestCase name="unparseAssertionIgnored" root="e10"
-    model="s2" description="Section 7 - Assert 'message' Property - DFDL-7-058R">
+    model="s2" description="Section 7 - Assert 'message' Property - DFDL-7-058R" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e10>22</ex:e10>

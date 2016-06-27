@@ -35,7 +35,8 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
   <tdml:parserTestCase name="setVar1_d" root="c"
     model="variables_01.dfdl.xsd">
@@ -60,6 +61,7 @@
       <tdml:dfdlInfoset>
         <ex:c_2 >
           <d type="xsd:int">42</d>
+          <e type="xsd:int">42</e>
         </ex:c_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>

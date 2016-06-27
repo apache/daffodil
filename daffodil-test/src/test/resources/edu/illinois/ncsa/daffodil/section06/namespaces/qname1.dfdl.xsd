@@ -36,7 +36,7 @@
   xmlns:ex1="urn:ex1.NothingUseful"
   xmlns:foobar="urn:foobar.NothingUseful"  
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>    
 
@@ -67,7 +67,7 @@
   <xs:simpleType name="numType" dfdl:lengthKind="explicit">
     <xs:annotation xmlns:ex1="http://example.com/1">
       <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:simpleType length="{ ../ex1:len }" />
+        <dfdl:simpleType length="{ ../ex1:len }" textNumberPattern="#####"/>
       </xs:appinfo>
     </xs:annotation>
     <xs:restriction base="xs:int"/>

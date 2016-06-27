@@ -35,7 +35,8 @@
   xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s0">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -496,7 +497,7 @@
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase name="unparseDiscrimIgnored"
-    root="e2" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R">
+    root="e2" model="s1" description="Section 7 - discrim as a pattern - DFDL-7-045R" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e2>43</ex:e2>

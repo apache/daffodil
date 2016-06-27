@@ -46,6 +46,6 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:element name="cElem" type="foo:cType" dfdl:lengthKind="explicit"/> 
+  <xs:element name="cElem" type="foo:cType" dfdl:lengthKind="explicit" dfdl:textNumberPattern="######"/>
  
 </xs:schema>

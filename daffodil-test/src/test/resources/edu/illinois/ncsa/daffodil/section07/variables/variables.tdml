@@ -35,7 +35,8 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
   
   <tdml:defineSchema name="v">
     <dfdl:defineVariable name="v_no_default" type="xsd:int" />
@@ -169,7 +170,7 @@
 
     <xs:element name="e4" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence>
+        <xs:sequence dfdl:separator=",">
           <xs:choice>
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -289,7 +290,7 @@
 
     <xs:element name="e9" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence>
+        <xs:sequence dfdl:separator=",">
           <xs:choice>
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -442,7 +443,9 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e7 xmlns="http://example.com">
+          <month>January</month>
           <day>23</day>
+          <hour>9</hour>
         </e7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -472,10 +475,12 @@
       <tdml:dfdlInfoset>
         <e9 xmlns="http://example.com">
           <NoSale>Monday</NoSale>
+          <month>January</month>
+          <price>36</price>
         </e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>MondayJanuary36</tdml:document>
+    <tdml:document>Monday,January,36</tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="setVarOnGroupRef" root="e5"

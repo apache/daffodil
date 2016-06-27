@@ -33,6 +33,23 @@ class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
     trd)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
+
+  override protected def compute(state: ParseOrUnparseState): String = {
+    // compute via the cooker first
+    val encoding = super.compute(state)
+
+    if (encoding == "UTF-16" || encoding == "UTF-32") {
+      // TODO: Use byte order mark (from P/UState or another EV?) to determine
+      // if encoding should be BE or LE. Note that this means that if encoding
+      // is UTF-16 or UTF-32, then we cannot calculate EncodingEv at compile
+      // time since it maybe depend on the a parse value
+
+      // If BOM doesn't exist, then default to BE.
+      encoding + "BE"
+    } else {
+      encoding
+    }
+  }
 }
 
 class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)

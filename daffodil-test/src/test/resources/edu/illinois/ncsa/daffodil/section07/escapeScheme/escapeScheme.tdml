@@ -35,7 +35,8 @@
   xmlns:tns="http://example.com" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
   <defineSchema name="es1">
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />

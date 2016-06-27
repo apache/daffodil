@@ -139,7 +139,7 @@ class TestVariables {
         <xs:element name="data">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="e1" type="xs:double" dfdl:lengthKind="delimited">
+              <xs:element name="e1" type="xs:double" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#.###############">
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:setVariable ref="tns:x" value="{ . }"/>

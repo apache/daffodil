@@ -41,6 +41,6 @@
     </shi:appinfo>
   </shi:annotation>
 
-  <shi:element name="shi" type="shi:int" dfdl:lengthKind="explicit" dfdl:length="5"/>
+  <shi:element name="shi" type="shi:int" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:textNumberPattern="#####"/>
 
 </shi:schema>

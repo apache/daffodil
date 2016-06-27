@@ -35,7 +35,8 @@
   description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:tns="http://example.com">
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
 
 
   <tdml:defineSchema name="s1">
@@ -56,7 +57,7 @@
       <dfdl:format ref="tns:def2" />
     </dfdl:defineFormat>
 
-    <xs:element name="easy" type="xs:int" />
+    <xs:element name="easy" type="xs:int" dfdl:textNumberPattern="####" />
 
   </tdml:defineSchema>
 
@@ -131,7 +132,7 @@
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
         lengthUnits="characters" length="4" representation="text"
-        textNumberRep="standard" />
+        textNumberRep="standard" textNumberPattern="####" />
     </dfdl:defineFormat>
     
     <dfdl:format ref="tns:def" />
