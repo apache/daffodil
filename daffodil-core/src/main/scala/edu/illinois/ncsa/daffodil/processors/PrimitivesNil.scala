@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.LiteralValueNilOfSpecifiedL
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilOfSpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringLiteralForUnparser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
 case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
   extends Terminal(e, true)
@@ -53,7 +54,8 @@ case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
   override lazy val unparser = new LiteralNilOfSpecifiedLengthUnparser(unparsingPadChar,
     justificationPad,
     e.elementRuntimeData,
-    sl)
+    sl,
+    e.lengthKind == LengthKind.Pattern)
 }
 
 case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
@@ -70,7 +72,8 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
   override lazy val unparser = new LiteralNilOfSpecifiedLengthUnparser(unparsingPadChar,
     justificationPad,
     e.elementRuntimeData,
-    sl)
+    sl,
+    e.lengthKind == LengthKind.Pattern)
 }
 
 case class LogicalNilValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isNillable)

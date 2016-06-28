@@ -35,7 +35,8 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-  xmlns:tns="http://example.com">
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="neededRepProp">
 	<dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
@@ -105,10 +106,13 @@
     Test name: temporaryDefaultProps_02
     Schema: PropertiesNotDefined.dfdl.xsd
     Purpose: This test demonstrates that there are default values for bitOrder and encodingErrorPolicy (temporarily, see DFDL-994)
+             Note: this test does not round trip because the unicode replacement character unparses to '?' in ASCII. Other test
+             exist to test this specific unparse behavior.
   -->
 
   <tdml:parserTestCase name="temporaryDefaultProps_02" root="two"
-    model="PropertiesNotDefined.dfdl.xsd" description="">
+    model="PropertiesNotDefined.dfdl.xsd" description=""
+    roundTrip="false">
 
     <tdml:document>
       <tdml:documentPart type="byte">64ff67</tdml:documentPart>

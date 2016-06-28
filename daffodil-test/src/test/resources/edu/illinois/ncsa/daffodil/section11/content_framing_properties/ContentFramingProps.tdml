@@ -34,7 +34,8 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:tns="http://example.com"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions" >
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
 
@@ -96,8 +97,10 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- See DFDL-1558 to enable roundTrip="true" -->
   <tdml:parserTestCase name="encoding_property_expression" root="root1" model="ContentFramingProperties-Embedded.dfdl.xsd" 
-    description="Use of DFDL expression for encoding property - DFDL-11-002R">
+    description="Use of DFDL expression for encoding property - DFDL-11-002R"
+    roundTrip="false">
     <tdml:document>
       <tdml:documentPart type="text">UTF-8</tdml:documentPart>
       <tdml:documentPart type="byte">E5 B9 B4</tdml:documentPart>
@@ -601,9 +604,10 @@
     Schema: ContentFramingProperties-Embedded.dfdl.xsd
     Purpose: This test demonstrates that when the encodingErrorPolicy is "replace" any error when decoding characters
     results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
+    Note that this test does not round trip because the unicode replacement character unparses to '?' when the encoding is ASCII.
   -->
   <tdml:parserTestCase name="encodingErrorReplace" root="ee1"
-    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R" roundTrip="false">
 
     <tdml:document>
       <tdml:documentPart type="byte">64ff67</tdml:documentPart>
@@ -615,6 +619,25 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+    Test name: encodingErrorReplace_unparse
+    Schema: ContentFramingProperties-Embedded.dfdl.xsd
+    Purpose: This test is the opposite of the above test, testing that a unicode replacement character becomes an ASCII '?' when uparsed.
+  -->
+  <tdml:unparserTestCase name="encodingErrorReplace_unparse" root="ee1"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:ee1>d�g</ex:ee1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">d?g</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <!--
     Test name: encodingNoError

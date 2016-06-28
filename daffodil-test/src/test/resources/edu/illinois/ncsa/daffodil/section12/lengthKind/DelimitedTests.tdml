@@ -36,7 +36,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
 
@@ -137,8 +138,8 @@
           <xs:element name="b_string" type="xs:string" />
           <xs:element ref="ex:NS_05" minOccurs="0" maxOccurs="2" />
           <xs:element name="b_unsignedInt" type="xs:unsignedInt"
-            minOccurs="0" />
-          <xs:element name="b_int" type="xs:int" />
+            minOccurs="0" dfdl:textNumberPattern="#####" />
+          <xs:element name="b_int" type="xs:int" dfdl:textNumberPattern="#####" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -152,8 +153,8 @@
           <xs:element name="a_string" type="xs:string" />
           <xs:element ref="ex:NS_06" minOccurs="0" />
           <xs:element name="a_unsignedInt" type="xs:unsignedInt"
-            minOccurs="0" />
-          <xs:element name="a_int" type="xs:int" />
+            minOccurs="0" dfdl:textNumberPattern="#####" />
+          <xs:element name="a_int" type="xs:int" dfdl:textNumberPattern="#####" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -174,9 +175,9 @@
           dfdl:separatorPosition="infix">
           <xs:sequence dfdl:initiator="!" dfdl:terminator="?"
             dfdl:separator=";" dfdl:separatorPosition="infix">
-            <xs:element name="e1" type="xs:int" maxOccurs="unbounded" />
+            <xs:element name="e1" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
           </xs:sequence>
-          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -186,7 +187,7 @@
         <xs:sequence dfdl:separator=","
           dfdl:separatorPosition="infix">
           <xs:sequence dfdl:initiator="!" dfdl:terminator="?" />
-          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -202,7 +203,7 @@
               </xs:appinfo>
           	</xs:annotation>
           </xs:sequence>
-          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -284,7 +285,7 @@
                 dfdl:separatorPosition="infix" dfdl:separator=","
                 dfdl:separatorSuppressionPolicy="anyEmpty">
                 <xs:element name="num" type="xs:int"
-                  maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#####" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -458,9 +459,11 @@ C</MessageHeaders>
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- See DFDL-1557 to make this round trip -->
   <tdml:parserTestCase name="Lesson4_delimited_fixed_length"
     root="address1" model="lengthKindDelimited-Embedded.dfdl.xsd"
-    description="delimited fixed length elements - DFDL-12-053R">
+    description="delimited fixed length elements - DFDL-12-053R"
+    roundTrip="false">
     <tdml:document><![CDATA[000118*Ridgewood Circle    *Rochester           *NY]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

@@ -35,12 +35,13 @@
 	description="Section 12 - lengthKind=explicit" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xmlns:ex="http://example.com">
+	xmlns:ex="http://example.com"
+	defaultRoundTrip="true">
 
 	<tdml:defineSchema name="lengthKind_explicit">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar" />
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -79,7 +80,7 @@
 	<tdml:defineSchema name="test_ExplicitLengthBits">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -264,9 +265,11 @@
 
 	</tdml:defineSchema>
 
+  <!-- See DFDL-1557 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
 		root="fixed1" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R">
+		description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="false">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
 		</tdml:document>
@@ -296,9 +299,11 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+	<!-- See DFDL-1551 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
 		root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R">
+		description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="false">
 		<tdml:document>
 			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
 			</tdml:documentPart>
@@ -344,7 +349,7 @@
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -523,9 +528,11 @@
                 Here we are expecting the parser to pad out to 50 on each element and pull in two addresses.
                 There are two "extra" bytes ("XX") in the data for each address.
 -->
-    
+
+  <!-- See DFDL-1557 to enable roundTrip="true" -->
   <tdml:parserTestCase name="ExplicitLengthBytesFixed50"
-    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="false">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NYXX000118Ridgewood Circle    Rochester           NYXX]]></tdml:documentPart>
     </tdml:document>
@@ -601,7 +608,7 @@
 	<tdml:defineSchema name="test_ExplicitLengthChars">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -687,8 +694,10 @@
                 by an expression.
 -->
 
+  <!-- See DFDL-1557 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
-		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="false">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000030
 			</tdml:documentPart>

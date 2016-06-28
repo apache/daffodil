@@ -124,29 +124,6 @@ class SpecifiedLengthExplicitBytesFixedUnparser(
   final override def getBitLength(s: UState): Long = nBytes * 8
 }
 
-final class SpecifiedLengthPatternUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData)
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
-
-  // TODO: Copied form elsewhere, need to remove duplication. Also, this ends up calculcating the bit length twice
-  private def getLengthInBits(str: String, state: UState): (Long, Long) = {
-    state.withByteArrayOutputStream {
-      case (_, dos) =>
-        dos.setEncoder(state.dataOutputStream.encoder)
-        val nChars = dos.putString(str)
-        val nBits = dos.relBitPos0b.toLong
-        (nBits, nChars)
-    }
-  }
-
-  final override def getBitLength(s: UState): Long = {
-    val str = s.currentInfosetNode.asSimple.dataValueAsString
-    val (nBits, _ /* nChars */ ) = getLengthInBits(str, s)
-    nBits
-  }
-}
-
 /**
  * This is used when length is measured in characters, and couldn't be
  * converted to a computation on length in bytes because a character is encoded as a variable number

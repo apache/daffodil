@@ -35,7 +35,8 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -325,9 +326,11 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- See DFDL-1557 to make roundTrip="true" -->
   <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength" root="e1"
     model="DelimiterProperties-Embedded2.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass"
+    roundTrip="false">
     <tdml:document><![CDATA[12 45 78  
 257 1 9  4]]></tdml:document>
     <tdml:infoset>
@@ -347,23 +350,25 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- See DFDL-1557 to make roundTrip="true" -->
   <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength2" root="e1"
     model="DelimiterProperties-Embedded2.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass"
+    roundTrip="false">
     <tdml:document><![CDATA[12 45 78  257 1 9  4]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <e1>
-	  <e2>
+          <e2>
             <s1>1</s1>
             <s2>2 45 78</s2>
           </e2>
-	  <e3>
-	    <s3>2</s3>
-	    <s4>57 1 9  4</s4>
-	  </e3>
-	</e1>
+          <e3>
+            <s3>2</s3>
+            <s4>57 1 9  4</s4>
+          </e3>
+        </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

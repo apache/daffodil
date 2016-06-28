@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthPatternUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsFixedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesFixedUnparser
@@ -85,9 +84,9 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     pattern)
 
-  override lazy val unparser: Unparser = new SpecifiedLengthPatternUnparser(
-    eUnparser,
-    e.elementRuntimeData)
+  // When unparsing, the pattern is not used to calculate a length, so just
+  // skip that parser and go straight to unparsing the string in the eUnparser
+  override lazy val unparser: Unparser = eUnparser
 
 }
 

@@ -2,7 +2,8 @@
 <testSuite suiteName="dpaext" 
 	description="Sample tests to post externally"
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	defaultRoundTrip="true">
 
 
    <!-- 
@@ -40,10 +41,12 @@ the sample schemas given in the specification are used (made into complete schem
 the basic demonstration of DFDL with binary and text number formats  -->
 
 	<!-- example from  Simple Example 1.2  -->
+	<!-- See DFDL-1501 to make this round trip -->
 	<parserTestCase name="introduction_1_01"
 	    root="root"
 		model="./fvt/ext/dpa/dpaspc121_01.dfdl.xsd"
-		description="Section 1.2 General number example,  What is DFDL - binary numbers">
+		description="Section 1.2 General number example,  What is DFDL - binary numbers"
+		roundTrip="false">
 
 		<document><documentPart type="byte">0000000500779e8c169a54dd0a1b4a3fce2946f6</documentPart></document>
 
@@ -60,9 +63,11 @@ the basic demonstration of DFDL with binary and text number formats  -->
 	</parserTestCase>
 
 	<!--  Second example from  Simple Example 1.2 -->
+	<!-- See DFDL-1501 to make this round trip -->
 	<parserTestCase name="introduction_1_02" root="root"
 		model="./fvt/ext/dpa/dpaspc121_02.dfdl.xsd"
-		description="Section 12 lengthKind-delimited - DFDL-12-043R">
+		description="Section 12 lengthKind-delimited - DFDL-12-043R"
+		roundTrip="false">
 
 		<document>5,7839372,8.6E-200,-7.1E8</document>
 

@@ -45,7 +45,8 @@ class StringOfSpecifiedLengthUnparser(
   val unparsingPadChar: MaybeChar,
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
-  isForString: Boolean)
+  isForString: Boolean,
+  isForPattern: Boolean)
   extends PrimUnparser
   with StringLengthMixin {
 
@@ -99,7 +100,8 @@ class StringOfSpecifiedLengthUnparser(
         //
         val availableLengthInBits = maybeAvailableLengthInBits.get
         val (nBits, _ /* nChars */ ) = getLengthInBits(valueString, state)
-        val nBitsToPadOrFill = availableLengthInBits - nBits // can be negative if we need to truncate
+        val availableLengthDiff = availableLengthInBits - nBits // can be negative if we need to truncate
+        val nBitsToPadOrFill = if (isForPattern) availableLengthDiff.min(0) else availableLengthDiff // no padding/fill when lengthKind="pattern"
         val cs = erd.encodingInfo.getEncoder(state).charset
         val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(cs)
         // padChar must be a minimum-width char

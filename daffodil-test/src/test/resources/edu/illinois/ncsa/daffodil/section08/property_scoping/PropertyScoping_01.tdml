@@ -34,7 +34,8 @@
 <tdml:testSuite suiteName="DelimitedTests"
   description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
 
 
   <tdml:defineSchema name="s1">
@@ -61,7 +62,7 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
       lengthUnits="characters" length="3" />
 
-    <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard">
+    <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#####">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element ref="tns:def"/>

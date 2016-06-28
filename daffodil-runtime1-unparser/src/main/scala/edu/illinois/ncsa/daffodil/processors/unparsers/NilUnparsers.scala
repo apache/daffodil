@@ -8,9 +8,11 @@ class LiteralNilOfSpecifiedLengthUnparser(
   unparsingPadChar: MaybeChar,
   justificationPad: TextJustificationType.Type,
   erd: ElementRuntimeData,
-  outputNilValue: StringLiteralForUnparser)
+  outputNilValue: StringLiteralForUnparser,
+  isForPattern: Boolean)
   extends StringOfSpecifiedLengthUnparser(unparsingPadChar, justificationPad, erd,
-    false // false meaning this is not for a string, but a literal nil
+    false, // false meaning this is not for a string, but a literal nil
+    isForPattern
     ) {
 
   override protected def contentString(state: UState) = outputNilValue.evaluate(state)

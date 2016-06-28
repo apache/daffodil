@@ -119,7 +119,7 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
   override lazy val unparser: Unparser =
     new StringOfSpecifiedLengthUnparser(unparsingPadChar,
       justificationPad,
-      e.elementRuntimeData, true)
+      e.elementRuntimeData, true, e.lengthKind == LengthKind.Pattern)
 
 }
 

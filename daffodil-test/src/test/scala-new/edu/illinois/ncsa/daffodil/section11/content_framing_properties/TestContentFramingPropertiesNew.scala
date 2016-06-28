@@ -34,11 +34,14 @@ package edu.illinois.ncsa.daffodil.section11.content_framing_properties
 
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
 
 class TestContentFramingPropertiesNew {
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+
+  @Test def test_encodingErrorReplace_unparse() { runner2.runOneTest("encodingErrorReplace_unparse") }
 
 }
