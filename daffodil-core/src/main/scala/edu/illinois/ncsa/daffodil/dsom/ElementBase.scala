@@ -417,7 +417,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       // unparser specific items
       //
       notReferencedByExpressions,
-      fillByteValue,
       optTruncateSpecifiedLengthString,
       if (isOutputValueCalc) Some(ovcCompiledExpression) else None)
     newERD

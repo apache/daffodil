@@ -97,10 +97,8 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- See DFDL-1558 to enable roundTrip="true" -->
   <tdml:parserTestCase name="encoding_property_expression" root="root1" model="ContentFramingProperties-Embedded.dfdl.xsd" 
-    description="Use of DFDL expression for encoding property - DFDL-11-002R"
-    roundTrip="false">
+    description="Use of DFDL expression for encoding property - DFDL-11-002R">
     <tdml:document>
       <tdml:documentPart type="text">UTF-8</tdml:documentPart>
       <tdml:documentPart type="byte">E5 B9 B4</tdml:documentPart>

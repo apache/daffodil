@@ -51,9 +51,6 @@ class TestAlignedDataDebug {
 
   import TestAlignedDataDebug._
 
-  //DFDL-1426
-  @Test def test_fillByte_01() = { runner1.runOneTest("fillByte_01") }
-
   // DFDL-1217
   @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
 }

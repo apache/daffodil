@@ -291,7 +291,6 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      fillByteValue,
       optIgnoreCase)
   }
 

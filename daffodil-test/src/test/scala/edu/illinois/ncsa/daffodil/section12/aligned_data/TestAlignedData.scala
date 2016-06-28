@@ -199,8 +199,4 @@ class TestAlignedData {
   @Test def test_AligningSkipBits2() { runner2.runOneTest("AligningSkipBits2") }
 
   @Test def test_alignmentArray() = { runner1.runOneTest("alignmentArray") }
-
-  //DFDL-1426
-  //@Test def test_fillByte_01() = { runner1.runOneTest("fillByte_01") }
-
 }

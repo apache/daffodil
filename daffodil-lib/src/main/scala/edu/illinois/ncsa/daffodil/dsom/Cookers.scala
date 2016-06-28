@@ -36,6 +36,8 @@ object EscapeBlockEndCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoBy
 
 object ExtraEscapedCharactersCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
+object FillByteCooker extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
+
 object InitiatorCooker extends DelimiterCooker()
 
 object TerminatorCooker extends DelimiterCooker()

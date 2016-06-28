@@ -40,13 +40,15 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.FillByteEv
 
 class StringOfSpecifiedLengthUnparser(
   val unparsingPadChar: MaybeChar,
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
   isForString: Boolean,
-  isForPattern: Boolean)
+  isForPattern: Boolean,
+  fillByteEv: FillByteEv)
   extends PrimUnparser
   with StringLengthMixin {
 
@@ -114,17 +116,19 @@ class StringOfSpecifiedLengthUnparser(
       }
     val nCharsWritten = dos.putString(valueToWrite)
     Assert.invariant(nCharsWritten == valueToWrite.length) // assertion because we figured this out above based on available space.
-    var nFillBytes = nBitsToFill.toInt / 8
-    val fb = fillByte(state)
-    if (nFillBytes > 0) {
-      while (nFillBytes > 0) {
-        Assert.invariant(dos.putLong(fb, 8))
-        nFillBytes -= 1
+    if (nBitsToFill > 0) {
+      val fb = fillByteEv.evaluate(state).toLong
+      var nFillBytes = nBitsToFill.toInt / 8
+      if (nFillBytes > 0) {
+        while (nFillBytes > 0) {
+          Assert.invariant(dos.putLong(fb, 8))
+          nFillBytes -= 1
+        }
       }
+      val nFillBits = nBitsToFill.toInt % 8
+      if (nFillBits > 0)
+        Assert.invariant(dos.putLong(fb, nFillBits))
     }
-    val nFillBits = nBitsToFill.toInt % 8
-    if (nFillBits > 0)
-      Assert.invariant(dos.putLong(fb, nFillBits))
   }
 }
 
@@ -132,8 +136,6 @@ trait StringLengthMixin {
 
   def erd: ElementRuntimeData
   def justificationTrim: TextJustificationType.Type
-
-  final def fillByte(state: UState): Int = erd.fillByte(state, erd.encodingInfo)
 
   final def addRightPadding(str: String, padChar: MaybeChar, nChars: Int): String = {
     val pc = padChar.get

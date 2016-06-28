@@ -194,7 +194,6 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      fillByteValue,
       optIgnoreCase)
   }
 }

@@ -84,7 +84,7 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
     e.elementRuntimeData)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(nBytes,
-    e.elementRuntimeData)
+    e.elementRuntimeData, e.fillByteEv)
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
@@ -97,7 +97,7 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
     e.lengthEv)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
-    e.lengthEv)
+    e.lengthEv, e.fillByteEv)
 }
 
 case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {
@@ -119,7 +119,7 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
   override lazy val unparser: Unparser =
     new StringOfSpecifiedLengthUnparser(unparsingPadChar,
       justificationPad,
-      e.elementRuntimeData, true, e.lengthKind == LengthKind.Pattern)
+      e.elementRuntimeData, true, e.lengthKind == LengthKind.Pattern, e.fillByteEv)
 
 }
 
@@ -203,7 +203,8 @@ abstract class HexBinaryDelimited(e: ElementBase)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryDelimitedMinLengthInBytesUnparser(
     e.minLength.longValue,
-    e.elementRuntimeData)
+    e.elementRuntimeData,
+    e.fillByteEv)
 }
 
 case class HexBinaryDelimitedEndOfData(e: ElementBase)

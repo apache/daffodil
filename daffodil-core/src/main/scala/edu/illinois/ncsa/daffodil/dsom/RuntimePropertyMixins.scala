@@ -80,6 +80,12 @@ trait TermRuntimeValuedPropertiesMixin
     ev
   }
 
+  final lazy val fillByteEv = {
+    val ev = new FillByteEv(fillByte, charsetEv, termRuntimeData)
+    ev.compile()
+    ev
+  }
+
   /*
    * Property OutputNewLine
    */

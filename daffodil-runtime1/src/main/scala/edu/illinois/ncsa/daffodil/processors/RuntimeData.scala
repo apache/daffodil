@@ -38,10 +38,8 @@ import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.ConstantExpression
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.util.PreSerialization
@@ -54,7 +52,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.FacetTypes
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
@@ -120,7 +117,6 @@ sealed abstract class TermRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam fillByteValueArg: => Int,
   @TransientParam defaultBitOrderArg: => BitOrder,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
   extends RuntimeData
@@ -144,7 +140,6 @@ sealed abstract class TermRuntimeData(
   lazy val couldHaveText = couldHaveTextArg
   lazy val alignmentValueInBits = alignmentValueInBitsArg
   lazy val hasNoSkipRegions = hasNoSkipRegionsArg
-  lazy val fillByteValue = fillByteValueArg
   lazy val defaultBitOrder = defaultBitOrderArg
   lazy val optIgnoreCase = optIgnoreCaseArg
 
@@ -158,17 +153,11 @@ sealed abstract class TermRuntimeData(
     couldHaveText
     alignmentValueInBits
     hasNoSkipRegions
-    fillByteValue
     defaultBitOrder
     optIgnoreCase
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
-  def fillByte(ustate: UState, encodingInfo: EncodingRuntimeData): Int = {
-    Assert.invariant(encodingInfo.isKnownEncoding) // FIXME: implement runtime determination of encoding
-    fillByteValue
-  }
 }
 
 sealed class NonTermRuntimeData(
@@ -302,11 +291,10 @@ final class ElementRuntimeData(
    * from the infoset immediately after unparsing is complete.
    */
   @TransientParam notReferencedByExpressionsArg: => Boolean,
-  @TransientParam fillByteValueArg: => Int,
   @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
   @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]])
   extends TermRuntimeData(parentArg, parentTermArg, encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    fillByteValueArg, defaultBitOrderArg, optIgnoreCaseArg)
+    defaultBitOrderArg, optIgnoreCaseArg)
   with HasSlotIndexInParent {
 
   lazy val parent = parentArg
@@ -456,11 +444,10 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam fillByteValueArg: => Int,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
   extends TermRuntimeData(Some(erdArg),
     Maybe(trdArg),
-    encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg,
+    encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg) {
 
   lazy val variableMap = variableMapArg
@@ -512,10 +499,9 @@ final class SequenceRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam fillByteValueArg: => Int,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg, optIgnoreCaseArg)
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
 
 final class ChoiceRuntimeData(
   /**
@@ -538,10 +524,9 @@ final class ChoiceRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam fillByteValueArg: => Int,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, fillByteValueArg, optIgnoreCaseArg)
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
 
 final class VariableRuntimeData(
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,

@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 
@@ -192,64 +191,4 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     av % kav == 0
   }
 
-  private val RawByte = """\%\#r([0-9a-fA-F]{2})\;""".r
-  /**
-   * -1 means must be determined once encoding is known, which is at runtime.
-   * Otherwise integer that contains the byte value.
-   */
-  final lazy val fillByteValue: Int = LV('fillByteValue) {
-    fillByte match {
-      case RawByte(hex) => {
-        val cooked = EntityReplacer { e => e.replaceAll(fillByte, Some(self)) }
-        Assert.invariant(cooked.length == 1)
-        val char = cooked(0)
-        val charCode = char.toInt
-        charCode
-      }
-      case _ => fillByteForCharacter(fillByte)
-    }
-  }.value
-
-  private def fillByteForCharacter(fillByte: String): Int = {
-    val cookedFillByte: String = EntityReplacer { e => e.replaceAll(fillByte) }
-    summaryEncoding match {
-      case NamedEncoding(encName) => fillByteForCharacterKnownEncoding(encName, cookedFillByte)
-      case Runtime => {
-        this.subsetError("The dfdl:fillByte property value cannot be specified as a character when the dfdl:encoding property is a computed expression.")
-        // -1
-      }
-      case Binary | NoText | Mixed => {
-        if (isKnownEncoding) fillByteForCharacterKnownEncoding(knownEncodingName, cookedFillByte)
-        else schemaDefinitionError("Illegal value for fillByte property: '%s'." +
-          "\nData with binary representation, or with a mixture of text and binary representations," +
-          " but with no dfdl:encoding property must have dfdl:fillByte specified using a DFDL Byte Value Entity" +
-          " For example: %%#rHH; where H is a hex digit 0-9 A-F.", fillByte)
-      }
-    }
-  }
-
-  private def fillByteForCharacterKnownEncoding(encName: String, fillByteChar: String): Int = {
-    if (knownEncodingIsFixedWidth) {
-      if (knownEncodingWidthInBits == 8) {
-        //
-        // ok. Character has to be a single byte character.
-        // we have to convert it to the byte value for that encoding
-        //
-        val bytes = fillByteChar.getBytes(encName)
-        Assert.invariant(bytes.length == 1)
-        bytes(0)
-      } else {
-        schemaDefinitionError("The fillByte property cannot be specified as a character ('%s') when the dfdl:encoding property is '%s' because that encoding is not a single-byte character set.", fillByte, encName)
-      }
-    } else {
-      // not fixed width.
-      val bytes = fillByteChar.getBytes(encName)
-      if (bytes.length > 1) {
-        schemaDefinitionError("The fillByte must be a single-byte character, for encoding '%s', but the specified character '%s' occupies %n bytes", encName, fillByteChar, bytes.length)
-      } else {
-        // ok. Must be exactly one.
-        bytes(0)
-      }
-    }
-  }
 }

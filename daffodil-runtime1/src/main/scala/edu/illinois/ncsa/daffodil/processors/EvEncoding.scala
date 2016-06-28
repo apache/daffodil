@@ -4,6 +4,8 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /*
  * The way encoding works, is if a EncodingChangeParser or Unparser is
@@ -64,4 +66,52 @@ class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
     Assert.invariant(cs ne null)
     new DFDLCharset(encString)
   }
+}
+
+class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntimeData)
+  extends Evaluatable[Integer](trd)
+  with InfosetCachedEvaluatable[Integer] {
+
+  override lazy val runtimeDependencies = Seq(charsetEv)
+
+  private val maybeSingleRawByteValue: MaybeInt = {
+    val RawByte = """\%\#r([0-9a-fA-F]{2})\;""".r
+    fillByteRaw match {
+      case RawByte(hex) => MaybeInt(Integer.parseInt(hex, 16))
+      case _ => MaybeInt.Nope
+    }
+  }
+
+  override protected def compute(state: ParseOrUnparseState): Integer = {
+    val res =
+      if (maybeSingleRawByteValue.isDefined) {
+        // fillByte was a single raw byte, don't have to worry about encoding
+        maybeSingleRawByteValue.get
+      } else {
+        // not a single raw byte, need to cook and encode it
+        val cookedFillByte = FillByteCooker.cook(fillByteRaw, trd, true)
+        Assert.invariant(cookedFillByte.length == 1)
+
+        val dfdlCharset = charsetEv.evaluate(state)
+        dfdlCharset.charset match {
+          case _: NonByteSizeCharset => {
+            state.SDE("The fillByte property cannot be specified as a" +
+            " character ('%s') when the dfdl:encoding property is '%s' because that" +
+            " encoding is not a single-byte character set.", fillByteRaw, dfdlCharset.charsetName)
+          }
+          case cs => {
+            val bytes = cookedFillByte.getBytes(cs)
+            Assert.invariant(bytes.length > 0)
+            if (bytes.length > 1) {
+              state.SDE("The fillByte property must be a single-byte" +
+              " character, but for encoding '%s' the specified character '%s'" +
+              " occupies %d bytes", dfdlCharset.charsetName, cookedFillByte, bytes.length)
+            }
+            bytes(0).toInt
+          }
+        }
+      }
+    res
+  }
+
 }

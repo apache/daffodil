@@ -56,7 +56,8 @@ case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
     justificationPad,
     e.elementRuntimeData,
     sl,
-    e.lengthKind == LengthKind.Pattern)
+    e.lengthKind == LengthKind.Pattern,
+    e.fillByteEv)
 }
 
 case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
@@ -72,7 +73,8 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
 
   override lazy val unparser = new LiteralCharacterNilOfSpecifiedLengthUnparser(e.elementRuntimeData,
     sl,
-    e.lengthKind == LengthKind.Pattern)
+    e.lengthKind == LengthKind.Pattern,
+    e.fillByteEv)
 }
 
 case class LogicalNilValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isNillable)

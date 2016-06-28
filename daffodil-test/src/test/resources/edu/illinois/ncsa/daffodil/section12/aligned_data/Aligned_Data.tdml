@@ -48,6 +48,21 @@
     
     <xs:element name="e3" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="10" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
 
+    <xs:element name="e4" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="%#ra1;%#ra2;" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="encoding" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e3" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="年" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="{ ../ex:encoding }" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="%NL;" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
+
+    <xs:element name="e7" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="%ES;" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentSchema">
@@ -3453,7 +3468,7 @@
      Test Name: fillByte_01
         Schema: s1
           Root: e3
-       Purpose: This test demonstrates the fillByte property
+       Purpose: This test demonstrates the fillByte property must be a single character
   -->
 
   <tdml:unparserTestCase name="fillByte_01" root="e3"
@@ -3466,7 +3481,124 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>fillByte</tdml:error>
+      <tdml:error>1 character</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: fillByte_02
+        Schema: s1
+          Root: e3
+       Purpose: This test demonstrates the fillByte property must be a single character, and that it is checked even when using byte class entities
+  -->
+
+  <tdml:unparserTestCase name="fillByte_02" root="e4"
+      model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>a1a2a3</ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fillByte</tdml:error>
+      <tdml:error>1 character</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: fillByte_03
+        Schema: s1
+          Root: e4
+       Purpose: This test demonstrates the fillByte property where encoding is a non byte size charset
+  -->
+
+  <tdml:unparserTestCase name="fillByte_03" root="e5"
+      model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:encoding>X-DFDL-US-ASCII-7-BIT-PACKED</ex:encoding>
+          <ex:e3>a1a2</ex:e3>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fillByte</tdml:error>
+      <tdml:error>encoding</tdml:error>
+      <tdml:error>X-DFDL-US-ASCII-7-BIT-PACKED</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: fillByte_04
+        Schema: s1
+          Root: e4
+       Purpose: This test demonstrates the fillByte property where encoding is runtime calculated, and results in a multi-byte character for fillByte
+  -->
+
+  <tdml:unparserTestCase name="fillByte_04" root="e5"
+      model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:encoding>UTF-8</ex:encoding>
+          <ex:e3>a1a2</ex:e3>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fillByte</tdml:error>
+      <tdml:error>single-byte character</tdml:error>
+      <tdml:error>encoding</tdml:error>
+      <tdml:error>UTF-8</tdml:error>
+      <tdml:error>年</tdml:error>
+      <tdml:error>3 bytes</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
+     Test Name: fillByte_05
+        Schema: s1
+          Root: e5
+       Purpose: This test demonstrates the fillByte property cannot be a character class
+  -->
+
+  <tdml:unparserTestCase name="fillByte_05" root="e6"
+      model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>a1a2a3</ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fillByte</tdml:error>
+      <tdml:error>%NL;</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
   
+  <!--
+     Test Name: fillByte_06
+        Schema: s1
+          Root: e6
+       Purpose: This test demonstrates the fillByte property cannot be the %ES; character class
+  -->
+
+  <tdml:unparserTestCase name="fillByte_06" root="e7"
+      model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>a1a2a3</ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>fillByte</tdml:error>
+      <tdml:error>%ES;</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>
