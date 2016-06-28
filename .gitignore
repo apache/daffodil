@@ -57,3 +57,5 @@ eclipse-projects/*/bin/
 .ensime_cache
 # these are autosave emacs files
 \#*#
+.\#*
+.\#.*

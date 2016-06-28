@@ -19,8 +19,7 @@
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
   urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafint.xsd">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
-    schemaLocation="xsd/dafint.xsd"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"/>
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
 

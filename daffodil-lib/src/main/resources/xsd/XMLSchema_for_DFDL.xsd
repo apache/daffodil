@@ -22,14 +22,12 @@ this to validate when we load a DFDL Schema.
   xmlns:sub="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int dafint.xsd">
+  xsi:schemaLocation="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int dafint.xsd">
   <!-- Use the real URI for this, not the subset URI
    "http://www.w3.org/2001/XMLSchema"
   -->
 
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" 
-    schemaLocation="xsd/DFDL_part3_model.xsd" />
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" />
     
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
     schemaLocation="dafint.xsd"/>
