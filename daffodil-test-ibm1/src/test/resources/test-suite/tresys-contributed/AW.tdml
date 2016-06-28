@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AW" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
+  defaultRoundTrip="true">
 
+  <!-- See DFDL-1556 to enable round trip -->
   <parserTestCase name="AW000" root="list" model="AW.dfdl.xsd"
-    description="escape character and escape block, variable length">
+    description="escape character and escape block, variable length"
+    roundTrip="false">
     <document><![CDATA[item0,item#01,#,i#,t#,e#,m#,2,#A#,#Citem3,ite#,m4
 /*,,,*/,Item1,/*/AAA*/,/*,,,/**]*/,Item*/4,Item/**/5,/*,6*/,Item/!7
 ]]></document>
@@ -29,8 +32,10 @@
     </infoset>
   </parserTestCase>
 
+  <!-- See DFDL-1556 to enable round trip -->
   <parserTestCase name="AW001" root="list" model="AW.dfdl.xsd"
-    description="escape character and escape block, variable length">
+    description="escape character and escape block, variable length"
+    roundTrip="false">
     <document><![CDATA[item0,item#01,#,i#,t#,e#,m#,2,#,#B#,item3,ite#,m4#
 ,item5
 Item0,Item1,/*A,A*/,/*AAA/*/,Item*/,Item/**/5,/*,*/,/*

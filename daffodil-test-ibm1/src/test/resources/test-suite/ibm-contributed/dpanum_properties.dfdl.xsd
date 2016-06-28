@@ -76,7 +76,7 @@
 				<!--  use space for separator, and show grouping of 4  -->
 				<xs:element name="double1" type="xs:double" minOccurs="0" maxOccurs="4" 
 				dfdl:occursCountKind="implicit"
-					dfdl:textNumberPattern="##0.#E0"
+					dfdl:textNumberPattern="##0.###E0"
 					dfdl:textStandardInfinityRep="~" dfdl:textStandardZeroRep="myZero"
 					dfdl:textStandardNaNRep="NaN"  dfdl:textStandardExponentRep="x" />
 

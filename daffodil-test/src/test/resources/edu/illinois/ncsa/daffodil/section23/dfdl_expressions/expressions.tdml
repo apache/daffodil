@@ -37,7 +37,8 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com" 
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
   
   <tdml:defineSchema name="diagnostics">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
@@ -1977,7 +1978,8 @@ c]]></value>
         <xs:sequence>
           <xs:element name="six" type="xs:int"
             dfdl:length="{ fn:string-length('123456') }"
-            dfdl:lengthKind="explicit" />
+            dfdl:lengthKind="explicit"
+            dfdl:textNumberPattern="######" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4574,10 +4576,12 @@ c]]></value>
         Schema: hiddenElem 
           Root: e1
        Purpose: This test demonstrates that expressions operate on the augmented infoset (which includes hidden elements) 
+                Note that this test does not round trip.
   -->
 
   <tdml:parserTestCase name="hiddenDataExpression" root="e1"
-    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
+    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R"
+    roundTrip="false">
 
     <tdml:document>pw:p455w0rd</tdml:document>
     <tdml:infoset>
@@ -4633,10 +4637,12 @@ c]]></value>
         Schema: hiddenElem 
           Root: e2
        Purpose: This test demonstrates that expressions operate on the augmented infoset (which includes hidden elements) 
+                Note that this test does not round trip.
   -->
 
   <tdml:parserTestCase name="hiddenDataExpression2" root="e2"
-    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
+    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R"
+    roundTrip="false">
 
     <tdml:document>pw:p455w0rd</tdml:document>
     <tdml:infoset>

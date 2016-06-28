@@ -17,7 +17,8 @@
         <xs:sequence>
           <xs:choice>
             <xs:element name="textDelimited" type="xsd:int"
-              dfdl:terminator="," dfdl:encodingErrorPolicy='error' />
+              dfdl:terminator="," dfdl:encodingErrorPolicy='error'
+              dfdl:textNumberPattern="#######" />
             <!-- If the comma is missing, then we'll scan into the subsequent 
               binary
               data. -->
@@ -31,7 +32,8 @@
             <!-- If the data is sufficiently broken, we'll end up on this 
               alternative -->
             <xs:element name="textLength4" type="xsd:int"
-              dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+              dfdl:lengthKind="explicit" dfdl:length="{ 4 }"
+              dfdl:textNumberPattern="####" />
 
           </xs:choice>
           <xs:element name="binary1" type="xsd:int"

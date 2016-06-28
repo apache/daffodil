@@ -34,7 +34,8 @@
 <tdml:testSuite suiteName="InitiatedContent" description="Section 15 - ChoiceGroups"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
+  xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -403,17 +404,17 @@
               <xs:choice dfdl:initiatedContent="no">
 
                 <xs:element name="t0" type="xs:int"
-                  dfdl:initiator="t0:" />
+                  dfdl:initiator="t0:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="t1" type="xs:int"
-                  dfdl:initiator="t1:" />
+                  dfdl:initiator="t1:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="t2" type="xs:int"
-                  dfdl:initiator="t2:" />
+                  dfdl:initiator="t2:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="t2f" type="xs:float"
-                  dfdl:initiator="t2:" />
+                  dfdl:initiator="t2:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="t3" type="xs:int"
-                  dfdl:initiator="t3:" />
+                  dfdl:initiator="t3:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="t4" type="xs:int"
-                  dfdl:initiator="t4:" />
+                  dfdl:initiator="t4:" dfdl:textNumberPattern="###.0" />
                 <xs:element name="other" type="xs:string" />
               </xs:choice>
             </xs:complexType>

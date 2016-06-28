@@ -35,7 +35,8 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
     
   <tdml:defineSchema name="Functions.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -362,7 +363,7 @@
     <xs:element name="e_concat3">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="one" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="one" type="xs:float" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#E0" />
           <xs:element name="two" type="xs:dateTime" dfdl:lengthKind="delimited"/>
           <xs:element name="concat" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../ex:one,../ex:two) }"/>
         </xs:sequence>
@@ -560,7 +561,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="date" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
-            dfdl:length="45" dfdl:calendarPattern="'It is 'hh:mm:ss' on the 'dd'st of 'MMM', year 'yyyy" />
+            dfdl:length="45" dfdl:calendarPattern="'It is 'hh:mm:ss' on the 'd'st of 'MMMM', year 'yyyy" />
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
           <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
@@ -2471,10 +2472,12 @@
        Schema: Functions.dfdl.xsd
          Root: e_xfromdate1
       Purpose: This test demonstrates the use of the x-from-date functions to return the value as an xs:integer from an xs:date.
+               Note that this test does not round trip.
 -->
 
   <tdml:parserTestCase name="xfromdate_01" root="e_xfromdate1"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R"
+    roundTrip="false">
 
     <tdml:document>2000-01-366</tdml:document>
     <tdml:infoset>
@@ -3850,7 +3853,7 @@
     <xs:element name="round-hte">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="num" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="num" type="xs:float" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#.#######"/>
           <xs:element name="precision" type="xs:int" dfdl:lengthKind="delimited"/>
           <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round-half-to-even(../ex:num,../ex:precision) }"/>
         </xs:sequence>

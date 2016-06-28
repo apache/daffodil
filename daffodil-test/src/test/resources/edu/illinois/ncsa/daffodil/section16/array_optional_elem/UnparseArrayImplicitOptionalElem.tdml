@@ -304,10 +304,11 @@
        Root: r4
     Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
              with occursCountKind="implicit." In this case the optional array is present.
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="impOptArrayThenScalar" root="r4"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -331,7 +332,7 @@
 -->
 
   <tdml:unparserTestCase name="impOptArrayThenScalar02" root="r4"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>

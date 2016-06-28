@@ -3,7 +3,8 @@
 	description="Sample tests to post externally"
 	xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd">
+	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+	defaultRoundTrip="true">
 
 <!-- Section 13 - Simple Types
     First, some tests for padding/trimming, with properties common to simple types with Text representation
@@ -52,9 +53,12 @@
 		</infoset>
 	</parserTestCase>
 
+	<!-- See DFDL-1560 to enable round tripping -->
    <parserTestCase name="simple_type_properties_pad_trim_13_04" root="Fixed_string_with_Pads_9"
 		model="./fvt/ext/dpa/dpaflstrm101_03.dfdl.xsd" validation="on"
-		 description="Section 13.2 trimming on fixed length text fields, justification='center'">
+		 description="Section 13.2 trimming on fixed length text fields, justification='center'"
+		 roundTrip="false">
+
 		<document>xAAAAAAAx</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

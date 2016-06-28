@@ -5,9 +5,10 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
-  <tdml:parserTestCase name="parse1" root="root" model="parseUnparseModeTest.dfdl.xsd">
+  <tdml:parserTestCase name="parse1" root="root" model="parseUnparseModeTest.dfdl.xsd" roundTrip="false">
     <tdml:document>24</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -16,7 +17,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="unparse1" model="parseUnparseModeTest.dfdl.xsd">
+  <tdml:unparserTestCase name="unparse1" root="root" model="parseUnparseModeTest.dfdl.xsd" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:root><a>42</a><b>unparsing</b></ex:root>

@@ -35,7 +35,8 @@
   description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
+  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
 
@@ -167,10 +168,11 @@
        Root: r2
     Purpose: This test demonsrates unparsing a sequence of two optional arrays
              with occursCountKind="parsed." In this case both arrays are present.
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="parsedOptTwoArrays" root="r2"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -240,10 +242,11 @@
        Root: r4
     Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
              with occursCountKind="parsed." In this case the optional array is present.
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="parsedOptArrayThenScalar" root="r4"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -264,10 +267,11 @@
        Root: r4
     Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
              with occursCountKind="parsed." In this case the optional array is not present.
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="parsedOptArrayThenScalar02" root="r4"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -287,10 +291,11 @@
        Root: r4b
     Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
              with occursCountKind="parsed." In this case the optional array is not present.
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="parsedOptArrayThenScalar03" root="r4b"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>

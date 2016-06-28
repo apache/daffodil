@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="AY" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
+  defaultRoundTrip="true">
 
+  <!-- See DFDL-1556 to enable round trip -->
   <parserTestCase name="AY000" root="list" model="AY.dfdl.xsd"
-    description="escape character and escape block, variable length">
+    description="escape character and escape block, variable length" roundTrip="false">
     <document><![CDATA[INITIATOR1it#TERMINATOR1em#ST0TERMINATOR1SEPARATORINITIATOR1item1#SEPARATORTERMINATOR1SEPARATORINITIATOR2START,item2ENDTERMINATOR2SEPARATORINITIATOR2STARTSTARTitem3ENDTERMINATOR2SEPARATORINITIATOR2iENDtSTARTem4TERMINATOR2SEPARATORINITIATOR2STARTitTERMINATOR2em5ENDTERMINATOR2]]></document>
     <infoset>
       <dfdlInfoset>

@@ -52,4 +52,7 @@ class TestEscapes {
 
   @Test def test_parse1() { runner.runOneTest("parse1") }
 
+  //DFDL-1555
+  //@Test def test_unparse1() { runner.runOneTest("unparse1") }
+
 }

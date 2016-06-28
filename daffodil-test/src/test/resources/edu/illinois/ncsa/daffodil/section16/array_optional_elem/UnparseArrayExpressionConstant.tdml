@@ -284,10 +284,11 @@
      Schema: s1
        Root: r2
     Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+             Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="exprOptTwoArrays" root="r2"
-    model="s1">
+    model="s1" roundTrip="false">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
