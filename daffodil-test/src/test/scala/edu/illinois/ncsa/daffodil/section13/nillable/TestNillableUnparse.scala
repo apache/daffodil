@@ -57,23 +57,21 @@ class TestNillableUnparse {
   @Test def test_text_complex_nil2() { runnerLN.runOneTest("text_complex_nil2") }
   @Test def test_text_complex_nil3() { runnerLN.runOneTest("text_complex_nil3") }
 
-  //DFDL-1304
-  //@Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }
-  //@Test def test_text_nil_only8() { runnerLN.runOneTest("text_nil_only8") }
-  //@Test def test_text_nil_only10() { runnerLN.runOneTest("text_nil_only10") }
-  //@Test def test_text_nil_only15() { runnerLN.runOneTest("text_nil_only15") }
-
   @Test def test_text_nil_only1() { runnerLN.runOneTest("text_nil_only1") }
   @Test def test_text_nil_only2() { runnerLN.runOneTest("text_nil_only2") }
   @Test def test_text_nil_only3() { runnerLN.runOneTest("text_nil_only3") }
   @Test def test_text_nil_only4() { runnerLN.runOneTest("text_nil_only4") }
   @Test def test_text_nil_only5() { runnerLN.runOneTest("text_nil_only5") }
+  @Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }
   @Test def test_text_nil_only7() { runnerLN.runOneTest("text_nil_only7") }
+  @Test def test_text_nil_only8() { runnerLN.runOneTest("text_nil_only8") }
   @Test def test_text_nil_only9() { runnerLN.runOneTest("text_nil_only9") }
+  @Test def test_text_nil_only10() { runnerLN.runOneTest("text_nil_only10") }
   @Test def test_text_nil_only11() { runnerLN.runOneTest("text_nil_only11") }
   @Test def test_text_nil_only12() { runnerLN.runOneTest("text_nil_only12") }
   @Test def test_text_nil_only13() { runnerLN.runOneTest("text_nil_only13") }
   @Test def test_text_nil_only14() { runnerLN.runOneTest("text_nil_only14") }
+  @Test def test_text_nil_only15() { runnerLN.runOneTest("text_nil_only15") }
   @Test def test_text_nil_only16() { runnerLN.runOneTest("text_nil_only16") }
   @Test def test_text_nil_only17() { runnerLN.runOneTest("text_nil_only17") }
 

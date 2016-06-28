@@ -34,7 +34,8 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
-  suiteName="textNumberPropsUnparse">
+  suiteName="textNumberPropsUnparse"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="delimitedStringsPadding">
     <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" />
@@ -283,8 +284,9 @@
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
                In this case, the string needs to be truncated and the justification is "left", so the data is truncated from the right.
+               Note that this test does not round trip.
 -->
-  <tdml:unparserTestCase name="unparsePaddedStringTruncate02" model="delimitedStringsPadding" root="e7">
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate02" model="delimitedStringsPadding" root="e7" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e7 xmlns:ex="http://example.com">123456789100000</ex:e7>
@@ -298,8 +300,9 @@
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
                In this case, the string needs to be truncated and the justification is "right", so the data is truncated from the left.
+               Note that this test does not roundt trip.
 -->
-  <tdml:unparserTestCase name="unparsePaddedStringTruncate03" model="delimitedStringsPadding" root="e8">
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate03" model="delimitedStringsPadding" root="e8" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e8 xmlns:ex="http://example.com">123456789100000</ex:e8>
@@ -342,9 +345,10 @@
       Test Name: unparseDelimitedPaddedString08
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, we see that the data value is padded to the length given by minLength
+               In this case, we see that the data value is padded to the length given by minLength.
+               Note that this test does not round trip.
 -->
-  <tdml:unparserTestCase name="unparseDelimitedPaddedString08" model="delimitedStringsPadding" root="e10">
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString08" model="delimitedStringsPadding" root="e10" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e10 xmlns:ex="http://example.com">_</ex:e10>
@@ -545,10 +549,11 @@
           Root: tnp03
        Purpose: This test demonstrates that if the number of actual fraction digits exceeds the maximum fraction digits,
        then half-even rounding it performed to the maximum fraction digits.
+       Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="unparse_tnp_03" root="tnp03"
-    model="pattern" description="DFDL-13-080R">
+    model="pattern" description="DFDL-13-080R" roundTrip="false">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -564,10 +569,11 @@
           Root: tnp04
        Purpose: This test demonstrates that trailing fractional zeros are not displayed if they occur j positions after the decimal,
        where j is less than the maximum fraction digits.
+       Note that this test does not round trip.
 -->
 
   <tdml:unparserTestCase name="unparse_tnp_04" root="tnp04"
-    model="pattern" description="DFDL-13-082R">
+    model="pattern" description="DFDL-13-082R" roundTrip="false">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>

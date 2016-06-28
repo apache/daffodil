@@ -49,10 +49,4 @@ class TestNillableUnparseDebug {
 
   import TestNillableUnparseDebug._
 
-  //DFDL-1304
-  @Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }
-  @Test def test_text_nil_only8() { runnerLN.runOneTest("text_nil_only8") }
-  @Test def test_text_nil_only10() { runnerLN.runOneTest("text_nil_only10") }
-  @Test def test_text_nil_only15() { runnerLN.runOneTest("text_nil_only15") }
-
 }

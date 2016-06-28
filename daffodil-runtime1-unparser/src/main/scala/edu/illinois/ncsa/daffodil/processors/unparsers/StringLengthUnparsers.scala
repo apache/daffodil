@@ -54,7 +54,7 @@ class StringOfSpecifiedLengthUnparser(
   override lazy val runtimeDependencies = List(erd.encodingInfo.charsetEv)
 
   final override def justificationTrim = justificationPad
-  final override def pad = unparsingPadChar
+  def padChar(state: UState): MaybeChar = unparsingPadChar
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
     state.withByteArrayOutputStream {
@@ -108,7 +108,8 @@ class StringOfSpecifiedLengthUnparser(
         val nCharsToPad = nBitsToPadOrFill / minBitsPerChar
         val nBitsToFill = nBitsToPadOrFill % minBitsPerChar
         Assert.invariant(nCharsToPad <= Int.MaxValue)
-        val paddedValue = padOrTruncateByJustification(state, valueString, valueString.length + nCharsToPad.toInt, isForString)
+        val pc = padChar(state)
+        val paddedValue = padOrTruncateByJustification(state, valueString, pc, valueString.length + nCharsToPad.toInt, isForString)
         (paddedValue, nBitsToFill)
       }
     val nCharsWritten = dos.putString(valueToWrite)
@@ -130,13 +131,12 @@ class StringOfSpecifiedLengthUnparser(
 trait StringLengthMixin {
 
   def erd: ElementRuntimeData
-  def pad: MaybeChar
   def justificationTrim: TextJustificationType.Type
 
   final def fillByte(state: UState): Int = erd.fillByte(state, erd.encodingInfo)
 
-  final def addRightPadding(str: String, nChars: Int): String = {
-    val pc = pad.get
+  final def addRightPadding(str: String, padChar: MaybeChar, nChars: Int): String = {
+    val pc = padChar.get
     val sb = new StringBuilder(nChars, str)
     var i = nChars
     while (i > 0) {
@@ -146,8 +146,8 @@ trait StringLengthMixin {
     sb.mkString
   }
 
-  final def addLeftPadding(str: String, nChars: Int): String = {
-    val pc = pad.get
+  final def addLeftPadding(str: String, padChar: MaybeChar, nChars: Int): String = {
+    val pc = padChar.get
     val sb = new StringBuilder(str.length + nChars)
     var i = nChars
     while (i > 0) {
@@ -158,8 +158,8 @@ trait StringLengthMixin {
     sb.mkString
   }
 
-  final def addBothPadding(str: String, nChars: Int): String = {
-    val pc = pad.get
+  final def addBothPadding(str: String, padChar: MaybeChar, nChars: Int): String = {
+    val pc = padChar.get
     val sb = new StringBuilder(str.length + nChars)
 
     val leftPaddingSize = (nChars / 2) + (nChars % 2)
@@ -178,10 +178,10 @@ trait StringLengthMixin {
     sb.mkString
   }
 
-  final def padOrTruncateByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
+  final def padOrTruncateByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int, isForString: Boolean): String = {
     if (str.length =#= nChars) str
     else if (str.length < nChars) {
-      padByJustification(ustate, str, nChars, isForString)
+      padByJustification(ustate, str, padChar, nChars, isForString)
     } else {
       Assert.invariant(str.length > nChars)
       truncateByJustification(ustate, str, nChars, isForString)
@@ -210,7 +210,7 @@ trait StringLengthMixin {
     result
   }
 
-  private def padByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
+  private def padByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int, isForString: Boolean): String = {
     val nCharsToPad = nChars - str.length
     val result = justificationTrim match {
       case TextJustificationType.None => {
@@ -219,9 +219,9 @@ trait StringLengthMixin {
         else
           str
       }
-      case TextJustificationType.Right => addLeftPadding(str, nCharsToPad)
-      case TextJustificationType.Left => addRightPadding(str, nCharsToPad)
-      case TextJustificationType.Center => addBothPadding(str, nCharsToPad)
+      case TextJustificationType.Right => addLeftPadding(str, padChar, nCharsToPad)
+      case TextJustificationType.Left => addRightPadding(str, padChar, nCharsToPad)
+      case TextJustificationType.Center => addBothPadding(str, padChar, nCharsToPad)
     }
     result
   }

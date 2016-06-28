@@ -32,7 +32,8 @@
     SOFTWARE.
 -->
 <tdml:testSuite suiteName="literal nils unparsing" description="Tests separation and nested sequences." xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="text_nil_only1">
     <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
@@ -67,7 +68,7 @@
     Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
 -->
 
-  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable" root="doc8" model="text_nil_only1" roundTrip="true">
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable" root="doc8" model="text_nil_only1">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -93,7 +94,7 @@
     Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
 -->
 
-  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_02" root="doc8" model="text_nil_only1" roundTrip="true">
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_02" root="doc8" model="text_nil_only1">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -122,7 +123,7 @@
     Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
 -->
 
-  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_03" root="doc8" model="text_nil_only1" roundTrip="true">
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_03" root="doc8" model="text_nil_only1">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -231,7 +232,7 @@
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="text_nil_only4">
-    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
+    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="," separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
       nilValue="nil" nilKind="literalValue" textNumberRep="standard" ignoreCase="no"/>
     
     <dfdl:defineFormat name="nil0">
@@ -371,7 +372,7 @@
     </tdml:infoset>
 
     <tdml:document>
-      <tdml:documentPart type="text">nilnil</tdml:documentPart>
+      <tdml:documentPart type="text">nil,nil</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
@@ -394,7 +395,7 @@
     </tdml:infoset>
 
     <tdml:document>
-      <tdml:documentPart type="text">00</tdml:documentPart>
+      <tdml:documentPart type="text">0,0</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
   
@@ -419,7 +420,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">0nil</tdml:documentPart>
+        <tdml:documentPart type="text">0,nil</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -444,7 +445,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">0X</tdml:documentPart>
+        <tdml:documentPart type="text">0,X</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -469,7 +470,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">nil0</tdml:documentPart>
+        <tdml:documentPart type="text">nil,0</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -494,7 +495,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">XY</tdml:documentPart>
+        <tdml:documentPart type="text">X,Y</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -519,7 +520,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">0Y</tdml:documentPart>
+        <tdml:documentPart type="text">0,Y</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -544,7 +545,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">nilY</tdml:documentPart>
+        <tdml:documentPart type="text">nil,Y</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -569,7 +570,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">Xnil</tdml:documentPart>
+        <tdml:documentPart type="text">X,nil</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -594,7 +595,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">datanil</tdml:documentPart>
+        <tdml:documentPart type="text">data,nil</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
 
@@ -619,7 +620,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">Xdata</tdml:documentPart>
+        <tdml:documentPart type="text">X,data</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -644,7 +645,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">X0</tdml:documentPart>
+        <tdml:documentPart type="text">X,0</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -669,7 +670,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">nil0</tdml:documentPart>
+        <tdml:documentPart type="text">nil,0</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
 
@@ -694,7 +695,7 @@
       </tdml:infoset>
 
       <tdml:document>
-        <tdml:documentPart type="text">0nil</tdml:documentPart>
+        <tdml:documentPart type="text">0,nil</tdml:documentPart>
       </tdml:document>
     </tdml:unparserTestCase>
   
@@ -761,7 +762,7 @@
   
   <tdml:unparserTestCase name="text_complex_nil" root="doc"
     model="nillableComplex"
-    description="Verify complex elements can be nilllable" roundTrip="true">
+    description="Verify complex elements can be nilllable">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -787,7 +788,7 @@
   
   <tdml:unparserTestCase name="text_complex_nil2" root="doc2"
     model="nillableComplex"
-    description="Verify complex elements can be nilllable" roundTrip="true">
+    description="Verify complex elements can be nilllable">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -810,7 +811,7 @@
   
   <tdml:unparserTestCase name="text_complex_nil3" root="doc3"
     model="nillableComplex"
-    description="Verify complex elements can be nilllable" roundTrip="true">
+    description="Verify complex elements can be nilllable">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -831,7 +832,7 @@
     Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
 -->
 
-  <tdml:unparserTestCase name="text_nil_characterClass_01" root="doc2" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+  <tdml:unparserTestCase name="text_nil_characterClass_01" root="doc2" model="text_nil_only1" description="unparse a character class nil">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc2 xsi:nil="true"/>
@@ -850,7 +851,7 @@
     Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
 -->
 
-  <tdml:unparserTestCase name="text_nil_characterClass_02" root="doc3" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+  <tdml:unparserTestCase name="text_nil_characterClass_02" root="doc3" model="text_nil_only1" description="unparse a character class nil">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc3 xsi:nil="true"/>
@@ -869,7 +870,7 @@
     Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
 -->
 
-  <tdml:unparserTestCase name="text_nil_characterClass_03" root="doc4" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+  <tdml:unparserTestCase name="text_nil_characterClass_03" root="doc4" model="text_nil_only1" description="unparse a character class nil">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc4 xsi:nil="true"/>
@@ -907,7 +908,7 @@
     Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
 -->
 
-  <tdml:unparserTestCase name="text_nil_characterClass_05" root="doc6" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+  <tdml:unparserTestCase name="text_nil_characterClass_05" root="doc6" model="text_nil_only1" description="unparse a character class nil">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc6 xsi:nil="true"/>
@@ -926,7 +927,7 @@
     Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
 -->
 
-  <tdml:unparserTestCase name="text_nil_characterClass_06" root="doc7" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+  <tdml:unparserTestCase name="text_nil_characterClass_06" root="doc7" model="text_nil_only1" description="unparse a character class nil">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <doc7 xsi:nil="true"/>

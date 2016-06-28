@@ -35,7 +35,8 @@
   description="Text Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="textNumberPattern">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" occursCountKind="implicit"/>
@@ -339,7 +340,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_baseConflict" root="tnp01" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-048R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-048R">
 
     <tdml:document>
       <tdml:documentPart type="text">42</tdml:documentPart>
@@ -361,7 +362,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_positiveMandatory" root="tnp02" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067R">
 
     <tdml:document>
       <tdml:documentPart type="text">42</tdml:documentPart>
@@ -382,7 +383,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeOptional" root="tnp03" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-072R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-072R">
 
     <tdml:document>
       <tdml:documentPart type="text">-6000</tdml:documentPart>
@@ -405,7 +406,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored01" root="tnp04" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">(4,3,0.00)|3,000.00|(2,3,3.00)|1,236.00|(1,0,6.00)</tdml:documentPart>
@@ -427,7 +428,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored01b" root="tnp04b" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">(4030.00),+3000.00,(233.00),+1236.00,(06.00)</tdml:documentPart>
@@ -448,7 +449,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored02" root="tnp04" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">(4,000.00)|3,000.00|(3,000.00)|6,000.00|(6,000.00)</tdml:documentPart>
@@ -477,7 +478,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored03" root="tnp09" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">/////$123456 is negative!</tdml:documentPart>
@@ -499,7 +500,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored04" root="tnp09" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">******$123456 is negative!</tdml:documentPart>
@@ -522,7 +523,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored05" root="tnp30" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">(0.55E+2*****)</tdml:documentPart>
@@ -543,7 +544,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored06" root="tnp30" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
       <tdml:documentPart type="text">(0.43E3)</tdml:documentPart>
@@ -564,7 +565,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_exponent01" root="tnp05" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067.1R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067.1R">
 
     <tdml:document>
       <tdml:documentPart type="text">006.54E9</tdml:documentPart>
@@ -586,7 +587,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar01" root="tnp06" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">$49.99</tdml:documentPart>
@@ -608,7 +609,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar02" root="tnp07" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">$49.99</tdml:documentPart>
@@ -630,7 +631,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar03" root="tnp08" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-069R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-069R">
 
     <tdml:document>
       <tdml:documentPart type="text">12 o'clock</tdml:documentPart>
@@ -652,7 +653,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar04" root="tnp27" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">$#49.99</tdml:documentPart>
@@ -674,7 +675,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar05" root="tnp69" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">+3000.00</tdml:documentPart>
@@ -695,7 +696,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar06" root="tnp70" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">+5</tdml:documentPart>
@@ -716,7 +717,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar07" root="tnp71" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">E5</tdml:documentPart>
@@ -738,7 +739,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar08" root="tnp72" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
       <tdml:documentPart type="text">+5</tdml:documentPart>
@@ -759,7 +760,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp28" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text">1234</tdml:documentPart>
@@ -781,7 +782,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax02" root="tnp10" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[           0052    ]]></tdml:documentPart>
@@ -803,7 +804,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax03" root="tnp10" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[        000052    ]]></tdml:documentPart>
@@ -825,7 +826,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax04" root="tnp12" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    0052    ]]></tdml:documentPart>
@@ -847,7 +848,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax05" root="tnp29" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234]]></tdml:documentPart>
@@ -868,7 +869,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax06" root="tnp31" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    00003352    ]]></tdml:documentPart>
@@ -890,7 +891,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax07" root="tnp32" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[00003352    ]]></tdml:documentPart>
@@ -912,7 +913,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax08" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[00003352]]></tdml:documentPart>
@@ -934,7 +935,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax09" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[03]]></tdml:documentPart>
@@ -956,7 +957,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax10" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  03  ]]></tdml:documentPart>
@@ -978,7 +979,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax11" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
@@ -1000,7 +1001,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax12" root="tnp35" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
@@ -1022,7 +1023,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax13" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[   3352     ]]></tdml:documentPart>
@@ -1044,7 +1045,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax14" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[   03352     ]]></tdml:documentPart>
@@ -1066,7 +1067,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax15" root="tnp32" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
@@ -1088,7 +1089,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax16" root="tnp36" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
@@ -1110,7 +1111,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax17" root="tnp36" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[          3352]]></tdml:documentPart>
@@ -1133,7 +1134,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict01" root="tnp11" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    0052    ]]></tdml:documentPart>
@@ -1156,7 +1157,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict02" root="tnp11" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    52    ]]></tdml:documentPart>
@@ -1179,7 +1180,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict03" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[052]]></tdml:documentPart>
@@ -1202,7 +1203,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict04" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    52    ]]></tdml:documentPart>
@@ -1223,7 +1224,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict05" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000000000005]]></tdml:documentPart>
@@ -1246,7 +1247,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict06" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[5]]></tdml:documentPart>
@@ -1269,7 +1270,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict07" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="true">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[555]]></tdml:documentPart>
@@ -1291,7 +1292,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator01" root="tnp14" model="textNumberPattern2"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5.00</tdml:documentPart>
@@ -1312,7 +1313,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator02" root="tnp15" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5^00</tdml:documentPart>
@@ -1334,7 +1335,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator03" root="tnp16" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$500</tdml:documentPart>
@@ -1356,7 +1357,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator04" root="tnp17" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">.|5.00</tdml:documentPart>
@@ -1381,7 +1382,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator05" root="tnp17" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">:|5:00</tdml:documentPart>
@@ -1406,7 +1407,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator06" root="tnp17" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">:|5.00</tdml:documentPart>
@@ -1426,7 +1427,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator07" root="tnp18" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5 00</tdml:documentPart>
@@ -1447,7 +1448,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator08" root="tnp19" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5 00</tdml:documentPart>
@@ -1469,7 +1470,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator09" root="tnp20" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5</tdml:documentPart>
@@ -1491,7 +1492,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator10" root="tnp26" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">5*55</tdml:documentPart>
@@ -1513,7 +1514,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator11" root="tnp26" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">5,55</tdml:documentPart>
@@ -1534,7 +1535,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator12" root="tnp37" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1">
 
     <tdml:document>
       <tdml:documentPart type="text">$50|4</tdml:documentPart>
@@ -1555,7 +1556,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator13" root="tnp38" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1">
 
     <tdml:document>
       <tdml:documentPart type="text">$50|4</tdml:documentPart>
@@ -1577,7 +1578,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator14" root="tnp01" model="textNumberPattern2"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2">
 
     <tdml:document>
       <tdml:documentPart type="text">12345E8</tdml:documentPart>
@@ -1598,7 +1599,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator15" root="tnp02" model="textNumberPattern2"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2">
 
     <tdml:document>
       <tdml:documentPart type="text">123</tdml:documentPart>
@@ -1618,7 +1619,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator17" root="tnp40" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R6" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R6">
 
     <tdml:document>
       <tdml:documentPart type="text">50.0</tdml:documentPart>
@@ -1639,7 +1640,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator16" root="tnp39" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R4" roundTrip="true">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R4">
 
     <tdml:document>
       <tdml:documentPart type="text">5:00|:</tdml:documentPart>
@@ -1660,7 +1661,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator01" root="tnp21" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
 
     <tdml:document>
       <tdml:documentPart type="text">5,000,000.00</tdml:documentPart>
@@ -1681,7 +1682,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator02" root="tnp22" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
 
     <tdml:document>
       <tdml:documentPart type="text">5:000:000.00</tdml:documentPart>
@@ -1703,7 +1704,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator03" root="tnp23" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
 
     <tdml:document>
       <tdml:documentPart type="text">5.000.000.00</tdml:documentPart>
@@ -1725,7 +1726,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator04" root="tnp24" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
 
     <tdml:document>
       <tdml:documentPart type="text">5000000.00</tdml:documentPart>
@@ -1746,7 +1747,7 @@
 -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator05" root="tnp25" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
 
     <tdml:document>
       <tdml:documentPart type="text">,|5,000</tdml:documentPart>
@@ -1770,7 +1771,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator06" root="tnp03" model="textNumberPattern2"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R2" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R2">
 
     <tdml:document>
       <tdml:documentPart type="text">5,000</tdml:documentPart>
@@ -1790,7 +1791,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator07" root="tnp41" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
 
     <tdml:document>
       <tdml:documentPart type="text">5,000|,</tdml:documentPart>
@@ -1811,7 +1812,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator08" root="tnp25" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
 
     <tdml:document>
       <tdml:documentPart type="byte">2C 7C 31 2C 32 33 34</tdml:documentPart>
@@ -1835,7 +1836,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator09" root="tnp25" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
 
     <tdml:document>
       <tdml:documentPart type="text">decimal|1decimal234</tdml:documentPart>
@@ -1854,7 +1855,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator10" root="tnp42" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R7" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R7">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[3
@@ -1874,7 +1875,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator11" root="tnp43" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R5" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R5">
 
     <tdml:document>
       <tdml:documentPart type="byte">32 0D 323232</tdml:documentPart>
@@ -1894,7 +1895,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator12" root="tnp44" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R6" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R6">
 
     <tdml:document>
       <tdml:documentPart type="text">5[324[124</tdml:documentPart>
@@ -1916,7 +1917,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator13" root="tnp45" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
       <tdml:documentPart type="text">123,123,1234</tdml:documentPart>
@@ -1939,7 +1940,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator14" root="tnp45" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
       <tdml:documentPart type="text">112,123,1234</tdml:documentPart>
@@ -1963,7 +1964,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator15" root="tnp45b" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
       <tdml:documentPart type="text">121,123,1234</tdml:documentPart>
@@ -1986,7 +1987,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator16" root="tnp45c" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
       <tdml:documentPart type="text">121,123,1234</tdml:documentPart>
@@ -2009,7 +2010,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardGroupingSeparator17" root="tnp46" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R" roundTrip="true">
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
       <tdml:documentPart type="text">12,12,12,1</tdml:documentPart>
@@ -2030,7 +2031,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_pSymbol01" root="tnp47" model="textNumberPattern"
-    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R" roundTrip="true">
+    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R">
 
     <tdml:document>
       <tdml:documentPart type="text">123</tdml:documentPart>
@@ -2051,7 +2052,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_pSymbol02" root="tnp48" model="textNumberPattern"
-    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R" roundTrip="true">
+    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R">
 
     <tdml:document>
       <tdml:documentPart type="text">123</tdml:documentPart>
@@ -2072,7 +2073,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation01" root="tnp49" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-085R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-085R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E3</tdml:documentPart>
@@ -2093,7 +2094,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation02" root="tnp50" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E3</tdml:documentPart>
@@ -2113,7 +2114,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation03" root="tnp51" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E+1</tdml:documentPart>
@@ -2135,7 +2136,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation04" root="tnp51" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E+0</tdml:documentPart>
@@ -2157,7 +2158,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation05" root="tnp51" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E-1</tdml:documentPart>
@@ -2180,7 +2181,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation06" root="tnp52" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
 
     <tdml:document>
       <tdml:documentPart type="text">12.3E-4</tdml:documentPart>
@@ -2200,7 +2201,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation07" root="tnp53" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-091R" roundTrip="true">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-091R">
 
     <tdml:document>
       <tdml:documentPart type="text">12,123.33E-4</tdml:documentPart>
@@ -2220,7 +2221,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding01" root="tnp54" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
 
     <tdml:document>
       <tdml:documentPart type="text">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
@@ -2240,7 +2241,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding02" root="tnp54" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
 
     <tdml:document>
       <tdml:documentPart type="text">xxxxxxxxxxxxxnxxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
@@ -2260,7 +2261,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding03" root="tnp54" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
 
     <tdml:document>
       <tdml:documentPart type="text">xxxxxxxxxxxxx4xxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
@@ -2280,7 +2281,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding04" root="tnp55" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
 
     <tdml:document>
       <tdml:documentPart type="text">xxxxxxxxxxxxxxxxx5nnnn,000</tdml:documentPart>
@@ -2300,7 +2301,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding05" root="tnp56" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
 
     <tdml:document>
       <tdml:documentPart type="text">                 12 o'clock</tdml:documentPart>
@@ -2320,7 +2321,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding06" root="tnp57" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
 
     <tdml:document>
       <tdml:documentPart type="text">data:                           4,999</tdml:documentPart>
@@ -2340,7 +2341,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding07" root="tnp57" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
 
     <tdml:document>
       <tdml:documentPart type="text">(data:                           4,999)</tdml:documentPart>
@@ -2360,7 +2361,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding08" root="tnp58" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
 
     <tdml:document>
       <tdml:documentPart type="text">4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> right</tdml:documentPart>
@@ -2380,7 +2381,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding09" root="tnp59" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
 
     <tdml:document>
       <tdml:documentPart type="text">8 Items$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</tdml:documentPart>
@@ -2400,7 +2401,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding10" root="tnp60" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
 
     <tdml:document>
       <tdml:documentPart type="text">8[[Items]]</tdml:documentPart>
@@ -2420,7 +2421,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding11" root="tnp61" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-097R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
 
     <tdml:document>
       <tdml:documentPart type="text">******9</tdml:documentPart>
@@ -2440,7 +2441,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding12" root="tnp62" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-097R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
 
     <tdml:document>
       <tdml:documentPart type="text">######2</tdml:documentPart>
@@ -2460,7 +2461,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding13" root="tnp63" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-097R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart>
@@ -2481,7 +2482,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo01" root="tnp64" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">********++++5</tdml:documentPart>
@@ -2502,7 +2503,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo02" root="tnp65" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****5*****</tdml:documentPart>
@@ -2523,7 +2524,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo03" root="tnp66" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2544,7 +2545,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo04" root="tnp67" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">***********************************************************************************************************************************************************************************3</tdml:documentPart>
@@ -2565,7 +2566,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo05" root="tnp68" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">-500</tdml:documentPart>
@@ -2586,7 +2587,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo06" root="tnp68" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">----500</tdml:documentPart>
@@ -2606,7 +2607,7 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding01" root="decimalPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2626,7 +2627,7 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding02" root="decimalNoPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">begin: 4 :end</tdml:documentPart>
@@ -2647,7 +2648,7 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding03" root="intPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2668,7 +2669,7 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding04" root="decimalPad2" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****4****</tdml:documentPart>
@@ -2689,7 +2690,7 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding05" root="decimalPad3" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
@@ -2729,7 +2730,7 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding01" root="nonNegIntPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2749,7 +2750,7 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding02" root="nonNegIntNoPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">begin: 4 :end</tdml:documentPart>
@@ -2770,7 +2771,7 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding03" root="nonNegIntPad2" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****4****</tdml:documentPart>
@@ -2791,7 +2792,7 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding04" root="nonNegIntPad3" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R" roundTrip="true">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
@@ -2831,7 +2832,7 @@
   -->
 
   <tdml:parserTestCase name="patternDeterminesChoice01" root="tnp74" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
 
     <tdml:document>
       <tdml:documentPart type="text">1,2,3,4,5,6,7</tdml:documentPart>
@@ -2853,7 +2854,7 @@
   -->
 
   <tdml:parserTestCase name="patternDeterminesChoice02" root="tnp74" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
 
     <tdml:document>
       <tdml:documentPart type="text">1,234,567</tdml:documentPart>
@@ -2875,7 +2876,7 @@
   -->
 
   <tdml:parserTestCase name="patternDeterminesChoice03" root="tnp75" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
 
     <tdml:document>
       <tdml:documentPart type="text">1|123|123</tdml:documentPart>
@@ -2899,7 +2900,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_facets01" root="tnp76" validation="on" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
 
     <tdml:document>
       <tdml:documentPart type="text">1234.1234</tdml:documentPart>
@@ -2928,7 +2929,7 @@
    -->
 
   <tdml:parserTestCase name="textNumberPattern_facets02" root="tnp77" validation="on" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R" roundTrip="true">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.12345678</tdml:documentPart>
@@ -2955,7 +2956,7 @@
    -->
 
   <tdml:parserTestCase name="standardZeroRep01" root="tnp78" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">zero</tdml:documentPart>
@@ -2975,7 +2976,7 @@
    -->
 
   <tdml:parserTestCase name="standardZeroRep02" root="tnp78" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">NAUGHT</tdml:documentPart>
@@ -2996,7 +2997,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep03" root="tnp79" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">ZERO</tdml:documentPart>
@@ -3017,7 +3018,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep04" root="tnp80" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">*****nil</tdml:documentPart>
@@ -3038,7 +3039,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep04b" root="tnp92" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">*****nil</tdml:documentPart>
@@ -3056,7 +3057,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep05" root="tnp81" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
@@ -3076,7 +3077,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep06" root="tnp81" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="byte">7F</tdml:documentPart>
@@ -3096,7 +3097,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep07" root="tnp82" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">></tdml:documentPart>
@@ -3114,7 +3115,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep08" root="tnp83" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[
@@ -3134,7 +3135,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep09" root="tnp84" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
@@ -3154,7 +3155,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep10" root="tnp85" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">nil</tdml:documentPart>
@@ -3174,7 +3175,7 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep11" root="tnp91" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R" roundTrip="true">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
       <tdml:documentPart type="text">zero</tdml:documentPart>
@@ -3193,7 +3194,7 @@
   -->
 
   <tdml:parserTestCase name="lengthDeterminedFirst01" root="tnp86" model="textNumberPattern"
-    description="Section 13.6 - textNumberPattern - DFDL-13-063R" roundTrip="true">
+    description="Section 13.6 - textNumberPattern - DFDL-13-063R">
 
     <tdml:document>
       <tdml:documentPart type="text">123456number</tdml:documentPart>
@@ -3213,7 +3214,7 @@
   -->
 
   <tdml:parserTestCase name="lengthDeterminedFirst02" root="tnp87" model="textNumberPattern"
-    description="Section 13.6 - textNumberPattern - DFDL-13-063R" roundTrip="true">
+    description="Section 13.6 - textNumberPattern - DFDL-13-063R">
 
     <tdml:document>
       <tdml:documentPart type="text">*******12345</tdml:documentPart>
@@ -3235,7 +3236,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_unsignedType01" root="tnp88" model="textNumberPattern"
-    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R" roundTrip="true">
+    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R">
 
     <tdml:document>
       <tdml:documentPart type="text">(123)</tdml:documentPart>
@@ -3257,7 +3258,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_unsignedType02" root="tnp89" model="textNumberPattern"
-    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R" roundTrip="true">
+    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R">
 
     <tdml:document>
       <tdml:documentPart type="text">-123</tdml:documentPart>
@@ -3278,7 +3279,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_noNegative" root="tnp90" model="textNumberPattern"
-    description="Section 13.6 - textNumberPattern - DFDL-13-072R" roundTrip="true">
+    description="Section 13.6 - textNumberPattern - DFDL-13-072R">
 
     <tdml:document>
       <tdml:documentPart type="text">--123</tdml:documentPart>
@@ -3483,7 +3484,7 @@
 
   <tdml:parserTestCase name="dynamic" root="dynamic"
     model="textprops"
-    description="Parse a double with dynamic text number properties" roundTrip="true">
+    description="Parse a double with dynamic text number properties">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|^|1^234^567_89]]]></tdml:documentPart>
@@ -3511,7 +3512,7 @@
   
   <tdml:parserTestCase name="dynamicNeg1" root="dynamic"
     model="textprops"
-    description="Dynamically reads an invalid decimal separator" roundTrip="true">
+    description="Dynamically reads an invalid decimal separator">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[%NL;|^|1^234^567_89]]]></tdml:documentPart>
@@ -3535,7 +3536,7 @@
   -->
 
   <tdml:parserTestCase name="dynamicNeg2" root="dynamic" model="textprops" 
-    description="Dynamically reads an invalid grouping separator" roundTrip="true">
+    description="Dynamically reads an invalid grouping separator">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|%WSP+;|1^234^567_89]]]></tdml:documentPart>
@@ -3614,7 +3615,7 @@
 
   <tdml:parserTestCase name="dynamicExpNeg" root="dynamicExp"
     model="textprops"
-    description="Dynamically reads an invalid exponent representation" roundTrip="true">
+    description="Dynamically reads an invalid exponent representation">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|%ES;|1234567_89@2]]]></tdml:documentPart>
@@ -3631,7 +3632,7 @@
   
   <tdml:parserTestCase name="dynamicExpInvalid" root="dynamicExpInvalid"
     model="textprops"
-    description="Try to dynamically read an exponent representation with an invalid schema" roundTrip="true">
+    description="Try to dynamically read an exponent representation with an invalid schema">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|1234567_89@2|@]]]></tdml:documentPart>
@@ -3660,7 +3661,7 @@
 
   <tdml:parserTestCase name="expCaseSensitive" root="expCaseSensitive"
     model="textprops"
-    description="Parse a double with a case sensitive exp" roundTrip="true">
+    description="Parse a double with a case sensitive exp">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.89AbC2]]]></tdml:documentPart>
@@ -3674,7 +3675,7 @@
   
     <tdml:parserTestCase name="expRawByteInvalid" root="expRawByteInvalid"
     model="textprops"
-    description="textStandardExponentRep with raw byte that is invalid." roundTrip="true">
+    description="textStandardExponentRep with raw byte that is invalid.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3689,7 +3690,7 @@
 
   <tdml:parserTestCase name="expRawByteNotAllowed" root="expRawByteNotAllowed"
     model="textprops"
-    description="textStandardExponentRep with raw byte is not allowed." roundTrip="true">
+    description="textStandardExponentRep with raw byte is not allowed.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3705,7 +3706,7 @@
 
   <tdml:parserTestCase name="expCharClasses" root="expCharClasses"
     model="textprops"
-    description="textStandardExponentRep with DFDL character classes is not allowed." roundTrip="true">
+    description="textStandardExponentRep with DFDL character classes is not allowed.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3750,7 +3751,7 @@
 
   <tdml:parserTestCase name="noStandardExpRep" root="noStandardExpRep"
     model="textpropsInvalid"
-    description="textStandardExponentRep must always be defined" roundTrip="true">
+    description="textStandardExponentRep must always be defined">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3765,7 +3766,7 @@
 
   <tdml:parserTestCase name="noStandardExpRep2" root="noStandardExpRep"
     model="textpropsInvalid2"
-    description="textStandardExponentRep must always be defined" roundTrip="true">
+    description="textStandardExponentRep must always be defined">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3810,7 +3811,7 @@
 
   <tdml:parserTestCase name="infnanDouble" root="infnanDouble"
     model="textprops"
-    description="Read infinity and not a number for a double" roundTrip="true">
+    description="Read infinity and not a number for a double">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[INFINITY|-INFINITY|NOTANUMBER]]]></tdml:documentPart>
@@ -3831,7 +3832,7 @@
 
   <tdml:parserTestCase name="infFloat" root="infFloat"
     model="textprops"
-    description="Read infinity for a float" roundTrip="true">
+    description="Read infinity for a float">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[infinity|-infinity]]]></tdml:documentPart>
@@ -3851,7 +3852,7 @@
 
   <tdml:parserTestCase name="nanFloat" root="nanFloat"
     model="textprops"
-    description="Read nan for a float" roundTrip="true">
+    description="Read nan for a float">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[notanumber]]]></tdml:documentPart>
@@ -3867,7 +3868,7 @@
 
   <tdml:parserTestCase name="infnan2" root="infnan2"
     model="textprops"
-    description="Read infinity and not a number for a double" roundTrip="true">
+    description="Read infinity and not a number for a double">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[9|-test3|i]]]></tdml:documentPart>
@@ -3888,7 +3889,7 @@
 
   <tdml:parserTestCase name="infnanCaseInsensitive" root="infnanCaseInsensitive"
     model="textprops"
-    description="Read infinity and not a number, ignoring case" roundTrip="true">
+    description="Read infinity and not a number, ignoring case">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[Infinity|-iNfInItY|NOTaNumber]]]></tdml:documentPart>
@@ -3909,7 +3910,7 @@
 
   <tdml:parserTestCase name="infInvalid" root="infInvalid"
     model="textprops"
-    description="Attempt to read an invalid inf." roundTrip="true">
+    description="Attempt to read an invalid inf.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[10]]]></tdml:documentPart>
@@ -3924,7 +3925,7 @@
 
   <tdml:parserTestCase name="nanInvalid" root="nanInvalid"
     model="textprops"
-    description="Attempt to read an invalid nan." roundTrip="true">
+    description="Attempt to read an invalid nan.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[10]]]></tdml:documentPart>
@@ -3939,7 +3940,7 @@
 
   <tdml:parserTestCase name="nanInvalidType" root="nanInvalidType"
     model="textprops"
-    description="Attempt to read nan for an invalid type." roundTrip="true">
+    description="Attempt to read nan for an invalid type.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NOTANUMBER]]]></tdml:documentPart>
@@ -3954,7 +3955,7 @@
 
   <tdml:parserTestCase name="infInvalidType" root="infInvalidType"
     model="textprops"
-    description="Attempt to read inf for an invalid type." roundTrip="true">
+    description="Attempt to read inf for an invalid type.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[INFINITY]]]></tdml:documentPart>
@@ -3969,7 +3970,7 @@
   
   <tdml:parserTestCase name="nanCharClasses" root="nanCharClasses"
     model="textprops"
-    description="textStandardNaNRep with DFDL character classes is not allowed." roundTrip="true">
+    description="textStandardNaNRep with DFDL character classes is not allowed.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -3984,7 +3985,7 @@
 
   <tdml:parserTestCase name="nanCharEntities" root="nanCharEntities"
     model="textprops"
-    description="Parse a double with textStandardNaNRep containing a DFDL character entity" roundTrip="true">
+    description="Parse a double with textStandardNaNRep containing a DFDL character entity">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[nota number]]]></tdml:documentPart>
@@ -3999,7 +4000,7 @@
 
   <tdml:parserTestCase name="infCharClasses" root="infCharClasses"
     model="textprops"
-    description="textStandardInfinityRep with DFDL character classes is not allowed." roundTrip="true">
+    description="textStandardInfinityRep with DFDL character classes is not allowed.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
@@ -4014,7 +4015,7 @@
 
   <tdml:parserTestCase name="infCharEntities" root="infCharEntities"
     model="textprops"
-    description="Parse a double with textStandardInfinityRep containing a DFDL character entity" roundTrip="true">
+    description="Parse a double with textStandardInfinityRep containing a DFDL character entity">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[infin ity]]]></tdml:documentPart>
@@ -4036,7 +4037,7 @@
 
   <tdml:parserTestCase name="zero" root="zero"
     model="textprops"
-    description="Test zero repreentations" roundTrip="true">
+    description="Test zero repreentations">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NIL|ZILCH|ZERO|5|0]]]></tdml:documentPart>
@@ -4066,7 +4067,7 @@
 
   <tdml:parserTestCase name="pattern_neg1" root="patternNeg1"
     model="textprops"
-    description="Bad number pattern" roundTrip="true">
+    description="Bad number pattern">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[Doesn't matter]]></tdml:documentPart>
@@ -4087,7 +4088,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDistinctValues" root="tnp93" model="textNumberPattern"
-    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R" roundTrip="true">
+    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R">
 
     <tdml:document>
       <tdml:documentPart type="text">5.000.000.00</tdml:documentPart>
@@ -4114,7 +4115,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDistinctValues2" root="tnp94" model="textNumberPattern"
-    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R" roundTrip="true">
+    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R">
 
     <tdml:document>
       <tdml:documentPart type="text">.|5.00</tdml:documentPart>
@@ -4138,7 +4139,7 @@
   -->
 
   <tdml:parserTestCase name="textStandardDistinctValues3" root="tnp95" model="textNumberPattern"
-    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R" roundTrip="true">
+    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R">
 
     <tdml:document>
       <tdml:documentPart type="text">*|1*234*567*89</tdml:documentPart>

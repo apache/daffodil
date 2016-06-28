@@ -6,7 +6,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:ex="http://example.com" 
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
     <dfdl:format ref="ex:daffodilTest1"/>
@@ -16,8 +17,8 @@
         <xs:sequence dfdl:initiator="[" dfdl:terminator="]">
           <xs:element name="r1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
           <xs:sequence dfdl:terminator="seq1"/>
-          <xs:element name="o1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="implicit"/>
-          <xs:element name="o2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="parsed"/>
+          <xs:element name="o1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="implicit" dfdl:initiator="o1="/>
+          <xs:element name="o2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="parsed" dfdl:initiator="o2=" />
           <xs:choice dfdl:initiator="ch1">
             <xs:sequence dfdl:terminator="seq2"/>
             <xs:element name="r2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
@@ -42,7 +43,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>[[r1seq1o1ch1r2r3]]</tdml:document>
+    <tdml:document>[[r1seq1o1=o1ch1r2r3]]</tdml:document>
 
   </tdml:unparserTestCase>
   
@@ -61,7 +62,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>[[r1seq1o1o2o2o2ch1r2r3]]</tdml:document>
+    <tdml:document>[[r1seq1o1=o1o2=o2o2=o2o2=o2ch1r2r3]]</tdml:document>
 
   </tdml:unparserTestCase>
   
@@ -78,7 +79,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>[[r1seq1o1o2ch1r2r3]]</tdml:document>
+    <tdml:document>[[r1seq1o1=o1o2=o2ch1r2r3]]</tdml:document>
 
   </tdml:unparserTestCase>
   
@@ -94,7 +95,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>[[r1seq1o2o2ch1seq2r3]]</tdml:document>
+    <tdml:document>[[r1seq1o2=o2o2=o2ch1seq2r3]]</tdml:document>
 
   </tdml:unparserTestCase>
   
