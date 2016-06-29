@@ -451,9 +451,8 @@
       Purpose: This test demonstrates that hidden groups can contain a choice.
   -->
 
-  <!-- See DFDL-1553 for enabling round trip -->
   <tdml:parserTestCase name="hiddenGroupChoice2" root="e"
-    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R" roundTrip="false">
+    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
     </tdml:document>
@@ -1122,9 +1121,8 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
 
   </tdml:defineSchema>
 
-  <!-- See DFDL-1553 for enabling round trip -->
 	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
-		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R" roundTrip="false">
+		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R">
 
 		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
 A,B,C,x,1|D,E,F,y,2|G,H,I,z,3

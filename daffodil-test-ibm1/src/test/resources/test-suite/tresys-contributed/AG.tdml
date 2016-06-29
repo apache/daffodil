@@ -4,9 +4,8 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd"
   defaultRoundTrip="true">
 
-  <!-- See DFDL-1553 to enable round trip -->
   <parserTestCase name="AG000" root="allZones" model="AG.dfdl.xsd"
-    description="Discriminated choices" roundTrip="false">
+    description="Discriminated choices">
     <document><![CDATA[1
 zone 1
 ]]></document>
@@ -19,9 +18,8 @@ zone 1
     </infoset>
   </parserTestCase>
 
-  <!-- See DFDL-1553 to enable round trip -->
   <parserTestCase name="AG001" root="allZones" model="AG.dfdl.xsd"
-    description="Discriminated choices" roundTrip="false">
+    description="Discriminated choices">
     <document><![CDATA[2
 zone 2
 ]]></document>
@@ -34,9 +32,8 @@ zone 2
     </infoset>
   </parserTestCase>
 
-  <!-- See DFDL-1553 to enable round trip -->
   <parserTestCase name="AG002" root="allZones" model="AG.dfdl.xsd"
-    description="Discriminated choices" roundTrip="false">
+    description="Discriminated choices">
     <document><![CDATA[3
 zone 3
 ]]></document>

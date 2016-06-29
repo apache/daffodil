@@ -740,7 +740,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             if (testPass == 1) {
               // Try again
               testData = outStream.toByteArray
-              testDataLength = unparseResult.resultState.bitPos0b // testData.length * 8
+              testDataLength = unparseResult.resultState.bitPos0b
+              val fullBytesNeeded = (testDataLength + 7) / 8
+              if (testData.length != fullBytesNeeded) {
+                throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))
+              }
             } else
               throw e
           }
@@ -802,10 +806,17 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val infosetXML = inputInfoset.dfdlInfoset.rawContents
 
     val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
-    val actual = processor.unparse(output, xmlEventCursor)
+    val actual = processor.unparse(output, xmlEventCursor).asInstanceOf[UnparseResult]
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
+
+    val testData = outStream.toByteArray
+    val testDataLength = actual.resultState.bitPos0b
+    val fullBytesNeeded = (testDataLength + 7) / 8
+    if (testData.length != fullBytesNeeded) {
+      throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))
+    }
 
     if (actual.isScannable) {
       // all textual in one encoding, so we can do display of results

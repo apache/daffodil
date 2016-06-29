@@ -154,7 +154,19 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
   private def convertToDirect(oldDirectDOS: ThisType) {
     Assert.usage(isBuffering)
     setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
-    this.st.setMaybeAbsBitPos0b(oldDirectDOS.maybeAbsBitPos0b) // preserve the absolute position.
+
+    // Preserve the rel and abs bit positions. Note that 'this' is now a direct
+    // DOS, so its rel and abs bit positions should be the same. Also, we must
+    // set relBitPos0b first since that will also modify absBitPos, but we
+    // don't want that modification. After that is set, just overwrite whatever
+    // the absBitPos was with what it should be.
+    this.st.setRelBitPos0b(oldDirectDOS.relBitPos0b)
+    this.st.setMaybeAbsBitPos0b(oldDirectDOS.maybeAbsBitPos0b)
+    Assert.invariant(this.st.relBitPos0b == this.st.maybeAbsBitPos0b.get)
+
+    // Preserve the bit limit
+    this.st.setMaybeRelBitLimit0b(oldDirectDOS.maybeRelBitLimit0b)
+
     // after the old bufferedDOS has been completely written to the
     // oldDirectDOS, there may have been a fragment byte left over. We must
     // copy that fragment byte to the new directDOS
