@@ -64,7 +64,6 @@ import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
@@ -351,15 +350,7 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   with WithDiagnosticsImpl {
 
   def toWriter(writer: java.io.Writer) = {
-    if (resultState.infoset.totalElementCount < DaffodilTunableParameters.prettyPrintElementLimit) {
-      // pretty print small infosets
-      val pp = new PrettyPrinter(2)
-      writer.write(pp.format(resultState.infoset.toXML()(0)))
-    } else {
-      // direct write for larger infosets
-      resultState.infoset.toWriter(writer)
-    }
-    writer.write("\n")
+    resultState.infoset.toWriter(writer)
     writer.flush()
   }
 

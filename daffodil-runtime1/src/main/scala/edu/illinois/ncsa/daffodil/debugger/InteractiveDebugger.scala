@@ -49,7 +49,6 @@ import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerClass
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
-import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
@@ -399,18 +398,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
-    val xml = ie.toXML(DebuggerConfig.removeHidden)
-    if (xml.length == 0) {
-      debugPrintln("Nil"); {
-        return
-      }
-    }
-    Assert.invariant(xml.length == 1)
-    val elem = xml(0)
-    val xmlClean = XMLUtils.removeAttributes(elem) // strip them all , Seq(XMLUtils.INT_NS_OBJECT))
-    val pp = new PrettyPrinter(2)
-    val xmlString = pp.format(xmlClean)
-    debugPrintln(xmlString)
+    val sw = new java.io.StringWriter()
+    ie.toWriter(sw)
+    debugPrintln(sw.toString)
   }
 
   /**********************************/
@@ -1445,18 +1435,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             } else {
               currentNode
             }
-
-          val xmlNode = rootNode.toXML(DebuggerConfig.removeHidden)
-          val xmlClean = XMLUtils.removeAttributes(xmlNode(0))
-          xmlClean
+          rootNode
         }
 
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          val infoset = getInfoset(state.infoset)
-          val pp = new PrettyPrinter(2)
           debugPrintln("%s:".format(name))
-          val xml = pp.format(infoset)
-          val lines = xml.split("\n")
+
+          val sw = new java.io.StringWriter()
+          val infoset = getInfoset(state.infoset)
+          infoset.toWriter(sw, DebuggerConfig.removeHidden)
+          val infosetString = sw.toString()
+          val lines = infosetString.split("\n")
           val tailLines =
             if (DebuggerConfig.infosetLines > 0) {
               val dropCount = lines.size - DebuggerConfig.infosetLines

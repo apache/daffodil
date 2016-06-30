@@ -247,7 +247,6 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       case "maxlengthforvariablelengthdelimiterdisplay" => DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay = java.lang.Integer.valueOf(value)
       case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
       case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
-      case "prettyprintelementlimit" => DaffodilTunableParameters.prettyPrintElementLimit = java.lang.Integer.valueOf(value)
       case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
     }
   }

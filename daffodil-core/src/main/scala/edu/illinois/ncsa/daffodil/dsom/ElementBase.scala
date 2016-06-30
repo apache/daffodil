@@ -191,9 +191,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] = {
     val childrenRequiredNSBindings =
       this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
-    val myRequiredNSBinding =
-      if (thisElementsNamespace.isNoNamespace) Set()
-      else Set((thisElementsNamespacePrefix, thisElementsNamespace))
+
+    val myRequiredNSBinding = Set((thisElementsNamespacePrefix, thisElementsNamespace))
     val nilNSBinding = {
       if (!isNillable) Set()
       else {
@@ -209,13 +208,46 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         }
       }
     }
-    val res = childrenRequiredNSBindings ++ myRequiredNSBinding ++ nilNSBinding
+    val allBindings = childrenRequiredNSBindings ++ myRequiredNSBinding ++ nilNSBinding
+
+    // allBindings now contains bindings for this element and its children. The
+    // purpose of this is to kindof bubble up required namespace bindings. For
+    // example, we need the xsi namespace if an element is nillable, but we do
+    // not want to redefine that namespace on every nillable element. By adding
+    // the required namespaces of the children, we can bubble up such bindings
+    // so that they are only declared once at the top of an infoset. However,
+    // there is an issues with bubbling up. That is, children could have
+    // conflicting namespace bindings either with each other or with this
+    // element. So after all namespace bindings are combined, we need to filter
+    // out conflicting namespace bindings.
+    //
+    // Note however, that if myRequiredNSBinding conflicts with a child, then it
+    // (along with anything it conflicts with) would be filtered out. But it is
+    // required for this element, so we need to add it back in.
+
+    // Creates a Map[prefix, Set[NS]]. Duplicate NS's will be removed from the
+    // Set, since it's a Set
+    val bindingsGroupedByPrefix = allBindings.groupBy { _._1 }.mapValues { _.map { _._2 } }
+
+    // Any Set with size > 1 has different namespaces for the same prefix, filter them out
+    val bindingsNoConflictsMap = bindingsGroupedByPrefix.filter { case (prefix, bindings) => bindings.size == 1 }
+
+     // Create a Map[prefix, NS] now that conflicts are removed
+    val bindingsSingleNSMap = bindingsNoConflictsMap.mapValues { _.head }
+
+    // Convert back to a set
+    val bindings = bindingsSingleNSMap.toSet
+
+    // Add back in myRequiredNSBinding. This is a Set, so if it already exist
+    // the duplicate will just be ignored
+    val res = bindings ++ myRequiredNSBinding
+
     res
   }
 
   private lazy val emptyNSPairs = nsBindingsToSet(scala.xml.TopScope)
 
-  private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings // nsBindingsToSet(namespaces)
+  private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
   private lazy val myParentNSPairs = enclosingElement match {
     case None => emptyNSPairs
     case Some(parent) => parent.myOwnNSPairs
@@ -243,15 +275,21 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
    * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
    */
-  private lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
+  private lazy val minimizedScope: NamespaceBinding = {
+    val uniquePairs =
+      if (enclosingComponent.isEmpty) {
+        // If this is the root element and it contains xmlns="", then remove
+        // it. xmlns="" is implied at the root. Note that we only do this for
+        // the root because if a child has xmlns="", that implies the parent
+        // had set the default namespace to something else, so we need to keep
+        // the child xmlns="" to override that.
+        myUniquePairs.filterNot { case (prefix, ns) => prefix == null && ns.isNoNamespace }
+      } else {
+        myUniquePairs
+      }
 
-  /**
-   * When we are not constructing scala xml Elems and instead print the XML
-   * event-by-event, we don't want the full NamespaceBinding which includes the
-   * parent Bindings. Instead, we just want those bindings that are unique to
-   * this element.
-   */
-  private lazy val uniqueScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, scala.xml.TopScope)
+    pairsToNSBinding(uniquePairs, parentMinimizedScope)
+  }
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
@@ -378,7 +416,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       path,
       namespaces,
       minimizedScope,
-      uniqueScope,
       defaultBitOrder,
       optPrimType,
       targetNamespace,

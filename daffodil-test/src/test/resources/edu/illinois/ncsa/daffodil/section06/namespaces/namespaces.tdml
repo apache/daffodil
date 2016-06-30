@@ -35,7 +35,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
+  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
+  defaultRoundTrip="true">
 
   <tdml:defineSchema name="embeddedWithImport">
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
@@ -297,8 +298,7 @@
   -->
 
   <tdml:parserTestCase name="multifile_cyclical" root="elem"
-    model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R"
-    roundTrip="false">
+    model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
     <tdml:document><![CDATA[12*34]]></tdml:document>
     <tdml:infoset>
@@ -1431,8 +1431,7 @@
   -->
 
   <tdml:parserTestCase name="lion_eater_ambiguity_02"
-    root="shishishishi" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R"
-    roundTrip="false">
+    root="shishishishi" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
     <tdml:document>
@@ -1922,8 +1921,7 @@
 
   <tdml:parserTestCase name="namespaces_qnames"
     root="e" model="qname1.dfdl.xsd"
-    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them."
-    roundTrip="false">
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
     <tdml:document>512345</tdml:document>
@@ -2008,8 +2006,7 @@
 
   <tdml:parserTestCase name="defaultNamespaceInExpression"
     root="file" model="charClassEntities.dfdl.xsd"
-    description="Hexadecimal code point used in document tag - DFDL-6-044R"
-    roundTrip="false">
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
     <tdml:document><![CDATA[last,first,middle,DOB
@@ -2063,8 +2060,7 @@ jonesington,david,frederick,1986-02-19
 
   <tdml:parserTestCase name="defaultNamespaceInExpression2"
     root="file2" model="charClassEntities.dfdl.xsd"
-    description="Hexadecimal code point used in document tag - DFDL-6-044R"
-    roundTrip="false">
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
     <!-- Fix DFDL-1555 to enable roundTrip -->
 
     <tdml:document><![CDATA[last,first,middle,DOB

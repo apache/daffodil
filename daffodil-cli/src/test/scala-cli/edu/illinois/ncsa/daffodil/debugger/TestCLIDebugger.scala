@@ -302,7 +302,7 @@ class TestCLIdebugger {
       shell.sendLine("enable display 1")
 
       shell.sendLine("step")
-      shell.expect(contains("<matrix/>"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("delete display 1")
       shell.sendLine("step")
@@ -450,18 +450,18 @@ class TestCLIdebugger {
       shell.expect(allOf(contains("breakpoints:"), contains("1: cell   xsd:string(.) eq '3'")))
 
       shell.sendLine("continue")
-      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
       shell.sendLine("continue")
-      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
       shell.sendLine("continue")
-      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
 
       shell.sendLine("continue")
-      shell.expect(times(1, contains("<cell>3</cell>")))
-      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
+      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
       shell.sendLine("continue")
-      shell.expect(times(1, contains("<cell>3</cell>")))
-      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
+      shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
 
       shell.sendLine("quit")
     } finally {
@@ -515,20 +515,20 @@ class TestCLIdebugger {
       shell.sendLine("break cell")
 
       shell.sendLine("continue")
-      shell.expect(contains("<cell/>"))
+      shell.expect(contains("</tns:cell>"))
 
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
-      shell.expect(contains("<cell>0</cell>"))
+      shell.expect(contains("<tns:cell>0</tns:cell>"))
 
       shell.sendLine("continue")
-      shell.expect(contains("<cell/>"))
+      shell.expect(contains("</tns:cell>"))
 
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
-      shell.expect(contains("<cell>1</cell>"))
+      shell.expect(contains("<tns:cell>1</tns:cell>"))
 
       shell.sendLine("delete breakpoint 1")
       shell.sendLine("continue")
@@ -558,12 +558,12 @@ class TestCLIdebugger {
       shell.expect(contains("1: cell   dfdl:occursIndex() eq 3"))
 
       shell.sendLine("continue")
-      shell.expect(contains("<cell/>"))
+      shell.expect(contains("</tns:cell>"))
 
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
-      shell.expect(contains("<cell>2</cell>")) // lacks tns: prefix because debugger explicitly strips them.
+      shell.expect(contains("<tns:cell>2</tns:cell>")) // lacks tns: prefix because debugger explicitly strips them.
 
       shell.sendLine("continue")
       shell.expect(contains("<tns:cell>6</tns:cell>")) // has tns prefix because this is the final infoset, not the debugger printing this.
@@ -658,22 +658,22 @@ class TestCLIdebugger {
       shell.sendLine("break cell")
       shell.sendLine("continue")
       shell.expect(contains("..."))
-      shell.expect(contains("</matrix>"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("set infosetLines 4")
       shell.sendLine("continue")
       shell.expect(contains("..."))
-      shell.expect(contains("<cell>3</cell>"))
-      shell.expect(contains("</matrix>"))
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("set infosetLines 10")
       shell.sendLine("continue")
-      shell.expect(contains("""<matrix>"""))
+      shell.expect(contains("<tns:matrix"))
 
       shell.sendLine("set infosetLines -900")
       shell.sendLine("continue")
-      shell.expect(contains("""<matrix>"""))
-      shell.expect(contains("</matrix>"))
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains("</tns:matrix>"))
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")

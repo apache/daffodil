@@ -58,7 +58,7 @@ object NS extends UniquenessCache[URI, NS] {
   def apply(nsString: String): NS = {
     // NoNamespace and UnspecifiedNamespace do not have a URI, and so they are
     // not retrieved from the uniqueness cache
-    if (nsString == null || nsString == "") {
+    if (nsString == null || nsString == "" || nsString == NoNamespace.toString) {
       NoNamespace
     } else if (nsString == UnspecifiedNamespace.toString) {
       UnspecifiedNamespace

@@ -44,7 +44,6 @@
 				<element name="readerByteBufferSize" minOccurs="0" type="xs:int" />
 				<element name="maxLengthForVariableLengthDelimiterDisplay" minOccurs="0" type="xs:int" />
 				<element name="inputFileMemoryMapLowThreshold" minOccurs="0" type="xs:int" />
-				<element name="prettyPrintElementLimit" minOccurs="0" type="xs:int" />
 			</sequence>
 		</complexType>
 	</element>

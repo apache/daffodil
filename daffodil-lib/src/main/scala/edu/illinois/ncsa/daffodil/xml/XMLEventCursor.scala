@@ -40,7 +40,11 @@ sealed trait XMLEvent extends HasCpy[XMLEvent] {
 sealed trait XMLElementEvent extends XMLEvent {
   def pre: String
   def label: String
-  def scope: NamespaceBinding
+  protected def scope: NamespaceBinding
+  final def getNamespaceStringOrNullIfNoNS: String = {
+    val nsStr = scope.getURI(pre)
+    if (nsStr == NoNamespace.toString) null else nsStr
+  }
 }
 
 object XMLEvent {

@@ -330,23 +330,6 @@ class TestCLIparsing {
     }
   }
 
-  @Test def test_977_CLI_Parsing_SimpleParse_stdOut_no_prettyprint() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("echo 0,1,2| %s parse -TprettyPrintElementLimit=0 -s %s -r matrix", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-
-      shell.expect(contains(output1_nopretty))
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
-  }
-
   @Test def test_978_CLI_Parsing_SimpleParse_outFile() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
     val file = new File(tmp_filename)

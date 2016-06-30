@@ -239,7 +239,6 @@ final class ElementRuntimeData(
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam minimizedScopeArg: => NamespaceBinding,
-  @TransientParam uniqueScopeArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
   @TransientParam optPrimTypeArg: => Option[PrimType],
   @TransientParam targetNamespaceArg: => NS,
@@ -310,7 +309,6 @@ final class ElementRuntimeData(
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
   lazy val minimizedScope = minimizedScopeArg
-  lazy val uniqueScope = uniqueScopeArg
   lazy val optPrimType = optPrimTypeArg
   lazy val targetNamespace = targetNamespaceArg
   lazy val thisElementsNamespace = thisElementsNamespaceArg
@@ -358,7 +356,6 @@ final class ElementRuntimeData(
     path
     namespaces
     minimizedScope
-    uniqueScope
     optPrimType
     targetNamespace
     thisElementsNamespace

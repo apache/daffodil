@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.io.IOUtils
+import scala.xml.NamespaceBinding
 
 /**
  * Utilities for handling XML
@@ -392,6 +393,27 @@ object XMLUtils {
       thisOne ++ others
     }
   }
+
+  def uniqueNamespaceBindingsToString(nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding): String = {
+    val sb = new StringBuilder()
+    var nsb = nsbStart
+    while (nsb != nsbEnd) {
+      sb.append("xmlns")
+      if (nsb.prefix != null) {
+        sb.append(":")
+        sb.append(nsb.prefix)
+      }
+      sb.append("=\"")
+      sb.append(nsb.uri)
+      sb.append("\"")
+      if (nsb.parent != nsbEnd) {
+        sb.append(" ")
+      }
+      nsb = nsb.parent
+    }
+    sb.toString
+  }
+
 
   /**
    * We don't want to be sensitive to which prefix people bind

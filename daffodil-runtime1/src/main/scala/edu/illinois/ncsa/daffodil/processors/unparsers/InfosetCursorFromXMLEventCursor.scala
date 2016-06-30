@@ -178,7 +178,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
   }
 
   private def getStartERD(eev: XMLElementEvent) = {
-    val ns = eev.scope.getURI(eev.pre)
+    val ns = eev.getNamespaceStringOrNullIfNoNS
     val local = eev.label
     val thisERD = nextElementResolver.nextElement(local, ns)
     thisERD
@@ -350,7 +350,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
     val nqn = erd.namedQName
     val erdNS = nqn.namespace.toStringOrNullIfNoNS
     val erdLocal = nqn.local
-    val ns = evEnd.scope.getURI(evEnd.pre)
+    val ns = evEnd.getNamespaceStringOrNullIfNoNS
     val local = evEnd.label
     val res = (erdNS =:= ns) &&
       (erdLocal =:= local)
