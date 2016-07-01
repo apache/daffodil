@@ -118,6 +118,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         //        dumpState
         ended match {
           case e: DIElement if (e.erd =:= rootElementInfo) => return // just ended the root
+          case s: DISimple if (s.erd.outputValueCalcExpr.isDefined) => Assert.invariant(!s.hasValue && !s.isNilled) // OVC DISimple's are reset so they should have no value
           case s: DISimple => Assert.invariant(s.hasValue || s.isNilled)
           case c: DIComplex => Assert.invariant((c.totalElementCount > 0) || c.isNilled)
           case _: DIArray => Assert.impossible() // DIArray should not have ended without also ending something else afterwards in handleEvEnd

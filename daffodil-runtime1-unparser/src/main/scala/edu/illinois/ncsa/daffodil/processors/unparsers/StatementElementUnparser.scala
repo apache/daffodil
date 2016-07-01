@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DISimple
+import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIElement
 
 abstract class StatementElementUnparserBase(
@@ -158,30 +159,40 @@ class StatementElementUnparser(
   }
 
   def unparseBegin(state: UState): Unit = {
-    val event: InfosetAccessor = state.advanceOrError
-    event match {
-      case e if e.isStart && e.isElement => {
-        //
-        // When the infoset events are being advanced, the currentInfosetNodeStack
-        // is pushing and popping to match the events. This provides the proper
-        // context for evaluation of expressions.
-        //
-        state.currentInfosetNodeStack.push(One(e.asElement))
+    val elem =
+      if (!erd.isHidden) {
+        // Hidden elements are not in the infoset, so we will never get an event
+        // for them. Only try to consume start events for non-hidden elements
+        val event = state.advanceOrError
+        if (!event.isStart || event.erd != erd) {
+          UnparseError(Nope, One(state.currentLocation), "Expected Start Element event for %s, but received: %s.", erd.namedQName, event)
+        }
+        event.asElement
+      } else {
+        // Since we never get events for hidden elements, their infoset elements
+        // will have never been created. This means we need to manually create them
+        val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
+        state.currentInfosetNode.asComplex.addChild(e)
+        e
       }
-      case _ =>
-        UnparseError(Nope, One(state.currentLocation), "Expected Start Element event for %s, but received: %s.", erd.namedQName, event)
-    }
+
+    // When the infoset events are being advanced, the currentInfosetNodeStack
+    // is pushing and popping to match the events. This provides the proper
+    // context for evaluation of expressions.
+    state.currentInfosetNodeStack.push(One(elem))
   }
 
   def unparseEnd(state: UState): Unit = {
-    val event: InfosetAccessor = state.advanceOrError
-    event match {
-      case e if e.isEnd && e.isElement => {
-        state.currentInfosetNodeStack.pop
-      }
-      case _ =>
+    if (!erd.isHidden) {
+      // Hidden elements are not in the infoset, so we will never get an event
+      // for them. Only try to consume end events for non-hidden elements
+      val event = state.advanceOrError
+      if (!event.isEnd || event.erd != erd) {
         UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received: %s.", erd.namedQName, event)
+      }
     }
+
+    state.currentInfosetNodeStack.pop
     move(state)
   }
 }
@@ -233,24 +244,40 @@ class StatementElementOutputValueCalcUnparser(
     eAfterUnparser) {
 
   override def unparseBegin(state: UState) {
-    val e = new DISimple(erd)
-    state.currentInfosetNode.asComplex.addChild(e)
-    state.currentInfosetNodeStack.push(One(e))
-
-    // outputValueCalc elements are optional in the infoset. If the next event
-    // is for this is for this OVC element, then consume the start/end events.
-    // Otherwise, the next event is for a following element, and we do not want
-    // to consume it.
-    val startEvOpt = state.inspectMaybe
-    if (startEvOpt.isDefined) {
-      val startEv = startEvOpt.get
-      if (startEv.erd == erd) {
-        Assert.invariant(startEv.isStart)
-        state.advanceMaybe // consume the start event
-        val endEv = state.advanceOrError // consume the end event
-        Assert.invariant(endEv.isEnd)
+    val elem =
+      if (!erd.isHidden) {
+        // outputValueCalc elements are optional in the infoset. If the next event
+        // is for this is for this OVC element, then consume the start/end events.
+        // Otherwise, the next event is for a following element, and we do not want
+        // to consume it. Don't even bother checking all this if it's hidden. It
+        // definitely won't be in the infoset in that case.
+        val eventMaybe = state.inspectMaybe
+        if (eventMaybe.isDefined && eventMaybe.get.erd == erd) {
+          // Event existed for this OVC element, should be a start and end events
+          val startEv = state.advanceOrError // Consume the start event
+          Assert.invariant(startEv.isStart && startEv.erd == erd)
+          val endEv = state.advanceOrError // Consume the end event
+          Assert.invariant(endEv.isEnd && endEv.erd == erd)
+          
+          val e = startEv.asSimple
+          // Remove any state that was set by what created this event. Later
+          // code asserts that OVC elements do not have a value
+          e.resetValue
+          e
+        } else {
+          // Event was optional and didn't exist, create a new InfosetElement and add it
+          val e = new DISimple(erd)
+          state.currentInfosetNode.asComplex.addChild(e)
+          e
+        }
+      } else {
+        // Event was hidden and will never exist, create a new InfosetElement and add it
+        val e = new DISimple(erd)
+        state.currentInfosetNode.asComplex.addChild(e)
+        e
       }
-    }
+
+    state.currentInfosetNodeStack.push(One(elem))
   }
 
   override def unparseEnd(state: UState) {

@@ -55,4 +55,6 @@ class TestSequenceGroupUnparse {
   @Test def test_seqWithOptionals4() { runner.runOneTest("seqWithOptionals4") }
   @Test def test_seqWithOptionals5() { runner.runOneTest("seqWithOptionals5") }
 
+  @Test def test_seqWithHiddenGroupContainingComplex() { runner.runOneTest("seqWithHiddenGroupContainingComplex") }
+
 }

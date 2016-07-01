@@ -724,6 +724,14 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _validity = MaybeBoolean.Nope // we have not tested this new value.
   }
 
+  def resetValue = {
+    _isNilled = false
+    _isDefaulted = false
+    _validity = MaybeBoolean.Nope // we have not tested this new value.
+    _stringRep = null
+    _value = null
+  }
+
   def hasValue: Boolean = !_isNilled && _value != null
   /**
    * Obtain the data value. Implements default

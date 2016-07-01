@@ -505,9 +505,8 @@
     </tdml:errors> 
  </tdml:parserTestCase>
 
-  <!-- See DFDL-1552 for enabling round trip -->
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
-    description="hiddenGroupRef" roundTrip="false">
+    description="hiddenGroupRef">
     <tdml:document><![CDATA[Creator: NCSA
 Date: Mon Feb 23 15:20:47 CST 2009
 0,1,2,3,4,5,6,7,8,9
