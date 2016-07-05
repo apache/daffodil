@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppres
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 
 /**
  * This mixin for setting up all the characteristics of charset encoding
@@ -179,4 +180,18 @@ case class DummyUnparser(primitiveName: String) extends UnparserObject(null) {
   override lazy val childProcessors = Nil
   override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
+}
+
+case class NotUnparsableUnparser(context: ElementRuntimeData) extends Unparser {
+
+  def unparse(state: UState): Unit = {
+    // We can't use state.SDE because that needs the infoset to determine the
+    // context. No infoset will exist when this is called, so we'll manually
+    // create an SDE and toss it
+    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or daf:parseUnparsePolicy property.")
+    context.toss(rsde)
+  }
+
+  override lazy val childProcessors = Nil
+  override lazy val runtimeDependencies = Nil
 }

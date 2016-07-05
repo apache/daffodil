@@ -13,13 +13,17 @@
 -->
 <xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
   xmlns:dafint="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafint.xsd">
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafint.xsd
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafext.xsd">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int" schemaLocation="xsd/dafint.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="xsd/dafext.xsd" />
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
 
@@ -205,6 +209,8 @@
     <xsd:sequence>
       <xsd:element maxOccurs="unbounded" minOccurs="0"
         ref="dfdl:property" />
+      <xsd:element maxOccurs="unbounded" minOccurs="0"
+        ref="daf:property" />
     </xsd:sequence>
     <xsd:attributeGroup ref="dafint:daffodilAG"/> 
   </xsd:complexType>

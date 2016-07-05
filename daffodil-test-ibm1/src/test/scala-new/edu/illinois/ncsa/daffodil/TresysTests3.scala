@@ -74,6 +74,6 @@ class TresysTests3 {
   val am = testDir + "AM.tdml"
   lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
     compileAllTopLevel = true)
-  //@Test def test_AM000() { runnerAM.runOneTest("AM000") }
-  //@Test def test_AM001() { runnerAM.runOneTest("AM001") }
+  @Test def test_AM000() { runnerAM.runOneTest("AM000") }
+  @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }

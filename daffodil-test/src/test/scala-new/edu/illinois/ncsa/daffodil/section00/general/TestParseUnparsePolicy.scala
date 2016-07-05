@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,44 +30,43 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.property_syntax
+package edu.illinois.ncsa.daffodil.section00.general
 
-import org.junit.Test
+/* This section00 is for testing general features of DFDL that are
+ * not related to any specific requirement
+ */
+
+import org.junit._
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestPropertySyntax {
-  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val runner = Runner(testDir, "dpaext1.tdml")
+object TestParseUnparsePolicy {
+  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val runner = Runner(testDir, "parseUnparsePolicy.tdml")
 
-  val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
-  val runner1 = Runner(testDir1, "PropertySyntax.tdml", false, false)
-
-  @AfterClass def shutDown {
+  @AfterClass def shutDown() {
     runner.reset
-    runner1.reset
   }
-
 }
 
-class TestPropertySyntax {
 
-  import TestPropertySyntax._
+class TestParseUnparsePolicy {
+  import TestParseUnparsePolicy._
 
-  @Test def test_property_syntax_7_01() { runner.runOneTest("property_syntax_7_01") }
-  @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
-  @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
+  @Test def test_pb_parse()   { runner.runOneTest("pb_parse") }
+  @Test def test_pb_unparse() { runner.runOneTest("pb_unparse") }
+  @Test def test_pp_parse()   { runner.runOneTest("pp_parse") }
+  @Test def test_pp_unparse() { runner.runOneTest("pp_unparse") }
+  @Test def test_pu()         { runner.runOneTest("pu") }
 
-  @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
-  @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }
-  @Test def test_AnnotationAndElementForm() { runner1.runOneTest("AnnotationAndElementForm") }
-  @Test def test_ShortAndElementForm() { runner1.runOneTest("ShortAndElementForm") }
-  @Test def test_Lesson3_attribute_form() { runner1.runOneTest("Lesson3_attribute_form") }
-  @Test def test_Lesson3_element_form() { runner1.runOneTest("Lesson3_element_form") }
-  @Test def test_Lesson3_short_form() { runner1.runOneTest("Lesson3_short_form") }
-  @Test def test_encodingEmptyFail() { runner1.runOneTest("encodingEmptyFail") }
+  @Test def test_ub_parse()   { runner.runOneTest("ub_parse") }
+  @Test def test_ub_unparse() { runner.runOneTest("ub_unparse") }
+  @Test def test_uu_parse()   { runner.runOneTest("uu_parse") }
+  @Test def test_uu_unparse() { runner.runOneTest("uu_unparse") }
+  @Test def test_up()         { runner.runOneTest("up") }
 
-  @Test def test_dafProperty1() { runner1.runOneTest("dafProperty1") }
-  @Test def test_dafProperty2() { runner1.runOneTest("dafProperty2") }
+  @Test def test_bb() { runner.runOneTest("bb") }
+  @Test def test_bp() { runner.runOneTest("bp") }
+  @Test def test_bu() { runner.runOneTest("bu") }
 
 }

@@ -2,8 +2,9 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
-  
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
+
   <include schemaLocation="xsd/built-in-formats.xsd"/>
 
   <annotation>
@@ -14,7 +15,7 @@
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         byteOrder="bigEndian" binaryNumberRep="binary"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0"
-        representation="text" />
+        representation="text" daf:parseUnparsePolicy="parseOnly"/>
     </appinfo>
   </annotation>
   <!-- MIME type detect -->

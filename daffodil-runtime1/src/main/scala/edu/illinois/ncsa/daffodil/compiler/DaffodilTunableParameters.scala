@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.compiler
 
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 
 /**
  * Size and length limit constants used by the code, some of which will be tunable
@@ -122,4 +123,11 @@ object DaffodilTunableParameters {
    * Initial array buffer size allocated for recurring elements (aka arrays)
    */
   var initialElementOccurrencesHint: Long = 10
+
+  /**
+   * Whether to compile a schema to support parsing, unparsing, both, or to use
+   * the daf:parseUnparsePolicy from the root node. None means to use the
+   * policy from the schema, otherwise use whatever the value is
+   */
+  var parseUnparsePolicy: Option[ParseUnparsePolicy] = None
 }

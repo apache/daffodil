@@ -10,11 +10,11 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
   http://www.w3.org/2001/XMLSchema XMLSchema_for_DFDL.xsd
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext dafext.xsd">
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext xsd/dafext.xsd">
 
   <xsd:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="XMLSchema_for_DFDL.xsd"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="xsd/dafext.xsd"/>
   <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="xsd/DFDL_part3_model.xsd"/>
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="dafext.xsd"/>
 
   <xs:attribute name="tutorialInclude" type="xs:string" fixed="no"/>
   

@@ -54,7 +54,10 @@ class PropertyGenerator(arg: Node) {
   val dfdlSchema = arg
 
   val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType",
-    "SeparatorSuppressionPolicy", "dafint:daffodilAG") // Do these by hand.
+    "SeparatorSuppressionPolicy", "dafint:daffodilAG", // Do these by hand.
+    "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
+    "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables") // Ignore daffodil configuration types
+
   val excludedAttributes = List("TextNumberBase",
     "SeparatorSuppressionPolicy") // Do these by hand.
 
@@ -191,7 +194,21 @@ class PropertyGenerator(arg: Node) {
     //
     // for each attribute that is an Enum type, we want to use a Mixin of that type
     //
-    val nonExcludedAttribs = attribs.filter { attrNode =>
+    val attribsNoDafRefs = attribs.map { attrNode =>
+      val rawRef = attr(attrNode, "ref")
+      if (rawRef.isDefined) {
+        // this is referencing a Daffodil Extension, go find that attribute
+        val refWithoutPrefix = stripPrefix("daf:", rawRef.get)
+        val dafAttrNode = (PropertyGenerator.daffodilExtensionsXML \ "attribute").find { node =>
+          attr(node, "name").get == refWithoutPrefix
+        }.get
+        dafAttrNode
+      } else {
+        attrNode
+      }
+    }
+
+    val nonExcludedAttribs = attribsNoDafRefs.filter { attrNode =>
       val rawName = attr(attrNode, "name").get
       !excludeAttribute(rawName)
     }
@@ -269,7 +286,11 @@ class PropertyGenerator(arg: Node) {
     block
   }
 
-  def stripDFDLPrefix(s: String) = stripPrefix("dfdl:", s)
+  def stripDFDLPrefix(s: String) = {
+    val s1 = stripPrefix("dfdl:", s)
+    val s2 = stripPrefix("daf:", s1)
+    s2
+  }
 
   def stripPrefix(prefix: String, source: String) = {
     if (source.startsWith(prefix)) {
@@ -611,7 +632,10 @@ object PropertyGenerator {
   val dfdlSchemasForDFDLAnnotations = List(
     "/xsd/DFDL_part1_simpletypes.xsd",
     "/xsd/DFDL_part2_attributes.xsd",
-    "/xsd/DFDL_part3_model.xsd")
+    "/xsd/DFDL_part3_model.xsd",
+    "/xsd/dafext.xsd")
+
+  val daffodilExtensionsXML = getSchemaAsNode("/xsd/dafext.xsd")
 
   def getSchemaAsNode(name: String): Node = {
     val is = getResourceOrFileStream(name)

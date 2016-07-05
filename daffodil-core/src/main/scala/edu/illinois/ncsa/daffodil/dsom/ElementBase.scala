@@ -1156,4 +1156,33 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       Nil
     }
   }
+
+  protected final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
+
+  // This function ensures that all children have a compatable
+  // parseUnparsePolicy with the root. In other words, if the root policy is
+  // 'Both', all children must also be 'Both'. If the root policy is 'Parse' or
+  // 'Unparse', then all children must have either the same policy, or must be
+  // 'Both'.
+  //
+  // If the context is None, then that means the policy was determined by the
+  // user (e.g. a tunable), rather than by using the default value of the root
+  // element
+  final def checkParseUnparsePolicyCompatibility(context: Option[ElementBase], policy: ParseUnparsePolicy): Unit = {
+    elementChildren.foreach { child =>
+      val childPolicy = child.defaultParseUnparsePolicy
+      val isCompatible = policy == childPolicy || childPolicy == ParseUnparsePolicy.Both
+      if (!isCompatible) {
+        if (context.isDefined) {
+          context.get.SDE("Child element '%s' with daf:parseUnparsePolicy='%s' is not compatible with root elements daf:parseUnparsePolicy='%s'", child, childPolicy, policy)
+        } else {
+          SDE("Element '%s' with daf:parseUnparsePolicy='%s' is not compatible with user supplied daf:parseUnparsePolicy='%s'", child, childPolicy, policy)
+        }
+      }
+
+      // recursively check children
+      child.checkParseUnparsePolicyCompatibility(context, policy)
+    }
+  }
+
 }

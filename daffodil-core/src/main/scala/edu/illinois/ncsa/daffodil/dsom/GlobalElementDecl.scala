@@ -85,4 +85,5 @@ final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, v
   // In other words, we shouldn't be treating this as a term.
   //
 
+  lazy val rootParseUnparsePolicy = defaultParseUnparsePolicy
 }

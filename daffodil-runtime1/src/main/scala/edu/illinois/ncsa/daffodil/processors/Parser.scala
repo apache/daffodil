@@ -317,3 +317,17 @@ case class DummyParser(rd: RuntimeData) extends ParserObject(null) {
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
 }
+
+case class NotParsableParser(context: ElementRuntimeData) extends Parser {
+
+  def parse(state: PState): Unit = {
+    // We can't use state.SDE because that needs the infoset to determine the
+    // context. No infoset will exist when this is called, so we'll manually
+    // create an SDE and toss it
+    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or daf:parseUnparsePolicy property.")
+    context.toss(rsde)
+  }
+
+  override lazy val childProcessors = Nil
+  override lazy val runtimeDependencies = Nil
+}

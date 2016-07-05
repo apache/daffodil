@@ -237,7 +237,7 @@ class DFDLCatalogResolver private ()
           val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
           optURI match {
             case Some(uri) => log(LogLevel.Resolver, "Found on classpath: %s.", uri)
-            case None => log(LogLevel.Info, "Unable to resolve.")
+            case None => log(LogLevel.Info, "Unable to resolve " + sysId + " in " + baseURI)
           }
           optURI
         }

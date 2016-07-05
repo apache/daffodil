@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
+import scala.xml.NodeSeq
 
 final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
@@ -47,39 +48,48 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
 
   // TODO: if we grab the value from here, then any qnames inside that value
   // have to be resolved by THIS Object
-  lazy val value = xml match {
-    case <dfdl:property/> => ""
-    case <dfdl:property>{ valueNodes @ _* }</dfdl:property> => {
-      //
-      // We have to implement our own trim logic.
-      // and that is somewhat subtle. E.g., textNumberPattern where
-      // spaces are meaningful active characters. lengthPattern,
-      // assert patterns, etc.
-      //
-      // Inside dfdl:property, since it is an element, XML's typical
-      // whitespace fungibility applies. So use CDATA if you care
-      // about space inside these.
-      //
-      val values = valueNodes.flatMap { valueNode =>
-        valueNode match {
-          case scala.xml.PCData(s) => Some(valueNode)
-          case scala.xml.Text(s) => {
-            if (s.matches("""\s+""")) {
-              // all whitespace. Remove the node.
-              None
-            } else {
-              val trimmed = s.trim
-              if (trimmed.length == 0) None
-              else Some(scala.xml.Text(trimmed))
+  lazy val value = {
+    lazy val values: Option[NodeSeq] = xml match {
+      case <dfdl:property/> => None
+      case <daf:property/> => None
+      case <dfdl:property>{ valueNodes @ _* }</dfdl:property> => Some(valueNodes)
+      case <daf:property>{ valueNodes @ _* }</daf:property> => Some(valueNodes)
+    }
+
+    values match {
+      case None => ""
+      case Some(valueNodes) => {
+        //
+        // We have to implement our own trim logic.
+        // and that is somewhat subtle. E.g., textNumberPattern where
+        // spaces are meaningful active characters. lengthPattern,
+        // assert patterns, etc.
+        //
+        // Inside dfdl:property, since it is an element, XML's typical
+        // whitespace fungibility applies. So use CDATA if you care
+        // about space inside these.
+        //
+        val values = valueNodes.flatMap { valueNode =>
+          valueNode match {
+            case scala.xml.PCData(s) => Some(valueNode)
+            case scala.xml.Text(s) => {
+              if (s.matches("""\s+""")) {
+                // all whitespace. Remove the node.
+                None
+              } else {
+                val trimmed = s.trim
+                if (trimmed.length == 0) None
+                else Some(scala.xml.Text(trimmed))
+              }
             }
+            case scala.xml.Comment(_) => None
+            case scala.xml.EntityRef(_) => Some(valueNode)
+            case _: scala.xml.Atom[_] => Some(valueNode) // &lt; comes through as this... should be EntityRef
           }
-          case scala.xml.Comment(_) => None
-          case scala.xml.EntityRef(_) => Some(valueNode)
-          case _: scala.xml.Atom[_] => Some(valueNode) // &lt; comes through as this... should be EntityRef
         }
+        val res = values.map { _.text }.mkString
+        res
       }
-      val res = values.map { _.text }.mkString
-      res
     }
   }
 

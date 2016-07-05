@@ -235,7 +235,7 @@ object DaffodilBuild extends Build {
   )
 
   def copyResources(outdir: File, inRSrc: Set[File], log: Logger): Set[File] = {
-    val dfdlSchemas = inRSrc.filter { f => f.getName.matches("DFDL_part.*\\.xsd") }
+    val dfdlSchemas = inRSrc.filter { f => f.isFile }
     val managed_resources = dfdlSchemas.map { in =>
       val out = outdir / "xsd" / in.getName
       IO.copyFile(in, out)

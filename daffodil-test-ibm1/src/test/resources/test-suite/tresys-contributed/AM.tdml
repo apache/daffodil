@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <parserTestCase name="AM000" root="mimeType" model="AM.dfdl.xsd"
-    description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc">
+    description="MIME type detect - hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false">
     <document>
       <documentPart type="byte"><![CDATA[
  4947 3846 6139 0064 0064 64c6 0000 0000 0101 0201 0202 0303 0703 0707 0808 0908
@@ -59,7 +59,7 @@
   </parserTestCase>
 
   <parserTestCase name="AM001" root="mimeType" model="AM.dfdl.xsd"
-    description="hiddenGroupRef, discriminators, and inputValueCalc">
+    description="hiddenGroupRef, discriminators, and inputValueCalc" roundTrip="false">
     <document>
       <documentPart type="byte"><![CDATA[
  d8ff e0ff 1000 464a 4649 0100 0101 4800 4800 0000 feff 1300 7243 6165 6574 2064

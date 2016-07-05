@@ -35,7 +35,7 @@
   description="Section 12 - lengthKind=delimited" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
 
   <tdml:defineSchema name="PropertySyntax">
 
@@ -125,6 +125,19 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="root5" type="xs:int">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element>
+             <daf:property name="parseUnparsePolicy">unparseOnly</daf:property>
+           </dfdl:element>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="root6" type="xs:int" daf:parseUnparsePolicy="unparseOnly" />
+
 </tdml:defineSchema>
     
     <tdml:parserTestCase name="ShortAndLongForm" root="root"
@@ -168,6 +181,30 @@
       <tdml:error />
     </tdml:errors>
 
+  </tdml:parserTestCase>
+
+  <!-- This tests that parseUnparsePolicy works via daf:property option.
+       This is a parserTestCase, but the shcema is built only for unparsing -->
+  <tdml:parserTestCase name="dafProperty1" root="root5"
+    model="PropertySyntax" description="daf:property setting of parseUnparsePolicy"
+    roundTrip="true">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>daf:parseUnparsePolicy</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- This tests that parseUnparsePolicy works via daf:property option.
+       This is a parserTestCase, but the shcema is built only for unparsing -->
+  <tdml:parserTestCase name="dafProperty2" root="root6"
+    model="PropertySyntax" description="daf:parseUnparsePolicy setting"
+    roundTrip="true">
+    <tdml:document><![CDATA[118]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>daf:parseUnparsePolicy</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="Lesson3_attribute_form" root="houseNumber"

@@ -427,6 +427,8 @@ object XMLUtils {
 
   def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE.toString, n)
 
+  def dafAttributes(n: Node) = attributesInNamespace(EXT_NS.toString, n)
+
   /**
    * Removes nodes marked as hidden
    */
@@ -969,6 +971,7 @@ trait GetAttributesMixin extends ThrowsSDE {
    */
   def attributesInNamespace(ns: String, n: Node) = n.attributes.filter { _.getNamespace(n) == ns }
   def dfdlAttributes(n: Node) = attributesInNamespace(XMLUtils.DFDL_NAMESPACE.toString, n)
+  def dafAttributes(n: Node) = attributesInNamespace(XMLUtils.EXT_NS.toString, n)
 
 }
 

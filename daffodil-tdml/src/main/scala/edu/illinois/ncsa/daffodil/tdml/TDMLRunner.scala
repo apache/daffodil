@@ -310,7 +310,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
       }
     } else {
       log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
-      val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
+      val msgs = this.loadingExceptions.map { _.toString }.mkString("\n")
       throw new TDMLException(msgs)
     }
   }

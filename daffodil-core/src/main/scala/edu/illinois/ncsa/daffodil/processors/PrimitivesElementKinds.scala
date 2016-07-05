@@ -127,8 +127,10 @@ case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
 
   lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser =
+  override lazy val unparser: DaffodilUnparser = {
+    sq.checkHiddenSequenceIsDefaultableOrOVC
     new SequenceCombinatorUnparser(sq.modelGroupRuntimeData, unparsers)
+  }
 }
 
 case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])

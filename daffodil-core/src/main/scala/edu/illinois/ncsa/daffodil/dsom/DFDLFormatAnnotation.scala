@@ -165,9 +165,13 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     // shortForm properties should be prefixed by dfdl
     // Remove the dfdl prefix from the attributes so that they
     // can be properly combined later.
-    val kvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
+    val dfdlKvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
       case (key: String, value: String) => (removePrefix(key), value)
     }
+    val dafKvPairs = XMLUtils.dafAttributes(annotatedSC.xml).asAttrMap.map {
+      case (key: String, value: String) => (removePrefix(key), value)
+    }
+    val kvPairs = dfdlKvPairs ++ dafKvPairs
     val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
     val pairs = kvPairsButNotRef.map { case (k, v) => (k, (v, annotatedSC)).asInstanceOf[PropItem] }
     pairs.toSet
@@ -177,6 +181,10 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(xml).asAttrMap
     schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
+    // however, daf extension properties are prefixed, even in long form
+    val dafAttrMap = dafAttributes(xml).asAttrMap.map {
+      case (key: String, value: String) => (removePrefix(key), value)
+    }
     //
     // TODO: This strips away any qualified attribute
     // That won't work when we add extension attributes
@@ -186,7 +194,8 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       case (k, v) if (!k.contains(":")) => (k, v)
     }
     val unqualifiedAttribs = kvPairs.filterNot { _._1 == "ref" } // get the ref off there. it is not a property.
-    val res = unqualifiedAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
+    val dfdlAndDafAttribs = unqualifiedAttribs ++ dafAttrMap
+    val res = dfdlAndDafAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
     res
   }
 

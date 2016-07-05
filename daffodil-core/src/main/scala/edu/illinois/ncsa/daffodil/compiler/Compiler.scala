@@ -64,6 +64,9 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
 import edu.illinois.ncsa.daffodil.processors.Processor
+import edu.illinois.ncsa.daffodil.processors.NotParsableParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 
 
 /**
@@ -87,14 +90,29 @@ class ProcessorFactory(val sset: SchemaSet)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
+  lazy val (generateParser, generateUnparser) = {
+    val (context, policy) =
+      if (DaffodilTunableParameters.parseUnparsePolicy.isDefined) {
+        (None, DaffodilTunableParameters.parseUnparsePolicy.get)
+      } else {
+        (Some(rootElem), rootElem.rootParseUnparsePolicy)
+      }
+    rootElem.checkParseUnparsePolicyCompatibility(context, policy)
+    policy match {
+      case ParseUnparsePolicy.Both        => (true, true)
+      case ParseUnparsePolicy.ParseOnly   => (true, false)
+      case ParseUnparsePolicy.UnparseOnly => (false, true)
+    }
+  }
+
   lazy val parser = LV('parser) {
-    val par = rootElem.document.parser
+    val par = if (generateParser) rootElem.document.parser else new NotParsableParser(rootElem.erd)
     Processor.initialize(par)
     par
   }.value
 
   lazy val unparser = LV('unparser) {
-    val unp = rootElem.document.unparser
+    val unp = if (generateUnparser) rootElem.document.unparser else new NotUnparsableUnparser(rootElem.erd)
     Processor.initialize(unp)
     unp
   }.value
@@ -247,6 +265,16 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       case "maxlengthforvariablelengthdelimiterdisplay" => DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay = java.lang.Integer.valueOf(value)
       case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
       case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
+      case "parseUnparsePolicy" => {
+        val policy = value.toLowerCase match {
+          case "parseonly"   => Some(ParseUnparsePolicy.ParseOnly)
+          case "unparseonly" => Some(ParseUnparsePolicy.UnparseOnly)
+          case "both"        => Some(ParseUnparsePolicy.Both)
+          case "schema"      => None
+          case _ => Assert.usageError("Unknown value for parseUnparsePolicy tunable. Value must be \"parseOnly\", \"unparseOnly\", \"both\", or \"schema\".")
+        }
+        DaffodilTunableParameters.parseUnparsePolicy = policy
+      }
       case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
     }
   }
