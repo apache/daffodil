@@ -52,13 +52,6 @@ class TresysTests3 {
   // Runs, but it is too slow to use in regression tests
   @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
-  val ag = testDir + "AG.tdml"
-  lazy val runnerAG = new DFDLTestSuite(Misc.getRequiredResource(ag),
-    compileAllTopLevel = true)
-  @Test def test_AG000() { runnerAG.runOneTest("AG000") } // OK
-  @Test def test_AG001() { runnerAG.runOneTest("AG001") } // OK
-  @Test def test_AG002() { runnerAG.runOneTest("AG002") } // OK
-
   val ah = testDir + "AH.tdml"
   lazy val runnerAH = new DFDLTestSuite(Misc.getRequiredResource(ah),
     compileAllTopLevel = true)
