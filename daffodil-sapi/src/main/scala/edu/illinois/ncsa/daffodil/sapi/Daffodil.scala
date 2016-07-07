@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
 import java.nio.channels.ReadableByteChannel
+import java.nio.channels.WritableByteChannel
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
@@ -50,6 +51,7 @@ import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
 import edu.illinois.ncsa.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
 import edu.illinois.ncsa.daffodil.processors.{ DataProcessor => SDataProcessor }
 import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
+import edu.illinois.ncsa.daffodil.processors.{ UnparseResult => SUnparseResult }
 import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
 import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
@@ -502,6 +504,18 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * @return an object which contains the result, and/or diagnostic information.
    */
   def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
+
+  /**
+   * Unparse a scala.xml.Node infoset
+   *
+   * @param output the byte channel to write the data to
+   * @param infoset the infoset to unparse, as a scala xml Node
+   * @return an object with contains the result and/or diagnostic information
+   */
+  def unparse(output: WritableByteChannel, infoset: scala.xml.Node): UnparseResult = {
+    val ur = dp.unparse(output, infoset).asInstanceOf[SUnparseResult]
+    new UnparseResult(ur)
+  }
 }
 
 /**
@@ -513,7 +527,7 @@ class ParseResult private[sapi] (pr: SParseResult)
   extends WithDiagnostics(pr) {
 
   /**
-   * Get the resulting infoset as a jdom2 Document
+   * Get the resulting infoset as a scala.xml.Node
    *
    * @throws [[IllegalStateException]] if you call this when isError is true
    *         because in that case there is no result document.
@@ -528,6 +542,14 @@ class ParseResult private[sapi] (pr: SParseResult)
    * Get the [[DataLocation]] where the parse completed
    */
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
+}
+
+/**
+ * Result of calling [[DataProcessor#unparse(java.nio.channels.WritableByteChannel, scala.xml.Node)]],
+ * containing diagnostic information
+ */
+class UnparseResult private[sapi] (ur: SUnparseResult)
+  extends WithDiagnostics(ur) {
 }
 
 /**

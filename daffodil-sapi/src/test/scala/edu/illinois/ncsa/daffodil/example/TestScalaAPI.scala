@@ -78,23 +78,8 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 2 << 3)
     val err = res.isError()
-    if (!err) {
-      res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      //xo.setFormat(Format.getPrettyFormat())
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
     assertTrue(res.location().isAtEnd())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
-
-    lw.errors.foreach(println)
-    lw.warnings.foreach(println)
-
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
 
@@ -104,16 +89,23 @@ class TestScalaAPI {
       .contains("----------------------------------------------------------------- 1\n"))
     assertTrue(debugger.getCommand().equals("trace"))
 
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("42", bos.toString());
+
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
 
   }
 
-  // This is a duplicate of test testJavaAPI1 that serializes the parser
+  // This is a duplicate of test testScalaAPI1 that serializes the parser
   // before executing the test.
   @Test
-  def testJavaAPI1_A() {
+  def testScalaAPI1_A() {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -142,19 +134,8 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = parser.parse(rbc, 2 << 3)
     val err = res.isError()
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      //xo.setFormat(Format.getPrettyFormat())
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
     assertTrue(res.location().isAtEnd())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
@@ -166,6 +147,13 @@ class TestScalaAPI {
       .contains("----------------------------------------------------------------- 1\n"))
     assertTrue(debugger.getCommand().equals("trace"))
 
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("42", bos.toString());
+
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
@@ -173,7 +161,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testJavaAPI2() {
+  def testScalaAPI2() {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -198,7 +186,6 @@ class TestScalaAPI {
     val diags = res.getDiagnostics
     assertEquals(1, diags.size)
     val d = diags(0)
-    // System.err.println(d.getMessage())
     assertTrue(d.getMessage().contains("int"))
     assertTrue(d.getMessage().contains("Not an int"))
     assertTrue(d.getDataLocations.toString().contains("10"))
@@ -209,7 +196,6 @@ class TestScalaAPI {
 
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
-    // assertTrue(lw.infos.size > 0)
     assertEquals(0, lw.others.size)
 
     // reset the global logging state
@@ -223,7 +209,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testJavaAPI3() {
+  def testScalaAPI3() {
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -235,28 +221,23 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 16 << 3)
     val err = res.isError()
-    //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-    //xo.setFormat(Format.getPrettyFormat())
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //xo.output(doc, System.out)
-    }
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
+
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("9", bos.toString());
   }
 
-  // This is a duplicate of test testJavaAPI3 that serializes the parser
+  // This is a duplicate of test testScalaAPI3 that serializes the parser
   // before executing the test.
   @Test
-  def testJavaAPI3_A() {
+  def testScalaAPI3_A() {
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -279,48 +260,21 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = parser.parse(rbc, 16 << 3)
     val err = res.isError()
-    //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-    //xo.setFormat(Format.getPrettyFormat())
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //xo.output(doc, System.out)
-    }
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
     assertEquals(2, res.location().bytePos1b())
     assertEquals(9, res.location().bitPos1b())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
+
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("9", bos.toString());
   }
 
-  /*
-   * @Test def testJavaAPI4() { Compiler c =
-   * Daffodil.compiler(); String[] schemaFileNames = new String[1]
-   * schemaFileNames[0] = getResource("/test/sapi/mySchema3.dfdl.xsd")
-   * ProcessorFactory pf = c.compileFile(schemaFileNames)
-   * pf.setDistinguishedRootNode("e4", null); DataProcessor dp =
-   * pf.onPath("/"); java.io.File file = new
-   * java.io.File(getResource("/test/sapi/myData2.dat"))
-   * java.io.FileInputStream fis = new java.io.FileInputStream(file)
-   * java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-   * .newChannel(fis); ParseResult res = dp.parse(rbc, 64 << 3); boolean err =
-   * res.isError(); org.jdom2.output.XMLOutputter xo = new
-   * org.jdom2.output.XMLOutputter(); xo.setFormat(Format.getPrettyFormat())
-   * java.util.List<Diagnostic> diags = res.getDiagnostics; for (Diagnostic
-   * d : diags) { System.err.println(d.getMessage()); } if (!err) {
-   * org.jdom2.Document doc = res.result(); xo.output(doc, System.out); }
-   * assertFalse(err); assertFalse(res.location().isAtEnd()); assertEquals(4,
-   * res.location().bytePos()); assertEquals(32, res.location().bitPos())
-   * System.err.println("bitPos = " + res.location().bitPos())
-   * System.err.println("bytePos = " + res.location().bytePos()); }
-   */
-
   @Test
-  def testJavaAPI4b() {
+  def testScalaAPI4b() {
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -332,26 +286,21 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 64 << 3)
     val err = res.isError()
-    //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-    //xo.setFormat(Format.getPrettyFormat())
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //xo.output(doc, System.out)
-    }
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
+
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("data", bos.toString());
   }
 
   @Test
-  def testJavaAPI5() {
+  def testScalaAPI5() {
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
@@ -365,23 +314,18 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 4 << 3)
     val err = res.isError()
-    //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-    //xo.setFormat(Format.getPrettyFormat())
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //xo.output(doc, System.out)
-    }
     assertFalse(err)
     assertTrue("Assertion failed: End of data not reached.", res.location()
       .isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
+
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("data", bos.toString());
   }
 
   /**
@@ -392,7 +336,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testJavaAPI6() {
+  def testScalaAPI6() {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -424,7 +368,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testJavaAPI7() {
+  def testScalaAPI7() {
     // TODO: This is due to the fact that we are doing several conversions
     // back and forth between Scala.xml.Node and JDOM. And the conversions
     // both use XMLOutputter to format the result (which escapes the
@@ -439,36 +383,21 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/TopLevel.xsd")
     c.setDistinguishedRootNode("TopLevel", null)
     val pf = c.compileFile(schemaFile)
-    if (pf.isError()) {
-      val diags = pf.getDiagnostics
-      diags.foreach { d =>
-        // System.err.println(d.getMessage())
-      }
-    }
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc)
     val err = res.isError()
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      // xo.setFormat(Format.getPrettyFormat())
-      //xo.setFormat(Format.getRawFormat().setTextMode(
-      //    Format.TextMode.PRESERVE))
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
     assertTrue(res.location().isAtEnd())
 
-    // assertEquals(0, lw.errors.size)
-    // assertEquals(0, lw.warnings.size)
-    // assertTrue(lw.infos.size > 0)
-    // assertTrue(lw.others.size > 0)
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError()
+    assertFalse(err2)
+    assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"))
 
     // reset the global logging state
     Daffodil.setLogWriter(new ConsoleLogWriter())
@@ -476,7 +405,7 @@ class TestScalaAPI {
   }
 
   /**
-   * This test is nearly identical to testJavaAPI7. The only difference is
+   * This test is nearly identical to testScalaAPI7. The only difference is
    * that this test uses double newline as a terminator for the first element
    * in the sequence rather than double newline as a separator for the
    * sequence
@@ -484,7 +413,7 @@ class TestScalaAPI {
    * @throws IOException
    */
   @Test
-  def testJavaAPI8() {
+  def testScalaAPI8() {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -501,23 +430,15 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc)
     val err = res.isError()
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      // xo.setFormat(Format.getPrettyFormat())
-      //xo.setFormat(Format.getRawFormat())
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
     assertTrue(res.location().isAtEnd())
 
-    // assertEquals(0, lw.errors.size)
-    // assertEquals(0, lw.warnings.size)
-    // assertTrue(lw.infos.size > 0)
-    // assertTrue(lw.others.size > 0)
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val res2 = dp.unparse(wbc, res.result())
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"))
 
     // reset the global logging state
     Daffodil.setLogWriter(new ConsoleLogWriter())
@@ -529,7 +450,7 @@ class TestScalaAPI {
    * error.
    */
   @Test
-  def testJavaAPI9() {
+  def testScalaAPI9() {
     val lw = new LogWriterForSAPITest()
 
     Daffodil.setLogWriter(lw)
@@ -546,19 +467,25 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc)
     val err = res.isError()
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      // org.jdom2.Document doc2 = res.result()
-      // org.jdom2.Document doc3 = res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      //xo.setFormat(Format.getRawFormat())
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
-    assertTrue(res.location().isAtEnd())
+    assertFalse(err)
+
+    val node1 = res.result()
+
+    val bos1 = new java.io.ByteArrayOutputStream()
+    val wbc1 = java.nio.channels.Channels.newChannel(bos1)
+    val res2 = dp.unparse(wbc1, node1)
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"))
+
+    val node2 = res.result()
+
+    val bos2 = new java.io.ByteArrayOutputStream()
+    val wbc2 = java.nio.channels.Channels.newChannel(bos2)
+    val res3 = dp.unparse(wbc2, node2)
+    val err3 = res3.isError();
+    assertFalse(err3);
+    assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"))
 
     // reset the global logging state
     Daffodil.setLogWriter(new ConsoleLogWriter())
@@ -569,7 +496,7 @@ class TestScalaAPI {
    * Verify that hidden elements do not appear in the resulting infoset
    */
   @Test
-  def testJavaAPI10() {
+  def testScalaAPI10() {
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -581,15 +508,10 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc)
     val err = res.isError()
-    if (!err) {
-      val node = res.result()
-      val hidden = node \\ "hiddenElement"
-      assertTrue(hidden.isEmpty)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
+    val node = res.result()
+    val hidden = node \\ "hiddenElement"
+    assertTrue(hidden.isEmpty)
     assertTrue(res.location().isAtEnd())
   }
 
@@ -597,7 +519,7 @@ class TestScalaAPI {
    * Verify that nested elements do not appear as duplicates
    */
   @Test
-  def testJavaAPI11() {
+  def testScalaAPI11() {
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -609,28 +531,23 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc)
     val err = res.isError()
-    if (!err) {
-      val rootNode = res.result()
-      val elementGroup = rootNode \ "elementGroup"
-      assertTrue(!elementGroup.isEmpty)
-      val groupE2 = elementGroup \ "e2"
-      assertTrue(!groupE2.isEmpty)
-      val groupE3 = elementGroup \ "e3"
-      assertTrue(!groupE3.isEmpty)
-      val rootE2 = rootNode \ "e2"
-      assertTrue(rootE2.isEmpty)
-      val rootE3 = rootNode \ "e3"
-      assertTrue(rootE3.isEmpty)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
+    val rootNode = res.result()
+    val elementGroup = rootNode \ "elementGroup"
+    assertTrue(!elementGroup.isEmpty)
+    val groupE2 = elementGroup \ "e2"
+    assertTrue(!groupE2.isEmpty)
+    val groupE3 = elementGroup \ "e3"
+    assertTrue(!groupE3.isEmpty)
+    val rootE2 = rootNode \ "e2"
+    assertTrue(rootE2.isEmpty)
+    val rootE3 = rootNode \ "e3"
+    assertTrue(rootE3.isEmpty)
     assertTrue(res.location().isAtEnd())
   }
 
   @Test
-  def testJavaAPI12() {
+  def testScalaAPI12() {
     val lw2 = new LogWriterForSAPITest2()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -650,25 +567,13 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 2 << 3)
     val err = res.isError()
-    if (!err) {
-      //org.jdom2.Document doc = res.result()
-      //org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter()
-      //xo.setFormat(Format.getPrettyFormat())
-      //xo.output(doc, System.out)
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
     assertTrue(res.location().isAtEnd())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw2.errors.foreach(println)
     lw2.warnings.foreach(println)
     assertEquals(0, lw2.errors.size)
     assertEquals(0, lw2.warnings.size)
-    // assertTrue(lw2.infos.size > 0)
     assertTrue(lw2.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
@@ -681,7 +586,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testJavaAPI13() {
+  def testScalaAPI13() {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
     val lw = new LogWriterForSAPITest()
@@ -705,13 +610,12 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 2 << 3)
     val err = res.isError()
-    if (!err) {
-      val node = res.result()
-      val var1Node = node \ "var1Value"
-      assertTrue(var1Node.size == 1)
-      val var1NodeValue = var1Node.text
-      assertTrue(var1NodeValue == "externallySet")
-    }
+    assertFalse(err)
+    val node = res.result()
+    val var1Node = node \ "var1Value"
+    assertTrue(var1Node.size == 1)
+    val var1NodeValue = var1Node.text
+    assertTrue(var1NodeValue == "externallySet")
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
@@ -720,7 +624,7 @@ class TestScalaAPI {
   }
 
   @Test
-  def testJavaAPI14() {
+  def testScalaAPI14() {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
     val lw = new LogWriterForSAPITest()
@@ -744,26 +648,18 @@ class TestScalaAPI {
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 2 << 3)
     val err = res.isError()
-    if (!err) {
-      val rootNode = res.result()
-      val var1ValueNode = rootNode \ "var1Value"
-      assertTrue(var1ValueNode.size == 1)
-      val var1ValueText = var1ValueNode.text
-      assertTrue(var1ValueText == "externallySet")
-    }
-    val diags = res.getDiagnostics
-    diags.foreach { d =>
-      // System.err.println(d.getMessage())
-    }
+    assertFalse(err)
+    val rootNode = res.result()
+    val var1ValueNode = rootNode \ "var1Value"
+    assertTrue(var1ValueNode.size == 1)
+    val var1ValueText = var1ValueNode.text
+    assertTrue(var1ValueText == "externallySet")
     assertTrue(res.location().isAtEnd())
-    // System.err.println("bitPos = " + res.location().bitPos1b())
-    // System.err.println("bytePos = " + res.location().bytePos1b())
 
     lw.errors.foreach(println)
     lw.warnings.foreach(println)
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
-    // assertTrue(lw.infos.size > 0)
     assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
@@ -775,12 +671,12 @@ class TestScalaAPI {
 
   }
 
-  // This is a duplicate of test testJavaAPI1 that serializes the parser
+  // This is a duplicate of test testScalaAPI1 that serializes the parser
   // before executing the test.
   // Demonstrates that setting validation to Full for a saved parser fails.
   //
   @Test
-  def testJavaAPI1_A_FullFails() {
+  def testScalaAPI1_A_FullFails() {
     val lw = new LogWriterForSAPITest()
     val debugger = new DebuggerRunnerForSAPITest()
 
@@ -814,4 +710,40 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Info)
 
   }
+
+  @Test
+  def testScalaAPI15() {
+    val lw = new LogWriterForSAPITest()
+    val debugger = new DebuggerRunnerForSAPITest()
+
+    Daffodil.setLogWriter(lw)
+    Daffodil.setLoggingLevel(LogLevel.Debug)
+
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
+    val file = getResource("/test/sapi/myInfosetBroken.xml")
+    val xml = scala.xml.XML.loadFile(file)
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+
+    val res = dp.unparse(wbc, xml)
+    val err = res.isError()
+    assertTrue(err)
+
+    val diags = res.getDiagnostics
+    assertEquals(1, diags.size)
+    val d = diags(0);
+    assertTrue(d.getMessage().contains("wrong"))
+    assertTrue(d.getMessage().contains("e2"))
+
+    // reset the global logging and debugger state
+    Daffodil.setLogWriter(new ConsoleLogWriter())
+    Daffodil.setLoggingLevel(LogLevel.Info)
+  }
+
 }

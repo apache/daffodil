@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -26,9 +25,9 @@ object InfosetCursor {
   }
 
   def fromXMLNode(xmlDocument: scala.xml.Node, erd: ElementRuntimeData): InfosetCursor = {
-    val doc = Infoset.newDocument(Infoset.elem2Infoset(erd, xmlDocument))
-    val src = fromInfosetTree(doc)
-    src
+    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(xmlDocument)
+    val is = fromXMLEventCursor(xmlEventCursor, erd)
+    is
   }
 
   /**

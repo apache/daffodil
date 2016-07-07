@@ -105,8 +105,15 @@ object JDOMUtils {
     for (child <- node.child) {
       child.label match {
         case "#PI" => // drop ProcInstrs
-        case "#PCDATA" => jdomNode.addContent(child.toString)
-        case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
+        // Note that for PCDATA and CDATA, we want to use child.text. If
+        // instead we used child.toString, then we will get the escaped string
+        // (e.g. apersands willbe &amp;). The problem is that when we provide
+        // these escape strings to jdom, jdom will escape them too, so &amp;
+        // would become &amp;amp;, effectively double escaping strings. By
+        // using child.text, we get the unescaped value, which jdom is then
+        // free to escape.
+        case "#PCDATA" => jdomNode.addContent(child.text)
+        case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.text))
         case "#REM" => // leave out comments
         case _ => jdomNode.addContent(elem2Element(child))
       }

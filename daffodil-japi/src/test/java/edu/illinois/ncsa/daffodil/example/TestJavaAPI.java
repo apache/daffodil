@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.japi.DataProcessor;
 import edu.illinois.ncsa.daffodil.japi.Diagnostic;
 import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
 import edu.illinois.ncsa.daffodil.japi.ParseResult;
+import edu.illinois.ncsa.daffodil.japi.UnparseResult;
 import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
 import edu.illinois.ncsa.daffodil.japi.ValidationMode;
 import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
@@ -91,33 +92,20 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// xo.setFormat(Format.getPrettyFormat());
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
-
-		// for (String e : lw.errors)
-		// System.err.println(e);
-		// for (String e : lw.warnings)
-		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
-		// (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("42", bos.toString());
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -158,33 +146,20 @@ public class TestJavaAPI {
 		ParseResult res = parser.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// xo.setFormat(Format.getPrettyFormat());
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
-
-		// for (String e : lw.errors)
-		// System.err.println(e);
-		// for (String e : lw.warnings)
-		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
-		// (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("42", bos.toString());
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -295,22 +270,17 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 16 << 3);
 		boolean err = res.isError();
-		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-		xo.setFormat(Format.getPrettyFormat());
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// xo.output(doc, System.out);
-		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(2, res.location().bytePos1b());
 		assertEquals(9, res.location().bitPos1b());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("9", bos.toString());
 	}
 
 	// This is a duplicate of test testJavaAPI3 that serializes the parser
@@ -339,45 +309,18 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = parser.parse(rbc, 16 << 3);
 		boolean err = res.isError();
-		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-		xo.setFormat(Format.getPrettyFormat());
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// xo.output(doc, System.out);
-		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(2, res.location().bytePos1b());
 		assertEquals(9, res.location().bitPos1b());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
-	}
 
-	/*
-	 * @Test public void testJavaAPI4() throws IOException { Compiler c =
-	 * Daffodil.compiler(); String[] schemaFileNames = new String[1];
-	 * schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-	 * ProcessorFactory pf = c.compileFile(schemaFileNames);
-	 * pf.setDistinguishedRootNode("e4", null); DataProcessor dp =
-	 * pf.onPath("/"); java.io.File file = new
-	 * java.io.File(getResource("/test/japi/myData2.dat"));
-	 * java.io.FileInputStream fis = new java.io.FileInputStream(file);
-	 * java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-	 * .newChannel(fis); ParseResult res = dp.parse(rbc, 64 << 3); boolean err =
-	 * res.isError(); org.jdom2.output.XMLOutputter xo = new
-	 * org.jdom2.output.XMLOutputter(); xo.setFormat(Format.getPrettyFormat());
-	 * java.util.List<Diagnostic> diags = res.getDiagnostics(); for (Diagnostic
-	 * d : diags) { System.err.println(d.getMessage()); } if (!err) {
-	 * org.jdom2.Document doc = res.result(); xo.output(doc, System.out); }
-	 * assertFalse(err); assertFalse(res.location().isAtEnd()); assertEquals(4,
-	 * res.location().bytePos()); assertEquals(32, res.location().bitPos());
-	 * System.err.println("bitPos = " + res.location().bitPos());
-	 * System.err.println("bytePos = " + res.location().bytePos()); }
-	 */
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("9", bos.toString());
+	}
 
 	@Test
 	public void testJavaAPI4b() throws IOException {
@@ -392,22 +335,17 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 64 << 3);
 		boolean err = res.isError();
-		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-		xo.setFormat(Format.getPrettyFormat());
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// xo.output(doc, System.out);
-		// }
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
 		assertEquals(5, res.location().bytePos1b());
 		assertEquals(33, res.location().bitPos1b());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("data", bos.toString());
 	}
 
 	@Test
@@ -425,22 +363,17 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 4 << 3);
 		boolean err = res.isError();
-		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-		xo.setFormat(Format.getPrettyFormat());
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// xo.output(doc, System.out);
-		// }
 		assertFalse(err);
 		assertTrue("Assertion failed: End of data not reached.", res.location().isAtEnd());
 		assertEquals(5, res.location().bytePos1b());
 		assertEquals(33, res.location().bitPos1b());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertEquals("data", bos.toString());
 	}
 
 	/***
@@ -504,24 +437,14 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// // xo.setFormat(Format.getPrettyFormat());
-		// xo.setFormat(Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE));
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
 
-		// assertEquals(0, lw.errors.size());
-		// assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0);
-		// assertTrue(lw.others.size() > 0);
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -555,24 +478,15 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// // xo.setFormat(Format.getPrettyFormat());
-		// xo.setFormat(Format.getRawFormat());
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
 
-		// assertEquals(0, lw.errors.size());
-		// assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0);
-		// assertTrue(lw.others.size() > 0);
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res2 = dp.unparse(wbc, res.result());
+		err = res2.isError();
+		assertFalse(err);
+		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
+
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -602,20 +516,25 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// // org.jdom2.Document doc2 = res.result();
-		// // org.jdom2.Document doc3 = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// xo.setFormat(Format.getRawFormat());
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
+
+		org.jdom2.Document doc1 = res.result();
+
+		java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
+		UnparseResult res2 = dp.unparse(wbc1, doc1);
+		err = res2.isError();
+		assertFalse(err);
+		assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"));
+
+		org.jdom2.Document doc2 = res.result();
+
+		java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
+		UnparseResult res3 = dp.unparse(wbc2, doc2);
+		err = res3.isError();
+		assertFalse(err);
+		assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"));
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -638,19 +557,13 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			// xo.output(doc, System.out);
-			org.jdom2.Element rootNode = doc.getRootElement();
-			org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
-			assertTrue(null == hidden);
-		}
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
+		assertFalse(err);
+		org.jdom2.Document doc = res.result();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		org.jdom2.Element rootNode = doc.getRootElement();
+		org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
+		assertTrue(null == hidden);
 		assertTrue(res.location().isAtEnd());
 	}
 
@@ -670,31 +583,26 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			// xo.output(doc, System.out);
-			org.jdom2.Element rootNode = doc.getRootElement();
-			org.jdom2.Element elementGroup = rootNode.getChild("elementGroup", null); // local
-																						// element
-																						// names
-																						// are
-																						// unqualified
-			assertTrue(null != elementGroup);
-			org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
-			assertTrue(null != groupE2);
-			org.jdom2.Element groupE3 = elementGroup.getChild("e3", null);
-			assertTrue(null != groupE3);
-			org.jdom2.Element rootE2 = rootNode.getChild("e2", null);
-			assertTrue(null == rootE2);
-			org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
-			assertTrue(null == rootE3);
-		}
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
+		assertFalse(err);
+		org.jdom2.Document doc = res.result();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		// xo.output(doc, System.out);
+		org.jdom2.Element rootNode = doc.getRootElement();
+		org.jdom2.Element elementGroup = rootNode.getChild("elementGroup", null); // local
+																					// element
+																					// names
+																					// are
+																					// unqualified
+		assertTrue(null != elementGroup);
+		org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
+		assertTrue(null != groupE2);
+		org.jdom2.Element groupE3 = elementGroup.getChild("e3", null);
+		assertTrue(null != groupE3);
+		org.jdom2.Element rootE2 = rootNode.getChild("e2", null);
+		assertTrue(null == rootE2);
+		org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
+		assertTrue(null == rootE3);
 		assertTrue(res.location().isAtEnd());
 	}
 
@@ -721,28 +629,10 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
-		// if (!err) {
-		// org.jdom2.Document doc = res.result();
-		// org.jdom2.output.XMLOutputter xo = new
-		// org.jdom2.output.XMLOutputter();
-		// xo.setFormat(Format.getPrettyFormat());
-		// xo.output(doc, System.out);
-		// }
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
 		assertTrue(res.location().isAtEnd());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		// for (String e : lw2.errors)
-		// System.err.println(e);
-		// for (String e : lw2.warnings)
-		// System.err.println(e);
 		assertEquals(0, lw2.errors.size());
 		assertEquals(0, lw2.warnings.size());
-		// assertTrue(lw2.infos.size() > 0);
 		assertTrue(lw2.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
@@ -778,36 +668,15 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			// xo.output(doc, System.out);
-			String docString = xo.outputString(doc);
-			boolean containsVar1 = docString.contains("var1Value");
-			boolean containsVar1Value = docString.contains("externallySet");
-			assertTrue(containsVar1);
-			assertTrue(containsVar1Value);
-		}
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
-		// assertTrue(res.location().isAtEnd());
-		// System.err.println("bitPos = " + res.location().bitPos());
-		// System.err.println("bytePos = " + res.location().bytePos());
-		//
-		// for (String e : lw.errors)
-		// System.err.println(e);
-		// for (String e : lw.warnings)
-		// System.err.println(e);
-		// assertEquals(0, lw.errors.size());
-		// assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0);
-		// assertTrue(lw.others.size() > 0);
-		// assertTrue(debugger.lines.size() > 0);
-		// assertTrue(debugger.lines.contains("-----------------------------------------------------------------
-		// 1\n"));
+		assertFalse(err);
+		org.jdom2.Document doc = res.result();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		String docString = xo.outputString(doc);
+		boolean containsVar1 = docString.contains("var1Value");
+		boolean containsVar1Value = docString.contains("externallySet");
+		assertTrue(containsVar1);
+		assertTrue(containsVar1Value);
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -839,32 +708,19 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
-		if (!err) {
-			org.jdom2.Document doc = res.result();
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			// xo.output(doc, System.out);
-			String docString = xo.outputString(doc);
-			boolean containsVar1 = docString.contains("var1Value");
-			boolean containsVar1Value = docString.contains("externallySet");
-			assertTrue(containsVar1);
-			assertTrue(containsVar1Value);
-		}
-		// java.util.List<Diagnostic> diags = res.getDiagnostics();
-		// for (Diagnostic d : diags) {
-		// System.err.println(d.getMessage());
-		// }
+		assertFalse(err);
+		org.jdom2.Document doc = res.result();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		String docString = xo.outputString(doc);
+		boolean containsVar1 = docString.contains("var1Value");
+		boolean containsVar1Value = docString.contains("externallySet");
+		assertTrue(containsVar1);
+		assertTrue(containsVar1Value);
 		assertTrue(res.location().isAtEnd());
-		// System.err.println("bitPos = " + res.location().bitPos1b());
-		// System.err.println("bytePos = " + res.location().bytePos1b());
 
-		// for (String e : lw.errors)
-		// System.err.println(e);
-		// for (String e : lw.warnings)
-		// System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
@@ -873,5 +729,45 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
+	
+	@Test
+	public void testJavaAPI15() throws IOException {
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Info);
+
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+		ProcessorFactory pf = c.compileFile(schemaFile);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/myInfosetBroken.xml");
+		org.jdom2.input.SAXBuilder builder = new org.jdom2.input.SAXBuilder();
+
+		org.jdom2.Document doc = null;
+		try {
+			doc = (org.jdom2.Document) builder.build(file);
+		} catch (Exception e) {
+			fail();
+		}
+
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+		UnparseResult res = dp.unparse(wbc, doc);
+		boolean err = res.isError();
+		assertTrue(err);
+
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		assertEquals(1, diags.size());
+		Diagnostic d = diags.get(0);
+		assertTrue(d.getMessage().contains("wrong"));
+		assertTrue(d.getMessage().contains("e2"));
+
+		// reset the global logging state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+	}
+
 
 }

@@ -43,6 +43,7 @@ import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
 import java.nio.channels.ReadableByteChannel
+import java.nio.channels.WritableByteChannel
 import scala.collection.JavaConversions.seqAsJavaList
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
@@ -52,6 +53,7 @@ import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
 import edu.illinois.ncsa.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
 import edu.illinois.ncsa.daffodil.processors.{ DataProcessor => SDataProcessor }
 import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
+import edu.illinois.ncsa.daffodil.processors.{ UnparseResult => SUnparseResult }
 import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
 import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
@@ -59,6 +61,7 @@ import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
+import edu.illinois.ncsa.daffodil.xml.XMLEventCursorFromInput
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
@@ -527,6 +530,25 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    * @return an object which contains the result, and/or diagnostic information.
    */
   def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
+
+  /**
+   * Unparse a JDOM2 infoset
+   *
+   * @param output the byte channel to write the data to
+   * @param infoset the infoset to unparse, as a jdom event cursor
+   * @return an object with contains the result and/or diagnostic information
+   */
+  def unparse(output: WritableByteChannel, infoset: org.jdom2.Document): UnparseResult = {
+    // write the infoset to a string and create and XMLEventCursor
+    // TODO: add support for SAX input so we do not need to convert to a string (e.g. InfosetCursorFromSAX)
+    val rawFormat = org.jdom2.output.Format.getRawFormat()
+    val xmlOutputter = new org.jdom2.output.XMLOutputter(rawFormat)
+    val string = xmlOutputter.outputString(infoset)
+
+    val xmlEventCursor = new XMLEventCursorFromInput(scala.io.Source.fromString(string))
+    val ur = dp.unparse(output, xmlEventCursor).asInstanceOf[SUnparseResult]
+    new UnparseResult(ur)
+  }
 }
 
 /**
@@ -559,6 +581,14 @@ class ParseResult private[japi] (pr: SParseResult)
    * @return the data location where the parse completed
    */
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
+}
+
+/**
+ * Result of calling [[DataProcessor#unparse(java.nio.channels.WritableByteChannel, org.jdom2.Document)]],
+ * containing diagnostic information
+ */
+class UnparseResult private[japi] (ur: SUnparseResult)
+  extends WithDiagnostics(ur) {
 }
 
 /**

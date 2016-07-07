@@ -194,9 +194,14 @@ object XMLUtils {
 
     while (pos < len) {
       next = if (pos + 1 < len) dfdlString(pos + 1) else 0.toChar
-      if (prev == 0xD && curr == 0xA) {
-        // Do nothing. The previous CR will be remapped to LF, and this LF will
-        // be ignored, essentially converting CRLF into just LF
+      if (curr == 0xD) {
+        if (next != 0xA) {
+          // This is a lone CR (i.e. not a CRLF), so convert the CR to a LF
+          sb.append(0xA.toChar)
+        } else {
+          // This is a CRLF. Skip the CR, essentially converting the CRLF to
+          // just LF. Do nothing.
+        }
       } else {
         sb.append(remapOneChar(prev, curr, next))
       }
