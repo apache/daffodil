@@ -199,4 +199,11 @@ class TestAlignedData {
   @Test def test_AligningSkipBits2() { runner2.runOneTest("AligningSkipBits2") }
 
   @Test def test_alignmentArray() = { runner1.runOneTest("alignmentArray") }
+
+  @Test def test_fillByte_01() = { runner1.runOneTest("fillByte_01") }
+  @Test def test_fillByte_02() = { runner1.runOneTest("fillByte_02") }
+  @Test def test_fillByte_03() = { runner1.runOneTest("fillByte_03") }
+  @Test def test_fillByte_04() = { runner1.runOneTest("fillByte_04") }
+  @Test def test_fillByte_05() = { runner1.runOneTest("fillByte_05") }
+  @Test def test_fillByte_06() = { runner1.runOneTest("fillByte_06") }
 }
