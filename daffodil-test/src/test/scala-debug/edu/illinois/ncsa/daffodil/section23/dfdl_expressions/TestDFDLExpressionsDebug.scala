@@ -140,9 +140,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1124
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
 
-  //DFDL-1078 - fails on build server
-  //@Test def test_lowercase_05() { runner2_utf8.runOneTest("lowercase_05") }
-
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   @Test def test_exists_02() { runner2.runOneTest("exists_02") }
