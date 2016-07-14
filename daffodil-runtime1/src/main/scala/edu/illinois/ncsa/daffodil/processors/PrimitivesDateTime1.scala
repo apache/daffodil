@@ -122,7 +122,6 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     calendarCheckPolicy, calendarTz, tz)
   with PrimParser {
 
-  // Not needed as reflection finds them now.
   override lazy val runtimeDependencies = List(localeEv, calendarEv)
 
   def parse(start: PState): Unit = {

@@ -75,6 +75,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.util.MaybeJULong
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 
 /*
  * These are the DFDL properties which can have their values come
@@ -476,8 +478,14 @@ trait ElementRuntimeValuedPropertiesMixin
       propExprElts(optionTextStandardGroupingSeparatorRaw, textStandardGroupingSeparatorEv, f) ++
       propExprElts(optionTextStandardExponentRepRaw, textStandardExponentRepEv, f) ++
       propExprElts(optionBinaryFloatRepRaw, binaryFloatRepEv, f) ++
-      propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
-      propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f) ++
+      (
+        if (isSimpleType && primType =:= PrimType.Boolean) {
+          propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
+          propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f)
+        } else {
+          ReferencedElementInfos.None
+        }
+      )
       propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
       (
         if (optionEscapeScheme.isDefined) {
@@ -606,16 +614,18 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
   }.value
 
-  final lazy val textBooleanTrueRepEv = {
-    val ev = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, erd)
-    ev.compile()
-    ev
-  }
-
   private lazy val textBooleanFalseRepExpr = LV('textBooleanFalseRep) {
     val qn = this.qNameForProperty("textBooleanFalseRep")
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
   }.value
+
+  final lazy val textBooleanTrueRepEv = {
+    val mustBeSameLength = (((this.lengthKind eq LengthKind.Explicit) || (this.lengthKind eq LengthKind.Implicit)) &&
+        ((this.textPadKind eq TextPadKind.None) || (this.textTrimKind eq TextTrimKind.None)))
+    val ev = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, textBooleanFalseRepEv, mustBeSameLength, erd)
+    ev.compile()
+    ev
+  }
 
   final lazy val textBooleanFalseRepEv = {
     val ev = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, erd)

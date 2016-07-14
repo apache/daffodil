@@ -1107,7 +1107,7 @@ C</MessageHeaders>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Binary data elements cannot have lengthKind='delimited'</tdml:error>
+      <tdml:error>Subset lengthKind='delimited' not yet supported.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

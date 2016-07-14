@@ -53,7 +53,7 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
-  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType",
+  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType", "BinaryBooleanTrueRepType", "BinaryBooleanFalseRepType",
     "SeparatorSuppressionPolicy", "dafint:daffodilAG", // Do these by hand.
     "PropertyNameType", "PropertyType", // Not used and causes conflict with daf namespace
     "externalVariableBindings", "externalVarType", "bind", "bindNameType", "bindType", "tunables") // Ignore daffodil configuration types

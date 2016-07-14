@@ -210,7 +210,7 @@ class TestGeneratedProperties {
     //    comparePropValue(hasProps.binaryFloatRep, "ieee")
     comparePropValue(hasProps.binaryCalendarRep, "bcd")
     comparePropValue(hasProps.binaryCalendarEpoch, "1970-01-01T00:00:00+00:00")
-    comparePropValue(hasProps.binaryBooleanTrueRep, "1")
+    comparePropValue(hasProps.binaryBooleanTrueRep, "One(1)")
     comparePropValue(hasProps.binaryBooleanFalseRep, "0")
 
     comparePropValue(hasProps.bitOrder, "mostSignificantBitFirst")

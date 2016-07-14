@@ -136,6 +136,28 @@
     </xsd:union>
   </xsd:simpleType>
 
+  <!-- A positive integer or empty string -->
+  <xsd:simpleType name="BinaryBooleanTrueRepType">
+    <xsd:union>
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:length value="0"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+      <xsd:simpleType>
+        <xsd:restriction base="dfdl:DFDLNonNegativeInteger">
+          <xsd:minInclusive value="0" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:union>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="BinaryBooleanFalseRepType">
+    <xsd:restriction base="dfdl:DFDLNonNegativeInteger">
+      <xsd:minInclusive value="0" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
   <!-- ========================================================== -->
   <!-- DFDL Enumerations -->
   <!-- ========================================================= -->

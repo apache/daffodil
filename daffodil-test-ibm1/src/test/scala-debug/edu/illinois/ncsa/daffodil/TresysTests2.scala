@@ -87,14 +87,6 @@ class TresysTests2 {
   lazy val runnerBB = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
 
-  val bc = testDir + "BC.tdml"
-  lazy val runnerBC = new DFDLTestSuite(Misc.getRequiredResource(bc))
-  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
-
-  val bd = testDir + "BD.tdml"
-  lazy val runnerBD = new DFDLTestSuite(Misc.getRequiredResource(bd))
-  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
-
   val be = testDir + "BE.tdml"
   lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
   //DFDL-1010

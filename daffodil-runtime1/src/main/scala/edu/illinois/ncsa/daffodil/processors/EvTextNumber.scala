@@ -61,13 +61,33 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRunti
   override lazy val runtimeDependencies = Nil
 }
 
-class TextBooleanTrueRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBooleanFalseRepEv, mustBeSameLength: Boolean, trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, List[String]](
-    expr,
+    exprT,
     TextBooleanTrueRepCooker,
     trd)
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Nil
+
+  override final protected def compute(state: ParseOrUnparseState): List[String] = {
+    if (mustBeSameLength) {
+
+      //All values of textBooleanTrueRep and textBooleanFalseRep must be equal in length
+      val textBooleanTrueReps: List[String] = super.compute(state)
+      val textBooleanFalseReps: List[String] = falseRepEv.evaluate(state)
+
+      val trueLength = textBooleanTrueReps(0).length
+      val falseLength = textBooleanFalseReps(0).length
+      if (trueLength != falseLength ||
+          textBooleanTrueReps.exists( x => x.length != trueLength ) ||
+          textBooleanFalseReps.exists( x => x.length != falseLength )) {
+        trd.schemaDefinitionError("If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.")
+      }
+      textBooleanTrueReps
+    } else {
+      super.compute(state)
+    }
+  }
 }
 
 class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)

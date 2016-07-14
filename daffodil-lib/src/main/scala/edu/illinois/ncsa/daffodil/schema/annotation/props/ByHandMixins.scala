@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import java.lang.{ Integer => JInt }
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import passera.unsigned.ULong
 
 
 /**
@@ -314,12 +316,38 @@ trait NillableMixin extends PropertyMixin
     NilValueRawListCooker.convertConstant(rawNilValue, this, forUnparse)
   }
 
-  //  lazy val nilValue = {
-  //    val raw = rawNilValue
-  //    // val cooked =
-  //    cookedNilValue(false) // for error checking
-  //    // Commented out replacement because the replacement takes place within
-  //    // the Parser of StaticText/DynamicText
-  //    raw
-  //  }
+}
+
+object BinaryBooleanTrueRepType {
+
+  def apply(str: String, element: ThrowsSDE): MaybeULong = {
+    if (str == "") {
+      MaybeULong.Nope
+    } else {
+      val i: Int =
+        try {
+          str.toInt
+        } catch {
+          case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanTrueRep', value must be an empty string or a non-negative integer. Found: %s", str)
+        }
+  
+      if(i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d", i)
+      MaybeULong(i)
+    }
+  }
+}
+
+object BinaryBooleanFalseRepType {
+
+  def apply(str: String, element: ThrowsSDE): ULong = {
+    val i: Int =
+      try {
+        str.toInt
+      } catch {
+        case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an integer. Found: %s", str)
+      }
+
+    if(i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d", i)
+    ULong(i)
+  }
 }

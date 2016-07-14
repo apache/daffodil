@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2016 Tresys Technology, LLC. All rights reserved.
+
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="Boolean" description="Section 5 - simple types - Boolean"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com"
+  defaultRoundTrip="true">
+
+  <tdml:defineSchema name="boolean">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" separator=""
+        leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
+        terminator="" initiatedContent="no" textNumberRep="standard"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+        documentFinalTerminatorCanBeMissing='yes'
+        byteOrder="bigEndian" binaryNumberRep='binary'
+        representation="text" occursCountKind='parsed'/>
+
+    <!-- Binary boolean -->
+    <xs:element name="binaryList">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="implicit"
+            dfdl:binaryBooleanTrueRep="456" dfdl:binaryBooleanFalseRep="8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- This one should allow empty string -->
+    <xs:element name="binaryList2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="implicit"
+            dfdl:binaryBooleanTrueRep="" dfdl:binaryBooleanFalseRep="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="binaryList3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="implicit"
+            dfdl:binaryBooleanTrueRep="" dfdl:binaryBooleanFalseRep="289"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+	<xs:element name="binaryList4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+            dfdl:length="3" dfdl:binaryBooleanTrueRep="12" dfdl:binaryBooleanFalseRep="345"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="binaryList_sde">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+     <xs:element name="binaryList_sde2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4" dfdl:binaryBooleanTrueRep="1"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="binaryList_pe">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:boolean" maxOccurs="4"
+            dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+            dfdl:length="3" dfdl:binaryBooleanTrueRep="12" dfdl:binaryBooleanFalseRep="345"
+            dfdl:occursCount="{2}" dfdl:occursCountKind="expression" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- Text boolean -->
+    <xs:element name="textList">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanTrueRep="yes Y 1" dfdl:textBooleanFalseRep="no N 0" />
+          </xs:sequence>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="y" type="xs:boolean" maxOccurs="unbounded" dfdl:textTrimKind="padChar"
+              dfdl:textBooleanJustification="center"
+              dfdl:textBooleanTrueRep="{ 5-3 }" dfdl:textBooleanFalseRep="{'a b c'}" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="-">
+          <xs:element name="a" type="xs:string" />
+          <xs:element name="b" type="xs:string" />
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanTrueRep="{ ../ex:a }" dfdl:textBooleanFalseRep="{ ../ex:b }" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="-">
+          <xs:element name="a" type="xs:string" />
+          <xs:element name="b" type="xs:string" />
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:textTrimKind="none"
+              dfdl:length="3" dfdl:textBooleanTrueRep="{ ../ex:a }" dfdl:textBooleanFalseRep="{ ../ex:b }" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="-">
+          <xs:element name="a" type="xs:string" />
+          <xs:element name="b" type="xs:string" />
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:a, 'bytes') }" dfdl:textBooleanFalseRep="{ dfdl:valueLength( ../ex:b, 'bytes') }" />
+          </xs:sequence>
+          <xs:element name="c" type="xs:boolean"
+            dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:a, 'bytes') }" dfdl:textBooleanFalseRep="no" />
+          <xs:element name="d" type="xs:boolean"
+            dfdl:textBooleanTrueRep="{ dfdl:valueLength( ../ex:c, 'bytes') }" dfdl:textBooleanFalseRep="no" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList_sde">
+      <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanTrueRep="yes"/>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList_sde2">
+      <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:terminator="%NL;">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanFalseRep="no"/>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList_sde3">
+      <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:textPadKind="none"
+              dfdl:length="3" dfdl:textBooleanTrueRep="yes" dfdl:textBooleanFalseRep="no"/>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList_sde4">
+      <xs:complexType>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:textPadKind="none"
+              dfdl:length="3" dfdl:textBooleanTrueRep="yes yeah" dfdl:textBooleanFalseRep="non no"/>
+          </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="textList_sde5" type="xs:boolean"
+            dfdl:textBooleanTrueRep="%#r2E;" dfdl:textBooleanFalseRep="non"/>
+
+    <xs:element name="textList_pe">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="x" type="xs:boolean" maxOccurs="unbounded" dfdl:occursCount="{2}" dfdl:occursCountKind="expression"
+            dfdl:textBooleanTrueRep="yes Y 1" dfdl:textBooleanFalseRep="no N 0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="binaryBoolean_0" root="binaryList" model="boolean"
+    description="Binary boolean">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 01 C8 00 00 00 08]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <binaryList xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <x type="xsd:boolean">true</x>
+          <x type="xsd:boolean">false</x>
+        </binaryList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="binaryBoolean_unparse_0" root="binaryList" model="boolean"
+    description="Binary boolean">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:binaryList xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <ex:x type="xsd:boolean">true</ex:x>
+          <ex:x type="xsd:boolean">false</ex:x>
+        </ex:binaryList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 01 C8 00 00 00 08]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="binaryBoolean_1" root="binaryList2" model="boolean"
+    description="Binary boolean">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 00 01 00 00 00 00 00 00 00 1b 00 10 00 0c]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <binaryList2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <x type="xsd:boolean">true</x>
+          <x type="xsd:boolean">false</x>
+          <x type="xsd:boolean">true</x>
+          <x type="xsd:boolean">true</x>
+        </binaryList2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="binaryBoolean_unparse_1" root="binaryList2" model="boolean"
+    description="Binary boolean">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:binaryList2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <ex:x type="xsd:boolean">true</ex:x>
+          <ex:x type="xsd:boolean">false</ex:x>
+        </ex:binaryList2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FF FF 00 00 00 00]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="binaryBoolean_unparse_2" root="binaryList3" model="boolean"
+    description="Binary boolean">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:binaryList3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <ex:x type="xsd:boolean">true</ex:x>
+          <ex:x type="xsd:boolean">false</ex:x>
+        </ex:binaryList3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FE DE 00 00 01 21]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:parserTestCase name="binaryBoolean_2" root="binaryList4" model="boolean"
+    description="Binary boolean with explicit length">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 0C 00 01 59]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <binaryList4 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <x type="xsd:boolean">true</x>
+          <x type="xsd:boolean">false</x>
+        </binaryList4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="binaryBoolean_pe_0" root="binaryList_pe" model="boolean"
+    description="Binary boolean with invalid value">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 0C 00 01 58]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to xs:boolean: Cannot parse boolean from </tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="binaryBoolean_sde_0" root="binaryList_sde" model="boolean"
+    description="Binary boolean">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 00 01 00 00 00 07 00 00 00 1b 00 10 00 0c]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property binaryBooleanTrueRep is not defined.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="binaryBoolean_sde_1" root="binaryList_sde2" model="boolean"
+    description="Binary boolean">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[00 00 00 01 00 00 00 07 00 00 00 1b 00 10 00 0c]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property binaryBooleanFalseRep is not defined.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_0" root="textList" model="boolean"
+    description="Text boolean">
+    <tdml:document><![CDATA[1,Y,yes,0,no,N;2,a,2,b,2,c;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <textList xmlns="http://www.example.org/example1">
+          <x>true</x>
+          <x>true</x>
+          <x>true</x>
+          <x>false</x>
+          <x>false</x>
+          <x>false</x>
+          <y>true</y>
+          <y>false</y>
+          <y>true</y>
+          <y>false</y>
+          <y>true</y>
+          <y>false</y>
+        </textList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="textBoolean_unparse_0" root="textList" model="boolean"
+    description="Text boolean">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:textList xmlns="http://www.example.org/example1">
+          <ex:x>true</ex:x>
+          <ex:x>true</ex:x>
+          <ex:x>true</ex:x>
+          <ex:x>false</ex:x>
+          <ex:x>false</ex:x>
+          <ex:x>false</ex:x>
+          <ex:y>true</ex:y>
+          <ex:y>false</ex:y>
+          <ex:y>true</ex:y>
+          <ex:y>false</ex:y>
+          <ex:y>true</ex:y>
+          <ex:y>false</ex:y>
+        </ex:textList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[yes,yes,yes,no,no,no;2,a,2,a,2,a;]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_1" root="textList2" model="boolean"
+    description="Text boolean textBooleanTrueRep and textBooleanFalseRep referencing another element">
+    <tdml:document><![CDATA[true-false-false,true;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <textList2 xmlns="http://www.example.org/example1">
+          <a>true</a>
+          <b>false</b>
+          <x>false</x>
+          <x>true</x>
+        </textList2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_2" root="textList3" model="boolean"
+    description="Text boolean textBooleanTrueRep and textBooleanFalseRep referencing another element">
+    <tdml:document><![CDATA[yay-nay-nay,yay;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <textList3 xmlns="http://www.example.org/example1">
+          <a>yay</a>
+          <b>nay</b>
+          <x>false</x>
+          <x>true</x>
+        </textList3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_3" root="textList4" model="boolean"
+    description="Text boolean textBooleanTrueRep and textBooleanFalseRep referencing another element">
+    <tdml:document><![CDATA[yea-no-2,3;-3-1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <textList4 xmlns="http://www.example.org/example1">
+          <a>yea</a>
+          <b>no</b>
+          <x>false</x>
+          <x>true</x>
+          <c>true</c>
+          <d>true</d>
+        </textList4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_0" root="textList_sde" model="boolean"
+    description="Text boolean">
+    <tdml:document><![CDATA[yes,true,false,no;]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textBooleanFalseRep is not defined.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_1" root="textList_sde2" model="boolean"
+    description="Text boolean">
+    <tdml:document><![CDATA[yes,true,false,no
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textBooleanTrueRep is not defined.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_2" root="textList_sde3" model="boolean"
+    description="Text boolean" roundTrip="false">
+    <tdml:document><![CDATA[yes,non;]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="textBoolean_unparse_sde_0" root="textList_sde3" model="boolean"
+    description="Text boolean" roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:textList_sde3 xmlns="http://www.example.org/example1">
+          <ex:x>true</ex:x>
+        </ex:textList_sde3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_3" root="textList_sde4" model="boolean"
+    description="Text boolean" roundTrip="false">
+    <tdml:document><![CDATA[yes,non;]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_4" root="textList3" model="boolean"
+    description="Text boolean textBooleanTrueRep and textBooleanFalseRep referencing another element">
+    <tdml:document><![CDATA[yes-no-no,yes;]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_sde_5" root="textList_sde5" model="boolean"
+    description="Text boolean with textBooleanTrueRep with invalid character">
+    <tdml:document><![CDATA[test]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DFDL Byte Entity</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_pe_0" root="textList_pe" model="boolean"
+    description="Text boolean with invalid value" roundTrip="false">
+    <tdml:document><![CDATA[yes,non;]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to xs:boolean: Cannot parse boolean from </tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+</tdml:testSuite>

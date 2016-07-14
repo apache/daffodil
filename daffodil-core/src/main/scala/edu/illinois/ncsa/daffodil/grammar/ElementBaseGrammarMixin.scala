@@ -386,20 +386,22 @@ trait ElementBaseGrammarMixin
 
   private lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
-    case LengthKind.Explicit if (lengthEv.isConstant) => {
+    case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
+    case LengthKind.Explicit => -1 // means must be computed at runtime.
+    case LengthKind.Delimited => subsetError("lengthKind='delimited' not yet supported.")
+    case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
+    case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
+    case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
+  }
+
+  private def explicitBinaryLengthInBits() = {
       val lengthFromProp: JLong = lengthEv.optConstant.get
       val nbits = lengthUnits match {
         case LengthUnits.Bits => lengthFromProp.longValue()
         case LengthUnits.Bytes => lengthFromProp.longValue() * 8
-        case LengthUnits.Characters => SDE("The lengthUnits for binary numbers must be either 'bits' or 'bytes'. Not 'characters'.")
+        case LengthUnits.Characters => SDE("The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.", primType.name)
       }
       nbits
-    }
-    case LengthKind.Explicit => -1 // means must be computed at runtime.
-    case LengthKind.Delimited => schemaDefinitionError("Binary data elements cannot have lengthKind='delimited'.")
-    case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
-    case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
-    case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
   }
 
   private lazy val fixedLengthHexBinary = prod("fixedLengthHexBinary", isFixedLength) {
@@ -572,6 +574,10 @@ trait ElementBaseGrammarMixin
     ConvertTextCombinator(this, stringValue, ConvertTextDateTimePrim(this))
   }
 
+  private lazy val textBoolean = prod("textBoolean", impliedRepresentation == Representation.Text) {
+    ConvertTextCombinator(this, stringValue, ConvertTextBooleanPrim(this))
+  }
+
   // shorthand
   final lazy val primType = {
     val res = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
@@ -671,6 +677,8 @@ trait ElementBaseGrammarMixin
           case _ => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
         }
       }
+
+      case PrimType.Boolean => { new BinaryBoolean(this) }
       case _ => notYetImplemented("Type %s when representation='binary'", primType.name)
     }
     res
@@ -699,7 +707,7 @@ trait ElementBaseGrammarMixin
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat
       case PrimType.HexBinary => Assert.invariantFailed("Primitive hexBinary must be representation='binary'.")
-      case PrimType.Boolean => notYetImplemented("textValue: boolean")
+      case PrimType.Boolean => textBoolean
       case PrimType.Date => textDate
       case PrimType.Time => textTime
       case PrimType.DateTime => textDateTime

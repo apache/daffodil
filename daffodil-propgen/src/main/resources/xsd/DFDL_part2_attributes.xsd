@@ -290,12 +290,12 @@
   </xsd:attributeGroup>
 
   <!-- 13.9 Properties Specific to Boolean with Binary representation -->
-  <xsd:attribute name="binaryBooleanTrueRep" type="dfdl:DFDLNonNegativeInteger" />
-  <xsd:attribute name="binaryBooleanFalseRep" type="dfdl:DFDLNonNegativeInteger" />
+  <xsd:attribute name="binaryBooleanTrueRep" type="dfdl:BinaryBooleanTrueRepType" />
+  <xsd:attribute name="binaryBooleanFalseRep" type="dfdl:BinaryBooleanFalseRepType" />
 
   <xsd:attributeGroup name="BooleanBinaryAG">
-    <xsd:attribute name="binaryBooleanTrueRep" type="dfdl:DFDLNonNegativeInteger" />
-    <xsd:attribute name="binaryBooleanFalseRep" type="dfdl:DFDLNonNegativeInteger" />
+    <xsd:attribute name="binaryBooleanTrueRep" type="dfdl:BinaryBooleanTrueRepType" />
+    <xsd:attribute name="binaryBooleanFalseRep" type="dfdl:BinaryBooleanFalseRepType" />
   </xsd:attributeGroup>
 
   <!-- 13.10 Properties Specific to Calendar Format -->
@@ -802,9 +802,9 @@
 
   <xsd:attributeGroup name="BooleanBinaryAGQualified">
     <xsd:attribute form="qualified" name="binaryBooleanTrueRep"
-      type="dfdl:DFDLNonNegativeInteger" />
+      type="dfdl:BinaryBooleanTrueRepType" />
     <xsd:attribute form="qualified" name="binaryBooleanFalseRep"
-      type="dfdl:DFDLNonNegativeInteger" />
+      type="dfdl:BinaryBooleanFalseRepType" />
   </xsd:attributeGroup>
 
   <!-- 13.10 Properties Specific to Calendar Format -->

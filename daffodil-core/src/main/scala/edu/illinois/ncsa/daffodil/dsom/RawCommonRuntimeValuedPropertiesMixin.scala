@@ -106,5 +106,9 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
   protected final lazy val textBooleanFalseRepRaw = requireProperty(optionTextBooleanFalseRepRaw)
   protected final lazy val optionCalendarLanguageRaw = findPropertyOption("calendarLanguage")
   protected final lazy val calendarLanguageRaw = requireProperty(optionCalendarLanguageRaw)
+  protected final lazy val optionBinaryBooleanTrueRepRaw = findPropertyOption("binaryBooleanTrueRep")
+  protected final lazy val binaryBooleanTrueRepRaw = requireProperty(optionBinaryBooleanTrueRepRaw)
+  protected final lazy val optionBinaryBooleanFalseRepRaw = findPropertyOption("binaryBooleanFalseRep")
+  protected final lazy val binaryBooleanFalseRepRaw = requireProperty(optionBinaryBooleanFalseRepRaw)
 
 }

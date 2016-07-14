@@ -32,28 +32,25 @@
 
 package edu.illinois.ncsa.daffodil
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.Test
 
 object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
-  lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"),
+  lazy val runnerBF = Runner(testDir, "bitFlagExpression.tdml",
     compileAllTopLevel = true)
 
-  val ab = testDir + "ABLargeData.tdml.dat"
-  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab),
+  lazy val runnerAB = Runner(testDir, "ABLargeData.tdml.dat",
     compileAllTopLevel = true)
 
-  val ah = testDir + "AH.tdml"
-  lazy val runnerAH = new DFDLTestSuite(Misc.getRequiredResource(ah),
+  lazy val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
+
+  lazy val runnerAM = Runner(testDir, "AM.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
     compileAllTopLevel = true)
 
-  val am = testDir + "AM.tdml"
-  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
-
+  lazy val runnerBC = Runner(testDir, "BC.tdml")
+  lazy val runnerBD = Runner(testDir, "BD.tdml")
 }
 
 class TresysTests3 {
@@ -85,4 +82,8 @@ class TresysTests3 {
 
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
+
+  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
+  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
+
 }
