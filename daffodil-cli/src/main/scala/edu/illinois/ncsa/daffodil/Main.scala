@@ -87,6 +87,7 @@ import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -1161,6 +1162,10 @@ object Main extends Logging {
         nyiFound(e)
       }
       case e: TDMLException => {
+        log(LogLevel.Error, "%s", e.getMessage)
+        1
+      }
+      case e: InvalidJavaVersionException => {
         log(LogLevel.Error, "%s", e.getMessage)
         1
       }

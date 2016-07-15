@@ -35,18 +35,20 @@ package edu.illinois.ncsa.daffodil.util
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 
+class InvalidJavaVersionException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
+
 object CheckJavaVersion {
 
   def checkJavaVersion(context: ThrowsSDE) = {
     val jVersion = scala.util.Properties.javaVersion
     if (!scala.util.Properties.isJavaAtLeast("1.8")) {
-      context.SDE("You must run Java 8 (1.8) or higher. You are currently running %s".format(jVersion))
+      throw new InvalidJavaVersionException("Daffodil requires Java 8 (1.8) or higher. You are currently running %s".format(jVersion))
     }
     //
     // Test specifically for this particular decoder bug
     // 
     if (CharsetUtils.hasJava7DecoderBug) {
-      context.SDE("This Java JVM has the Java 7 Decoder Bug. You must run Java 8 or higher.")
+      throw new InvalidJavaVersionException("This Java JVM has the Java 7 Decoder Bug. Daffodil requires Java 8 or higher.")
     }
   }
 
