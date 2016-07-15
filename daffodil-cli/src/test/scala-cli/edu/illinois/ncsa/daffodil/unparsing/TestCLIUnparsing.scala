@@ -166,13 +166,11 @@ class TestCLIunparsing {
     }
   }
 
-  /*
-  // See DFDL-1347
   @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars() {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input15.txt"
+    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input15.txt")
     val (testSchemaFile, testConfigFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile), Util.cmdConvert(inputFile)) else (schemaFile, configFile, inputFile)
 
     val shell = Util.start("")
@@ -180,7 +178,7 @@ class TestCLIunparsing {
     try {
       val cmd = String.format("%s unparse -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("[0]"))
+      shell.expect(contains("0"))
 
       shell.send("exit\n")
       shell.expect(eof)
@@ -193,8 +191,8 @@ class TestCLIunparsing {
   @Test def test_3575_CLI_Unparsing_SimpleUnparse_extVars2() {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input16.txt"
+    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input16.txt")
     val (testSchemaFile, testConfigFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile), Util.cmdConvert(inputFile)) else (schemaFile, configFile, inputFile)
 
     val shell = Util.start("")
@@ -202,7 +200,7 @@ class TestCLIunparsing {
     try {
       val cmd = String.format("%s unparse -s %s -r row -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("[0]"))
+      shell.expect(contains("0"))
 
       shell.send("exit\n")
       shell.expect(eof)
@@ -211,7 +209,6 @@ class TestCLIunparsing {
       shell.close()
     }
   }
-*/
 
   @Test def test_3582_CLI_Unparsing_SimpleUnparse_outFile() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
