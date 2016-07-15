@@ -163,9 +163,10 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found child element</tdml:error>
+      <tdml:error>Found next element</tdml:error>
       <tdml:error>foo</tdml:error>
-      <tdml:error>no element is expected</tdml:error>
+      <tdml:error>expected</tdml:error>
+      <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -183,6 +184,22 @@
       <tdml:error>expected one of</tdml:error>
       <tdml:error>c1</tdml:error>
       <tdml:error>c2</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unexpectedChildSameAsSibling" root="root1" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root1>
+          <ex:one>
+            <ex:two>1</ex:two>
+          </ex:one>
+        </ex:root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Sibling element found as child</tdml:error>
+      <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

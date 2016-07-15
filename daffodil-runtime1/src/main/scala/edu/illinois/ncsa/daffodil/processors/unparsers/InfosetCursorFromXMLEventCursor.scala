@@ -213,7 +213,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         nextElementResolver = if (erd.isSimpleType) e.erd.nextElementResolver else e.erd.childElementResolver
       }
       case s: DISimple => // parent is simple, but we got an EvStart
-        InvalidInfosetXML.elementFoundInSimpleContent(evStart)
+        InvalidInfosetXML.elementFoundInSimpleContent(s.erd, erd, xmlCursor, evStart)
       case _ => Assert.impossibleCase()
     }
   }

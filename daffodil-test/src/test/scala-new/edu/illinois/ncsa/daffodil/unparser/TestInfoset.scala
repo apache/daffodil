@@ -54,10 +54,10 @@ class TestUnparseInfoset {
   @Test def test_unexpectedNextSingle() { runner.runOneTest("unexpectedNextSingle") }
   @Test def test_unexpectedNextMultiple() { runner.runOneTest("unexpectedNextMultiple") }
 
-  // DFDL-1311
-  //@Test def test_uenxpectedChildNone() { runner.runOneTest("unexpectedChildNone") }
+  @Test def test_uenxpectedChildNone() { runner.runOneTest("unexpectedChildNone") }
   @Test def test_unexpectedChildSingle() { runner.runOneTest("unexpectedChildSingle") }
   @Test def test_unexpectedChildMultiple() { runner.runOneTest("unexpectedChildMultiple") }
+  @Test def test_unexpectedChildSameAsSibling() { runner.runOneTest("unexpectedChildSameAsSibling") }
 
   @Test def test_unexpectedRootSingle() { runner.runOneTest("unexpectedRootSingle") }
 }
