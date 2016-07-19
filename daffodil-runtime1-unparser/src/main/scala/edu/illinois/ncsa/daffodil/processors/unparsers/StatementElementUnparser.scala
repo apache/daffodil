@@ -165,7 +165,7 @@ class StatementElementUnparser(
         // for them. Only try to consume start events for non-hidden elements
         val event = state.advanceOrError
         if (!event.isStart || event.erd != erd) {
-          UnparseError(Nope, One(state.currentLocation), "Expected Start Element event for %s, but received: %s.", erd.namedQName, event)
+          UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
         }
         event.asElement
       } else {
@@ -188,7 +188,7 @@ class StatementElementUnparser(
       // for them. Only try to consume end events for non-hidden elements
       val event = state.advanceOrError
       if (!event.isEnd || event.erd != erd) {
-        UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received: %s.", erd.namedQName, event)
+        UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
       }
     }
 

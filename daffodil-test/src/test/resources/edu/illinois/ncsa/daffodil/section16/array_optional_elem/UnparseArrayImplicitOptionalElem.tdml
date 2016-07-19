@@ -167,9 +167,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed End of Array</tdml:error>
+      <tdml:error>Expected array end event</tdml:error>
       <tdml:error>opt</tdml:error>
-      <tdml:error>found</tdml:error>
+      <tdml:error>received element start event</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -292,8 +292,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed end of array</tdml:error>
-      <tdml:error>found Start</tdml:error>
+      <tdml:error>Expected array end event</tdml:error>
+      <tdml:error>opt</tdml:error>
+      <tdml:error>received element start event</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -391,8 +392,9 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed end of array</tdml:error>
-      <tdml:error>found Start</tdml:error>
+      <tdml:error>Expected array end event</tdml:error>
+      <tdml:error>opt</tdml:error>
+      <tdml:error>received element start event</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

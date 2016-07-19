@@ -72,8 +72,8 @@ object NonUsableInfosetCursor extends InfosetCursor {
 // Consider adding a SimpleKind used for simple type elements.
 //
 sealed trait InfosetEventKind
-case object StartKind extends InfosetEventKind
-case object EndKind extends InfosetEventKind
+case object StartKind extends InfosetEventKind { override def toString = "start" }
+case object EndKind extends InfosetEventKind { override def toString = "end" }
 // case object SimpleKind extends InfosetEventKind
 
 /**
@@ -89,9 +89,12 @@ class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode) ext
   }
 
   override def toString = {
-    val knd = if (kind eq null) "NullKind" else kind
-    val lbl = knd.toString.dropRight(4)
-    lbl + "(" + node + ")"
+    val evLbl = if (kind eq null) "NullKind" else kind.toString
+    val nodeKind = node match {
+      case _: DIArray => "array"
+      case _: DIElement => "element"
+    }
+    nodeKind + " " + evLbl + " event for " + erd.namedQName
   }
 
   /*

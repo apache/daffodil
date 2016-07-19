@@ -260,7 +260,7 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
 
     event = state.advanceOrError
     if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
-      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Needed end of array, but found %s.", event)
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Expected array end event for %s, but received %s.", erd.namedQName, event)
     }
 
     val shouldValidate =
@@ -314,7 +314,7 @@ class FinalizeProcessingUnparser(val context: ElementRuntimeData) extends PrimUn
   def unparse(state: UState) {
     val ev = state.advanceMaybe
     if (ev.isDefined) {
-      UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received: %s.", ev.get)
+      UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
     }
   }
 }

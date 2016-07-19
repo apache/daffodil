@@ -472,8 +472,10 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Expected Start Element</tdml:error>
-      <tdml:error>but received: End</tdml:error>
+      <tdml:error>Expected element start event</tdml:error>
+      <tdml:error>s2</tdml:error>
+      <tdml:error>received element end event</tdml:error>
+      <tdml:error>e1</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
