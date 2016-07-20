@@ -31,24 +31,18 @@
  */
 
 package edu.illinois.ncsa.daffodil.processors
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.processors.parsers._
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsFixedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesFixedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersFixedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersUnparser
+
 import java.util.regex.PatternSyntaxException
 
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.processors.parsers._
+import edu.illinois.ncsa.daffodil.processors.unparsers._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
-  extends Terminal(e, true) {
+    extends Terminal(e, true) {
 
   lazy val eParser = eGram.parser
   lazy val eUnparser = eGram.unparser
@@ -65,7 +59,7 @@ abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
 }
 
 class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
+    extends SpecifiedLengthCombinatorBase(e, eGram) {
 
   val kind = "Pattern"
 
@@ -90,97 +84,48 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
 
 }
 
-class SpecifiedLengthExplicitBitsFixed(e: ElementBase, eGram: => Gram, nBits: Long)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
+class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)
+    extends SpecifiedLengthCombinatorBase(e, eGram) {
 
-  val kind = "ExplicitBitsFixed"
+  Assert.usage(bitsMultiplier > 0)
 
-  lazy val parser: Parser = new SpecifiedLengthExplicitBitsFixedParser(
-    eParser,
-    e.elementRuntimeData,
-    nBits)
+  lazy val kind = "Explicit_" + e.lengthUnits.toString
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitBitsFixedUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    nBits)
-}
-
-class SpecifiedLengthExplicitBits(e: ElementBase, eGram: => Gram)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
-
-  val kind = "ExplicitBits"
-
-  lazy val toBits = e.lengthUnits match {
-    case LengthUnits.Bits => 1
-    case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary data must have length units of Bits or Bytes.")
-  }
-
-  lazy val parser: Parser = new SpecifiedLengthExplicitBitsParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitParser(
     eParser,
     e.elementRuntimeData,
     e.lengthEv,
-    toBits)
+    bitsMultiplier)
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitBitsUnparser(
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitUnparser(
     eUnparser,
     e.elementRuntimeData,
-    e.lengthEv)
+    e.lengthEv,
+    bitsMultiplier)
 
 }
 
-class SpecifiedLengthExplicitBytesFixed(e: ElementBase, eGram: => Gram, nBytes: Long)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
+class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
+    extends SpecifiedLengthCombinatorBase(e, eGram) {
 
-  val kind = "ExplicitBytesFixed"
+  lazy val kind = "Implicit_" + e.lengthUnits.toString
 
-  lazy val parser: Parser = new SpecifiedLengthExplicitBytesFixedParser(
+  lazy val toBits = 1
+
+  lazy val parser: Parser = new SpecifiedLengthImplicitParser(
     eParser,
     e.elementRuntimeData,
-    nBytes)
+    nBits)
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitBytesFixedUnparser(
+  lazy val unparser: Unparser = new SpecifiedLengthImplicitUnparser(
     eUnparser,
     e.elementRuntimeData,
-    nBytes)
-}
-
-class SpecifiedLengthExplicitBytes(e: ElementBase, eGram: => Gram)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
-
-  val kind = "ExplicitBytes"
-
-  lazy val parser: Parser = new SpecifiedLengthExplicitBytesParser(
-    eParser,
-    e.elementRuntimeData,
-    e.lengthEv)
-
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitBytesUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    e.lengthEv)
-}
-
-class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nChars: Long)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
-
-  val kind = "ExplicitCharactersFixed"
-
-  lazy val parser: Parser = new SpecifiedLengthExplicitCharactersFixedParser(
-    eParser,
-    e.elementRuntimeData,
-    nChars)
-
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitCharactersFixedUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    nChars)
+    nBits)
 
 }
 
 class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
-  extends SpecifiedLengthCombinatorBase(e, eGram) {
+    extends SpecifiedLengthCombinatorBase(e, eGram) {
 
   val kind = "ExplicitCharacters"
 
@@ -193,4 +138,20 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
     eUnparser,
     e.elementRuntimeData,
     e.lengthEv)
+}
+
+class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: Long)
+    extends SpecifiedLengthCombinatorBase(e, eGram) {
+
+  val kind = "ImplicitCharacters"
+
+  lazy val parser: Parser = new SpecifiedLengthImplicitCharactersParser(
+    eParser,
+    e.elementRuntimeData,
+    nChars)
+
+  lazy val unparser: Unparser = new SpecifiedLengthImplicitCharactersUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    nChars)
 }

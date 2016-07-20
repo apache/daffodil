@@ -33,11 +33,13 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.processors.{ DIElement, DISimple, DIComplex }
+import edu.illinois.ncsa.daffodil.processors.{ DIElement, LengthState }
 import java.lang.{ Long => JLong }
 import passera.unsigned.ULong
 
 sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[CompiledDPath]) extends FNTwoArgsNodeAndValue(recipes) {
+
+  protected def lengthState(elt: DIElement): LengthState
 
   /**
    * The base behavior is content length, because we need that for contentLength (obviously), but
@@ -50,11 +52,19 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
     val len: ULong =
       DState.withRetryIfBlocking(dstate) {
         units match {
-          case LengthUnits.Bits => elt.contentLengthInBits
-          case LengthUnits.Bytes => elt.contentLengthInBytes
+          case LengthUnits.Bits => lengthState(elt).lengthInBits
+          case LengthUnits.Bytes => lengthState(elt).lengthInBytes
           case LengthUnits.Characters =>
-            // TODO: assert check for scannable so length in characters makes sense.
-            ??? // elt.contentLengthInCharacters
+            // TODO: We could warn about taking lengthInCharacters of something
+            // that isn't all text, but it's not required that it be purely 
+            // text. DFDL lets you mix text and binary and then search it for 
+            // delimiters or run regex patterns to parse it. You have to know what
+            // you are doing. 
+            // Furthermore, in fixed-width encodings, this length can be computed
+            // from the length-in-bits by just dividing by a codepoint width
+            // code point width.
+            //
+            ??? // lengthState(elt).lengthInCharacters
         }
       }
     len
@@ -77,25 +87,15 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
   }
 }
 case class DFDLContentLength(recipes: List[CompiledDPath])
-  extends DFDLLengthFunctionBase("content", recipes)
+    extends DFDLLengthFunctionBase("content", recipes) {
+
+  override protected def lengthState(elt: DIElement) = elt.contentLength
+
+}
 
 case class DFDLValueLength(recipes: List[CompiledDPath])
-  extends DFDLLengthFunctionBase("value", recipes) {
+    extends DFDLLengthFunctionBase("value", recipes) {
 
-  override def getLength(eltArg: DIElement, units: LengthUnits, dstate: DState) = {
-    eltArg match {
-      case elt: DISimple => {
-        val len = units match {
-          case LengthUnits.Bits => ???
-          case LengthUnits.Bytes => ???
-          case LengthUnits.Characters =>
-            // TODO: assert check for scannable so length in characters makes sense.
-            // or do we error if charset not fixed width ??
-            ???
-        }
-        len
-      }
-      case c: DIComplex => super.getLength(eltArg, units, dstate)
-    }
-  }
+  override protected def lengthState(elt: DIElement) = elt.valueLength
+
 }

@@ -368,7 +368,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-      val areTracing = false
+    val areTracing = false
     val actual = TestUtils.testString(sch, "5;6;7;8;A.", areTracing).result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -527,7 +527,8 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9").result
+    val areTracing = false
+    val actual = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9", areTracing).result
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>-7.1E8</s2><s3>1234.9</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

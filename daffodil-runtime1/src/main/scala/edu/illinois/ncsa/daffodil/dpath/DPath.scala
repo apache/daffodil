@@ -52,12 +52,12 @@ trait WhereBlockedLocation {
   private var priorNodeOrVar: Maybe[AnyRef] = Nope
   private var priorInfo: Maybe[AnyRef] = Nope
   private var priorIndex: MaybeInt = MaybeInt.Nope
-  private var priorExc: Maybe[Exception] = Nope
+  private var priorExc: Maybe[AnyRef] = Nope
 
   private var maybeNodeOrVar: Maybe[AnyRef] = Nope
   private var maybeInfo: Maybe[AnyRef] = Nope
   private var maybeIndex: MaybeInt = MaybeInt.Nope
-  private var maybeExc: Maybe[Exception] = Nope
+  private var maybeExc: Maybe[AnyRef] = Nope
 
   private var done_ : Boolean = false
 
@@ -67,7 +67,10 @@ trait WhereBlockedLocation {
 
   final def isDone = done_
 
-  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: Exception) {
+  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef) {
+    Assert.usage(nodeOrVar ne null)
+    Assert.usage(info ne null)
+    Assert.usage(exc ne null)
     priorNodeOrVar = maybeNodeOrVar
     priorInfo = maybeInfo
     priorIndex = maybeIndex
@@ -87,17 +90,20 @@ trait WhereBlockedLocation {
   }
 
   final def isBlockedSameLocation: Boolean = {
-    isBlocked &&
+    val res = isBlocked &&
       {
         if (priorNodeOrVar.isEmpty) false
         else {
           Assert.invariant(maybeNodeOrVar.isDefined)
-          maybeNodeOrVar.get == priorNodeOrVar.get &&
-            maybeInfo.get == priorInfo.get &&
-            maybeIndex.get == priorIndex.get &&
-            maybeExc.get == priorExc.get
+          val res =
+            maybeNodeOrVar.get == priorNodeOrVar.get &&
+              maybeInfo.get == priorInfo.get &&
+              maybeIndex.get == priorIndex.get &&
+              maybeExc.get == priorExc.get
+          res
         }
       }
+    res
   }
 }
 
@@ -112,7 +118,7 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
   dpathText: String,
   ci: DPathCompileInfo,
   isEvaluatedAbove: Boolean)
-  extends CompiledExpression[T](qn, dpathText) {
+    extends CompiledExpression[T](qn, dpathText) {
 
   override def targetType = tt
 

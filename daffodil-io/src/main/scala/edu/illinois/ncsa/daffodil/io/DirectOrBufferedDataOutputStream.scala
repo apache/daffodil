@@ -50,8 +50,16 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  *
  */
 final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectOrBufferedDataOutputStream)
-  extends DataOutputStreamImplMixin {
+    extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
+
+  /**
+   * Two of these are equal if they are eq.
+   * This matters because we compare them to see if we are making forward progress
+   */
+  override def equals(other: Any) = AnyRef.equals(other)
+
+  override def hashCode() = AnyRef.hashCode()
 
   override def toString = {
     lazy val buf = bufferingJOS.getBuf()
@@ -141,6 +149,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     // can split it by copying, and then change our indirection pointer to the copy, and then modify that.
     //
     newBufStr.assignFrom(this)
+    newBufStr.setMaybeAbsBitPos0b(MaybeULong.Nope) // clear this so we start fresh
     val savedBP = relBitPos0b.toLong
     newBufStr.setRelBitPos0b(ULong(0))
     if (maybeRelBitLimit0b.isDefined) newBufStr.st.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
@@ -449,7 +458,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         else bitLengthFrom1To64
       val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
 
-      val bitsToGoIntoFragInPosition = ((bits << st.fragmentLastByteLimit) & 0xFF).toInt
+      val fragLastByteMask = 0xFF >> (8 - nFragBitsAfter)
+      val bitsToGoIntoFragInPosition = ((bits << st.fragmentLastByteLimit) & fragLastByteMask).toInt
 
       val newFragByte = st.fragmentLastByte | bitsToGoIntoFragInPosition
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)

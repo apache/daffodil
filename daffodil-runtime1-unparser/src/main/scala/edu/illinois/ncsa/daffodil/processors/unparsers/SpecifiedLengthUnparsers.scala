@@ -2,18 +2,17 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 //import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.equality._
-import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.processors.InfosetNoDataException
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
+import edu.illinois.ncsa.daffodil.processors.LengthEv
 
 abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   override lazy val childProcessors = Seq(eUnparser)
 
@@ -23,7 +22,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
    */
   protected def getBitLength(s: UState): Long
 
-  final def unparse(state: UState): Unit = {
+  override final def unparse(state: UState): Unit = {
 
     val maybeNBits =
       try {
@@ -81,53 +80,38 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   }
 }
 
-class SpecifiedLengthExplicitBitsUnparser(
+final class SpecifiedLengthExplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
-  lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
+  lengthEv: LengthEv,
+  bitsMultiplier: Int)
+    extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
-  final override def getBitLength(s: UState): Long = {
-    val nBitsAsAny = lengthEv.evaluate(s)
-    AsIntConverters.asLong(nBitsAsAny)
+  override def getBitLength(s: UState): Long = {
+    val nBytesAsAny = lengthEv.evaluate(s)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
+    nBytes * bitsMultiplier
   }
+
 }
 
-class SpecifiedLengthExplicitBitsFixedUnparser(
+final class SpecifiedLengthImplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   nBits: Long)
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
+    extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
-  final override def getBitLength(s: UState): Long = nBits
-}
+  override def getBitLength(s: UState): Long = nBits
 
-class SpecifiedLengthExplicitBytesUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
-
-  final override def getBitLength(s: UState): Long = {
-    val nBytesAsAny = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes * 8
-  }
-}
-
-class SpecifiedLengthExplicitBytesFixedUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  nBytes: Long)
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
-
-  final override def getBitLength(s: UState): Long = nBytes * 8
 }
 
 /**
  * This is used when length is measured in characters, and couldn't be
  * converted to a computation on length in bytes because a character is encoded as a variable number
  * of bytes, e.g., in utf-8 encoding where a character can be 1 to 4 bytes.
+ *
+ * In addition this is used when the encoding is an expression, so we don't know
+ * a priori whether the encoding will be fixed or variable width.
  *
  * This base is used for complex types where we need to know how long the "box"
  * is, that all the complex content must fit within, where that box length is
@@ -143,10 +127,10 @@ class SpecifiedLengthExplicitBytesFixedUnparser(
  * allowing for 80 unicode characters. (Alternatively such data format might specify 80
  * bytes still, meaning up to 80 unicode characters, but possibly fewer.)
  */
-abstract class SpecifiedLengthExplicitCharactersUnparserBase(
+abstract class SpecifiedLengthCharactersUnparserBase(
   eUnparser: Unparser,
   erd: ElementRuntimeData)
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   final override def childProcessors = Seq(eUnparser)
 
@@ -219,26 +203,25 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
   }
 }
 
-final class SpecifiedLengthExplicitCharactersFixedUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  nChars: Long)
-  extends SpecifiedLengthExplicitCharactersUnparserBase(eUnparser, erd) {
-
-  override def getCharLength(s: UState) = nChars
-
-}
-
 final class SpecifiedLengthExplicitCharactersUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
-  lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthExplicitCharactersUnparserBase(eUnparser, erd) {
+  lengthEv: LengthEv)
+    extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
 
   override def getCharLength(s: UState): Long = {
     val nCharsAsAny = lengthEv.evaluate(s)
     val nChars = AsIntConverters.asLong(nCharsAsAny)
     nChars
   }
-
 }
+
+final class SpecifiedLengthImplicitCharactersUnparser(
+  eUnparser: Unparser,
+  erd: ElementRuntimeData,
+  nChars: Long)
+    extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
+
+  override def getCharLength(s: UState): Long = nChars
+}
+

@@ -67,7 +67,7 @@ trait DataOutputStream extends DataStreamCommon {
 
   def maybeAbsBitPos0b: MaybeULong
   def maybeAbsBitPos1b: MaybeULong
-  def setMaybeAbsBitPos0b(newAbsBitPos0b: ULong): Unit
+  def setMaybeAbsBitPos0b(maybeNewAbsBitPos0b: MaybeULong): Unit
 
   /**
    * Besides setting the relBitPos, it also maintains the value of

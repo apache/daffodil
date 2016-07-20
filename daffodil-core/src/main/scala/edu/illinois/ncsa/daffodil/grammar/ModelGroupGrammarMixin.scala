@@ -40,10 +40,10 @@ import edu.illinois.ncsa.daffodil.dsom.Sequence
 import edu.illinois.ncsa.daffodil.dsom.Choice
 
 trait ModelGroupGrammarMixin
-  extends InitiatedTerminatedMixin
-  with AlignedMixin
-  with HasStatementsGrammarMixin
-  with GroupCommonAGMixin { self: ModelGroup =>
+    extends InitiatedTerminatedMixin
+    with AlignedMixin
+    with HasStatementsGrammarMixin
+    with GroupCommonAGMixin { self: ModelGroup =>
 
   private lazy val groupLeftFraming = prod("groupLeftFraming") {
     termIOPropertiesChange ~ leadingSkipRegion ~ alignmentFill
@@ -61,7 +61,17 @@ trait ModelGroupGrammarMixin
 
   private lazy val _content = prod("_content") {
     val finalContent =
-      if (hasDelimiters || enclosingTerm.map(_.hasDelimiters).getOrElse(false)) {
+      if (hasDelimiters ||
+        enclosingTerm.map(_.hasDelimiters).getOrElse(false) //
+        // The above refernce to the delimiters of the enclosing term, 
+        // has to do with the way our delim stack works. 
+        // Even if this model group doesn't have delimiters, 
+        // if the enclosing term did have delimiters, then we still need to 
+        // add a delimiter stack parser for this term so that it will modify 
+        // the stack to signify that existing delimiters are now remote and 
+        // there are no local delimiters.
+        //
+        ) {
         val content = initiatorRegion ~ groupContent ~ terminatorRegion
         self match {
           case c: Choice => DelimiterStackCombinatorChoice(c, content)

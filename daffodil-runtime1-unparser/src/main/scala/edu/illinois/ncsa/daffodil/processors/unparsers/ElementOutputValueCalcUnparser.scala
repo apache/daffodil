@@ -8,14 +8,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class ElementOutputValueCalcStaticLengthUnparser(erd: ElementRuntimeData, repUnparser: Unparser, maybeKnownLengthInBits: MaybeULong)
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   Assert.invariant(erd.outputValueCalcExpr.isDefined)
   val expr = erd.outputValueCalcExpr.get
 
   override lazy val childProcessors = Seq(repUnparser)
 
-  def unparse(ustate: UState): Unit = {
+  override def unparse(ustate: UState): Unit = {
     Assert.invariant(erd.outputValueCalcExpr.isDefined)
 
     val diSimple = ustate.currentInfosetNode.asSimple
@@ -33,16 +33,13 @@ class ElementOutputValueCalcStaticLengthUnparser(erd: ElementRuntimeData, repUnp
       _.evaluate(ustate) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
     }
 
-    val se = SuspendableExpression(diSimple, expr, ustate, repUnparser, maybeKnownLengthInBits)
-
-    ustate.addSuspendedExpression(se)
-
+    SuspendableExpression(diSimple, expr, ustate, repUnparser, maybeKnownLengthInBits)
   }
 }
 
 class ElementOutputValueCalcRuntimeLengthUnparser(erd: ElementRuntimeData, repUnparser: Unparser,
   lengthEv: LengthEv, lengthUnits: LengthUnits)
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   Assert.invariant(erd.outputValueCalcExpr.isDefined)
   val expr = erd.outputValueCalcExpr.get
@@ -50,7 +47,7 @@ class ElementOutputValueCalcRuntimeLengthUnparser(erd: ElementRuntimeData, repUn
   override lazy val childProcessors = Seq(repUnparser)
   override lazy val runtimeDependencies = Seq(lengthEv)
 
-  def unparse(ustate: UState): Unit = {
+  override def unparse(ustate: UState): Unit = {
     Assert.invariant(erd.outputValueCalcExpr.isDefined)
 
     val diSimple = ustate.currentInfosetNode.asSimple
@@ -76,9 +73,7 @@ class ElementOutputValueCalcRuntimeLengthUnparser(erd: ElementRuntimeData, repUn
       case LengthUnits.Characters => length * erd.encInfo.knownEncodingWidthInBits
     }
 
-    val se = SuspendableExpression(diSimple, expr, ustate, repUnparser, MaybeULong(knownLengthInBits))
-
-    ustate.addSuspendedExpression(se)
+    SuspendableExpression(diSimple, expr, ustate, repUnparser, MaybeULong(knownLengthInBits))
 
   }
 

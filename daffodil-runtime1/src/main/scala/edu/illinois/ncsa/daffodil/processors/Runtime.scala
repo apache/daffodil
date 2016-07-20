@@ -86,7 +86,7 @@ class InvalidUsageException(msg: String, cause: Throwable = null) extends Except
  * This is the DataProcessor constructed from a saved Parser.
  */
 class SerializableDataProcessor(val data: SchemaSetRuntimeData)
-  extends DataProcessor(data) {
+    extends DataProcessor(data) {
   override def setValidationMode(mode: ValidationMode.Type): Unit = {
     if (mode == ValidationMode.Full) { throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.") }
     super.setValidationMode(mode)
@@ -102,9 +102,9 @@ trait HasSetDebugger {
  * back-end runtime.
  */
 class DataProcessor(val ssrd: SchemaSetRuntimeData)
-  extends DFDL.DataProcessor with Logging
-  with HasSetDebugger with Serializable
-  with MultipleEventHandler {
+    extends DFDL.DataProcessor with Logging
+    with HasSetDebugger with Serializable
+    with MultipleEventHandler {
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
@@ -290,7 +290,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
       unparserState.dataProc.get.init(ssrd.unparser)
       unparse(unparserState)
-      unparserState.evalSuspendedExpressions() // handles outputValueCalc that were suspended due to forward references.
+      unparserState.evalSuspensions() // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
     } catch {
       case ue: UnparseError => {
@@ -346,8 +346,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 }
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
-  extends DFDL.ParseResult
-  with WithDiagnosticsImpl {
+    extends DFDL.ParseResult
+    with WithDiagnosticsImpl {
 
   def toWriter(writer: java.io.Writer) = {
     resultState.infoset.toWriter(writer)
@@ -428,8 +428,8 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
 }
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
-  extends DFDL.UnparseResult
-  with WithDiagnosticsImpl {
+    extends DFDL.UnparseResult
+    with WithDiagnosticsImpl {
 
   override def resultState = ustate
 

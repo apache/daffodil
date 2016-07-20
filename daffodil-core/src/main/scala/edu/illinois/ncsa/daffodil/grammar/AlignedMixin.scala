@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.Term
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
@@ -58,14 +57,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   //  }
 
   final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
-    if (alignmentValueInBits == 1) {
-      alignmentUnits match {
-        case AlignmentUnits.Bits => true
-        case AlignmentUnits.Bytes => isKnownToBePrecededByAllByteLengthItems
-      }
-    } else if (alignmentValueInBits > 1) {
+    if (alignmentValueInBits == 1) true
+    else if (alignmentValueInBits == 8)
       isKnownToBePrecededByAllByteLengthItems
-    } else false
+    else false
   }.value
 
   // TODO: deal with case of a bit field that is not a multiple of bytes wide

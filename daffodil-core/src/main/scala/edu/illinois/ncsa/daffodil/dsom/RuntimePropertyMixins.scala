@@ -46,8 +46,8 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
  * escapeCharacter, and escapeEscapeCharacter.
  */
 trait TermRuntimeValuedPropertiesMixin
-  extends DFDLBaseTypeMixin
-  with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
+    extends DFDLBaseTypeMixin
+    with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
   private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")
@@ -103,8 +103,8 @@ trait TermRuntimeValuedPropertiesMixin
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
-  extends TermRuntimeValuedPropertiesMixin
-  with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
+    extends TermRuntimeValuedPropertiesMixin
+    with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
   // Can be whitespace separated lists, as a result the entity replacement needs to take place elsewhere
   // as it's possible to replace an entity with a whitespace character.
@@ -112,7 +112,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
 
   lazy val isLengthKindDelimited = {
-    decl match {
+    decl.referredToComponent match {
       case mg: ModelGroup => mg.enclosingElement.get.lengthKind == LengthKind.Delimited
       case eb: ElementBase => eb.lengthKind == LengthKind.Delimited
     }
@@ -160,11 +160,11 @@ trait DelimitedRuntimeValuedPropertiesMixin
 }
 
 trait ElementRuntimeValuedPropertiesMixin
-  extends DelimitedRuntimeValuedPropertiesMixin
-  with OccursAGMixin
-  with LengthAGMixin
-  with SimpleTypeRuntimeValuedPropertiesMixin
-  with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
+    extends DelimitedRuntimeValuedPropertiesMixin
+    with OccursAGMixin
+    with LengthAGMixin
+    with SimpleTypeRuntimeValuedPropertiesMixin
+    with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
   private lazy val byteOrderExpr = LV('byteOrder) {
     val qn = this.qNameForProperty("byteOrder")
@@ -216,9 +216,9 @@ trait ElementRuntimeValuedPropertiesMixin
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
-  extends DelimitedRuntimeValuedPropertiesMixin
-  with Sequence_AnnotationMixin
-  with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
+    extends DelimitedRuntimeValuedPropertiesMixin
+    with Sequence_AnnotationMixin
+    with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   private lazy val separatorExpr = {
     val qn = this.qNameForProperty("separator")
@@ -242,8 +242,8 @@ trait SequenceRuntimeValuedPropertiesMixin
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
-  extends DFDLSimpleTypeMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
+    extends DFDLSimpleTypeMixin
+    with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
     val qn = this.qNameForProperty("textStandardDecimalSeparator")

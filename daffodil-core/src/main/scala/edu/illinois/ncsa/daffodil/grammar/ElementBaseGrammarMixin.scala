@@ -50,10 +50,10 @@ import java.lang.{ Long => JLong }
 /////////////////////////////////////////////////////////////////
 
 trait ElementBaseGrammarMixin
-  extends InitiatedTerminatedMixin
-  with AlignedMixin
-  with ByteOrderMixin
-  with HasStatementsGrammarMixin { self: ElementBase =>
+    extends InitiatedTerminatedMixin
+    with AlignedMixin
+    with ByteOrderMixin
+    with HasStatementsGrammarMixin { self: ElementBase =>
 
   /**
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
@@ -126,7 +126,9 @@ trait ElementBaseGrammarMixin
   private lazy val stringDelimitedEndOfData = prod("stringDelimitedEndOfData") { StringDelimitedEndOfData(this) }
   //  private lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
 
-  private lazy val stringValue = prod("stringValue") {
+  private lazy val stringValue = prod("stringValue") { mta ~ stringPrim }
+
+  private lazy val stringPrim = {
     lengthKind match {
       case LengthKind.Explicit => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Delimited => stringDelimitedEndOfData
@@ -412,39 +414,44 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
-    NYI && isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
-      emptyElementInitiator ~ emptyElementTerminator
+    isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
+      emptyElementInitiator ~ mta ~ emptyElementTerminator
     }
 
   /**
    * This is about the case where we take an empty, parse a complex type recursively from it
    * and potentially succeed.
    */
-  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty", NYI &&
+  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty",
     isComplexType && lengthKind == LengthKind.Implicit) {
-    SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
-      RestoreInputStream(this) ~ emptyElementTerminator
-  }
+      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
+        RestoreInputStream(this) ~ emptyElementTerminator
+    }
 
   //  private lazy val emptyDefaulted = prod("emptyDefaulted",
   //    isDefaultable && emptyIsAnObservableConcept) {
   //      empty ~ TheDefaultValue(this)
   //    }
 
-  private lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { Initiator(this) }
-  private lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { Terminator(this) }
+  private lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { delimMTA ~ Initiator(this) }
+  private lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { delimMTA ~ Terminator(this) }
 
-  private lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { ErrorGram }
-  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { ErrorGram }
+  private lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { delimMTA ~ Initiator(this) }
+  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { delimMTA ~ Terminator(this) }
 
   private lazy val complexContent = prod("complexContent", isComplexType) {
     elementComplexType.mainGrammar
   }
 
-  private lazy val nilLit = prod("nilLit",
-    isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))) {
-      nilElementInitiator ~ nilLitSimpleOrComplex ~ nilElementTerminator
-    }
+  private lazy val isNilLit = isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))
+
+  /**
+   * In the below, we must have nilLitMTA because, in the case where it's textual,
+   * then to distinguish a lit nil from a value, we have to start at the same place.
+   */
+  private lazy val nilLit = prod("nilLit", isNilLit) {
+    nilElementInitiator ~ nilLitMTA ~ nilLitSimpleOrComplex ~ nilElementTerminator
+  }
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
 
@@ -454,8 +461,10 @@ trait ElementBaseGrammarMixin
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
     val nilLength = 0
-    new SpecifiedLengthExplicitBytesFixed(this, LiteralValueNilOfSpecifiedLength(this), nilLength)
+    new SpecifiedLengthImplicit(this, LiteralValueNilOfSpecifiedLength(this), nilLength)
   }
+
+  private lazy val nilLitMTA = prod("nilLitMTA", isNilLit) { mta }
 
   private lazy val nilLitContent = prod("nilLitContent",
     isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)) {
@@ -510,7 +519,7 @@ trait ElementBaseGrammarMixin
     SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue)
   }
 
-  private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness
+  private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
     SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
   }
 
@@ -518,7 +527,7 @@ trait ElementBaseGrammarMixin
     SimpleEmptyOrValue(this, empty, parsedValue)
   }
 
-  private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) {
+  private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
     parsedValue
   }
 
@@ -536,26 +545,23 @@ trait ElementBaseGrammarMixin
    */
   private def specifiedLength(bodyArg: => Gram) = {
     lazy val body = bodyArg
-    lengthKind match {
+    lazy val bitsMultiplier = lengthUnits match {
+      case LengthUnits.Bits => 1
+      case LengthUnits.Bytes => 8
+      case LengthUnits.Characters if knownEncodingIsFixedWidth => this.knownEncodingWidthInBits
+      case _ => 0 // zero means can't multiply to get width in bits.
+    }
+    val lk = lengthKind
+    lk match {
       case LengthKind.Delimited => body
       case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && isFixedLength => new SpecifiedLengthExplicitBitsFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && !isFixedLength => new SpecifiedLengthExplicitBits(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && isFixedLength => new SpecifiedLengthExplicitBytesFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && !isFixedLength => new SpecifiedLengthExplicitBytes(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength
-        && encodingInfo.knownEncodingIsFixedWidth => {
-        //
-        // Important case to optimize
-        // If we can convert to a number of bits, then we should do so
-        //
-        val nBits = encodingInfo.knownFixedWidthEncodingInCharsToBits(fixedLength)
-        new SpecifiedLengthExplicitBitsFixed(this, body, nBits)
-      }
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength =>
-        new SpecifiedLengthExplicitCharactersFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && !isFixedLength =>
+      case LengthKind.Explicit if bitsMultiplier != 0 =>
+        new SpecifiedLengthExplicit(this, body, bitsMultiplier)
+      case LengthKind.Explicit => {
+        Assert.invariant(!knownEncodingIsFixedWidth)
+        Assert.invariant(lengthUnits eq LengthUnits.Characters)
         new SpecifiedLengthExplicitCharacters(this, body)
+      }
       case LengthKind.Implicit if isSimpleType && primType == PrimType.String &&
         encodingInfo.knownEncodingIsFixedWidth => {
         //
@@ -563,14 +569,15 @@ trait ElementBaseGrammarMixin
         // If we can convert to a number of bits, then we should do so
         //
         val nBits = encodingInfo.knownFixedWidthEncodingInCharsToBits(this.maxLength.longValue)
-        new SpecifiedLengthExplicitBitsFixed(this, body, nBits)
+        new SpecifiedLengthImplicit(this, body, nBits)
       }
       case LengthKind.Implicit if isSimpleType && primType == PrimType.String =>
-        new SpecifiedLengthExplicitCharactersFixed(this, body, this.maxLength.longValue)
+        new SpecifiedLengthImplicitCharacters(this, body, this.maxLength.longValue)
+
       case LengthKind.Implicit if isSimpleType && primType == PrimType.HexBinary =>
-        new SpecifiedLengthExplicitBytesFixed(this, body, this.maxLength.longValue)
+        new SpecifiedLengthImplicit(this, body, this.maxLength.longValue * bitsMultiplier)
       case LengthKind.Implicit if isSimpleType && impliedRepresentation == Representation.Binary =>
-        new SpecifiedLengthExplicitBitsFixed(this, body, implicitBinaryLengthInBits)
+        new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
       case LengthKind.Implicit if isComplexType => body // for complex types, implicit means "roll up from the bottom"
       case _ => {
         // TODO: implement other specified length like prefixed and end of parent

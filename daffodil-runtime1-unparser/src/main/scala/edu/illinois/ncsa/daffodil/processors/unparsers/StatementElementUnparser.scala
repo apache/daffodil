@@ -47,7 +47,7 @@ abstract class StatementElementUnparserBase(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends TermUnparser(rd) {
+    extends TermUnparser(rd) {
 
   override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eBeforeUnparser.toSeq ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
@@ -110,9 +110,7 @@ abstract class StatementElementUnparserBase(
 
     // capture bit pos before
     if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-      elem.setContentStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    } else {
-      ??? // not yet implemented where the stream is relative
+      elem.contentLength.setStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
     }
 
     if (eUnparser.isDefined) {
@@ -121,9 +119,7 @@ abstract class StatementElementUnparserBase(
 
     // capture bit pos before
     if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-      elem.setContentEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    } else {
-      ??? // not yet implemented where the stream is relative
+      elem.contentLength.setEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
     }
 
     doSetVars(state) // ?? Do SetVars occur after the element is unparsed when unparsing ??
@@ -144,13 +140,13 @@ class StatementElementUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends StatementElementUnparserBase(
-    erd,
-    name,
-    setVarUnparsers,
-    eBeforeUnparser,
-    eUnparser,
-    eAfterUnparser) {
+    extends StatementElementUnparserBase(
+      erd,
+      name,
+      setVarUnparsers,
+      eBeforeUnparser,
+      eUnparser,
+      eAfterUnparser) {
 
   def move(start: UState) {
     val grIndex = start.groupIndexStack.pop()
@@ -211,13 +207,13 @@ class StatementElementUnparserNoRep(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser])
-  extends StatementElementUnparser(
-    erd,
-    name,
-    setVarUnparsers,
-    Nope,
-    Nope,
-    Nope) {
+    extends StatementElementUnparser(
+      erd,
+      name,
+      setVarUnparsers,
+      Nope,
+      Nope,
+      Nope) {
 
   /**
    * Move over in the element children, but not in the group.
@@ -236,13 +232,13 @@ class StatementElementOutputValueCalcUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends StatementElementUnparser(
-    erd,
-    name,
-    setVarUnparsers,
-    eBeforeUnparser,
-    eUnparser,
-    eAfterUnparser) {
+    extends StatementElementUnparser(
+      erd,
+      name,
+      setVarUnparsers,
+      eBeforeUnparser,
+      eUnparser,
+      eAfterUnparser) {
 
   override def unparseBegin(state: UState) {
     val elem =
@@ -259,7 +255,7 @@ class StatementElementOutputValueCalcUnparser(
           Assert.invariant(startEv.isStart && startEv.erd == erd)
           val endEv = state.advanceOrError // Consume the end event
           Assert.invariant(endEv.isEnd && endEv.erd == erd)
-          
+
           val e = startEv.asSimple
           // Remove any state that was set by what created this event. Later
           // code asserts that OVC elements do not have a value

@@ -52,6 +52,6 @@ class TestDFDLContentLength {
   @Test def test_contentLengthPair1() { runner.runOneTest("contentLengthPair1") }
   @Test def test_contentLengthPair2() { runner.runOneTest("contentLengthPair2") }
   @Test def test_contentLengthPair3() { runner.runOneTest("contentLengthPair3") }
-  @Test def test_contentLengthAndOccurs1() { runner.trace.runOneTest("contentLengthAndOccurs1") }
+  @Test def test_contentLengthAndOccurs1() { runner.runOneTest("contentLengthAndOccurs1") }
 
 }

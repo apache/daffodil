@@ -62,9 +62,9 @@ trait InitiatedTerminatedMixin
   lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
 
   lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) { initiatorItself ~ initiatorDiscriminator }
-  lazy val initiatorItself = Initiator(this)
+  lazy val initiatorItself = delimMTA ~ Initiator(this)
 
-  lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) { Terminator(this) }
+  lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) { delimMTA ~ Terminator(this) }
 
   /**
    * True if this term has initiator, terminator, or separator that are either statically
@@ -74,4 +74,5 @@ trait InitiatedTerminatedMixin
    * Override in Sequence to also check for separator.
    */
   lazy val hasDelimiters = hasInitiator || hasTerminator
+
 }

@@ -217,8 +217,8 @@ private[io] case object Finished extends DOSState
 private[io] case object Uninitialized extends DOSState
 
 trait DataOutputStreamImplMixin extends DataOutputStream
-  with DataStreamCommonImplMixin
-  with LocalBufferMixin {
+    with DataStreamCommonImplMixin
+    with LocalBufferMixin {
 
   def isEndOnByteBoundary = st.fragmentLastByteLimit == 0
 
@@ -564,7 +564,14 @@ trait DataOutputStreamImplMixin extends DataOutputStream
   def putCharBuffer(cb: java.nio.CharBuffer): Long = {
     Assert.usage(isWritable)
     val nToTransfer = cb.remaining()
-    if (!align(st.encodingMandatoryAlignmentInBits)) return 0
+    //
+    // TODO: restore mandatory alignment functionality.
+    // It can't sipmly be here, as we might be writing to a buffering 
+    // stream, so unless we know the absoluteStartPos, we have to 
+    // suspend until it is known
+    //
+    // if (!align(st.encodingMandatoryAlignmentInBits)) return 0
+
     // must respect bitLimit0b if defined
     // must not get encoding errors until a char is being written to the output
     // otherwise we can't get precise encodingErrorPolicy='error' behavior.
@@ -733,8 +740,8 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     st.maybeAbsBitPos0b
   }
 
-  override def setMaybeAbsBitPos0b(newAbsBitPos0b: ULong) {
-    st.setMaybeAbsBitPos0b(MaybeULong(newAbsBitPos0b.longValue))
+  override def setMaybeAbsBitPos0b(maybeNewAbsBitPos0b: MaybeULong) {
+    st.setMaybeAbsBitPos0b(maybeNewAbsBitPos0b)
   }
 
   override def maybeAbsBitPos1b: MaybeULong = {

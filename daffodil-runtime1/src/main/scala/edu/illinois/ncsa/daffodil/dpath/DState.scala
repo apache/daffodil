@@ -45,8 +45,6 @@ import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.util.Coroutine
-import edu.illinois.ncsa.daffodil.processors.InfosetException
-import edu.illinois.ncsa.daffodil.processors.InfosetException
 
 /**
  * There are two modes for expression evaluation.
@@ -313,7 +311,7 @@ object DState {
           res = body
           isDone = true
         } catch {
-          case e: InfosetException => {
+          case e: InfosetRetryableException => {
             // we're to block here, and retry subsequently.
             isDone = false
             Assert.invariant(ds.thisExpressionCoroutine.isDefined)

@@ -42,9 +42,9 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 /////////////////////////////////////////////////////////////////
 
 trait TermGrammarMixin
-  extends AlignedMixin
-  with BitOrderMixin
-  with EncodingChangeMixin { self: Term =>
+    extends AlignedMixin
+    with BitOrderMixin
+    with EncodingChangeMixin { self: Term =>
 
   override protected final def grammarContext = this
 
@@ -57,6 +57,8 @@ trait TermGrammarMixin
   private lazy val newVarStarts = newVars.map { _.gram }
   private lazy val newVarEnds = newVars.map { _.endGram }
 
+  protected lazy val hasEncoding = optionEncodingRaw.isDefined
+  
   protected lazy val termIOPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ encodingChange }
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
@@ -155,7 +157,7 @@ trait TermGrammarMixin
     // However, this isn't the same as just plopping down a bitOrderChange ~ encodingChange, since
     // those examine prior peer, and what we want to scrutinize is the prior term being separated.
     //
-    Separator(es, self)
+    delimMTA ~ Separator(es, self)
   }
 
   private lazy val sepRule = separatorItself
@@ -181,5 +183,20 @@ trait TermGrammarMixin
       new OptionalInfixSep(this, infixSep)
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
   }
-
+  
+  /**
+   * Mandatory text alignment or mta
+   * 
+   * mta can only apply to things with encodings. No encoding, no MTA.
+   */
+  protected lazy val mta = prod("mandatoryTextAlignment", hasEncoding) {
+    MandatoryTextAlignment(this,  knownEncodingAlignmentInBits)
+  }
+   
+  /**
+   * Mandatory text alignment for delimiters
+   */
+  protected lazy val delimMTA = prod("delimMTA", hasDelimiters) {
+    mta
+  }
 }

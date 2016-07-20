@@ -40,9 +40,9 @@ class SkipRegionParser(
   alignmentInBits: Int,
   skipInBits: Int,
   e: RuntimeData)
-  extends AlignmentFillParser(alignmentInBits, e) {
+    extends AlignmentFillParser(alignmentInBits, e) {
 
-    override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Nil
 
   override def parse(pstate: PState) = {
     super.parse(pstate)
@@ -54,13 +54,18 @@ class SkipRegionParser(
 class AlignmentFillParser(
   alignmentInBits: Int,
   override val context: RuntimeData)
-  extends PrimParser {
-  
+    extends PrimParser {
+
   override lazy val runtimeDependencies = Nil
 
-  def parse(pstate: PState): Unit = {
+  override def parse(pstate: PState): Unit = {
     val dis = pstate.dataInputStream
     if (!dis.align(alignmentInBits))
       PE(pstate, "Unable to align to %s(bits)", alignmentInBits)
   }
 }
+
+class MandatoryTextAlignmentParser(
+  alignmentInBits: Int,
+  override val context: RuntimeData)
+    extends AlignmentFillParser(alignmentInBits, context)

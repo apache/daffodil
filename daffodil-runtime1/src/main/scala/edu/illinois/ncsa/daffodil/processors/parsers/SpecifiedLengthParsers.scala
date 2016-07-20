@@ -14,10 +14,10 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
 import java.lang.{ Long => JLong }
 
-abstract class SpecifiedLengthParserBase(eParser: Parser,
+sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
-  extends ParserObject(erd)
-  with WithParseErrorThrowing {
+    extends ParserObject(erd)
+    with WithParseErrorThrowing {
 
   override lazy val childProcessors = Seq(eParser)
 
@@ -65,7 +65,7 @@ class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   pattern: java.util.regex.Pattern)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+    extends SpecifiedLengthParserBase(eParser, erd) {
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
@@ -87,12 +87,12 @@ class SpecifiedLengthPatternParser(
   }
 }
 
-class SpecifiedLengthExplicitBitsParser(
+class SpecifiedLengthExplicitParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong],
   toBits: Int)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+    extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = {
     val nBytesAsAny = lengthEv.evaluate(s)
@@ -101,61 +101,37 @@ class SpecifiedLengthExplicitBitsParser(
   }
 }
 
-class SpecifiedLengthExplicitBitsFixedParser(
+class SpecifiedLengthImplicitParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nBits: Long)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+    extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = nBits
 }
 
-class SpecifiedLengthExplicitBytesParser(
-  eParser: Parser,
-  erd: ElementRuntimeData,
-  lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthParserBase(eParser, erd) {
-
-  final override def getBitLength(s: PState): Long = {
-    val nBytesAsAny = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes * 8
-  }
-}
-
-class SpecifiedLengthExplicitBytesFixedParser(
-  eParser: Parser,
-  erd: ElementRuntimeData,
-  nBytes: Long)
-  extends SpecifiedLengthParserBase(eParser, erd) {
-
-  final override def getBitLength(s: PState): Long = nBytes * 8
-}
-
 /**
  * This is used when length is measured in characters, and couldn't be
- * converted to a computation on length in bytes because a character is encoded as a variable number
+ * converted to a computation on length in bits because a character is encoded as a variable number
  * of bytes, e.g., in utf-8 encoding where a character can be 1 to 4 bytes.
+ * 
+ * Alternatively, this is also used if the encoding is coming from an expression, so we don't
+ * know if it will come back as utf-8 (variable width) or ascii (fixed width)
  *
  * This base is used for complex types where we need to know how long the "box"
  * is, that all the complex content must fit within, where that box length is
  * measured in characters. In the complex content case we do not need the string that is all the
  * characters, as we're going to recursively descend and parse it into the complex structure.
- *
- * TODO: Idea - this base also ends up being used for nilLiterals (as of this
- * comment being written 2015-06-30), and there, these two passes, one to
- * measure, and then one to parse, really are redundant. Could change the way nilLiterals are
- * parsed to not use this base, and that could boost performance (maybe...) for nilLiteral-intensive formats.
  */
-abstract class SpecifiedLengthExplicitCharactersParserBase(
+sealed abstract class SpecifiedLengthCharactersParserBase(
   eParser: Parser,
   erd: ElementRuntimeData)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+    extends SpecifiedLengthParserBase(eParser, erd) {
 
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
     val mark = dis.markPos
-    val hasNChars = dis.skipChars(nChars)
+    val hasNChars = dis.skipChars(nChars) // will decode up to n characters.
     if (!hasNChars) {
       dis.resetPos(mark)
       MaybeULong.Nope
@@ -166,10 +142,18 @@ abstract class SpecifiedLengthExplicitCharactersParserBase(
     }
   }
 
-  protected def getLength(s: PState): Long
+  protected def getCharLength(s: PState): Long
 
   final protected override def getBitLength(s: PState): Long = {
-    val nChars = getLength(s)
+    val nChars = getCharLength(s)
+    //
+    // TODO: Performance - if the encoding is an expression, but that
+    // expression computes a fixed-width encoding, then we can compute
+    // nbits more cheaply by just multiplying.
+    //
+    // We only need this more general code for the real case where
+    // the encoding is variable width. 
+    //
     val mBitLimit = maybeBitPosAfterNChars(s, nChars)
     if (!mBitLimit.isDefined)
       PE(s.schemaFileLocation, "%s - %s - Parse failed.  Failed to find exactly %s characters.",
@@ -181,13 +165,13 @@ abstract class SpecifiedLengthExplicitCharactersParserBase(
   }
 }
 
-final class SpecifiedLengthExplicitCharactersFixedParser(
+final class SpecifiedLengthImplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nChars: Long)
-  extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
+    extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
-  override def getLength(s: PState) = nChars
+  override def getCharLength(s: PState) = nChars
 
 }
 
@@ -195,12 +179,11 @@ final class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
+    extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
-  def getLength(s: PState): Long = {
-    val nBytesAsAny = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes
+  def getCharLength(s: PState): Long = {
+    val nChars = lengthEv.evaluate(s)
+    nChars
   }
 
 }

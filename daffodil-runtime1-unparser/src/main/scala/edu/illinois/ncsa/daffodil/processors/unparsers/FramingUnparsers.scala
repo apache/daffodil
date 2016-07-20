@@ -1,15 +1,16 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.FillByteEv
+import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
 
 class SkipRegionUnparser(
-  alignmentInBits: Int,
   skipInBits: Int,
-  e: RuntimeData)
-  extends AlignmentFillUnparser(alignmentInBits, e) {
+  e: RuntimeData,
+  fillByteEv: FillByteEv)
+    extends PrimUnparserObject(e) {
 
   override def unparse(state: UState) = {
-    super.unparse(state)
     val dos = state.dataOutputStream
     if (!dos.skip(skipInBits)) UE(state, "Unable to skip %s(bits).", skipInBits)
   }
@@ -17,19 +18,31 @@ class SkipRegionUnparser(
 
 class AlignmentFillUnparser(
   alignmentInBits: Int,
-  e: RuntimeData)
-  extends PrimUnparserObject(e) {
+  override val rd: RuntimeData,
+  fillByteEv: FillByteEv)
+    extends PrimUnparserObject(rd)
+    with SuspendableOperation {
 
-  def unparse(state: UState): Unit = {
+  override def test(ustate: UState) = {
+    val dos = ustate.dataOutputStream
+    dos.maybeAbsBitPos0b.isDefined
+  }
+
+  override def continuation(state: UState) {
     val dos = state.dataOutputStream
-    if (dos.maybeAbsBitPos0b.isDefined) {
-      if (!dos.align(alignmentInBits)) UE(state, "Unable to align to %s(bits).", alignmentInBits)
-    } else {
-      // We don't have the absolute bit position, so we can't do alignment.
-      // TODO: implement delayed alignment (creates another buffering of DOS and suspends
-      // performning the alignment until the absolute bit pos is determined (after some earlier OVC element
-      // of variable length, the data for it is computed so we can determine its length).
-      e.SDE("Unable to align - preceding variable-length dfdl:outputValueCalc element is not yet defined.")
-    }
+    val fb = fillByteEv.evaluate(state)
+    dos.setFillByte(fb)
+    if (!dos.align(alignmentInBits))
+      UE(state, "Unable to align to %s(bits).", alignmentInBits)
+  }
+
+  override def unparse(state: UState): Unit = {
+    run(state)
   }
 }
+
+class MandatoryTextAlignmentUnparser(
+  alignmentInBits: Int,
+  e: RuntimeData,
+  fillByteEv: FillByteEv)
+    extends AlignmentFillUnparser(alignmentInBits, e, fillByteEv)

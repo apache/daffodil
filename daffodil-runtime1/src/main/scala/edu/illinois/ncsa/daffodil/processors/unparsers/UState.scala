@@ -35,9 +35,9 @@ import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.dpath.Blocking
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.processors.Suspension
 
 class UState(
   private val infosetCursor: InfosetCursor,
@@ -45,22 +45,22 @@ class UState(
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[SuspendableExpression] = new mutable.Queue[SuspendableExpression])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), Success)
-  with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+  initialSuspendedExpressions: mutable.Queue[Suspension] = new mutable.Queue[Suspension])
+    extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), Success)
+    with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def toString = {
     "UState(" + dataOutputStream.toString() + ")"
   }
 
-  def cloneForOVC(newDOS: DataOutputStream): UState = {
+  def cloneForSuspension(newDOS: DataOutputStream): UState = {
     val clone = new UState(
       NonUsableInfosetCursor,
       this.variableMap,
       Nil, // no diagnostics for now. Any that accumulate here must eventually be output.
       dataProcArg, // same data proc.
       newDOS,
-      this.suspendedExpressions // inherit same place to put these OVC suspensions from original.
+      this.suspensions // inherit same place to put these OVC suspensions from original.
       )
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
     clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
@@ -286,19 +286,19 @@ class UState(
    * All the other clones used for outputValueCalc, those never
    * need to add any.
    */
-  private val suspendedExpressions = initialSuspendedExpressions
+  private val suspensions = initialSuspendedExpressions
 
-  def addSuspendedExpression(se: SuspendableExpression) {
-    suspendedExpressions.enqueue(se)
+  def addSuspension(se: Suspension) {
+    suspensions.enqueue(se)
   }
 
-  def evalSuspendedExpressions() {
+  def evalSuspensions() {
     var countOfNotMakingProgress = 0
-    while (!suspendedExpressions.isEmpty &&
-      countOfNotMakingProgress < suspendedExpressions.length) {
-      val se = suspendedExpressions.dequeue
-      se.evaluate()
-      if (!se.isDone) suspendedExpressions.enqueue(se)
+    while (!suspensions.isEmpty &&
+      countOfNotMakingProgress < suspensions.length) {
+      val se = suspensions.dequeue
+      se.run()
+      if (!se.isDone) suspensions.enqueue(se)
       if (!se.isMakingProgress)
         countOfNotMakingProgress += 1
       else
@@ -306,20 +306,20 @@ class UState(
     }
     // after the loop, did we terminate
     // with some expressions still unevaluated?
-    if (suspendedExpressions.length > 0) {
+    if (suspensions.length > 0) {
       // unable to evaluate all the expressions
-      throw new SuspendedExpressionsDeadlockException(suspendedExpressions.seq)
+      throw new SuspensionDeadlockException(suspensions.seq)
     }
   }
 
 }
 
-class SuspendedExpressionsDeadlockException(suspExprs: Seq[SuspendableExpression])
+class SuspensionDeadlockException(suspExprs: Seq[Suspension])
   extends RuntimeSchemaDefinitionError(
-    suspExprs(0).diSimple.erd.schemaFileLocation,
+    suspExprs(0).rd.schemaFileLocation,
     suspExprs(0).ustate,
-    "Expressions are circularly deadlocked (mutually defined): %s",
-    suspExprs.map { _.expr })
+    "Expressions/Unparsers are circularly deadlocked (mutually defined): %s",
+    suspExprs.map { _.toString }.mkString("\n"))
 
 object UState {
 

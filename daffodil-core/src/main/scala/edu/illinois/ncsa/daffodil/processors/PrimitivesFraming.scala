@@ -38,8 +38,10 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
+import edu.illinois.ncsa.daffodil.processors.parsers.MandatoryTextAlignmentParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.AlignmentFillUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
@@ -62,7 +64,7 @@ abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: St
   }
 
   final lazy val parser: Parser = new SkipRegionParser(alignmentInBits, skipLengthInBits, e.runtimeData)
-  final lazy val unparser: Unparser = new SkipRegionUnparser(alignmentInBits, skipLengthInBits, e.runtimeData)
+  final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.runtimeData, e.fillByteEv)
 }
 
 case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkip, "leadingSkip")
@@ -92,7 +94,14 @@ case class AlignmentFill(e: Term) extends Terminal(e, true) {
   //  }
 
   lazy val parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
-  lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData)
+  lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData, e.fillByteEv)
 }
 
 case class FinalUnusedRegion(e: ElementBase) extends UnimplementedPrimitive(e, false)
+
+case class MandatoryTextAlignment(e: Term, alignmentInBits: Int) extends Terminal(e, alignmentInBits > 1) {
+  Assert.invariant(alignmentInBits > 0)
+
+  lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.runtimeData)
+  lazy val unparser: Unparser = new MandatoryTextAlignmentUnparser(alignmentInBits, e.runtimeData, e.fillByteEv)
+}

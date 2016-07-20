@@ -46,7 +46,7 @@
       terminator="" occursCountKind="implicit" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
     <dfdl:defineFormat name="trimmed">
-       <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+       <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar" textPadKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center"/>
     </dfdl:defineFormat>
 
@@ -459,11 +459,9 @@ C</MessageHeaders>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- See DFDL-1557 to make this round trip -->
   <tdml:parserTestCase name="Lesson4_delimited_fixed_length"
     root="address1" model="lengthKindDelimited-Embedded.dfdl.xsd"
-    description="delimited fixed length elements - DFDL-12-053R"
-    roundTrip="false">
+    description="delimited fixed length elements - DFDL-12-053R">
     <tdml:document><![CDATA[000118*Ridgewood Circle    *Rochester           *NY]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
