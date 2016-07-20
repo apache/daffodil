@@ -31,11 +31,11 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 

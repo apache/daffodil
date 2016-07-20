@@ -30,10 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.compiler
+package edu.illinois.ncsa.daffodil.api
 
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
+import edu.illinois.ncsa.daffodil.util.Enum
 
 /**
  * Size and length limit constants used by the code, some of which will be tunable
@@ -130,4 +131,29 @@ object DaffodilTunableParameters {
    * policy from the schema, otherwise use whatever the value is
    */
   var parseUnparsePolicy: Option[ParseUnparsePolicy] = None
+
+  /**
+   * Specified how unqialied path steps are resolved.
+   *
+   * NoNamespace:
+   *  Unqualified path steps remain unqualified and will only match elements in
+   *  NoNamespace. A prefix must be provided to match namespaced elements.
+   *
+   * DefaultNamespace:
+   *  Unqualified path steps will always use the default namespace. If a default
+   *  namespace is defined, it is not possible to match a NoNamespace element
+   *  with this policy. Because of this, this may not work well with
+   *  elementFormDefault="unqualified".
+   *
+   * PreferDefaultNamespace
+   *  Attempt to use the default namespace to resolve a step. If that fails to
+   *  match an element, then try to resolve using NoNamespace.
+   */
+  object UnqualifiedPathStepPolicy extends Enum {
+    abstract sealed trait Type extends EnumValueType
+    case object NoNamespace extends Type
+    case object DefaultNamespace extends Type
+    case object PreferDefaultNamespace extends Type
+  }
+  var unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace
 }

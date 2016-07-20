@@ -409,7 +409,9 @@ object XMLUtils {
         sb.append(nsb.prefix)
       }
       sb.append("=\"")
-      sb.append(nsb.uri)
+      if (nsb.uri != NoNamespace.toString) {
+        sb.append(nsb.uri)
+      }
       sb.append("\"")
       if (nsb.parent != nsbEnd) {
         sb.append(" ")

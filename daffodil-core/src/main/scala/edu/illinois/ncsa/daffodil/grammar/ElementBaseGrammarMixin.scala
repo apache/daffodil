@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import java.lang.{ Long => JLong }
 
 /////////////////////////////////////////////////////////////////

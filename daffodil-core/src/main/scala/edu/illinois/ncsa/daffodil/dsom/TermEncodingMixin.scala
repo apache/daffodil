@@ -4,7 +4,7 @@ import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 

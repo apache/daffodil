@@ -38,6 +38,8 @@ import scala.language.reflectiveCalls
 import java.net.URISyntaxException
 import java.net.URI
 import scala.util.Try
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
 
 /**
  * Please centralize QName handling here.
@@ -416,8 +418,13 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     StepQName(prefix, local, namespace)
 
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding) =
-    None // don't consider default namespace
+  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding) = {
+    DaffodilTunableParameters.unqualifiedPathStepPolicy match {
+      case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace
+      case UnqualifiedPathStepPolicy.DefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
+      case UnqualifiedPathStepPolicy.PreferDefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
+    }
+  }
 }
 
 object QNameRegex {

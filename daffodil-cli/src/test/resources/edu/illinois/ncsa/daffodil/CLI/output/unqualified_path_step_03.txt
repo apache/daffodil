@@ -1,0 +1,7 @@
+<test_03 xmlns="http://example.com">
+  <a>
+    <b>1</b>
+    <c xmlns="">2</c>
+  </a>
+  <s xmlns="">2</s>
+</test_03>

@@ -43,7 +43,7 @@ sealed trait XMLElementEvent extends XMLEvent {
   protected def scope: NamespaceBinding
   final def getNamespaceStringOrNullIfNoNS: String = {
     val nsStr = scope.getURI(pre)
-    if (nsStr == NoNamespace.toString) null else nsStr
+    if (nsStr == NoNamespace.toString || nsStr == "") null else nsStr
   }
 }
 

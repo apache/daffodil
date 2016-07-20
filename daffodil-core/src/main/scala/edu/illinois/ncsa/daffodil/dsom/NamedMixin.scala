@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 /**
  * Common Mixin for things that have a name attribute.

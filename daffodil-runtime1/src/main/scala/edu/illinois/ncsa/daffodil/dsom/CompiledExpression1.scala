@@ -45,6 +45,8 @@ import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.util.Maybe
 import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -327,7 +329,21 @@ class DPathElementCompileInfo(
    */
   final def findNamedChild(step: StepQName): DPathElementCompileInfo = {
     val optERD: Option[DPathElementCompileInfo] = step.findMatch(elementChildrenCompileInfo)
-    optERD.getOrElse { noMatchError(step) }
+
+    val retryOptERD =
+      if (optERD.isEmpty &&
+          DaffodilTunableParameters.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+          step.prefix.isEmpty && step.namespace != NoNamespace) {
+        // we failed to find a match with the default namespace. Since the
+        // default namespace was assumed but didn't match, the unqualified path
+        // step policy allows us to try to match NoNamespace elements.
+        val noNamespaceStep = step.copy(namespace = NoNamespace)
+        noNamespaceStep.findMatch(elementChildrenCompileInfo)
+      } else {
+        optERD
+      }
+
+    retryOptERD.getOrElse { noMatchError(step) }
   }
 
   /**

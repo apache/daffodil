@@ -88,6 +88,7 @@ import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 class NullOutputStream extends OutputStream {
   override def close() {}

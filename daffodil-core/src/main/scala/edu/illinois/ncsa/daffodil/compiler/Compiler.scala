@@ -67,6 +67,7 @@ import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.NotParsableParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 
 /**
@@ -274,6 +275,15 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
           case _ => Assert.usageError("Unknown value for parseUnparsePolicy tunable. Value must be \"parseOnly\", \"unparseOnly\", \"both\", or \"schema\".")
         }
         DaffodilTunableParameters.parseUnparsePolicy = policy
+      }
+      case "unqualifiedpathsteppolicy" => {
+        val policy = value.toLowerCase match {
+          case "nonamespace"            => DaffodilTunableParameters.UnqualifiedPathStepPolicy.NoNamespace
+          case "defaultnamespace"       => DaffodilTunableParameters.UnqualifiedPathStepPolicy.DefaultNamespace
+          case "preferdefaultnamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.PreferDefaultNamespace
+          case _ => Assert.usageError("Unknown value for unqualifiedPathStepPolicy tunable. Value must be \"noNamespace\", \"defaultNamespace\", or \"perferDefaultNamespace\".")
+        }
+        DaffodilTunableParameters.unqualifiedPathStepPolicy = policy
       }
       case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
     }
