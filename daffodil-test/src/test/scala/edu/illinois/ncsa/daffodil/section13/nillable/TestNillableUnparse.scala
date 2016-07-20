@@ -39,6 +39,7 @@ import org.junit._
 object TestNillableUnparse {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val runnerLN = Runner(testDir, "literal-value-nils-unparse.tdml")
+  val runnerLC = Runner(testDir, "literal-character-nils-unparse.tdml")
 
   @AfterClass def tearDown() {
     runnerLN.reset
@@ -81,5 +82,8 @@ class TestNillableUnparse {
   @Test def test_text_nil_characterClass_04() { runnerLN.runOneTest("text_nil_characterClass_04") }
   @Test def test_text_nil_characterClass_05() { runnerLN.runOneTest("text_nil_characterClass_05") }
   @Test def test_text_nil_characterClass_06() { runnerLN.runOneTest("text_nil_characterClass_06") }
+
+  @Test def test_text_lit_char_01() { runnerLC.runOneTest("text_01") }
+  @Test def test_text_lit_char_01a() { runnerLC.runOneTest("text_01a") }
 
 }
