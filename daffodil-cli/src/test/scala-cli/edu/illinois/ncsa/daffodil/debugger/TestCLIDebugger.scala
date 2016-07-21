@@ -934,6 +934,27 @@ class TestCLIdebugger {
     }
   }
 
+  @Test def test_CLI_Debugger_utf16_encoding() {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/utf16schema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/hextest.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e2 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("info data")
+      shell.expect(contains("\u240A"))
+
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
   /* See DFDL-1264
   @Test def test_3585_CLI_Debugger_simpleDebugger_unparse() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")

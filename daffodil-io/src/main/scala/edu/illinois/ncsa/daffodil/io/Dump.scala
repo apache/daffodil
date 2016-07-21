@@ -574,7 +574,7 @@ class DataDumper {
       case Some("utf-32be") | Some("utf-32le") => unicode
       case None | Some("ascii") | Some("us-ascii") | Some("iso-8859-1") =>
         ("0123456789abcdef", 1, optEncodingName)
-      case Some("utf-32") | Some("utf-16") => Assert.usageError("encoding does not specify byte order: " + optEncodingName.get)
+      case Some("utf-32") | Some("utf-16") => unicode
       case Some(x) => {
         // Don't know how to dump this text specific to this encoding
         // so proceed but without encoding information
