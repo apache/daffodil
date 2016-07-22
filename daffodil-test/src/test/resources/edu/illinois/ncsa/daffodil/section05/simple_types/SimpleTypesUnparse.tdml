@@ -124,6 +124,11 @@
     
     <xs:element name="hb_16" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"/>
 
+    <xs:element name="float_01" type="xs:float" />
+    <xs:element name="double_01" type="xs:double" />
+    <xs:element name="integer_01" type="xs:integer"
+      dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="8" />
+
   </tdml:defineSchema>
 
   <!--
@@ -529,5 +534,59 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
+  <!--
+    Test name: float_binary_unparse_01
+    Schema: SimpleTypes-binary
+    Purpose: This infoset should be unparsed into the appropriate number of bits for an implicitly-sized float (32)
+  -->
 
+  <tdml:unparserTestCase name="float_binary_unparse_01" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:float_01>5.0</ex:float_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="bits">01000000 10100000 00000000 00000000</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: double_binary_unparse_01
+    Schema: SimpleTypes-binary
+    Purpose: This infoset should be unparsed into the appropriate number of bits for an implicitly-sized double (64)
+  -->
+
+  <tdml:unparserTestCase name="double_binary_unparse_01" root="double_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:double_01>5.0</ex:double_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="bits">0100000000010100000000000000000000000000000000000000000000000000</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: integer_binary_unparse_01
+       Schema: SimpleTypes-binary
+      Purpose: This infoset will be unparsed into an integer with a size of 8 bits
+  -->
+  <tdml:unparserTestCase name="integer_binary_unparse_01"
+    root="integer_01" model="SimpleTypes-binary"
+    description="Section 5 Schema types- integer - DFDL-5-011R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:integer_01>5</ex:integer_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="bits">00000101</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+  
 </tdml:testSuite>

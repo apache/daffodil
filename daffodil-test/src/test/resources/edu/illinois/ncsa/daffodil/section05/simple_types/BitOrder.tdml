@@ -188,6 +188,9 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="leastFirstFloat" type="xs:float" dfdl:lengthKind='implicit' />
+    <xs:element name="leastFirstDouble" type="xs:double" dfdl:lengthKind='implicit' />
+
   </tdml:defineSchema>
 
 <!--
@@ -213,6 +216,44 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: leastSigBitFirstFloat
+        Schema: s2
+          Root: leastFirstFloat
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' and byte order of 'littleEndian' with a float.
+-->
+ <tdml:unparserTestCase name="leastSigBitFirstFloat"
+    root="leastFirstFloat" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <leastFirstFloat>47.0</leastFirstFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >00000000 00000000 00111100 01000010</documentPart>
+    </document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: leastSigBitFirstDouble
+        Schema: s2
+          Root: leastFirstDouble
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' and byte order of 'littleEndian' with a double.
+-->
+ <tdml:unparserTestCase name="leastSigBitFirstDouble"
+    root="leastFirstDouble" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <leastFirstDouble>196.0</leastFirstDouble>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >00000000 00000000 00000000 00000000 00000000 10000000 01101000 01000000</documentPart>
+    </document>
+  </tdml:unparserTestCase>
 
 <!--
      Test Name: leastSignificantBitFirstRTL
@@ -254,6 +295,9 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="mostFirstFloat" type="xs:float" dfdl:lengthKind='implicit' />
+    <xs:element name="mostFirstDouble" type="xs:double" dfdl:lengthKind='implicit' />
+
   </tdml:defineSchema>
 
 <!--
@@ -279,6 +323,44 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: mostSigBitFirstFloat
+        Schema: s3
+          Root: mostFirstFloat
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst' and byte order of 'bigEndian' with a float.
+-->
+ <tdml:unparserTestCase name="mostSigBitFirstFloat"
+    root="mostFirstFloat" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <mostFirstFloat>47.0</mostFirstFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01000010 00111100 00000000 00000000</documentPart>
+    </document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: mostSigBitFirstDouble
+        Schema: s3
+          Root: mostFirstDouble
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst' and byte order of 'bigEndian' with a double.
+-->
+ <tdml:unparserTestCase name="mostSigBitFirstDouble"
+    root="mostFirstDouble" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <mostFirstDouble>196.0</mostFirstDouble>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01000000 01101000 10000000 00000000 00000000 00000000 00000000 00000000</documentPart>
+    </document>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s4">
     <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes"
@@ -495,5 +577,54 @@
       <tdml:error>Must specify bitOrder on document element when parts have a mixture of bit orders</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s7">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
+      byteOrder="littleEndian"/>
+
+    <xs:element name="mostFirstLEFloat" type="xs:float" dfdl:lengthKind='implicit' />
+    <xs:element name="mostFirstLEDouble" type="xs:double" dfdl:lengthKind='implicit' />
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: mostSigBitFirstLEFloat
+        Schema: s7
+          Root: mostFirstLEFloat
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst' with byteOrder of 'littleEndian' with float.
+-->
+ <tdml:unparserTestCase name="mostSigBitFirstLEFloat"
+    root="mostFirstLEFloat" model="s7" description="Tests the bit order of 'mostSignificantBitFirst' with byteOrder of 'littleEndian'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <mostFirstLEFloat>47.0</mostFirstLEFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >00000000 00000000 00111100 01000010</documentPart>
+    </document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: mostSigBitFirstLEDouble
+        Schema: s7
+          Root: mostFirstLEDouble
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst' with byteOrder of 'littleEndian' with double.
+-->
+ <tdml:unparserTestCase name="mostSigBitFirstLEDouble"
+    root="mostFirstLEDouble" model="s7" description="Tests the bit order of 'mostSignificantBitFirst' with byteOrder of 'littleEndian'">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <mostFirstLEDouble>196.0</mostFirstLEDouble>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >00000000 00000000 00000000 00000000 00000000 10000000 01101000 01000000</documentPart>
+    </document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

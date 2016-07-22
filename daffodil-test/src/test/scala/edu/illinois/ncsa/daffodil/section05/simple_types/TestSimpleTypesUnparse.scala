@@ -79,4 +79,8 @@ class TestSimpleTypesUnparse {
   @Test def test_hexBinary_variable_unparse_02() { runner.runOneTest("hexBinary_variable_unparse_02") }
   @Test def test_hexBinary_variable_unparse_03() { runner.runOneTest("hexBinary_variable_unparse_03") }
   @Test def test_hexBinary_variable_unparse_04() { runner.runOneTest("hexBinary_variable_unparse_04") }
+
+  @Test def test_float_binary_unparse_01() { runner.runOneTest("float_binary_unparse_01") }
+  @Test def test_double_binary_unparse_01() { runner.runOneTest("double_binary_unparse_01") }
+  @Test def test_integer_binary_unparse_01() { runner.runOneTest("integer_binary_unparse_01") }
 }

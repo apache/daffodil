@@ -89,8 +89,12 @@ class TestSimpleTypes2 {
   @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
   @Test def test_LSBFirstSpan3Bytes() { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
   @Test def test_leastSignificantBitFirst() { runner1.runOneTest("leastSignificantBitFirst") }
+  @Test def test_leastSigBitFirstFloat() { runner1.runOneTest("leastSigBitFirstFloat") }
+  @Test def test_leastSigBitFirstDouble() { runner1.runOneTest("leastSigBitFirstDouble") }
   @Test def test_leastSignificantBitFirstRTL() { runner1.runOneTest("leastSignificantBitFirstRTL") }
   @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
+  @Test def test_mostSigBitFirstFloat() { runner1.runOneTest("mostSigBitFirstFloat") }
+  @Test def test_mostSigBitFirstDouble() { runner1.runOneTest("mostSigBitFirstDouble") }
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
@@ -101,4 +105,6 @@ class TestSimpleTypes2 {
   @Test def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("simpleTypeOverlapPrimError") }
   @Test def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("simpleTypeOverlapSimpleTypeError") }
 
+  @Test def test_mostSigBitFirstLEFloat() { runner1.runOneTest("mostSigBitFirstLEFloat") }
+  @Test def test_mostSigBitFirstLEDouble() { runner1.runOneTest("mostSigBitFirstLEDouble") }
 }
