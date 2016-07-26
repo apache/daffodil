@@ -64,9 +64,9 @@ object Processor {
 }
 
 trait Processor
-  extends ToBriefXMLImpl
-  with Logging
-  with Serializable {
+    extends ToBriefXMLImpl
+    with Logging
+    with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
   def childProcessors: Seq[Processor]
@@ -76,7 +76,7 @@ trait Processor
 }
 
 trait PrimProcessor extends Processor {
-  override def childProcessors = Nil
+  override def childProcessors: Seq[Processor] = Nil
 }
 
 /**
@@ -141,7 +141,7 @@ trait BinaryParserUnparserRuntimeMixin {
  * explicitly manage runtimeDependencies, whereas ParserObject hides that detail, which isn't helpful.
  */
 trait Parser
-  extends Processor {
+    extends Processor {
 
   protected def parserName = Misc.getNameFromClass(this)
 
@@ -168,7 +168,7 @@ trait Parser
 
 // Deprecated and to be phased out. Use the trait Parser instead.
 abstract class ParserObject(override val context: RuntimeData)
-  extends Parser {
+    extends Parser {
 
   override lazy val runtimeDependencies = Nil
 }
@@ -211,7 +211,7 @@ trait ToBriefXMLImpl {
 }
 
 class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
-  extends ParserObject(context) {
+    extends ParserObject(context) {
 
   override def childProcessors = childParsers
 
@@ -241,7 +241,7 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 }
 
 class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
-  extends ParserObject(context) {
+    extends ParserObject(context) {
 
   override lazy val childProcessors = childParsers
 

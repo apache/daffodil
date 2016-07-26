@@ -58,6 +58,8 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
   //
   // The work-around: write an if-then-else like if (foo.isDefined) foo.get else MaybeULong.Nope
   // verbose but known-to-be-fast
+
+  @inline def toMaybeJULong = if (isEmpty) MaybeJULong.Nope else new MaybeJULong(MaybeULong(__rep))
 }
 
 object MaybeULong {
@@ -69,4 +71,32 @@ object MaybeULong {
   }
 
   val Nope = new MaybeULong(undefValue)
+}
+
+/**
+ * Maybe[ULong] still isn't an AnyRef, We need an AnyRef class
+ * that can be used to pass/return/store One(ULong) or Nope.
+ *
+ * Like a MaybeULong, but an AnyRef, so can be stored in
+ * collections.
+ *
+ * This reduces boxing. You get one object with an unboxed MaybeULong
+ * stored within it.
+ */
+final class MaybeJULong(mi: MaybeULong)
+    extends Serializable {
+  @inline final def get: Long = mi.get
+  @inline final def getULong = mi.getULong
+  @inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
+  @inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
+  @inline final def isDefined = mi.isDefined
+  @inline final def isEmpty = !isDefined
+  override def toString = mi.toString
+}
+
+object MaybeJULong {
+
+  @inline def apply(v: Long) = new MaybeJULong(MaybeULong(v))
+
+  val Nope = new MaybeJULong(MaybeULong.Nope)
 }

@@ -35,9 +35,10 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.util.Maybe
 import Maybe._
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 
 case class DAFTrace(recipe: CompiledDPath, msg: String)
-  extends FNOneArg(recipe, NodeInfo.AnyType) {
+    extends FNOneArg(recipe, NodeInfo.AnyType) {
 
   override def computeValue(str: AnyRef, dstate: DState) = {
     System.err.println("trace " + msg + ":" + str.toString)
@@ -46,11 +47,18 @@ case class DAFTrace(recipe: CompiledDPath, msg: String)
 }
 
 case object DAFError extends RecipeOp {
+
   override def run(dstate: DState) {
     val maybeSFL =
       if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
       else Nope
-    val pe = new ParseError(maybeSFL, dstate.contextLocation, "The error function was called.")
-    throw pe
+    dstate.mode match {
+      case UnparserNonBlocking | UnparserBlocking =>
+        UnparseError(maybeSFL, dstate.contextLocation, "The error function was called.")
+      case ParserNonBlocking => {
+        val pe = new ParseError(maybeSFL, dstate.contextLocation, "The error function was called.")
+        throw pe
+      }
+    }
   }
 }

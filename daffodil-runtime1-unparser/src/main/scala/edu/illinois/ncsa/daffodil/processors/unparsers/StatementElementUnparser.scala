@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.DIElement
 
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
@@ -106,23 +105,27 @@ abstract class StatementElementUnparserBase(
 
     Assert.invariant(state.hasInfoset)
 
-    val elem = state.infoset.asInstanceOf[DIElement]
+    // val elem = state.infoset.asInstanceOf[DIElement]
 
-    // capture bit pos before
-    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-      elem.contentLength.setStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    }
+    //    // capture bit pos before onto the infoset node
+    //    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
+    //      elem.contentLength.setAbsStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
+    //    } else {
+    //      elem.contentLength.setRelStartPos0bInBits(state.dataOutputStream.relBitPos0b, state.dataOutputStream)
+    //    }
 
     if (eUnparser.isDefined) {
       eUnparser.get.unparse1(state, rd)
     }
 
-    // capture bit pos before
-    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-      elem.contentLength.setEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    }
+    //    // capture bit pos after onto the infoset node
+    //    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
+    //      elem.contentLength.setAbsEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
+    //    } else {
+    //      elem.contentLength.setRelEndPos0bInBits(state.dataOutputStream.relBitPos0b, state.dataOutputStream)
+    //    }
 
-    doSetVars(state) // ?? Do SetVars occur after the element is unparsed when unparsing ??
+    doSetVars(state) // Even unparsing, setVars are always after the element so they can refer to "."
 
     if (eAfterUnparser.isDefined) {
       eAfterUnparser.get.unparse1(state, rd)
@@ -161,7 +164,7 @@ class StatementElementUnparser(
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume start events for non-hidden elements
         val event = state.advanceOrError
-        if (!event.isStart || event.erd != erd) {
+        if (!event.isStart) { //  || event.erd != erd) {
           UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
         }
         event.asElement
@@ -176,7 +179,9 @@ class StatementElementUnparser(
     // When the infoset events are being advanced, the currentInfosetNodeStack
     // is pushing and popping to match the events. This provides the proper
     // context for evaluation of expressions.
-    state.currentInfosetNodeStack.push(One(elem))
+    val e = One(elem)
+    state.currentInfosetNodeStack.push(e)
+    state.aaa_currentNode = e
   }
 
   def unparseEnd(state: UState): Unit = {
@@ -184,12 +189,18 @@ class StatementElementUnparser(
       // Hidden elements are not in the infoset, so we will never get an event
       // for them. Only try to consume end events for non-hidden elements
       val event = state.advanceOrError
-      if (!event.isEnd || event.erd != erd) {
+      if (!event.isEnd) { //  || event.erd != erd) {
         UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
       }
     }
 
     state.currentInfosetNodeStack.pop
+    state.aaa_currentNode =
+      if (state.currentInfosetNodeStack.isEmpty)
+        Nope
+      else
+        state.currentInfosetNodeStack.top
+
     move(state)
   }
 }
@@ -274,13 +285,20 @@ class StatementElementOutputValueCalcUnparser(
         e
       }
 
-    state.currentInfosetNodeStack.push(One(elem))
+    val e = One(elem)
+    state.currentInfosetNodeStack.push(e)
+    state.aaa_currentNode = e
   }
 
   override def unparseEnd(state: UState) {
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
-    state.currentInfosetNodeStack.pop
+    state.aaa_currentNode =
+      if (state.currentInfosetNodeStack.isEmpty)
+        Nope
+      else
+        state.currentInfosetNodeStack.top
+
     move(state)
   }
 }

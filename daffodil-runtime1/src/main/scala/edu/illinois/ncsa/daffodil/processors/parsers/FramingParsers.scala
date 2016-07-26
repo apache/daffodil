@@ -37,15 +37,13 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class SkipRegionParser(
-  alignmentInBits: Int,
   skipInBits: Int,
-  e: RuntimeData)
-    extends AlignmentFillParser(alignmentInBits, e) {
+  override val context: RuntimeData)
+    extends PrimParser {
 
   override lazy val runtimeDependencies = Nil
 
   override def parse(pstate: PState) = {
-    super.parse(pstate)
     val dis = pstate.dataInputStream
     if (!dis.skip(skipInBits)) PE(pstate, "Unable to skip %s bits.", skipInBits)
   }

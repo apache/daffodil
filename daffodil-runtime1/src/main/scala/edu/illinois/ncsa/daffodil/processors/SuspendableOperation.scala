@@ -37,14 +37,20 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Easier to use for defining things that must be able to block
  * while unparsing.
  */
-trait SuspendableOperation { enclosing =>
+trait SuspendableOperation
+    extends Serializable { enclosing =>
 
   def rd: RuntimeData
+
+  protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong.Nope
+
+  override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.prettyName)
 
   /**
    * Returns true if continuation can be run.
@@ -64,8 +70,10 @@ trait SuspendableOperation { enclosing =>
 
     override def rd = enclosing.rd
 
+    override def toString = enclosing.toString
+
     protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
-      override final protected def body() {
+      override final protected def doTask() {
         while (!isDone) {
           try {
             val tst = test(ustate)
@@ -74,8 +82,8 @@ trait SuspendableOperation { enclosing =>
             else
               block(ustate.dataOutputStream, Suspension.NoData, 0, SuspendableOperationException)
           } catch {
-            case ie: InfosetRetryableException =>
-              block(ustate.dataOutputStream, Suspension.NoData, 0, ie)
+            case e: RetryableException =>
+              block(ustate.dataOutputStream, Suspension.NoData, 0, e)
           }
           if (!isDone) {
             Assert.invariant(isBlocked)
@@ -95,13 +103,13 @@ trait SuspendableOperation { enclosing =>
       try {
         test(ustate)
       } catch {
-        case ie: InfosetRetryableException =>
+        case _: RetryableException =>
           false
       }
     if (tst)
       continuation(ustate) // don't bother with Task if we can avoid it
     else {
-      val cloneUState = SuspensionFactory.setup(ustate, MaybeULong.Nope)
+      val cloneUState = SuspensionFactory.setup(ustate, maybeKnownLengthInBits(ustate))
       val se = new SuspendableOp(cloneUState)
       ustate.addSuspension(se)
     }

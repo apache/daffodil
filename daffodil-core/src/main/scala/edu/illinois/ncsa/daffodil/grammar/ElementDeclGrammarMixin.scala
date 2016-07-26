@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,28 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.ElementDeclMixin
+import edu.illinois.ncsa.daffodil.processors.UnicodeByteOrderMark
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
-import edu.illinois.ncsa.daffodil.compiler.ForUnparser
-
-trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
-
-  final override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
-  final override lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
-
-}
 
 trait GlobalElementDeclGrammarMixin
-  extends LocalElementGrammarMixin // can be repeating if not root
-  { self: GlobalElementDecl =>
+    extends LocalElementGrammarMixin // can be repeating if not root
+    { self: GlobalElementDecl =>
 
   final lazy val document = prod("document") {
-    UnicodeByteOrderMark(this) ~ scalarDefaultable ~ finalizeProcessing
+    schemaDefinitionUnless(isScalar, "The document element cannot be an array.")
+    UnicodeByteOrderMark(this) ~ documentElement
   }
 
-  lazy val finalizeProcessing = prod("finalizeProcessing", true, forWhat = ForUnparser) {
-    FinalizeProcessing(this)
-  }
+  private lazy val documentElement = enclosedElement // simpleElement || complexElement
 }

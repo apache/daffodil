@@ -52,12 +52,15 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
   // TODO: This is the wrong way to do these sorts of setting changes, as this incurs overhead
   // for every Term instance parsed/unparsed.
   //
-  // The right way to fix this is the way BitOrderChange works. The schema compiler
-  // detects when the encoding may have changed, and inserts a parser that just changes it then,
-  // at that point.
+  // The right way to fix this is to have  DataOutputStreams indirect reference
+  // this from an Evaluatable so that it's cached on the node (if a runtime expression)
+  // or taken from the TermRuntimeData if it's static.
   //
-  // Since the vast bulk of DFDL schemas will use a constant encoding (even if it is computed at runtime), that's going to mean it is set
-  // once at the root, and never touched again.
+  // The cache on the node is really only needed for elements with dfdl:outputValueCalc
+  // that forward reference to other things in the future. In those cases
+  // we do need to "freeze" the encoding so that this encoding is used for 
+  // the element once the outputValueCalc has completed evaluation and can 
+  // actually be unparsed.
   //
   final protected def setupEncoder(state: UState, trd: TermRuntimeData) {
     val dis = state.dataOutputStream
@@ -74,7 +77,7 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
 abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends UnparserObject(termRuntimeData)
 
 trait Unparser
-  extends Processor {
+    extends Processor {
 
   def context: RuntimeData
 
@@ -115,7 +118,7 @@ trait PrimUnparser
 
 // Deprecated and to be phased out. Use the trait Unparser instead.
 abstract class UnparserObject(override val context: RuntimeData)
-  extends Unparser {
+    extends Unparser {
 
   override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
@@ -123,7 +126,7 @@ abstract class UnparserObject(override val context: RuntimeData)
 
 // Deprecated and to be phased out. Use the trait PrimUnparser instead.
 abstract class PrimUnparserObject(override val context: RuntimeData)
-  extends PrimUnparser {
+    extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
 
@@ -151,8 +154,8 @@ class ErrorUnparser(context: RuntimeData = null) extends UnparserObject(context)
 }
 
 class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
-  extends UnparserObject(context)
-  with ToBriefXMLImpl {
+    extends UnparserObject(context)
+    with ToBriefXMLImpl {
 
   override val childProcessors = childUnparsers.toSeq
 

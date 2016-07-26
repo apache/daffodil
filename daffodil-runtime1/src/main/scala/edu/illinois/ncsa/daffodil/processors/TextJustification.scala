@@ -41,3 +41,10 @@ object TextJustificationType extends Enum {
   case object Right extends Type
   case object Center extends Type
 }
+
+object TextTruncationType extends Enum {
+  sealed abstract trait Type extends EnumValueType
+  case object Left extends Type
+  case object Right extends Type
+  case object None extends Type
+}

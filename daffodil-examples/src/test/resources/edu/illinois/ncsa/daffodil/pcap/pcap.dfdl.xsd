@@ -51,6 +51,7 @@ The message root is 'PCAP'.
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
            xmlns:pcap="urn:pcap:2.4"
            targetNamespace="urn:pcap:2.4">
 
@@ -71,7 +72,7 @@ The message root is 'PCAP'.
         calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarTimeZone="UTC"
         choiceLengthKind="implicit" decimalSigned="yes"
         documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none"
-        encoding="UTF-8" encodingErrorPolicy="replace" escapeSchemeRef=""
+        encoding="ascii" encodingErrorPolicy="replace" escapeSchemeRef=""
         fillByte="0" floating="no" ignoreCase="no" initiatedContent="no"
         initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits"
         nilKind="literalValue" nilValueDelimiterPolicy="none" nilValue="NIL"
@@ -172,7 +173,7 @@ The message root is 'PCAP'.
                     <xs:element name="Seconds" type="pcap:uint32"/> <!-- TODO: ts_sec should be a dateTime -->
                     <xs:element name="USeconds" type="pcap:uint32"/>
                     <xs:element name="InclLen" type="pcap:uint32" 
-                       dfdl:outputValueCalc="{ dfdl:contentLength(../../pcap:LinkLayer, 'bytes') }"/>
+                       dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:LinkLayer/pcap:Ethernet, 'bytes') }"/>
                     <xs:element name="OrigLen" type="pcap:uint32" 
                        dfdl:outputValueCalc="{ ../InclLen }"/>
                   </xs:sequence>
@@ -211,7 +212,7 @@ The message root is 'PCAP'.
           dfdl:outputValueCalc="{
           if (fn:exists(../pcap:NetworkLayer/pcap:IPv4)) then 2048
           else if (fn:exists(../pcap:NetworkLayer/pcap:IPv6 )) then 34525
-          else -1 }"/>
+          else daf:error() }"/>
         <xs:element ref="pcap:NetworkLayer" />
       </xs:sequence>
     </xs:complexType>
@@ -329,8 +330,10 @@ The message root is 'PCAP'.
               <xs:element name="Length" type="pcap:bit" dfdl:length="16" 
                 dfdl:outputValueCalc="{ 
                 if (fn:exists(../../pcap:TransportLayer)) 
-                then dfdl:contentLength(../../pcap:TransportLayer, 'bytes') + 20
-                else dfdl:contentLength(../../pcap:ICMPv4, 'bytes') + 20
+                then dfdl:valueLength(../../pcap:TransportLayer, 'bytes') + 20
+                else if (fn:exists(../../pcap:ICMPv4/EchoRequest))
+                     then dfdl:valueLength(../../pcap:ICMPv4/EchoRequest/Payload, 'bytes') + 20 + 8
+                     else dfdl:valueLength(../../pcap:ICMPv4/EchoReply/Payload, 'bytes') + 20 + 8
                 }"/>
               <xs:element name="Identification" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Flags" type="pcap:bit" dfdl:length="3" />
@@ -427,7 +430,7 @@ The message root is 'PCAP'.
               <xs:element name="TrafficClass" type="pcap:bit" dfdl:length="8" />
               <xs:element name="FlowLabel" type="pcap:bit" dfdl:length="20" />
               <xs:element name="PayloadLength" type="pcap:bit" dfdl:length="16" 
-              dfdl:outputValueCalc="{ dfdl:contentLength(../../pcap:TransportLayer, 'bytes') }"/>
+              dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:TransportLayer, 'bytes') }"/>
               <!-- TODO: Add support for extension headers -->
               <xs:element name="NextHeader" type="pcap:bit" dfdl:length="8"
                 dfdl:outputValueCalc="{
@@ -504,7 +507,7 @@ The message root is 'PCAP'.
               <xs:element name="PortSrc" type="pcap:bit" dfdl:length="16" />
               <xs:element name="PortDest" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Length" type="pcap:bit" dfdl:length="16" 
-                dfdl:outputValueCalc="{ dfdl:contentLength(../../Data, 'bytes') + 8 }"/>
+                dfdl:outputValueCalc="{ dfdl:valueLength(../../Data, 'bytes') + 8 }"/>
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
             </xs:sequence>
           </xs:complexType>

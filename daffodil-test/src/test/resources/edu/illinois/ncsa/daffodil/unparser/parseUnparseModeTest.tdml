@@ -8,7 +8,8 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   defaultRoundTrip="true">
 
-  <tdml:parserTestCase name="parse1" root="root" model="parseUnparseModeTest.dfdl.xsd" roundTrip="false">
+  <tdml:parserTestCase name="parse1" root="root" model="parseUnparseModeTest.dfdl.xsd"
+    roundTrip="false">
     <tdml:document>24</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -17,13 +18,29 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="unparse1" root="root" model="parseUnparseModeTest.dfdl.xsd" roundTrip="false">
+  <tdml:unparserTestCase name="unparse1" root="root" model="parseUnparseModeTest.dfdl.xsd"
+    roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:root><a>42</a><b>unparsing</b></ex:root>
+        <ex:root><a1>42</a1><c>255</c></ex:root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>42</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="byte">3432FF</tdml:documentPart>
+     </tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="unparse2" root="rootAmbiguous" model="parseUnparseModeTest.dfdl.xsd"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:rootAmbiguous><a>42</a><c>255</c></ex:rootAmbiguous>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>UPA</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

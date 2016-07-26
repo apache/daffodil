@@ -14,7 +14,7 @@
    
    <xs:annotation>
      <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:format ref="tns:daffodilTest1" />
+        <dfdl:format ref="tns:daffodilTest1" truncateSpecifiedLengthString="yes"/>
       </xs:appinfo>
    </xs:annotation>
    
@@ -30,8 +30,34 @@
           </xs:sequence>
           <xs:sequence>
             <xs:group ref="mode:assertUnparsing"/>
+            <xs:element name="a1" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="c" type="xs:unsignedByte" dfdl:lengthKind="explicit" 
+                        dfdl:lengthUnits="bytes" dfdl:length="1" 
+                        dfdl:representation="binary" 
+                        dfdl:binaryNumberRep="binary"/>
+          </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="rootAmbiguous">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="mode:hDefModeGroup" />
+          <xs:choice>
+          <xs:sequence>
+            <xs:group ref="mode:assertParsing"/>
             <xs:element name="a" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
-            <xs:element name="b" type="xs:string" dfdl:length="0" dfdl:lengthKind="explicit"/>
+            <xs:element name="b" type="xs:string" dfdl:inputValueCalc="{ 'parsing' }" />
+          </xs:sequence>
+          <xs:sequence>
+            <xs:group ref="mode:assertUnparsing"/>
+            <xs:element name="a" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="c" type="xs:unsignedByte" dfdl:lengthKind="explicit" 
+                        dfdl:lengthUnits="bytes" dfdl:length="1" 
+                        dfdl:representation="binary" 
+                        dfdl:binaryNumberRep="binary"/>
           </xs:sequence>
           </xs:choice>
         </xs:sequence>

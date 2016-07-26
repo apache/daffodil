@@ -1483,13 +1483,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
-      object InfoParser extends InfoProcessorBase {
-        override val name = "parser"
-      }
+      object InfoParser extends {
+        override val name = "parser" // scala -xcheckinit reported this was uninitialized
+      } with InfoProcessorBase
 
-      object InfoUnparser extends InfoProcessorBase {
+      object InfoUnparser extends {
         override val name = "unparser"
-      }
+      } with InfoProcessorBase
 
       object InfoPath extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "path"

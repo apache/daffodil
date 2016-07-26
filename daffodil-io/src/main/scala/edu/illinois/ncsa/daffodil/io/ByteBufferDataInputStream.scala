@@ -55,7 +55,7 @@ import java.io.InputStream
 import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.util.MStackOf
 
 /**
  * Factory for creating this type of DataInputStream
@@ -177,14 +177,14 @@ private[io] class TLState {
   val skipCharBuf = CharBuffer.allocate(BBSLimits.maximumSimpleElementSizeInCharacters.toInt)
   val regexMatchBuffer = CharBuffer.allocate(BBSLimits.maximumRegexMatchLengthInCharacters.toInt)
   val lengthDeterminationBuffer = CharBuffer.allocate(BBSLimits.maximumRegexMatchLengthInCharacters.toInt)
-  val markStack = new MStack.Of[MarkState]
+  val markStack = new MStackOf[MarkState]
   val markPool = new MarkPool()
 }
 /**
  * The state that must be saved and restored by mark/reset calls
  */
 final class MarkState(initialBitPos0b: Long)
-  extends DataStreamCommonState with DataInputStream.Mark {
+    extends DataStreamCommonState with DataInputStream.Mark {
 
   def defaultCodingErrorAction = ByteBufferDataInputStream.defaultCodingErrorAction
 
@@ -267,7 +267,7 @@ private object BBSLimits extends DataStreamCommon.Limits {
  * these objects, and those may have non-zero positions. E.g., see the def makeACopy.
  */
 final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitPos0b: Long)
-  extends DataInputStreamImplMixin with TLStateMixin {
+    extends DataInputStreamImplMixin with TLStateMixin {
   import DataInputStream._
 
   Assert.usage(initialBitPos0b >= 0)
@@ -1220,8 +1220,8 @@ private[io] class CharIteratorState {
 }
 
 class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
-  extends DataInputStream.CharIterator
-  with ThreadCheckMixin {
+    extends DataInputStream.CharIterator
+    with ThreadCheckMixin {
 
   def reset() {
     st.charIteratorState.clear()

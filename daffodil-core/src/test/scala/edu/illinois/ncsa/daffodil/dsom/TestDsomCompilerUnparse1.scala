@@ -101,7 +101,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse4() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
+      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" truncateSpecifiedLengthString="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">

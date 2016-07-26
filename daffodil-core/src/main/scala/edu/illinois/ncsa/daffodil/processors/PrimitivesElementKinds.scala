@@ -53,19 +53,18 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.FinalizeProcessingUnparser
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
-  lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty)  One(sq.initiatorParseEv)  else Nope
-  lazy val pSep  = if (sq.separatorParseEv.isKnownNonEmpty)  One(sq.separatorParseEv)  else Nope
+  lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorParseEv) else Nope
+  lazy val pSep = if (sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorParseEv) else Nope
   lazy val pTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorParseEv) else Nope
-  
-  lazy val uInit = if (sq.initiatorParseEv.isKnownNonEmpty)  One(sq.initiatorUnparseEv)  else Nope
-  lazy val uSep  = if (sq.separatorParseEv.isKnownNonEmpty)  One(sq.separatorUnparseEv)  else Nope
+
+  lazy val uInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorUnparseEv) else Nope
+  lazy val uSep = if (sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorUnparseEv) else Nope
   lazy val uTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorUnparseEv) else Nope
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pSep.toList ++ pTerm.toList).toArray, sq.runtimeData, body.parser)
@@ -74,10 +73,10 @@ case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Te
 }
 
 case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Terminal(ch, !body.isEmpty) {
-  lazy val pInit = if (ch.initiatorParseEv.isKnownNonEmpty)  One(ch.initiatorParseEv)  else Nope
+  lazy val pInit = if (ch.initiatorParseEv.isKnownNonEmpty) One(ch.initiatorParseEv) else Nope
   lazy val pTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorParseEv) else Nope
-  
-  lazy val uInit = if (ch.initiatorParseEv.isKnownNonEmpty)  One(ch.initiatorUnparseEv)  else Nope
+
+  lazy val uInit = if (ch.initiatorParseEv.isKnownNonEmpty) One(ch.initiatorUnparseEv) else Nope
   lazy val uTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorUnparseEv) else Nope
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, ch.runtimeData, body.parser)
@@ -86,10 +85,10 @@ case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Termin
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
-  lazy val pInit = if (e.initiatorParseEv.isKnownNonEmpty)  One(e.initiatorParseEv)  else Nope
+  lazy val pInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorParseEv) else Nope
   lazy val pTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorParseEv) else Nope
-  
-  lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty)  One(e.initiatorUnparseEv)  else Nope
+
+  lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorUnparseEv) else Nope
   lazy val uTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorUnparseEv) else Nope
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, e.runtimeData, body.parser)
@@ -118,7 +117,7 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 }
 
 case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
-  extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
+    extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
 
   private val mt: Gram = EmptyGram
   lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
@@ -134,7 +133,7 @@ case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
 }
 
 case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
-  extends UnimplementedPrimitive(s, false) {
+    extends UnimplementedPrimitive(s, false) {
   // stub for now. These are not implemented currently.
 }
 
@@ -202,8 +201,3 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
   }
 }
 
-case class FinalizeProcessing(e: GlobalElementDecl) extends Terminal(e, true) {
-  lazy val parser: DaffodilParser = new NadaParser(e.runtimeData)
-
-  override lazy val unparser: DaffodilUnparser = new FinalizeProcessingUnparser(e.elementRuntimeData)
-}

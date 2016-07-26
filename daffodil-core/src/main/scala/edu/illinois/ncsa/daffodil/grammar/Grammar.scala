@@ -150,7 +150,7 @@ object AltComp {
 }
 
 class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children)
-  with HasNoUnparser {
+    with HasNoUnparser {
   protected final override def op = "|"
   protected final override def open = "["
   protected final override def close = "]"
@@ -193,15 +193,12 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
  * Primitives will derive from this base
  */
 abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
-  extends NamedGram(contextArg) {
+    extends NamedGram(contextArg) {
   final override def isEmpty = !guard
 
   private lazy val realSC = context.asInstanceOf[SchemaComponent]
   final override lazy val path = realSC.path + "@@" + prettyName
 
   override def toString = path // dangerous. What if realSC.path fails?
-
-  final def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args: _*)
-  final def SDW(str: String, args: Any*): Unit = realSC.SDW(str, args: _*)
 
 }

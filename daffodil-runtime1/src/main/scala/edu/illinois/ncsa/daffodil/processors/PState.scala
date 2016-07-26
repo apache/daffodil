@@ -32,35 +32,48 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
+import java.nio.charset.Charset
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.CharsetEncoder
+
+import scala.Right
+import scala.collection.mutable
+
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dpath.DState
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
-import edu.illinois.ncsa.daffodil.util.MStack
-import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import scala.collection.mutable
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.Charset
-import java.nio.charset.CharsetEncoder
+import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.util.MStackOfBoolean
+import edu.illinois.ncsa.daffodil.util.MStackOfInt
+import edu.illinois.ncsa.daffodil.util.MStackOfLong
+import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Pool
 
 object MPState {
+
+  def apply() = {
+    val obj = new MPState()
+    obj.init
+    obj
+  }
+
   class Mark {
 
     var arrayIndexStackMark: MStack.Mark = _
@@ -92,25 +105,23 @@ object MPState {
   }
 }
 
-case class MPState() {
-  val arrayIndexStack = new MStack.OfLong
-  arrayIndexStack.push(1L)
+class MPState private () {
+
+  val arrayIndexStack = MStackOfLong()
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = new MStack.OfLong
-  groupIndexStack.push(1L)
+  val groupIndexStack = MStackOfLong()
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = new MStack.OfLong
-  childIndexStack.push(1L)
+  val childIndexStack = MStackOfLong()
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new MStack.OfLong
+  val occursBoundsStack = MStackOfLong()
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
@@ -118,13 +129,17 @@ case class MPState() {
   def occursBounds = occursBoundsStack.top
 
   val delimiters = new mutable.ArrayBuffer[DFADelimiter]
-  val delimitersLocalIndexStack = {
-    val s = new MStack.OfInt
-    s.push(-1)
-    s
-  }
+  val delimitersLocalIndexStack = MStackOfInt()
 
-  val escapeSchemeEVCache = new MStack.OfMaybe[EscapeSchemeParserHelper]
+  val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
+
+  private def init {
+    arrayIndexStack.push(1L)
+    groupIndexStack.push(1L)
+    childIndexStack.push(1L)
+    childIndexStack.push(1L)
+    delimitersLocalIndexStack.push(-1)
+  }
 }
 
 /**
@@ -162,14 +177,22 @@ case class TupleForDebugger(
  * which should be isolated to the alternative parser, and repParsers, i.e.,
  * places where points-of-uncertainty are handled.
  */
-abstract class ParseOrUnparseState(
-  var variableMap: VariableMap,
+abstract class ParseOrUnparseState protected (
+  protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
-  protected var status_ : ProcessorResult = Success) extends DFDL.State
-  with StateForDebugger
-  with ThrowsSDE with SavesErrorsAndWarnings
-  with LocalBufferMixin {
+  protected var status_ : ProcessorResult) extends DFDL.State
+    with StateForDebugger
+    with ThrowsSDE with SavesErrorsAndWarnings
+    with LocalBufferMixin {
+
+  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], status: ProcessorResult = Success) =
+    this(new VariableBox(vmap), diags, dataProc, status)
+
+  def variableMap = variableBox.vmap
+  def setVariableMap(newMap: VariableMap) {
+    variableBox.setVMap(newMap)
+  }
 
   def status = status_
 
@@ -241,7 +264,7 @@ abstract class ParseOrUnparseState(
   def groupPos: Long
   def arrayPos: Long
   def childPos: Long
-  def occursBoundsStack: MStack.OfLong
+  def occursBoundsStack: MStackOfLong
 
   def hasInfoset: Boolean
   def infoset: InfosetItem
@@ -329,7 +352,7 @@ abstract class ParseOrUnparseState(
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
 class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
-  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
+    extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
   /**
    * As seen from class CompileState, the missing signatures are as follows.
    *  *  For convenience, these are usable as stub implementations.
@@ -354,8 +377,8 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
   def currentNode = Maybe(infoset.asInstanceOf[DINode])
 
   def notifyDebugging(flag: Boolean): Unit = {}
-  private val occursBoundsStack_ = new MStack.OfLong
-  def occursBoundsStack: MStack.OfLong = occursBoundsStack_
+  private val occursBoundsStack_ = MStackOfLong()
+  def occursBoundsStack: MStackOfLong = occursBoundsStack_
 
   def thisElement: InfosetElement = infoset.asInstanceOf[InfosetElement]
 
@@ -372,11 +395,11 @@ final class PState private (
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
+    extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
 
   override def currentNode = Maybe(infoset.asInstanceOf[DINode])
 
-  val discriminatorStack = new MStack.OfBoolean
+  val discriminatorStack = MStackOfBoolean()
   discriminatorStack.push(false)
 
   override def dataStream = One(dataInputStream)
@@ -461,7 +484,7 @@ final class PState private (
   }
 
   def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: RuntimeData, pstate: PState) {
-    this.variableMap = variableMap.setVariable(vrd, newValue, referringContext, pstate)
+    this.setVariableMap(variableMap.setVariable(vrd, newValue, referringContext, pstate))
   }
 
   def reportValidationError(msg: String, args: Any*) {
@@ -558,7 +581,7 @@ object PState {
     def resetOntoPState(ps: PState) {
       ps.restoreInfosetElementState(this.infosetState)
       ps.dataInputStream.reset(this.disMark)
-      ps.variableMap = this.variableMap
+      ps.setVariableMap(this.variableMap)
       ps.status_ = this.status
       ps.diagnostics = this.diagnostics
       ps.discriminatorStack.reset(this.discriminatorStackMark)
@@ -584,7 +607,7 @@ object PState {
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
-    val mutablePState = new MPState
+    val mutablePState = MPState()
     val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
@@ -602,7 +625,7 @@ object PState {
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
-    val mutablePState = new MPState
+    val mutablePState = MPState()
 
     val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)

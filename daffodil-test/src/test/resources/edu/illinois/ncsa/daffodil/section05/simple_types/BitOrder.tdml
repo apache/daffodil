@@ -306,7 +306,7 @@
           Root: mostFirst
        Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
 -->
- <tdml:parserTestCase name="mostSignificantBitFirst"
+ <tdml:parserTestCase name="mostSignificantBitFirst1"
     root="mostFirst" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
     <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
       <documentPart type="bits" >011|00010 01|0101|01</documentPart>

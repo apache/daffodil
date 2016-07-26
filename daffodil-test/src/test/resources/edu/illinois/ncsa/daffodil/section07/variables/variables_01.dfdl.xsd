@@ -85,10 +85,16 @@
     </xs:complexType>
   </xs:element>
   
+  <xs:group name="h_e">
+    <xs:sequence>
+      <xs:element name="e" type="xsd:string" dfdl:lengthKind="delimited"
+          dfdl:outputValueCalc="{ $ex:v_no_default }" />
+    </xs:sequence>
+  </xs:group>
+  
   <xs:element name="c_2">
     <xs:complexType>
       <xs:sequence dfdl:separator=",">
-
         <xs:element name="d" type="xsd:string" dfdl:lengthKind="delimited">
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -96,8 +102,7 @@
             </xs:appinfo>
           </xs:annotation>
         </xs:element>
-        <xs:element name="e" type="xsd:string" dfdl:lengthKind="delimited"
-          dfdl:outputValueCalc="{ $ex:v_no_default }" />
+        <xs:sequence dfdl:hiddenGroupRef="ex:h_e"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

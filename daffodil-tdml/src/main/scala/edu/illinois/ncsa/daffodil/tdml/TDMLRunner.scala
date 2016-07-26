@@ -89,8 +89,7 @@ import edu.illinois.ncsa.daffodil.processors.UnparseResult
  */
 
 private[tdml] object DFDLTestSuite {
-  type CompileResult = Either[Seq[Diagnostic], DFDL.DataProcessor]
-  type CompileFailure = Left[Seq[Diagnostic], DFDL.DataProcessor]
+  type CompileResult = Either[Seq[Diagnostic], (Seq[Diagnostic], DFDL.DataProcessor)]
 }
 //
 // TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
@@ -123,7 +122,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false,
   val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault)
-  extends Logging with HasSetDebugger {
+    extends Logging with HasSetDebugger {
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
     System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
@@ -362,7 +361,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 }
 
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
-  extends Logging {
+    extends Logging {
 
   lazy val defaultRoundTrip: Boolean = parent.defaultRoundTrip
 
@@ -373,7 +372,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
    */
   private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val p = pf.onPath("/")
-    if (p.isError) Left(p.getDiagnostics)
+    val diags = p.getDiagnostics
+    if (p.isError) Left(diags)
     else {
       val dp =
         if (useSerializedProcessor) {
@@ -386,23 +386,24 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
           val compiler_ = Compiler()
           compiler_.reload(input)
         } else p
-      Right(dp)
+
+      Right((diags, dp))
     }
   }
 
   private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val pf = compiler.compileSource(schemaSource)
+    val diags = pf.getDiagnostics
     if (pf.isError) {
-      val diags = pf.getDiagnostics
       Left(diags) // throw new TDMLException(diags)
     } else {
-      val processor = this.generateProcessor(pf, useSerializedProcessor)
-      processor
+      val res = this.generateProcessor(pf, useSerializedProcessor)
+      res
     }
   }
 
   final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
-    val res = schemaSource match {
+    val res: DFDLTestSuite.CompileResult = schemaSource match {
       case uss: URISchemaSource if parent.checkAllTopLevel =#= true =>
         SchemaDataProcessorCache.compileAndCache(uss, useSerializedProcessor) {
           compileProcessor(uss, useSerializedProcessor)
@@ -543,7 +544,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
+    extends TestCase(ptc, parentArg) {
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
@@ -563,14 +564,21 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val processor = getProcessor(schemaSource, useSerializedProcessor)
     processor.right.foreach {
-      setupDebugOrTrace(_)
-      }
+      case (warnings, proc) =>
+        // 
+        // Print out the warnings
+        //
+        warnings.foreach { System.err.println(_) }
+
+        setupDebugOrTrace(proc)
+    }
 
     (optExpectedInfoset, optErrors) match {
       case (Some(infoset), None) => {
         processor.left.foreach { diags => throw new TDMLException(diags) }
-        processor.right.foreach { processor =>
-          runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode, roundTrip)
+        processor.right.foreach {
+          case (warnings, processor) =>
+            runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode, roundTrip)
         }
       }
 
@@ -578,8 +586,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         processor.left.foreach { diags =>
           VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors))
         }
-        processor.right.foreach { processor =>
-          runParseExpectErrors(processor, dataToParse, nBits, errors, optWarnings, optValidationErrors, validationMode)
+        processor.right.foreach {
+          case (warnings, processor) =>
+            runParseExpectErrors(processor, dataToParse, nBits, errors, optWarnings, optValidationErrors, validationMode)
         }
       }
 
@@ -757,7 +766,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
+    extends TestCase(ptc, parentArg) {
 
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
@@ -773,13 +782,22 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
     val processor = getProcessor(schemaSource, useSerializedProcessor)
-    processor.right.foreach { setupDebugOrTrace(_) }
+    processor.right.foreach { 
+      case (warnings, proc) => 
+                // 
+        // Print out the warnings
+        //
+        warnings.foreach { System.err.println(_) }
+
+        setupDebugOrTrace(proc)
+        }
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
         processor.left.foreach { diags => throw new TDMLException(diags) }
-        processor.right.foreach { processor =>
-          runUnparserExpectSuccess(processor, expectedData, optWarnings, roundTrip)
+        processor.right.foreach {
+          case (warnings, processor) =>
+            runUnparserExpectSuccess(processor, expectedData, optWarnings, roundTrip)
         }
       }
 
@@ -787,8 +805,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         processor.left.foreach { diags =>
           VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors))
         }
-        processor.right.foreach { processor =>
-          runUnparserExpectErrors(processor, optExpectedData, errors, optWarnings)
+        processor.right.foreach {
+          case (warnings, processor) =>
+            runUnparserExpectErrors(processor, optExpectedData, errors, optWarnings)
         }
       }
       case _ => Assert.impossibleCase()
@@ -810,14 +829,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
-
-    val testData = outStream.toByteArray
-    val testDataLength = actual.resultState.bitPos0b
-    val fullBytesNeeded = (testDataLength + 7) / 8
-    if (testData.length != fullBytesNeeded) {
-      throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))
-    }
-
+   
     if (actual.isScannable) {
       // all textual in one encoding, so we can do display of results
       // in terms of text so the user can see what is going on.
@@ -1503,7 +1515,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
  * Base class for all document parts that contain data directly expressed in the XML
  */
 sealed abstract class DataDocumentPart(part: Node, parent: Document)
-  extends DocumentPart(part, parent) {
+    extends DocumentPart(part, parent) {
 
   def dataBits: Seq[String]
 
@@ -1642,21 +1654,21 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 }
 
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
 }
 
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
 
 }
 
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 

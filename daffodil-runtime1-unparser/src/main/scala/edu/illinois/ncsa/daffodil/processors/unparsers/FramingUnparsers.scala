@@ -42,6 +42,8 @@ class SkipRegionUnparser(
   fillByteEv: FillByteEv)
     extends PrimUnparserObject(e) {
 
+  override def runtimeDependencies = List(fillByteEv)
+
   override def unparse(state: UState) = {
     val dos = state.dataOutputStream
     if (!dos.skip(skipInBits)) UE(state, "Unable to skip %s(bits).", skipInBits)
@@ -55,8 +57,13 @@ class AlignmentFillUnparser(
     extends PrimUnparserObject(rd)
     with SuspendableOperation {
 
+  override def runtimeDependencies = List(fillByteEv)
+
   override def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
+    if (dos.maybeAbsBitPos0b.isEmpty) {
+      System.err.println(this.toString + " Unable to align to " + alignmentInBits + " bits becasue there is no absolute bit position.")
+    }
     dos.maybeAbsBitPos0b.isDefined
   }
 

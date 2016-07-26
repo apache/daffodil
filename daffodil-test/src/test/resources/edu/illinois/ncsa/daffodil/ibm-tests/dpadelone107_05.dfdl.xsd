@@ -19,7 +19,7 @@
 				truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
 				textStringPadCharacter=" " textPadKind="none" textTrimKind="none"
 				textStringJustification="left" lengthKind="delimited"
-				textOutputMinLength="6" lengthUnits="bytes"
+				textOutputMinLength="0" lengthUnits="bytes"
 				textCalendarJustification="right" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" escapeSchemeRef="" separator="~"

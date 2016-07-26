@@ -36,7 +36,7 @@
 		dfdl:representation="text" dfdl:textStringJustification="left"
 		dfdl:lengthUnits="bytes" dfdl:length="6" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" dfdl:textPadKind="none"
-		dfdl:textStringPadCharacter="" />
+		dfdl:textStringPadCharacter=" " />
 		
 	<xs:element name="multibytes_2" dfdl:ref="config" type="xs:string"
 		dfdl:representation="text" 
@@ -46,5 +46,5 @@
                 dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" 
                 dfdl:textPadKind="none"
-		dfdl:textStringPadCharacter="" />	
+		dfdl:textStringPadCharacter=" " />	
 </xs:schema>

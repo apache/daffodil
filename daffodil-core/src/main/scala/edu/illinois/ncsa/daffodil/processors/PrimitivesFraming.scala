@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
-abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: String) extends Terminal(e, true) {
+abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: String) extends Terminal(e, skipLengthInAlignmentUnits > 0) {
 
   protected val skipLengthInBits = e.alignmentUnits match {
     case AlignmentUnits.Bits => skipLengthInAlignmentUnits
@@ -57,13 +57,7 @@ abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: St
   e.schemaDefinitionUnless(skipLengthInBits < DaffodilTunableParameters.maxSkipLengthInBytes * 8,
     "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, DaffodilTunableParameters.maxSkipLengthInBytes * 8)
 
-  protected val alignmentInBits = e.alignmentUnits match {
-    case AlignmentUnits.Bits => 1
-    case AlignmentUnits.Bytes => 8
-    case _ => SDE("Skip/Alignment values must have length units of Bits or Bytes.")
-  }
-
-  final lazy val parser: Parser = new SkipRegionParser(alignmentInBits, skipLengthInBits, e.runtimeData)
+  final lazy val parser: Parser = new SkipRegionParser(skipLengthInBits, e.runtimeData)
   final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.runtimeData, e.fillByteEv)
 }
 
@@ -78,11 +72,11 @@ case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkip, "tr
       e.nearestEnclosingElement.get
     }
   }
-  e.schemaDefinitionWhen(lengthKindContext.lengthKind == LengthKind.Delimited && !e.hasTerminator,
+  e.schemaDefinitionWhen(e.trailingSkip > 0 && lengthKindContext.lengthKind == LengthKind.Delimited && !e.hasTerminator,
     "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
 }
 
-case class AlignmentFill(e: Term) extends Terminal(e, true) {
+case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
 
   private val alignment = e.alignmentValueInBits
 

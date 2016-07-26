@@ -40,13 +40,16 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.xml.scalaLib
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.dpath.EvalMode
+import edu.illinois.ncsa.daffodil.dpath.UnparserNonBlocking
+import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -72,7 +75,15 @@ object EvalCache {
 /**
  * Potentially runtime-evaluated things are instances of this base.
  */
-abstract class EvaluatableBase[+T <: AnyRef](protected val rd: RuntimeData) extends Serializable {
+
+trait EvaluatableBase[+T <: AnyRef] extends Serializable {
+
+  protected def rd: RuntimeData
+
+  /**
+   * Please override this.
+   */
+  def toBriefXML(depth: Int = -1) = toString
 
   /**
    * QName to be associated with this evaluatable.
@@ -132,7 +143,8 @@ abstract class EvaluatableBase[+T <: AnyRef](protected val rd: RuntimeData) exte
    */
   var isCompiled = false
   final def ensureCompiled {
-    Assert.invariant(isCompiled)
+    if (!isCompiled)
+      Assert.invariantFailed("not compiled Ev: " + this.qName)
   }
 
   /**
@@ -248,7 +260,7 @@ trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  */
 trait ManuallyCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
 
-  protected def getCacheStack(state: State): MStack.OfMaybe[T]
+  protected def getCacheStack(state: State): MStackOfMaybe[T]
 
   protected def getCachedOrComputeAndCache(state: State): T = {
     val cs = getCacheStack(state)
@@ -282,11 +294,19 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
  */
-abstract class Evaluatable[+T <: AnyRef](rd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T](rd) {
+abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T] {
+
+  /**
+   * Override if this evaluatable needs to use a different evaluate mode
+   * for unparsing.
+   *
+   * The only example of this (as of this comment being written) is LengthEv
+   */
+  protected def maybeUseUnparserMode: Maybe[EvalMode] = Maybe(UnparserNonBlocking)
 
   override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (constValue.isDefined) "constant: " + constValue.value else "runtime"))
 
-  def toBriefXML(depth: Int = -1): String = if (constValue.isDefined) constValue.value.toString else super.toString
+  override def toBriefXML(depth: Int = -1): String = if (constValue.isDefined) constValue.value.toString else super.toString
 
   override lazy val qName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
 
@@ -430,34 +450,58 @@ final class EvalCache {
   }
 }
 
+trait ExprEvalMixin[T <: AnyRef] extends DoSDEMixin {
+
+  protected def maybeUseUnparserMode: Maybe[EvalMode]
+
+  final protected def eval(expr: CompiledExpression[T], state: ParseOrUnparseState): T = {
+    val expressionResult: T =
+      state match {
+        case _: CompileState => expr.evaluate(state)
+        case _: PState =>
+          try {
+            expr.evaluate(state)
+          } catch {
+            case vnv: VariableHasNoValue => doSDE(vnv, state)
+          }
+        case ustate: UState => {
+          Assert.invariant(maybeUseUnparserMode.isDefined)
+          val originalMode = ustate.dState.mode
+          val unpMode = maybeUseUnparserMode.get
+          try {
+            ustate.dState.setMode(unpMode)
+            expr.evaluate(state)
+          } catch {
+            case vnv: VariableHasNoValue =>
+              if (unpMode eq UnparserNonBlocking)
+                doSDE(vnv, state)
+              else
+                throw vnv
+          } finally {
+            ustate.dState.setMode(originalMode)
+          }
+        }
+      }
+    expressionResult
+  }
+
+}
+
 /**
  * Use for expressions when what you want out really is just the string value
  * of the property.
  */
-abstract class EvaluatableExpression[+ExprType <: AnyRef](
+abstract class EvaluatableExpression[ExprType <: AnyRef](
   expr: CompiledExpression[ExprType],
   rd: RuntimeData)
-  extends Evaluatable[ExprType](rd) {
+    extends Evaluatable[ExprType](rd)
+    with ExprEvalMixin[ExprType] {
 
   override lazy val runtimeDependencies = Nil
 
-  override final def toBriefXML(depth: Int = -1) = expr.toBriefXML(depth)
+  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + rd.prettyName + "' expr=" + expr.toBriefXML() + " />"
 
-  override protected def compute(state: ParseOrUnparseState): ExprType = {
-
-    val expressionResult =
-      try {
-        expr.evaluate(state)
-      } catch {
-        // Intentionally do not catch InfosetException. These need to propagate
-        // up so that the retry-loop for forward-referencing expressions can
-        // catch this and retry the expression.
-        //
-        // case i: InfosetException => toSDE(i, state)
-        case v: VariableException => toSDE(v, state)
-      }
-    expressionResult
-  }
+  override protected def compute(state: ParseOrUnparseState): ExprType = eval(expr, state)
 
 }
 
@@ -468,24 +512,19 @@ abstract class EvaluatableExpression[+ExprType <: AnyRef](
  *
  * See the cookers for string literals such as TextStandardInfinityRepCooker.
  */
-abstract class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedType <: AnyRef](
-  expr: CompiledExpression[ExprType],
-  converter: Converter[ExprType, ConvertedType],
-  rd: RuntimeData)
-  extends Evaluatable[ConvertedType](rd) {
+trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: AnyRef]
+    extends ExprEvalMixin[ExprType] { self: Evaluatable[ConvertedType] =>
+
+  protected def converter: Converter[ExprType, ConvertedType]
+
+  protected def expr: CompiledExpression[ExprType]
 
   override lazy val runtimeDependencies = Nil
 
   override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 
   override protected def compute(state: ParseOrUnparseState): ConvertedType = {
-    val expressionResult =
-      try {
-        expr.evaluate(state)
-      } catch {
-        case i: InfosetException => toSDE(i, state)
-        case v: VariableException => toSDE(v, state)
-      }
+    val expressionResult = eval(expr, state)
     val forUnparse = !state.isInstanceOf[PState]
     val converterResult = state match {
       //
@@ -499,3 +538,11 @@ abstract class EvaluatableConvertedExpression[+ExprType <: AnyRef, +ConvertedTyp
     converterResult
   }
 }
+
+abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType <: AnyRef](
+  val expr: CompiledExpression[ExprType],
+  val converter: Converter[ExprType, ConvertedType],
+  rd: RuntimeData)
+    extends Evaluatable[ConvertedType](rd)
+    with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]
+

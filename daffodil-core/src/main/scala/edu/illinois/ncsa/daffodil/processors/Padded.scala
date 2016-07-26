@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
@@ -42,9 +42,12 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 
-trait Padded { self: Terminal =>
-  val eBase = self.context.asInstanceOf[ElementBase]
+trait PaddingInfoMixin {
+  def eBase: ElementBase
+
   /**
    * parsingPadChar is the pad character for parsing
    * unparsingPadChar is the pad character for unparsing
@@ -61,8 +64,20 @@ trait Padded { self: Terminal =>
 
   lazy val (unparsingPadChar: MaybeChar, justificationPad) = eBase.textPadKind match {
     case TextPadKind.None => (MaybeChar.Nope, TextJustificationType.None)
-    case TextPadKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
+    case TextPadKind.PadChar if eBase.isSimpleType &&
+      eBase.impliedRepresentation == Representation.Text => padCharAndJustificationForType
+    case _ => (MaybeChar.Nope, TextJustificationType.None)
   }
+
+  lazy val stringTruncationType: TextTruncationType.Type =
+    if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
+    else eBase.textStringJustification match {
+      case TextStringJustification.Left => TextTruncationType.Left
+      case TextStringJustification.Right => TextTruncationType.Right
+      case TextStringJustification.Center => {
+        eBase.SDE("Properties dfdl:truncateSpecifiedLengthString 'yes' and dfdl:textStringJustification 'center' are incompatible.")
+      }
+    }
 
   private lazy val padCharAndJustificationForType: (MaybeChar, TextJustificationType.Type) = {
     val theJust = eBase.primType match {
@@ -111,5 +126,10 @@ trait Padded { self: Terminal =>
     }
     theJust
   }
+
+}
+
+trait Padded extends PaddingInfoMixin { self: Gram =>
+  override final def eBase = self.context.asInstanceOf[ElementBase]
 
 }

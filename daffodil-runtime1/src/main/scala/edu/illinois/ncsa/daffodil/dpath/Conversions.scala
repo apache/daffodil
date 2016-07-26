@@ -78,6 +78,7 @@ object Conversion {
       }
       case (Nothing, x) => Nil
       case (x, AnyType) => Nil
+      case (x: AnySimpleType.Kind, AnySimpleExists) => Nil
       case (x: AnyAtomic.Kind, AnyAtomic) => Nil
       case (x: Numeric.Kind, String) => List(NumericToString)
 
@@ -141,7 +142,7 @@ object Conversion {
       case (Decimal, UnsignedByte) => List(DecimalToLong, LongToUnsignedByte)
 
       case (Integer, n: NodeInfo.Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
-      
+
       case (NonNegativeInteger, n: Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
       // Commented these out because these are illegal conversions for XPath functions.
       // I cannot pass a DateTime as a Date argument to an XPath function.
@@ -197,7 +198,7 @@ object Conversion {
       case (Int, UnsignedShort) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, Byte) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, UnsignedByte) => IntToLong +: conversionOps(Long, tt, context)
-      
+
       case (UnsignedInt, Double) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Decimal) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Float) => UnsignedIntToLong +: conversionOps(Long, tt, context)

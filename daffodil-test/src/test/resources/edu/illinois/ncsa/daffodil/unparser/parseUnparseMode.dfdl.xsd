@@ -13,7 +13,7 @@
    
    <xs:annotation>
      <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:format ref="tns:daffodilTest1" />
+        <dfdl:format ref="tns:daffodilTest1" truncateSpecifiedLengthString="yes"/>
         <dfdl:defineVariable name="mode" type="xs:string" />
       </xs:appinfo>
    </xs:annotation>
@@ -64,23 +64,11 @@
            <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <!-- if we get here when parsing, the user didn't have a prior branch begining with
                    <xs:group ref='tns:assertParsing'/>
+                   However, asserts aren't evaluated when unparsing, so we only error out here 
+                   when parsing.
                -->
               <dfdl:assert>{ daf:error() }</dfdl:assert>
            </xs:appinfo></xs:annotation>
-           <!-- 
-           This is a required element that will be computed on output.
-           However, it has no impact on alignment or on anything else, and generates zero bits of output
-           and so it will never exist when parsing or re-parsing, and it doesn't need to be in the infoset in advance
-           when unparsing (due to the outputValueCalc). So all one has to do is ignore it really.
-           What it achieves, is that because it is NOT hidden, it will distinguish a sequence of 
-           elements that begins with this group for UPA-rules purposes. This allows both branches
-           of a choice to have the exact same sequence of elements without worrying about 
-           UPA-rule violations as the unparsing branch really begins with this faker element -->
-           <xs:element name="__unparsing" type="xs:byte" dfdl:representation="binary"
-              dfdl:alignmentUnits="bits" dfdl:alignment="1" dfdl:lengthUnits="bits" dfdl:length="0" dfdl:lengthKind="explicit" 
-              dfdl:outputValueCalc="{ 0 }" />
-              <!-- note that in the above, since it is a byte, if we ever parsed this it would be an error as you can't
-              parse a byte value from 0 bits -->
       </xs:sequence>
     </xs:group>
      

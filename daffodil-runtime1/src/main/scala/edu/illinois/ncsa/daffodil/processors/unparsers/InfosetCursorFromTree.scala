@@ -36,18 +36,19 @@ import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.InfosetDocument
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InfosetItem
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
+import edu.illinois.ncsa.daffodil.util.MStackOf
+import edu.illinois.ncsa.daffodil.util.MStackOfInt
 
 /**
  * Iterates an infoset tree, handing out elements one by one in response to pull calls.
  */
 private[unparsers] class InfosetCursorFromTree(item: InfosetItem)
-  extends InfosetCursor
-  with CursorImplMixin[InfosetAccessor] {
+    extends InfosetCursor
+    with CursorImplMixin[InfosetAccessor] {
 
-  private val nodeStack = new MStack.Of[DINode]
-  private val indexStack0b = new MStack.OfInt
+  private val nodeStack = new MStackOf[DINode]
+  private val indexStack0b = MStackOfInt()
 
   private var visitKind: InfosetEventKind = StartKind
 

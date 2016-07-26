@@ -38,9 +38,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import java.lang.{ Long => JLong }
+import edu.illinois.ncsa.daffodil.processors.RetryableException
 
 abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData, fillByteEv: FillByteEv)
-  extends PrimUnparserObject(erd) {
+    extends PrimUnparserObject(erd) {
 
   protected def getLength(state: UState): Long
 
@@ -77,13 +78,13 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData, fillByteE
 }
 
 final class HexBinaryFixedLengthInBytesUnparser(nBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
-  extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
+    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = nBytes
 }
 
 final class HexBinaryDelimitedMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
-  extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
+    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = {
     state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length
@@ -91,11 +92,19 @@ final class HexBinaryDelimitedMinLengthInBytesUnparser(minLengthInBytes: Long, e
 }
 
 final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong], fillByteEv: FillByteEv)
-  extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
+    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = {
-    val lengthAsAnyRef = lengthEv.evaluate(state)
-    val l = AsIntConverters.asLong(lengthAsAnyRef)
+    val l: Long = try {
+      val lengthAsAnyRef = lengthEv.evaluate(state)
+      AsIntConverters.asLong(lengthAsAnyRef)
+    } catch {
+      case e: RetryableException => {
+        val bytes = state.currentInfosetNode.asSimple.dataValue.asInstanceOf[Array[Byte]]
+        val len = bytes.length
+        len
+      }
+    }
     l
   }
 }

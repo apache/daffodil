@@ -35,74 +35,100 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Suspension
 import edu.illinois.ncsa.daffodil.processors.TaskCoroutine
 import edu.illinois.ncsa.daffodil.processors.SuspensionFactory
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.RetryableException
 
-object SuspendableExpression extends SuspensionFactory {
+// Pooling of these objects shut off while debugging the non-pooling version.
+//
+// This might get put back if we decide to pool these objects.
+//
+//  private val pool = new Pool[SuspendableExpression] {
+//    def allocate = new SuspendableExpression
+//  }
+//  def get() = pool.getFromPool
+//  def put(se: SuspendableExpression) {
+//    se.reset()
+//    pool.returnToPool(se)
+//  }
+//
 
-  def apply(diSimple: DISimple, ce: CompiledExpression[AnyRef], ustate: UState, unparserForOVCRep: Unparser,
-    maybeKnownLengthInBits: MaybeULong) {
+trait SuspendableExpression
+    extends WhereBlockedLocation { enclosing =>
 
-    val cloneUState = setup(ustate, maybeKnownLengthInBits)
+  protected def expr: CompiledExpression[AnyRef]
 
-    val se = new SuspendableExpression(diSimple, ce, cloneUState, unparserForOVCRep)
-    ustate.addSuspension(se)
-  }
+  def rd: RuntimeData
 
-  // Pooling of these objects shut off while debugging the non-pooling version.
-  //
-  // This might get put back if we decide to pool these objects.
-  //
-  //  private val pool = new Pool[SuspendableExpression] {
-  //    def allocate = new SuspendableExpression
-  //  }
-  //  def get() = pool.getFromPool
-  //  def put(se: SuspendableExpression) {
-  //    se.reset()
-  //    pool.returnToPool(se)
-  //  }
-  //
-}
+  override def toString = "SuspendableExpression(" + rd.prettyName + ", expr=" + expr.prettyExpr + ")"
 
-class SuspendableExpression private (
-  val diSimple: DISimple,
-  val expr: CompiledExpression[AnyRef],
-  override val ustate: UState,
-  val unparserForOVCRep: Unparser)
-    extends Suspension(ustate) {
+  protected def maybeKnownLengthInBits(ustate: UState): MaybeULong
 
-  final override def rd = diSimple.erd
+  protected def processExpressionResult(ustate: UState, v: AnyRef): Unit
 
-  protected class ExpressionCoroutine extends TaskCoroutine(ustate, mainCoroutine) {
+  protected class SuspendableExp(override val ustate: UState)
+      extends Suspension(ustate) {
 
-    override final protected def body() {
-      //println("Starting suspendable expression for " + erd.name + ", expr=" + erd.outputValueCalcExpr.get.prettyExpr)
-      var v: Maybe[AnyRef] = Nope
-      while (v.isEmpty) {
-        v = expr.evaluateForwardReferencing(ustate, this)
-        if (v.isEmpty) {
-          Assert.invariant(this.isBlocked)
-          resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
+    override def rd = enclosing.rd
+
+    override def toString = enclosing.toString
+
+    protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
+
+      override final protected def doTask() {
+        println("Starting suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+        var v: Maybe[AnyRef] = Nope
+        while (v.isEmpty) {
+          v = expr.evaluateForwardReferencing(ustate, this)
+          if (v.isEmpty) {
+            Assert.invariant(this.isBlocked)
+            println("UnparserBlocking suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+            resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
+            println("Retrying suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+          } else {
+            Assert.invariant(this.isDone)
+            Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
+            println("Completed suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+            processExpressionResult(ustate, v.get)
+          }
         }
+        Assert.invariant(this.isDone)
       }
-      // we got the answer
-      Assert.invariant(this.isDone)
-      Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-      diSimple.setDataValue(v.get)
-      //
-      // now we have to unparse the value.
-      //
-      unparserForOVCRep.unparse1(ustate, rd)
     }
 
+    override final protected lazy val taskCoroutine = new Task
   }
 
-  override final protected lazy val taskCoroutine = new ExpressionCoroutine
+  def run(ustate: UState) {
+    val tst =
+      try {
+        // don't bother with Task if we can avoid it
+        Assert.invariant(ustate.dState.mode eq UnparserBlocking)
+        ustate.dState.setMode(UnparserNonBlocking) // temporarily set to just test for blocking
+        val result = Maybe(expr.evaluate(ustate))
+        if (result.isDefined) {
+          processExpressionResult(ustate, result.get)
+          true
+        } else false
+      } catch {
+        case _: RetryableException =>
+          false
+      } finally {
+        ustate.dState.setMode(UnparserBlocking) // restore invariant.
+      }
+    if (tst) {
+      // nothing. We're done. Don't need the task object.
+    } else {
+      val cloneUState = SuspensionFactory.setup(ustate, maybeKnownLengthInBits(ustate))
+      val se = new SuspendableExp(cloneUState)
+      ustate.addSuspension(se)
+    }
+  }
 
 }
+

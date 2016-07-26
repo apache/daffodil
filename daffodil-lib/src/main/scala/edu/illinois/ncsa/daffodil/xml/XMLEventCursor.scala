@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.util.Accessor
 import edu.illinois.ncsa.daffodil.util.HasCpy
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.equality._
 
 import scala.xml._
@@ -48,6 +47,7 @@ import scala.io.Source
 import scala.xml._
 import edu.illinois.ncsa.daffodil.util.InvertControl
 import scala.xml.parsing.ExternalSources
+import edu.illinois.ncsa.daffodil.util.MStackOf
 
 /**
  * These are mutable for use in Cursor/Accessor pattern, where
@@ -211,12 +211,12 @@ class XMLEventCursorFromInput(
   includeProcInstrAndComments: Boolean = false,
   override val advanceAccessor: XMLAccessor = new XMLAccessor,
   override val inspectAccessor: XMLAccessor = new XMLAccessor)
-  extends MarkupHandler
-  with MarkupParser
-  with ExternalSources
-  with XMLEventCursor
-  with CursorImplMixin[XMLAccessor]
-  with InvertControl[XMLAccessor] {
+    extends MarkupHandler
+    with MarkupParser
+    with ExternalSources
+    with XMLEventCursor
+    with CursorImplMixin[XMLAccessor]
+    with InvertControl[XMLAccessor] {
 
   override def fill: Boolean = {
     if (hasNext) {
@@ -228,7 +228,7 @@ class XMLEventCursorFromInput(
 
   private var level: Int = 0
 
-  private val scopeStack = new MStack.Of[NamespaceBinding]
+  private val scopeStack = new MStackOf[NamespaceBinding]
 
   override def elemStart(pos: Int, pre: String, label: String, attrs: MetaData, scope: NamespaceBinding) {
     level += 1

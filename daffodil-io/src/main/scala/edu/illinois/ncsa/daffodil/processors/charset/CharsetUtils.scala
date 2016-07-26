@@ -40,6 +40,8 @@ import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /*
  * These are needed because the ordinary java/scala Charset, Encoder, and Decoder objects
@@ -50,9 +52,23 @@ import java.nio.charset.CodingErrorAction
 /**
  * Serializable Charset
  */
-class DFDLCharset(val charsetName: String) extends Serializable {
+case class DFDLCharset(val charsetName: String) extends Serializable {
+  import java.nio.charset.StandardCharsets
+  
   charset // Force charset to be evaluted to ensure it's valid at compile time.  It's a lazy val so it will be evaluated when de-serialized
   @transient lazy val charset = CharsetUtils.getCharset(charsetName)
+  @transient lazy val maybeFixedWidth = CharsetUtils.maybeEncodingFixedWidth(charset)
+  
+  def padCharWidthInBits = { 
+    if (maybeFixedWidth.isDefined)
+      maybeFixedWidth.get 
+    else { 
+      charset match {
+        case StandardCharsets.UTF_8 => 8
+        case _ => Assert.invariantFailed("unsupported charset: " + charset)
+      }
+    }
+  }
 }
 
 ///**
@@ -142,6 +158,31 @@ object CharsetUtils {
   }
 
   val unicodeReplacementChar = '\uFFFD'
+
+  private lazy val UTF32 = CharsetUtils.getCharset("UTF-32")
+  private lazy val UTF32BE = CharsetUtils.getCharset("UTF-32BE")
+  private lazy val UTF32LE = CharsetUtils.getCharset("UTF-32LE")
+
+  /**
+   * Tells us the encoding's fixed width if it is fixed.
+   * Nope if not fixed width
+   */
+  final def maybeEncodingFixedWidth(charset: Charset): MaybeInt = {
+    import java.nio.charset.StandardCharsets
+    val res: Int = charset match {
+      case nbs: NonByteSizeCharset => nbs.bitWidthOfACodeUnit
+      case StandardCharsets.US_ASCII => 8
+      case StandardCharsets.UTF_8 => return MaybeInt.Nope
+      case StandardCharsets.UTF_16 |
+        StandardCharsets.UTF_16BE |
+        StandardCharsets.UTF_16LE => 16 // Note dfdl:utf16Width='variable' not supported       
+      case StandardCharsets.ISO_8859_1 => 8
+      case UTF32 | UTF32BE | UTF32LE => 32
+      case _ => Assert.usageError("unknown charset: " + charset.name)
+    }
+    MaybeInt(res)
+  }
+
 }
 
 class CharacterSetAlignmentError(csName: String, requiredAlignmentInBits: Int, alignmentInBitsWas: Int)

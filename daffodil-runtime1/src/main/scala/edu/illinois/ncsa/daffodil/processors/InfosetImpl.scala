@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -60,7 +61,7 @@ import scala.collection.IndexedSeq
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import edu.illinois.ncsa.daffodil.io.DataOutputStream
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -94,35 +95,21 @@ sealed trait DINode {
   def filledSlots: IndexedSeq[DINode]
   final def numChildren = filledSlots.length
 
-  /*
-   * Unparser specific things
-   */
-  /**
-   * Indicates that no more children can be added to this node
-   * and that its value will not be set if it isn't already here.
-   *
-   * This transitions to true once an End(Node) Infoset event has
-   * been processed.
-   *
-   * If this is true, then expressions referencing this node never
-   * need to suspend. Any suspended expressions at the time this
-   * is set to true, become unsuspended and are evaluated.
-   *
-   * That may result in success or failure of the expression. E.g.,
-   * an expression that is pending on traversing to a child with a particular
-   * ERD, if the node is closed without that child being added, then
-   * the expression will fail.
-   */
-  private var _isClosed: Boolean = false
-  def setClosed() {
-    _isClosed = true
-  }
-  def isClosed: Boolean = _isClosed
-
 }
 
+trait RetryableException
+
 trait InfosetException extends DiagnosticImplMixin with ThinThrowable
-trait InfosetRetryableException extends InfosetException
+
+trait InfosetNodeNotFinalException extends InfosetException with RetryableException
+
+case class InfosetArrayNotFinalException(val a: DIArray)
+  extends ProcessingError("Error", Nope, Nope, "Array is not finalized.", a)
+  with InfosetNodeNotFinalException
+
+case class InfosetComplexElementNotFinalException(val a: DIComplex)
+  extends ProcessingError("Error", Nope, Nope, "ComplexType element is not finalized.", a)
+  with InfosetNodeNotFinalException
 
 /**
  * This is thrown if an expression is evaluated at the wrong place
@@ -140,7 +127,7 @@ trait InfosetRetryableException extends InfosetException
  */
 case class InfosetWrongNodeType(val node: DINode)
   extends ProcessingError("Error", Nope, Nope, "Wrong type (simple when complex expected or vice versa)", node)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 /**
  * Exception thrown if infoset doesn't have a child corresponding to the
@@ -149,19 +136,19 @@ case class InfosetWrongNodeType(val node: DINode)
  */
 case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
   extends ProcessingError("Error", Nope, Nope, "Child element %s does not exist.", info.namedQName)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
   extends ProcessingError("Error", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 case class InfosetNoDataException(val diSimple: DISimple, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "Element %s does not have a value.", erd.namedQName)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 case class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
   extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 /**
  * Don't catch this one. It's not restartable.
@@ -172,7 +159,7 @@ case class InfosetFatalArrayIndexOutOfBoundsException(val diArray: DIArray, val 
 
 case class InfosetNoRootException(val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "No root element reachable from element %s.", erd.namedQName)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "No parent element for element %s.", erd.namedQName)
@@ -180,7 +167,7 @@ case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRu
 
 sealed abstract class InfosetLengthUnknownException(kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
-  with InfosetRetryableException
+  with InfosetException with RetryableException
 
 case class InfosetContentLengthUnknownException(override val diElement: DIElement, override val erd: ElementRuntimeData)
   extends InfosetLengthUnknownException("Content", diElement, erd)
@@ -289,130 +276,212 @@ sealed trait DITerm {
  * These  4 members are used to allow computation of e.g., contentLength but in a manner
  * than can block if it is unable to be computed yet.
  *
- * If only the maybeStartPos... is defined, then it is an absolute position.
+ * If only the maybeStartPos... is defined, AND the corresponding data output stream is NOT defined
+ * then it is an absolute position.
  * If both the maybeStartPos... is defined AND the corresponding maybeStartDataOutputStream
  * are defined, then that start pos is a relative start pos, and we'll need to compute the
  * absolute start pos once we find out the absolute start pos of the data output stream.
  */
 sealed abstract class LengthState(ie: DIElement) {
 
-  private var maybeStartDataOutputStream: Maybe[DirectOrBufferedDataOutputStream] = Nope
+  protected def flavor: String
+
+  override def toString() = {
+    try {
+      val (stStatus, stAbs, stDOS) =
+        if (maybeStartPos0bInBits.isEmpty) ("unk", "", "")
+        else ("", maybeStartPos0bInBits, maybeStartDataOutputStream)
+
+      val (eStatus, eAbs, eDOS) =
+        if (maybeEndPos0bInBits.isEmpty) ("unk", "", "")
+        else ("", maybeEndPos0bInBits, maybeEndDataOutputStream)
+
+      "%s(%s%s%s, %s%s%s)".format(flavor, stStatus, stAbs, stDOS, eStatus, eAbs, eDOS)
+    } catch {
+      case th: Throwable => {
+        val res = flavor + "(" + hashCode + ")"
+        System.err.println(th)
+        res
+      }
+    }
+  }
+
+  private var maybeStartDataOutputStream: Maybe[DataOutputStream] = Nope
   private var maybeStartPos0bInBits: MaybeULong = MaybeULong.Nope
-  private var maybeEndDataOutputStream: Maybe[DirectOrBufferedDataOutputStream] = Nope
+  private var maybeEndDataOutputStream: Maybe[DataOutputStream] = Nope
   private var maybeEndPos0bInBits: MaybeULong = MaybeULong.Nope
+  private var maybeComputedLength: MaybeULong = MaybeULong.Nope
 
   def copyFrom(other: LengthState) {
+    other.recheckStreams()
     this.maybeStartDataOutputStream = other.maybeStartDataOutputStream
     this.maybeStartPos0bInBits = other.maybeStartPos0bInBits
     this.maybeEndDataOutputStream = other.maybeEndDataOutputStream
     this.maybeEndPos0bInBits = other.maybeEndPos0bInBits
+    this.maybeComputedLength = other.maybeComputedLength
   }
 
   protected def throwUnknown: Nothing
 
-  def isStartAbsolute = maybeStartPos0bInBits.isDefined &&
-    maybeStartDataOutputStream.isEmpty
-
-  def isEndAbsolute = maybeEndPos0bInBits.isDefined &&
-    maybeEndDataOutputStream.isEmpty
-
-  def isStartRelative = maybeStartPos0bInBits.isDefined &&
-    maybeStartDataOutputStream.isDefined &&
-    {
-      // if the start data output stream has an absolute bit pos, then 
-      // we also have an absolute bit pos, and so we're not relative,
-      // but furthermore, somebody hasn't snapped-through this absolute-ness
-      // from the data output stream.
-      Assert.invariant(maybeStartDataOutputStream.get.maybeAbsBitPos0b.isEmpty)
-      true
-    }
-
-  def maybeAbsoluteStartPos0bInBits: MaybeULong = {
-    val absStartPos0b: ULong = {
-      if (isStartAbsolute) {
-        maybeStartPos0bInBits.getULong
-      } else if (maybeStartDataOutputStream.isDefined) {
-        if (maybeStartDataOutputStream.get.maybeAbsBitPos0b.isDefined) {
-          ??? // compute the absolute pos equivalent of the relative pos  we have
-          // save in the start pos, and then set the DataOutputStream to Nope to indicate
-          // that we've got an absolute position (and to allow the data output stream to be GC'ed
-          // and return the absolute position
-        } else {
-          throwUnknown
-        }
-      } else {
-        throwUnknown
+  private def recheckStreams() {
+    if (maybeStartDataOutputStream.isDefined) {
+      Assert.invariant(maybeStartPos0bInBits.isDefined)
+      val dos = this.maybeStartDataOutputStream.get
+      if (dos.maybeAbsBitPos0b.isDefined) {
+        // we don't have absolute bit positions in this infoset element,
+        // but the stream now has that information, so we have to migrate 
+        // that here.
+        val dosAbsStartBitPos0b = dos.maybeAbsBitPos0b.get
+        val thisStartPos0bInBits = this.maybeStartPos0bInBits.get
+        val newStartBitPos0b = dosAbsStartBitPos0b + thisStartPos0bInBits
+        this.maybeStartDataOutputStream = Nope
+        this.maybeStartPos0bInBits = MaybeULong(newStartBitPos0b)
       }
     }
-
-    val absEndPos0b: ULong = {
-      if (isEndAbsolute) {
-        maybeEndPos0bInBits.getULong
-      } else if (maybeEndDataOutputStream.isDefined) {
-        if (maybeEndDataOutputStream.get.maybeAbsBitPos0b.isDefined) {
-          ??? // compute the absolute pos equivalent of the relative pos  we have
-          // save in the End pos, and then set the DataOutputStream to Nope to indicate
-          // that we've got an absolute position (and to allow the data output stream to be GC'ed
-          // and return the absolute position
-        } else {
-          throwUnknown
-        }
-      } else {
-        throwUnknown
+    if (maybeEndDataOutputStream.isDefined) {
+      Assert.invariant(maybeEndPos0bInBits.isDefined)
+      val dos = this.maybeEndDataOutputStream.get
+      if (dos.maybeAbsBitPos0b.isDefined) {
+        // we don't have absolute bit positions in this infoset element,
+        // but the stream now has that information, so we have to migrate 
+        // that here.
+        val dosAbsEndBitPos0b = dos.maybeAbsBitPos0b.get
+        val thisEndPos0bInBits = this.maybeEndPos0bInBits.get
+        val newEndBitPos0b = dosAbsEndBitPos0b + thisEndPos0bInBits
+        this.maybeEndDataOutputStream = Nope
+        this.maybeEndPos0bInBits = MaybeULong(newEndBitPos0b)
       }
     }
+  }
 
-    // TODO: all over this code base we use ULong, yet we assume we can just take longValue and do arithmetic.
-    // This only works so long as the value is less than Long.maxValue. If we start using the ULong values that
-    // are represented by negative longs, then all this arithmetic becomes dubious.
-    Assert.invariant(absEndPos0b.longValue >= 0)
-    Assert.invariant(absStartPos0b.longValue >= 0)
+  private def isStartUndef = {
+    val r = maybeStartPos0bInBits.isEmpty
+    if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
+    r
+  }
 
-    val len = absEndPos0b.longValue - absStartPos0b.longValue
-    Assert.invariant(len >= 0)
-    MaybeULong(len)
+  private def isEndUndef = {
+    val r = maybeEndPos0bInBits.isEmpty
+    if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
+    r
+  }
+
+  private def isStartAbsolute = {
+    maybeStartPos0bInBits.isDefined &&
+      maybeStartDataOutputStream.isEmpty
+  }
+
+  private def isEndAbsolute = {
+    maybeEndPos0bInBits.isDefined &&
+      maybeEndDataOutputStream.isEmpty
+  }
+
+  private def isStartRelative = {
+    val res = maybeStartDataOutputStream.isDefined
+    if (res) {
+      Assert.invariant(maybeStartPos0bInBits.isDefined)
+      // Assert.invariant(maybeStartDataOutputStream.get.maybeAbsBitPos0b.isEmpty)
+    }
+    res
+  }
+
+  private def isEndRelative = {
+    val res = maybeEndDataOutputStream.isDefined
+    if (res) {
+      Assert.invariant(maybeEndPos0bInBits.isDefined)
+      //  Assert.invariant(maybeEndDataOutputStream.get.maybeAbsBitPos0b.isEmpty)
+    }
+    res
+  }
+
+  def maybeLengthInBits(): MaybeULong = {
+    recheckStreams()
+    val computed: MaybeULong = {
+      if (maybeComputedLength.isDefined) {
+        val len = maybeComputedLength.get
+        System.err.println("%sgth of %s is %s, (was already computed)".format(flavor, ie.name, len))
+        MaybeULong(len)
+      } else if (isStartUndef || isEndUndef) {
+        System.err.println("%sgth of %s cannot be computed yet. %s".format(flavor, ie.name, toString))
+        MaybeULong.Nope
+      } else if (isStartAbsolute && isEndAbsolute) {
+        val len = maybeEndPos0bInBits.get - maybeStartPos0bInBits.get
+        System.err.println("%sgth of %s is %s, by absolute positions. %s".format(flavor, ie.name, len, toString))
+        MaybeULong(len)
+      } else if (isStartRelative && isEndRelative && (maybeStartDataOutputStream.get _eq_ maybeEndDataOutputStream.get)) {
+        //
+        // they're the same DOS, so we have a relative distance between two 
+        // points in the same buffering stream.
+        // Usually we think of this happening for simple types, but 
+        // there's no reason it cannot also happen for complex types much of
+        // the time if there isn't anything wierd like interior alignment.
+        //
+        Assert.invariant(maybeStartPos0bInBits.isDefined)
+        val startPos = maybeStartPos0bInBits.get
+        val endPos = maybeEndPos0bInBits.get
+        val len = endPos - startPos
+        System.err.println("%sgth of %s is %s, by relative positions in same data stream. %s".format(flavor, ie.name, len, toString))
+        MaybeULong(len)
+      } else {
+        System.err.println("%sgth of %s is unknown still. %s".format(flavor, ie.name, toString))
+        MaybeULong.Nope
+      }
+    }
+    maybeComputedLength = computed
+    computed
   }
 
   def lengthInBits: ULong = {
-    val startPos =
-      if (maybeStartPos0bInBits.isDefined) maybeStartPos0bInBits.getULong
-      else throwUnknown
-    val endPos =
-      if (maybeEndPos0bInBits.isDefined) maybeEndPos0bInBits.getULong
-      else throwUnknown
-    val result = endPos.longValue - startPos.longValue
-    Assert.invariant(result >= 0)
-    ULong(result)
+    val mlib = maybeLengthInBits
+    if (mlib.isDefined) mlib.getULong
+    else throwUnknown
   }
 
-  def lengthInBytes: ULong = {
+  def maybeLengthInBytes(): MaybeULong = {
     // TODO: assert check for length in bytes makes sense - length units is bytes, or is characters, but characters
     // are byte based (that is not 7-bit or 6-bit)
     // or is bits, but for some reason we know it's a multiple of 8.
     // For now, this is just going to round up to the next number of bytes whenever there is a frag byte.
-    val lbits = lengthInBits
-    val wholeBytes = math.ceil(lbits.toDouble / 8.0).toLong
-    ULong(wholeBytes)
+    val mlib = maybeLengthInBits()
+    if (mlib.isDefined) {
+      val lbits = mlib.get
+      val wholeBytes = math.ceil(lbits.toDouble / 8.0).toLong
+      MaybeULong(wholeBytes)
+    } else {
+      MaybeULong.Nope
+    }
   }
 
-  def setStartPos0bInBits(absPosInBits0b: ULong) {
+  def lengthInBytes: ULong = {
+    val mlib = maybeLengthInBytes()
+    if (mlib.isDefined) mlib.getULong
+    else throwUnknown
+  }
+
+  def setAbsStartPos0bInBits(absPosInBits0b: ULong) {
     maybeStartPos0bInBits = MaybeULong(absPosInBits0b.longValue)
+    maybeStartDataOutputStream = Nope
   }
 
-  def setStartDataOutputStream(dos: DirectOrBufferedDataOutputStream) {
+  def setRelStartPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream) {
+    maybeStartPos0bInBits = MaybeULong(relPosInBits0b.longValue)
     maybeStartDataOutputStream = One(dos)
   }
 
-  def setEndPos0bInBits(absPosInBits0b: ULong) {
+  def setAbsEndPos0bInBits(absPosInBits0b: ULong) {
     maybeEndPos0bInBits = MaybeULong(absPosInBits0b.longValue)
+    maybeStartDataOutputStream = Nope
   }
 
-  def setEndDataOutputStream(dos: DirectOrBufferedDataOutputStream) {
+  def setRelEndPos0bInBits(relPosInBits0b: ULong, dos: DataOutputStream) {
+    maybeEndPos0bInBits = MaybeULong(relPosInBits0b.longValue)
     maybeEndDataOutputStream = One(dos)
   }
 }
 
 class ContentLengthState(ie: DIElement) extends LengthState(ie) {
+
+  override def flavor = "contentLen"
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
@@ -422,6 +491,8 @@ class ContentLengthState(ie: DIElement) extends LengthState(ie) {
 }
 
 class ValueLengthState(ie: DIElement) extends LengthState(ie) {
+
+  override def flavor = "valueLen"
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
@@ -462,7 +533,7 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
   override def toString = {
     val cl = Misc.getNameFromClass(this)
     val n = trd.name
-    cl + "(name='" + n + "')"
+    cl + "(name='" + n + "' " + contentLength.toString() + " " + valueLength.toString() + ")"
   }
 
   def isRoot = parent match {
@@ -608,7 +679,14 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
 final class DIArray(
   override val erd: ElementRuntimeData,
   val parent: DIComplex)
-    extends DINode with InfosetArray {
+    extends DINode with InfosetArray
+    with DIFinalizable {
+
+  private lazy val nfe = new InfosetArrayNotFinalException(this)
+
+  override def requireFinal {
+    if (!isFinal) throw nfe
+  }
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
 
@@ -976,6 +1054,22 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   //    maybeValueLengthInBits_ = MaybeULong(len * 8)
   //  }
 }
+/**
+ * Arrays and complex elements have a notion of being finalized, when unparsing.
+ * This is when we know that no more elements will be added to them, so things
+ * like fn:count can return a value knowing it won't change, and fn:exists can
+ * return false, knowing nobody will subsequently append the item that was being
+ * questioned.
+ */
+sealed trait DIFinalizable {
+  var isFinal: Boolean = false
+
+  /**
+   * use to require it be finalized or throw the appropriate
+   * Array or Complex exception.
+   */
+  def requireFinal: Unit
+}
 
 /**
  * Complex elements have an array of slots one per named child element.
@@ -999,8 +1093,15 @@ sealed class DISimple(override val erd: ElementRuntimeData)
  * The DIArray object's length gives the number of occurrences.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
-    extends DIElement with InfosetComplexElement // with HasModelGroupMixin
+    extends DIElement with InfosetComplexElement
+    with DIFinalizable // with HasModelGroupMixin
     { diComplex =>
+
+  private lazy val nfe = new InfosetComplexElementNotFinalException(this)
+
+  override def requireFinal {
+    if (!isFinal) throw nfe
+  }
 
   final override def isEmpty: Boolean = false
 

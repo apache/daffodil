@@ -44,38 +44,56 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.util.Coroutine
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
- * There are two modes for expression evaluation.
+ * Modes for expression evaluation.
  */
 sealed trait EvalMode
 
 /**
  * Parsing always uses this mode, for everything.
  *
- * Unparsing uses this mode
- * for expressions that produce the values of (most? all? TBD) properties,
- * and for expressions that produce the values of variables.
+ * Unparsing never uses this mode for anything.
  *
  * In this mode, evaluation is simple. If a child doesn't exist
  * but is needed to be traversed, an exception is thrown. If a value doesn't exist
- * an exception is thrown.
+ * an exception is thrown. fn:exists and fn:count return the answers
+ * immediately based on the current state of the infoset object.
  */
-case object NonBlocking extends EvalMode
+case object ParserNonBlocking extends EvalMode
 
 /**
- * Unparsing uses this mode for outputValueCalc
- * (Also for length expressions TBD?)
+ * Unparsing uses this mode for outputValueCalc, variables,
+ * and length expressions, when it wants to actually suspend a co-routine that
+ * can be resumed.
+ *
+ * In this mode, we must be running on a co-routine which can be blocked.
  *
  * In this mode, evaluation can suspend waiting for a child
  * node to be added/appended, or for a value to be set.
  *
- * Once the situation leading to the suspension changes, evaluation
- * is retried in Regular mode.
+ * fn:count can block if the array isn't final yet.
+ * fn:exists can block if the array or element isn't final yet.
+ *
+ * Once the situation leading to the suspension changes, evaluation is
+ * retried.
  */
-case object Blocking extends EvalMode
+case object UnparserBlocking extends EvalMode
+
+/**
+ *  Unparsing uses this mode for evaluation to determine whether or not
+ *  something will block.
+ *
+ *  In this mode, we are running on the main co-routine, so we can't actually block.
+ *
+ *  However, unlike ParserNonBlocking mode, in this mode fn:count of a non-final
+ *  array will error, indicating to the caller that the expression would have
+ *  blocked waiting for that array to be finalized. Similarly fn:exists can
+ *  error, as can many other things. Anything that would have blocked in UnparserBlocking
+ *  mode will instead error.
+ */
+case object UnparserNonBlocking extends EvalMode
 
 /**
  * expression evaluation side-effects this state block.
@@ -100,39 +118,60 @@ case class DState() {
    */
   private var _currentValue: AnyRef = null
 
-  private var _mode: EvalMode = NonBlocking
+  private var _mode: EvalMode = ParserNonBlocking
 
   /**
-   * Set to Blocking for forward-referencing expressions during unparsing.
+   * Set to UnparserBlocking for forward-referencing expressions during unparsing.
    */
   def setMode(m: EvalMode) {
     _mode = m
   }
   def mode = _mode
 
-  private var thisExpressionCoroutine_ : Maybe[Coroutine[AnyRef]] = Nope
-
-  def setThisExpressionCoroutine(co: Maybe[Coroutine[AnyRef]]) {
-    Assert.usage(mode eq Blocking)
-    thisExpressionCoroutine_ = co
-  }
-
-  def thisExpressionCoroutine = {
-    Assert.usage(mode eq Blocking)
-    thisExpressionCoroutine_
-  }
-
-  private var coroutineToResumeIfBlocked_ : Maybe[Coroutine[AnyRef]] = Nope
-
-  def setCoroutineToResumeIfBlocked(co: Maybe[Coroutine[AnyRef]]) {
-    Assert.usage(mode eq Blocking)
-    coroutineToResumeIfBlocked_ = co
-  }
-
-  def coroutineToResumeIfBlocked = {
-    Assert.usage(mode eq Blocking)
-    coroutineToResumeIfBlocked_
-  }
+  //
+  //  The purpose of this commented out code was to retry expressions, not
+  //  from the begining, but closer to where the expression failed. That is
+  //  for a big complex expression, we would not redo the whole thing, but would
+  //  block the co-routine right where it was unable to proceed e.g., in a call to
+  //  node.dataValue, such that when it was resumed, it would resume right there.
+  //  retry the call to node.dataValue, and then carry on with the rest of the 
+  //  expression.
+  //
+  //  If we don't do this, then we're not taking advantage of that optimization
+  //  Then we don't really need coroutines at all to implement blocking. We just
+  //  keep the saved/cloned state around, and retry whatever needed to be done, from scratch. 
+  //
+  //  The vast bulk of expressions are going to be fairly small, so this extra
+  //  overhead vs. the complexity of coroutines?? I think we should move away
+  //  From coroutines. 
+  //  
+  //  However, if expressions were to block on the infoset, by queuing themselves
+  //  adjacent to what they need, then... well you can still just retry the whole
+  //  expression again, this time knowing it won't block in the same place. 
+  //  
+  //  private var thisExpressionCoroutine_ : Maybe[Coroutine[AnyRef]] = Nope
+  //
+  //  def setThisExpressionCoroutine(co: Maybe[Coroutine[AnyRef]]) {
+  //    Assert.usage(mode eq UnparserBlocking)
+  //    thisExpressionCoroutine_ = co
+  //  }
+  //
+  //  def thisExpressionCoroutine = {
+  //    Assert.usage(mode eq UnparserBlocking)
+  //    thisExpressionCoroutine_
+  //  }
+  //
+  //  private var coroutineToResumeIfBlocked_ : Maybe[Coroutine[AnyRef]] = Nope
+  //
+  //  def setCoroutineToResumeIfBlocked(co: Maybe[Coroutine[AnyRef]]) {
+  //    Assert.usage(mode eq UnparserBlocking)
+  //    coroutineToResumeIfBlocked_ = co
+  //  }
+  //
+  //  def coroutineToResumeIfBlocked = {
+  //    Assert.usage(mode eq UnparserBlocking)
+  //    coroutineToResumeIfBlocked_
+  //  }
 
   def resetValue() {
     _currentValue = null
@@ -164,17 +203,29 @@ case class DState() {
 
   def isNilled: Boolean = currentElement.isNilled
 
-  def arrayLength: Long =
-    if (currentNode.isInstanceOf[DIArray]) currentArray.length
-    else {
+  private def isAnArray(): Boolean = {
+    if (!currentNode.isInstanceOf[DIArray]) {
       Assert.invariant(errorOrWarn.isDefined)
       if (currentNode.isInstanceOf[DIElement]) {
         errorOrWarn.get.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
       } else {
         errorOrWarn.get.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
       }
-      1L
+      false
+    } else {
+      true
     }
+  }
+
+  def arrayLength: Long =
+    if (isAnArray()) currentArray.length
+    else 1L
+
+  def finalArrayLength: Long =
+    if (isAnArray()) {
+      currentArray.requireFinal
+      currentArray.length
+    } else 1L
 
   def exists: Boolean = true // we're at a node, so it must exist.
 
@@ -218,11 +269,33 @@ case class DState() {
   def currentArray = currentNode.asInstanceOf[DIArray]
   def currentComplex = currentNode.asComplex
 
-  private var _vmap: VariableMap = null
+  private var _vbox: VariableBox = null
 
-  def vmap = _vmap
+  def vmap = {
+    Assert.usage(_vbox ne null)
+    _vbox.vmap
+  }
+
+  /**
+   * Used by PState and parser, where we want to isolate the modifications
+   * to the vmap per expression evaluation. This isolate makes backtracking
+   * changes to the vmap easy. Just don't copy the vmap back from the DState
+   * into the PState, and the changes are gone.
+   */
   def setVMap(m: VariableMap) {
-    _vmap = m
+    if (_vbox eq null) {
+      _vbox = new VariableBox(m)
+    } else {
+      _vbox.setVMap(m)
+    }
+  }
+
+  /**
+   * Used by UState, where we want to shared the vmap as modified by the
+   * expression evaluations that use the DState.
+   */
+  def setVBox(box: VariableBox) {
+    _vbox = box
   }
 
   def runtimeData = {
@@ -292,36 +365,41 @@ case class DState() {
   def selfMove(): Unit = {}
   def fnExists(): Unit = {}
 
-  @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
+  // @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
   final def withRetryIfBlocking[T](body: => T): T =
     DState.withRetryIfBlocking(this)(body)
 }
 
 object DState {
 
-  private object ToBeIgnored
+  // private object ToBeIgnored
 
-  @inline
+  // @inline
   final def withRetryIfBlocking[T](ds: DState)(body: => T): T = { // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
-    if (ds.mode eq NonBlocking) body
-    else {
-      var isDone = false
-      var res: T = null.asInstanceOf[T]
-      while (!isDone) {
-        try {
-          res = body
-          isDone = true
-        } catch {
-          case e: InfosetRetryableException => {
-            // we're to block here, and retry subsequently.
-            isDone = false
-            Assert.invariant(ds.thisExpressionCoroutine.isDefined)
-            Assert.invariant(ds.coroutineToResumeIfBlocked.isDefined)
-            ds.thisExpressionCoroutine.get.resume(ds.coroutineToResumeIfBlocked.get, ToBeIgnored)
+    ds.mode match {
+      case ParserNonBlocking => body
+      case UnparserNonBlocking => body
+      case UnparserBlocking => {
+        var isDone = false
+        var res: T = null.asInstanceOf[T]
+        while (!isDone) {
+          try {
+            res = body
+            isDone = true
+          } catch {
+            case e: RetryableException => {
+              // we're to block here, and retry subsequently.
+              isDone = false
+              //              if (ds.thisExpressionCoroutine.isDefined && ds.coroutineToResumeIfBlocked.isDefined) {
+              //                ds.thisExpressionCoroutine.get.resume(ds.coroutineToResumeIfBlocked.get, ToBeIgnored)
+              //              } else {
+              throw e
+              //              }
+            }
           }
         }
+        res
       }
-      res
     }
   }
 }

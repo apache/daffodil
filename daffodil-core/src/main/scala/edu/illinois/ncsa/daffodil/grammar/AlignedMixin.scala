@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,14 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.Term
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
-
-  lazy val leadingSkipRegion = prod("leadingSkipRegion", leadingSkip > 0) { LeadingSkipRegion(this) }
-  lazy val trailingSkipRegion = prod("trailingSkipRegion", trailingSkip > 0) { TrailingSkipRegion(this) }
-  lazy val alignmentFill = prod("alignmentFill", !isKnownToBeAligned) { AlignmentFill(this) }
 
   /**
    * true if we can statically determine that the start of this

@@ -32,19 +32,52 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.BinaryFloatRepEv
+import edu.illinois.ncsa.daffodil.processors.ByteOrderEv
+import edu.illinois.ncsa.daffodil.processors.CharsetEv
+import edu.illinois.ncsa.daffodil.processors.EncodingEv
+import edu.illinois.ncsa.daffodil.processors.ExplicitLengthEv
+import edu.illinois.ncsa.daffodil.processors.FillByteEv
+import edu.illinois.ncsa.daffodil.processors.ImplicitLengthEv
+import edu.illinois.ncsa.daffodil.processors.InitiatorParseEv
+import edu.illinois.ncsa.daffodil.processors.InitiatorUnparseEv
+import edu.illinois.ncsa.daffodil.processors.OccursCountEv
+import edu.illinois.ncsa.daffodil.processors.OutputNewLineEv
+import edu.illinois.ncsa.daffodil.processors.SeparatorParseEv
+import edu.illinois.ncsa.daffodil.processors.SeparatorUnparseEv
+import edu.illinois.ncsa.daffodil.processors.TerminatorParseEv
+import edu.illinois.ncsa.daffodil.processors.TerminatorUnparseEv
+import edu.illinois.ncsa.daffodil.processors.TextBooleanFalseRepEv
+import edu.illinois.ncsa.daffodil.processors.TextBooleanTrueRepEv
+import edu.illinois.ncsa.daffodil.processors.TextStandardDecimalSeparatorEv
+import edu.illinois.ncsa.daffodil.processors.TextStandardExponentRepEv
+import edu.illinois.ncsa.daffodil.processors.TextStandardGroupingSeparatorEv
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.DFDLBaseTypeMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.DFDLSimpleTypeMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthAGMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursAGMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
+import edu.illinois.ncsa.daffodil.processors.ElementLengthInBitsEv
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.LengthEv
+import edu.illinois.ncsa.daffodil.processors.MinLengthInBitsEv
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 
-/**
+/*
  * These are the DFDL properties which can have their values come
  * from the data stream itself by way of expressions.
  *
  * TODO: EscapeScheme's have a few more of these runtime properties
  * escapeCharacter, and escapeEscapeCharacter.
  */
+
 trait TermRuntimeValuedPropertiesMixin
     extends DFDLBaseTypeMixin
     with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
@@ -74,11 +107,15 @@ trait TermRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val charsetEv = {
-    val ev = new CharsetEv(encodingEv, termRuntimeData)
-    ev.compile()
-    ev
-  }
+  final lazy val charsetEv = maybeCharsetEv.get
+
+  final lazy val maybeCharsetEv =
+    if (optionEncodingRaw.isDefined) {
+      val ev = new CharsetEv(encodingEv, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else
+      Nope
 
   final lazy val fillByteEv = {
     val ev = new FillByteEv(fillByte, charsetEv, termRuntimeData)
@@ -105,11 +142,6 @@ trait TermRuntimeValuedPropertiesMixin
 trait DelimitedRuntimeValuedPropertiesMixin
     extends TermRuntimeValuedPropertiesMixin
     with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
-
-  // Can be whitespace separated lists, as a result the entity replacement needs to take place elsewhere
-  // as it's possible to replace an entity with a whitespace character.
-  //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
-  //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
 
   lazy val isLengthKindDelimited = {
     decl.referredToComponent match {
@@ -177,15 +209,119 @@ trait ElementRuntimeValuedPropertiesMixin
     ev
   }.value
 
-  private lazy val lengthExpr = {
+  protected final lazy val lengthExpr = {
     val qn = this.qNameForProperty("length")
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
   }
 
-  lazy val lengthEv = {
-    val ev = new LengthEv(lengthExpr, erd)
+  private lazy val explicitLengthEv = {
+    Assert.usage(lengthKind eq LengthKind.Explicit)
+    val ev = new ExplicitLengthEv(lengthExpr, erd)
     ev.compile()
     ev
+  }
+
+  private lazy val implicitLengthEv = {
+    Assert.usage(lengthKind eq LengthKind.Implicit)
+    import Representation._
+    import NodeInfo._
+    lazy val maxLengthLong = maxLength.longValueExact
+    val ev = (impliedRepresentation, typeDef.kind) match {
+      case (Text, String) => new ImplicitLengthEv(maxLengthLong, erd)
+      case (Binary, HexBinary) => new ImplicitLengthEv(maxLengthLong, erd)
+      case (Binary, _) => new ImplicitLengthEv(implicitBinaryLengthInBits, erd)
+      case (Text, _) => SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.kind.name)
+    }
+    ev.compile()
+    ev
+  }
+
+  // TODO: remove when no longer being used
+  // @deprecated("2016-08-11", "Use elementLengthInBitsEv instead. Converts to bits for you.")
+  final lazy val lengthEv = {
+    val ev =
+      lengthKind match {
+        case LengthKind.Explicit => explicitLengthEv
+        case LengthKind.Implicit => implicitLengthEv
+        case _ =>
+          Assert.usageError("should only be used for Explicit or Implicit length kinds: " + lengthKind)
+      }
+    ev // note that this is already compiled.
+  }
+
+  protected final lazy val optLengthConstant: Option[Long] = lengthEv.optConstant.map { _.longValue }
+
+  /**
+   * For specified-length elements, computes the Ev which determines
+   * when unparsing, there is a target length in units of bits that
+   * can cause the need to insert, for simple types, padding or fillByte, or to truncate.
+   * Or, for complex types, to insert ElementUnused region.
+   *
+   * Evs enable elimination of the proliferation of dual code paths for known
+   * vs. unknown byteOrder, encoding, length, etc. Just code as if it was
+   * runtime-valued using the Ev. The "right thing" happens if the information
+   * is constant.
+   */
+  private lazy val elementLengthInBitsEv: ElementLengthInBitsEv = {
+    Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
+    import LengthKind._
+    import Representation._
+    import NodeInfo._
+    val (units: LengthUnits, lenEv: LengthEv) =
+      (lengthKind, impliedRepresentation, typeDef.kind) match {
+        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, explicitLengthEv)
+        case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, implicitLengthEv)
+        case (Explicit, Binary, _) => (lengthUnits, explicitLengthEv)
+        case (Implicit, Binary, _) => (LengthUnits.Bits, implicitLengthEv)
+        case (Explicit, Text, _) => (lengthUnits, explicitLengthEv)
+        case (Implicit, Text, _) => (lengthUnits, implicitLengthEv)
+        case _ => Assert.invariantFailed("not Implicit or Explicit")
+      }
+    val ev = new ElementLengthInBitsEv(units, lengthKind, maybeCharsetEv, lenEv, erd)
+    ev.compile()
+    ev
+  }
+
+  /**
+   * This evaluatable can only be used when a minimum length is a concept.
+   *
+   * This is the case for variable-length things like strings, and hexbinary
+   * when Explicit, or fixed (meaning implicit) length.
+   *
+   * Other textual simple types as well (via textOutputMinLength).
+   *
+   */
+  private lazy val minLengthInBitsEv: MinLengthInBitsEv = {
+    Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
+    import LengthKind._
+    import Representation._
+    import NodeInfo._
+    lazy val maxLengthLong = maxLength.longValueExact
+    lazy val minLengthLong = minLength.longValueExact
+    val (units: LengthUnits, minLen: Long) =
+      (lengthKind, impliedRepresentation, typeDef.kind) match {
+        case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
+        case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
+        case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length
+        case (Explicit, Text, String) => (lengthUnits, minLengthLong)
+        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, minLengthLong)
+        case (Explicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength)
+        case _ => (LengthUnits.Bits, 0L) // anything else. This shuts off checking a min.
+      }
+    val ev = new MinLengthInBitsEv(units, lengthKind, maybeCharsetEv, minLen, erd)
+    ev.compile()
+    ev
+  }
+
+  final lazy val maybeUnparseTargetLengthInBitsEv = {
+    if ((this.optionLengthRaw.isDefined &&
+      (lengthKind _eq_ LengthKind.Explicit)) ||
+      ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
+      val ev = new UnparseTargetLengthInBitsEv(elementLengthInBitsEv, minLengthInBitsEv, erd)
+      ev.compile()
+      One(ev)
+    } else
+      Nope
   }
 
   //

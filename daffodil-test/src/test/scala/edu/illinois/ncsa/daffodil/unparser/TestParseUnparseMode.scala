@@ -36,9 +36,10 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestEscapes {
+object TestParseUnparseMode {
   val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
-  val runner = Runner(testDir, "parseUnparseModeTest.tdml")
+  val runner = Runner(testDir, "parseUnparseModeTest.tdml",
+    validateDFDLSchemas = false) // there are UPA errors in some test schemas
 
   @AfterClass def shutDown {
     runner.reset
@@ -46,13 +47,14 @@ object TestEscapes {
 
 }
 
-class TestEscapes {
+class TestParseUnparseMode {
 
-  import TestEscapes._
+  import TestParseUnparseMode._
 
   @Test def test_parse1() { runner.runOneTest("parse1") }
 
-  //DFDL-1555
-  //@Test def test_unparse1() { runner.runOneTest("unparse1") }
+  @Test def test_unparse1() { runner.runOneTest("unparse1") }
+
+  @Test def test_unparse2() { runner.runOneTest("unparse2") }
 
 }

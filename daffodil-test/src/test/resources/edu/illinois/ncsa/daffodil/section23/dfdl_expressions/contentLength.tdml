@@ -49,7 +49,7 @@
     
     <xs:group name="hiddenLen1">
       <xs:sequence>
-        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str, 'bytes') }" />
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
       </xs:sequence>
     </xs:group>
     
@@ -64,8 +64,8 @@
     
     <xs:group name="hiddenLen2">
       <xs:sequence>
-        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str, 'bytes') }" />
-        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str2, 'bytes') }" />
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
+        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str2, 'bytes') }" />
       </xs:sequence>
     </xs:group>
     
@@ -81,8 +81,8 @@
     
     <xs:group name="hiddenLen3">
       <xs:sequence>
-        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str2, 'bytes') }" />
-        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str, 'bytes') }" />
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str2, 'bytes') }" />
+        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
       </xs:sequence>
     </xs:group>
     
@@ -102,7 +102,7 @@
          delayed for long enough to parse the array. The idea here is to get the string to be far enough in the future that 
          for certain the delay of the expression is for an extended period when other rich things must happen, including 
          changing critical characteristics of the data. -->
-        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../str, 'bytes') }" />
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
         <xs:element name="occ" type="xs:int" dfdl:outputValueCalc="{ fn:count(../d) }" />
       </xs:sequence>
     </xs:group>

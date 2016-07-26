@@ -214,8 +214,8 @@ abstract class SpecifiedLengthCharactersUnparserBase(
             // In that case, we have to fill out any chars, if there is room
             // for them, with fill bytes, which is what skip does.
             val encInfo = erd.encodingInfo
-            val charset = state.dataOutputStream.encoder.charset
-            val charMinWidthInBits = encInfo.encodingMinimumCodePointWidthInBits(charset)
+            val dcharset = encInfo.getDFDLCharset(state)
+            val charMinWidthInBits = encInfo.encodingMinimumCodePointWidthInBits(dcharset)
             val nSkipBits = charsUnused * charMinWidthInBits
             if (!state.dataOutputStream.skip(nSkipBits)) UE(state, "Insufficient space to write %s characters.", nChars)
           }

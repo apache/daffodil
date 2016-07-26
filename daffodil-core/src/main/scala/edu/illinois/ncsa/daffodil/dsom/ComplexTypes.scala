@@ -34,13 +34,16 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
-  extends SchemaComponent(xmlArg, parent)
-  with TypeBase
-  with ComplexTypeBaseGrammarMixin {
+    extends SchemaComponent(xmlArg, parent)
+    with TypeBase
+    with ComplexTypeBaseGrammarMixin {
 
   requiredEvaluations(modelGroup)
+
+  override def kind = NodeInfo.Complex
 
   def element: ElementBase
 
@@ -99,7 +102,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 }
 
 final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+    extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 
@@ -109,15 +112,15 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
  * For unit testing purposes, the element argument might be supplied as null.
  */
 final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
-  extends ComplexTypeBase(xmlArg, schemaDocumentArg)
-  with GlobalComponentMixin {
+    extends ComplexTypeBase(xmlArg, schemaDocumentArg)
+    with GlobalComponentMixin {
 
   lazy val referringComponent = Option(element)
 
 }
 
 final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
-  extends ComplexTypeBase(xmlArg, element)
-  with LocalComponentMixin {
+    extends ComplexTypeBase(xmlArg, element)
+    with LocalComponentMixin {
   //nothing
 }

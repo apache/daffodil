@@ -39,19 +39,32 @@ import edu.illinois.ncsa.daffodil.processors.LengthEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
-class ElementOutputValueCalcStaticLengthUnparser(erd: ElementRuntimeData, repUnparser: Unparser, maybeKnownLengthInBits: MaybeULong)
-    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+sealed abstract class ElementOutputValueCalcUnparserBase(
+  override val rd: ElementRuntimeData,
+  repUnparser: Unparser)
+    extends UnparserObject(rd) with TextUnparserRuntimeMixin
+    with SuspendableExpression {
 
-  Assert.invariant(erd.outputValueCalcExpr.isDefined)
-  val expr = erd.outputValueCalcExpr.get
+  override def toString = "OVC(" + rd.prettyName + ", expr=" + expr + ")"
+
+  override final protected def processExpressionResult(ustate: UState, v: AnyRef) {
+    val diSimple = ustate.currentInfosetNode.asSimple
+    // note. This got attached to infoset in StatementElementOutputValueCalcUnparser
+
+    diSimple.setDataValue(v)
+    //
+    // now we have to unparse the value.
+    //
+    repUnparser.unparse1(ustate, rd)
+  }
+
+  Assert.invariant(rd.outputValueCalcExpr.isDefined)
+  override val expr = rd.outputValueCalcExpr.get
 
   override lazy val childProcessors = Seq(repUnparser)
 
   override def unparse(ustate: UState): Unit = {
-    Assert.invariant(erd.outputValueCalcExpr.isDefined)
-
-    val diSimple = ustate.currentInfosetNode.asSimple
-    // note. This got attached to infoset in StatementElementOutputValueCalcUnparser
+    Assert.invariant(rd.outputValueCalcExpr.isDefined)
 
     //
     // Forces the evaluation of runtime-valued things, and this will cause those
@@ -60,43 +73,33 @@ class ElementOutputValueCalcStaticLengthUnparser(erd: ElementRuntimeData, repUnp
     // Then later when the actual unparse occurs, these will be accessed off the
     // infoset element's cache.
     //
+    // So we have to do this here in order to Freeze the state of these
+    // evaluations on the Infoset at the time this unparse call happens. 
 
     repUnparser.runtimeDependencies.foreach {
       _.evaluate(ustate) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
     }
 
-    SuspendableExpression(diSimple, expr, ustate, repUnparser, maybeKnownLengthInBits)
+    run(ustate)
   }
+}
+
+class ElementOutputValueCalcStaticLengthUnparser(
+  erd: ElementRuntimeData,
+  repUnparser: Unparser,
+  maybeKnownLengthInBitsArg: MaybeULong)
+    extends ElementOutputValueCalcUnparserBase(
+      erd, repUnparser) {
+
+  override protected def maybeKnownLengthInBits(ustate: UState) = maybeKnownLengthInBitsArg
 }
 
 class ElementOutputValueCalcRuntimeLengthUnparser(erd: ElementRuntimeData, repUnparser: Unparser,
   lengthEv: LengthEv, lengthUnits: LengthUnits)
-    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+    extends ElementOutputValueCalcUnparserBase(
+      erd, repUnparser) {
 
-  Assert.invariant(erd.outputValueCalcExpr.isDefined)
-  val expr = erd.outputValueCalcExpr.get
-
-  override lazy val childProcessors = Seq(repUnparser)
-  override lazy val runtimeDependencies = Seq(lengthEv)
-
-  override def unparse(ustate: UState): Unit = {
-    Assert.invariant(erd.outputValueCalcExpr.isDefined)
-
-    val diSimple = ustate.currentInfosetNode.asSimple
-    // note. This got attached to infoset in StatementElementOutputValueCalcUnparser
-
-    //
-    // Forces the evaluation of runtime-valued things, and this will cause those
-    // that actually are runtime-expressions to be cached on the infoset element.
-    //
-    // Then later when the actual unparse occurs, these will be accessed off the
-    // infoset element's cache.
-    //
-
-    repUnparser.runtimeDependencies.foreach {
-      _.evaluate(ustate) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
-    }
-
+  override def maybeKnownLengthInBits(ustate: UState) = {
     val length: Long = lengthEv.evaluate(ustate)
 
     val knownLengthInBits: Long = lengthUnits match {
@@ -105,8 +108,8 @@ class ElementOutputValueCalcRuntimeLengthUnparser(erd: ElementRuntimeData, repUn
       case LengthUnits.Characters => length * erd.encInfo.knownEncodingWidthInBits
     }
 
-    SuspendableExpression(diSimple, expr, ustate, repUnparser, MaybeULong(knownLengthInBits))
-
+    MaybeULong(knownLengthInBits)
   }
 
 }
+

@@ -33,19 +33,16 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.grammar.ElementDeclGrammarMixin
 import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-  extends ElementDeclGrammarMixin
-  with OverlapCheckMixin { self: ElementBase =>
+    extends OverlapCheckMixin { self: ElementBase =>
 
   private def eRefNonDefault: Option[ChainPropProvider] = LV('eRefNonDefault) {
     elementRef.map {
@@ -237,4 +234,7 @@ trait ElementDeclMixin
       false
     }
   }.value
+
+  final override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
+  final override lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
 }

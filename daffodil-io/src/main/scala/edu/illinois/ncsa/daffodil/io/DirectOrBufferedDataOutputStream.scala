@@ -85,6 +85,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
+  val id = DirectOrBufferedDataOutputStream.genId
+
   /**
    * Two of these are equal if they are eq.
    * This matters because we compare them to see if we are making forward progress
@@ -97,14 +99,26 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     lazy val buf = bufferingJOS.getBuf()
     lazy val max16ByteArray = buf.slice(0, 16)
     lazy val upTo16BytesInHex = Misc.bytes2Hex(max16ByteArray)
-    val toDisplay = "DOS(" + dosState +
+    val toDisplay = "DOS(id=" + id + ", " + dosState +
       (if (isBuffering) ", Buffered" else ", Direct") +
-      ", relBitPos0b=" + relBitPos0b +
-      (if (st.maybeAbsBitPos0b.isDefined) ", absBitPos0b=" + st.maybeAbsBitPos0b.get) +
-      (if (st.maybeAbsBitLimit0b.isDefined) ", absBitLimit0b=" + st.maybeAbsBitLimit0b.get) +
-      (if (st.maybeRelBitLimit0b.isDefined) ", relBitLimit0b=" + st.maybeRelBitLimit0b.get) +
+      (if (st.maybeAbsBitPos0b.isDefined) {
+        val srt = st.maybeAbsStartingBitPos0b.get
+        val end = st.maybeAbsBitPos0b.get
+        val len = ULong(end - srt).longValue
+        " from %d to %d (length %d)".format(srt, end, len)
+      } else {
+        if (splitFrom ne null)
+          " from end of DOS id=%d for length %d".format(this.splitFrom.id, st.relBitPos0b.longValue)
+        else
+          " for length %d".format(st.relBitPos0b.longValue)
+      }) +
+      (if (st.maybeAbsBitLimit0b.isDefined) {
+        " limit %d.".format(st.maybeAbsBitLimit0b.get)
+      } else if (st.maybeRelBitLimit0b.isDefined) {
+        " length limit %d.".format(st.maybeRelBitLimit0b.get)
+      } else "") +
       (if (isBuffering) ", data=" + upTo16BytesInHex else "") +
-      (if (_following.isDefined) " with Following DOS" else "") +
+      (if (_following.isDefined) " with Following DOS(id=" + _following.get.id + ")" else "") +
       ")"
     toDisplay
   }
@@ -133,7 +147,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
    */
   private var _javaOutputStream: java.io.OutputStream = bufferingJOS
 
-  @inline private[io] final def isBuffering: Boolean = {
+  private[io] final def isBuffering: Boolean = {
     val res = getJavaOutputStream() _eq_ bufferingJOS
     res
   }
@@ -142,7 +156,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
     Assert.usage(newOutputStream ne bufferingJOS) // these are born buffering, and evolve into direct.
-    st.setMaybeAbsBitPos0b(MaybeULong(0))
+    st.resetAllBitPos()
+    if (splitFrom eq null) st.setAbsStartingBitPos0b(ULong(0))
   }
 
   override def getJavaOutputStream() = {
@@ -181,9 +196,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     // can split it by copying, and then change our indirection pointer to the copy, and then modify that.
     //
     newBufStr.assignFrom(this)
-    newBufStr.setMaybeAbsBitPos0b(MaybeULong.Nope) // clear this so we start fresh
+    newBufStr.resetAllBitPos()
     val savedBP = relBitPos0b.toLong
-    newBufStr.setRelBitPos0b(ULong(0))
     if (maybeRelBitLimit0b.isDefined) newBufStr.st.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
     newBufStr
   }
@@ -194,19 +208,29 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
    */
   private def convertToDirect(oldDirectDOS: ThisType) {
     Assert.usage(isBuffering)
+    Assert.usage(oldDirectDOS.isDirect)
     setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
+    Assert.invariant(isDirect)
+    this.setAbsStartingBitPos0b(ULong(0))
 
     // Preserve the rel and abs bit positions. Note that 'this' is now a direct
     // DOS, so its rel and abs bit positions should be the same. Also, we must
     // set relBitPos0b first since that will also modify absBitPos, but we
     // don't want that modification. After that is set, just overwrite whatever
     // the absBitPos was with what it should be.
-    this.st.setRelBitPos0b(oldDirectDOS.relBitPos0b)
-    this.st.setMaybeAbsBitPos0b(oldDirectDOS.maybeAbsBitPos0b)
-    Assert.invariant(this.st.relBitPos0b == this.st.maybeAbsBitPos0b.get)
-
+    this.setRelBitPos0b(oldDirectDOS.relBitPos0b)
+    //
+    // This invariant doesn't hold for some of the unit tests which do this
+    // convert to direct using two buffering streams.
+    //
+    Assert.invariant(oldDirectDOS.maybeAbsStartingBitPos0b.isDefined)
+    //
+    if (oldDirectDOS.maybeAbsStartingBitPos0b.isDefined) {
+      this.setAbsStartingBitPos0b(oldDirectDOS.st.maybeAbsStartingBitPos0b.getULong)
+      Assert.invariant(this.st.relBitPos0b == this.st.maybeAbsBitPos0b.get)
+    }
     // Preserve the bit limit
-    this.st.setMaybeRelBitLimit0b(oldDirectDOS.maybeRelBitLimit0b)
+    this.setMaybeRelBitLimit0b(oldDirectDOS.maybeRelBitLimit0b)
 
     // after the old bufferedDOS has been completely written to the
     // oldDirectDOS, there may have been a fragment byte left over. We must
@@ -276,9 +300,41 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       // and we want to do that exactly once, which is when the direct DOS "catches up"
       // and merges itself forward into all the buffered streams.
       //
-      // So we just change state here.
+      // But, we do need to propagate information about the absolute position 
+      // of buffers.
+
       //
       setDOSState(Finished)
+    }
+  }
+
+  override def maybeAbsBitPos0b: MaybeULong = {
+    val mSuper = super.maybeAbsBitPos0b
+    if (mSuper.isDefined)
+      mSuper
+    else if (splitFrom eq null) MaybeULong.Nope
+    else {
+      val prior = this.splitFrom
+      Assert.invariant(prior ne null)
+      Assert.invariant(prior._following.isDefined)
+      Assert.invariant(prior._following.get eq this)
+      if (prior.isFinished) {
+        // The prior is a finished DOS. If it (recursively) has a maybeAbsBitPos0b,
+        // then since it is finished, we can compute ours and save it.
+        val pmabp = prior.maybeAbsBitPos0b
+        if (pmabp.isDefined) {
+          val pabp = pmabp.getULong
+          this.st.setAbsStartingBitPos0b(pabp)
+          super.maybeAbsBitPos0b // will get the right value this time. 
+        } else {
+          // prior doesn't have an abs bit pos.
+          MaybeULong.Nope
+        }
+      } else {
+        // prior is not finished, so we don't know where we start yet
+        // and so can't compute an absolute bit pos yet.
+        MaybeULong.Nope
+      }
     }
   }
 
@@ -598,9 +654,19 @@ object DirectOrBufferedDataOutputStream {
     }
   }
 
-  def apply(realDOS: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
+  def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
     val dbdos = new DirectOrBufferedDataOutputStream(creator)
-    dbdos.setJavaOutputStream(realDOS)
+    dbdos.setJavaOutputStream(jos)
+    Assert.invariant((creator ne null) ||
+      (dbdos.isDirect && dbdos.maybeAbsStartingBitPos0b.isDefined))
     dbdos
+  }
+
+  private var ids = 0
+
+  def genId: Int = synchronized {
+    val id = ids
+    ids += 1
+    id
   }
 }

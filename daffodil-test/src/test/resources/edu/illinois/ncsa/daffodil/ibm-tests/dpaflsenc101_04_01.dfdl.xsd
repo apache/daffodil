@@ -22,7 +22,7 @@
 		dfdl:representation="text" dfdl:textStringJustification="left"
 		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" dfdl:textPadKind="none"
-		dfdl:textStringPadCharacter="">
+		dfdl:textStringPadCharacter=" ">
 		</xs:element>
 		
 		
@@ -31,14 +31,14 @@
 		dfdl:representation="text" dfdl:textStringJustification="left"
 		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" dfdl:textPadKind="none"
-		dfdl:textStringPadCharacter="" dfdl:encoding="UTF-32LE">
+		dfdl:textStringPadCharacter=" " dfdl:encoding="UTF-32LE">
 			</xs:element>
 		
 		<xs:element name="tag3"  type="xs:string"
 		dfdl:representation="text" dfdl:textStringJustification="left"
 		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" dfdl:textPadKind="none"
-		dfdl:textStringPadCharacter="" dfdl:encoding="UTF-32BE">
+		dfdl:textStringPadCharacter=" " dfdl:encoding="UTF-32BE">
 		
 		
 	</xs:element>

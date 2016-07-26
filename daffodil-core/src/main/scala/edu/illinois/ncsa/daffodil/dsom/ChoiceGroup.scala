@@ -73,10 +73,10 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  */
 
 final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ModelGroup(xmlArg, parent, position)
-  with Choice_AnnotationMixin
-  with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
-  with ChoiceGrammarMixin {
+    extends ModelGroup(xmlArg, parent, position)
+    with Choice_AnnotationMixin
+    with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
+    with ChoiceGrammarMixin {
 
   requiredEvaluations(branchesAreNonOptional)
   requiredEvaluations(branchesAreNotIVCElements)
@@ -150,11 +150,11 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
     val eventERDTuples = groupMembersNoRefs.flatMap {
-      case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e.runtimeData))
+      case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
       case mg: ModelGroup => {
         val idEvents = mg.identifyingEventsForChoiceBranch
         Assert.invariant(!idEvents.isEmpty)
-        idEvents.map { (_, mg.runtimeData) }
+        idEvents.map { (_, mg) }
       }
     }
 
@@ -164,10 +164,32 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     val noDupes = eventERDMap.map {
       case (event, erds) =>
         if (erds.length > 1) {
-          SDW("Event %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this event.",
-            event, erds.mkString(", "))
+          if (erds.exists {
+            // any element children in any of the erds?
+            // because if so, we have a true ambiguity here.
+            case sg: Sequence => {
+              val nonOVCEltChildren = sg.elementChildren.filterNot { _.isOutputValueCalc }
+              nonOVCEltChildren.length > 0
+            }
+            case _ => false
+          }) {
+            // Possibly due to presence of a element with dfdl:outputValueCalc, XML Schema's
+            // UPA check may not catch this ambiguity. However, we need a real element
+            // with unique name, to unambiguously identify a branch.
+            // So if there is ambiguity at this point, we have to fail.
+            SDE("UPA violation. Multiple choice branches begin with %s.\n" +
+              "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+              "The offending choice branches are:\n%s",
+              event.qname, erds.map { erd => "%s at %s".format(erd.prettyName, erd.locationDescription) }.mkString("\n"))
+          } else {
+            // there are no element children in any of the branches. 
+            SDW("Multiple choice branches are associated with the next element of %s.\n" +
+              "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+              "The offending choice branches are:\n%s",
+              event.qname, erds.map { erd => "%s at %s".format(erd.prettyName, erd.locationDescription) }.mkString("\n"))
+          }
         }
-        (event, erds(0))
+        (event, erds(0).runtimeData)
     }
 
     noDupes

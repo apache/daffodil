@@ -37,34 +37,33 @@ import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
+import edu.illinois.ncsa.daffodil.processors.TextTruncationType
 
 class LiteralValueNilOfSpecifiedLengthUnparser(
-  unparsingPadChar: MaybeChar,
-  justificationPad: TextJustificationType.Type,
-  erd: ElementRuntimeData,
+  override val unparsingPadChar: MaybeChar,
+  override val justificationPad: TextJustificationType.Type,
+  override val erd: ElementRuntimeData,
   outputNilValue: StringLiteralForUnparser,
   isForPattern: Boolean,
   fillByteEv: FillByteEv)
-  extends StringOfSpecifiedLengthUnparser(unparsingPadChar, justificationPad, erd,
-    false, // false meaning this is not for a string, but a literal nil
-    isForPattern,
-    fillByteEv
-    ) {
+    extends StringOfSpecifiedLengthUnparser(unparsingPadChar, justificationPad, TextTruncationType.None, erd,
+      false, // false meaning this is not for a string, but a literal nil
+      isForPattern,
+      fillByteEv) {
 
   override protected def contentString(state: UState) = outputNilValue.evaluate(state)
 
 }
 
 class LiteralCharacterNilOfSpecifiedLengthUnparser(
-  erd: ElementRuntimeData,
+  override val erd: ElementRuntimeData,
   outputNilValue: StringLiteralForUnparser,
   isForPattern: Boolean,
   fillByteEv: FillByteEv)
-  extends StringOfSpecifiedLengthUnparser(MaybeChar.Nope, TextJustificationType.Left, erd,
-    false, // false meaning this is not for a string, but a literal nil
-    isForPattern,
-    fillByteEv
-    ) {
+    extends StringOfSpecifiedLengthUnparser(MaybeChar.Nope, TextJustificationType.Left, TextTruncationType.None, erd,
+      false, // false meaning this is not for a string, but a literal nil
+      isForPattern,
+      fillByteEv) {
 
   override protected def contentString(state: UState) = outputNilValue.evaluate(state)
 

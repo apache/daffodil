@@ -137,7 +137,7 @@ object NodeInfo extends Enum {
 
   // Primitives are not "global" because they don't appear in any schema document
   sealed trait PrimType
-    extends NodeInfo.Kind with SimpleTypeBase {
+      extends AnyAtomic.Kind with SimpleTypeBase {
 
     /**
      * When class name is isomorphic to the type name, compute automatically.
@@ -536,7 +536,7 @@ object NodeInfo extends Enum {
         //DFDLDate(icuCal, false)
       }
 
-/*
+      /*
       private def dateToCalendar(date: java.util.Date): Calendar = {
         val cal = Calendar.getInstance()
         cal.setTime(date)

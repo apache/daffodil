@@ -244,7 +244,10 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
 
   private def evaluateExpression(state: ParseOrUnparseState, dstate: DState): DState = {
     recipe.runExpression(state, dstate) // initializes dstate from state, then runs
-    state.variableMap = dstate.vmap
+    state match {
+      case ustate: UState => // nothing. These are shared already
+      case pstate: PState => pstate.setVariableMap(dstate.vmap) // TODO: if we're always copying this back, then no point in trying to isolate. Just share just like in UState case.
+    }
     dstate
   }
 

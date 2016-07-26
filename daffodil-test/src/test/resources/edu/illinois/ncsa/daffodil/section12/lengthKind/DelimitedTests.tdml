@@ -47,7 +47,8 @@
       textNumberRep="standard" representation="text" initiatedContent="no" />
     <dfdl:defineFormat name="trimmed">
        <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar" textPadKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center"
+                      truncateSpecifiedLengthString="no"/>
     </dfdl:defineFormat>
 
     <xs:element name="TopLevel">

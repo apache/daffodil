@@ -64,14 +64,15 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUn
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringLiteralForUnparser
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryDelimitedMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
-  extends Terminal(e, true) {
+    extends Terminal(e, true) {
   // nothing here
 }
 
 case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
-  extends HexBinaryLengthInBytes(e) {
+    extends HexBinaryLengthInBytes(e) {
 
   lazy val parserName = "HexBinaryFixedLengthInBytes"
   lazy val lengthText = nBytes.toString
@@ -88,7 +89,7 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
-  extends HexBinaryLengthInBytes(e) {
+    extends HexBinaryLengthInBytes(e) {
 
   lazy val parserName = "HexBinaryVariableLengthInBytes"
   lazy val lengthText = e.lengthEv.toString()
@@ -118,14 +119,14 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
 
   override lazy val unparser: Unparser =
     new StringOfSpecifiedLengthUnparser(unparsingPadChar,
-      justificationPad,
-      e.elementRuntimeData, true, e.lengthKind == LengthKind.Pattern, e.fillByteEv)
+      justificationPad, stringTruncationType,
+      e.elementRuntimeData, e.primType eq NodeInfo.PrimType.String, e.lengthKind == LengthKind.Pattern, e.fillByteEv)
 
 }
 
 abstract class StringDelimited(e: ElementBase)
-  extends DelimParserBase(e, true)
-  with Padded {
+    extends DelimParserBase(e, true)
+    with Padded {
 
   // TODO: DFDL-451 - Has been placed on the backburner until we can figure out the appropriate behavior
   //
@@ -188,12 +189,12 @@ abstract class StringDelimited(e: ElementBase)
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
-  extends StringDelimited(e) {
+    extends StringDelimited(e) {
   val isDelimRequired: Boolean = false
 }
 
 abstract class HexBinaryDelimited(e: ElementBase)
-  extends StringDelimited(e) {
+    extends StringDelimited(e) {
 
   override lazy val parser: DaffodilParser = new HexBinaryDelimitedParser(
     e.elementRuntimeData,
@@ -208,12 +209,12 @@ abstract class HexBinaryDelimited(e: ElementBase)
 }
 
 case class HexBinaryDelimitedEndOfData(e: ElementBase)
-  extends HexBinaryDelimited(e) {
+    extends HexBinaryDelimited(e) {
   val isDelimRequired: Boolean = false
 }
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
-  extends StringDelimited(eb) {
+    extends StringDelimited(eb) {
 
   lazy val isDelimRequired: Boolean = false
 

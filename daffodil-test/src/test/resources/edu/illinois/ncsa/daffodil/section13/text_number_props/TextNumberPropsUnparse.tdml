@@ -273,9 +273,10 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>textJustificationType is 'center'</tdml:error>
-      <tdml:error>value requires truncation to fit within the length</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStringJustification</tdml:error>
+      <tdml:error>center</tdml:error>
+      <tdml:error>truncateSpecifiedLengthString</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -361,30 +362,38 @@
       Test Name: unparseDelimitedPaddedString09
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and NOT an expression, so the value is padded to the length given by the length property
+               In this case, lengthKind is explicit and NOT an expression, so the value 
+               or the minimum length, whichever is greater. 
+      Round trip - no. See description of unparsePaddedString10.
 -->
-  <tdml:unparserTestCase name="unparseDelimitedPaddedString09" model="delimitedStringsPadding" root="e11">
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString09" model="delimitedStringsPadding" root="e11"
+    roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e11 xmlns:ex="http://example.com">O</ex:e11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>O#</tdml:document>
+    <tdml:document>O#########</tdml:document>
   </tdml:unparserTestCase>
 
 <!--
       Test Name: unparsePaddedString10
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the expression
+               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the max
+               of the expression and the minimum length, which for a string is given by minLength facet.
+      Because the facet minLength (and maxLength) is 10, but the length expression
+      when we unparse, we'll pad to the minLength, and get 10 characters, 
+      and that won't re-parse. So this test cannot round trip.
 -->
-  <tdml:unparserTestCase name="unparsePaddedString10" model="delimitedStringsPadding" root="e12">
+  <tdml:unparserTestCase name="unparsePaddedString10" model="delimitedStringsPadding" root="e12"
+   roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e12 xmlns:ex="http://example.com">O</ex:e12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>O#</tdml:document>
+    <tdml:document>O#########</tdml:document>
   </tdml:unparserTestCase>
 
 <!--

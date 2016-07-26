@@ -14,7 +14,7 @@
 
   <!-- See DFDL-1561 to enable round trip -->
   <tdml:parserTestCase name="pcap_test_tcp_ecn" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test" roundTrip="false">
+    model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
       <tdml:documentPart type="file">tcp.ecn.pcap</tdml:documentPart>
     </tdml:document>
@@ -25433,7 +25433,7 @@
 
   <!-- See DFDL-1561 to enable round trip -->
   <tdml:parserTestCase name="pcap_test_dns" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test" roundTrip="false">
+    model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
       <tdml:documentPart type="file">dns.cap</tdml:documentPart>
     </tdml:document>
@@ -27213,7 +27213,7 @@
 
   <!-- See DFDL-1561 to enable round trip -->
   <tdml:parserTestCase name="pcap_test_http_ipv6" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test" roundTrip="false">
+    model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
       <tdml:documentPart type="file">http.ipv6.cap</tdml:documentPart>
     </tdml:document>
@@ -27726,7 +27726,7 @@
 
   <!-- See DFDL-1561 to enable round trip -->
   <tdml:parserTestCase name="pcap_test_icmp" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test" roundTrip="false">
+    model="pcap.dfdl.xsd" description="pcap test">
     <tdml:document>
       <tdml:documentPart type="file">icmp.cap</tdml:documentPart>
     </tdml:document>
@@ -28112,7 +28112,8 @@
   
   <!-- See DFDL-1561 to enable round trip -->
    <tdml:unparserTestCase name="pcap_test_icmp_unparse1" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test" roundTrip="false">
+    model="pcap.dfdl.xsd" description="pcap test" 
+    roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="file">icmp1.cap</tdml:documentPart>
     </tdml:document>
@@ -28134,6 +28135,8 @@
             <PacketHeader>
               <Seconds>1371631556</Seconds>
               <USeconds>838904</USeconds>
+              <InclLen>74</InclLen>
+              <OrigLen>74</OrigLen>
             </PacketHeader>
             <pcap:LinkLayer>
               <pcap:Ethernet>
@@ -28147,10 +28150,12 @@
                       <IHL>5</IHL>
                       <DSCP>0</DSCP>
                       <ECN>0</ECN>
+                      <Length>60</Length>
                       <Identification>55107</Identification>
                       <Flags>0</Flags>
                       <FragmentOffset>0</FragmentOffset>
                       <TTL>128</TTL>
+                      <Protocol>1</Protocol>
                       <Checksum>11123</Checksum>
                       <IPSrc>192.168.158.139</IPSrc>
                       <IPDest>174.137.42.77</IPDest>

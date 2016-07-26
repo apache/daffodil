@@ -1497,9 +1497,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       // But that's fairly pointless.
 
       case (RefQName(_, "valueLength", DFDL), args) => {
-        SDE("dfdl:valueLength function is not supported.")
         FNTwoArgsExpr(functionQNameString, functionQName, args,
-          NodeInfo.Long, NodeInfo.AnySimpleExists, NodeInfo.String, DFDLValueLength(_))
+          NodeInfo.Long, NodeInfo.Exists, NodeInfo.String, DFDLValueLength(_))
       }
 
       case (RefQName(_, "lower-case", FUNC), args) =>

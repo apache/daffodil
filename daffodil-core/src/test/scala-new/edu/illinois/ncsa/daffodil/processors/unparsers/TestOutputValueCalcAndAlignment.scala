@@ -128,7 +128,7 @@ class TestOutputValueCalcAndAlignment {
              However, that alignment region length is needed to compute
              the dfdl:contentLength of s2. So we deadlock. 
              -->
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="T" dfdl:outputValueCalc="{ dfdl:contentLength(../s2, 'bytes') }"/>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="T" dfdl:outputValueCalc="{ dfdl:valueLength(../s2, 'bytes') }"/>
             <xs:element name="s2" dfdl:lengthKind="delimited" dfdl:terminator="S">
               <xs:complexType>
                 <xs:sequence>

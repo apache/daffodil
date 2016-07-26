@@ -489,7 +489,8 @@
       occursCountKind="implicit" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" initiatedContent="no"
       textTrimKind="none" textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;"
-      textStringJustification="center" textNumberJustification="right"/>
+      textStringJustification="center" textNumberJustification="right"
+      truncateSpecifiedLengthString="no"/>
 
     <xs:group name="lastElts">
     <!-- DFDL badly needs %SP+; and %S+; the latter meaning whitespace other than line endings. -->

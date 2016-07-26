@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import java.lang.{ Long => JLong }
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -53,7 +54,25 @@ trait ElementBaseGrammarMixin
     extends InitiatedTerminatedMixin
     with AlignedMixin
     with ByteOrderMixin
-    with HasStatementsGrammarMixin { self: ElementBase =>
+    with HasStatementsGrammarMixin
+    with PaddingInfoMixin { self: ElementBase =>
+
+  private val context = this
+
+  private lazy val (leftPadding, rightPadding) = {
+    if (unparsingPadChar.isEmpty) (EmptyGram, EmptyGram)
+    else {
+      import TextJustificationType._
+      this.justificationPad match {
+        case None => (EmptyGram, EmptyGram)
+        case Left => (EmptyGram, OnlyPadding(context))
+        case Right => (OnlyPadding(context), EmptyGram)
+        case Center => (LeftCenteredPadding(context), RightCenteredPadding(context))
+      }
+    }
+  }
+
+  private lazy val rightFill = new RightFill(context)
 
   /**
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
@@ -66,13 +85,34 @@ trait ElementBaseGrammarMixin
   //
 
   private lazy val parsedNil = prod("parsedNil", NYI && isNillable && nilKind == NilKind.LogicalValue) {
-    nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator
+    nilElementInitiator ~
+      CaptureContentLengthStart(this) ~
+      leftPadding ~
+      CaptureValueLengthStart(this) ~
+      LogicalNilValue(this) ~
+      CaptureValueLengthEnd(this) ~
+      rightPadding ~
+      rightFill ~
+      CaptureContentLengthEnd(this) ~
+      nilElementTerminator
   }
 
-  private lazy val parsedValue = prod("parsedValue") { initiatorRegion ~ allowedValue ~ terminatorRegion }
+  private lazy val parsedValue = prod("parsedValue", isSimpleType) {
+    initiatorRegion ~
+      valueMTA ~
+      CaptureContentLengthStart(this) ~
+      leftPadding ~
+      CaptureValueLengthStart(this) ~
+      allowedValue ~
+      CaptureValueLengthEnd(this) ~
+      rightPadding ~
+      rightFill ~
+      CaptureContentLengthEnd(this) ~
+      terminatorRegion
+  }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  private lazy val implicitBinaryLengthInBits: Long = primType match {
+  final protected lazy val implicitBinaryLengthInBits: Long = primType match {
     case PrimType.Byte | PrimType.UnsignedByte => 8
     case PrimType.Short | PrimType.UnsignedShort => 16
     case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
@@ -106,7 +146,7 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  private lazy val implicitLengthHexBinary = prod("implicitLengthHexBinary", hasSpecifiedLength) {
+  private lazy val implicitLengthHexBinary = prod("implicitLengthHexBinary", lengthKind eq LengthKind.Implicit) {
     val maxLengthLong = maxLength.longValueExact
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, maxLengthLong)
@@ -117,7 +157,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val variableLengthHexBinary = prod("variableLengthHexBinary", !isFixedLength) {
     lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
+      case LengthUnits.Bytes => new SpecifiedLengthExplicit(this, HexBinaryVariableLengthInBytes(this), 8)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     }
@@ -126,7 +166,7 @@ trait ElementBaseGrammarMixin
   private lazy val stringDelimitedEndOfData = prod("stringDelimitedEndOfData") { StringDelimitedEndOfData(this) }
   //  private lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
 
-  private lazy val stringValue = prod("stringValue") { mta ~ stringPrim }
+  private lazy val stringValue = prod("stringValue") { stringPrim }
 
   private lazy val stringPrim = {
     lengthKind match {
@@ -415,7 +455,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
     isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
-      emptyElementInitiator ~ mta ~ emptyElementTerminator
+      emptyElementInitiator ~ valueMTA ~ CaptureContentLengthStart(this) ~ CaptureValueLengthStart(this) ~ CaptureValueLengthEnd(this) ~ CaptureContentLengthEnd(this) ~ emptyElementTerminator
     }
 
   /**
@@ -450,7 +490,7 @@ trait ElementBaseGrammarMixin
    * then to distinguish a lit nil from a value, we have to start at the same place.
    */
   private lazy val nilLit = prod("nilLit", isNilLit) {
-    nilElementInitiator ~ nilLitMTA ~ nilLitSimpleOrComplex ~ nilElementTerminator
+    nilElementInitiator ~ nilLitMTA ~ CaptureContentLengthStart(this) ~ CaptureValueLengthStart(this) ~ nilLitSimpleOrComplex ~ CaptureValueLengthEnd(this) ~ CaptureContentLengthEnd(this) ~ nilElementTerminator
   }
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
@@ -464,7 +504,7 @@ trait ElementBaseGrammarMixin
     new SpecifiedLengthImplicit(this, LiteralValueNilOfSpecifiedLength(this), nilLength)
   }
 
-  private lazy val nilLitMTA = prod("nilLitMTA", isNilLit) { mta }
+  private lazy val nilLitMTA = prod("nilLitMTA", isNilLit) { mtaBase }
 
   private lazy val nilLitContent = prod("nilLitContent",
     isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)) {
@@ -588,7 +628,13 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
-    initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion
+    initiatorRegion ~
+      CaptureContentLengthStart(this) ~
+      CaptureValueLengthStart(this) ~
+      specifiedLength(complexContent) ~
+      CaptureValueLengthEnd(this) ~
+      CaptureContentLengthEnd(this) ~
+      terminatorRegion
   }
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
@@ -606,16 +652,6 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  // Note: there is no such thing as defaultable complex content because you can't have a
-  // default value for a complex type element....
-  // NOT TRUE: a defaultable complex type is one where everything within it is
-  // recursively defaultable and has no syntax. So you could recursively "parse"
-  // it, get default values for simple type elements in the complex type structure,
-  // yet consume zero bits.
-  lazy val scalarDefaultableContent = prod("scalarDefaultableContent") {
-    withDelimiterStack(withEscapeScheme(scalarDefaultableSimpleContent || scalarComplexContent))
-  }
-
   lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
     withDelimiterStack(withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent))
   }
@@ -623,11 +659,14 @@ trait ElementBaseGrammarMixin
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
-  private lazy val elementLeftFraming = prod("elementLeftFraming") {
-    byteOrderChange ~ termIOPropertiesChange ~ leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
+  private lazy val alignAndSkipFraming = prod("alignAndSkipFraming") {
+    LeadingSkipRegion(this) ~ AlignmentFill(this) ~ PrefixLength(this)
   }
 
-  private lazy val elementRightFraming = prod("elementRightFraming") { trailingSkipRegion }
+  private lazy val elementIOPropertiesChange = byteOrderChange ~ termIOPropertiesChange
+  private lazy val elementLeftFraming = elementIOPropertiesChange ~ alignAndSkipFraming
+
+  private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 
   private lazy val scalarNonDefaultPhysical = prod("scalarNonDefault") {
     val bodyBefore = elementLeftFraming ~ dfdlScopeBegin
@@ -639,51 +678,23 @@ trait ElementBaseGrammarMixin
       new ElementCombinator(this, bodyBefore, body, bodyAfter)
   }
 
-  protected final lazy val scalarDefaultable = prod("scalarDefaultable") {
+  protected final lazy val enclosedElement = prod("enclosedElement") {
     //
-    // check for consistency. If length units is bytes, and we're going to use the length facets
-    // of xs:string for implicit length, the encoding must be SBCS. Otherwise validation could fail when the
-    // number of characters in that many bytes doesn't satisfy the facet.
+    // not isScalar, because this is reused inside arrays
+    // that is, we're counting on reusuing this production for array elements
+    // which are enclosed by the enclosing array and model group.
     //
-    if (isSimpleType &&
-      primType == PrimType.String &&
-      lengthKind == LengthKind.Implicit &&
-      lengthUnits == LengthUnits.Bytes) {
-      if (!isKnownEncoding) {
-        //
-        // TODO: this check is insisting on this being clear at compile time. But DFDL doesn't strictly speaking, require that.
-        // If encoding is runtime-valued, this check could be done at runtime.
-        //
-        SDE("dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS).")
-      } else if (knownEncodingWidthInBits != 8) {
-        SDE("dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
-          knownEncodingName)
-      }
-    }
-    if (lengthKind != LengthKind.Explicit
-      && optionLengthRaw.isDefined)
-      SDW("dfdl:lengthKind '%s' is not consistent with dfdl:length specified (as %s). The dfdl:length will be ignored.",
-        lengthKind,
-        lengthEv.toBriefXML())
-    if ((lengthKind == LengthKind.Explicit || lengthKind == LengthKind.Implicit) &&
-      impliedRepresentation == Representation.Binary &&
-      lengthUnits == LengthUnits.Characters)
-      SDE("Elements of dfdl:lengthKind '%s' cannot have dfdl:lengthUnits '%s' with binary representation.", lengthKind, lengthUnits)
-    (inputValueCalcOption, outputValueCalcOption) match {
-      case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
-      case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
-      case _ => DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement, defaultableValue)
-    }
+    // if we didn't reuse this way we'd have to reproduce much of the grammar
+    // for the array case and scalar case that is the same for both.
+    //
+    checkVariousPropertyconstraints
+    DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
   }
-
-  // TODO: implement defaulting. This should generate a unparser that fills in the
-  // infoset value if it is not present in the infoset already.
-  private lazy val defaultableValue = prod("defaultableValue", NYI) { EmptyGram }
 
   lazy val scalarNonDefault = prod("scalarNonDefault") {
     (inputValueCalcOption, outputValueCalcOption) match {
       case (_: NotFound, _: NotFound) => scalarNonDefaultPhysical
-      case _ => scalarDefaultable
+      case _ => enclosedElement
     }
   }
 
@@ -766,19 +777,122 @@ trait ElementBaseGrammarMixin
 
   private lazy val outputValueCalcElement = prod("outputValueCalcElement",
     isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
-
-      new ElementCombinator(this,
-        dfdlScopeBegin, ovcValueCalcObject,
-        elementRightFraming ~ dfdlScopeEnd)
+      scalarDefaultablePhysical
+      //      new ElementCombinator(this,
+      //        dfdlScopeBegin, ovcValueCalcObject,
+      //        elementRightFraming ~ dfdlScopeEnd)
     }
 
+  // Note: there is no such thing as defaultable complex content because you can't have a
+  // default value for a complex type element....
+  // NOT TRUE: a defaultable complex type is one where everything within it is
+  // recursively defaultable and has no syntax. So you could recursively "parse"
+  // it, get default values for simple type elements in the complex type structure,
+  // yet consume zero bits.
+
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
-    if (this.isParentUnorderedSequence)
-      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
-        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
-    else
-      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
-        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
+
+    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming, dfdlScopeBegin ~
+      (scalarDefaultableSimpleContent || scalarComplexContent) ~
+      elementRightFraming ~ dfdlScopeEnd)
+    withDelimiterStack {
+      withEscapeScheme {
+        elem
+      }
+    }
   }
+
+  private def checkVariousPropertyconstraints {
+    //
+    // check for consistency. If length units is bytes, and we're going to use the length facets
+    // of xs:string for implicit length, the encoding must be SBCS. Otherwise validation could fail when the
+    // number of characters in that many bytes doesn't satisfy the facet.
+    //
+    if (isSimpleType &&
+      primType == PrimType.String &&
+      lengthKind == LengthKind.Implicit &&
+      lengthUnits == LengthUnits.Bytes) {
+      if (!isKnownEncoding) {
+        //
+        // TODO: this check is insisting on this being clear at compile time. But DFDL doesn't strictly speaking, require that.
+        // If encoding is runtime-valued, this check could be done at runtime.
+        //
+        SDE("dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS).")
+      } else if (knownEncodingWidthInBits != 8) {
+        SDE("dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
+          knownEncodingName)
+      }
+    }
+    if (lengthKind != LengthKind.Explicit
+      && optionLengthRaw.isDefined)
+      SDW("dfdl:lengthKind '%s' is not consistent with dfdl:length specified (as %s). The dfdl:length will be ignored.",
+        lengthKind,
+        lengthExpr.prettyExpr)
+    if ((lengthKind == LengthKind.Explicit || lengthKind == LengthKind.Implicit) &&
+      impliedRepresentation == Representation.Binary &&
+      lengthUnits == LengthUnits.Characters)
+      SDE("Elements of dfdl:lengthKind '%s' cannot have dfdl:lengthUnits '%s' with binary representation.", lengthKind, lengthUnits)
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
+      case _ => // ok
+    }
+    /*
+     * When lengthKind is explicit and length is a constant, it is a warning if
+ * the type is a type that respects minLength and maxLength, and the constant length
+ * is not in range.
+ */
+    val isTypeUsingMinMaxLengthFacets = typeDef.kind match {
+      case s: NodeInfo.String.Kind => true
+      case s: NodeInfo.HexBinary.Kind => true
+      case _ => false
+    }
+    if ((lengthKind eq LengthKind.Explicit) &&
+      isTypeUsingMinMaxLengthFacets &&
+      optLengthConstant.isDefined) {
+      val len = optLengthConstant.get
+      val maxLengthLong = maxLength.longValueExact
+      val minLengthLong = minLength.longValueExact
+      def warn(m: String, value: Long) = SDW("Explicit dfdl:length of %s is out of range for facet %sLength='%s'.", len, "max", value)
+      if (maxLengthLong != -1 && len > maxLengthLong) warn("max", maxLengthLong)
+      Assert.invariant(minLengthLong >= 0)
+      if (minLengthLong > 0 && len < minLengthLong) warn("min", minLengthLong)
+    }
+
+    /*
+     *  When length kind is explicit, and length is a constant, it is an SDE if 
+ * the type is a type that uses dfdl:textOutputMinLength, and the length constant
+ * is not greater than or equal to that value.
+     */
+
+    val isTypeUsingTextOutputMinLength = typeDef.kind match {
+      case s: NodeInfo.String.Kind => false
+      case s: NodeInfo.HexBinary.Kind => false
+      case s: NodeInfo.AnySimpleType.Kind if (impliedRepresentation eq Representation.Binary) &&
+        this.textOutputMinLength > 0 => true
+      case _ => false
+    }
+
+    if ((lengthKind eq LengthKind.Explicit) &&
+      isTypeUsingTextOutputMinLength &&
+      optLengthConstant.isDefined) {
+      val len = optLengthConstant.get
+      if (len < textOutputMinLength) SDE("Explicit dfdl:length of %s is out of range for dfdl:textOutputMinLength='%s'.", len, textOutputMinLength)
+
+    }
+  }
+
+  /**
+   * Mandatory text alignment or mta
+   *
+   * mta can only apply to things with encodings. No encoding, no MTA.
+   *
+   * In addition, it has to be textual data. Just because there's an encoding
+   * in the property environment shouldn't get you an MTA region. It has
+   * to be textual.
+   */
+  protected final lazy val valueMTA = prod("mandatoryTextAlignment",
+    impliedRepresentation eq Representation.Text) {
+      mtaBase
+    }
 
 }

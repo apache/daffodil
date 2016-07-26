@@ -121,7 +121,7 @@
     <xs:element name="decimalTextFail" type="xs:decimal"
       dfdl:lengthKind="implicit" />
     <xs:element name="doubleText" type="xs:double"
-      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />    
     <xs:element name="doubleText2" type="xs:double"
       dfdl:lengthKind="explicit" dfdl:length="{ 18 }"
       dfdl:textNumberPattern="000.00000000000000" />
@@ -319,7 +319,7 @@
     <tdml:document><![CDATA[123]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Type Integer cannot have lengthKind='implicit' when representation='text'</tdml:error>
+      <tdml:error>Integer</tdml:error><tdml:error>lengthKind='implicit'</tdml:error><tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1674,7 +1674,7 @@
     <tdml:document><![CDATA[0]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Type nonNegativeInteger cannot have lengthKind='implicit' when representation='text'</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error><tdml:error>lengthKind='implicit'</tdml:error><tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1875,8 +1875,10 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="decimal_text2" root="decimalText2"
-    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R">
-
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R"
+    roundTrip="false">
+    <!-- cannot round trip as the 0.55 would be truncated into length 3 characters when unparsing,
+         We don't truncate numbers in DFDL. -->
     <tdml:document><![CDATA[.55]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1902,7 +1904,7 @@
     <tdml:document><![CDATA[1.5]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Type decimal cannot have lengthKind='implicit' when representation='text'</tdml:error>
+      <tdml:error>decimal</tdml:error><tdml:error>lengthKind='implicit'</tdml:error><tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2243,8 +2245,12 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="double_text2" root="doubleText"
-    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
-
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <!--  test doesn't round trip because the fixed length is 4, and so .555 
+          becomes 0.555 which should fail to unparse since that won't fit in 4 characters
+          and we don't truncate numbers. It happens that it doesn't error (separate bug)
+          but regardless, this shouldn't round trip.  -->
     <tdml:document><![CDATA[.555]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -2286,8 +2292,10 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="float_text" root="floatText"
-    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
-
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R"
+    roundTrip="false">
+    <!-- cannot round trip as the 0.555 would get truncated to 0.55 on unparsing, and 
+    we don't truncate numbers in DFDL. -->
     <tdml:document><![CDATA[.555]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -2325,7 +2333,7 @@
     <tdml:document><![CDATA[1.5]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Type float cannot have lengthKind='implicit' when representation='text'</tdml:error>
+      <tdml:error>float</tdml:error><tdml:error>lengthKind='implicit'</tdml:error><tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2982,7 +2990,7 @@
       </xs:complexType>
     </xs:element>    
 
-    <xs:element name="string11" dfdl:textStringPadCharacter="" dfdl:lengthKind="delimited" type="xs:string" />
+    <xs:element name="string11" dfdl:textStringPadCharacter=" " dfdl:lengthKind="delimited" type="xs:string" />
 
   </tdml:defineSchema>
   
@@ -3327,7 +3335,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>textStringPadCharacter</tdml:error>
-      <tdml:error>exactly 1</tdml:error>
+      <tdml:error>whitespace</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

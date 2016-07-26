@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,56 +30,28 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package edu.illinois.ncsa.daffodil.unparser
 
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.junit.Test
+import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-/**
- * A pool is a collection of objects that are manually recycled usually via
- * some sort of a stack discipline.
- *
- * The point of it is to avoid excessive allocation of little objects.
- *
- * This is not thread safe.
- *
- * Either a pool becomes part of a state block that is separate per thread,
- * or it must be made using a ThreadLocal to get one per thread automatically.
- */
-trait Pool[T <: AnyRef] {
+object TestOVCAndLength {
+  val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
+  val aa = testDir + "OVCAndLengthTest.tdml"
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  private val pool = new MStackOf[T]
-
-  private var numOutstanding: Int = 0
-
-  protected def allocate: T
-
-  final def getFromPool: T = {
-    numOutstanding += 1
-    if (pool.isEmpty) {
-      allocate
-    } else {
-      pool.pop.asInstanceOf[T]
-    }
+  @AfterClass def tearDown() {
+    runner = null
   }
+}
 
-  final def returnToPool(thing: T) {
-    numOutstanding -= 1
-    pool.push(thing)
-  }
+class TestOVCAndLength {
+  import TestOVCAndLength._
 
-  /**
-   * Call this at end of execution to be sure all pooled items
-   * have been returned.
-   *
-   * This is to help find resource leaks where items are taken from
-   * the pool, but then dropped.
-   */
-  final def finalCheck {
-    if (!(numOutstanding =#= 0)) {
-      val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)."
-      Assert.invariantFailed(msg)
-    }
-  }
+  @Test def test_ovcContentLengthCycle1() { runner.runOneTest("ovcContentLengthCycle1") }
+
+  @Test def test_ovcContentLengthCycle2() { runner.runOneTest("ovcContentLengthCycle2") }
 
 }

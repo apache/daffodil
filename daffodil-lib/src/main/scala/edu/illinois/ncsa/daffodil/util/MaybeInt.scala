@@ -32,6 +32,35 @@
 
 package edu.illinois.ncsa.daffodil.util
 
+/*
+ * Performance Note:
+ * 
+ * These exist for perforance reasons, to avoid boxing objects just to 
+ * get Maybe[T]/Option[T] behavior. 
+ * 
+ * Everything (pretty much) inlines on these classes. So their overhead is
+ * presumably zero.
+ * 
+ * Maybe[T] already is just a performance optimization on Option[T] 
+ * because it is a value class (i.e., AnyVal), not an object like Option[T].
+ * 
+ * These specialized versions like MaybeInt
+ * aren't @specialized(Int) versions of Maybe[Int], because value classes
+ * cannot be derived from a base. (At least in Scala 2.12).
+ * 
+ * Using Maybe[Int] with specialization would require that the Maybe[T] 
+ * class took a parameter which is the specialized reserved undef value,
+ * and the "underlying type", which for MaybeInt, is a Long. You can't
+ * derive one value class (AnyVal) from another because then you'd have the
+ * possibility of polymorphism (overloaded methods) which AnyVal non-objects
+ * cannot support. 
+ * 
+ * So it's really not a good idea to try to "clean up" this stuff using
+ * Scala 2.12 specialization of generic types. Maybe in the future 
+ * Scala will have a kind of specialization and AnyVal support that is up 
+ * to the job. 
+ */
+
 /**
  * Uses a Long to store an Int so that we can still pass by Value, but we
  * can reserve a value to represent Nope.
@@ -49,14 +78,58 @@ final case class MaybeInt private (__v: Long) extends AnyVal {
   //
   // The work-around: write an if-then-else like if (foo.isDefined) foo.get else MaybeUInt.Nope
   // verbose but known-to-be-fast
+
+  @inline final def toMaybeJInt = if (isEmpty) MaybeJInt.Nope else new MaybeJInt(MaybeInt(__v))
 }
 
 object MaybeInt {
-  private val undefValue = Long.MaxValue
 
-  @inline final def apply(v: Int) = new MaybeInt(v)
+  /**
+   * Use to do Maybe-like things using a reserved value vs. a normal value.
+   *
+   * Sometimes you have to have an AnyRef, so you need to use a JLong, not
+   * a MaybeInt.
+   *
+   * But you want "conceptually" the same thing as a MaybeInt.
+   *
+   * A Maybe[JInt] won't work, because that's not an AnyRef either.
+   */
+  type Type = Long
+
+  val undefValue: Type = Long.MaxValue
+
+  @inline def isDefined(v: Type): Boolean = v == undefValue
+  @inline def isEmpty(v: Type): Boolean = !isDefined(v)
+
+  @inline def apply(v: Int) = new MaybeInt(v)
 
   val Nope = new MaybeInt(undefValue)
+
+}
+
+/**
+ * Maybe[JInt] still isn't an AnyRef, We need an AnyRef class
+ * that can be used to pass/return/store One(Int) or Nope.
+ *
+ * Like a Maybe[Int], but an AnyRef, so can be stored in
+ * collections.
+ *
+ * This reduces boxing. You get one object with an unboxed MaybeInt
+ * stored within it.
+ */
+final class MaybeJInt(mi: MaybeInt) {
+  @inline final def get: Int = mi.get
+  @inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
+  @inline final def isDefined = mi.isDefined
+  @inline final def isEmpty = !isDefined
+  override def toString = mi.toString
+}
+
+object MaybeJInt {
+
+  @inline def apply(v: Int) = new MaybeJInt(MaybeInt(v))
+
+  val Nope = new MaybeJInt(MaybeInt.Nope)
 }
 
 final case class MaybeChar private (__v: Int) extends AnyVal {

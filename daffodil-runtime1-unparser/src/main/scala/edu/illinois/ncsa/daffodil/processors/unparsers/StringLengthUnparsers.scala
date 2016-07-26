@@ -41,21 +41,22 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
+import edu.illinois.ncsa.daffodil.processors.TextTruncationType
 
 class StringOfSpecifiedLengthUnparser(
   val unparsingPadChar: MaybeChar,
   val justificationPad: TextJustificationType.Type,
+  val stringTruncationType: TextTruncationType.Type,
   val erd: ElementRuntimeData,
   isForString: Boolean,
   isForPattern: Boolean,
   fillByteEv: FillByteEv)
-  extends PrimUnparser
-  with StringLengthMixin {
+    extends PrimUnparser {
 
   override def context = erd
   override lazy val runtimeDependencies = List(erd.encodingInfo.charsetEv)
 
-  final override def justificationTrim = justificationPad
+  final def justificationTrim = justificationPad
   def padChar(state: UState): MaybeChar = unparsingPadChar
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
@@ -104,16 +105,20 @@ class StringOfSpecifiedLengthUnparser(
         val (nBits, _ /* nChars */ ) = getLengthInBits(valueString, state)
         val availableLengthDiff = availableLengthInBits - nBits // can be negative if we need to truncate
         val nBitsToPadOrFill = if (isForPattern) availableLengthDiff.min(0) else availableLengthDiff // no padding/fill when lengthKind="pattern"
-        val cs = erd.encodingInfo.getEncoder(state).charset
-        val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(cs)
+        val dcs = erd.encInfo.getDFDLCharset(state)
+        val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(dcs)
         // padChar must be a minimum-width char
         val nCharsToPad = nBitsToPadOrFill / minBitsPerChar
         val nBitsToFill = nBitsToPadOrFill % minBitsPerChar
         Assert.invariant(nCharsToPad <= Int.MaxValue)
         val pc = padChar(state)
-        val paddedValue = padOrTruncateByJustification(state, valueString, pc, valueString.length + nCharsToPad.toInt, isForString)
+        val paddedValue = padOrTruncateByJustification(state, valueString, pc, valueString.length + nCharsToPad.toInt)
         (paddedValue, nBitsToFill)
       }
+    //
+    // TODO: if this truncates a specified length string, and it's not a xs:string type, 
+    // That's a processing error.
+    //
     val nCharsWritten = dos.putString(valueToWrite)
     Assert.invariant(nCharsWritten == valueToWrite.length) // assertion because we figured this out above based on available space.
     if (nBitsToFill > 0) {
@@ -130,12 +135,6 @@ class StringOfSpecifiedLengthUnparser(
         Assert.invariant(dos.putLong(fb, nFillBits))
     }
   }
-}
-
-trait StringLengthMixin {
-
-  def erd: ElementRuntimeData
-  def justificationTrim: TextJustificationType.Type
 
   final def addRightPadding(str: String, padChar: MaybeChar, nChars: Int): String = {
     val pc = padChar.get
@@ -180,39 +179,41 @@ trait StringLengthMixin {
     sb.mkString
   }
 
-  final def padOrTruncateByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int, isForString: Boolean): String = {
+  final def padOrTruncateByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int): String = {
     if (str.length =#= nChars) str
     else if (str.length < nChars) {
-      padByJustification(ustate, str, padChar, nChars, isForString)
-    } else {
+      padByJustification(ustate, str, padChar, nChars)
+    } else if (isForString) {
       Assert.invariant(str.length > nChars)
-      truncateByJustification(ustate, str, nChars, isForString)
+      truncateByJustification(ustate, str, nChars)
+    } else {
+      str
     }
   }
 
-  private def truncateByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
-    if (isForString) Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
+  /**
+   * We only truncate strings, and only if textStringJustification is left or right, and only if truncateSpecifiedLengthString is yes.
+   */
+  private def truncateByJustification(ustate: UState, str: String, nChars: Int): String = {
+    Assert.invariant(isForString)
+    Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
     val nCharsToTrim = str.length - nChars
-    val result = justificationTrim match {
-      case TextJustificationType.None => {
-        if (isForString)
-          UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Trimming is required, but the dfdl:textTrimKind property is 'none'.")
-        else str
+    val result = stringTruncationType match {
+      case TextTruncationType.None => {
+        Assert.invariant(erd.optTruncateSpecifiedLengthString.get =#= false)
+        UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "String truncation is required, but the dfdl:truncateSpecifiedLengthString property is 'no'.")
       }
-      case TextJustificationType.Right => {
+      case TextTruncationType.Right => {
         str.substring(nCharsToTrim)
       }
-      case TextJustificationType.Left => {
+      case TextTruncationType.Left => {
         str.substring(0, str.length - nCharsToTrim)
-      }
-      case TextJustificationType.Center => {
-        UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "The dfdl:textJustificationType is 'center', but the value requires truncation to fit within the length %n.", nChars)
       }
     }
     result
   }
 
-  private def padByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int, isForString: Boolean): String = {
+  private def padByJustification(ustate: UState, str: String, padChar: MaybeChar, nChars: Int): String = {
     val nCharsToPad = nChars - str.length
     val result = justificationTrim match {
       case TextJustificationType.None => {

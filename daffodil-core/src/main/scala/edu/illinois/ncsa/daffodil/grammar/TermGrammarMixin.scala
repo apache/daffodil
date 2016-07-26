@@ -58,7 +58,7 @@ trait TermGrammarMixin
   private lazy val newVarEnds = newVars.map { _.endGram }
 
   protected lazy val hasEncoding = optionEncodingRaw.isDefined
-  
+
   protected lazy val termIOPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ encodingChange }
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
@@ -183,20 +183,24 @@ trait TermGrammarMixin
       new OptionalInfixSep(this, infixSep)
     } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
   }
-  
+
   /**
    * Mandatory text alignment or mta
-   * 
+   *
    * mta can only apply to things with encodings. No encoding, no MTA.
+   *
+   * In addition, it has to be textual data. Just because there's an encoding
+   * in the property environment shouldn't get you an MTA region. It has
+   * to be textual.
    */
-  protected lazy val mta = prod("mandatoryTextAlignment", hasEncoding) {
-    MandatoryTextAlignment(this,  knownEncodingAlignmentInBits)
+  protected lazy val mtaBase = prod("mandatoryTextAlignment", hasEncoding) {
+    MandatoryTextAlignment(this, knownEncodingAlignmentInBits)
   }
-   
+
   /**
    * Mandatory text alignment for delimiters
    */
   protected lazy val delimMTA = prod("delimMTA", hasDelimiters) {
-    mta
+    mtaBase
   }
 }

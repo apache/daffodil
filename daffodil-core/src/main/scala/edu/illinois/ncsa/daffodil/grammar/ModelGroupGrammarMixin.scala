@@ -46,10 +46,10 @@ trait ModelGroupGrammarMixin
     with GroupCommonAGMixin { self: ModelGroup =>
 
   private lazy val groupLeftFraming = prod("groupLeftFraming") {
-    termIOPropertiesChange ~ leadingSkipRegion ~ alignmentFill
+    termIOPropertiesChange ~ LeadingSkipRegion(this) ~ AlignmentFill(this)
   }
 
-  private lazy val groupRightFraming = prod("groupRightFraming") { trailingSkipRegion }
+  private lazy val groupRightFraming = prod("groupRightFraming") { TrailingSkipRegion(this) }
 
   // I believe we can have the same grammar rules whether we're directly inside a complex type, or
   // we're nested inside another group as a term.

@@ -77,19 +77,21 @@ object ElementBase {
  * Shared by all forms of elements, local or global or element reference.
  */
 abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends Term(xmlArg, parent, position)
-  with AnnotatedMixin
-  with Element_AnnotationMixin
-  with NillableMixin
-  with DFDLStatementMixin
-  with ElementBaseGrammarMixin
-  with ElementRuntimeValuedPropertiesMixin
-  with StringTextMixin
-  with NumberTextMixin
-  with CalendarTextMixin
-  with BooleanTextMixin
-  with TextNumberFormatMixin
-  with RealTermMixin {
+    extends Term(xmlArg, parent, position)
+    with AnnotatedMixin
+    with Element_AnnotationMixin
+    with NillableMixin
+    with DFDLStatementMixin
+    with ElementBaseGrammarMixin
+    with ElementRuntimeValuedPropertiesMixin
+    with StringTextMixin
+    with NumberTextMixin
+    with CalendarTextMixin
+    with BooleanTextMixin
+    with TextNumberFormatMixin
+    with RealTermMixin {
+
+  override final def eBase = this
 
   ElementBase.count += 1 // how many elements in this schema.
 
@@ -232,7 +234,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     // Any Set with size > 1 has different namespaces for the same prefix, filter them out
     val bindingsNoConflictsMap = bindingsGroupedByPrefix.filter { case (prefix, bindings) => bindings.size == 1 }
 
-     // Create a Map[prefix, NS] now that conflicts are removed
+    // Create a Map[prefix, NS] now that conflicts are removed
     val bindingsSingleNSMap = bindingsNoConflictsMap.mapValues { _.head }
 
     // Convert back to a set
@@ -650,33 +652,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     // In general the things in this file about fixed length seem to miss hexBinary.
   }
 
-  /**
-   * Tells us if we have a specific length that can be determined in
-   * bits without having to know the value of the element.
-   *
-   * This is focused on unparsing. For example lengthKind 'prefixed' specifies a length
-   * when parsing, but when unparsing the value is needed to compute the prefix value,
-   * so we need the value.
-   *
-   * Can be false meaning "we can't tell until runtime", but if true
-   * then we definitely can determine the length in bits without the value.
-   *
-   * This eliminates the possibility of explicit or implicit length, but in lengthUnits 'characters'
-   * and a variable-width encoding.
-   */
-  final lazy val hasKnownUnparserSpecifiedLengthInBits = {
-    Assert.usage(isSimpleType)
-    import Representation._
-    import LengthKind._
-    (lengthKind, impliedRepresentation) match {
-      case (Explicit, Text) if knownEncodingIsFixedWidth => true
-      case (Implicit, Text) if knownEncodingIsFixedWidth => true
-      case (Explicit, Binary) => true
-      case (Implicit, Binary) => true
-      case _ => false
-    }
-  }
-
   final def isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
 
   final lazy val fixedLengthValue: Long = {
@@ -706,22 +681,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     else false
   }
 
-  /**
-   * This notion of 'specified' length doesn't exactly match the definition
-   * in the DFDL spec. Rather, we mean here that the length is "somehow" determined
-   * a-priori, so the content can be extracted, or at least a specific length
-   * limit put in place.
-   */
-  final lazy val hasSpecifiedLength = {
-    isFixedLength ||
-      lengthKind == LengthKind.Pattern ||
-      lengthKind == LengthKind.Prefixed ||
-      lengthKind == LengthKind.Implicit ||
-      lengthKind == LengthKind.Explicit ||
-      lengthKind == LengthKind.EndOfParent
-  }
-
-  // TODO: Is this used at all?
   final lazy val fixedLength = {
     if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
   }

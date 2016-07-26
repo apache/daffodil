@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * Cache that saves the compiled data processor objects (memory structures, not files
  * of the serialized representation)
  */
-object SchemaDataProcessorCache extends SchemaCache[DFDL.DataProcessor, Seq[Diagnostic]]
+object SchemaDataProcessorCache extends SchemaCache[(Seq[Diagnostic], DFDL.DataProcessor), Seq[Diagnostic]]
 
 /**
  * A cache of things associated with URISchemaSources.

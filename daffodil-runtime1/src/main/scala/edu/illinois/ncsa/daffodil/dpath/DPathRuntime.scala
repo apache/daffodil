@@ -70,7 +70,6 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
     dstate.setErrorOrWarn(state)
     dstate.resetValue
-    dstate.setMode(NonBlocking)
     dstate.isCompile = state match {
       case cs: CompileState => true
       case _ => false
@@ -132,7 +131,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
    * exactly what it was doing before.
    */
   def run(dstate: DState) {
-    if (dstate.mode == Blocking) {
+    if (dstate.mode == UnparserBlocking) {
       Assert.invariant(ops.length > 0)
       Assert.invariant(dstate.opIndex < ops.length)
       while (dstate.opIndex < ops.length) {
@@ -160,7 +159,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 }
 
 abstract class RecipeOp
-  extends Serializable {
+    extends Serializable {
 
   def run(dstate: DState): Unit
 
@@ -193,7 +192,7 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 }
 
 case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
-  extends RecipeOp {
+    extends RecipeOp {
 
   override def run(dstate: DState) {
     Assert.invariant(dstate.vmap != null)
@@ -214,7 +213,7 @@ case class Literal(v: Any) extends RecipeOp {
 }
 
 case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)
-  extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
+    extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -249,7 +248,7 @@ trait BinaryOpMixin { self: RecipeOp =>
 }
 
 case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+    extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(cop)
 
@@ -266,7 +265,7 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
 }
 
 case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+    extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(nop)
 

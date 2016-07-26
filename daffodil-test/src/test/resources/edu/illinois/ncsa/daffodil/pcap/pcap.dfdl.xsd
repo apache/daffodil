@@ -172,7 +172,7 @@ The message root is 'PCAP'.
                     <xs:element name="Seconds" type="pcap:uint32"/> <!-- TODO: ts_sec should be a dateTime -->
                     <xs:element name="USeconds" type="pcap:uint32"/>
                     <xs:element name="InclLen" type="pcap:uint32" 
-                       dfdl:outputValueCalc="{ dfdl:contentLength(../../pcap:LinkLayer, 'bytes') }"/>
+                       dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:LinkLayer, 'bytes') }"/>
                     <xs:element name="OrigLen" type="pcap:uint32" 
                        dfdl:outputValueCalc="{ ../InclLen }"/>
                   </xs:sequence>
@@ -337,8 +337,8 @@ The message root is 'PCAP'.
               <xs:element name="Length" type="pcap:bit" dfdl:length="16" 
                 dfdl:outputValueCalc="{ 
                 if (fn:exists(../../pcap:TransportLayer)) 
-                then dfdl:contentLength(../../pcap:TransportLayer, 'bytes') + 20
-                else dfdl:contentLength(../../pcap:ICMPv4, 'bytes') + 20
+                then dfdl:valueLength(../../pcap:TransportLayer, 'bytes') + 20
+                else dfdl:valueLength(../../pcap:ICMPv4, 'bytes') + 20
                 }"/>
               <xs:element name="Identification" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Flags" type="pcap:bit" dfdl:length="3" />
@@ -436,7 +436,7 @@ The message root is 'PCAP'.
               <xs:element name="TrafficClass" type="pcap:bit" dfdl:length="8" />
               <xs:element name="FlowLabel" type="pcap:bit" dfdl:length="20" />
               <xs:element name="PayloadLength" type="pcap:bit" dfdl:length="16" 
-              dfdl:outputValueCalc="{ dfdl:contentLength(../../pcap:TransportLayer, 'bytes') }"/>
+              dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:TransportLayer, 'bytes') }"/>
               <xs:element name="NextHeader" type="pcap:bit" dfdl:length="8" /> <!-- TODO: Add support for extension headers -->
               <xs:element name="HopLimit" type="pcap:bit" dfdl:length="8" />
               <xs:element name="IPSrc" type="pcap:hexByte" dfdl:length="16" />
@@ -506,7 +506,7 @@ The message root is 'PCAP'.
               <xs:element name="PortSrc" type="pcap:bit" dfdl:length="16" />
               <xs:element name="PortDest" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Length" type="pcap:bit" dfdl:length="16" 
-                dfdl:outputValueCalc="{ dfdl:contentLength(../../Data, 'bytes') + 8 }"/>
+                dfdl:outputValueCalc="{ dfdl:valueLength(../../Data, 'bytes') + 8 }"/>
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
             </xs:sequence>
           </xs:complexType>

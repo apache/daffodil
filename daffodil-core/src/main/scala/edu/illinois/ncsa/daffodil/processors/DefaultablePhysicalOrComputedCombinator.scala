@@ -42,9 +42,8 @@ import edu.illinois.ncsa.daffodil.dsom.NotFound
 case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
   scalarDefaultablePhysical: Gram,
   inputValueCalcElement: Gram,
-  outputValueCalcElement: Gram,
-  defaultableElement: Gram)
-  extends Terminal(ctxt, true) {
+  outputValueCalcElement: Gram)
+    extends Terminal(ctxt, true) {
   //Assert.invariant(!scalarDefaultablePhysical.isEmpty)
   //Assert.invariant(!inputValueCalcElement.isEmpty)
   //Assert.invariant(!outputValueCalcElement.isEmpty)
@@ -62,6 +61,7 @@ case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
     (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match {
       case (_: NotFound, _: Found) => scalarDefaultablePhysicalParser // outputValueCalc element is just a regular physical element for parser
       case (_: Found, _: NotFound) => inputValueCalcElementParser
+      case (_: NotFound, _: NotFound) => scalarDefaultablePhysicalParser
       case _ => Assert.impossibleCase()
     }
   }

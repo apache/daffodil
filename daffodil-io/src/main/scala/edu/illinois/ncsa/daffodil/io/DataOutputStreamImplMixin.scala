@@ -106,28 +106,64 @@ class DataOutputStreamState extends DataStreamCommonState {
    * to do unparsing into a buffer.
    */
   private var maybeAbsBitPos0b_ : MaybeULong = MaybeULong.Nope
-  def maybeAbsBitPos0b = maybeAbsBitPos0b_
-  def setMaybeAbsBitPos0b(newMaybeAbsPos0b: MaybeULong) {
-    maybeAbsBitPos0b_ = newMaybeAbsPos0b
-  }
-
   /**
    * Relative bit position zero based.
-   * Relative to the start of the current buffer.
+   * Relative to the start of the current buffer, unless
+   * the buffer has an absolute bit position. If so then
+   * the value of this is the same as the absolute bit pos.
    */
   private var relBitPos0b_ : ULong = ULong(0)
-  def relBitPos0b = relBitPos0b_
 
   /**
-   * Besides setting the relBitPos, it also maintains the value of
-   * the absolute bit pos, if it is known.
+   * Once we determine what it is, this will hold the absolute bit pos
+   * of the first bit of this buffer.
+   *
+   * It should always be the case that the absbitPos0b is the sum of
+   * this value and the relBitPos0b.
    */
+  private var maybeAbsStartingBitPos0b_ : MaybeULong = MaybeULong.Nope
+
+  private def checkInvariants() {
+    Assert.invariant(maybeAbsStartingBitPos0b_.isEmpty || maybeAbsBitPos0b_.isDefined)
+    Assert.invariant(maybeAbsBitPos0b_.isEmpty || maybeAbsStartingBitPos0b_.isDefined)
+    Assert.invariant(maybeAbsBitPos0b_.isEmpty ||
+      (maybeAbsStartingBitPos0b_.get + relBitPos0b_.longValue) == maybeAbsBitPos0b_.get)
+  }
+
+  def maybeAbsBitPos0b = {
+    maybeAbsBitPos0b_
+  }
+
+  def maybeAbsStartingBitPos0b = maybeAbsStartingBitPos0b_
+
+  def resetAllBitPos() {
+    maybeAbsStartingBitPos0b_ = MaybeULong.Nope
+    maybeAbsBitPos0b_ = MaybeULong.Nope
+    relBitPos0b_ = ULong(0)
+  }
+
+  def setAbsStartingBitPos0b(newStartingBitPos0b: ULong) {
+    checkInvariants()
+    // Assert.usage(maybeAbsStartingBitPos0b_.isEmpty) // does not hold.
+    val startv = newStartingBitPos0b.longValue
+    maybeAbsStartingBitPos0b_ = MaybeULong(startv)
+    maybeAbsBitPos0b_ = MaybeULong(startv + relBitPos0b_.longValue)
+    checkInvariants()
+  }
+
   def setRelBitPos0b(newRelBitPos0b: ULong) {
-    val delta: Long = (newRelBitPos0b - relBitPos0b_).toLong
-    if (maybeAbsBitPos0b.isDefined) {
-      setMaybeAbsBitPos0b(MaybeULong(maybeAbsBitPos0b.get + delta))
+    checkInvariants()
+    if (maybeAbsBitPos0b_.isDefined) {
+      val delta = newRelBitPos0b - relBitPos0b_.longValue // could be negative if we're shortening things.
+      val abs = maybeAbsBitPos0b_.get
+      maybeAbsBitPos0b_ = MaybeULong(abs + delta)
     }
-    relBitPos0b_ = ULong(relBitPos0b_ + delta)
+    relBitPos0b_ = newRelBitPos0b
+    checkInvariants()
+  }
+
+  def relBitPos0b = {
+    relBitPos0b_
   }
 
   /**
@@ -159,6 +195,7 @@ class DataOutputStreamState extends DataStreamCommonState {
     } else if (maybeRelBitLimit0b.isEmpty) {
       maybeRelBitLimit0b_ = newMaybeRelBitLimit0b
       // absolute limit doesn't getchanged (it must be undefined)
+      Assert.invariant(maybeAbsBitLimit0b.isEmpty)
     } else {
       val delta = maybeRelBitLimit0b.get - newMaybeRelBitLimit0b.get // this is how much the relative value is changing.
       if (!reset && delta < 0) {
@@ -233,6 +270,7 @@ class DataOutputStreamState extends DataStreamCommonState {
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.encoder = other.encoder
     // DO NOT SET THIS IT IS SET IN THE CALLER ; this.codingErrorAction = other.codingErrorAction
     this.maybeAbsBitPos0b_ = other.maybeAbsBitPos0b_
+    this.maybeAbsStartingBitPos0b_ = other.maybeAbsStartingBitPos0b_
     this.relBitPos0b_ = other.relBitPos0b_
     this.maybeAbsBitLimit0b = other.maybeAbsBitLimit0b
     this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
@@ -349,6 +387,8 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     this.setEncoder(other.encoder)
     this.setEncodingErrorPolicy(other.encodingErrorPolicy)
   }
+
+  def resetAllBitPos() = st.resetAllBitPos()
 
   /**
    * just a synonym
@@ -772,13 +812,12 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     st.maybeAbsBitPos0b
   }
 
-  override def setMaybeAbsBitPos0b(maybeNewAbsBitPos0b: MaybeULong) {
-    st.setMaybeAbsBitPos0b(maybeNewAbsBitPos0b)
+  def maybeAbsStartingBitPos0b: MaybeULong = {
+    st.maybeAbsStartingBitPos0b
   }
 
-  override def maybeAbsBitPos1b: MaybeULong = {
-    if (maybeAbsBitPos0b.isDefined) MaybeULong(maybeAbsBitPos0b.get.toLong + 1)
-    else MaybeULong.Nope
+  def setAbsStartingBitPos0b(newStartingBitPos0b: ULong) {
+    st.setAbsStartingBitPos0b(newStartingBitPos0b)
   }
 
   override def setRelBitPos0b(newRelBitPos0b: ULong) = {

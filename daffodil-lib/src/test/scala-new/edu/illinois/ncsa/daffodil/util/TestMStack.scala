@@ -40,9 +40,9 @@ class TestMStack {
   var junk: Long = 0
 
   /**
-   * This test compares MStack.OfLong to ArrayStack[Long].
+   * This test compares MStackOfLong to ArrayStack[Long].
    *
-   * It shows MStack.OfLong is faster, this is probably due to the
+   * It shows MStackOfLong is faster, this is probably due to the
    * fact that it can avoid boxing/unboxing the numbers. However, I haven't
    * disassembled the byte code to verify that this is the difference.
    *
@@ -50,7 +50,7 @@ class TestMStack {
    */
   //  @Test def testMStackSpeed1 {
   //    val numOps: Long = 1000000000
-  //    val longStack = new MStack.OfLong
+  //    val longStack = MStackOfLong
   //    val arrayStack = new ArrayStack[Long]
   //
   //    // Warm up the JVM on MStack
@@ -93,7 +93,7 @@ class TestMStack {
   //  }
   //
   //  /**
-  //   * Compare performance for MStack.OfMaybe[Thing] vs ArrayStack[Maybe[Thing]]
+  //   * Compare performance for MStackOfMaybe[Thing] vs ArrayStack[Maybe[Thing]]
   //   *
   //   * Faster, probably due to lack of need to box/unbox the Maybe[Thing].
   //   *
@@ -106,7 +106,7 @@ class TestMStack {
   //      val n = 1
   //    }
   //    val mThing = Maybe(Thing)
-  //    val mThingStack = new MStack.Of[Thing]
+  //    val mThingStack = new MStackOf[Thing]
   //    val arrayStack = new ArrayStack[Maybe[Thing]]
   //
   //    // Warm up the JVM on MStack

@@ -92,7 +92,7 @@ class TestSimpleTypes2 {
   @Test def test_leastSigBitFirstFloat() { runner1.runOneTest("leastSigBitFirstFloat") }
   @Test def test_leastSigBitFirstDouble() { runner1.runOneTest("leastSigBitFirstDouble") }
   @Test def test_leastSignificantBitFirstRTL() { runner1.runOneTest("leastSignificantBitFirstRTL") }
-  @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
+  @Test def test_mostSignificantBitFirst1() { runner1.runOneTest("mostSignificantBitFirst1") }
   @Test def test_mostSigBitFirstFloat() { runner1.runOneTest("mostSigBitFirstFloat") }
   @Test def test_mostSigBitFirstDouble() { runner1.runOneTest("mostSigBitFirstDouble") }
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }

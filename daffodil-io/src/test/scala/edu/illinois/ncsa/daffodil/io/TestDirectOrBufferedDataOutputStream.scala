@@ -49,6 +49,12 @@ class TestDirectOrBufferedDataOutputStream {
     res
   }
 
+  @Test def testToString {
+    val baos = new ByteArrayOutputStreamWithGetBuf()
+    val layered = DirectOrBufferedDataOutputStream(baos, null)
+    System.err.println(layered.toString())
+  }
+
   @Test def testCollapsingBufferIntoDirect1 {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()

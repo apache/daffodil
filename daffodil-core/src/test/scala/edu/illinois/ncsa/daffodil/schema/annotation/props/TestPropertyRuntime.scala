@@ -78,9 +78,11 @@ class TestPropertyRuntime {
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
-  class HasMixin extends SchemaComponentBase(<dummy/>, null)
-    with TheExamplePropMixin
-    with LookupLocation {
+  class HasMixin extends {
+    override val xml = <foo/>
+  } with SchemaComponentBase(<dummy/>, null)
+      with TheExamplePropMixin
+      with LookupLocation {
     // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
     def columnDescription: String = ???
     def fileDescription: String = ???
@@ -93,7 +95,6 @@ class TestPropertyRuntime {
 
     def findPropertyOption(pname: String) =
       Found("left", this, pname)
-    override val xml = <foo/>
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 
@@ -124,7 +125,7 @@ object TheExampleProp extends Enum[TheExampleProp] {
 }
 
 trait TheExamplePropMixin
-  extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
+    extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)

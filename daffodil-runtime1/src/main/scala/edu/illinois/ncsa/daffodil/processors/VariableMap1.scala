@@ -87,6 +87,16 @@ case object VariableSet extends VariableState
 case object VariableRead extends VariableState
 
 /**
+ * Used when unparsing. A setVariable or newVariableInstance may be underway
+ * in the sense that the value of the variable is being computed but is
+ * blocked.
+ *
+ * Readers in this situation should also block, not get any default value
+ * nor any error.
+ */
+case object VariableInProcess extends VariableState
+
+/**
  * Core tuple of a pure functional "state" for variables.
  */
 case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression[AnyRef]]) extends Serializable
@@ -113,6 +123,22 @@ abstract class VariableException(val qname: NamedQName, val context: ThrowsSDE, 
 
 class VariableHasNoValue(qname: NamedQName, context: ThrowsSDE) extends VariableException(qname, context,
   "Variable map (runtime): variable %s has no value. It was not set, and has no default value.".format(qname))
+  with RetryableException
+
+/**
+ * Provides one more indirection to the variable map.
+ *
+ * Needed so that when unparsing multiple clones of a UState can share
+ * and modify, the same VMap.
+ */
+final class VariableBox(initialVMap: VariableMap) {
+  private var vmap_ : VariableMap = initialVMap
+
+  def vmap = vmap_
+  def setVMap(newMap: VariableMap) {
+    vmap_ = newMap
+  }
+}
 
 /**
  * Pure functional data structure for implementing DFDL's variables.
@@ -129,8 +155,8 @@ class VariableHasNoValue(qname: NamedQName, context: ThrowsSDE) extends Variable
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  */
 class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
-  extends WithParseErrorThrowing
-  with Serializable {
+    extends WithParseErrorThrowing
+    with Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(topLevelVRDs.map {

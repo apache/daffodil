@@ -46,7 +46,7 @@ abstract class ProcessingError(
   loc: Maybe[DataLocation],
   kind: String,
   args: Any*)
-  extends Exception with ThinThrowable with DiagnosticImplMixin {
+    extends Exception with ThinThrowable with DiagnosticImplMixin {
 
   /**
    * Used to convert a processing error into a parse error so that it
@@ -54,7 +54,7 @@ abstract class ProcessingError(
    * "Parse Error" string.
    */
   def toParseError = new ParseError(rd, loc, kind, args: _*)
-  
+
   /**
    * Used to convert a processing error into a parse error so that it
    * looks like the same as other parse errors to tests that search for the

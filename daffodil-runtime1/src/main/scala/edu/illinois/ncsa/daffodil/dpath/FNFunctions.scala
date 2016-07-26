@@ -168,8 +168,8 @@ trait SubstringKind {
 }
 
 case class FNSubstring2(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes)
-  with SubstringKind {
+    extends FNTwoArgs(recipes)
+    with SubstringKind {
   /**
    * The two argument version of the function assumes that \$length is infinite
    * and returns the characters in \$sourceString whose position \$p obeys:
@@ -189,8 +189,8 @@ case class FNSubstring2(recipes: List[CompiledDPath])
 }
 
 case class FNSubstring3(recipes: List[CompiledDPath])
-  extends FNThreeArgs(recipes)
-  with SubstringKind {
+    extends FNThreeArgs(recipes)
+    with SubstringKind {
 
   /**
    * More specifically, the three argument version of the function returns the
@@ -210,8 +210,8 @@ case class FNSubstring3(recipes: List[CompiledDPath])
 }
 
 case class FNSubstringBefore(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes)
-  with SubstringKind {
+    extends FNTwoArgs(recipes)
+    with SubstringKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
     val sourceString: String = arg1.asInstanceOf[String]
@@ -229,8 +229,8 @@ case class FNSubstringBefore(recipes: List[CompiledDPath])
 }
 
 case class FNSubstringAfter(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes)
-  with SubstringKind {
+    extends FNTwoArgs(recipes)
+    with SubstringKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
     val sourceString: String = arg1.asInstanceOf[String]
@@ -285,9 +285,9 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
      *
      * If neither argument has a timezone, the result has no timezone.
      * If exactly one of the arguments has a timezone, or if both arguments
-     * 	have the same timezone, the result has this timezone.
+     *   have the same timezone, the result has this timezone.
      * If the two arguments have different timezones, an error
-     * 	is raised:[err:FORG0008]
+     *   is raised:[err:FORG0008]
      */
     var hasTZ: Boolean = true
 
@@ -311,7 +311,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 }
 
 case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: CompiledDPath)
-  extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
+    extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -450,8 +450,8 @@ trait FNRoundHalfToEvenKind {
  * \$precision is assumed 0.
  */
 case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType)
-  with FNRoundHalfToEvenKind {
+    extends FNOneArg(recipe, argType)
+    with FNRoundHalfToEvenKind {
 
   override def computeValue(value: AnyRef, dstate: DState) = {
     val roundedValue = compute(value, 0)
@@ -470,8 +470,8 @@ case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * This particular function expects a two arguments: \$arg and \$precision.
  */
 case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes)
-  with FNRoundHalfToEvenKind {
+    extends FNTwoArgs(recipes)
+    with FNRoundHalfToEvenKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState) = {
     val precision = asInt(arg2)
@@ -481,7 +481,7 @@ case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
 }
 
 case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null)
-  extends FNOneArg(recipe, NodeInfo.Boolean) {
+    extends FNOneArg(recipe, NodeInfo.Boolean) {
   override def computeValue(value: AnyRef, dstate: DState): JBoolean = {
     val bool = asBoolean(FNToBoolean.computeValue(value, dstate))
     !bool
@@ -493,34 +493,106 @@ case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOne
 }
 
 trait ExistsKind {
+
   def exists(recipe: CompiledDPath, dstate: DState): Boolean = {
     dstate.fnExists() // hook so we can insist this is non-constant at compile time.
+
     val res = try {
       recipe.run(dstate)
       true
     } catch {
-      // catch exceptions indicating a node (or value) doesn't exist.
-      //
-      // if you reach into an array location that doesn't exist
-      case e: java.lang.IndexOutOfBoundsException => false
-      // if you reach into a child element slot that isn't filled
-      case e: InfosetNoSuchChildElementException => false
-      // if something else goes wrong while evaluating the
-      // expression (fn:exist can be called on expressions that are
-      // not necessarily nodes.They can be simple value expressions)
-      case e: java.lang.IllegalStateException => false
-      case e: java.lang.NumberFormatException => false
-      case e: java.lang.IllegalArgumentException => false
-      case e: java.lang.ArithmeticException => false
-      case e: ProcessingError => false
+      case ue: UnsuppressableException => throw ue
+      case th: Throwable => handleThrow(th, dstate)
     }
     res
   }
+
+  private def doesntExist(dstate: DState) = {
+    false
+  }
+
+  /**
+   * In blocking mode, fn:exist can only answer false if the
+   * element/array is closed meaning no more children can be added.
+   *
+   * If a child is present, then it can answer true regardless
+   * of closed/not, but if child is absent, we might still be
+   * appending to the array, or adding children to the complex
+   * element.
+   *
+   */
+  private def ifClosedDoesntExist(dstate: DState, th: Throwable): Boolean = {
+    Assert.invariant(dstate.currentNode ne null)
+    val res = dstate.mode match {
+      case UnparserNonBlocking => {
+        // we are evaluating the expression, and hoping it will evaluate
+        // completely just to avoid the overhead of creating a suspension
+        //
+        // we will always re-throw in this case so that fn:exists doesn't 
+        // return false, resulting in the expression getting a value that
+        // might, later, have returned true. 
+        //
+        throw th
+      }
+      case UnparserBlocking => {
+        dstate.currentNode match {
+          case c: DIFinalizable if (c.isFinal) => false
+          case _ => throw th
+        }
+      }
+      case ParserNonBlocking => {
+        false
+      }
+    }
+    res
+  }
+
+  private def handleThrow(th: Throwable, dstate: DState) = {
+    //
+    // Some errors we never suppress. They're always thrown
+    // to enable blocking, or detect errors where something would
+    // have blocked but didn't.
+    //
+    dstate.mode match {
+      case UnparserBlocking | UnparserNonBlocking => {
+        th match {
+          case u: UnsuppressableException => throw u
+          case r: RetryableException => // ok fall through
+          case _ => throw th
+        }
+      }
+      case ParserNonBlocking => // ok
+    }
+    //
+    // If we fall through to here, then we might suppress the error
+    // and just report that the node doesn't exist.
+    //
+    th match {
+      case e: InfosetNodeNotFinalException => {
+        Assert.invariant(dstate.mode eq UnparserBlocking)
+        throw e
+      }
+      // catch exceptions indicating a node (or value) doesn't exist.
+      // if you reach into a child element slot that isn't filled
+      case e: InfosetNoSuchChildElementException => ifClosedDoesntExist(dstate, th)
+      case e: InfosetArrayIndexOutOfBoundsException => ifClosedDoesntExist(dstate, th)
+      // if something else goes wrong while evaluating the
+      // expression (fn:exist can be called on expressions that are
+      // not necessarily nodes.They can be simple value expressions)
+      case e: java.lang.IllegalStateException => doesntExist(dstate)
+      case e: java.lang.NumberFormatException => doesntExist(dstate)
+      case e: java.lang.IllegalArgumentException => doesntExist(dstate)
+      case e: java.lang.ArithmeticException => doesntExist(dstate)
+      case e: ProcessingError => doesntExist(dstate)
+      case _ => throw th
+    }
+  }
+
 }
 
 case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe)
-  with ExistsKind {
+    extends RecipeOpWithSubRecipes(recipe)
+    with ExistsKind {
   override def run(dstate: DState) {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(res)
@@ -531,8 +603,8 @@ case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe)
-  with ExistsKind {
+    extends RecipeOpWithSubRecipes(recipe)
+    with ExistsKind {
   override def run(dstate: DState) {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(!res)
@@ -556,7 +628,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * treat this as if the argument passed was "." to denote self.
  */
 case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe) {
+    extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     // Same as using "." to denote self.
     val localName = dstate.currentElement.name
@@ -574,7 +646,7 @@ case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * lexical form of an xs:NCName
  */
 case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) {
+    extends FNOneArg(recipe, argType) {
   override def computeValue(value: AnyRef, dstate: DState) = {
     Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
   }
@@ -667,8 +739,8 @@ trait FNFromDateTimeKind {
 }
 
 abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType)
-  with FNFromDateTimeKind {
+    extends FNOneArg(recipe, argType)
+    with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case dt: DFDLDateTime => asAnyRef(dt.getField(field))
@@ -678,8 +750,8 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType)
-  with FNFromDateTimeKind {
+    extends FNOneArg(recipe, argType)
+    with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case d: DFDLDate => asAnyRef(d.getField(field))
@@ -689,8 +761,8 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType)
-  with FNFromDateTimeKind {
+    extends FNOneArg(recipe, argType)
+    with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case t: DFDLTime => asAnyRef(t.getField(field))
@@ -700,33 +772,33 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNYearFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(asInt(super.computeValue(a, dstate)).intValue() + 1) // JAN 0
 }
 case class FNDayFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
 case class FNHoursFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
 case class FNMinutesFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
 case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDateTime(recipe, argType) {
+    extends FNFromDateTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
 
@@ -764,33 +836,33 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDate(recipe, argType) {
+    extends FNFromDate(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDate(recipe, argType) {
+    extends FNFromDate(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(asInt(super.computeValue(a, dstate)).intValue() + 1) // JAN 0
 }
 case class FNDayFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromDate(recipe, argType) {
+    extends FNFromDate(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
 case class FNHoursFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromTime(recipe, argType) {
+    extends FNFromTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
 case class FNMinutesFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromTime(recipe, argType) {
+    extends FNFromTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
 case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNFromTime(recipe, argType) {
+    extends FNFromTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
@@ -816,7 +888,7 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNContains(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+    extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the value of \$arg1 contains
    * (at the beginning, at the end, or anywhere within) \$arg2.
@@ -837,7 +909,7 @@ case class FNContains(recipes: List[CompiledDPath])
 }
 
 case class FNStartsWith(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+    extends FNTwoArgs(recipes) {
   /**
    *  Returns an xs:boolean indicating whether or not the
    *  value of \$arg1 starts with \$arg2.
@@ -859,7 +931,7 @@ case class FNStartsWith(recipes: List[CompiledDPath])
 }
 
 case class FNEndsWith(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+    extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the
    * value of \$arg1 ends with \$arg2.

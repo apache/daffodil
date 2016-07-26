@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.unparse
+package edu.illinois.ncsa.daffodil.unparser
 
 import org.junit.Test
 import org.junit.AfterClass

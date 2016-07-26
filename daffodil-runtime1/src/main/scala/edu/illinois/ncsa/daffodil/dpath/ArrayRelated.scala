@@ -34,12 +34,22 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.InfosetNoInfosetException
-import edu.illinois.ncsa.daffodil.util.Maybe
-import Maybe._
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 
 case object FNCount extends RecipeOp {
+
   override def run(dstate: DState) {
-    dstate.setCurrentValue(dstate.arrayLength)
+    dstate.mode match {
+      case UnparserBlocking | UnparserNonBlocking => {
+        // we are unparsing, so asking for an array count is asking for the
+        // final count, not however many are in there at this point
+        // so we have to know if the array is closed or not.
+        dstate.setCurrentValue(dstate.finalArrayLength)
+      }
+      case ParserNonBlocking => {
+        dstate.setCurrentValue(dstate.arrayLength)
+      }
+    }
   }
 }
 

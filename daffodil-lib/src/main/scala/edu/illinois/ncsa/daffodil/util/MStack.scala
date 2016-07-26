@@ -39,96 +39,138 @@ import Maybe._
 object MStack {
   final case class Mark(val v: Int) extends AnyVal
   val nullMark = Mark(0)
+}
+/**
+ * Avoid boxing and unboxing of primitive types by using these
+ *
+ * Note: I turned on -XCheckinit in eclipse. adds overhead, but
+ * catches improper initialization. These were not initializing properly,
+ * so the idiom evolved to use the scala initializers.
+ */
+final class MStackOfBoolean private () extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
 
-  /**
-   * Avoid boxing and unboxing of primitive types by using these
-   */
-  final class OfBoolean extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
-  final class OfInt extends MStack[Int]((n: Int) => new Array[Int](n), 0)
-  final class OfLong extends MStack[Long]((n: Int) => new Array[Long](n), 0L)
+object MStackOfBoolean {
+  def apply() = {
+    val stk = new MStackOfBoolean()
+    stk.init
+    stk
+  }
+}
 
-  /**
-   * Workaround for when we want MStack.Of[Maybe[T]]. Use MStack.OfMaybe[T], and to push
-   * and pop call pushMaybe and popMaybe.
-   *
-   * We need this workaround since Scala won't let us define Iterator[Maybe[T]] due to
-   * problems compiling the def next(): Maybe[T] method. It cannot seem to deal
-   * with an Iterator with a value class as the result type.
-   *
-   * So we use an Array[AnyRef] as the representation here, and we
-   * convert null to Nope, and an actual object reference to One(x)
-   */
-  final class OfMaybe[T <: AnyRef] {
+final class MStackOfInt extends MStack[Int]((n: Int) => new Array[Int](n), 0)
 
-    override def toString = delegate.toString
+object MStackOfInt {
+  def apply() = {
+    val stk = new MStackOfInt()
+    stk.init
+    stk
+  }
+}
 
-    private val delegate = new Of[T]
-    private val nullT = null.asInstanceOf[T]
+final class MStackOfLong extends MStack[Long]((n: Int) => new Array[Long](n), 0L)
 
-    @inline final def length = delegate.length
+object MStackOfLong {
+  def apply() = {
+    val stk = new MStackOfLong()
+    stk.init
+    stk
+  }
+}
 
-    @inline final def push(m: Maybe[T]) = {
-      if (m.isDefined) delegate.push(m.get)
-      else delegate.push(nullT)
-    }
+/**
+ * Workaround for when we want MStackOf[Maybe[T]]. Use MStackOfMaybe[T], and to push
+ * and pop call pushMaybe and popMaybe.
+ *
+ * We need this workaround since Scala won't let us define Iterator[Maybe[T]] due to
+ * problems compiling the def next(): Maybe[T] method. It cannot seem to deal
+ * with an Iterator with a value class as the result type.
+ *
+ * So we use an Array[AnyRef] as the representation here, and we
+ * convert null to Nope, and an actual object reference to One(x)
+ */
+final class MStackOfMaybe[T <: AnyRef] {
 
-    @inline final def pop: Maybe[T] = {
-      val m = delegate.pop
-      if (m eq null) Nope
-      else One(m)
-    }
+  override def toString = delegate.toString
 
-    @inline final def top: Maybe[T] = {
-      val m = delegate.top
-      if (m eq null) Nope
-      else One(m)
-    }
+  private val delegate = new MStackOf[T]
+  private val nullT = null.asInstanceOf[T]
 
-    @inline final def isEmpty = delegate.isEmpty
+  def copyFrom(other: MStackOfMaybe[T]) = delegate.copyFrom(other.delegate)
 
-    def clear() = delegate.clear()
-    def toListMaybe = delegate.toList.map {
-      x: AnyRef => Maybe(x) // Scala compiler bug without this cast
-    }
+  @inline final def length = delegate.length
+
+  @inline final def push(m: Maybe[T]) = {
+    if (m.isDefined) delegate.push(m.get)
+    else delegate.push(nullT)
   }
 
-  /**
-   * Use for objects
-   *
-   * AnyRef is used here because we really don't need more than one specialized version of this.
-   * One generic object version will be sufficient.
-   *
-   * TODO: Note: Maybe or other Value classes (derived from AnyVal). Currently
-   * scala will not let you define an Iterator[Maybe[T]] because of a problem with
-   * the def next(): Maybe[T]. It seems to not want to allow this to be a value class.
-   * The workaround, which still avoids boxing the Maybe objects, is to use
-   * an object reference or null, and call Maybe(thing) explicitly outside the
-   * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
-   */
-  final class Of[T <: AnyRef] {
-
-    override def toString = delegate.toString
-
-    @inline final def length = delegate.length
-
-    private val delegate = new MStack[AnyRef](
-      (n: Int) => new Array[AnyRef](n),
-      null.asInstanceOf[T])
-
-    @inline final def mark = delegate.mark
-    @inline final def reset(m: MStack.Mark) = delegate.reset(m)
-
-    @inline final def push(t: T) = delegate.push(t)
-    @inline final def pop: T = delegate.pop.asInstanceOf[T]
-    @inline final def top: T = delegate.top.asInstanceOf[T]
-    @inline final def isEmpty = delegate.isEmpty
-    def clear() = delegate.clear()
-    def toList = delegate.toList
-
-    def iterator = delegate.iterator.asInstanceOf[Iterator[T]]
-
+  @inline final def pop: Maybe[T] = {
+    val m = delegate.pop
+    if (m eq null) Nope
+    else One(m)
   }
 
+  @inline final def top: Maybe[T] = {
+    val m = delegate.top
+    if (m eq null) Nope
+    else One(m)
+  }
+
+  @inline final def isEmpty = delegate.isEmpty
+
+  def clear() = delegate.clear()
+  def toListMaybe = delegate.toList.map {
+    x: AnyRef => Maybe(x) // Scala compiler bug without this cast
+  }
+}
+
+/**
+ * Use for objects
+ *
+ * AnyRef is used here because we really don't need more than one specialized version of this.
+ * One generic object version will be sufficient.
+ *
+ * TODO: Note: Maybe or other Value classes (derived from AnyVal). Currently
+ * scala will not let you define an Iterator[Maybe[T]] because of a problem with
+ * the def next(): Maybe[T]. It seems to not want to allow this to be a value class.
+ * The workaround, which still avoids boxing the Maybe objects, is to use
+ * an object reference or null, and call Maybe(thing) explicitly outside the
+ * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
+ */
+final class MStackOf[T <: AnyRef] {
+
+  override def toString = delegate.toString
+
+  def copyFrom(other: MStackOf[T]) = delegate.copyFrom(other.delegate)
+
+  @inline final def length = delegate.length
+
+  private val delegate = MStackOfAnyRef()
+
+  @inline final def mark = delegate.mark
+  @inline final def reset(m: MStack.Mark) = delegate.reset(m)
+
+  @inline final def push(t: T) = delegate.push(t)
+  @inline final def pop: T = delegate.pop.asInstanceOf[T]
+  @inline final def top: T = delegate.top.asInstanceOf[T]
+  @inline final def isEmpty = delegate.isEmpty
+  def clear() = delegate.clear()
+  def toList = delegate.toList
+
+  def iterator = delegate.iterator.asInstanceOf[Iterator[T]]
+
+}
+
+private[util] final class MStackOfAnyRef private () extends MStack[AnyRef](
+  (n: Int) => new Array[AnyRef](n),
+  null.asInstanceOf[AnyRef])
+
+object MStackOfAnyRef {
+  def apply() = {
+    val stk = new MStackOfAnyRef()
+    stk.init
+    stk
+  }
 }
 
 /**
@@ -139,16 +181,27 @@ object MStack {
  * for the garbage collector to reclaim), when we push and pop Int/Long/Boolean
  * things.
  */
-protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => Array[T], nullValue: T) {
+protected abstract class MStack[@specialized T] private[util] (
+    arrayAllocator: (Int) => Array[T], nullValue: T) {
+
+  private var index = 0
+  private var table: Array[T] = null
+
+  def init {
+    index = 0
+    table = arrayAllocator(32)
+  }
+
+  def copyFrom(other: MStack[T]) {
+    this.index = other.index
+    this.table = other.table.clone
+  }
+  // private var currentIteratorIndex = -1
 
   override def toString: String = {
     val stackContents = table.take(index).reverse.mkString(", ")
     "MStack(top=" + stackContents + ")"
   }
-
-  private var index = 0
-  private var table: Array[T] = arrayAllocator(32)
-  // private var currentIteratorIndex = -1
 
   private def growArray(x: Array[T]) = {
     val y = arrayAllocator(math.max(x.length * 2, 1))

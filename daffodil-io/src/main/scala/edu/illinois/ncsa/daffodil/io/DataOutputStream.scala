@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
  * position relative the ultimate start of the input stream where parsing
  * began.
  *
- * For DataOutputStream, we have slighly different concepts.
+ * For DataOutputStream, we have slightly different concepts.
  *
  * There are absolute and relative variants. The absolute bitPosOb or
  * absBitPos0b is symmetric to the parser's bitPos0b. It's the position
@@ -98,8 +98,6 @@ trait DataOutputStream extends DataStreamCommon {
   def relBitPos1b: ULong = ULong(relBitPos0b + 1L)
 
   def maybeAbsBitPos0b: MaybeULong
-  def maybeAbsBitPos1b: MaybeULong
-  def setMaybeAbsBitPos0b(maybeNewAbsBitPos0b: MaybeULong): Unit
 
   /**
    * Besides setting the relBitPos, it also maintains the value of

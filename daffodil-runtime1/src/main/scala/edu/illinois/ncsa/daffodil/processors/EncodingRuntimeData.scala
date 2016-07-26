@@ -32,20 +32,20 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import java.nio.charset.CharsetEncoder
 import java.nio.charset.CharsetDecoder
-import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import java.nio.charset.CharsetEncoder
+
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.util.TransientParam
+import java.nio.charset.StandardCharsets
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -66,15 +66,16 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
   def isKnownEncoding: Boolean
   def charsetEv: CharsetEv
-  def utf16Width: UTF16Width
   def knownEncodingAlignmentInBits: Int
+
+  def optionUTF16Width: Option[UTF16Width]
 
   /**
    * Note that the canonical form for encoding names is all upper case.
    */
   final lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = charsetEv.optConstant.get.charsetName.trim.toUpperCase()
+    val res = charsetEv.optConstant.get.charsetName
     res
   }
 
@@ -89,39 +90,20 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
    * their end.
    */
   final lazy val knownEncodingIsFixedWidth = {
-    if (!isKnownEncoding) false
+    if (!isKnownEncoding)
+      false
     else {
-      val res = knownEncodingCharset.charset match {
-        case nbs: NonByteSizeCharset => true
-        case _ => knownEncodingName.toUpperCase match {
-          case "US-ASCII" | "ASCII" => true
-          case "UTF-8" => false
-          case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
-            if (utf16Width == UTF16Width.Fixed) true
-            else false
-          }
-          case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-          case "ISO-8859-1" => true
-          case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
-        }
-      }
-      res
+      val maybeFixedWidth = knownEncodingCharset.maybeFixedWidth
+      maybeFixedWidth.isDefined
     }
   }
 
-  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(knownEncodingCharset.charset)
+  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(knownEncodingCharset)
 
-  final def encodingMinimumCodePointWidthInBits(cs: Charset) = {
-    val res = cs match {
-      case nbs: NonByteSizeCharset => nbs.bitWidthOfACodeUnit
-      case _ => cs.name match {
-        case "US-ASCII" | "ASCII" => 8
-        case "UTF-8" => 8
-        case "UTF-16" | "UTF-16LE" | "UTF-16BE" => 16
-        case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 32
-        case "ISO-8859-1" => 8
-        case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
-      }
+  final def encodingMinimumCodePointWidthInBits(cs: DFDLCharset) = {
+    val res = cs.charset match {
+      case StandardCharsets.UTF_8 => 8
+      case _ => cs.maybeFixedWidth.get
     }
     res
   }
@@ -166,7 +148,7 @@ final class EncodingRuntimeData(
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int)
-  extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
+    extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
   lazy val termRuntimeData = termRuntimeDataArg
   lazy val charsetEv = charsetEvArg
@@ -185,6 +167,16 @@ final class EncodingRuntimeData(
     enc
   }
 
+  def getEncoder(state: ParseOrUnparseState, dcs: DFDLCharset): CharsetEncoder = {
+    val enc = state.getEncoder(dcs.charset)
+    enc
+  }
+
+  def getDFDLCharset(state: ParseOrUnparseState): DFDLCharset = {
+    val cs = charsetEv.evaluate(state)
+    cs
+  }
+
   override def preSerialization: Any = {
     super.preSerialization
     termRuntimeData
@@ -193,18 +185,6 @@ final class EncodingRuntimeData(
 
   @throws(classOf[java.io.IOException])
   private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
-
-  /**
-   * These lazy values would, ideally all be replaced by Option objects.
-   * Some of them cannot be evaluated at all if their preconditions aren't met.
-   */
-
-  override lazy val utf16Width = {
-    schemaDefinitionUnless(optionUTF16Width.isDefined, "Property utf16Width must be provided.")
-    val res = optionUTF16Width.get
-    schemaDefinitionUnless(res == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
-    res
-  }
 
   /**
    * no alignment properties that would explicitly create

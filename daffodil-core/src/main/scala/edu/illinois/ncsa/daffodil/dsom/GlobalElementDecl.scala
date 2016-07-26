@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.grammar.GlobalElementDeclGrammarMixin
 
 /**
  * A global element decl uses LocalElementBase because it behaves like a local
@@ -43,17 +42,17 @@ import edu.illinois.ncsa.daffodil.grammar.GlobalElementDeclGrammarMixin
  * like min/maxOccurs and such that aren't allowed on a GlobalElementDecl. The
  * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
  */
-final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
-  extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
-  with GlobalComponentMixin
-  with ElementDeclMixin
-  with GlobalElementDeclGrammarMixin
-  /*
+final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementRef: Option[ElementRef])
+    extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
+    with GlobalComponentMixin
+    with ElementDeclMixin
+    with GlobalElementDeclGrammarMixin
+    /*
    * global elements combined with element references referring to them can
    * be multiple occurring (aka arrays) hence, we have to have things
    * that take root and referenced situation into account.
    */
-  with RequiredOptionalMixin {
+    with RequiredOptionalMixin {
 
   override lazy val maxOccurs = elementRef match {
     case Some(er) => er.maxOccurs

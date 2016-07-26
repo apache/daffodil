@@ -341,6 +341,10 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val rootUnparser = ssrd.unparser
     rootUnparser.unparse(state)
     if (!state.dataOutputStream.isFinished) state.dataOutputStream.setFinished()
+    val ev = state.advanceMaybe
+    if (ev.isDefined) {
+      UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
+    }
   }
 
 }

@@ -41,14 +41,8 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
 
   protected def lengthState(elt: DIElement): LengthState
 
-  /**
-   * The base behavior is content length, because we need that for contentLength (obviously), but
-   * also for valueLength of complex types.
-   */
   protected def getLength(elt: DIElement, units: LengthUnits, dstate: DState): ULong = {
-    // TODO: retry/resume loop
-    // so this will block until the contentLength is computable.
-    //
+
     val len: ULong =
       DState.withRetryIfBlocking(dstate) {
         units match {
@@ -86,6 +80,7 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
     jLen
   }
 }
+
 case class DFDLContentLength(recipes: List[CompiledDPath])
     extends DFDLLengthFunctionBase("content", recipes) {
 
@@ -96,6 +91,7 @@ case class DFDLContentLength(recipes: List[CompiledDPath])
 case class DFDLValueLength(recipes: List[CompiledDPath])
     extends DFDLLengthFunctionBase("value", recipes) {
 
-  override protected def lengthState(elt: DIElement) = elt.valueLength
+  override protected def lengthState(elt: DIElement) =
+    elt.valueLength
 
 }

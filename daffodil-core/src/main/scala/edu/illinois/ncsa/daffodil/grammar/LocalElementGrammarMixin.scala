@@ -43,7 +43,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
    * further overridden in ElementRefGrammarMixin
    */
   override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
-    (if (isScalar) scalarDefaultable else recurrance)
+    (if (isScalar) enclosedElement else recurrance)
   }
 
   protected final lazy val allowedValue = prod("allowedValue") { notStopValue | value }
@@ -53,14 +53,14 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private lazy val separatedEmpty = prod("separatedEmpty", emptyIsAnObservableConcept) { separatedForArrayPosition(empty) }
 
   private lazy val separatedRecurringDefaultable = prod("separatedRecurringDefaultable", !isScalar) {
-    separatedForArrayPosition(scalarDefaultable)
+    separatedForArrayPosition(enclosedElement)
   }
 
   private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
     separatedForArrayPosition(scalarNonDefault)
   }
 
-  private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { scalarDefaultable }
+  private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { enclosedElement }
 
   private lazy val recurrance = prod("recurrance", !isScalar) {
     if (isOptional) {
@@ -71,7 +71,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   }
 
   final override lazy val asTermInChoice = prod("asTermInChoice") {
-    nonSeparatedScalarDefaultable | recurrance
+    nonSeparatedScalarDefaultable || recurrance
   }
 
   /**

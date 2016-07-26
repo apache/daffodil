@@ -44,10 +44,10 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
  * Base class for annotations that carry format properties
  */
 abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends DFDLAnnotation(nodeArg, annotatedSCArg)
-  //  with RawCommonRuntimeValuedPropertiesMixin
-  //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
-  with LeafPropProvider {
+    extends DFDLAnnotation(nodeArg, annotatedSCArg)
+    //  with RawCommonRuntimeValuedPropertiesMixin
+    //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
+    with LeafPropProvider {
 
   requiredEvaluations(hasConflictingPropertyError)
 
@@ -199,8 +199,13 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     res
   }
 
-  private lazy val elementFormPropertyAnnotations =
-    (xml \\ "property").map { new DFDLProperty(_, this) }
+  private lazy val elementFormPropertyAnnotations = {
+    val props = xml \\ "property"
+    val res = props.map {
+      new DFDLProperty(_, this)
+    }
+    res
+  }
 
   private lazy val elementFormProperties: Set[PropItem] = {
     elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet

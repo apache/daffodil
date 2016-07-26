@@ -36,29 +36,26 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-
+import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 
 class EscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
-  extends EvaluatableConvertedExpression[String, String](
-    expr,
-    EscapeCharacterCooker,
-    rd)
-  with InfosetCachedEvaluatable[String] {
+    extends EvaluatableConvertedExpression[String, String](
+      expr,
+      EscapeCharacterCooker,
+      rd)
+    with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
 
 class EscapeEscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
-  extends EvaluatableConvertedExpression[String, String](
-    expr,
-    EscapeEscapeCharacterCooker,
-    rd)
-  with InfosetCachedEvaluatable[String] {
+    extends EvaluatableConvertedExpression[String, String](
+      expr,
+      EscapeEscapeCharacterCooker,
+      rd)
+    with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
-
-
 
 trait EscapeSchemeCommonEv {
   def optEscapeEscapeChar: Maybe[EscapeEscapeCharEv]
@@ -74,21 +71,21 @@ trait EscapeSchemeCommonEv {
 }
 
 abstract class EscapeSchemeParseEv(rd: RuntimeData)
-  extends Evaluatable[EscapeSchemeParserHelper](rd)
-  with ManuallyCachedEvaluatable[EscapeSchemeParserHelper]
-  with EscapeSchemeCommonEv {
+    extends Evaluatable[EscapeSchemeParserHelper](rd)
+    with ManuallyCachedEvaluatable[EscapeSchemeParserHelper]
+    with EscapeSchemeCommonEv {
 
-  protected def getCacheStack(state: State): MStack.OfMaybe[EscapeSchemeParserHelper] = {
+  protected def getCacheStack(state: State): MStackOfMaybe[EscapeSchemeParserHelper] = {
     state.asInstanceOf[PState].mpstate.escapeSchemeEVCache
   }
 }
 
 abstract class EscapeSchemeUnparseEv(rd: RuntimeData)
-  extends Evaluatable[EscapeSchemeUnparserHelper](rd)
-  with ManuallyCachedEvaluatable[EscapeSchemeUnparserHelper]
-  with EscapeSchemeCommonEv {
+    extends Evaluatable[EscapeSchemeUnparserHelper](rd)
+    with ManuallyCachedEvaluatable[EscapeSchemeUnparserHelper]
+    with EscapeSchemeCommonEv {
 
-  protected def getCacheStack(state: State): MStack.OfMaybe[EscapeSchemeUnparserHelper] = {
+  protected def getCacheStack(state: State): MStackOfMaybe[EscapeSchemeUnparserHelper] = {
     state.asInstanceOf[UState].escapeSchemeEVCache
   }
 
@@ -103,11 +100,10 @@ abstract class EscapeSchemeUnparseEv(rd: RuntimeData)
   }
 }
 
-
 class EscapeSchemeCharParseEv(escapeChar: EscapeCharEv,
-                              override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-                              rd: RuntimeData)
-  extends EscapeSchemeParseEv(rd) {
+  override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
+  rd: RuntimeData)
+    extends EscapeSchemeParseEv(rd) {
 
   override val runtimeDependencies = List(escapeChar) ++ optEscapeEscapeChar.toList
 
@@ -119,10 +115,10 @@ class EscapeSchemeCharParseEv(escapeChar: EscapeCharEv,
 }
 
 class EscapeSchemeCharUnparseEv(escapeChar: EscapeCharEv,
-                                override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-                                override val extraEscapedChars: Maybe[String],
-                                rd: RuntimeData)
-  extends EscapeSchemeUnparseEv(rd) {
+  override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
+  override val extraEscapedChars: Maybe[String],
+  rd: RuntimeData)
+    extends EscapeSchemeUnparseEv(rd) {
 
   override val runtimeDependencies = List(escapeChar) ++ optEscapeEscapeChar.toList
 
@@ -134,10 +130,10 @@ class EscapeSchemeCharUnparseEv(escapeChar: EscapeCharEv,
 }
 
 class EscapeSchemeBlockParseEv(blockStart: String,
-                               blockEnd: String,
-                               override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-                               rd: RuntimeData)
-  extends EscapeSchemeParseEv(rd) {
+  blockEnd: String,
+  override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
+  rd: RuntimeData)
+    extends EscapeSchemeParseEv(rd) {
 
   override val runtimeDependencies = optEscapeEscapeChar.toList
 
@@ -151,12 +147,12 @@ class EscapeSchemeBlockParseEv(blockStart: String,
 }
 
 class EscapeSchemeBlockUnparseEv(blockStart: String,
-                                 blockEnd: String,
-                                 override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-                                 override val extraEscapedChars: Maybe[String],
-                                 generateEscapeBlock: GenerateEscape,
-                                 rd: RuntimeData)
-  extends EscapeSchemeUnparseEv(rd) {
+  blockEnd: String,
+  override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
+  override val extraEscapedChars: Maybe[String],
+  generateEscapeBlock: GenerateEscape,
+  rd: RuntimeData)
+    extends EscapeSchemeUnparseEv(rd) {
 
   override val runtimeDependencies = optEscapeEscapeChar.toList
 

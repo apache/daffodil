@@ -34,12 +34,11 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
-import edu.illinois.ncsa.daffodil.util.MStack
 import scala.collection.mutable
-
+import edu.illinois.ncsa.daffodil.util.MStackOfInt
 
 trait LocalDelimiters { this: DelimiterIterator =>
-  val delimiterIndexStack: MStack.OfInt
+  val delimiterIndexStack: MStackOfInt
 
   override def reset() {
     currentIndex = delimiterIndexStack.top - 1
@@ -48,7 +47,7 @@ trait LocalDelimiters { this: DelimiterIterator =>
 }
 
 trait RemoteDelimiters { this: DelimiterIterator =>
-  val delimiterIndexStack: MStack.OfInt
+  val delimiterIndexStack: MStackOfInt
 
   override def reset() {
     currentIndex = -1
@@ -63,10 +62,9 @@ trait RemoteAndLocalDelimiters { this: DelimiterIterator =>
   }
 }
 
-
 trait TypedDelimiter { this: DelimiterIterator =>
   protected def delimType: DelimiterTextType.Type
- 
+
   override def isOfInterest(delim: DFADelimiter): Boolean = {
     delim.delimType == delimType
   }
@@ -99,7 +97,6 @@ trait Terminators { this: DelimiterIterator =>
   }
 }
 
-
 abstract class DelimiterIterator(val delimiters: mutable.ArrayBuffer[DFADelimiter]) {
 
   protected def isOfInterest(delim: DFADelimiter): Boolean
@@ -118,7 +115,7 @@ abstract class DelimiterIterator(val delimiters: mutable.ArrayBuffer[DFADelimite
     currentIndex += 1
     while (currentIndex >= 0 && currentIndex < indexLimit) {
       if (isOfInterest(delimiters(currentIndex))) {
-        return true      
+        return true
       }
       currentIndex += 1
     }
@@ -135,20 +132,20 @@ class AllTerminatingMarkupDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter]
   with RemoteAndLocalDelimiters
   with TerminatingMarkup
 
-class LocalTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStack.OfInt)
+class LocalTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStackOfInt)
   extends DelimiterIterator(d)
   with LocalDelimiters
   with TypedDelimiter
 
-class RemoteTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStack.OfInt)
+class RemoteTypedDelimiterIterator(override val delimType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], override val delimiterIndexStack: MStackOfInt)
   extends DelimiterIterator(d)
   with RemoteDelimiters
   with TypedDelimiter
 
-class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], delimiterIndexStack: MStack.OfInt)
-  extends DelimiterIterator(d)
-  with RemoteAndLocalDelimiters {
- 
+class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: DelimiterTextType.Type, d: mutable.ArrayBuffer[DFADelimiter], delimiterIndexStack: MStackOfInt)
+    extends DelimiterIterator(d)
+    with RemoteAndLocalDelimiters {
+
   override def isOfInterest(delim: DFADelimiter): Boolean = {
     if (currentIndex < delimiterIndexStack.top) {
       delim.delimType == DelimiterTextType.Terminator || delim.delimType == DelimiterTextType.Separator
@@ -159,8 +156,8 @@ class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(localType: Delimiter
 }
 
 class AllDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter])
-  extends DelimiterIterator(d)
-  with RemoteAndLocalDelimiters {
+    extends DelimiterIterator(d)
+    with RemoteAndLocalDelimiters {
 
   override def isOfInterest(delim: DFADelimiter) = true
 }

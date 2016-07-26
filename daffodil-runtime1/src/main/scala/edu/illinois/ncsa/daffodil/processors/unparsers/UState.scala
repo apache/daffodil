@@ -32,54 +32,74 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
+import java.io.ByteArrayOutputStream
+
+import scala.Left
+import scala.collection.mutable
+
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Cursor
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.DINode
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.UnparseResult
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.dpath.UnparserBlocking
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.equality.EqualitySuppressUnusedImportWarning
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.util.MStack
-import edu.illinois.ncsa.daffodil.util.LocalStack
-import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
-import java.io.ByteArrayOutputStream
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.dpath.Blocking
-import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.processors.DIArray
+import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.processors.DINode
+import edu.illinois.ncsa.daffodil.processors.DataLoc
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
+import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.Suspension
+import edu.illinois.ncsa.daffodil.processors.UnparseResult
+import edu.illinois.ncsa.daffodil.processors.VariableBox
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.util.Cursor
+import edu.illinois.ncsa.daffodil.util.LocalStack
+import edu.illinois.ncsa.daffodil.util.MStackOf
+import edu.illinois.ncsa.daffodil.util.MStackOfLong
+import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import passera.unsigned.ULong
 
-class UState(
+object ENoWarn { EqualitySuppressUnusedImportWarning() }
+
+class UState private (
   private val infosetCursor: InfosetCursor,
-  vmap: VariableMap,
+  vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[Suspension] = new mutable.Queue[Suspension])
-    extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), Success)
+  initialSuspendedExpressions: mutable.Queue[Suspension])
+    extends ParseOrUnparseState(vbox, diagnosticsArg, One(dataProcArg), Success)
     with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  dState.setMode(UnparserBlocking)
+
+  def this(
+    infosetCursor: InfosetCursor,
+    vmap: VariableMap,
+    diagnosticsArg: List[Diagnostic],
+    dataProcArg: DataProcessor,
+    dataOutputStream: DataOutputStream,
+    initialSuspendedExpressions: mutable.Queue[Suspension] = new mutable.Queue[Suspension]) =
+    this(infosetCursor, new VariableBox(vmap), diagnosticsArg, dataProcArg,
+      dataOutputStream, initialSuspendedExpressions)
 
   override def toString = {
     "UState(" + dataOutputStream.toString() + ")"
@@ -88,23 +108,26 @@ class UState(
   def cloneForSuspension(newDOS: DataOutputStream): UState = {
     val clone = new UState(
       NonUsableInfosetCursor,
-      this.variableMap,
+      this.variableBox, // important- when we clone for suspension, we don't clone the vmap, we share it via the vbox.
       Nil, // no diagnostics for now. Any that accumulate here must eventually be output.
       dataProcArg, // same data proc.
       newDOS,
       this.suspensions // inherit same place to put these OVC suspensions from original.
       )
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
-    clone.currentInfosetNodeStack.push(this.currentInfosetNodeStack.top)
-    clone.arrayIndexStack.push(this.arrayIndexStack.top)
+    clone.currentInfosetNodeStack.copyFrom(this.currentInfosetNodeStack)
+    clone.aaa_currentNode = clone.currentInfosetNodeStack.top
+    clone.arrayIndexStack.copyFrom(this.arrayIndexStack)
+    clone.delimiterStack.copyFrom(this.delimiterStack)
+
     val dstate = clone.dState
     dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
-    dstate.setVMap(variableMap)
+    dstate.setVBox(variableBox)
     dstate.setContextNode(thisElement.asInstanceOf[DINode]) // used for diagnostics
     dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
     dstate.setErrorOrWarn(this)
     dstate.resetValue
-    dstate.setMode(Blocking)
+    dstate.setMode(UnparserBlocking)
     clone
   }
 
@@ -195,9 +218,20 @@ class UState(
 
   override def currentNode = currentInfosetNodeMaybe
 
+  /**
+   * This exists for debugging, so we have easy access to the current node.
+   */
+  var aaa_currentNode: Maybe[DINode] = Nope
+
   def currentInfosetNodeMaybe: Maybe[DINode] =
-    if (currentInfosetNodeStack.isEmpty) Nope
-    else currentInfosetNodeStack.top
+    if (currentInfosetNodeStack.isEmpty) {
+      aaa_currentNode = Nope
+      Nope
+    } else {
+      val t = currentInfosetNodeStack.top
+      aaa_currentNode = t
+      t
+    }
 
   def currentInfosetEvent = currentInfosetEvent_
 
@@ -251,14 +285,14 @@ class UState(
       if (m.isDefined) Maybe(m.value.runtimeData) else Nope)
   }
 
-  val currentInfosetNodeStack = new MStack.OfMaybe[DINode]
+  val currentInfosetNodeStack = new MStackOfMaybe[DINode]
 
-  val arrayIndexStack = new MStack.OfLong
+  val arrayIndexStack = MStackOfLong()
   arrayIndexStack.push(1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = new MStack.OfLong
+  val groupIndexStack = MStackOfLong()
   groupIndexStack.push(1L)
 
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
@@ -266,12 +300,12 @@ class UState(
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = new MStack.OfLong
+  val childIndexStack = MStackOfLong()
   childIndexStack.push(1L)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new MStack.OfLong
+  val occursBoundsStack = MStackOfLong()
 
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
@@ -280,9 +314,9 @@ class UState(
 
   def occursBounds = occursBoundsStack.top
 
-  val escapeSchemeEVCache = new MStack.OfMaybe[EscapeSchemeUnparserHelper]
+  val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
 
-  val delimiterStack = new MStack.Of[DelimiterStackUnparseNode]()
+  val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top
@@ -304,7 +338,7 @@ class UState(
   }
 
   def setVariables(newVariableMap: VariableMap) = {
-    this.variableMap = newVariableMap
+    setVariableMap(newVariableMap)
   }
 
   final def notifyDebugging(flag: Boolean) {
@@ -319,6 +353,9 @@ class UState(
    * need to add any.
    */
   private val suspensions = initialSuspendedExpressions
+
+  // FIXME: remove. For debug only. THIS IS A MEMORY LEAK
+  val aaa_debug_DOS = new MStackOf[DataOutputStream]()
 
   def addSuspension(se: Suspension) {
     suspensions.enqueue(se)
@@ -338,9 +375,14 @@ class UState(
     }
     // after the loop, did we terminate
     // with some expressions still unevaluated?
-    if (suspensions.length > 0) {
+    if (suspensions.length > 1) {
       // unable to evaluate all the expressions
+      suspensions.map { sus =>
+        sus.run() // good place for a breakpoint so we can debug why things are locked up. 
+      }
       throw new SuspensionDeadlockException(suspensions.seq)
+    } else if (suspensions.length == 1) {
+      Assert.invariantFailed("Single suspended expression making no forward progress. " + suspensions(0))
     }
   }
 

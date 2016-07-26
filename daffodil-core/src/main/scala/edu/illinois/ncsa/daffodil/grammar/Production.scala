@@ -57,11 +57,9 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
  * because a grammar term object will display as it's name, not as some anonymous object.
  */
 final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, override val forWhat: ParserOrUnparser)
-  extends NamedGram(sc) {
+    extends NamedGram(sc) {
 
   final override def deref = gram
-
-  def SDE(str: String, args: Any*): Nothing = sc.SDE(str, args)
 
   final override def name = nameArg
 

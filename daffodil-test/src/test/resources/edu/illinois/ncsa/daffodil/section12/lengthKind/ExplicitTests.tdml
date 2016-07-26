@@ -41,7 +41,8 @@
 	<tdml:defineSchema name="lengthKind_explicit">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar" />
+                      textStringPadCharacter="%SP;" textStringJustification="center" 
+                      truncateSpecifiedLengthString="no" textPadKind="padChar" />
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -80,7 +81,8 @@
 	<tdml:defineSchema name="test_ExplicitLengthBits">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"
+                      truncateSpecifiedLengthString="no"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -191,7 +193,8 @@
 	<tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" 
+                      truncateSpecifiedLengthString="no"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -349,7 +352,8 @@
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" 
+                      truncateSpecifiedLengthString="no" textPadKind="padChar"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
@@ -608,7 +612,8 @@
 	<tdml:defineSchema name="test_ExplicitLengthChars">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" 
+                      truncateSpecifiedLengthString="no" textPadKind="padChar"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 

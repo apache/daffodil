@@ -33,70 +33,58 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
-/**
- * Common parser base class for any parser that evaluates an expression.
- */
-
-abstract class ExpressionEvaluationUnparser(protected val expr: CompiledExpression[AnyRef], rd: RuntimeData)
-  extends UnparserObject(rd) with WithParseErrorThrowing {
+final class SetVariableUnparser(
+  override val expr: CompiledExpression[AnyRef],
+  override val rd: VariableRuntimeData,
+  referencingContext: NonTermRuntimeData)
+    extends UnparserObject(rd)
+    with SuspendableExpression {
 
   override lazy val childProcessors = Nil
 
-  /**
-   * Modifies the UState (variable-read transitions)
-   * and returns the value of the expression.
-   */
-  protected def eval(start: UState): Any = {
-    expr.evaluate(start)
+  override protected def processExpressionResult(ustate: UState, v: AnyRef) {
+    val newVMap =
+      ustate.variableMap.setVariable(rd, v, referencingContext, ustate)
+
+    ustate.setVariables(newVMap)
   }
-}
 
-class SetVariableUnparser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData, referencingContext: NonTermRuntimeData)
-  extends ExpressionEvaluationUnparser(expr, decl) {
+  override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
 
-  def unparse(start: UState): Unit = {
-    log(LogLevel.Debug, "This is %s", toString)
-
-    val someValue = eval(start)
-
-    if (start.status.isInstanceOf[Failure])
-      UnparseError(One(referencingContext.schemaFileLocation), One(start.currentLocation), "%s - Evaluation failed for %s.", nom, expr)
-
-    val newVMap = start.variableMap.setVariable(decl, someValue, referencingContext, start)
-    start.setVariables(newVMap)
-
-    if (start.status.isInstanceOf[Failure])
-      UnparseError(One(referencingContext.schemaFileLocation), One(start.currentLocation), "%s - SetVariable failed for %s.", nom, expr)
+  override def unparse(state: UState): Unit = {
+    run(state)
   }
 
 }
 
-class NewVariableInstanceStartUnparser(
-  decl: RuntimeData)
-  extends UnparserObject(decl) {
+// When implemented this almost certainly wants to be a combinator
+// Not two separate unparsers.
+class NewVariableInstanceStartUnparser(vrd: RuntimeData)
+    extends UnparserObject(vrd) {
+
   override lazy val childProcessors = Nil
 
-  decl.notYetImplemented("newVariableInstance")
-  def unparse(ustate: UState) = {
-    decl.notYetImplemented("newVariableInstance")
+  vrd.notYetImplemented("newVariableInstance")
+
+  override def unparse(ustate: UState) = {
+    vrd.notYetImplemented("newVariableInstance")
   }
 }
 
-class NewVariableInstanceEndUnparser(
-  decl: RuntimeData)
-  extends UnparserObject(decl) {
+class NewVariableInstanceEndUnparser(vrd: RuntimeData)
+    extends UnparserObject(vrd) {
+
   override lazy val childProcessors = Nil
 
-  decl.notYetImplemented("newVariableInstance")
-  def unparse(ustate: UState) = {
-    decl.notYetImplemented("newVariableInstance")
+  vrd.notYetImplemented("newVariableInstance")
+
+  override def unparse(ustate: UState) = {
+    vrd.notYetImplemented("newVariableInstance")
   }
 }

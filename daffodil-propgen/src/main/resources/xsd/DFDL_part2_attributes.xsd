@@ -180,13 +180,13 @@
 
   <!-- 13.4 Properties Specific to Strings with Text representation -->
   <xsd:attribute name="textStringJustification" type="dfdl:TextStringJustificationEnum" />
-  <xsd:attribute name="textStringPadCharacter" type="dfdl:DFDLStringLiteral" />
+  <xsd:attribute name="textStringPadCharacter" type="dfdl:NonEmptyStringLiteral" />
   <xsd:attribute name="truncateSpecifiedLengthString"
     type="dfdl:YesNoEnum" />
 
   <xsd:attributeGroup name="StringTextAG">
     <xsd:attribute name="textStringJustification" type="dfdl:TextStringJustificationEnum" />
-    <xsd:attribute name="textStringPadCharacter" type="dfdl:DFDLStringLiteral" />
+    <xsd:attribute name="textStringPadCharacter" type="dfdl:NonEmptyStringLiteral" />
     <xsd:attribute name="truncateSpecifiedLengthString"
       type="dfdl:YesNoEnum" />
   </xsd:attributeGroup>
@@ -703,7 +703,7 @@
     <xsd:attribute form="qualified" name="textStringJustification"
       type="dfdl:TextStringJustificationEnum" />
     <xsd:attribute form="qualified" name="textStringPadCharacter"
-      type="dfdl:DFDLStringLiteral" />
+      type="dfdl:NonEmptyStringLiteral" />
     <xsd:attribute form="qualified" name="truncateSpecifiedLengthString"
       type="dfdl:YesNoEnum" />
   </xsd:attributeGroup>

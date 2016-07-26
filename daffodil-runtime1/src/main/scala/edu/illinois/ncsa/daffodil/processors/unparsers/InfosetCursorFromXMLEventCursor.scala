@@ -43,12 +43,12 @@ import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
 import scala.annotation.tailrec
-import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 import XMLEvent._
 import edu.illinois.ncsa.daffodil.util.InvertControl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
+import edu.illinois.ncsa.daffodil.util.MStackOf
 
 /**
  * The primary goal for this converter is
@@ -73,9 +73,9 @@ import edu.illinois.ncsa.daffodil.processors.ProcessingError
  * unparse method call.
  */
 private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo: ElementRuntimeData)
-  extends InfosetCursor
-  with CursorImplMixin[InfosetAccessor]
-  with InvertControl[InfosetAccessor] {
+    extends InfosetCursor
+    with CursorImplMixin[InfosetAccessor]
+    with InvertControl[InfosetAccessor] {
 
   private def iter = this.asInstanceOf[InvertControl[InfosetAccessor]]
 
@@ -94,8 +94,8 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
 
   private val diDoc = new DIDocument(rootElementInfo)
 
-  private type NodeStack = MStack.Of[DINode]
-  private val nodeStack: NodeStack = new MStack.Of[DINode]
+  private type NodeStack = MStackOf[DINode]
+  private val nodeStack: NodeStack = new MStackOf[DINode]
 
   private var nextElementResolver: NextElementResolver = initialNextElementResolver
 
@@ -115,7 +115,6 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
   //  private def dumpState = {
   //    println(this)
   //  }
-
 
   def body {
     try {
@@ -150,7 +149,9 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         //        dumpState
         ended match {
           case e: DIElement if (e.erd =:= rootElementInfo) => return // just ended the root
-          case s: DISimple if (s.erd.outputValueCalcExpr.isDefined) => Assert.invariant(!s.hasValue && !s.isNilled) // OVC DISimple's are reset so they should have no value
+          case s: DISimple if (s.erd.outputValueCalcExpr.isDefined) =>
+          // Doesn't hold. We attempt the OVC calc. If it works we're good, otherwise we suspend it.
+          // Assert.invariant(!s.hasValue && !s.isNilled) // OVC DISimple's are reset so they should have no value
           case s: DISimple => Assert.invariant(s.hasValue || s.isNilled)
           case c: DIComplex => Assert.invariant((c.totalElementCount > 0) || c.isNilled)
           case _: DIArray => Assert.impossible() // DIArray should not have ended without also ending something else afterwards in handleEvEnd
@@ -263,12 +264,14 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
       // incoming occurrence for an array, but not same array
       case evStart: EvStart if erd.isArray && (arr.erd _ne_ erd) => {
         end(arr)
+        arr.isFinal = true
         parents.pop
         handleEvStart(evStart, parents) // recursively
       }
       // incoming occurrence not an array at all
       case evStart: EvStart if !erd.isArray => {
         end(arr)
+        arr.isFinal = true
         parents.pop
         handleEvStart(evStart, parents)
       }
@@ -276,6 +279,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
       case evEnd: EvEnd if (arr.erd _eq_ erd) => {
         Assert.invariant(erd eq arr.parent.erd)
         end(arr)
+        arr.isFinal = true
         parents.pop
         handleEvEnd(evEnd, parents)
       }
@@ -357,6 +361,7 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         //
         Assert.invariant(verifyName(evEnd, c.erd))
         end(c)
+        c.isFinal = true
         nextElementResolver = c.erd.nextElementResolver // to resolve next sibling after this complex element
       }
       case a: DIArray => {
@@ -370,9 +375,11 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
         // In that case we want to end the array first, then the complex element.
         Assert.invariant(verifyName(evEnd, a.parent.erd))
         end(a)
+        a.isFinal = true
         parents.pop
         val c = a.parent
         end(c)
+        c.isFinal = true
         nextElementResolver = c.erd.nextElementResolver // to resolve next sibling after this complex element
       }
     }
