@@ -207,7 +207,11 @@ The message root is 'PCAP'.
         </xs:annotation>
         <xs:element name="MACDest" type="pcap:hexByte" dfdl:length="6" />
         <xs:element name="MACSrc" type="pcap:hexByte" dfdl:length="6" />
-        <xs:element name="Ethertype" type="pcap:bit" dfdl:length="16" />
+        <xs:element name="Ethertype" type="pcap:bit" dfdl:length="16"
+          dfdl:outputValueCalc="{
+          if (fn:exists(../pcap:NetworkLayer/pcap:IPv4)) then 2048
+          else if (fn:exists(../pcap:NetworkLayer/pcap:IPv6 )) then 34525
+          else -1 }"/>
         <xs:element ref="pcap:NetworkLayer" />
       </xs:sequence>
     </xs:complexType>
@@ -253,22 +257,16 @@ The message root is 'PCAP'.
       Then all of the below could just become much cleaner, with no repetition of anything.
        -->
         <xs:element name="IPSrcByte1" type="xs:unsignedByte" dfdl:outputValueCalc="{ 
-        xs:unsignedByte( fn:substring-before(../IPSrc, '.'))
+         xs:unsignedByte(fn:substring-before(../IPSrc, '.'))
          }"/>
         <xs:element name="IPSrcByte2" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-before(
-           fn:substring-after(../IPSrc, fn:concat(
-             fn:substring-before(../IPSrc, '.'), '.')), '.')) 
+         xs:unsignedByte(fn:substring-before(fn:substring-after(../IPSrc, '.'), '.'))
          }"/>
         <xs:element name="IPSrcByte3" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-before(fn:substring-after(../IPSrc, fn:concat(fn:substring-before(
-           fn:substring-after(../IPSrc, fn:concat(
-             fn:substring-before(../IPSrc, '.'), '.')), '.'), '.')), '.')) 
+         xs:unsignedByte(fn:substring-before(fn:substring-after(fn:substring-after(../IPSrc, '.'), '.'), '.'))
          }"/>
         <xs:element name="IPSrcByte4" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-after(../IPSrc, fn:concat(fn:substring-before(fn:substring-after(../IPSrc, fn:concat(fn:substring-before(
-           fn:substring-after(../IPSrc, fn:concat(
-             fn:substring-before(../IPSrc, '.'), '.')), '.'), '.')), '.'), '.'))) 
+         xs:unsignedByte(fn:substring-after(fn:substring-after(fn:substring-after(../IPSrc, '.'), '.'), '.'))
          }"/>
     </xs:sequence>
   </xs:group>
@@ -298,23 +296,17 @@ The message root is 'PCAP'.
       That and we should propose Let-Return expressions as part of the DFDL expression language also.
       
        -->
-        <xs:element name="IPDestByte1" type="xs:unsignedByte" dfdl:outputValueCalc="{ 
-        xs:unsignedByte( fn:substring-before(../IPDest, '.'))
+       <xs:element name="IPDestByte1" type="xs:unsignedByte" dfdl:outputValueCalc="{ 
+         xs:unsignedByte(fn:substring-before(../IPDest, '.'))
          }"/>
         <xs:element name="IPDestByte2" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-before(
-           fn:substring-after(../IPDest, fn:concat(
-             fn:substring-before(../IPDest, '.'), '.')), '.')) 
+         xs:unsignedByte(fn:substring-before(fn:substring-after(../IPDest, '.'), '.'))
          }"/>
         <xs:element name="IPDestByte3" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-before(fn:substring-after(../IPDest, fn:concat(fn:substring-before(
-           fn:substring-after(../IPDest, fn:concat(
-             fn:substring-before(../IPDest, '.'), '.')), '.'), '.')), '.')) 
+         xs:unsignedByte(fn:substring-before(fn:substring-after(fn:substring-after(../IPDest, '.'), '.'), '.'))
          }"/>
         <xs:element name="IPDestByte4" type="xs:unsignedByte" dfdl:outputValueCalc="{
-         xs:unsignedByte( fn:substring-after(../IPDest, fn:concat(fn:substring-before(fn:substring-after(../IPDest, fn:concat(fn:substring-before(
-           fn:substring-after(../IPDest, fn:concat(
-             fn:substring-before(../IPDest, '.'), '.')), '.'), '.')), '.'), '.'))) 
+         xs:unsignedByte(fn:substring-after(fn:substring-after(fn:substring-after(../IPDest, '.'), '.'), '.'))
          }"/>
     </xs:sequence>
   </xs:group>
@@ -347,22 +339,21 @@ The message root is 'PCAP'.
               <xs:element name="Protocol" type="pcap:bit" dfdl:length="8"
                 dfdl:outputValueCalc="{ 
                 if (fn:exists(../../pcap:ICMPv4)) then 1
-                else if (fn:exists(../../pcap:TransportLayer/pcap:TCP )) then 6
-                else if (fn:exists(../../pcap:TransportLayer/pcap:UDP )) then 17
+                else if (fn:exists(../../pcap:TransportLayer/pcap:TCP)) then 6
+                else if (fn:exists(../../pcap:TransportLayer/pcap:UDP)) then 17
                 else -1 }"/>
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
-                      <xs:sequence dfdl:hiddenGroupRef="pcap:IPSrcGrp"/>
+              <xs:sequence dfdl:hiddenGroupRef="pcap:IPSrcGrp"/>
               <xs:element name="IPSrc" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../IPSrcByte1, '.', ../IPSrcByte2, '.', ../IPSrcByte3, '.', ../IPSrcByte4) }"/>
-                      <xs:sequence dfdl:hiddenGroupRef="pcap:IPDestGrp"/>
+              <xs:sequence dfdl:hiddenGroupRef="pcap:IPDestGrp"/>
               <xs:element name="IPDest" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../IPDestByte1, '.', ../IPDestByte2, '.', ../IPDestByte3, '.', ../IPDestByte4) }"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Length) - 20 }" />
         <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Protocol) }" />
         <xs:choice>
-            <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }" />
-            <xs:element ref="pcap:ICMPv4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }"/>
+            <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ xs:unsignedInt(../IPv4Header/Length) - 20 }" />
+            <xs:element ref="pcap:ICMPv4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ xs:unsignedInt(../IPv4Header/Length) - 20 }"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -398,7 +389,7 @@ The message root is 'PCAP'.
                 </xs:annotation>
                 <xs:element name="Identifier" type="pcap:bit" dfdl:length="16" />
                 <xs:element name="SequenceNumber" type="pcap:bit" dfdl:length="16" />
-                <xs:element name="Payload" type="pcap:hexByte" dfdl:length="{ ../../../PayloadLength - 8 }" />
+                <xs:element name="Payload" type="pcap:hexByte" dfdl:length="{ (../../../IPv4Header/Length - 20) - 8 }"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -412,7 +403,7 @@ The message root is 'PCAP'.
                 </xs:annotation>
                 <xs:element name="Identifier" type="pcap:bit" dfdl:length="16" />
                 <xs:element name="SequenceNumber" type="pcap:bit" dfdl:length="16" />
-                <xs:element name="Payload" type="pcap:hexByte" dfdl:length="{ ../../../PayloadLength - 8 }" />
+                <xs:element name="Payload" type="pcap:hexByte" dfdl:length="{ (../../../IPv4Header/Length - 20) - 8 }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -437,16 +428,20 @@ The message root is 'PCAP'.
               <xs:element name="FlowLabel" type="pcap:bit" dfdl:length="20" />
               <xs:element name="PayloadLength" type="pcap:bit" dfdl:length="16" 
               dfdl:outputValueCalc="{ dfdl:contentLength(../../pcap:TransportLayer, 'bytes') }"/>
-              <xs:element name="NextHeader" type="pcap:bit" dfdl:length="8" /> <!-- TODO: Add support for extension headers -->
+              <!-- TODO: Add support for extension headers -->
+              <xs:element name="NextHeader" type="pcap:bit" dfdl:length="8"
+                dfdl:outputValueCalc="{
+                  if (fn:exists(../../pcap:TransportLayer/pcap:TCP )) then 6
+                  else if (fn:exists(../../pcap:TransportLayer/pcap:UDP )) then 17
+                  else -1 }"/>
               <xs:element name="HopLimit" type="pcap:bit" dfdl:length="8" />
               <xs:element name="IPSrc" type="pcap:hexByte" dfdl:length="16" />
               <xs:element name="IPDest" type="pcap:hexByte" dfdl:length="16" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv6Header/PayloadLength) }" />
         <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv6Header/NextHeader) }" />
-        <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }" />
+        <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ xs:unsignedInt(../IPv6Header/PayloadLength) }" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -487,7 +482,10 @@ The message root is 'PCAP'.
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{ xs:unsignedInt(../../../PayloadLength) - (xs:unsignedInt(../TCPHeader/DataOffset) * 4) }"/>
+        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{
+          if (fn:exists(../../../../pcap:IPv4))
+          then ((xs:unsignedInt(../../../../pcap:IPv4/IPv4Header/Length) - 20) - (xs:unsignedInt(../TCPHeader/DataOffset) * 4))
+          else (xs:unsignedInt(../../../../pcap:IPv6/IPv6Header/PayloadLength) - (xs:unsignedInt(../TCPHeader/DataOffset) * 4)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -516,10 +514,4 @@ The message root is 'PCAP'.
     </xs:complexType>
   </xs:element>
   
-  <!-- type for use creating OVC-computed temporary elements that have no representation in the data -->
-  
-  <xs:simpleType name="OVC_UnsignedByte" dfdl:lengthKind="explicit" dfdl:length="0">
-    <xs:restriction base="xs:unsignedByte"/>
-  </xs:simpleType>
-
 </xs:schema>

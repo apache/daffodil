@@ -45,6 +45,7 @@ class TestPCAP {
   @Test def test_pcap_test_icmp() { runner.runOneTest("pcap_test_icmp") }
   @Test def test_pcap_test_tcp_ecn() { runner.runOneTest("pcap_test_tcp_ecn") }
 
-  @Test def test_pcap_test_icmp_unparse1() { runner.runOneTest("pcap_test_icmp_unparse1") }
+  // DFDL-1561
+  //@Test def test_pcap_test_icmp_unparse1() { runner.runOneTest("pcap_test_icmp_unparse1") }
 
 }
