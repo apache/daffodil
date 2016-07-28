@@ -134,15 +134,19 @@ class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesN
 abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
   extends BinaryNumberBaseUnparser(e) {
 
-  private val tenBigDec = BigDecimal(10)
-
   override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
 
     // We want to scale the bigInt by binaryDecimalVirtualPoint so that it is a BigInt
     val bigDec = asBigDecimal(value)
+    //
+    // NOTE: The code below would fail when using java.math.BigDecimal because of an ArithmeticException
+    // due to the pow() call.  Adding the MathContext.DECIMAL128 fixed this issue.  This is the
+    // defaultMathContext for scala's BigDecimal.  It's interesting to note that MathContext.UNLIMITED
+    // also failed here.
+    //
     val bigInt =
-      if (binaryDecimalVirtualPoint != 0) (bigDec * tenBigDec.pow(binaryDecimalVirtualPoint)).toBigInt
-      else bigDec.toBigInt
+      if (binaryDecimalVirtualPoint != 0) bigDec.scaleByPowerOfTen(binaryDecimalVirtualPoint).toBigInteger()
+      else bigDec.toBigInteger()
 
     dos.putBigInt(bigInt, nBits)
 

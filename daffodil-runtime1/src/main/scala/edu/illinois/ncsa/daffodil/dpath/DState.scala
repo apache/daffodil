@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.util.Coroutine
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
  * There are two modes for expression evaluation.
@@ -157,8 +158,8 @@ case class DState() {
   def intValue: Int = longValue.toInt
   def doubleValue: Double = asDouble(currentValue)
 
-  def integerValue: BigInt = asBigInt(currentValue)
-  def decimalValue: BigDecimal = asBigDecimal(currentValue)
+  def integerValue: JBigInt = asBigInt(currentValue)
+  def decimalValue: JBigDecimal = asBigDecimal(currentValue)
   def stringValue: String = currentValue.asInstanceOf[String]
 
   def isNilled: Boolean = currentElement.isNilled

@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.xml.StepQName
 import edu.illinois.ncsa.daffodil.Implicits._
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 class TestDFDLExpressionTree extends Parsers {
   val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
@@ -155,7 +156,8 @@ class TestDFDLExpressionTree extends Parsers {
       val WholeExpression(_, RelativePathExpression(steps, _), _, _) = actual
       val List(n1, n2, n3) = steps
       val u @ Up(None) = n1; assertNotNull(u)
-      val u2 @ Up(Some(PredicateExpression(LiteralExpression(2)))) = n2; assertNotNull(u2)
+      val u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) = n2; assertNotNull(u2)
+      assertEquals(BigDecimal(2), BigDecimal(two))
       val n3p @ NamedStep("bookstore", None) = n3; assertNotNull(n3p)
     }
   }
@@ -249,13 +251,24 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def testAddConstants() {
     testExpr(dummySchema, "{ 1 + 2 }") { actual =>
-      val a @ WholeExpression(_, AdditiveExpression("+", List(LiteralExpression(1), LiteralExpression(2))), _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, AdditiveExpression("+", List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt))), _, _) = actual; assertNotNull(a)
+      assertEquals(BigDecimal(1), BigDecimal(one))
+      assertEquals(BigDecimal(2), BigDecimal(two))
     }
   }
 
   @Test def testFnTrue() {
     testExpr(dummySchema, "{ fn:true() }") { actual =>
       val a @ WholeExpression(_, FunctionCallExpression("fn:true", Nil), _, _) = actual; assertNotNull(a)
+    }
+  }
+
+  @Test def test_numbers1() = {
+    testExpr(dummySchema, "0.") { actual: Expression =>
+      val res = BigDecimal("0.0")
+      val a @ WholeExpression(_, LiteralExpression(actualRes), _, _) = actual; assertNotNull(a)
+      val bd = BigDecimal(actualRes.asInstanceOf[JBigDecimal])
+      assertEquals(res, bd)
     }
   }
 
@@ -267,27 +280,29 @@ class TestDFDLExpressionTree extends Parsers {
     testExpr(dummySchema, ".2E-3") { case WholeExpression(_, LiteralExpression(0.0002), _, _) => /* ok */ ; }
     testExpr(dummySchema, ".2E+3") { case WholeExpression(_, LiteralExpression(200.0), _, _) => /* ok */ ; }
 
-    testExpr(dummySchema, "0.") { actual =>
-      val res = BigDecimal("0.0")
-      val a @ WholeExpression(_, LiteralExpression(`res`), _, _) = actual; assertNotNull(a)
-    }
+    //    testExpr(dummySchema, "0.") { actual =>
+    //      val res = new JBigDecimal("0.0")
+    //      val a @ WholeExpression(_, LiteralExpression(`res`), _, _) = actual; assertNotNull(a)
+    //    }
     testExpr(dummySchema, ".1") { actual =>
-      val res = BigDecimal("0.1")
+      val res = new JBigDecimal("0.1")
       val a @ WholeExpression(_, LiteralExpression(`res`), _, _) = actual; assertNotNull(a)
     }
     testExpr(dummySchema, "982304892038409234982304892038409234.0909808908982304892038409234") { actual =>
-      val res = BigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
-      val WholeExpression(_, LiteralExpression(r: BigDecimal), _, _) = actual
+      val res = new JBigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
+      val WholeExpression(_, LiteralExpression(r: JBigDecimal), _, _) = actual
       assertEquals(res, r)
     }
 
     testExpr(dummySchema, "0") { actual =>
       val res = scala.math.BigInt(0)
-      val a @ WholeExpression(_, LiteralExpression(`res`), _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _) = actual; assertNotNull(a)
+      assertEquals(res, BigInt(actualRes))
     }
     testExpr(dummySchema, "9817239872193792873982173948739879128370982398723897921370") { actual =>
       val res = scala.math.BigInt("9817239872193792873982173948739879128370982398723897921370")
-      val a @ WholeExpression(_, LiteralExpression(`res`), _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _) = actual; assertNotNull(a)
+      assertEquals(res, BigInt(actualRes))
     }
 
   }

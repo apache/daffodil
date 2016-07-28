@@ -33,8 +33,6 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import scala.collection.mutable.ListBuffer
-import scala.math.BigDecimal.int2bigDecimal
-import scala.math.BigInt.int2bigInt
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -122,10 +120,10 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
       case i: JInt => i * -1
       case l: JLong => l * (-1L)
       case d: JDouble => d * -1.0
-      case bi: JBigInt => BigInt(bi) * -1
-      case bd: JBigDecimal => BigDecimal(bd) * -1
-      case bi: BigInt => bi * -1
-      case bd: BigDecimal => bd * -1
+      case bi: JBigInt => bi.negate()
+      case bd: JBigDecimal => bd.negate()
+      case bi: BigInt => bi.underlying().negate()
+      case bd: BigDecimal => bd.underlying().negate()
       case _ => Assert.invariantFailed("not a number: " + dstate.currentValue.toString)
     }
     dstate.setCurrentValue(value)

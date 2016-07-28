@@ -49,9 +49,11 @@
     <xs:element name="s" type="xs:long" dfdl:lengthKind="explicit"
       dfdl:length="{ 13 }" />
     <xs:element name="mersenne" type="xs:integer"
-      dfdl:lengthKind="explicit" dfdl:length="{ 207 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 207 }"
+      dfdl:textNumberPattern="000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,000" />
     <xs:element name="integer01" type="xs:integer"
-      dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 20 }"
+      dfdl:textNumberPattern="00000000000000000000" />
     <xs:element name="integer02" type="xs:integer"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="integer03" type="xs:integer"
@@ -99,7 +101,8 @@
     <xs:element name="uL_04" type="xs:unsignedLong"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="nonNegIntText" type="xs:nonNegativeInteger"
-      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" 
+      dfdl:textNumberPattern="000000000000000000000"/>
     <xs:element name="nonNegIntText2" type="xs:nonNegativeInteger"
       dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
     <xs:element name="nonNegIntTextFail" type="xs:nonNegativeInteger"
@@ -109,7 +112,8 @@
     <xs:element name="nonNegIntTextFail3" type="xs:nonNegativeInteger"
       dfdl:lengthKind="implicit" />
     <xs:element name="decimalText" type="xs:decimal"
-      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }"
+      dfdl:textNumberPattern="0.0000000000000000000" />
     <xs:element name="decimalText2" type="xs:decimal"
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
     <xs:element name="decimalText3" type="xs:decimal"
@@ -119,13 +123,16 @@
     <xs:element name="doubleText" type="xs:double"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="doubleText2" type="xs:double"
-      dfdl:lengthKind="explicit" dfdl:length="{ 18 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 18 }"
+      dfdl:textNumberPattern="000.00000000000000" />
     <xs:element name="doubleText3" type="xs:double"
-      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }"
+      dfdl:textNumberPattern="000.00000000000000000" />
     <xs:element name="floatText" type="xs:float"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="floatText2" type="xs:float"
-      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }"
+      dfdl:textNumberPattern="000000000000000000000" />
     <xs:element name="floatTextFail" type="xs:float"
       dfdl:lengthKind="implicit" />
 
@@ -158,7 +165,8 @@
           <xs:element name="unsigned-int" type="xs:unsignedInt"
             dfdl:lengthKind="explicit" dfdl:length="{ 13 }" />
           <xs:element name="unsigned-long" type="xs:unsignedLong"
-            dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+            dfdl:lengthKind="explicit" dfdl:length="{ 20 }"
+            dfdl:textNumberPattern="00000000000000000000" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -259,7 +267,7 @@
 
   <tdml:parserTestCase name="BigInteger1" root="mersenne"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[686,479,766,013,060,971,498,190,079,908,139,321,726,943,530,014,330,540,939,446,345,918,554,318,339,765,605,212,255,964,066,145,455,497,729,631,139,148,085,803,712,198,799,971,664,381,257,402,829,111,505,715]]></tdml:document>
     <tdml:infoset>
@@ -272,7 +280,7 @@
 
   <tdml:parserTestCase name="Integer01" root="integer01"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[55555555555555555555]]></tdml:document>
     <tdml:infoset>
@@ -367,7 +375,7 @@
 
   <tdml:parserTestCase name="UnsignedNumbers1" root="limits"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-unsigned integer types - DFDL-5-014R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[255:65,535:4,294,967,295:18446744073709551615]]></tdml:document>
     <tdml:infoset>
@@ -1619,7 +1627,7 @@
   
   <tdml:parserTestCase name="nonNegativeInteger_text" root="nonNegIntText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[184467440737095516158]]></tdml:document>
     <tdml:infoset>
@@ -1856,7 +1864,7 @@
   
   <tdml:parserTestCase name="decimal_text" root="decimalText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[1.8446744073709551615]]></tdml:document>
     <tdml:infoset>
@@ -1932,7 +1940,7 @@
 
   <tdml:parserTestCase name="dateTimeText" root="dateTimeText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[1996.07.10 AD at 15:08:56 GMT-05:00]]></tdml:document>
     <tdml:infoset>
@@ -2224,7 +2232,7 @@
 
   <tdml:parserTestCase name="double_text" root="doubleText2"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[123.45678901234567]]></tdml:document>
     <tdml:infoset>
@@ -2258,7 +2266,7 @@
 
   <tdml:parserTestCase name="double_text4" root="doubleText3"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[123.45678901234567899]]></tdml:document>
     <tdml:infoset>
@@ -2301,7 +2309,7 @@
 
   <tdml:parserTestCase name="float_text3" root="floatText2"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[123456789012345678901]]></tdml:document>
     <tdml:infoset>
@@ -2918,7 +2926,8 @@
     
     <xs:element name="string9" dfdl:textTrimKind="none" dfdl:lengthKind="delimited" type="xs:string" />
     
-    <xs:element name="int1" dfdl:lengthKind="explicit" dfdl:length="7" type="xs:int" />
+    <xs:element name="int1" dfdl:lengthKind="explicit" dfdl:length="7" type="xs:int"
+    dfdl:textNumberPattern="0000000" />
     <xs:element name="int2" dfdl:lengthKind="delimited" type="xs:int" />
     
     <xs:element name="intseq">
@@ -3157,7 +3166,7 @@
 
   <tdml:parserTestCase name="number_padding" root="int1"
       model="SimpleTypes-padding" description="Section 13 Simple Types - textNumberPadCharacter DFDL-13-047R"
-    roundTrip="false">
+    roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[12345##]]></tdml:documentPart>
     </tdml:document>
@@ -3381,12 +3390,13 @@
 -->
     
     <xs:element name="dateImp" type="xs:date" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
-    <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'yyyy"
+    <xs:element name="date01" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
     <xs:element name="date01b" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'Today is the 'dd'th day of 'MMM', year 'YYYY"
                 dfdl:lengthKind="explicit" dfdl:length="43" />
     <xs:element name="date02" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
-    <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11" />
+    <xs:element name="date03" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="11"
+    			dfdl:textTrimKind="padChar" dfdl:textPadKind="padChar" />
     <xs:element name="date04" type="xs:date" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="10" />
     <xs:element name="date05" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
                 dfdl:calendarPattern="'day 'e' of the week, month 'MM' year 'yyyy" 
@@ -3526,7 +3536,7 @@
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" 
-                dfdl:textPadKind="padChar"/>
+                dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar"/>
     <xs:element name="dateTime02" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="explicit" dfdl:length="19" />
     <xs:element name="dateTime03" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited"
         dfdl:calendarPattern="'Twas a sunny 'EEEE' at 'hh' O''clock. The year was 'yyyy', and it was the hottest 'MMM' we had ever experienced.'" />
@@ -3578,7 +3588,7 @@
   
   <tdml:parserTestCase name="dateTime_calendarTimeZone_EmptyString" root="dateTime14"
     model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[1995-03-24 01:30:00]]></tdml:document>
     <tdml:infoset>
@@ -3657,7 +3667,7 @@
   
   <tdml:parserTestCase name="timeImplicitPattern" root="timeImp"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPatternKind - DFDL-13-138R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[12:43:20+00:00]]></tdml:document>
     <tdml:infoset>
@@ -3788,7 +3798,7 @@
   
   <tdml:parserTestCase name="datePattern01" root="date01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[Today is the 25th day of January, year 2013]]></tdml:document>
     <tdml:infoset>
@@ -4310,7 +4320,7 @@
   
   <tdml:parserTestCase name="dateTimePattern01" root="dateTime01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[It is 11:53AM on the 1st of April, year 2013]]></tdml:document>
     <tdml:infoset>
@@ -4329,7 +4339,7 @@
   
   <tdml:parserTestCase name="timeLaxCheckPolicy01" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[05:62:30+00:00]]></tdml:document>
     <tdml:infoset>
@@ -4348,7 +4358,7 @@
   
   <tdml:parserTestCase name="timeLaxCheckPolicy02" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[28:62:30-00:00]]></tdml:document>
     <tdml:infoset>
@@ -4367,7 +4377,7 @@
   
   <tdml:parserTestCase name="timeLaxCheckPolicy03" root="time01"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[28:62:90+00:00]]></tdml:document>
     <tdml:infoset>
@@ -4423,7 +4433,7 @@
   
   <tdml:parserTestCase name="dateLaxCheckPolicy02" root="date03"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[2000-01-366]]></tdml:document>
     <tdml:infoset>
@@ -4443,7 +4453,7 @@
   
   <tdml:parserTestCase name="dateLaxCheckPolicy03" root="date03"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[2001-01-366]]></tdml:document>
     <tdml:infoset>
@@ -4634,7 +4644,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats" root="time04"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.EST]]></tdml:document>
     <tdml:infoset>
@@ -4653,7 +4663,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats2" root="time04b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -4672,7 +4682,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats3" root="time05"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.PT]]></tdml:document>
     <tdml:infoset>
@@ -4853,7 +4863,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats4" root="time05b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.Pacific Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -4872,7 +4882,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats5" root="time06"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.Los Angeles Time]]></tdml:document>
     <tdml:infoset>
@@ -4910,7 +4920,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats7" root="time05b"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.Eastern Standard Time]]></tdml:document>
     <tdml:infoset>
@@ -4929,7 +4939,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats8" root="time27"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.-0800]]></tdml:document>
     <tdml:infoset>
@@ -4948,7 +4958,7 @@
   
   <tdml:parserTestCase name="timeZoneFormats9" root="time27"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.GMT+00:00]]></tdml:document>
     <tdml:infoset>
@@ -5003,7 +5013,7 @@
   
   <tdml:parserTestCase name="timeCalendarTimeZone3" root="time28"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarTimeZone - DFDL-13-140R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43.EST]]></tdml:document>
     <tdml:infoset>
@@ -5022,7 +5032,7 @@
   
   <tdml:parserTestCase name="timeFractionalSeconds01" root="time03"
     model="dateTimeSchema" description="Section 13 Simple Types - fractional seconds - DFDL-13-150R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[08:43:30.9678]]></tdml:document>
     <tdml:infoset>
@@ -5169,7 +5179,7 @@
   
   <tdml:parserTestCase name="millisecondAccuracy" root="time12"
     model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[3:30:38.001]]></tdml:document>
     <tdml:infoset>
@@ -5188,7 +5198,7 @@
   
   <tdml:parserTestCase name="millisecondAccuracy2" root="time13"
     model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[3:30:38.001435]]></tdml:document>
     <tdml:infoset>
@@ -5239,7 +5249,7 @@
   
   <tdml:parserTestCase name="millisecondAccuracy5" root="time29"
     model="dateTimeSchema" description="Section 13 Simple Types - at least millisecond accuracy - DFDL-13-152R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><![CDATA[3:30:38.002345276]]></tdml:document>
     <tdml:infoset>
@@ -5277,7 +5287,7 @@
 
   <tdml:parserTestCase name="time_calendarTimeZone_EmptyString" root="time31" model="dateTimeSchema"
     description="Section 13 - Simple Types - xs:time calendarTimeZone Empty String  - DFDL-13-XXXR"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document>
       <tdml:documentPart type="text">12:49:00</tdml:documentPart>
@@ -6111,7 +6121,7 @@
 
   <tdml:parserTestCase name="hexBinary_func" root="hB_root05"
       model="HexBinary" description="Section 23 - xs:hexBinary() - DFDL-23-077R"
-    roundTrip="false">
+    roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="text">ABCDABABAB</tdml:documentPart>
       <tdml:documentPart type="byte"></tdml:documentPart>

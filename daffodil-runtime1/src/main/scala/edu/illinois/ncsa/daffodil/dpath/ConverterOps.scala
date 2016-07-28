@@ -36,6 +36,7 @@ import AsIntConverters._
 import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JLong(if (asBoolean(a) == true) 1L else 0L)
@@ -70,12 +71,15 @@ case object DateToDateTime extends Converter {
   }
 }
 case object DecimalToInteger extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asBigDecimal(a).toBigInt()
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asBigDecimal(a).toBigInteger()
 }
 case object DecimalToLong extends Converter {
+  val MAX_VALUE = JBigDecimal.valueOf(Long.MaxValue)
+  val MIN_VALUE = JBigDecimal.valueOf(Long.MinValue)
+  
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigDecimal(a)
-    if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
     asLong(res)
   }
 }
@@ -85,21 +89,21 @@ case object DecimalToDouble extends Converter {
 case object DecimalToNonNegativeInteger extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigDecimal(a)
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
-    res.toBigInt()
+    if (res.compareTo(JBigDecimal.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
+    res.toBigInteger()
   }
 }
 case object DecimalToUnsignedLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val res = asBigDecimal(a).toBigInt
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
+    val res = asBigDecimal(a).toBigInteger()
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
 
-    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res.compareTo(NodeInfo.UnsignedLong.Max) == 1) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
 case object DoubleToDecimal extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = BigDecimal.valueOf(asDouble(a))
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = JBigDecimal.valueOf(asDouble(a))
 }
 case object DoubleToFloat extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
@@ -108,17 +112,19 @@ case object DoubleToFloat extends Converter {
   }
 }
 case object DoubleToLong extends Converter {
+  val MAX_VALUE = JBigDecimal.valueOf(Long.MaxValue)
+  val MIN_VALUE = JBigDecimal.valueOf(Long.MinValue)
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigDecimal(a)
-    if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
     asLong(a)
   }
 }
 case object DoubleToUnsignedLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigInt(a)
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
+    if (res.compareTo(NodeInfo.UnsignedLong.Max) == 1) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -126,13 +132,13 @@ case object FloatToDouble extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asDouble(a)
 }
 case object IntegerToDecimal extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = BigDecimal(asBigInt(a))
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JBigDecimal(asBigInt(a))
 }
 case object IntegerToUnsignedLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigInt(a)
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
+    if (res.compareTo(NodeInfo.UnsignedLong.Max) == 1) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -147,7 +153,7 @@ case object LongToByte extends Converter {
   }
 }
 case object LongToDecimal extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = BigDecimal.valueOf(asLong(a))
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = JBigDecimal.valueOf(asLong(a))
 }
 case object LongToDouble extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asDouble(a)
@@ -164,7 +170,7 @@ case object LongToInt extends Converter {
 }
 
 case object LongToInteger extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = BigInt(asLong(a))
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = JBigInt.valueOf(asLong(a))
 }
 
 case object LongToShort extends Converter {
@@ -209,16 +215,16 @@ case object LongToUnsignedShort extends Converter {
 
 case object LongToNonNegativeInteger extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val res = BigInt(asLong(a))
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
+    val res = JBigInt.valueOf(asLong(a))
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
     res
   }
 }
 
 case object LongToUnsignedLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val res = BigInt(asLong(a))
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
+    val res = JBigInt.valueOf(asLong(a))
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
     else res
   }
 }
@@ -234,7 +240,7 @@ case object StringToBoolean extends Converter {
   }
 }
 case object StringToDecimal extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = BigDecimal(a.asInstanceOf[String])
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JBigDecimal(a.asInstanceOf[String])
 }
 case object StringToDouble extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(a.asInstanceOf[String].toDouble)
@@ -255,9 +261,9 @@ case object StringToLong extends Converter {
 }
 case object StringToUnsignedLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
-    val res = BigInt(a.asInstanceOf[String])
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    val res = new JBigInt(a.asInstanceOf[String])
+    if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
+    if (res.compareTo(NodeInfo.UnsignedLong.Max) == 1) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -292,12 +298,12 @@ case object FNToBoolean extends Converter {
       case f: JFloat => if (f.isNaN() || f == 0) false else true
       //
       // BigDecimal does not have a representation for NaN or Infinite
-      case bd: BigDecimal => if (bd.compare(java.math.BigDecimal.ZERO) == 0) false else true
+      case bd: JBigDecimal => if (bd.compareTo(JBigDecimal.ZERO) == 0) false else true
       case b: JByte => if (b == 0) false else true
       case s: JShort => if (s == 0) false else true
       case i: JInt => if (i == 0) false else true
       case l: JLong => if (l == 0) false else true
-      case bi: BigInt => if (bi.compare(java.math.BigInteger.ZERO) == 0) false else true
+      case bi: JBigInt => if (bi.compareTo(JBigInt.ZERO) == 0) false else true
       // TODO: Once sequences are supported, fill in these case statements
       //case s: Sequence if s.length == 0 => false
       //case s: Sequence if s(0) == Node => true

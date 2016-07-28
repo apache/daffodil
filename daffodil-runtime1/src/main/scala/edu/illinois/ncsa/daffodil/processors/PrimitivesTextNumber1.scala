@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import java.math.BigInteger
 import java.text.ParsePosition
 import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
@@ -49,6 +48,7 @@ import com.ibm.icu.text.DecimalFormatSymbols
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 case class ConvertTextCombinatorParser(
   rd: RuntimeData,
@@ -199,8 +199,8 @@ abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[Str
     val l = n.longValue
 
     // check for overflow/underflow.
-    val orig = new java.math.BigDecimal(n.toString)
-    val newl = new java.math.BigDecimal(l)
+    val orig = new JBigDecimal(n.toString)
+    val newl = new JBigDecimal(l)
     if (orig.compareTo(newl) != 0) {
       true
     } else {
@@ -235,9 +235,9 @@ abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: Li
 }
 
 case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
 
-  override def getNum(num: Number) = new BigInteger(num.toString)
+  override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "integer"
   override val prettyType = "Unlimited Size Integer"
   override def isInvalidRange(n: java.lang.Number): Boolean = false
@@ -246,13 +246,13 @@ case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String])
 }
 
 case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
 
-  override def getNum(num: Number) = new BigInteger(num.toString)
+  override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "nonNegativeInteger"
   override val prettyType = "Unlimited Size Non Negative Integer"
   override def isInvalidRange(n: java.lang.Number): Boolean = {
-    val value = BigDecimal(n.toString)
+    val value = new JBigDecimal(n.toString())
     val isNegative = value.signum == -1
     if (isNegative) return true
     false
@@ -302,15 +302,15 @@ case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String])
 }
 
 case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
-
-  override def getNum(num: Number) = new BigInteger(num.toString)
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
+  
+  override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "unsignedLong"
   override val prettyType = "Unsigned Long"
   override def isInvalidRange(jn: java.lang.Number) = {
     jn match {
-      case n: BigInteger => {
-        n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
+      case n: JBigInt => {
+        n.compareTo(JBigInt.ZERO) < 0 || n.compareTo(JBigInt.ONE.shiftLeft(64)) >= 0
       }
       case _ => {
         val n = jn.longValue()
@@ -353,41 +353,49 @@ case class ConvertTextUnsignedByteParserUnparserHelper[S](zeroRep: List[String])
 }
 
 case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextFloatingPointNumberParserUnparserHelper[BigDecimal](zeroRep) {
+  extends ConvertTextFloatingPointNumberParserUnparserHelper[JBigDecimal](zeroRep) {
 
-  override def getNum(num: Number) = new java.math.BigDecimal(num.toString)
+  override def getNum(num: Number) = new JBigDecimal(num.toString)
   override val xsdType = "decimal"
   override val prettyType = "Unlimited Size Decimal"
   override def isInvalidRange(n: java.lang.Number): Boolean = false
 
-  override def getStringFormat(n: BigDecimal): String = {
-    n.underlying.toPlainString
+  override def getStringFormat(n: JBigDecimal): String = {
+    n.toPlainString()
   }
 }
 
 case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextFloatingPointNumberParserUnparserHelper[Double](zeroRep) {
 
+  val MAX_VALUE = new JBigDecimal(Double.MaxValue)
+  val MIN_VALUE = new JBigDecimal(Double.MinValue)
+  
   override def getNum(num: Number) = num.doubleValue
   override val xsdType = "double"
   override val prettyType = "Double"
   override def allowInfNaN = true
   def isInvalidRange(n: java.lang.Number): Boolean = {
-    val d = n.doubleValue()
-    (d.isNaN || d < Double.MinValue || d > Double.MaxValue)
+    val d = n.doubleValue() // This can truncate the number and void range checking
+    val bd = new JBigDecimal(n.toString)
+    (d.isNaN || bd.compareTo(MIN_VALUE) < 0 || bd.compareTo(MAX_VALUE) > 0)
   }
 }
 
 case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextFloatingPointNumberParserUnparserHelper[Float](zeroRep) {
 
+  val MAX_VALUE = new JBigDecimal(Float.MaxValue)
+  val MIN_VALUE = new JBigDecimal(Float.MinValue)
+  
   override def getNum(num: Number) = num.floatValue
   override val xsdType = "float"
   override val prettyType = "Float"
   override def allowInfNaN = true
   def isInvalidRange(n: java.lang.Number): Boolean = {
-    val f = n.floatValue()
-    (f.isNaN || f < Float.MinValue || f > Float.MaxValue)
+    val f = n.floatValue() // This can truncated the number and void range checking
+    val bd = new JBigDecimal(n.toString)
+    (f.isNaN || bd.compareTo(MIN_VALUE) < 0 || bd.compareTo(MAX_VALUE) > 0)
   }
 }
 
@@ -476,18 +484,18 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
     rounding match {
       case TextNumberRounding.Pattern => {
-        df.setRoundingMode(java.math.BigDecimal.ROUND_HALF_EVEN)
+        df.setRoundingMode(JBigDecimal.ROUND_HALF_EVEN)
       }
       case TextNumberRounding.Explicit => {
         val rm = roundingMode.get match {
-          case TextNumberRoundingMode.RoundCeiling => java.math.BigDecimal.ROUND_CEILING
-          case TextNumberRoundingMode.RoundFloor => java.math.BigDecimal.ROUND_FLOOR
-          case TextNumberRoundingMode.RoundDown => java.math.BigDecimal.ROUND_DOWN
-          case TextNumberRoundingMode.RoundUp => java.math.BigDecimal.ROUND_UP
-          case TextNumberRoundingMode.RoundHalfEven => java.math.BigDecimal.ROUND_HALF_EVEN
-          case TextNumberRoundingMode.RoundHalfDown => java.math.BigDecimal.ROUND_HALF_DOWN
-          case TextNumberRoundingMode.RoundHalfUp => java.math.BigDecimal.ROUND_HALF_UP
-          case TextNumberRoundingMode.RoundUnnecessary => java.math.BigDecimal.ROUND_UNNECESSARY
+          case TextNumberRoundingMode.RoundCeiling => JBigDecimal.ROUND_CEILING
+          case TextNumberRoundingMode.RoundFloor => JBigDecimal.ROUND_FLOOR
+          case TextNumberRoundingMode.RoundDown => JBigDecimal.ROUND_DOWN
+          case TextNumberRoundingMode.RoundUp => JBigDecimal.ROUND_UP
+          case TextNumberRoundingMode.RoundHalfEven => JBigDecimal.ROUND_HALF_EVEN
+          case TextNumberRoundingMode.RoundHalfDown => JBigDecimal.ROUND_HALF_DOWN
+          case TextNumberRoundingMode.RoundHalfUp => JBigDecimal.ROUND_HALF_UP
+          case TextNumberRoundingMode.RoundUnnecessary => JBigDecimal.ROUND_UNNECESSARY
         }
         df.setRoundingMode(rm)
         df.setRoundingIncrement(roundingIncrement.get)

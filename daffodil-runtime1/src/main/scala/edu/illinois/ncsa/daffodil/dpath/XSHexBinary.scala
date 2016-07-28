@@ -80,9 +80,9 @@ trait HexBinaryKind {
       case bi: JBigInt if (bi.bitLength <= 63) => reduce(bi.longValue())
       case bi: JBigInt => bi.toByteArray()
       case bd: JBigDecimal if (try { bd.toBigIntegerExact(); true } catch { case e: ArithmeticException => false }) => reduce(bd.toBigIntegerExact())
-      case bi: BigInt => reduce(bi.bigInteger)
-      case bd: BigDecimal if (bd.isWhole()) => reduce(bd.toBigInt)
-      case str: String => reduce(BigInt(str))
+      case bi: BigInt => reduce(bi.underlying())
+      case bd: BigDecimal if (bd.isWhole()) => reduce(bd.toBigInt.underlying())
+      case str: String => reduce(BigInt(str).underlying())
       case _ => throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
     }
     res

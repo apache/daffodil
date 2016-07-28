@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import scala.util.{ Success, Failure }
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.equality._
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1117,6 +1118,33 @@ abstract class LiteralExpressionBase(value: Any)
   }
 
   override def toString = text
+  
+  def isValidInt(n: Number): Boolean = {
+    val bd = new JBigDecimal(n.toString())
+    val res = try {
+      bd.intValueExact()
+      true
+    } catch {
+      case e: java.lang.ArithmeticException => false
+    }
+    res
+  }
+  
+  def isValidLong(n: Number): Boolean = {
+    val bd = new JBigDecimal(n.toString())
+    val res = try {
+      bd.longValueExact()
+      true
+    } catch {
+      case e: java.lang.ArithmeticException => false
+    }
+    res
+  }
+  
+  def isDecimalDouble(bd: JBigDecimal): Boolean = {
+    val d = bd.doubleValue()
+    !d.isInfinity && equals(bd)
+  }
 
   /**
    * Convert to regular types from the pessimistic BigInt
@@ -1126,13 +1154,19 @@ abstract class LiteralExpressionBase(value: Any)
     case s: String => s
     case i: Int => i
     case i: BigInt => {
-      if (i.isValidInt) i.toInt
-      else if (i.isValidLong) i.toLong
+      Assert.usageError("Expected java.math.BigInteger but received BigInt.")
+    }
+    case i: JBigInt => {
+      if (isValidInt(i)) i.intValue()
+      else if (isValidLong(i)) i.longValue()
       else i
     }
     case bd: BigDecimal => {
-      if (bd.isValidLong) bd.toLongExact
-      else if (bd.isDecimalDouble) bd.toDouble
+      Assert.usageError("Expected java.math.BigDecimal but received scala BigDecimal.")
+    }
+    case bd: JBigDecimal => {
+      if (isValidLong(bd)) bd.longValue()
+      else if (isDecimalDouble(bd)) bd.doubleValue()
       else bd
     }
     case f: Float => f.toDouble
@@ -1148,8 +1182,10 @@ abstract class LiteralExpressionBase(value: Any)
   override lazy val inherentType = {
     litValue match {
       case s: String => NodeInfo.String
-      case i: BigInt => NodeInfo.Integer
-      case d: BigDecimal => NodeInfo.Decimal
+      case i: BigInt => Assert.usageError("Expected java.math.BigInteger but got BigInt.")
+      case i: JBigInt => NodeInfo.Integer
+      case d: BigDecimal => Assert.usageError("Expected java.math.BigDecimal but got package.BigDecimal.")
+      case d: JBigDecimal => NodeInfo.Decimal
       case df: Double => NodeInfo.Double
       case l: Long => NodeInfo.Long
       case i: Int => NodeInfo.Int

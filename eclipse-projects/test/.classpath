@@ -7,6 +7,7 @@
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="testData_OnClassPath"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="/home/mbeckerle/dataiti/git/daffodil/lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
@@ -31,5 +32,6 @@
 	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
+	<classpathentry kind="lib" path="/daffodil-lib/lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

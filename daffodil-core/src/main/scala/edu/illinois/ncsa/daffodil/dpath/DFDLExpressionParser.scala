@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 import scala.util.parsing.combinator.RegexParsers
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -338,16 +339,16 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   def PrefixedName = QNameRegex.QName
   def UnprefixedName = QNameRegex.NCName
 
-  def IntegerLiteral: Parser[BigInt] = Digits ^^ { BigInt(_) }
+  def IntegerLiteral: Parser[JBigInt] = Digits ^^ { new JBigInt(_) }
 
   val Digits = """[0-9]+""".r
   val optDigits: Parser[String] = """[0-9]*""".r
   val Expon: Parser[String] = """[eE][+-]?[0-9]{1,3}""".r
   val plusMinus: Parser[String] = """[+-]?""".r
 
-  val DecimalLiteral: Parser[BigDecimal] =
-    ("." ~> Digits) ^^ { case dig => BigDecimal("0." + dig) } |
-      (Digits ~ ("." ~> optDigits)) ^^ { case digit ~ optDig => BigDecimal(digit + "." + optDig) }
+  val DecimalLiteral: Parser[java.math.BigDecimal] =
+    ("." ~> Digits) ^^ { case dig => new JBigDecimal("0." + dig) } |
+      (Digits ~ ("." ~> optDigits)) ^^ { case digit ~ optDig => new JBigDecimal(digit + "." + optDig) }
 
   val DoubleLiteral: Parser[Double] = (
     "." ~> Digits ~ Expon ^^ {

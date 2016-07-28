@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.LocalElementGrammarMixin
 import edu.illinois.ncsa.daffodil.equality._
+import java.math.{ BigInteger => JBigInt }
 
 /**
  * Common to local element decls and element references
@@ -79,7 +80,7 @@ trait LocalElementMixin
         (pt != PrimType.String && // delimited strings can be zero length
           pt != PrimType.HexBinary) // delimited hexBinary can be zero length
       case LengthKind.Implicit => {
-        if ((pt =:= PrimType.String || pt =:= PrimType.HexBinary) && self.hasMaxLength && BigInt(self.maxLength.toBigInteger) > 0) true
+        if ((pt =:= PrimType.String || pt =:= PrimType.HexBinary) && self.hasMaxLength && self.maxLength.toBigInteger.compareTo(JBigInt.ZERO) == 1) true
         else if (representation =:= Representation.Binary) true
         else false
       }

@@ -53,6 +53,7 @@ import java.lang.{
   Boolean => JBoolean
 }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -196,7 +197,9 @@ object NodeInfo extends Enum {
       case x: Short => NodeInfo.Short
       case x: Long => NodeInfo.Long
       case x: BigInt => NodeInfo.Integer
+      case x: JBigInt => NodeInfo.Integer
       case x: BigDecimal => NodeInfo.Decimal
+      case x: JBigDecimal => NodeInfo.Decimal
       case x: Double => NodeInfo.Double
       case x: Float => NodeInfo.Float
       case x: Array[Byte] => NodeInfo.HexBinary
@@ -438,13 +441,13 @@ object NodeInfo extends Enum {
     protected sealed trait DecimalKind extends SignedNumeric.Kind
     case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind {
       type Kind = DecimalKind
-      override def fromXMLString(s: String) = BigDecimal(s)
+      override def fromXMLString(s: String) = new JBigDecimal(s)
     }
 
     protected sealed trait IntegerKind extends SignedInteger.Kind
     case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind {
       type Kind = IntegerKind
-      override def fromXMLString(s: String) = BigInt(s)
+      override def fromXMLString(s: String) = new JBigInt(s)
     }
 
     protected sealed trait LongKind extends Integer.Kind
@@ -474,14 +477,14 @@ object NodeInfo extends Enum {
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
     case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind {
       type Kind = NonNegativeIntegerKind
-      override def fromXMLString(s: String) = BigInt(s)
+      override def fromXMLString(s: String) = new JBigInt(s)
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
     case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind {
       type Kind = UnsignedLongKind
-      val Max = BigInt("18446744073709551615")
-      override def fromXMLString(s: String) = BigInt(s)
+      val Max = new JBigInt("18446744073709551615")
+      override def fromXMLString(s: String) = new JBigInt(s)
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind

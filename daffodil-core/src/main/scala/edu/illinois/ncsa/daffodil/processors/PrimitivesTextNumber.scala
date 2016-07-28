@@ -38,12 +38,12 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRounding
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import java.math.BigInteger
 import com.ibm.icu.text.DecimalFormat
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextNumberUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
 import edu.illinois.ncsa.daffodil.util.MaybeDouble
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -153,16 +153,16 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
   override lazy val unparser: Unparser = new ConvertTextNumberUnparser[S](helper, numFormatFactory, e.elementRuntimeData)
 }
 
-case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {
-  val helper = new ConvertTextIntegerParserUnparserHelper[BigInteger](e.textStandardZeroRep)
+case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
+  val helper = new ConvertTextIntegerParserUnparserHelper[JBigInt](e.textStandardZeroRep)
 }
 
-case class ConvertTextDecimalPrim(e: ElementBase) extends ConvertTextNumberPrim[BigDecimal](e) {
-  val helper = new ConvertTextDecimalParserUnparserHelper[BigDecimal](e.textStandardZeroRep)
+case class ConvertTextDecimalPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigDecimal](e) {
+  val helper = new ConvertTextDecimalParserUnparserHelper[JBigDecimal](e.textStandardZeroRep)
 }
 
-case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {
-  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[BigDecimal](e.textStandardZeroRep)
+case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
+  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[JBigDecimal](e.textStandardZeroRep)
 }
 
 case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {
@@ -181,8 +181,8 @@ case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Byt
   val helper = new ConvertTextByteParserUnparserHelper[Byte](e.textStandardZeroRep)
 }
 
-case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {
-  val helper = new ConvertTextUnsignedLongParserUnparserHelper[BigInteger](e.textStandardZeroRep)
+case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
+  val helper = new ConvertTextUnsignedLongParserUnparserHelper[JBigInt](e.textStandardZeroRep)
 }
 
 case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {

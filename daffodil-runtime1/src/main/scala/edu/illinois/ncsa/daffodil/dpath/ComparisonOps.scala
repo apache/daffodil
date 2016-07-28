@@ -125,52 +125,52 @@ case object GE_String extends StringCompareOp {
   }
 }
 case object LT_Decimal extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1) < asBigDecimal(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1).compareTo( asBigDecimal(v2)) == -1 }
 }
 case object GT_Decimal extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1) > asBigDecimal(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1).compareTo( asBigDecimal(v2)) == 1 }
 }
 case object LE_Decimal extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1) <= asBigDecimal(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1).compareTo( asBigDecimal(v2)) <= 0 }
 }
 case object GE_Decimal extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1) >= asBigDecimal(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigDecimal(v1).compareTo( asBigDecimal(v2)) >= 0 }
 }
 case object LT_Integer extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) < asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == -1 }
 }
 case object GT_Integer extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) > asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == 1 }
 }
 case object LE_Integer extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) <= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) <= 0 }
 }
 case object GE_Integer extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) >= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo(asBigInt(v2)) >= 0 }
 }
 case object LT_NonNegativeInteger extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) < asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == -1 }
 }
 case object GT_NonNegativeInteger extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) > asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == 1 }
 }
 case object LE_NonNegativeInteger extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) <= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) <= 0 }
 }
 case object GE_NonNegativeInteger extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) >= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) >= 0 }
 }
 case object LT_UnsignedLong extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) < asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == -1 }
 }
 case object GT_UnsignedLong extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) > asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) == 1 }
 }
 case object LE_UnsignedLong extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) <= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) <= 0 }
 }
 case object GE_UnsignedLong extends NumberCompareOp {
-  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1) >= asBigInt(v2) }
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asBigInt(v1).compareTo( asBigInt(v2)) >= 0 }
 }
 case object LT_Long extends NumberCompareOp {
   def operate(v1: AnyRef, v2: AnyRef): JBoolean = { asLong(v1) < asLong(v2) }

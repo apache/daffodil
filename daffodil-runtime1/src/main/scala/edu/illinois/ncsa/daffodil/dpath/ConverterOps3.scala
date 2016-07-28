@@ -32,12 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import scala.math.BigInt.long2bigInt
 
 import AsIntConverters.asBigInt
 import AsIntConverters.asLong
 import edu.illinois.ncsa.daffodil.util.Misc
 import AsIntConverters._
+import java.math.{ BigInteger => JBigInt }
 
 case object NumericToString extends ToString
 case object DateTimeToString extends ToString
@@ -79,9 +79,11 @@ case object HexStringToUnsignedLong extends Converter {
   }
 }
 case object BigIntToLong extends Converter {
+  val MAX_VALUE = JBigInt.valueOf(Long.MaxValue)
+  val MIN_VALUE = JBigInt.valueOf(Long.MinValue)
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigInt(a)
-    if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
     asLong(res)
   }
 }
@@ -89,9 +91,11 @@ case object IntToLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asLong(a)
 }
 case object UnsignedLongToLong extends Converter {
+  val MAX_VALUE = JBigInt.valueOf(Long.MaxValue)
+  val MIN_VALUE = JBigInt.valueOf(Long.MinValue)
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigInt(a)
-    if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
     asLong(res)
   }
 }

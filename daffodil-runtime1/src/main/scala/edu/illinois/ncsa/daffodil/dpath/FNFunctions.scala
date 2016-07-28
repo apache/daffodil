@@ -43,6 +43,8 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.calendar.DFDLTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+
 
 case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(v: AnyRef, dstate: DState) = {
@@ -359,7 +361,7 @@ trait FNRoundHalfToEvenKind {
     // have a serious issue.
     //
     def roundIt = {
-      val unroundedValue = unrounded(value)
+      val unroundedValue: JBigDecimal = unrounded(value)
       val roundedValue = toBaseNumericType(round(unroundedValue, precision), value)
       roundedValue
     }
@@ -376,7 +378,9 @@ trait FNRoundHalfToEvenKind {
       case _: JFloat => roundIt
       case _: JDouble => roundIt
       case _: BigDecimal => roundIt
+      case _: JBigDecimal => roundIt
       case _: BigInt => roundIt
+      case _: JBigInt => roundIt
       case _: JLong => roundIt
       case _: JInt => roundIt
       case _: JByte => roundIt
@@ -386,7 +390,7 @@ trait FNRoundHalfToEvenKind {
     result
   }
 
-  private def unrounded(value: AnyRef): BigDecimal = {
+  private def unrounded(value: AnyRef): java.math.BigDecimal = {
     val result = value match {
       //
       // Not converting Float to string first causes precision issues
@@ -399,15 +403,15 @@ trait FNRoundHalfToEvenKind {
       // Any change in how asBigDecimal handles Float
       // will affect the correctness of this rounding operation.
       //
-      case _: JFloat | _: JDouble | _: BigDecimal => asBigDecimal(value)
-      case _: BigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value)
+      case _: JFloat | _: JDouble | _: BigDecimal | _:JBigDecimal => asBigDecimal(value)
+      case _: BigInt | _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value)
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
     }
     result
   }
 
-  private def round(value: BigDecimal, precision: Int): BigDecimal = {
-    val rounded = value.setScale(precision, BigDecimal.RoundingMode.HALF_EVEN)
+  private def round(value: JBigDecimal, precision: Int): JBigDecimal = {
+    val rounded = value.setScale(precision, JBigDecimal.ROUND_HALF_EVEN)
     rounded
   }
 
@@ -418,12 +422,15 @@ trait FNRoundHalfToEvenKind {
    * If the type of \$arg is a type derived from one of the numeric types, the
    * result is an instance of the base numeric type.
    */
-  private def toBaseNumericType(value: BigDecimal, origValue: AnyRef): AnyRef = {
+  private def toBaseNumericType(value: JBigDecimal, origValue: AnyRef): AnyRef = {
     val result = origValue match {
-      case _: JFloat => value.toFloat // xs:float
-      case _: JDouble => value.toDouble // xs:double
-      case _: BigDecimal => value //xs:decimal
-      case _: BigInt | _: JLong | _: JInt | _: JByte | _: JShort => value.toBigInt // xs:integer
+      case _: JFloat => value.floatValue()   // xs:float
+      case _: JDouble => value.doubleValue() // xs:double
+      case _: BigDecimal => value            // xs:decimal
+      case _: JBigDecimal => value
+      case _: BigInt => value.toBigInteger()
+      case _: JBigInt => value.toBigInteger()
+      case _: JLong | _: JInt | _: JByte | _: JShort => value.toBigInteger() // xs:integer
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
     }
     asAnyRef(result)
@@ -629,7 +636,11 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
     val res = argType match {
       case NodeInfo.Decimal => {
         val bd = asBigDecimal(value)
-        bd.round(bd.mc)
+        //
+        // A MathContext object whose settings have 
+        // the values required for unlimited precision arithmetic.
+        val mc = java.math.MathContext.UNLIMITED
+        bd.round(mc)
       }
       case NodeInfo.Float => {
         val f = asFloat(value).floatValue()

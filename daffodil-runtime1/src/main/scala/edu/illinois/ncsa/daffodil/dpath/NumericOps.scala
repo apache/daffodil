@@ -34,81 +34,82 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import AsIntConverters._
 import java.lang.{ Number => JNumber }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 case object PlusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) + asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).add( asBigDecimal(v2)) }
 }
 case object MinusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) - asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).subtract( asBigDecimal(v2)) }
 }
 case object TimesDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) * asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).multiply( asBigDecimal(v2)) }
 }
 case object DivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) / asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide( asBigDecimal(v2)) }
 }
 case object IDivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) / asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide( asBigDecimal(v2)) }
 }
 case object ModDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigDecimal = { asBigDecimal(v1) % asBigDecimal(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).remainder( asBigDecimal(v2)) }
 }
 
 case object PlusInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) + asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add( asBigInt(v2)) }
 }
 case object MinusInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) - asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract( asBigInt(v2)) }
 }
 case object TimesInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) * asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
 }
 case object DivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object IDivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object ModInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) % asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2))}
 }
 
 case object PlusNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) + asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add( asBigInt(v2)) }
 }
 case object MinusNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) - asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract(asBigInt(v2)) }
 }
 case object TimesNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) * asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
 }
 case object DivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object IDivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object ModNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) % asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
 }
 
 case object PlusUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) + asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add(asBigInt(v2)) }
 }
 case object MinusUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) - asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract( asBigInt(v2)) }
 }
 case object TimesUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) * asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
 }
 case object DivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object IDivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) / asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
 }
 case object ModUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): BigInt = { asBigInt(v1) % asBigInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
 }
 
 case object PlusLong extends NumericOp {

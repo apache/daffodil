@@ -109,28 +109,40 @@ object AsIntConverters {
     new JLong(value)
   }
 
-  def asBigInt(n: AnyRef): BigInt = {
-    val value: BigInt = n match {
-      case b: JBigInt => BigInt(b)
-      case bd: JBigDecimal => BigInt(bd.toBigInteger())
-      case d: JDouble => BigDecimal(d).toBigInt
-      case f: JFloat => BigDecimal(f.toDouble).toBigInt
-      case bi: BigInt => bi
-      case bd: BigDecimal => bd.toBigInt
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asBigInt(n: AnyRef): JBigInt = {
+    val value: JBigInt = n match {
+      case b: JBigInt => b//BigInt(b)
+      case bd: JBigDecimal => bd.toBigInteger()
+      case d: JDouble => new JBigDecimal(d).toBigInteger()
+      case f: JFloat => new JBigDecimal(f.toDouble).toBigInteger()
+      case bi: BigInt => bi.underlying()
+      case bd: BigDecimal => bd.underlying().toBigInteger()
       // the rest of the JNumbers are integers long or smaller.
-      case jn: JNumber => BigInt(jn.longValue())
+      case jn: JNumber => new JBigInt(jn.toString())
       case _ => Assert.invariantFailed("Unsupported conversion to BigInt. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
     value
   }
 
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
   def asJBigInt(n: AnyRef): JBigInt = {
     val value: JBigInt = n match {
       case b: JBigInt => b
       case bd: JBigDecimal => bd.toBigInteger()
-      case d: JDouble => BigDecimal(d).toBigInt.bigInteger
-      case f: JFloat => BigDecimal(f.toDouble).toBigInt.bigInteger
+      case d: JDouble => JBigDecimal.valueOf(d).toBigInteger()
+      case f: JFloat => new JBigDecimal(f.toString()).toBigInteger()
       case bi: BigInt => bi.bigInteger
       case bd: BigDecimal => bd.toBigInt.bigInteger
       // the rest of the JNumbers are integers long or smaller.
@@ -141,6 +153,12 @@ object AsIntConverters {
     value
   }
 
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
   def asFloat(n: AnyRef): JFloat = {
     val value = n match {
       case f: JFloat => return f
@@ -159,6 +177,12 @@ object AsIntConverters {
     new JFloat(value)
   }
 
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
   def asDouble(n: AnyRef): JDouble = {
     val value = n match {
       case f: JFloat => f.toDouble
@@ -177,26 +201,38 @@ object AsIntConverters {
     new JDouble(value)
   }
 
-  def asBigDecimal(n: AnyRef): BigDecimal = {
-    val value = n match {
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asBigDecimal(n: AnyRef): JBigDecimal = {
+    val value: JBigDecimal = n match {
       //
       // Not converting Float to string first causes precision issues
       // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999.
       // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
-      case f: JFloat => BigDecimal(f.toString())
-      case d: JDouble => BigDecimal.valueOf(d)
-      case bi: BigInt => BigDecimal(bi)
-      case bd: BigDecimal => bd
-      case bi: JBigInt => BigDecimal(bi)
-      case bd: JBigDecimal => BigDecimal(bd)
+      case f: JFloat => new java.math.BigDecimal(f.toString)
+      case d: JDouble => java.math.BigDecimal.valueOf(d)
+      case bi: BigInt => new java.math.BigDecimal(bi.toString())
+      case bd: BigDecimal => bd.underlying()
+      case bi: JBigInt => new java.math.BigDecimal(bi.toString())
+      case bd: JBigDecimal => bd
       // The rest of the cases are integers long or smaller
-      case jn: JNumber => BigDecimal.valueOf(jn.longValue())
+      case jn: JNumber => new java.math.BigDecimal(jn.toString())
       case _ => Assert.invariantFailed("Unsupported conversion to BigDecimal. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
     value
   }
 
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
   def asJBigDecimal(n: AnyRef): JBigDecimal = {
     val value: JBigDecimal = n match {
       //
@@ -204,8 +240,8 @@ object AsIntConverters {
       // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999.
       // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
       case f: JFloat => new JBigDecimal(f.toString)
-      case d: JDouble => BigDecimal.valueOf(d).bigDecimal
-      case bi: BigInt => BigDecimal(bi).bigDecimal
+      case d: JDouble => JBigDecimal.valueOf(d)
+      case bi: BigInt => new JBigDecimal(bi.underlying())
       case bd: BigDecimal => bd.bigDecimal
       case bi: JBigInt => new JBigDecimal(bi)
       case bd: JBigDecimal => bd

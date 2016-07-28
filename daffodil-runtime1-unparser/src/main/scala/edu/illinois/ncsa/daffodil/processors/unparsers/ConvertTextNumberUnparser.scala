@@ -36,12 +36,13 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 case class ConvertTextCombinatorUnparser(
   rd: RuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
-  extends UnparserObject(rd) {
+    extends UnparserObject(rd) {
 
   override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
 
@@ -58,8 +59,8 @@ case class ConvertTextNumberUnparser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
   erd: ElementRuntimeData)
-  extends TermUnparser(erd)
-  with ToBriefXMLImpl {
+    extends TermUnparser(erd)
+    with ToBriefXMLImpl {
 
   override def toString = "to(xs:" + helper.xsdType + ")"
   override lazy val childProcessors = Nil
@@ -82,6 +83,15 @@ case class ConvertTextNumberUnparser[S](
       if (value == 0 && zeroRep.isDefined) {
         zeroRep.get
       } else {
+        // Needed because the DecimalFormat class of ICU will call
+        // doubleValue on scala's BigInt and BigDecimal because it
+        // doesn't recognize it as Java's BigInteger and BigDecimal.
+        // This caused large numbers to be truncated silently.
+        value match {
+          case bd: scala.math.BigDecimal => Assert.usageError("Received scala.math.BigDecimal, expected java.math.BigDecimal.")
+          case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
+          case _ => // OK
+        }
         val df = nff.getNumFormat(state)
         df.get.format(value)
       }
