@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.util
 object TresysCopyright {
 
   private val tresysCopyright = """
-Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
 
 Developed by: Tresys Technology, LLC
               http://www.tresys.com
