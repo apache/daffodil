@@ -58,9 +58,9 @@ object SchemaDataProcessorCache extends SchemaCache[DFDL.DataProcessor, Seq[Diag
 class SchemaCache[CachedType, DiagnosticType] {
 
   private class Cache
-    extends mutable.HashMap[URISchemaSource, (URISchemaSource, CachedType)] {
+    extends mutable.HashMap[(URISchemaSource, Boolean), (URISchemaSource, CachedType)] {
 
-    override def getOrElseUpdate(key: URISchemaSource, body: => (URISchemaSource, CachedType)) = synchronized {
+    override def getOrElseUpdate(key: (URISchemaSource, Boolean), body: => (URISchemaSource, CachedType)) = synchronized {
       super.getOrElseUpdate(key, body)
     }
 
@@ -94,19 +94,20 @@ class SchemaCache[CachedType, DiagnosticType] {
    * is such that the file is newer then when last compiled, the newer file will
    * be compiled and cached.
    */
-  def compileAndCache(uss: URISchemaSource)(doCompileByName: => CompileResult): CompileResult = {
+  def compileAndCache(uss: URISchemaSource, useSerializedProcessor: Boolean)(doCompileByName: => CompileResult): CompileResult = {
     lazy val doCompile = doCompileByName // exactly once
+    val key = (uss, useSerializedProcessor)
     synchronized {
       // if the file is newer then when last compiled, drop from the cache.
-      val optExistingEntry = compiledSchemaCache.get(uss)
+      val optExistingEntry = compiledSchemaCache.get(key)
       if (optExistingEntry.isDefined) {
         val (originalUSS, _) = optExistingEntry.get // odd - when I did this using a match-case, I got a match error....
-        if (uss.isNewerThan(originalUSS)) compiledSchemaCache.remove(originalUSS)
+        if (uss.isNewerThan(originalUSS)) compiledSchemaCache.remove(key)
       }
     }
     val compResult: CompileResult = {
       try {
-        val (_, dataProc) = compiledSchemaCache.getOrElseUpdate(uss, {
+        val (_, dataProc) = compiledSchemaCache.getOrElseUpdate(key, {
           val dp: CompileResult = doCompile
           if (dp.isRight) {
             // populate cache with successful compile result

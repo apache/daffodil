@@ -236,6 +236,58 @@ class TestTDMLRunner {
     assertEquals(expected, trimmed)
   }
 
+  @Test def test3() {
+    // This tests when there are parseTestCases in the same suite that use the
+    // same DFDL schema but have different validation modes. The non-validation
+    // test should compile the processor, serialize it, and cache it.
+    // Validation="on" does not work with serialized parsers, so that
+    // parserTestCase should recompile the schema, and cache a non-serialized
+    // processor. So the two tests, although they use the same schema, should
+    // use different processors.
+
+    // must use a file to enable caching
+    val tmp = File.createTempFile(getClass.getName(), ".dfdl.xsd")
+    tmp.deleteOnExit()
+    val path = tmp.getAbsolutePath()
+    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
+                      <parserTestCase name="test3a" root="data" model={ path } validation="off">
+                        <document>37</document>
+                        <infoset>
+                          <dfdlInfoset>
+                            <data xmlns={ example }>37</data>
+                          </dfdlInfoset>
+                        </infoset>
+                      </parserTestCase>
+                      <parserTestCase name="test3b" root="data" model={ path } validation="on">
+                        <document>37</document>
+                        <infoset>
+                          <dfdlInfoset>
+                            <data xmlns={ example }>37</data>
+                          </dfdlInfoset>
+                        </infoset>
+                      </parserTestCase>
+                    </testSuite>
+
+    using(new java.io.FileWriter(tmp)) {
+      fileWriter =>
+        fileWriter.write(testSchema.toString())
+    }
+
+    // compileAllTopLevel must be true to enable caching
+    lazy val ts = new DFDLTestSuite(testSuite, true, true, true)
+
+    // Run the non-validation test first, this will compile, serialize, and
+    // cache the schema
+    ts.runOneTest("test3a")
+
+    // Run the validation test second. This should recompile and cache the
+    // schema separately from from the first test. If it ended up using the
+    // non-validation cached Processor, an exception would be thrown since it
+    // was serialized and that does not work with validation="on"
+    ts.runOneTest("test3b")
+  }
+
+
   val testSchema = SchemaUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)

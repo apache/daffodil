@@ -404,7 +404,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val res = schemaSource match {
       case uss: URISchemaSource if parent.checkAllTopLevel =#= true =>
-        SchemaDataProcessorCache.compileAndCache(uss) {
+        SchemaDataProcessorCache.compileAndCache(uss, useSerializedProcessor) {
           compileProcessor(uss, useSerializedProcessor)
         }
       case _ => {

@@ -80,7 +80,7 @@ class TestSchemaCache {
   }
 
   def compileTheSchema(uss: URISchemaSource) {
-    SCache.compileAndCache(uss) {
+    SCache.compileAndCache(uss, false) {
       compileCount += 1
       uss.newInputSource().getByteStream().close()
       Right(null)
