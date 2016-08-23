@@ -40,11 +40,15 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
- * Easier to use for defining things that must be able to block
- * while unparsing.
+ * SuspendableOperation is used for suspending and retrying things that aren't
+ * expressions. Example is an alignmentFill unparser. Until we know the absolute
+ * start bit positon, we can't lay down alignment fill bits.
+ *
+ * This has to be suspended and retried later, but it's not an expression
+ * being evaluated that has forward references.
  */
 trait SuspendableOperation
-    extends Serializable { enclosing =>
+  extends Serializable { enclosing =>
 
   def rd: RuntimeData
 
@@ -66,7 +70,7 @@ trait SuspendableOperation
   protected def continuation(ustate: UState): Unit
 
   private class SuspendableOp(override val ustate: UState)
-      extends Suspension(ustate) {
+    extends Suspension(ustate) {
 
     override def rd = enclosing.rd
 

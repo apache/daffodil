@@ -49,7 +49,7 @@ trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =
 
   override protected final def grammarContext = this
 
-  def mainGrammar = prod("mainGrammar") {
+  lazy val mainGrammar = prod("mainGrammar") {
     ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType)
   }
 }

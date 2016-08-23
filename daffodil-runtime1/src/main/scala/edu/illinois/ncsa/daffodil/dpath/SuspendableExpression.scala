@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.TaskCoroutine
 import edu.illinois.ncsa.daffodil.processors.SuspensionFactory
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.RetryableException
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 // Pooling of these objects shut off while debugging the non-pooling version.
 //
@@ -59,7 +60,7 @@ import edu.illinois.ncsa.daffodil.processors.RetryableException
 //
 
 trait SuspendableExpression
-    extends WhereBlockedLocation { enclosing =>
+  extends WhereBlockedLocation { enclosing =>
 
   protected def expr: CompiledExpression[AnyRef]
 
@@ -72,7 +73,7 @@ trait SuspendableExpression
   protected def processExpressionResult(ustate: UState, v: AnyRef): Unit
 
   protected class SuspendableExp(override val ustate: UState)
-      extends Suspension(ustate) {
+    extends Suspension(ustate) {
 
     override def rd = enclosing.rd
 
@@ -81,19 +82,19 @@ trait SuspendableExpression
     protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
 
       override final protected def doTask() {
-        println("Starting suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+        log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
         var v: Maybe[AnyRef] = Nope
         while (v.isEmpty) {
           v = expr.evaluateForwardReferencing(ustate, this)
           if (v.isEmpty) {
             Assert.invariant(this.isBlocked)
-            println("UnparserBlocking suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+            log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
             resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
-            println("Retrying suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+            log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
           } else {
             Assert.invariant(this.isDone)
             Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-            println("Completed suspendable expression for " + rd.prettyName + ", expr=" + expr.prettyExpr)
+            log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
             processExpressionResult(ustate, v.get)
           }
         }

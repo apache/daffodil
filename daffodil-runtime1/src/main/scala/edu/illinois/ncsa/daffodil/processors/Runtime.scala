@@ -86,7 +86,7 @@ class InvalidUsageException(msg: String, cause: Throwable = null) extends Except
  * This is the DataProcessor constructed from a saved Parser.
  */
 class SerializableDataProcessor(val data: SchemaSetRuntimeData)
-    extends DataProcessor(data) {
+  extends DataProcessor(data) {
   override def setValidationMode(mode: ValidationMode.Type): Unit = {
     if (mode == ValidationMode.Full) { throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.") }
     super.setValidationMode(mode)
@@ -102,9 +102,9 @@ trait HasSetDebugger {
  * back-end runtime.
  */
 class DataProcessor(val ssrd: SchemaSetRuntimeData)
-    extends DFDL.DataProcessor with Logging
-    with HasSetDebugger with Serializable
-    with MultipleEventHandler {
+  extends DFDL.DataProcessor with Logging
+  with HasSetDebugger with Serializable
+  with MultipleEventHandler {
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
@@ -340,7 +340,21 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   def unparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
     rootUnparser.unparse(state)
-    if (!state.dataOutputStream.isFinished) state.dataOutputStream.setFinished()
+    //
+    // All the DOS that precede the last one
+    // will get setFinished by the suspension that created them. The last one after the
+    // final suspension gets setFinished here.
+    //
+    // TODO: revisit this in light of API changes that allow a series of calls
+    // that unparse to the same output stream. Sort of like a cursor.
+    // The idea here is that I'd have an incoming stream of Infoset events, and
+    // an outgoing java.io.outputStream, and each unparse call would consume
+    // events, and write to the java.io.outputStream, but neither would be closed.
+    // An application could do this in a loop calling unparse repeatedly
+    // without having to create a new infoset event stream or outputstream.
+    //
+    Assert.invariant(!state.dataOutputStream.isFinished)
+    state.dataOutputStream.setFinished()
     val ev = state.advanceMaybe
     if (ev.isDefined) {
       UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
@@ -350,8 +364,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 }
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
-    extends DFDL.ParseResult
-    with WithDiagnosticsImpl {
+  extends DFDL.ParseResult
+  with WithDiagnosticsImpl {
 
   def toWriter(writer: java.io.Writer) = {
     resultState.infoset.toWriter(writer)
@@ -432,8 +446,8 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
 }
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
-    extends DFDL.UnparseResult
-    with WithDiagnosticsImpl {
+  extends DFDL.UnparseResult
+  with WithDiagnosticsImpl {
 
   override def resultState = ustate
 

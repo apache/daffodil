@@ -50,6 +50,10 @@ class SkipRegionUnparser(
   }
 }
 
+/**
+ * Note: inherits directly from SuspendableOperation, so this isA suspendable, not 
+ * merely has/uses one.
+ */
 class AlignmentFillUnparser(
   alignmentInBits: Int,
   override val rd: RuntimeData,

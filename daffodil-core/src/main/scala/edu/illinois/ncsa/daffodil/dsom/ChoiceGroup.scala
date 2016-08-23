@@ -73,10 +73,10 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  */
 
 final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
-    extends ModelGroup(xmlArg, parent, position)
-    with Choice_AnnotationMixin
-    with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
-    with ChoiceGrammarMixin {
+  extends ModelGroup(xmlArg, parent, position)
+  with Choice_AnnotationMixin
+  with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
+  with ChoiceGrammarMixin {
 
   requiredEvaluations(branchesAreNonOptional)
   requiredEvaluations(branchesAreNotIVCElements)
@@ -149,7 +149,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   }.value
 
   final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
-    val eventERDTuples = groupMembersNoRefs.flatMap {
+    val eventTuples = groupMembersNoRefs.flatMap {
       case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
       case mg: ModelGroup => {
         val idEvents = mg.identifyingEventsForChoiceBranch
@@ -159,13 +159,13 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
 
     // converts a sequence of tuples into a multi-map
-    val eventERDMap = eventERDTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
+    val eventMap = eventTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
 
-    val noDupes = eventERDMap.map {
-      case (event, erds) =>
-        if (erds.length > 1) {
-          if (erds.exists {
-            // any element children in any of the erds?
+    val noDupes = eventMap.map {
+      case (event, trds) =>
+        if (trds.length > 1) {
+          if (trds.exists {
+            // any element children in any of the trds?
             // because if so, we have a true ambiguity here.
             case sg: Sequence => {
               val nonOVCEltChildren = sg.elementChildren.filterNot { _.isOutputValueCalc }
@@ -180,16 +180,16 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
             SDE("UPA violation. Multiple choice branches begin with %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
               "The offending choice branches are:\n%s",
-              event.qname, erds.map { erd => "%s at %s".format(erd.prettyName, erd.locationDescription) }.mkString("\n"))
+              event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
           } else {
-            // there are no element children in any of the branches. 
+            // there are no element children in any of the branches.
             SDW("Multiple choice branches are associated with the next element of %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
               "The offending choice branches are:\n%s",
-              event.qname, erds.map { erd => "%s at %s".format(erd.prettyName, erd.locationDescription) }.mkString("\n"))
+              event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
           }
         }
-        (event, erds(0).runtimeData)
+        (event, trds(0).runtimeData)
     }
 
     noDupes

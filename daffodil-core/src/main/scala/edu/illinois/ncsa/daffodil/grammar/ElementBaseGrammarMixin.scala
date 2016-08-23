@@ -51,11 +51,11 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 /////////////////////////////////////////////////////////////////
 
 trait ElementBaseGrammarMixin
-    extends InitiatedTerminatedMixin
-    with AlignedMixin
-    with ByteOrderMixin
-    with HasStatementsGrammarMixin
-    with PaddingInfoMixin { self: ElementBase =>
+  extends InitiatedTerminatedMixin
+  with AlignedMixin
+  with ByteOrderMixin
+  with HasStatementsGrammarMixin
+  with PaddingInfoMixin { self: ElementBase =>
 
   private val context = this
 
@@ -74,6 +74,9 @@ trait ElementBaseGrammarMixin
 
   private lazy val rightFill = new RightFill(context)
 
+  // maybe can be private - if it is used still
+  protected lazy val elementUnused = new ElementUnused(context)
+
   /**
    * provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
    */
@@ -86,28 +89,27 @@ trait ElementBaseGrammarMixin
 
   private lazy val parsedNil = prod("parsedNil", NYI && isNillable && nilKind == NilKind.LogicalValue) {
     nilElementInitiator ~
-      CaptureContentLengthStart(this) ~
+      captureLengthRegions(leftPadding, LogicalNilValue(this), rightPadding ~ rightFill) ~
+      nilElementTerminator
+  }
+
+  private def captureLengthRegions(leftPaddingArg: => Gram, bodyArg: => Gram, rightPadFillArg: => Gram) = {
+    lazy val leftPadding = leftPaddingArg
+    lazy val rightPadFill = rightPadFillArg
+    lazy val body = bodyArg
+    CaptureContentLengthStart(this) ~
       leftPadding ~
       CaptureValueLengthStart(this) ~
-      LogicalNilValue(this) ~
+      body ~
       CaptureValueLengthEnd(this) ~
-      rightPadding ~
-      rightFill ~
-      CaptureContentLengthEnd(this) ~
-      nilElementTerminator
+      rightPadFill ~
+      CaptureContentLengthEnd(this)
   }
 
   private lazy val parsedValue = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
-      CaptureContentLengthStart(this) ~
-      leftPadding ~
-      CaptureValueLengthStart(this) ~
-      allowedValue ~
-      CaptureValueLengthEnd(this) ~
-      rightPadding ~
-      rightFill ~
-      CaptureContentLengthEnd(this) ~
+      captureLengthRegions(leftPadding, allowedValue, rightPadding ~ rightFill) ~
       terminatorRegion
   }
 
@@ -455,7 +457,10 @@ trait ElementBaseGrammarMixin
 
   private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
     isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
-      emptyElementInitiator ~ valueMTA ~ CaptureContentLengthStart(this) ~ CaptureValueLengthStart(this) ~ CaptureValueLengthEnd(this) ~ CaptureContentLengthEnd(this) ~ emptyElementTerminator
+      emptyElementInitiator ~
+        valueMTA ~
+        captureLengthRegions(EmptyGram, EmptyGram, EmptyGram) ~
+        emptyElementTerminator
     }
 
   /**
@@ -490,18 +495,32 @@ trait ElementBaseGrammarMixin
    * then to distinguish a lit nil from a value, we have to start at the same place.
    */
   private lazy val nilLit = prod("nilLit", isNilLit) {
-    nilElementInitiator ~ nilLitMTA ~ CaptureContentLengthStart(this) ~ CaptureValueLengthStart(this) ~ nilLitSimpleOrComplex ~ CaptureValueLengthEnd(this) ~ CaptureContentLengthEnd(this) ~ nilElementTerminator
+    nilElementInitiator ~
+      nilLitMTA ~
+      nilLitSimpleOrComplex ~
+      nilElementTerminator
   }
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
 
-  private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) { specifiedLength(nilLitContent) }
+  private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) {
+    captureLengthRegions(leftPadding,
+      specifiedLength(nilLitContent) ~ // for parser
+        NilLiteralCharacter(context), // for unparser
+      rightPadding ~ rightFill)
+  }
 
   private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
     val nilLength = 0
-    new SpecifiedLengthImplicit(this, LiteralValueNilOfSpecifiedLength(this), nilLength)
+    captureLengthRegions(EmptyGram,
+      new SpecifiedLengthImplicit(this, LiteralValueNilOfSpecifiedLength(this), nilLength),
+      //
+      // Because nil complex can only be ES (e.g., length 0), there's no possible
+      // ElementUnused region after a nil.
+      EmptyGram)
+
   }
 
   private lazy val nilLitMTA = prod("nilLitMTA", isNilLit) { mtaBase }
@@ -526,7 +545,7 @@ trait ElementBaseGrammarMixin
           }
         }
         case NilKind.LiteralCharacter => {
-          if (!isFixedLength) { SDE("dfdl:length must be 'fixed' when nilKind='literalCharacter'.") }
+          if (!isFixedLength) { SDE("dfdl:length must be fixed when nilKind='literalCharacter'.") }
 
           lengthKind match {
             case LengthKind.Explicit => LiteralCharacterNilOfSpecifiedLength(this)
@@ -629,12 +648,10 @@ trait ElementBaseGrammarMixin
 
   private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
     initiatorRegion ~
-      CaptureContentLengthStart(this) ~
-      CaptureValueLengthStart(this) ~
-      specifiedLength(complexContent) ~
-      CaptureValueLengthEnd(this) ~
-      CaptureContentLengthEnd(this) ~
-      terminatorRegion
+      captureLengthRegions(EmptyGram,
+        specifiedLength(complexContent),
+        EmptyGram) ~
+        terminatorRegion
   }
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
@@ -688,7 +705,7 @@ trait ElementBaseGrammarMixin
     // for the array case and scalar case that is the same for both.
     //
     checkVariousPropertyconstraints
-    DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
+    new DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
   }
 
   lazy val scalarNonDefault = prod("scalarNonDefault") {
@@ -859,7 +876,7 @@ trait ElementBaseGrammarMixin
     }
 
     /*
-     *  When length kind is explicit, and length is a constant, it is an SDE if 
+     *  When length kind is explicit, and length is a constant, it is an SDE if
  * the type is a type that uses dfdl:textOutputMinLength, and the length constant
  * is not greater than or equal to that value.
      */

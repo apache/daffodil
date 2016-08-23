@@ -63,6 +63,8 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Logging
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -98,6 +100,12 @@ sealed trait DINode {
 
 }
 
+/**
+ * Marker trait that identifies exceptions which indicate an action that can block
+ * forward-referencing expressions that occur during unparsing. These actions
+ * can be retried once the available information has "arrived" in the infoset or
+ * the state of the unparser.
+ */
 trait RetryableException
 
 trait InfosetException extends DiagnosticImplMixin with ThinThrowable
@@ -128,7 +136,7 @@ case class InfosetComplexElementNotFinalException(val a: DIComplex)
  */
 case class InfosetWrongNodeType(val node: DINode)
   extends ProcessingError("Error", Nope, Nope, "Wrong type (simple when complex expected or vice versa)", node)
-  with InfosetException with RetryableException
+  with InfosetException
 
 /**
  * Exception thrown if infoset doesn't have a child corresponding to the
@@ -143,7 +151,12 @@ case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
   extends ProcessingError("Error", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
   with InfosetException with RetryableException
 
-case class InfosetNoDataException(val diSimple: DISimple, val erd: ElementRuntimeData)
+/**
+ * Indicates for simple types that there is no value, and has not been setNilled.
+ *
+ * For complex types indicates has not been setNilled.
+ */
+case class InfosetNoDataException(val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "Element %s does not have a value.", erd.namedQName)
   with InfosetException with RetryableException
 
@@ -182,7 +195,7 @@ case class InfosetValueLengthUnknownException(override val diElement: DIElement,
  * they use for that purpose.
  */
 final class FakeDINode extends DISimple(null) {
-  private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
+  private def die = throw new InfosetNoInfosetException(Nope)
 
   override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = die
   override def captureState(): InfosetElementState = die
@@ -283,7 +296,8 @@ sealed trait DITerm {
  * are defined, then that start pos is a relative start pos, and we'll need to compute the
  * absolute start pos once we find out the absolute start pos of the data output stream.
  */
-sealed abstract class LengthState(ie: DIElement) {
+sealed abstract class LengthState(ie: DIElement)
+  extends Logging {
 
   protected def flavor: String
 
@@ -324,13 +338,19 @@ sealed abstract class LengthState(ie: DIElement) {
 
   protected def throwUnknown: Nothing
 
+  /**
+   * Examines the underlying streams (if they exist) where the start and end
+   * of the element were determined to be. If those have taken on absolute
+   * position information, then we bring that up here so that it can be used
+   * to compute the value or content length.
+   */
   private def recheckStreams() {
     if (maybeStartDataOutputStream.isDefined) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
       val dos = this.maybeStartDataOutputStream.get
       if (dos.maybeAbsBitPos0b.isDefined) {
         // we don't have absolute bit positions in this infoset element,
-        // but the stream now has that information, so we have to migrate 
+        // but the stream now has that information, so we have to migrate
         // that here.
         val dosAbsStartBitPos0b = dos.maybeAbsBitPos0b.get
         val dosRelStartBitPos0b = dos.relBitPos0b
@@ -345,7 +365,7 @@ sealed abstract class LengthState(ie: DIElement) {
       val dos = this.maybeEndDataOutputStream.get
       if (dos.maybeAbsBitPos0b.isDefined) {
         // we don't have absolute bit positions in this infoset element,
-        // but the stream now has that information, so we have to migrate 
+        // but the stream now has that information, so we have to migrate
         // that here.
         val dosAbsEndBitPos0b = dos.maybeAbsBitPos0b.get
         val dosRelEndBitPos0b = dos.relBitPos0b
@@ -397,25 +417,32 @@ sealed abstract class LengthState(ie: DIElement) {
     res
   }
 
+  /**
+   * This returns Nope when the length is unable to be computed currently.
+   *
+   * (Note that this differs from the way the length-related Evs work where
+   * returning Nope means variable-width encoding and lengthUnits characters
+   * were being used, and inability to compute is indicated by thrown exceptions.)
+   */
   def maybeLengthInBits(): MaybeULong = {
     recheckStreams()
     val computed: MaybeULong = {
       if (maybeComputedLength.isDefined) {
         val len = maybeComputedLength.get
-        System.err.println("%sgth of %s is %s, (was already computed)".format(flavor, ie.name, len))
+        log(LogLevel.Debug, "%sgth of %s is %s, (was already computed)", flavor, ie.name, len)
         MaybeULong(len)
       } else if (isStartUndef || isEndUndef) {
-        System.err.println("%sgth of %s cannot be computed yet. %s".format(flavor, ie.name, toString))
+        log(LogLevel.Debug, "%sgth of %s cannot be computed yet. %s", flavor, ie.name, toString)
         MaybeULong.Nope
       } else if (isStartAbsolute && isEndAbsolute) {
         val len = maybeEndPos0bInBits.get - maybeStartPos0bInBits.get
-        System.err.println("%sgth of %s is %s, by absolute positions. %s".format(flavor, ie.name, len, toString))
+        log(LogLevel.Debug, "%sgth of %s is %s, by absolute positions. %s", flavor, ie.name, len, toString)
         MaybeULong(len)
       } else if (isStartRelative && isEndRelative && (maybeStartDataOutputStream.get _eq_ maybeEndDataOutputStream.get)) {
         //
-        // they're the same DOS, so we have a relative distance between two 
+        // they're the same DOS, so we have a relative distance between two
         // points in the same buffering stream.
-        // Usually we think of this happening for simple types, but 
+        // Usually we think of this happening for simple types, but
         // there's no reason it cannot also happen for complex types much of
         // the time if there isn't anything wierd like interior alignment.
         //
@@ -423,7 +450,7 @@ sealed abstract class LengthState(ie: DIElement) {
         val startPos = maybeStartPos0bInBits.get
         val endPos = maybeEndPos0bInBits.get
         val len = endPos - startPos
-        System.err.println("%sgth of %s is %s, by relative positions in same data stream. %s".format(flavor, ie.name, len, toString))
+        log(LogLevel.Debug, "%sgth of %s is %s, by relative positions in same data stream. %s", flavor, ie.name, len, toString)
         MaybeULong(len)
       } else if (isStartRelative && isEndRelative && maybeStartDataOutputStream.get.isFinished && maybeEndDataOutputStream.get.isFinished) {
         // if start and end DOSs are relative and different, but every DOS from
@@ -450,7 +477,7 @@ sealed abstract class LengthState(ie: DIElement) {
           MaybeULong(len.toLong)
         }
       } else {
-        System.err.println("%sgth of %s is unknown still. %s".format(flavor, ie.name, toString))
+        log(LogLevel.Debug, "%sgth of %s is unknown still. %s", flavor, ie.name, toString)
         MaybeULong.Nope
       }
     }
@@ -612,6 +639,8 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
   final def runtimeData = erd
   protected final var _parent: InfosetComplexElement = null
   protected final var _isNilled: Boolean = false
+  protected final var _isNilledSet: Boolean = false
+
   protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
 
   override def parent = _parent
@@ -628,11 +657,31 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
     _array = One(a)
   }
 
-  override def isNilled: Boolean = _isNilled
+  /**
+   * Used for just testing whether a node has the nil
+   * indicators set. That is, dodges the expression evaluation
+   * complexity where specific exceptions are thrown when you
+   * ask about data that isn't known yet.
+   */
+  final def maybeIsNilled: MaybeBoolean = {
+    if (!_isNilledSet) MaybeBoolean.Nope
+    MaybeBoolean(_isNilled)
+  }
+
+  /**
+   * Tells if the element is nilled or not.
+   *
+   * Throws InfosetNoDataException if we don't yet
+   * know if it is nil or not (i.e., hasn't be set, nor has
+   * anything been set to indicate that it won't be nilled.)
+   */
+  def isNilled: Boolean
+
   override def setNilled(): Unit = {
     Assert.invariant(erd.isNillable)
     Assert.invariant(!_isNilled)
     _isNilled = true
+    _isNilledSet = true
   }
 
   /**
@@ -706,8 +755,8 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
 final class DIArray(
   override val erd: ElementRuntimeData,
   val parent: DIComplex)
-    extends DINode with InfosetArray
-    with DIFinalizable {
+  extends DINode with InfosetArray
+  with DIFinalizable {
 
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
@@ -782,12 +831,16 @@ final class DIArray(
  * This should be caught in contexts that want to undertake on-demand
  * evaluation of the OVC expression.
  */
-case class OutputValueCalcEvaluationException(val diSimple: DISimple)
-  extends Exception with ThinThrowable with DiagnosticImplMixin
+case class OutputValueCalcEvaluationException(val diElement: DIElement)
+  extends Exception with ThinThrowable with DiagnosticImplMixin {
+  Assert.usage(diElement.isInstanceOf[DISimple])
+
+  def diSimple = diElement.asInstanceOf[DISimple]
+}
 
 sealed class DISimple(override val erd: ElementRuntimeData)
-    extends DIElement
-    with InfosetSimpleElement {
+  extends DIElement
+  with InfosetSimpleElement {
 
   def filledSlots: IndexedSeq[DINode] = IndexedSeq.empty
 
@@ -801,11 +854,6 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   def setDefaultedDataValue(defaultedValue: AnyRef) = {
     setDataValue(defaultedValue)
     _isDefaulted = true
-  }
-
-  override def setNilled() {
-    Assert.invariant(!hasValue)
-    _isNilled = true
   }
 
   /**
@@ -878,12 +926,23 @@ sealed class DISimple(override val erd: ElementRuntimeData)
       }
     }
     _isNilled = false
+    _isNilledSet = true
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
   }
 
+  override def isNilled: Boolean = {
+    if (!erd.isNillable) false
+    else if (_isNilledSet) {
+      _isNilled
+    } else {
+      throw new InfosetNoDataException(this, erd)
+    }
+  }
+
   def resetValue = {
     _isNilled = false
+    _isNilledSet = false
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
     _stringRep = null
@@ -1120,9 +1179,9 @@ sealed trait DIFinalizable {
  * The DIArray object's length gives the number of occurrences.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
-    extends DIElement with InfosetComplexElement
-    with DIFinalizable // with HasModelGroupMixin
-    { diComplex =>
+  extends DIElement with InfosetComplexElement
+  with DIFinalizable // with HasModelGroupMixin
+  { diComplex =>
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 
@@ -1131,6 +1190,18 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   }
 
   final override def isEmpty: Boolean = false
+
+  final override def isNilled: Boolean = {
+    if (!erd.isNillable) false
+    else if (_isNilledSet) {
+      _isNilled
+    } else if (this.isFinal) {
+      // TODO: should we check that there are no children?
+      false
+    } else {
+      throw new InfosetNoDataException(this, erd)
+    }
+  }
 
   // the DIDocument overrides number of slots to 1.
   def nSlots = erd.nChildSlots
@@ -1319,7 +1390,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
  * conditions having to do with the document root element.
  */
 final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
-    with InfosetDocument {
+  with InfosetDocument {
   var root: DIElement = null
 
   /**

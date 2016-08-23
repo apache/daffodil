@@ -120,7 +120,7 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
     else new SeqCompParser(context.runtimeData, parserChildren.toArray)
   }
 
-  lazy val unparserChildren = children.filter(_.forWhat != ForParser).map { _.unparser }.filterNot { _.isInstanceOf[NadaUnparser] }
+  lazy val unparserChildren = children.filter(x => !x.isEmpty && (x.forWhat != ForParser)).map { _.unparser }.filterNot { _.isInstanceOf[NadaUnparser] }
 
   final override lazy val unparser = {
     if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)
@@ -150,7 +150,7 @@ object AltComp {
 }
 
 class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children)
-    with HasNoUnparser {
+  with HasNoUnparser {
   protected final override def op = "|"
   protected final override def open = "["
   protected final override def close = "]"
@@ -193,8 +193,9 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
  * Primitives will derive from this base
  */
 abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
-    extends NamedGram(contextArg) {
-  final override def isEmpty = !guard
+  extends NamedGram(contextArg) {
+
+  override def isEmpty = !guard
 
   private lazy val realSC = context.asInstanceOf[SchemaComponent]
   final override lazy val path = realSC.path + "@@" + prettyName

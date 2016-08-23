@@ -36,22 +36,22 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestDFDLContentLength {
+object TestDFDLValueLength {
   private val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
 
-  val runner = Runner(testDir, "contentLength.tdml")
+  val runner = Runner(testDir, "valueLength.tdml")
 
   @AfterClass def shutdown {
     runner.reset
   }
 }
 
-class TestDFDLContentLength {
-  import TestDFDLContentLength._
+class TestDFDLValueLength {
+  import TestDFDLValueLength._
 
-  @Test def test_contentLengthPair1() { runner.runOneTest("contentLengthPair1") }
-  @Test def test_contentLengthPair2() { runner.runOneTest("contentLengthPair2") }
-  @Test def test_contentLengthPair3() { runner.runOneTest("contentLengthPair3") }
-  @Test def test_contentLengthAndOccurs1() { runner.runOneTest("contentLengthAndOccurs1") }
+  @Test def test_valueLengthPair1() { runner.runOneTest("valueLengthPair1") }
+  @Test def test_valueLengthPair2() { runner.runOneTest("valueLengthPair2") }
+  @Test def test_valueLengthPair3() { runner.runOneTest("valueLengthPair3") }
+  @Test def test_valueLengthAndOccurs1() { runner.runOneTest("valueLengthAndOccurs1") }
 
 }

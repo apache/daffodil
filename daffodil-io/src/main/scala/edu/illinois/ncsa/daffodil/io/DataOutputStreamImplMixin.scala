@@ -106,11 +106,11 @@ class DataOutputStreamState extends DataStreamCommonState {
    * to do unparsing into a buffer.
    */
   private var maybeAbsBitPos0b_ : MaybeULong = MaybeULong.Nope
+
   /**
    * Relative bit position zero based.
-   * Relative to the start of the current buffer, unless
-   * the buffer has an absolute bit position. If so then
-   * the value of this is the same as the absolute bit pos.
+   *
+   * Relative to the start of the current buffer.
    */
   private var relBitPos0b_ : ULong = ULong(0)
 
@@ -121,6 +121,7 @@ class DataOutputStreamState extends DataStreamCommonState {
    * It should always be the case that the absbitPos0b is the sum of
    * this value and the relBitPos0b.
    */
+
   private var maybeAbsStartingBitPos0b_ : MaybeULong = MaybeULong.Nope
 
   private def checkInvariants() {
@@ -287,8 +288,8 @@ private[io] case object Finished extends DOSState
 private[io] case object Uninitialized extends DOSState
 
 trait DataOutputStreamImplMixin extends DataOutputStream
-    with DataStreamCommonImplMixin
-    with LocalBufferMixin {
+  with DataStreamCommonImplMixin
+  with LocalBufferMixin {
 
   def isEndOnByteBoundary = st.fragmentLastByteLimit == 0
 
@@ -638,8 +639,8 @@ trait DataOutputStreamImplMixin extends DataOutputStream
     val nToTransfer = cb.remaining()
     //
     // TODO: restore mandatory alignment functionality.
-    // It can't sipmly be here, as we might be writing to a buffering 
-    // stream, so unless we know the absoluteStartPos, we have to 
+    // It can't sipmly be here, as we might be writing to a buffering
+    // stream, so unless we know the absoluteStartPos, we have to
     // suspend until it is known
     //
     // if (!align(st.encodingMandatoryAlignmentInBits)) return 0

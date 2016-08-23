@@ -42,9 +42,19 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
 import edu.illinois.ncsa.daffodil.processors.LengthEv
 
-abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
+/**
+ * Restricts the bits available for unparsing to just those within
+ * the specified length computed.
+ *
+ * If a unparser (supplied as arg) runs past the available space,
+ * that's an unparse error.
+ *
+ * Truncation of strings - the only case where we truncate, and only when
+ * dfdl:truncateSpecifiedLengthString is 'yes', is handled elsewhere.
+ */
+sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
-    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   override lazy val childProcessors = Seq(eUnparser)
 
@@ -77,35 +87,33 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
         UE(state, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
       }
       // at this point the recursive parse of the children is finished
-      // so if we're still successful we need to advance the position
-      // to skip past any bits that the recursive child parse did not
-      // consume at the end. That is, the specified length can be an
-      // outer constraint, but the children may not use it all up, leaving
-      // a section at the end.
+
       if (state.status ne Success) return
 
-      // TODO: Need to support skipping regions of data. Note that we cannot do
-      // it here. This is because the eUnparser could potentially create new
-      // buffered output streams, which changes the relBitPos. Skipping regions
-      // is similar to alignment in that we cannot do it until those buffered
-      // data streams are collapsed. For now, just do not perform the skipping
-      // of left over bits.
+      // We might not have used up all the bits. So some bits may need to
+      // be skipped and filled in by fillbyte.
+      //
+      // In the DFDL data grammar the region being skipped is either the
+      // RightFill region, or the ElementUnused region. Skipping this is handled
+      // elsewhere, along with insertion of padding before/after a string.
+      //
 
-      //val finalEndPos0b = startingBitPos0b + nBits
-      //val bitsToSkip = finalEndPos0b.toLong - dos.relBitPos0b.toLong
-      //Assert.invariant(bitsToSkip >= 0)
-      //if (bitsToSkip > 0) {
-      //  // skip left over bits
-      //  Assert.invariant(dos.skip(bitsToSkip))
-      //}
     } else {
       // we couldn't get the explicit length
-      // ignore constraining the output length. Just unparse it.
       //
       // This happens when we're unparsing, and this element depends on a prior element for
-      // determining its length, but that prior element has dfdl:outputValueCalc that depends
-      // on this element.
-      // This breaks the chicken-egg cycle.
+      // determining its length via a length expression, but that prior element
+      // has dfdl:outputValueCalc that depends on this element, typically by a
+      // call to dfdl:valueLength of this, or of some structure that includes
+      // this.
+      //
+      // This breaks the chicken-egg cycle, by just unparsing it without
+      // constraint. That produces the value which (ignoring truncation)
+      // can be unparsed to produce the dfdl:valueLength of this element.
+      //
+      // This does assume that the value will get truncated properly for the
+      // case where we do truncation (type string, with
+      // dfdl:truncateSpecifiedLengthString 'yes') by some other mechanism.
       //
       eUnparser.unparse1(state, erd)
     }
@@ -117,7 +125,7 @@ final class SpecifiedLengthExplicitUnparser(
   erd: ElementRuntimeData,
   lengthEv: LengthEv,
   bitsMultiplier: Int)
-    extends SpecifiedLengthUnparserBase(eUnparser, erd) {
+  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
   override def getBitLength(s: UState): Long = {
     val nBytesAsAny = lengthEv.evaluate(s)
@@ -131,7 +139,7 @@ final class SpecifiedLengthImplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   nBits: Long)
-    extends SpecifiedLengthUnparserBase(eUnparser, erd) {
+  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
 
   override def getBitLength(s: UState): Long = nBits
 
@@ -162,7 +170,7 @@ final class SpecifiedLengthImplicitUnparser(
 abstract class SpecifiedLengthCharactersUnparserBase(
   eUnparser: Unparser,
   erd: ElementRuntimeData)
-    extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   final override def childProcessors = Seq(eUnparser)
 
@@ -239,7 +247,7 @@ final class SpecifiedLengthExplicitCharactersUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   lengthEv: LengthEv)
-    extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
+  extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
 
   override def getCharLength(s: UState): Long = {
     val nCharsAsAny = lengthEv.evaluate(s)
@@ -252,7 +260,7 @@ final class SpecifiedLengthImplicitCharactersUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   nChars: Long)
-    extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
+  extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
 
   override def getCharLength(s: UState): Long = nChars
 }

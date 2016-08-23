@@ -57,7 +57,7 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
  * because a grammar term object will display as it's name, not as some anonymous object.
  */
 final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, override val forWhat: ParserOrUnparser)
-    extends NamedGram(sc) {
+  extends NamedGram(sc) {
 
   final override def deref = gram
 
@@ -65,7 +65,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
 
   final override lazy val path = sc.path + "@@Prod(" + prettyName + ")"
 
-  final override def gram: Gram = LV('gram) {
+  final override lazy val gram: Gram = {
     guard match {
       case true => {
         val g = gramArg // exactly once.
@@ -82,23 +82,32 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
         EmptyGram
       }
     }
-  }.value
+  }
 
-  final override def isEmpty = gram.isEmpty
+  final override def isEmpty = if (!guard) true else gram.isEmpty
 
-  final override lazy val parser = LV('parser) {
+  final override lazy val parser = {
     (forWhat, gram.forWhat) match {
       case (ForUnparser, _) => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
       case (_, ForUnparser) => new NadaParser(gram.context.runtimeData)
       case _ => gram.parser
     }
-  }.value
+  }
 
-  final override lazy val unparser = LV('unparser) {
-    (forWhat, gram.forWhat) match {
-      case (ForParser, _) => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
-      case (_, ForParser) => new NadaUnparser(gram.context.runtimeData)
-      case _ => gram.unparser
-    }
-  }.value
+  final override lazy val unparser = {
+    val unp =
+      if (gram.isEmpty) {
+        EmptyGram.unparser
+      } else {
+        (forWhat, gram.forWhat) match {
+          case (ForParser, _) => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
+          case (_, ForParser) => new NadaUnparser(gram.context.runtimeData)
+          case _ => gram.unparser
+        }
+      }
+    if (unp.isEmpty)
+      new NadaUnparser(context.runtimeData)
+    else
+      unp
+  }
 }

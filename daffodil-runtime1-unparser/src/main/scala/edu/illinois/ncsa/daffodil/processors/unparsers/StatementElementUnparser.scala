@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 
+// TODO: JIRA DFDL-1581 - rename classes to remove "Statement" prefix (and rename file)
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
   name: String,
@@ -46,7 +47,7 @@ abstract class StatementElementUnparserBase(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-    extends TermUnparser(rd) {
+  extends TermUnparser(rd) {
 
   override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eBeforeUnparser.toSeq ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
 
@@ -74,7 +75,8 @@ abstract class StatementElementUnparserBase(
   }
 
   def validate(state: UState): Unit = {
-    ???
+    ??? // TODO: JIRA DFDL-1582 - Is the ticket for implementing the Unparser - validation feature
+
     //    val currentElement = state.thisElement
     //
     //    if (currentElement.valid.isDefined) { return }
@@ -105,25 +107,26 @@ abstract class StatementElementUnparserBase(
 
     Assert.invariant(state.hasInfoset)
 
-    // val elem = state.infoset.asInstanceOf[DIElement]
-
-    //    // capture bit pos before onto the infoset node
-    //    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-    //      elem.contentLength.setAbsStartPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    //    } else {
-    //      elem.contentLength.setRelStartPos0bInBits(state.dataOutputStream.relBitPos0b, state.dataOutputStream)
-    //    }
+    //
+    // We used to try to capture the starts and ends of the content region
+    // and value regions here in this unparse method.
+    //
+    // The reason we can't do this here, is that the data grammar has a variety
+    // of places where a content region begins, a value region begins, a value
+    // region ends, and a content region ends. We can litter the grammar with
+    // "capture" unparsers that gather this information and that way this
+    // combinator doesn't have to have 36 categories of argument unparsers
+    // that it does before or after one or the other. For example, there's
+    // content and value regions for literal nil values, as well as regular values,
+    // and nils have their own delimiters. The grammar is just not set up for
+    // those to share one element combinator. Such an element combinator would
+    // have as arguments, every grammar term for nils, empties, and regular values
+    // including all their delimiters. It's just not a useful factoring.
+    //
 
     if (eUnparser.isDefined) {
       eUnparser.get.unparse1(state, rd)
     }
-
-    //    // capture bit pos after onto the infoset node
-    //    if (state.dataOutputStream.maybeAbsBitPos0b.isDefined) {
-    //      elem.contentLength.setAbsEndPos0bInBits(state.dataOutputStream.maybeAbsBitPos0b.getULong)
-    //    } else {
-    //      elem.contentLength.setRelEndPos0bInBits(state.dataOutputStream.relBitPos0b, state.dataOutputStream)
-    //    }
 
     doSetVars(state) // Even unparsing, setVars are always after the element so they can refer to "."
 
@@ -143,13 +146,13 @@ class StatementElementUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-    extends StatementElementUnparserBase(
-      erd,
-      name,
-      setVarUnparsers,
-      eBeforeUnparser,
-      eUnparser,
-      eAfterUnparser) {
+  extends StatementElementUnparserBase(
+    erd,
+    name,
+    setVarUnparsers,
+    eBeforeUnparser,
+    eUnparser,
+    eAfterUnparser) {
 
   def move(start: UState) {
     val grIndex = start.groupIndexStack.pop()
@@ -218,13 +221,13 @@ class StatementElementUnparserNoRep(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser])
-    extends StatementElementUnparser(
-      erd,
-      name,
-      setVarUnparsers,
-      Nope,
-      Nope,
-      Nope) {
+  extends StatementElementUnparser(
+    erd,
+    name,
+    setVarUnparsers,
+    Nope,
+    Nope,
+    Nope) {
 
   /**
    * Move over in the element children, but not in the group.
@@ -243,13 +246,13 @@ class StatementElementOutputValueCalcUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-    extends StatementElementUnparser(
-      erd,
-      name,
-      setVarUnparsers,
-      eBeforeUnparser,
-      eUnparser,
-      eAfterUnparser) {
+  extends StatementElementUnparser(
+    erd,
+    name,
+    setVarUnparsers,
+    eBeforeUnparser,
+    eUnparser,
+    eAfterUnparser) {
 
   override def unparseBegin(state: UState) {
     val elem =

@@ -32,8 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -86,7 +85,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
 
-  override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
+  override def unparser: DaffodilUnparser = new NadaUnparser(decl.runtimeData) // Assert.invariantFailed("should not request unparser for asserts/discriminators")
 
 }
 

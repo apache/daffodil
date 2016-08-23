@@ -130,6 +130,17 @@ class VariableHasNoValue(qname: NamedQName, context: ThrowsSDE) extends Variable
  *
  * Needed so that when unparsing multiple clones of a UState can share
  * and modify, the same VMap.
+ *
+ * This is a new mechanism, which allows for less rel-allocation of VariableMaps.
+ * There's a box that the variable map lives in, called vbox for convention.
+ * by having two UState items point to the same vbox they can share the
+ * variables. This is fine for unparsing, because all shared uses are not
+ * alternatives to each other which need independent variables, but are
+ * just different parts of the same unparse, which need the same variables.
+ *
+ * Copying excessively in order to deal with the forward-referencing,
+ * and not-yet-computed stuff in unparsing is a battle. This vbox thing is
+ * one tiny improvement there. More will be needed.
  */
 final class VariableBox(initialVMap: VariableMap) {
   private var vmap_ : VariableMap = initialVMap
@@ -155,8 +166,8 @@ final class VariableBox(initialVMap: VariableMap) {
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  */
 class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
-    extends WithParseErrorThrowing
-    with Serializable {
+  extends WithParseErrorThrowing
+  with Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(topLevelVRDs.map {

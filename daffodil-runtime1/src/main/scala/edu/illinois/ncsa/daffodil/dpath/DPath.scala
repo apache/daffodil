@@ -207,7 +207,7 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
       case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
         // we got a no-data exception from an element with outputValueCalc
         // that is, some OVC element requested the value of another OVC element
-        val ovc = new OutputValueCalcEvaluationException(nd.diSimple)
+        val ovc = new OutputValueCalcEvaluationException(nd.diElement)
         whereBlockedInfo.block(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
       }
       case ve: VariableException =>

@@ -36,13 +36,13 @@ import edu.illinois.ncsa.daffodil.processors.UnicodeByteOrderMark
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 
 trait GlobalElementDeclGrammarMixin
-    extends LocalElementGrammarMixin // can be repeating if not root
-    { self: GlobalElementDecl =>
+  extends LocalElementGrammarMixin // can be repeating if not root
+  { self: GlobalElementDecl =>
 
   final lazy val document = prod("document") {
     schemaDefinitionUnless(isScalar, "The document element cannot be an array.")
     UnicodeByteOrderMark(this) ~ documentElement
   }
 
-  private lazy val documentElement = enclosedElement // simpleElement || complexElement
+  private def documentElement = enclosedElement
 }

@@ -36,23 +36,21 @@ import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.OutputNewLineEv
+import edu.illinois.ncsa.daffodil.processors.InfosetCachedEvaluatable
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
-/**
- * Handles the situation where a string literal may contain %NL;, which must
- * be replaced by the value of dfdl:outputNewLine which may be an expression
- * that has to be evaluated at runtime.
- *
- * Does everything that can be done at compile time at compile time.
- */
-object StringLiteralForUnparser {
+class NilStringLiteralForUnparserEv(trd: TermRuntimeData, 
+    maybeOutputNewLineEv: Maybe[OutputNewLineEv],
+    stringLiteralRaw: String)
+  extends Evaluatable[String](trd)
+  with InfosetCachedEvaluatable[String] {
 
-  /**
-   * Factory for these takes outputNewLine property by name so that it can
-   * avoid demanding it in the cases where it actually doesn't need to force
-   * the existence of this property in the schema.
-   */
-  def apply(context: TermRuntimeData, outputNewLineByName: => OutputNewLineEv, stringLiteralRaw: String): StringLiteralForUnparser = {
-    lazy val outputNL = outputNewLineByName
+  override lazy val runtimeDependencies = maybeOutputNewLineEv.toList
+
+  override protected def compute(state: ParseOrUnparseState): String = {
     val endMarker = "__daffodil_stringLiteralForUnparser_endMarker__"
     Assert.invariant(!stringLiteralRaw.endsWith(endMarker))
     val rawWithEndMark = stringLiteralRaw + endMarker
@@ -76,33 +74,14 @@ object StringLiteralForUnparser {
 
       if (chunks.length == 1) {
         // there are no NL entities. There is only a single chunk.
-        ConstantStringLiteralForUnparser(chunks.head)
-      } else if (outputNL.isConstant) {
-        // the outputNL isn't an expression. We have its value directly.
-        val sl = chunks.mkString(outputNL.optConstant.get)
-        ConstantStringLiteralForUnparser(sl)
+        chunks.head
       } else {
-        // There are multiple chunks separated by %NL; and there
-        // is a runtime expression for outputNL
-        RuntimeStringLiteralForUnparser(outputNL, chunks)
+        trd.schemaDefinitionUnless(maybeOutputNewLineEv.isDefined,
+          "Property dfdl:outputNewLine is required, but it is not defined.")
+        val nl = maybeOutputNewLineEv.get.evaluate(state)
+        val sl = chunks.mkString(nl)
+        sl
       }
     }
-  }
-}
-
-sealed trait StringLiteralForUnparser {
-  def evaluate(ustate: UState): String
-}
-
-case class ConstantStringLiteralForUnparser(str: String) extends StringLiteralForUnparser {
-  def evaluate(ustate: UState): String = str
-}
-
-case class RuntimeStringLiteralForUnparser(outputNL: OutputNewLineEv, chunks: Seq[String]) extends StringLiteralForUnparser {
-  def evaluate(ustate: UState): String = {
-    val nlAny = outputNL.evaluate(ustate)
-    val nl = nlAny.asInstanceOf[String]
-    val sl = chunks.mkString(nl)
-    sl
   }
 }

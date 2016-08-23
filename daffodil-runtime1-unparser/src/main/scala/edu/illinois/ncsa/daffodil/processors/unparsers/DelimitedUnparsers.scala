@@ -32,29 +32,28 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.util.LogLevel
+
+import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
+import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
   override val pad: MaybeChar,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
-  isDelimRequired: Boolean
-  )
+  isDelimRequired: Boolean)
   extends PrimUnparserObject(erd) with PaddingRuntimeMixin with TextUnparserRuntimeMixin {
 
   val fieldDFA = CreateFieldDFA()
@@ -149,12 +148,12 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
 
 class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
-  outputNilValue: StringLiteralForUnparser,
+  slForUnparserEv: NilStringLiteralForUnparserEv,
   justPad: TextJustificationType.Type,
   padChar: MaybeChar,
   isDelimRequired: Boolean)
   extends StringDelimitedUnparser(erd, justPad, padChar, Nope, isDelimRequired) {
 
-  final override def theString(ustate: UState) = outputNilValue.evaluate(ustate)
+  final override def theString(ustate: UState) = slForUnparserEv.evaluate(ustate)
 
 }

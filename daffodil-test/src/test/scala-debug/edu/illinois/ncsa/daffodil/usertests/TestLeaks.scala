@@ -42,9 +42,9 @@ class TestLeaks {
 
   def volumeRunner(tc: => Unit) {
     1 to 100 foreach { _ =>
-      println("")
+      // println("")
       1 to 100 foreach { _ =>
-        print(".")
+        // print(".")
         1 to 100 foreach { _ =>
           System.gc()
           Thread.sleep(100)

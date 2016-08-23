@@ -561,7 +561,7 @@ object OOLAG extends Logging {
           //
           case _: OOLAGException => thing
           case t: Throwable => {
-            System.err.println(" " * indent + "OOLAG valueOrElse failed on " + Misc.getNameFromClass(t) + ". Substituting: " + thing)
+            // System.err.println(" " * indent + "OOLAG valueOrElse failed on " + Misc.getNameFromClass(t) + ". Substituting: " + thing)
             thing
           }
         }

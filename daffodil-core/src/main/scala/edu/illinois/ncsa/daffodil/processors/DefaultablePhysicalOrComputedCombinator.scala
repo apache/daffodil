@@ -39,15 +39,19 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 
-case class DefaultablePhysicalOrComputed(ctxt: ElementBase,
-  scalarDefaultablePhysical: Gram,
-  inputValueCalcElement: Gram,
-  outputValueCalcElement: Gram)
-    extends Terminal(ctxt, true) {
+class DefaultablePhysicalOrComputed(ctxt: ElementBase,
+  scalarDefaultablePhysicalArg: => Gram,
+  inputValueCalcElementArg: => Gram,
+  outputValueCalcElementArg: => Gram)
+  extends Terminal(ctxt, true) {
   //Assert.invariant(!scalarDefaultablePhysical.isEmpty)
   //Assert.invariant(!inputValueCalcElement.isEmpty)
   //Assert.invariant(!outputValueCalcElement.isEmpty)
   //Assert.invariant(!defaultableElement.isEmpty) // NYI? So this will be empty?
+
+  lazy val scalarDefaultablePhysical = scalarDefaultablePhysicalArg // once only
+  lazy val inputValueCalcElement = inputValueCalcElementArg // once only
+  lazy val outputValueCalcElement = outputValueCalcElementArg // once only
 
   lazy val scalarDefaultablePhysicalParser = scalarDefaultablePhysical.parser
   lazy val inputValueCalcElementParser = inputValueCalcElement.parser

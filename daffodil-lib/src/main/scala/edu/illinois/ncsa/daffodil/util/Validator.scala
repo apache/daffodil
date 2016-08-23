@@ -99,7 +99,7 @@ object Validator extends NoBindingFactoryAdapter {
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case e: Exception =>
-        Console.err.println("error: Unable to instantiate parser")
+        // Console.err.println("error: Unable to instantiate parser")
         throw e
     }
     return parser

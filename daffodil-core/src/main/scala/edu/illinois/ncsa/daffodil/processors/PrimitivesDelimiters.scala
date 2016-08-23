@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
 
-abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
+abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(es, guard) {
 
   lazy val eName = e.toString()
 
@@ -198,8 +198,8 @@ case class Terminator(e: Term) extends DelimiterText(e, e) {
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Terminator
 }
 
-abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
-  override def toString = "DelimParserBase[" + name + "]"
+abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
+  override def toString = "StringDelimBase[" + name + "]"
 
   def checkDelimiterDistinctness(
     escapeSchemeKind: EscapeKind,

@@ -82,10 +82,10 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  *
  */
 final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectOrBufferedDataOutputStream)
-    extends DataOutputStreamImplMixin {
+  extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
-  val id = DirectOrBufferedDataOutputStream.genId
+  val id: Int = if (splitFrom == null) 0 else splitFrom.id + 1
 
   /**
    * Two of these are equal if they are eq.
@@ -301,14 +301,44 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       // and we want to do that exactly once, which is when the direct DOS "catches up"
       // and merges itself forward into all the buffered streams.
       //
-      // But, we do need to propagate information about the absolute position 
+      // But, we do need to propagate information about the absolute position
       // of buffers.
+      //
+      // That doesn't happen here (for now), rather, when absolute position is
+      // requested a search backward for a preceding, finished, DOS with an absolute
+      // position is conducted. (see maybeAbsBitPos0b below)
+      //
 
       //
       setDOSState(Finished)
     }
   }
 
+  /**
+   * This override implements a critical behavior, which is that when we ask for
+   * an absolute bit position, if we have it great. if we don't, we look at the
+   * prior DOS to see if it is finished and has an absolute bit position. If so
+   * that bit position becomes this DOS abs starting bit position, and then our
+   * absolute bit position is known.
+   *
+   * Without this behavior, it's possible for the unparse to hang, with every
+   * DOS chained together, but they all get finished in just the wrong order,
+   * and so the content or value length of something late in the data can't be
+   * determined that is needed to determine something early in the schema.
+   * Unless this absolute position information is propagated forward, everything
+   * can hang.
+   *
+   * Recursively this reaches backward until it finds a non-finished DOS or one
+   * that doesn't have absolute positioning information.
+   *
+   * I guess worst case this is a bad algorithm in that this could recurse
+   * deeply, going all the way back to the very start, over and over again.
+   * A better algorithm would depend on forward push of the absolute positioning
+   * information when setFinished occurs, which is, after all, the time when we
+   * can push such info forward.
+   *
+   * However, see setFinished comment that nothing is doing this push forward.
+   */
   override def maybeAbsBitPos0b: MaybeULong = {
     val mSuper = super.maybeAbsBitPos0b
     if (mSuper.isDefined)
@@ -326,7 +356,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         if (pmabp.isDefined) {
           val pabp = pmabp.getULong
           this.st.setAbsStartingBitPos0b(pabp)
-          super.maybeAbsBitPos0b // will get the right value this time. 
+          super.maybeAbsBitPos0b // will get the right value this time.
         } else {
           // prior doesn't have an abs bit pos.
           MaybeULong.Nope
@@ -663,11 +693,4 @@ object DirectOrBufferedDataOutputStream {
     dbdos
   }
 
-  private var ids = 0
-
-  def genId: Int = synchronized {
-    val id = ids
-    ids += 1
-    id
-  }
 }

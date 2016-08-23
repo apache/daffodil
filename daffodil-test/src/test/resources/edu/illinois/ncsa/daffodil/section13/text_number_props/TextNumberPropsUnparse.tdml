@@ -362,8 +362,10 @@
       Test Name: unparseDelimitedPaddedString09
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and NOT an expression, so the value 
+               In this case, lengthKind is explicit and NOT an expression, so the value is padded to the length 
+               given by the max of the expression and the minimum length.
                or the minimum length, whichever is greater. 
+               (See JIRA DFDL-1584 however, as this behavior needs clarification)
       Round trip - no. See description of unparsePaddedString10.
 -->
   <tdml:unparserTestCase name="unparseDelimitedPaddedString09" model="delimitedStringsPadding" root="e11"
@@ -382,9 +384,10 @@
       Purpose: This test demonstrates unparsing a string with padding
                In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the max
                of the expression and the minimum length, which for a string is given by minLength facet.
-      Because the facet minLength (and maxLength) is 10, but the length expression
-      when we unparse, we'll pad to the minLength, and get 10 characters, 
-      and that won't re-parse. So this test cannot round trip.
+               Because the facet minLength (and maxLength) is 10, but the length expression
+               when we unparse, we'll pad to the minLength, and get 10 characters, 
+               and that won't re-parse. So this test cannot round trip.
+      (See JIRA DFDL-1584 however, as this behavior needs clarification)
 -->
   <tdml:unparserTestCase name="unparsePaddedString10" model="delimitedStringsPadding" root="e12"
    roundTrip="false">

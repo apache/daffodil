@@ -108,7 +108,7 @@ class TestInfosetCursorFromXMLEventCursor2 {
       assertTrue(foo_1_s.dataValueAsString =:= "Hello")
       val arr = bar_s.getChildArray(foo_1_s.runtimeData)
       if (arr.length % 10000L =#= 0L) {
-        println("array length is " + arr.length)
+        // println("array length is " + arr.length)
       }
       arr.asInstanceOf[DIArray].children
     }

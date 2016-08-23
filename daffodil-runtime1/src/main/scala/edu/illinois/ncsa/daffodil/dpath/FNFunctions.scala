@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
-
 case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(v: AnyRef, dstate: DState) = {
     val value = asBigDecimal(v).abs
@@ -168,8 +167,8 @@ trait SubstringKind {
 }
 
 case class FNSubstring2(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes)
-    with SubstringKind {
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
   /**
    * The two argument version of the function assumes that \$length is infinite
    * and returns the characters in \$sourceString whose position \$p obeys:
@@ -189,8 +188,8 @@ case class FNSubstring2(recipes: List[CompiledDPath])
 }
 
 case class FNSubstring3(recipes: List[CompiledDPath])
-    extends FNThreeArgs(recipes)
-    with SubstringKind {
+  extends FNThreeArgs(recipes)
+  with SubstringKind {
 
   /**
    * More specifically, the three argument version of the function returns the
@@ -210,8 +209,8 @@ case class FNSubstring3(recipes: List[CompiledDPath])
 }
 
 case class FNSubstringBefore(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes)
-    with SubstringKind {
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
     val sourceString: String = arg1.asInstanceOf[String]
@@ -229,8 +228,8 @@ case class FNSubstringBefore(recipes: List[CompiledDPath])
 }
 
 case class FNSubstringAfter(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes)
-    with SubstringKind {
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState): AnyRef = {
     val sourceString: String = arg1.asInstanceOf[String]
@@ -311,7 +310,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 }
 
 case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: CompiledDPath)
-    extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
+  extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -403,7 +402,7 @@ trait FNRoundHalfToEvenKind {
       // Any change in how asBigDecimal handles Float
       // will affect the correctness of this rounding operation.
       //
-      case _: JFloat | _: JDouble | _: BigDecimal | _:JBigDecimal => asBigDecimal(value)
+      case _: JFloat | _: JDouble | _: BigDecimal | _: JBigDecimal => asBigDecimal(value)
       case _: BigInt | _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value)
       case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
     }
@@ -424,9 +423,9 @@ trait FNRoundHalfToEvenKind {
    */
   private def toBaseNumericType(value: JBigDecimal, origValue: AnyRef): AnyRef = {
     val result = origValue match {
-      case _: JFloat => value.floatValue()   // xs:float
+      case _: JFloat => value.floatValue() // xs:float
       case _: JDouble => value.doubleValue() // xs:double
-      case _: BigDecimal => value            // xs:decimal
+      case _: BigDecimal => value // xs:decimal
       case _: JBigDecimal => value
       case _: BigInt => value.toBigInteger()
       case _: JBigInt => value.toBigInteger()
@@ -450,8 +449,8 @@ trait FNRoundHalfToEvenKind {
  * \$precision is assumed 0.
  */
 case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNOneArg(recipe, argType)
-    with FNRoundHalfToEvenKind {
+  extends FNOneArg(recipe, argType)
+  with FNRoundHalfToEvenKind {
 
   override def computeValue(value: AnyRef, dstate: DState) = {
     val roundedValue = compute(value, 0)
@@ -470,8 +469,8 @@ case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * This particular function expects a two arguments: \$arg and \$precision.
  */
 case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes)
-    with FNRoundHalfToEvenKind {
+  extends FNTwoArgs(recipes)
+  with FNRoundHalfToEvenKind {
 
   override def computeValue(arg1: AnyRef, arg2: AnyRef, dstate: DState) = {
     val precision = asInt(arg2)
@@ -481,7 +480,7 @@ case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
 }
 
 case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null)
-    extends FNOneArg(recipe, NodeInfo.Boolean) {
+  extends FNOneArg(recipe, NodeInfo.Boolean) {
   override def computeValue(value: AnyRef, dstate: DState): JBoolean = {
     val bool = asBoolean(FNToBoolean.computeValue(value, dstate))
     !bool
@@ -528,9 +527,9 @@ trait ExistsKind {
         // we are evaluating the expression, and hoping it will evaluate
         // completely just to avoid the overhead of creating a suspension
         //
-        // we will always re-throw in this case so that fn:exists doesn't 
+        // we will always re-throw in this case so that fn:exists doesn't
         // return false, resulting in the expression getting a value that
-        // might, later, have returned true. 
+        // might, later, have returned true.
         //
         throw th
       }
@@ -572,17 +571,14 @@ trait ExistsKind {
         Assert.invariant(dstate.mode eq UnparserBlocking)
         throw e
       }
+      //
       // catch exceptions indicating a node (or value) doesn't exist.
       // if you reach into a child element slot that isn't filled
       case e: InfosetNoSuchChildElementException => ifClosedDoesntExist(dstate, th)
       case e: InfosetArrayIndexOutOfBoundsException => ifClosedDoesntExist(dstate, th)
-      // if something else goes wrong while evaluating the
-      // expression (fn:exist can be called on expressions that are
-      // not necessarily nodes.They can be simple value expressions)
-      case e: java.lang.IllegalStateException => doesntExist(dstate)
-      case e: java.lang.NumberFormatException => doesntExist(dstate)
-      case e: java.lang.IllegalArgumentException => doesntExist(dstate)
-      case e: java.lang.ArithmeticException => doesntExist(dstate)
+      //
+      // other processing errors indicate it doesn't exist
+      //
       case e: ProcessingError => doesntExist(dstate)
       case _ => throw th
     }
@@ -591,8 +587,8 @@ trait ExistsKind {
 }
 
 case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends RecipeOpWithSubRecipes(recipe)
-    with ExistsKind {
+  extends RecipeOpWithSubRecipes(recipe)
+  with ExistsKind {
   override def run(dstate: DState) {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(res)
@@ -603,8 +599,8 @@ case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends RecipeOpWithSubRecipes(recipe)
-    with ExistsKind {
+  extends RecipeOpWithSubRecipes(recipe)
+  with ExistsKind {
   override def run(dstate: DState) {
     val res = exists(recipe, dstate)
     dstate.setCurrentValue(!res)
@@ -628,7 +624,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * treat this as if the argument passed was "." to denote self.
  */
 case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends RecipeOpWithSubRecipes(recipe) {
+  extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     // Same as using "." to denote self.
     val localName = dstate.currentElement.name
@@ -646,7 +642,7 @@ case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * lexical form of an xs:NCName
  */
 case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNOneArg(recipe, argType) {
+  extends FNOneArg(recipe, argType) {
   override def computeValue(value: AnyRef, dstate: DState) = {
     Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
   }
@@ -709,7 +705,7 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
       case NodeInfo.Decimal => {
         val bd = asBigDecimal(value)
         //
-        // A MathContext object whose settings have 
+        // A MathContext object whose settings have
         // the values required for unlimited precision arithmetic.
         val mc = java.math.MathContext.UNLIMITED
         bd.round(mc)
@@ -739,8 +735,8 @@ trait FNFromDateTimeKind {
 }
 
 abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNOneArg(recipe, argType)
-    with FNFromDateTimeKind {
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case dt: DFDLDateTime => asAnyRef(dt.getField(field))
@@ -750,8 +746,8 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNOneArg(recipe, argType)
-    with FNFromDateTimeKind {
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case d: DFDLDate => asAnyRef(d.getField(field))
@@ -761,8 +757,8 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNOneArg(recipe, argType)
-    with FNFromDateTimeKind {
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     a match {
       case t: DFDLTime => asAnyRef(t.getField(field))
@@ -772,33 +768,33 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNYearFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(asInt(super.computeValue(a, dstate)).intValue() + 1) // JAN 0
 }
 case class FNDayFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
 case class FNHoursFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
 case class FNMinutesFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
 case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDateTime(recipe, argType) {
+  extends FNFromDateTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
 
@@ -836,33 +832,33 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDate(recipe, argType) {
+  extends FNFromDate(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDate(recipe, argType) {
+  extends FNFromDate(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(asInt(super.computeValue(a, dstate)).intValue() + 1) // JAN 0
 }
 case class FNDayFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromDate(recipe, argType) {
+  extends FNFromDate(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
 case class FNHoursFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromTime(recipe, argType) {
+  extends FNFromTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
 case class FNMinutesFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromTime(recipe, argType) {
+  extends FNFromTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
 case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
-    extends FNFromTime(recipe, argType) {
+  extends FNFromTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
@@ -888,7 +884,7 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 case class FNContains(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes) {
+  extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the value of \$arg1 contains
    * (at the beginning, at the end, or anywhere within) \$arg2.
@@ -909,7 +905,7 @@ case class FNContains(recipes: List[CompiledDPath])
 }
 
 case class FNStartsWith(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes) {
+  extends FNTwoArgs(recipes) {
   /**
    *  Returns an xs:boolean indicating whether or not the
    *  value of \$arg1 starts with \$arg2.
@@ -931,7 +927,7 @@ case class FNStartsWith(recipes: List[CompiledDPath])
 }
 
 case class FNEndsWith(recipes: List[CompiledDPath])
-    extends FNTwoArgs(recipes) {
+  extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the
    * value of \$arg1 ends with \$arg2.

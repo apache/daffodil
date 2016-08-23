@@ -39,14 +39,16 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.CoroutineException
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * Performs transient things like evaluates expressions, or finishes unparsing something, after
  * which it exits.
  */
 abstract class TaskCoroutine(ustate: UState, mainCoroutineArg: => MainCoroutine)
-    extends Coroutine[AnyRef]
-    with WhereBlockedLocation {
+  extends Coroutine[AnyRef]
+  with WhereBlockedLocation {
 
   private lazy val mainCoroutine = mainCoroutineArg // evaluate arg once only
 
@@ -80,11 +82,11 @@ abstract class TaskCoroutine(ustate: UState, mainCoroutineArg: => MainCoroutine)
 
 /**
  * This object represents the "main" coroutine, the original thread of control to which
- * the corresponding task ultimately always resumes. Theoverride val  task coroutines do transient things like evaluate
+ * the corresponding task ultimately always resumes. The task coroutines do transient things like evaluate
  * expressions or finish unparsing something, and then exit, but always resume the main coroutine before doing so.
  */
 class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
-    extends Coroutine[AnyRef] {
+  extends Coroutine[AnyRef] {
 
   override final def isMain = true
 
@@ -113,7 +115,7 @@ class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
         isMakingProgress = true
       }
     } else {
-      // Done. Suspension is completed. 
+      // Done. Suspension is completed.
       // TODO: release task object to pool
     }
   }
@@ -130,11 +132,16 @@ object Suspension {
  * The suspension object keeps track of the state of the TaskCoroutine so you can ask
  * the object whether the TaskCoroutine isDone.
  *
- * When you run as suspension, that runs the task coroutine, which may
- * block. Running the suspension again retries the task, and you can repeat this until
- * isDone is true.
+ * When executing, the "suspension" (which is a proxy to the task coroutine) may
+ * block, by which we mean it may set isDone to false and resume the main coroutine.
+ *
+ * Resuming the suspension again resumes the task coroutine which loops to retry
+ * what caused it to block.
+ *
+ * This repeats until main is resumed with isDone set to true.
  */
-abstract class Suspension(val ustate: UState) {
+abstract class Suspension(val ustate: UState)
+  extends Serializable with Logging {
 
   protected final lazy val mainCoroutine = new MainCoroutine(taskCoroutine)
 
@@ -156,12 +163,28 @@ abstract class Suspension(val ustate: UState) {
 
 object SuspensionFactory extends SuspensionFactory
 
-class SuspensionFactory {
+class SuspensionFactory extends Logging {
 
   final def setup(ustate: UState, maybeKnownLengthInBits: MaybeULong): UState = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
+
+    /*
+     * Pessimistic again. No matter the reason for a suspension, this will split
+     * the data output stream so that everything "after" the possible suspension
+     * goes into a different data output stream.
+     *
+     * But there is a very real case where there's no reason for a suspension at
+     * all, which is when evaluating the target-length of an element. The target
+     * length itself doesn't go out into the data output, so there's no need to
+     * split the data input stream.
+     *
+     * TODO: Performance - Perhaps maybeKnownLengthInBits can be MaybeULong(0) to indicate this
+     * situation.
+     *
+     */
+
     val buffered = original.addBuffered.asInstanceOf[DirectOrBufferedDataOutputStream]
 
     ustate.aaa_debug_DOS.push(buffered) //FIXME: remove. This is a memory leak. Just for debugging
@@ -185,8 +208,8 @@ class SuspensionFactory {
 
       }
     } else {
-      System.err.println("Buffered DOS created without knowning absolute start bit pos: " +
-        ustate.aaa_currentNode.get.erd.prettyName + " " + buffered)
+      log(LogLevel.Debug, "Buffered DOS created without knowning absolute start bit pos: %s %s",
+        ustate.aaa_currentNode.get.erd.prettyName, buffered)
     }
 
     //

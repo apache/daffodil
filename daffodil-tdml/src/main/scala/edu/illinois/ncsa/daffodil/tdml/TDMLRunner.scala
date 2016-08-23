@@ -122,7 +122,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false,
   val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault)
-    extends Logging with HasSetDebugger {
+  extends Logging with HasSetDebugger {
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
     System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
@@ -361,7 +361,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 }
 
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
-    extends Logging {
+  extends Logging {
 
   lazy val defaultRoundTrip: Boolean = parent.defaultRoundTrip
 
@@ -544,7 +544,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-    extends TestCase(ptc, parentArg) {
+  extends TestCase(ptc, parentArg) {
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
@@ -565,8 +565,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val processor = getProcessor(schemaSource, useSerializedProcessor)
     processor.right.foreach {
       case (warnings, proc) =>
-        // 
+        //
         // Print out the warnings
+        // (JIRA DFDL-1583 is implementation of expected warnings checking.)
         //
         warnings.foreach { System.err.println(_) }
 
@@ -766,7 +767,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-    extends TestCase(ptc, parentArg) {
+  extends TestCase(ptc, parentArg) {
 
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
@@ -782,15 +783,16 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
     val processor = getProcessor(schemaSource, useSerializedProcessor)
-    processor.right.foreach { 
-      case (warnings, proc) => 
-                // 
+    processor.right.foreach {
+      case (warnings, proc) =>
+        //
         // Print out the warnings
+        // (JIRA DFDL-1583 is implementation of expected warnings checking.)
         //
         warnings.foreach { System.err.println(_) }
 
         setupDebugOrTrace(proc)
-        }
+    }
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
@@ -829,7 +831,16 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
-   
+
+    //
+    // Test that we are getting the number of full bytes needed.
+    val testData = outStream.toByteArray
+    val testDataLength = actual.resultState.bitPos0b
+    val fullBytesNeeded = (testDataLength + 7) / 8
+    if (testData.length != fullBytesNeeded) {
+      throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))
+    }
+
     if (actual.isScannable) {
       // all textual in one encoding, so we can do display of results
       // in terms of text so the user can see what is going on.
@@ -1515,7 +1526,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
  * Base class for all document parts that contain data directly expressed in the XML
  */
 sealed abstract class DataDocumentPart(part: Node, parent: Document)
-    extends DocumentPart(part, parent) {
+  extends DocumentPart(part, parent) {
 
   def dataBits: Seq[String]
 
@@ -1654,21 +1665,21 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 }
 
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
 }
 
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
 
 }
 
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
-    extends ErrorWarningBase(node, parent) {
+  extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 

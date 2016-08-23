@@ -33,36 +33,34 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.grammar.NamedGram
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputValueCalcUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
-import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
+import edu.illinois.ncsa.daffodil.grammar.NamedGram
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.unparsers.RightFillUnparser
-//import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexElementSpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyPaddingUnparser
-//import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RightCenteredPaddingUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.LeftCenteredPaddingUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnusedUnparser
-//import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleTextSpecifiedLengthUnparser
-//import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleBinarySpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureStartOfValueLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureEndOfContentLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureStartOfContentLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureEndOfValueLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementSpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureStartOfContentLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureStartOfValueLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOVCSpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementSpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnusedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.LeftCenteredPaddingUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NilLiteralCharacterUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyPaddingUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RightCenteredPaddingUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RightFillUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputValueCalcUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.util.Maybe
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -78,12 +76,10 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOVCSpecifiedLength
  */
 class PhysicalElementUberCombinator(context: ElementBase,
   eBeforeContent: Gram,
-  //    eBeforeValue: Gram, 
-  eValue: Gram //    eAfterValue: Gram, 
-  //    eAfterContent: Gram
+  eValue: Gram //    eAfterValue: Gram,
   )
-    extends NamedGram(context)
-    with Padded {
+  extends NamedGram(context)
+  with Padded {
 
   private lazy val uSetVars = context.setVariableStatements.map(_.gram.unparser).toArray
 
@@ -91,10 +87,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
     if (eBeforeContent.isEmpty) Array()
     else Array(eBeforeContent.unparser)
 
-  //  private lazy val beforeValue = Array(eBeforeValue.unparser)
   private lazy val value = Array(eValue.unparser)
-  //  private lazy val afterValue = Array(eAfterValue.unparser)
-  //  private lazy val afterContent = Array(eAfterContent.unparser)
 
   private lazy val subComb = {
     val eBeforeValue = EmptyGram
@@ -111,7 +104,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
 
   override lazy val parser: Parser = {
     //
-    // This sub combinator is exactly what we've done for a while 
+    // This sub combinator is exactly what we've done for a while
     // for parsing
     //
 
@@ -124,11 +117,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
         context.maybeUnparseTargetLengthInBitsEv,
         uSetVars,
         beforeContent,
-        //        beforeValue,
-        value // One(specifiedLengthUnparser), 
-        //        afterValue,
-        //        afterContent
-        )
+        value)
     } else if ((context.lengthKind _eq_ LengthKind.Explicit) ||
       (context.isSimpleType &&
         (context.lengthKind _eq_ LengthKind.Implicit) &&
@@ -138,11 +127,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
         context.maybeUnparseTargetLengthInBitsEv,
         uSetVars,
         beforeContent,
-        //        beforeValue,
-        value // One(specifiedLengthUnparser), 
-        //        afterValue,
-        //        afterContent
-        )
+        value)
     } else {
       subComb.unparser
     }
@@ -208,7 +193,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
 }
 
 case class ElementUnused(ctxt: ElementBase)
-    extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined) {
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new ElementUnusedUnparser(ctxt.erd,
@@ -216,8 +201,8 @@ case class ElementUnused(ctxt: ElementBase)
 }
 
 case class OnlyPadding(ctxt: ElementBase)
-    extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
-    with Padded {
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  with Padded {
 
   override def parser = new NadaParser(ctxt.erd)
 
@@ -226,9 +211,24 @@ case class OnlyPadding(ctxt: ElementBase)
       ctxt.maybeUnparseTargetLengthInBitsEv.get, unparsingPadChar)
 }
 
+case class NilLiteralCharacter(ctxt: ElementBase)
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined &&
+    ctxt.isNillable && ctxt.nilKind == NilKind.LiteralCharacter)
+  with Padded {
+
+  override def parser = new NadaParser(ctxt.erd)
+
+  private lazy val nilLitCharacter = ctxt.cookedNilValuesForUnparse.head(0)
+
+  override lazy val unparser: Unparser =
+    new NilLiteralCharacterUnparser(ctxt.erd,
+      ctxt.maybeUnparseTargetLengthInBitsEv.get,
+      nilLitCharacter)
+}
+
 case class RightCenteredPadding(ctxt: ElementBase)
-    extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
-    with Padded {
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -237,8 +237,8 @@ case class RightCenteredPadding(ctxt: ElementBase)
 }
 
 case class LeftCenteredPadding(ctxt: ElementBase)
-    extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
-    with Padded {
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -247,8 +247,8 @@ case class LeftCenteredPadding(ctxt: ElementBase)
 }
 
 case class RightFill(ctxt: ElementBase)
-    extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
-    with Padded {
+  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new RightFillUnparser(ctxt.erd,
@@ -256,7 +256,7 @@ case class RightFill(ctxt: ElementBase)
 }
 
 case class CaptureContentLengthStart(ctxt: ElementBase)
-    extends Terminal(ctxt, true) {
+  extends Terminal(ctxt, true) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -264,7 +264,7 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
 }
 
 case class CaptureContentLengthEnd(ctxt: ElementBase)
-    extends Terminal(ctxt, true) {
+  extends Terminal(ctxt, true) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -272,7 +272,7 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
 }
 
 case class CaptureValueLengthStart(ctxt: ElementBase)
-    extends Terminal(ctxt, true) {
+  extends Terminal(ctxt, true) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -280,7 +280,7 @@ case class CaptureValueLengthStart(ctxt: ElementBase)
 }
 
 case class CaptureValueLengthEnd(ctxt: ElementBase)
-    extends Terminal(ctxt, true) {
+  extends Terminal(ctxt, true) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
@@ -288,11 +288,11 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
 }
 
 /*
- * new stuff for specified length unparsing above here. 
+ * new stuff for specified length unparsing above here.
  */
 
 class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
-    extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {
+  extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {
 
   lazy val parser: Parser =
     if (context.isRepresented)
@@ -329,7 +329,7 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
       }
     } else {
       // dfdl:inputValueCalc case.
-      // This unparser will assume the events are in the event stream, having been inferred and put 
+      // This unparser will assume the events are in the event stream, having been inferred and put
       // in place by the next element resolver.
       new StatementElementUnparserNoRep(context.erd, context.name, uSetVar)
     }
@@ -337,7 +337,7 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
 }
 
 class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
-    extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) with HasNoUnparser {
+  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) with HasNoUnparser {
 
   lazy val parser: Parser = new ChoiceStatementElementParser(
     context.erd,
@@ -354,7 +354,7 @@ class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gr
 }
 
 abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram)
-    extends NamedGram(context) {
+  extends NamedGram(context) {
 
   // The order of things matters in some cases, so to be consistent we'll always use the
   // same order even when it doesn't matter

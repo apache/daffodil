@@ -17,34 +17,168 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.util.Misc
 
-abstract class SpecifiedLengthUnparserBase2(
+/*
+ * Notes on variable-width characters with lengthUnits 'characters'
+ *
+ * (Not worth doing for complex types, at least initially)
+ *
+ * (Similarly, don't implement dfdl:contentLength nor dfdl:valueLength
+ * functions in units 'characters' for complex types if the encoding is
+ * variable width).
+ *
+ * Simple types:
+ *
+ * For parsing, we must decode characters one by one until we accumulate
+ * the number of characters.
+ *
+ * The dfdl:contentLength in characters is this number of characters. This requires
+ * specific unparsers for all the textual data types for this case.
+ *
+ * If we are not trimming off pad characters, then the dfdl:valueLength is the
+ * same as the dfdl:contentLength.
+ *
+ * A single-pass algorithm that does trimming on left/right, and filling of the
+ * rightFill region would be:
+ *
+ * If we are trimming on the left (justification right or center) we must
+ * (1) record bit position as start of dfdl:contentLength in bits.
+ * (2) decode characters, counting up to N, keeping count also of the number of
+ * pad characters encountered (and discarding those pad characters). When a
+ * non-pad-character is encountered, the start position (in bits) is the start
+ * of the dfdl:valueLength in bits.
+ * (3) decode characters, counting up to N, and this part is tricky.
+ * If we are trimming on the right (justification center and left) then keeping
+ * track of the position of the last non-pad character, and the length of a
+ * current run of adjacent pad characters since the last non-pad character. When
+ * we reach N characters, the end of value position (in bits) is the position after the last
+ * non-pad character, the final position after N characters is the dfdl:contentLength
+ * in bits.  The dfdl:valueLength in characters is the dfdl:valueLength in characters
+ * minus the length of the run of pad characters on the right, and the number of
+ * pad characters counted on the left.
+ *
+ * For unparsing, we must encode characters one by one until we have
+ * encoded the number of characters, or we run out of characters.
+ * If we run out of characters, then if we are padding, the length of the left
+ * and right padding regions is computed, and that many are encoded into
+ * those. If we are not padding and we run out of characters it is an error.
+ * If we have too many characters, then if simpleType string and
+ * truncateVariableLengthString, then we discard any excess characters, otherwise
+ * it is an error.
+ *
+ * The contentLength and valueLength in characters need to be stored on the infoset
+ * node explicitly by these processors.
+ *
+ * The infoset value is NOT modified by truncation nor padding.
+ * The fn:stringLength of the value is constant throughout this.
+ *
+ * Complex Types:
+ *
+ * (Not worth doing. Should SDE - not implemented by Daffodil - complex types with
+ * specified length with length units characters, with variable length encoding.)
+ *
+ * For parsing, we record the start of content bit position (and start of value bit
+ * position is the same), then we decode N characters, and the new bit position
+ * is the end of content bit position. Behavior on a decode error is controlled by
+ * dfdl:encodingErrorPolicy. So dfdl:contentLength in 'characters' is N,
+ * and we have the positions to enable us to compute dfdl:contentLength in bits.
+ * Then we backup to the start of content bit position and recursively parse
+ * the complex type body, in an environment where the data limit is set to prevent
+ * parsing beyond the content length in bits. When this recursive parse
+ * returns, the bit position is the end of value bit position, and we then
+ * skip to the content end position.
+ *
+ * For unparsing, we record the start of content bit position and start of value
+ * bit position is the same. Then we recursively unparse the complex type body into
+ * a buffer. Then we scan and decode this counting the characters. If a decode
+ * error occurs, dfdl:encodingErrorPolicy is used to decide whether to error, or
+ * count 1 for the unicodeReplacementCharacter that is the replacement.
+ *
+ * This makes length of a complex type in characters fundamentally unreliable if
+ * decode errors are possible. User beware. Use length in bytes or bits instead.
+ *
+ * When the recursive unparse completes, we block on the end bit pos
+ * and the ElementUnused region is filled with the number of characters to reach total N.
+ * If the number of characters is greater than N it is an error.
+ */
+
+/*
+ * Notes on variable-width characters when length units are bits
+ *
+ * (Really does need to be implemented, examples like 80-byte records, but where
+ * the characters can be utf-8 not just ascii = would be a typical Unicode
+ * upgrade to a legacy 80-byte oriented application.)
+ *
+ * In this case we know the number of bits, we don't know how many characters
+ * will be parsed or unparsed.
+ *
+ * Content and value length regions in bits/bytes are computed by the framework,
+ * but content and/or value length in characters must be determined by keeping
+ * count of the number of characters parsed by the pad/trim processors, and the
+ * value processor. These counts need to be stored on the infoset node.
+ *
+ */
+
+/*
+ * non-text or fixed-width characters, units are bits
+ *
+ * For parsing or unparsing, we know the exact length in bits.
+ *
+ * However, if textual, the number of bits does not necessarily divide by
+ * the width of a character in bits. There may be a fragment of a character
+ * at the end.
+ *
+ * An example would be if there are 56 bits (7 bytes), but utf-16 characters
+ * which are 16 bits each, will hold 3 characters with 8 bits left over.
+ *
+ * For unparsing, in the case where all the characters do not fit, we may
+ * discard the extra characters, or we may fail.
+ *
+ * We don't have 'bytes' here because that is always converted to bits.
+ *
+ * Note that the dfdl:contentLength and dfdl:valueLength can be requested in 'characters'
+ * and in that case, we can just divide by the character set width to convert
+ * the number of bits to characters.
+ */
+
+/**
+ * Base class for unparsing elements with specified length.
+ *
+ * Depends on use of separate unparsers for the padding/fill regions which
+ * calculate their own sizes, generally after the length of the value region
+ * has been determined.
+ */
+sealed abstract class SpecifiedLengthUnparserBase2(
   override val context: ElementRuntimeData,
   maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv])
-    extends PrimUnparser {
+  extends PrimUnparser {
 
   def erd = context
 
   final override lazy val childProcessors =
-    valueUnparsers.toList ++
+    contentUnparsers.toList ++
       setVarUnparsers.toList ++
       beforeContentUnparsers.toList
-  //    beforeValueUnparsers.toList ++
-  //    valueUnparsers.toList ++
-  //    afterValueUnparsers.toList ++
-  //    afterContentUnparsers.toList
 
   protected def beforeContentUnparsers: Array[Unparser]
-  //  protected def beforeValueUnparsers: Array[Unparser]
-  protected def valueUnparsers: Array[Unparser]
-  //  protected def afterValueUnparsers: Array[Unparser]
-  //  protected def afterContentUnparsers: Array[Unparser]
+  protected def contentUnparsers: Array[Unparser]
   protected def setVarUnparsers: Array[Unparser]
 
-  private val maybeTLOp =
-    if (maybeTargetLengthEv.isDefined)
-      One(new TLOp(context, maybeTargetLengthEv.get))
+  /**
+   * This is a maybeTLOp so that this base class can be used to handle
+   * data types that do not have specified length as well.
+   *
+   * An example is lengthKind 'pattern' which while not "specified" length,
+   * uses this same code path, just there is no possibility of pad/fill regions.
+   *
+   * It's a degenerate case of specified length.
+   */
+  private val maybeTLOp = {
+    val mtlop = if (maybeTargetLengthEv.isDefined)
+      One(new TargetLengthOperation(context, maybeTargetLengthEv.get))
     else
       Nope
+    mtlop
+  }
 
   protected def computeTargetLength(state: UState) {
     if (maybeTLOp.isDefined)
@@ -74,14 +208,11 @@ abstract class SpecifiedLengthUnparserBase2(
     }
   }
 
-  protected def runValueUnparsers(state: UState) {
-    //
-    // value
-    //
+  protected def runContentUnparsers(state: UState) {
     {
       var i = 0
-      while (i < valueUnparsers.length) {
-        valueUnparsers(i).unparse1(state, context)
+      while (i < contentUnparsers.length) {
+        contentUnparsers(i).unparse1(state, context)
         i += 1
       }
     }
@@ -96,7 +227,7 @@ abstract class SpecifiedLengthUnparserBase2(
     // infoset element's cache.
     //
     // So we have to do this here in order to Freeze the state of these
-    // evaluations on the Infoset at the time this unparse call happens. 
+    // evaluations on the Infoset at the time this unparse call happens.
 
     runtimeDependencies.foreach { dep =>
       try {
@@ -117,7 +248,7 @@ abstract class SpecifiedLengthUnparserBase2(
 
     computeTargetLength(state)
 
-    runValueUnparsers(state)
+    runContentUnparsers(state)
 
     computeSetVariables(state)
 
@@ -131,13 +262,19 @@ abstract class SpecifiedLengthUnparserBase2(
     start.childIndexStack.push(childIndex + 1)
   }
 
+  /**
+   * Consumes the required infoset events and changes context so that the
+   * element's DIElement node is the context element.
+   */
   protected def startElement(state: UState): Unit = {
     val elem =
       if (!erd.isHidden) {
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume start events for non-hidden elements
         val event = state.advanceOrError
-        if (!event.isStart) { //  || event.erd != erd) {
+        if (!event.isStart || event.erd != erd) {
+          // it's not a start element event, or it's a start element event, but for a different element.
+          // this indicates that the incoming infoset (as events) doesn't match the schema
           UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
         }
         event.asElement
@@ -157,12 +294,17 @@ abstract class SpecifiedLengthUnparserBase2(
     state.aaa_currentNode = e
   }
 
+  /**
+   * Restores prior context. Consumes end-element event.
+   */
   protected def endElement(state: UState): Unit = {
     if (!erd.isHidden) {
       // Hidden elements are not in the infoset, so we will never get an event
       // for them. Only try to consume end events for non-hidden elements
       val event = state.advanceOrError
-      if (!event.isEnd) { //  || event.erd != erd) {
+      if (!event.isEnd || event.erd != erd) {
+        // it's not an end-element event, or it's an end element event, but for a different element.
+        // this indicates that the incoming infoset (as events) doesn't match the schema
         UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
       }
     }
@@ -179,7 +321,7 @@ abstract class SpecifiedLengthUnparserBase2(
 }
 
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
-    extends PrimUnparserObject(context) {
+  extends PrimUnparserObject(context) {
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -193,7 +335,7 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
 }
 
 class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData)
-    extends PrimUnparserObject(context) {
+  extends PrimUnparserObject(context) {
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -207,7 +349,7 @@ class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData
 }
 
 class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData)
-    extends PrimUnparserObject(context) {
+  extends PrimUnparserObject(context) {
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -221,7 +363,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
 }
 
 class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
-    extends PrimUnparserObject(context) {
+  extends PrimUnparserObject(context) {
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -234,33 +376,32 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
   }
 }
 
+/**
+ * For regular (not dfdl:outputValueCalc) elements.
+ */
 class ElementSpecifiedLengthUnparser(
   override val context: ElementRuntimeData,
   maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
   override val setVarUnparsers: Array[Unparser],
   override val beforeContentUnparsers: Array[Unparser],
-  //  override val beforeValueUnparsers: Array[Unparser],
-  override val valueUnparsers: Array[Unparser] //  override val afterValueUnparsers: Array[Unparser],
-  //  override val afterContentUnparsers: Array[Unparser],
-  //  eElementUnusedUnparser: Maybe[Unparser]
-  )
-    extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv) {
+  override val contentUnparsers: Array[Unparser])
+  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv) {
 
   override val runtimeDependencies = maybeTargetLengthEv.toList
 
 }
 
+/**
+ * For dfdl:outputValueCalc elements.
+ */
 class ElementOVCSpecifiedLengthUnparser(
   override val context: ElementRuntimeData,
   maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
   override val setVarUnparsers: Array[Unparser],
   override val beforeContentUnparsers: Array[Unparser],
-  //  override val beforeValueUnparsers: Array[Unparser],
-  override val valueUnparsers: Array[Unparser] //  override val afterValueUnparsers: Array[Unparser],
-  //  override val afterContentUnparsers: Array[Unparser],
-  //  eElementUnusedUnparser: Maybe[Unparser]
-  ) extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv)
-    with SuspendableExpression {
+  override val contentUnparsers: Array[Unparser])
+  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv)
+  with SuspendableExpression {
 
   override val runtimeDependencies = maybeTargetLengthEv.toList
 
@@ -268,13 +409,12 @@ class ElementOVCSpecifiedLengthUnparser(
 
   override final protected def processExpressionResult(state: UState, v: AnyRef) {
     val diSimple = state.currentInfosetNode.asSimple
-    // note. This got attached to infoset in StatementElementOutputValueCalcUnparser
 
     diSimple.setDataValue(v)
     //
     // now we have to unparse the value.
     //
-    runValueUnparsers(state)
+    runContentUnparsers(state)
 
     computeSetVariables(state)
   }
@@ -374,7 +514,7 @@ class ElementOVCSpecifiedLengthUnparser(
 //    extends {
 //      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
 //
-//      override val valueUnparsers = (eUnparser.toList).toArray
+//      override val contentUnparsers = (eUnparser.toList).toArray
 //
 //      override val afterValueUnparsers = (eElementUnusedUnparser.toList).toArray
 //
@@ -392,7 +532,7 @@ class ElementOVCSpecifiedLengthUnparser(
 //    extends {
 //      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
 //
-//      override val valueUnparsers = (eUnparser.toList).toArray
+//      override val contentUnparsers = (eUnparser.toList).toArray
 //
 //      override val afterValueUnparsers = (eRightFillUnparser.toList).toArray
 //
@@ -409,7 +549,7 @@ class ElementOVCSpecifiedLengthUnparser(
 //    extends {
 //      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
 //
-//      override val valueUnparsers = (eUnparser.toList).toArray
+//      override val contentUnparsers = (eUnparser.toList).toArray
 //
 //      override val afterValueUnparsers: Array[Unparser] = Nil.toArray
 //
@@ -430,7 +570,7 @@ class ElementOVCSpecifiedLengthUnparser(
 //
 //      override val beforeValueUnparsers = (eLeftPaddingUnparser.toList).toArray
 //
-//      override val valueUnparsers = (eUnparser.toList).toArray
+//      override val contentUnparsers = (eUnparser.toList).toArray
 //
 //      override val afterValueUnparsers = (eRightPaddingUnparser.toList ++
 //        eRightFillUnparser.toList).toArray
@@ -439,16 +579,23 @@ class ElementOVCSpecifiedLengthUnparser(
 //
 //    } with SpecifiedLengthUnparserBase2(context, targetLengthEv)
 
-class TLOp(override val rd: ElementRuntimeData,
+/**
+ * Carries out computation of the target length for a specified-length element.
+ */
+class TargetLengthOperation(override val rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv)
-    extends SuspendableOperation {
+  extends SuspendableOperation {
 
   override def toString = "target length for " + rd.prettyName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv.toBriefXML()
 
+  /**
+   * This override indicates that this operation itself doesn't correspond
+   * to any bits in the unparsed data stream. It's just a computation.
+   */
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
 
   override def test(ustate: UState): Boolean = {
-    targetLengthEv.evaluate(ustate)
+    targetLengthEv.evaluate(ustate) // can we successfully evaluate without blocking (blocking would throw)
     true
   }
 
@@ -465,11 +612,15 @@ trait SuspendableUnparser extends SuspendableOperation {
   }
 }
 
+/**
+ * Several sub-unparsers need to have the value length, and the target length
+ * in order to compute their own length.
+ */
 trait NeedValueAndTargetLengthMixin {
 
   def targetLengthEv: UnparseTargetLengthInBitsEv
 
-  protected def test(ustate: UState): Boolean = {
+  protected final def hasTargetLength(ustate: UState): Boolean = {
     val mtl = targetLengthEv.evaluate(ustate)
     if (mtl.isEmpty) {
       val lib = targetLengthEv.lengthInBitsEv
@@ -479,7 +630,12 @@ trait NeedValueAndTargetLengthMixin {
       val cs = mcs.get.evaluate(ustate)
       val csName = cs.charsetName
       ustate.SDE("For dfdl:lengthKind '%s', variable width character encoding '%s', and dfdl:lengthUnits '%s' are incompatible.", lk, csName, lu)
-    } else {
+    }
+    true
+  }
+
+  protected def test(ustate: UState): Boolean = {
+    hasTargetLength(ustate) && {
       val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
       val hasValueLength = e.valueLength.maybeLengthInBits().isDefined
       hasValueLength
@@ -502,9 +658,9 @@ class ElementUnusedUnparser(
   override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   fillByteEv: FillByteEv)
-    extends PrimUnparserObject(rd)
-    with SuspendableUnparser
-    with NeedValueAndTargetLengthMixin {
+  extends PrimUnparserObject(rd)
+  with SuspendableUnparser
+  with NeedValueAndTargetLengthMixin {
 
   override lazy val runtimeDependencies = List(targetLengthEv, fillByteEv)
 
@@ -533,8 +689,10 @@ class ElementUnusedUnparser(
 }
 
 trait PaddingUnparserMixin
-    extends SuspendableUnparser
-    with NeedValueAndTargetLengthMixin { self: Unparser =>
+  extends SuspendableUnparser
+  with NeedValueAndTargetLengthMixin { self: Unparser =>
+
+  protected def charsKind = "pad"
 
   override lazy val runtimeDependencies = List(targetLengthEv)
 
@@ -575,7 +733,7 @@ trait PaddingUnparserMixin
       val padString = padChar.toString
       while (i < nChars) {
         if (dos.putString(padString) != 1)
-          UE(state, "Unable to output %s pad characters.", nChars)
+          UE(state, "Unable to output %s %s characters.", nChars, charsKind)
         i += 1
       }
     }
@@ -588,13 +746,43 @@ trait PaddingUnparserMixin
 class OnlyPaddingUnparser(override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybePadChar: MaybeChar)
-    extends PrimUnparserObject(rd)
-    with PaddingUnparserMixin
+  extends PrimUnparserObject(rd)
+  with PaddingUnparserMixin
+
+class NilLiteralCharacterUnparser(override val rd: ElementRuntimeData,
+  override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  literalNilChar: Char)
+  extends PrimUnparserObject(rd)
+  with PaddingUnparserMixin {
+
+  override def charsKind = "dfdl:nilKind 'literalCharacter'"
+
+  override val maybePadChar: MaybeChar = MaybeChar(literalNilChar)
+
+  //
+  // We don't wait for the valueLength, because the unparsed
+  // nil is part of the valueLength
+  //
+  override def test(state: UState) =
+    hasTargetLength(state) && {
+      val e = state.currentInfosetNode.asInstanceOf[DISimple]
+      val isNilled = e.isNilled
+      isNilled
+    }
+
+  override protected def getSkipBits(ustate: UState): Long = {
+    val mtl = targetLengthEv.evaluate(ustate)
+    val tl = mtl.get
+    val skipInBits = tl
+    skipInBits
+  }
+
+}
 
 class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybePadChar: MaybeChar)
-    extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -605,7 +793,7 @@ class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
 class LeftCenteredPaddingUnparser(override val rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybePadChar: MaybeChar)
-    extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -621,8 +809,8 @@ class RightFillUnparser(
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   fillByteEv: FillByteEv,
   override val maybePadChar: MaybeChar)
-    extends ElementUnusedUnparser(rd, targetLengthEv, fillByteEv)
-    with PaddingUnparserMixin {
+  extends ElementUnusedUnparser(rd, targetLengthEv, fillByteEv)
+  with PaddingUnparserMixin {
 
   override def continuation(state: UState) {
     val skipInBits = getSkipBits(state)

@@ -70,7 +70,8 @@ trait PaddingInfoMixin {
   }
 
   lazy val stringTruncationType: TextTruncationType.Type =
-    if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
+    if (eBase.primType != PrimType.String) TextTruncationType.None
+    else if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
     else eBase.textStringJustification match {
       case TextStringJustification.Left => TextTruncationType.Left
       case TextStringJustification.Right => TextTruncationType.Right

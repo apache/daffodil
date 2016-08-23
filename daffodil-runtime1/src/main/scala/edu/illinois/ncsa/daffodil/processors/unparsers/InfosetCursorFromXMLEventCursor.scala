@@ -73,9 +73,9 @@ import edu.illinois.ncsa.daffodil.util.MStackOf
  * unparse method call.
  */
 private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCursor, rootElementInfo: ElementRuntimeData)
-    extends InfosetCursor
-    with CursorImplMixin[InfosetAccessor]
-    with InvertControl[InfosetAccessor] {
+  extends InfosetCursor
+  with CursorImplMixin[InfosetAccessor]
+  with InvertControl[InfosetAccessor] {
 
   private def iter = this.asInstanceOf[InvertControl[InfosetAccessor]]
 
@@ -189,8 +189,10 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
   private def handleSimpleTextualEvent(ev: XMLEvent, text: String, parents: NodeStack) {
     parents.top match {
       case diSimple: DISimple => {
-        if (diSimple.isNilled) Assert.invariantFailed("text content found in nilled element")
-        else sb.append(text)
+        if (diSimple.maybeIsNilled.isDefined && diSimple.maybeIsNilled.get == true)
+          Assert.invariantFailed("text content found in nilled element")
+        else
+          sb.append(text)
       }
       case _ if text.matches("\\s*") => // ok. Absorb whitespace between elements
       case e: DIElement =>
@@ -264,6 +266,14 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
       // incoming occurrence for an array, but not same array
       case evStart: EvStart if erd.isArray && (arr.erd _ne_ erd) => {
         end(arr)
+        /*
+         * These isFinal assignments are critical. This isFinal flag is a
+         * critical part of being able to implement fn:count and fn:exists for
+         * unparsing. You can't return the fn:count of an array until you know
+         * that the array has all the elements it is going to have, and
+         * fn:exists you can't return false, meaning the child doesn't
+         * exist, until you know all children are done being added.
+         */
         arr.isFinal = true
         parents.pop
         handleEvStart(evStart, parents) // recursively
@@ -342,7 +352,8 @@ private[unparsers] class InfosetCursorFromXMLEventCursor(xmlCursor: XMLEventCurs
     parents.top match {
       case s: DISimple => {
         Assert.invariant(verifyName(evEnd, s.erd))
-        if (!s.isNilled) {
+        val isNilled = s.maybeIsNilled.isDefined && (s.maybeIsNilled.get == true)
+        if (!isNilled) {
           val txt = sb.toString
           sb.clear()
           val primType = s.erd.optPrimType.get

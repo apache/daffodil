@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
 object UnorderedSequence {
-  def apply(context: Term, eGram: Gram) = {
+  def apply(context: Term, eGram: => Gram) = {
     // mandatory little optimization here. If there are no statements (most common case), then let's
     // shortcut and just use the guts parser.
 
@@ -53,9 +53,11 @@ object UnorderedSequence {
   }
 }
 
-class UnorderedSequence private (context: Sequence, eGram: Gram) // private to force use of the object as factory
-  extends UnaryGram(context, eGram) with HasNoUnparser {
+class UnorderedSequence private (context: Sequence, eGramArg: => Gram) // private to force use of the object as factory
+  extends UnaryGram(context, eGramArg) with HasNoUnparser {
 
+  lazy val eGram = eGramArg // once only
+  
   // Forced as part of required evaluations in Sequence
   //context.checkIfValidUnorderedSequence
 

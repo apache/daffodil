@@ -86,8 +86,8 @@ class UState private (
   dataProcArg: DataProcessor,
   var dataOutputStream: DataOutputStream,
   initialSuspendedExpressions: mutable.Queue[Suspension])
-    extends ParseOrUnparseState(vbox, diagnosticsArg, One(dataProcArg), Success)
-    with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+  extends ParseOrUnparseState(vbox, diagnosticsArg, One(dataProcArg), Success)
+  with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   dState.setMode(UnparserBlocking)
 
@@ -118,6 +118,13 @@ class UState private (
     clone.currentInfosetNodeStack.copyFrom(this.currentInfosetNodeStack)
     clone.aaa_currentNode = clone.currentInfosetNodeStack.top
     clone.arrayIndexStack.copyFrom(this.arrayIndexStack)
+    /*
+     * If an OVC element is delimited, and by it's location in the schema
+     * it can be delimited by any of the separators or terminators of a bunch of
+     * enclosing groups. In that case we need to "freeze" the delimiter
+     * stack so that it will have the right stuff on stack such time in the
+     * future as the OVC expression can successfully evaluate.
+     */
     clone.delimiterStack.copyFrom(this.delimiterStack)
 
     val dstate = clone.dState
@@ -378,7 +385,7 @@ class UState private (
     if (suspensions.length > 1) {
       // unable to evaluate all the expressions
       suspensions.map { sus =>
-        sus.run() // good place for a breakpoint so we can debug why things are locked up. 
+        sus.run() // good place for a breakpoint so we can debug why things are locked up.
       }
       throw new SuspensionDeadlockException(suspensions.seq)
     } else if (suspensions.length == 1) {

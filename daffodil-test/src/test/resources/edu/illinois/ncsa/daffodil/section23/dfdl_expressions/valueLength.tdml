@@ -121,8 +121,8 @@
 
   </tdml:defineSchema>
 
-  <tdml:unparserTestCase name="contentLengthPair1" root="e1"
-    model="cl1" description="simplest possible case of dfdl:outputValueCalc and dfdl:contentLength">
+  <tdml:unparserTestCase name="valueLengthPair1" root="e1"
+    model="cl1" description="simplest possible case of dfdl:outputValueCalc and dfdl:valueLength">
 
     <tdml:document>
       <tdml:documentPart type="byte">000000053132333435</tdml:documentPart>
@@ -137,8 +137,8 @@
     </tdml:infoset>
     </tdml:unparserTestCase>
     
-      <tdml:unparserTestCase name="contentLengthPair2" root="e2"
-    model="cl1" description="dfdl:outputValueCalc two in a row and dfdl:contentLength">
+      <tdml:unparserTestCase name="valueLengthPair2" root="e2"
+    model="cl1" description="dfdl:outputValueCalc two in a row and dfdl:valueLength">
 
     <tdml:document>
       <tdml:documentPart type="byte">00000005 00000006 3132333435 313233343536</tdml:documentPart>
@@ -154,8 +154,8 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
   
-        <tdml:unparserTestCase name="contentLengthPair3" root="e3"
-    model="cl1" description="dfdl:outputValueCalc two in a row out of order, and dfdl:contentLength">
+        <tdml:unparserTestCase name="valueLengthPair3" root="e3"
+    model="cl1" description="dfdl:outputValueCalc two in a row out of order, and dfdl:valueLength">
 
     <tdml:document>
       <tdml:documentPart type="byte">00000006 00000005 3132333435 313233343536</tdml:documentPart>
@@ -171,8 +171,8 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
   
-  <tdml:unparserTestCase name="contentLengthAndOccurs1" root="e4"
-    model="cl1" description="dfdl:outputValueCalc and dfdl:contentLength separated by array with binary different byte order.">
+  <tdml:unparserTestCase name="valueLengthAndOccurs1" root="e4"
+    model="cl1" description="dfdl:outputValueCalc and dfdl:valueLength separated by array with binary different byte order.">
 
     <tdml:document>
       <tdml:documentPart type="byte">00000005 00000003 11223344 22334455 33445566 3132333435</tdml:documentPart>

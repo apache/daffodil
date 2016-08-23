@@ -38,9 +38,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
 
 trait InitiatedTerminatedMixin
-    extends GrammarMixin
-    with AnnotatedMixin
-    with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
+  extends GrammarMixin
+  with AnnotatedMixin
+  with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
 
   private lazy val parentSaysInitiatedContent = {
     val parentSays = self.immediatelyEnclosingModelGroup match {
@@ -51,20 +51,14 @@ trait InitiatedTerminatedMixin
   }
 
   final lazy val hasInitiator = {
-    if (optionInitiatorRaw.isDefined) {
-      val hasOne = initiatorParseEv.isKnownNonEmpty
-      if (parentSaysInitiatedContent)
-        schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
-      hasOne
-    } else
-      false
+    val hasOne = initiatorParseEv.isKnownNonEmpty
+    if (parentSaysInitiatedContent)
+      schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+    hasOne
   }
 
   final lazy val hasTerminator = {
-    if (optionTerminatorRaw.isDefined) {
-      terminatorParseEv.isKnownNonEmpty
-    } else
-      false
+    terminatorParseEv.isKnownNonEmpty
   }
 
   lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }

@@ -41,9 +41,10 @@ import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.processors.unparsers._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
+abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
     extends Terminal(e, true) {
 
+  lazy val eGram = eGramArg // once only 
   lazy val eParser = eGram.parser
   lazy val eUnparser = eGram.unparser
 

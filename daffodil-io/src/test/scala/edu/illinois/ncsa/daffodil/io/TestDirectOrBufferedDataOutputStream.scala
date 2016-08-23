@@ -49,10 +49,14 @@ class TestDirectOrBufferedDataOutputStream {
     res
   }
 
-  @Test def testToString {
+  /**
+   * Tests that the toString method doesn't throw. Can't even use a debugger
+   * if that happens.
+   */
+  @Test def testToStringDoesNotThrow {
     val baos = new ByteArrayOutputStreamWithGetBuf()
     val layered = DirectOrBufferedDataOutputStream(baos, null)
-    System.err.println(layered.toString())
+    assertFalse(layered.toString().isEmpty())
   }
 
   @Test def testCollapsingBufferIntoDirect1 {

@@ -111,13 +111,16 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) exte
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
+  override def isEmpty = body.isEmpty
+
   lazy val parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
+
   override lazy val unparser: DaffodilUnparser =
     new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
 case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
-    extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
+  extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
 
   private val mt: Gram = EmptyGram
   lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
@@ -133,7 +136,7 @@ case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
 }
 
 case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
-    extends UnimplementedPrimitive(s, false) {
+  extends UnimplementedPrimitive(s, false) {
   // stub for now. These are not implemented currently.
 }
 

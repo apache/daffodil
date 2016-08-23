@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.util
 
 import java.util.concurrent.ArrayBlockingQueue
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
@@ -136,8 +135,6 @@ trait CoroutineAny {
           case e: scala.xml.parsing.FatalError => throw e
           case _ => {
             // Indicates that the other coroutine exited abnormally.
-            Assert.invariantFailed("Other coroutine exited abnormally: " +
-              DiagnosticUtils.getSomeMessage(ce).getOrElse("an unknown error"))
             throw ce
           }
         }
@@ -293,6 +290,4 @@ trait InvertControl[S <: AnyRef] extends IteratorWithPeek[S] with Coroutine[S] {
 
 }
 
-class CoroutineException(cause: Throwable) extends Exception(cause) {
-  cause.printStackTrace()
-}
+class CoroutineException(cause: Throwable) extends Exception(cause)

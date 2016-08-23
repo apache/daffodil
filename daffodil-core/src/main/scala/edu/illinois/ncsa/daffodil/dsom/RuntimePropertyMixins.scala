@@ -63,12 +63,13 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursAGMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
-import edu.illinois.ncsa.daffodil.processors.ElementLengthInBitsEv
+import edu.illinois.ncsa.daffodil.processors.LengthInBitsEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.LengthEv
 import edu.illinois.ncsa.daffodil.processors.MinLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
+import edu.illinois.ncsa.daffodil.processors.unparsers.NilStringLiteralForUnparserEv
 
 /*
  * These are the DFDL properties which can have their values come
@@ -79,8 +80,8 @@ import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
  */
 
 trait TermRuntimeValuedPropertiesMixin
-    extends DFDLBaseTypeMixin
-    with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
+  extends DFDLBaseTypeMixin
+  with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
   private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")
@@ -137,11 +138,21 @@ trait TermRuntimeValuedPropertiesMixin
     ev
   }
 
+  /**
+   * Use when we might or might not need the outputNewLine property
+   */
+  lazy val maybeOutputNewLineEv = {
+    if (optionOutputNewLineRaw.isDefined)
+      One(outputNewLineEv)
+    else
+      Nope
+  }
+
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
-    extends TermRuntimeValuedPropertiesMixin
-    with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
+  extends TermRuntimeValuedPropertiesMixin
+  with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
   lazy val isLengthKindDelimited = {
     decl.referredToComponent match {
@@ -192,11 +203,11 @@ trait DelimitedRuntimeValuedPropertiesMixin
 }
 
 trait ElementRuntimeValuedPropertiesMixin
-    extends DelimitedRuntimeValuedPropertiesMixin
-    with OccursAGMixin
-    with LengthAGMixin
-    with SimpleTypeRuntimeValuedPropertiesMixin
-    with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
+  extends DelimitedRuntimeValuedPropertiesMixin
+  with OccursAGMixin
+  with LengthAGMixin
+  with SimpleTypeRuntimeValuedPropertiesMixin
+  with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
   private lazy val byteOrderExpr = LV('byteOrder) {
     val qn = this.qNameForProperty("byteOrder")
@@ -246,7 +257,8 @@ trait ElementRuntimeValuedPropertiesMixin
         case _ =>
           Assert.usageError("should only be used for Explicit or Implicit length kinds: " + lengthKind)
       }
-    ev // note that this is already compiled.
+    Assert.invariant(ev.isCompiled)
+    ev
   }
 
   protected final lazy val optLengthConstant: Option[Long] = lengthEv.optConstant.map { _.longValue }
@@ -262,7 +274,7 @@ trait ElementRuntimeValuedPropertiesMixin
    * runtime-valued using the Ev. The "right thing" happens if the information
    * is constant.
    */
-  private lazy val elementLengthInBitsEv: ElementLengthInBitsEv = {
+  private lazy val elementLengthInBitsEv: LengthInBitsEv = {
     Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
     import LengthKind._
     import Representation._
@@ -277,7 +289,7 @@ trait ElementRuntimeValuedPropertiesMixin
         case (Implicit, Text, _) => (lengthUnits, implicitLengthEv)
         case _ => Assert.invariantFailed("not Implicit or Explicit")
       }
-    val ev = new ElementLengthInBitsEv(units, lengthKind, maybeCharsetEv, lenEv, erd)
+    val ev = new LengthInBitsEv(units, lengthKind, maybeCharsetEv, lenEv, erd)
     ev.compile()
     ev
   }
@@ -349,12 +361,18 @@ trait ElementRuntimeValuedPropertiesMixin
     ev.compile()
     ev
   }
+
+  lazy val nilStringLiteralForUnparserEv = {
+    val ev = new NilStringLiteralForUnparserEv(termRuntimeData, maybeOutputNewLineEv, rawNilValuesForUnparse.head)
+    ev.compile()
+    ev
+  }
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
-    extends DelimitedRuntimeValuedPropertiesMixin
-    with Sequence_AnnotationMixin
-    with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
+  extends DelimitedRuntimeValuedPropertiesMixin
+  with Sequence_AnnotationMixin
+  with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
   private lazy val separatorExpr = {
     val qn = this.qNameForProperty("separator")
@@ -378,8 +396,8 @@ trait SequenceRuntimeValuedPropertiesMixin
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
-    extends DFDLSimpleTypeMixin
-    with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
+  extends DFDLSimpleTypeMixin
+  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
   private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
     val qn = this.qNameForProperty("textStandardDecimalSeparator")

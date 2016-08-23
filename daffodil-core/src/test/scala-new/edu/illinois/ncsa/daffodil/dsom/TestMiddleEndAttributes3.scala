@@ -76,14 +76,14 @@ class TestMiddleEndAttributes3 {
     val mems = seq.groupMembers
     val Seq(ile: ElementBase, _: ElementBase) = mems
     val ile_nextSibling = ile.nextSibling
-    println("ile_nextSibling: " + ile_nextSibling)
+    assertNotNull(ile_nextSibling)
     val ilct = ile.elementComplexType
     val ilseq = ilct.sequence
     val Seq(_: ElementBase, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
-    println("next Siblings: " + nextSiblings)
+    assertNotNull(nextSiblings)
     val nextParents = ipsrcle.nextParentElements
-    println("nextParents: " + nextParents)
+    assertNotNull(nextParents)
     assertEquals(0, nextParents.length)
     // assertEquals("TransportLayer", tlle.name)
 
@@ -135,14 +135,14 @@ class TestMiddleEndAttributes3 {
     val mems = seq.groupMembers
     val Seq(ile: ElementBase, _: ElementBase, _: Choice) = mems
     val ile_nextSibling = ile.nextSibling
-    println("ile_nextSibling: " + ile_nextSibling)
+    assertNotNull(ile_nextSibling)
     val ilct = ile.elementComplexType
     val ilseq = ilct.sequence
     val Seq(_: ElementBase, _: Sequence, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
-    println("next Siblings: " + nextSiblings)
+    assertNotNull(nextSiblings)
     val nextParents = ipsrcle.nextParentElements
-    println("nextParents: " + nextParents)
+    // println("nextParents: " + nextParents)
     assertEquals(0, nextParents.length)
     //    val actual = TestUtils.testString(testSchema, "/5").result
     //    actual.toString

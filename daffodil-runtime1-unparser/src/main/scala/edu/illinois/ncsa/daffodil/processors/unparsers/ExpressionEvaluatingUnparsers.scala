@@ -39,6 +39,10 @@ import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
+/**
+ * Note that this unparser isA SuspendableExpression. It doesn't merely contain 
+ * one. It inherits directly from the trait.
+ */
 final class SetVariableUnparser(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,

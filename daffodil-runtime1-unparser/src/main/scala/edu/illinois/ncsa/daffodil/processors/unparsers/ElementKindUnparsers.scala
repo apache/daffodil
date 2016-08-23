@@ -43,8 +43,11 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
-    extends UnparserObject(rd) {
+  extends UnparserObject(rd) {
+
   override def nom = "ComplexType"
+
+  override def isEmpty = bodyUnparser.isEmpty
 
   override lazy val childProcessors = Seq(bodyUnparser)
 
@@ -56,8 +59,8 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
 }
 
 class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
-    extends TermUnparser(rdArg)
-    with ToBriefXMLImpl {
+  extends TermUnparser(rdArg)
+  with ToBriefXMLImpl {
   override def nom = "Sequence"
 
   // Sequences of nothing (no initiator, no terminator, nothing at all) should
@@ -136,8 +139,8 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
 }
 
 class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Map[ChoiceBranchEvent, Unparser])
-    extends TermUnparser(mgrd)
-    with ToBriefXMLImpl {
+  extends TermUnparser(mgrd)
+  with ToBriefXMLImpl {
   override def nom = "Choice"
 
   override lazy val childProcessors: Seq[Processor] = eventUnparserMap.map { case (k, v) => v }.toSeq
@@ -172,8 +175,8 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
 // statically at compile time. That logic is in ChoiceCombinator, and the
 // branch to take is passed into this HiddenChoiceCombinatorUnparser.
 class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser: Unparser)
-    extends TermUnparser(mgrd)
-    with ToBriefXMLImpl {
+  extends TermUnparser(mgrd)
+  with ToBriefXMLImpl {
   override def nom = "HiddenChoice"
 
   override lazy val childProcessors: Seq[Processor] = Seq(branchUnparser)
@@ -188,7 +191,7 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
   override val context: RuntimeData,
   bodyUnparser: Unparser)
-    extends Unparser {
+  extends Unparser {
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -221,7 +224,7 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
 }
 
 class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override val context: RuntimeData, bodyUnparser: Unparser)
-    extends Unparser {
+  extends Unparser {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
@@ -245,7 +248,7 @@ class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override 
 }
 
 class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
-    extends TermUnparser(erd) {
+  extends TermUnparser(erd) {
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyUnparser)
 

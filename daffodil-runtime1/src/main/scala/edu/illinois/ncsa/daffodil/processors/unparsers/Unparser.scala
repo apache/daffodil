@@ -58,8 +58,8 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
   //
   // The cache on the node is really only needed for elements with dfdl:outputValueCalc
   // that forward reference to other things in the future. In those cases
-  // we do need to "freeze" the encoding so that this encoding is used for 
-  // the element once the outputValueCalc has completed evaluation and can 
+  // we do need to "freeze" the encoding so that this encoding is used for
+  // the element once the outputValueCalc has completed evaluation and can
   // actually be unparsed.
   //
   final protected def setupEncoder(state: UState, trd: TermRuntimeData) {
@@ -77,7 +77,9 @@ trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
 abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends UnparserObject(termRuntimeData)
 
 trait Unparser
-    extends Processor {
+  extends Processor {
+
+  def isEmpty = false
 
   def context: RuntimeData
 
@@ -118,7 +120,7 @@ trait PrimUnparser
 
 // Deprecated and to be phased out. Use the trait Unparser instead.
 abstract class UnparserObject(override val context: RuntimeData)
-    extends Unparser {
+  extends Unparser {
 
   override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
@@ -126,7 +128,7 @@ abstract class UnparserObject(override val context: RuntimeData)
 
 // Deprecated and to be phased out. Use the trait PrimUnparser instead.
 abstract class PrimUnparserObject(override val context: RuntimeData)
-    extends PrimUnparser {
+  extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
 
@@ -134,9 +136,13 @@ abstract class PrimUnparserObject(override val context: RuntimeData)
 // TODO: make this fail, and test optimizer sufficiently to know these
 // do NOT get through.
 class EmptyGramUnparser(context: RuntimeData = null) extends UnparserObject(context) {
+
   def unparse(ustate: UState) {
     Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
   }
+
+  override def isEmpty = true
+
   override lazy val childProcessors = Nil
 
   override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
@@ -154,8 +160,8 @@ class ErrorUnparser(context: RuntimeData = null) extends UnparserObject(context)
 }
 
 class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
-    extends UnparserObject(context)
-    with ToBriefXMLImpl {
+  extends UnparserObject(context)
+  with ToBriefXMLImpl {
 
   override val childProcessors = childUnparsers.toSeq
 
@@ -177,6 +183,8 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
 }
 
 case class DummyUnparser(primitiveName: String) extends UnparserObject(null) {
+
+  override def isEmpty = true
 
   def unparse(state: UState): Unit = state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 
