@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
+import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -424,6 +425,30 @@ sealed abstract class LengthState(ie: DIElement) {
         val len = endPos - startPos
         System.err.println("%sgth of %s is %s, by relative positions in same data stream. %s".format(flavor, ie.name, len, toString))
         MaybeULong(len)
+      } else if (isStartRelative && isEndRelative && maybeStartDataOutputStream.get.isFinished && maybeEndDataOutputStream.get.isFinished) {
+        // if start and end DOSs are relative and different, but every DOS from
+        // start to end inclusive is finished, then we can calculate the length
+        // based on relative positions
+
+        // get partial lengths in the start and end DOS
+        var len = (maybeStartDataOutputStream.get.relBitPos0b - maybeStartPos0bInBits.getULong) + maybeEndPos0bInBits.getULong
+
+        // get all bits from DOS between start and end DOSs
+        var dos = maybeEndDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream].splitFrom
+        val stop = maybeStartDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
+        while (dos.isFinished && (dos _ne_ stop)) {
+          len = len + dos.relBitPos0b
+          dos = dos.splitFrom
+        }
+
+        if (!dos.isFinished) {
+          // found a non-finished DOS, can't calculate length
+          System.err.println("%sgth of %s is unknown due to unfinished output stream. %s".format(flavor, ie.name, toString))
+          MaybeULong.Nope
+        } else {
+          System.err.println("%sgth of %s is %s, by relative positions in same data stream. %s".format(flavor, ie.name, len, toString))
+          MaybeULong(len.toLong)
+        }
       } else {
         System.err.println("%sgth of %s is unknown still. %s".format(flavor, ie.name, toString))
         MaybeULong.Nope
