@@ -10,7 +10,7 @@
 				ignoreCase="no" textStringJustification="left"
 				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
 				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
-				emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
+				emptyValueDelimiterPolicy="none" escapeSchemeRef="" textOutputMinLength="0" />
 
 		</xs:appinfo>
 	</xs:annotation>

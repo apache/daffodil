@@ -15,9 +15,10 @@
 			
    		<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
    		truncateSpecifiedLengthString="no"  textBidi="no" floating="no"  
-   		encodingErrorPolicy="replace"  encoding="UTF-8" 
+   		encodingErrorPolicy="replace"  encoding="UTF-8"
    		byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
-		alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"/>
+		alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+		textPadKind="none" textOutputMinLength="0"/>
 		
 		</xs:appinfo>
 	</xs:annotation>
