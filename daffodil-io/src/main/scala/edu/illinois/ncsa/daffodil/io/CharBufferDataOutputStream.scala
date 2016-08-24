@@ -39,13 +39,14 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.Misc
 
-private[io] class CharBufferDataOutputStreamState extends DataOutputStreamState
 /**
  * Used to implement unparsing when length is specified in lengthUnits 'characters' when
  * the encoding is variable width (e.g., utf-8)
  */
 final class CharBufferDataOutputStream
   extends DataOutputStream with DataOutputStreamImplMixin {
+
+  override def id = 0
 
   private[io] def isBuffering: Boolean = true
 
@@ -59,8 +60,6 @@ final class CharBufferDataOutputStream
   def setCharBuffer(cb: CharBuffer) {
     target = cb
   }
-
-  protected override val st = new CharBufferDataOutputStreamState
 
   private def notToBeUsed = Assert.usageError("not to be used")
 

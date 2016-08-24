@@ -81,7 +81,7 @@
 	<tdml:defineSchema name="test_ExplicitLengthBits">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="left" textPadKind="padChar"
                       truncateSpecifiedLengthString="no"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
@@ -90,7 +90,8 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+                        dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bits') }"/>
 					<xs:element name="address" dfdl:lengthKind="explicit"
 						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bits">
 						<xs:complexType>
@@ -361,7 +362,8 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+						dfdl:representation="binary" dfdl:lengthKind="implicit"
+                        dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }" />
 					<xs:element name="address" dfdl:lengthKind="explicit"
 						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
 						<xs:complexType>
@@ -457,7 +459,8 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+                        dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
 					<xs:element name="address" dfdl:lengthKind="explicit"
 						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
 						<xs:complexType>
@@ -621,7 +624,8 @@
 			<xs:complexType>
 				<xs:sequence>
 					<xs:element name="len" type="xs:int"
-						dfdl:representation="binary" dfdl:lengthKind="implicit" />
+						dfdl:representation="binary" dfdl:lengthKind="implicit" 
+                        dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
 					<xs:element name="address" dfdl:lengthKind="explicit"
 						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="characters">
 						<xs:complexType>
@@ -667,7 +671,8 @@
 			<xs:complexType>
 				<xs:sequence>
           <xs:element name="len" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+            dfdl:lengthKind="explicit" dfdl:length="{ 3 }" 
+            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
 					<xs:element name="address" dfdl:lengthKind="explicit"
 						dfdl:length="{ ../ex:len }" dfdl:lengthUnits="bytes">
 						<xs:complexType>

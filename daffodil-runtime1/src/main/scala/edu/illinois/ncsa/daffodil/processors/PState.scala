@@ -65,6 +65,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Pool
+import edu.illinois.ncsa.daffodil.util.Logging
 
 object MPState {
 
@@ -182,9 +183,10 @@ abstract class ParseOrUnparseState protected (
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
   protected var status_ : ProcessorResult) extends DFDL.State
-    with StateForDebugger
-    with ThrowsSDE with SavesErrorsAndWarnings
-    with LocalBufferMixin {
+  with StateForDebugger
+  with ThrowsSDE with SavesErrorsAndWarnings
+  with LocalBufferMixin
+  with Logging {
 
   def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], status: ProcessorResult = Success) =
     this(new VariableBox(vmap), diags, dataProc, status)
@@ -352,7 +354,7 @@ abstract class ParseOrUnparseState protected (
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
 class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
-    extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
+  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
   /**
    * As seen from class CompileState, the missing signatures are as follows.
    *  *  For convenience, these are usable as stub implementations.
@@ -395,7 +397,7 @@ final class PState private (
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult])
-    extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
 
   override def currentNode = Maybe(infoset.asInstanceOf[DINode])
 

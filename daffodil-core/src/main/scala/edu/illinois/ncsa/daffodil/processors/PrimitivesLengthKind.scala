@@ -37,9 +37,6 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-
-import edu.illinois.ncsa.daffodil.util.LogLevel
-
 import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
@@ -164,16 +161,16 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  /**
-   * Called at compile time in static case, at runtime for dynamic case.
-   */
-  def errorIfDelimsHaveWSPStar(delims: List[String]): Unit = {
-    if (delims.filter(x => x == "%WSP*;").length > 0) {
-      // We cannot detect this error until expressions have been evaluated!
-      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
-      context.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
-    }
-  }
+  //  /**
+  //   * Called at compile time in static case, at runtime for dynamic case.
+  //   */
+  //  def errorIfDelimsHaveWSPStar(delims: List[String]): Unit = {
+  //    if (delims.filter(x => x == "%WSP*;").length > 0) {
+  //      // We cannot detect this error until expressions have been evaluated!
+  //      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
+  //      context.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
+  //    }
+  //  }
 
   override lazy val parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
@@ -182,7 +179,12 @@ abstract class StringDelimited(e: ElementBase)
     textDelimitedParser,
     fieldDFAParseEv,
     isDelimRequired)
-  override lazy val unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, parsingPadChar, escapeSchemeUnparseEvOpt, isDelimRequired)
+  override lazy val unparser: DaffodilUnparser =
+    new StringDelimitedUnparser(e.elementRuntimeData,
+      justificationPad,
+      parsingPadChar,
+      escapeSchemeUnparseEvOpt,
+      isDelimRequired)
 
 }
 

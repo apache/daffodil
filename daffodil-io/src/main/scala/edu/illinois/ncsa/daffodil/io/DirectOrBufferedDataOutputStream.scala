@@ -42,6 +42,7 @@ import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import java.nio.ByteBuffer
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -81,10 +82,14 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  * buffer. When direct, all output goes into a "real" DataOutputStream.
  *
  */
-final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectOrBufferedDataOutputStream)
+final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream)
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
+  /**
+   * Must be val, as split-from will get reset to null as streams
+   * are morphed into direct streams.
+   */
   val id: Int = if (splitFrom == null) 0 else splitFrom.id + 1
 
   /**
@@ -101,28 +106,36 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     lazy val upTo16BytesInHex = Misc.bytes2Hex(max16ByteArray)
     val toDisplay = "DOS(id=" + id + ", " + dosState +
       (if (isBuffering) ", Buffered" else ", Direct") +
-      (if (st.maybeAbsBitPos0b.isDefined) {
-        val srt = st.maybeAbsStartingBitPos0b.get
-        val end = st.maybeAbsBitPos0b.get
+      (if (maybeAbsBitPos0b.isDefined) {
+        val srt = if (isDirect) 0 else maybeAbsStartingBitPos0b.get
+        val end = maybeAbsBitPos0b.get
         val len = ULong(end - srt).longValue
-        " from %d to %d (length %d)".format(srt, end, len)
+        " Absolute from %d to %d (length %d)".format(srt, end, len)
       } else {
         if (splitFrom ne null)
-          " from end of DOS id=%d for length %d".format(this.splitFrom.id, st.relBitPos0b.longValue)
+          " at rel bit pos %d".format(relBitPos0b.longValue)
         else
-          " for length %d".format(st.relBitPos0b.longValue)
+          " at rel bit pos %d".format(relBitPos0b.longValue)
       }) +
-      (if (st.maybeAbsBitLimit0b.isDefined) {
-        " limit %d.".format(st.maybeAbsBitLimit0b.get)
-      } else if (st.maybeRelBitLimit0b.isDefined) {
-        " length limit %d.".format(st.maybeRelBitLimit0b.get)
+      (if (maybeAbsBitLimit0b.isDefined) {
+        " limit %d.".format(maybeAbsBitLimit0b.get)
+      } else if (maybeRelBitLimit0b.isDefined) {
+        " length limit %d.".format(maybeRelBitLimit0b.get)
       } else "") +
       (if (isBuffering) ", data=" + upTo16BytesInHex else "") +
-      (if (_following.isDefined) " with Following DOS(id=" + _following.get.id + ")" else "") +
+      (if (_following.isEmpty) " no following" else "") +
       ")"
     toDisplay
   }
 
+  def findFirstBlocking: DirectOrBufferedDataOutputStream = {
+    if (maybeAbsBitPos0b.isEmpty || !isFinished) this
+    else {
+      Assert.invariant(this.maybeAbsBitPos0b.isEmpty)
+      Assert.invariant(this.splitFrom ne null)
+      splitFrom.findFirstBlocking
+    }
+  }
   /**
    * When in buffering mode, this is the buffering device.
    *
@@ -156,8 +169,6 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
     Assert.usage(newOutputStream ne bufferingJOS) // these are born buffering, and evolve into direct.
-    st.resetAllBitPos()
-    if (splitFrom eq null) st.setAbsStartingBitPos0b(ULong(0))
   }
 
   override def getJavaOutputStream() = {
@@ -198,7 +209,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     newBufStr.assignFrom(this)
     newBufStr.resetAllBitPos()
     val savedBP = relBitPos0b.toLong
-    if (maybeRelBitLimit0b.isDefined) newBufStr.st.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
+    if (maybeRelBitLimit0b.isDefined) newBufStr.setMaybeRelBitLimit0b(MaybeULong(maybeRelBitLimit0b.get - savedBP))
     newBufStr
   }
 
@@ -209,33 +220,30 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
   private def convertToDirect(oldDirectDOS: ThisType) {
     Assert.usage(isBuffering)
     Assert.usage(oldDirectDOS.isDirect)
+
     setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
     Assert.invariant(isDirect)
     this.setAbsStartingBitPos0b(ULong(0))
 
-    // Preserve the rel and abs bit positions. Note that 'this' is now a direct
-    // DOS, so its rel and abs bit positions should be the same. Also, we must
-    // set relBitPos0b first since that will also modify absBitPos, but we
-    // don't want that modification. After that is set, just overwrite whatever
-    // the absBitPos was with what it should be.
-    this.setRelBitPos0b(oldDirectDOS.relBitPos0b)
-    //
-    // This invariant doesn't hold for some of the unit tests which do this
-    // convert to direct using two buffering streams.
-    //
     Assert.invariant(oldDirectDOS.maybeAbsStartingBitPos0b.isDefined)
-    //
-    if (oldDirectDOS.maybeAbsStartingBitPos0b.isDefined) {
-      this.setAbsStartingBitPos0b(oldDirectDOS.st.maybeAbsStartingBitPos0b.getULong)
-      Assert.invariant(this.st.relBitPos0b == this.st.maybeAbsBitPos0b.get)
-    }
+
     // Preserve the bit limit
-    this.setMaybeRelBitLimit0b(oldDirectDOS.maybeRelBitLimit0b)
+    val mabl = oldDirectDOS.maybeAbsBitLimit0b
+    val absLargerLimit = math.max(mabl.getOrElse(0L),
+      maybeAbsBitLimit0b.getOrElse(0L))
+    if (mabl.isDefined || maybeAbsBitLimit0b.isDefined) {
+      val newRelLimit = absLargerLimit - this.maybeAbsStartingBitPos0b.get
+      this.setMaybeRelBitLimit0b(MaybeULong(newRelLimit))
+    }
 
     // after the old bufferedDOS has been completely written to the
     // oldDirectDOS, there may have been a fragment byte left over. We must
     // copy that fragment byte to the new directDOS
-    this.st.setFragmentLastByte(oldDirectDOS.st.fragmentLastByte, oldDirectDOS.st.fragmentLastByteLimit)
+    this.setFragmentLastByte(oldDirectDOS.fragmentLastByte, oldDirectDOS.fragmentLastByteLimit)
+
+    // lastly, as the direct stream, we no longer have a splitFrom that we look back at.
+    this.splitFrom = null
+
     Assert.invariant(isDirect)
   }
 
@@ -254,13 +262,21 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         val first = directStream._following.get
         keepMerging = first.isFinished // continue until AFTER we merge forward into the first non-finished successor
         Assert.invariant(first.isBuffering)
+
+        log(LogLevel.Debug, "merging direct DOS %s into DOS %s", directStream, first)
+        val dabp = directStream.maybeAbsBitPos0b.getULong
+        if (first.maybeAbsStartingBitPos0b.isEmpty) {
+          first.setAbsStartingBitPos0b(dabp)
+        }
+
         DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first) // from first, into direct stream's buffers
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
         //
         first.convertToDirect(directStream) // first is now the direct stream
-
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!
+        log(LogLevel.Debug, "New direct DOS %s", directStream)
+
       }
       if (directStream._following.isDefined) {
         Assert.invariant(!keepMerging) // we stopped because we merged forward into an active stream.
@@ -304,13 +320,12 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       // But, we do need to propagate information about the absolute position
       // of buffers.
       //
-      // That doesn't happen here (for now), rather, when absolute position is
-      // requested a search backward for a preceding, finished, DOS with an absolute
-      // position is conducted. (see maybeAbsBitPos0b below)
-      //
-
-      //
       setDOSState(Finished)
+
+      if (_following.isDefined) {
+        val f = _following.get
+        f.maybeAbsBitPos0b // requesting this pulls the absolute position info forward.
+      }
     }
   }
 
@@ -355,7 +370,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         val pmabp = prior.maybeAbsBitPos0b
         if (pmabp.isDefined) {
           val pabp = pmabp.getULong
-          this.st.setAbsStartingBitPos0b(pabp)
+          this.setAbsStartingBitPos0b(pabp)
+          log(LogLevel.Debug, "for %s propagated absolute starting bit pos %s\n", this, pabp.toString)
           super.maybeAbsBitPos0b // will get the right value this time.
         } else {
           // prior doesn't have an abs bit pos.
@@ -385,21 +401,21 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     val mask = if (bitLengthFrom1To64 == 64) -1.toLong else (1.toLong << bitLengthFrom1To64) - 1
     var bits = signedLong & mask
 
-    if (st.fragmentLastByteLimit > 0) {
+    if (fragmentLastByteLimit > 0) {
       //
       // there is a frag byte, to which we are writing first.
       // We will write at least 1 bit to the frag.
       //
-      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+      val nFragBitsAvailableToWrite = 8 - fragmentLastByteLimit
       val nBitsOfFragToBeFilled =
         if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
         else bitLengthFrom1To64
-      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+      val nFragBitsAfter = fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
 
       val bitsToGoIntoFrag = bits >> (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
       val bitsToGoIntoFragInPosition = bitsToGoIntoFrag << (8 - nFragBitsAfter)
 
-      val newFragByte = Bits.asUnsignedByte(st.fragmentLastByte | bitsToGoIntoFragInPosition)
+      val newFragByte = Bits.asUnsignedByte(fragmentLastByte | bitsToGoIntoFragInPosition)
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
       val shift1 = 64 - (bitLengthFrom1To64 - nBitsOfFragToBeFilled)
@@ -409,11 +425,11 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       if (nFragBitsAfter == 8) {
         // we filled the entire frag byte. Write it out, then zero it
         realStream.write(newFragByte.toByte)
-        st.setFragmentLastByte(0, 0)
+        setFragmentLastByte(0, 0)
       } else {
         // we did not fill up the frag byte. We added bits to it (at least 1), but
         // it's not filled up yet.
-        st.setFragmentLastByte(newFragByte.toInt, nFragBitsAfter)
+        setFragmentLastByte(newFragByte.toInt, nFragBitsAfter)
       }
 
     }
@@ -424,7 +440,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       true // we are done
     else {
       // we have more bits to write. Could be as many as 64 still.
-      Assert.invariant(st.fragmentLastByteLimit == 0) // there is no frag byte.
+      Assert.invariant(fragmentLastByteLimit == 0) // there is no frag byte.
       val nWholeBytes = nBitsRemaining / 8
       val nFragBits = nBitsRemaining % 8
 
@@ -442,7 +458,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       }
       if (nFragBits > 0) {
         val newFragByte = shiftedBits >>> 56
-        st.setFragmentLastByte(newFragByte.toInt, nFragBits)
+        setFragmentLastByte(newFragByte.toInt, nFragBits)
       }
       true
     }
@@ -480,12 +496,12 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     //
     var nBitsOfFragToBeFilled = 0
 
-    if (st.fragmentLastByteLimit > 0) {
+    if (fragmentLastByteLimit > 0) {
       //
       // there is a frag byte, to which we are writing first.
       // We will write at least 1 bit to the frag.
       //
-      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+      val nFragBitsAvailableToWrite = 8 - fragmentLastByteLimit
 
       // the bits we're writing might not fill the frag, so the number
       // we will fill is the lesser of the size of available space in the frag, and the bitLength argument.
@@ -493,24 +509,24 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
         else bitLengthFrom1To64
 
-      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+      val nFragBitsAfter = fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
 
       // Now get the bits that will go into the frag, from the least significant (first) byte.
       val newFragBitsMask = 0x80.toByte >> (nBitsOfFragToBeFilled - 1)
       val LSByte = unionByteBuffer.get(0)
-      val bitsToGoIntoFragInPosition = ((LSByte & newFragBitsMask) >>> st.fragmentLastByteLimit).toInt
+      val bitsToGoIntoFragInPosition = ((LSByte & newFragBitsMask) >>> fragmentLastByteLimit).toInt
 
-      val newFragByte = Bits.asUnsignedByte((st.fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
+      val newFragByte = Bits.asUnsignedByte((fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
       if (nFragBitsAfter == 8) {
         // we filled the entire frag byte. Write it out, then zero it
         realStream.write(newFragByte.toByte)
-        st.setFragmentLastByte(0, 0)
+        setFragmentLastByte(0, 0)
       } else {
         // we did not fill up the frag byte. We added bits to it (at least 1), but
         // it's not filled up yet.
-        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+        setFragmentLastByte(newFragByte, nFragBitsAfter)
       }
 
       //
@@ -543,7 +559,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       }
       if (nBitsInFinalFrag > 0) {
         val finalFragByte = Bits.asUnsignedByte(unionByteBuffer.get(indexOfFinalFragByte))
-        st.setFragmentLastByte(finalFragByte, nBitsInFinalFrag)
+        setFragmentLastByte(finalFragByte, nBitsInFinalFrag)
       }
     }
     true
@@ -566,21 +582,21 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
     var nBitsRemaining = bitLengthFrom1To64
     var bits = signedLong
 
-    if (st.fragmentLastByteLimit > 0) {
+    if (fragmentLastByteLimit > 0) {
       //
       // there is a frag byte, to which we are writing first.
       // We will write at least 1 bit to the frag.
       //
-      val nFragBitsAvailableToWrite = 8 - st.fragmentLastByteLimit
+      val nFragBitsAvailableToWrite = 8 - fragmentLastByteLimit
       val nBitsOfFragToBeFilled =
         if (bitLengthFrom1To64 >= nFragBitsAvailableToWrite) nFragBitsAvailableToWrite
         else bitLengthFrom1To64
-      val nFragBitsAfter = st.fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
+      val nFragBitsAfter = fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
 
       val fragLastByteMask = 0xFF >> (8 - nFragBitsAfter)
-      val bitsToGoIntoFragInPosition = ((bits << st.fragmentLastByteLimit) & fragLastByteMask).toInt
+      val bitsToGoIntoFragInPosition = ((bits << fragmentLastByteLimit) & fragLastByteMask).toInt
 
-      val newFragByte = st.fragmentLastByte | bitsToGoIntoFragInPosition
+      val newFragByte = fragmentLastByte | bitsToGoIntoFragInPosition
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
       bits = bits >>> nBitsOfFragToBeFilled
@@ -589,11 +605,11 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       if (nFragBitsAfter == 8) {
         // we filled the entire frag byte. Write it out, then zero it
         realStream.write(newFragByte.toByte)
-        st.setFragmentLastByte(0, 0)
+        setFragmentLastByte(0, 0)
       } else {
         // we did not fill up the frag byte. We added bits to it (at least 1), but
         // it's not filled up yet.
-        st.setFragmentLastByte(newFragByte, nFragBitsAfter)
+        setFragmentLastByte(newFragByte, nFragBitsAfter)
       }
 
     }
@@ -604,7 +620,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       true // we are done
     else {
       // we have more bits to write. Could be as many as 64 still.
-      Assert.invariant(st.fragmentLastByteLimit == 0) // there is no frag byte.
+      Assert.invariant(fragmentLastByteLimit == 0) // there is no frag byte.
       val nWholeBytes = nBitsRemaining / 8
       val nFragBits = nBitsRemaining % 8
       val fragUsedBitsMask = ((1 << nFragBits) - 1)
@@ -620,7 +636,7 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
       }
       if (nFragBits > 0) {
         val newFragByte = Bits.asUnsignedByte((shiftedBits & fragUsedBitsMask).toByte)
-        st.setFragmentLastByte(newFragByte, nFragBits)
+        setFragmentLastByte(newFragByte, nFragBits)
       }
       true
     }
@@ -685,11 +701,18 @@ object DirectOrBufferedDataOutputStream {
     }
   }
 
+  /**
+   * Factory for creating new ones
+   */
   def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
     val dbdos = new DirectOrBufferedDataOutputStream(creator)
     dbdos.setJavaOutputStream(jos)
-    Assert.invariant((creator ne null) ||
-      (dbdos.isDirect && dbdos.maybeAbsStartingBitPos0b.isDefined))
+
+    if (creator eq null) {
+      dbdos.setAbsStartingBitPos0b(ULong(0))
+      dbdos.setAbsStartingBitPos0b(ULong(0)) // yes. We do want to call this twice.
+      Assert.invariant(dbdos.isDirect)
+    }
     dbdos
   }
 

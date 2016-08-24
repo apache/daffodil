@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 import edu.illinois.ncsa.daffodil.grammar.NamedGram
@@ -61,6 +60,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.unparsers.OVCRetryUnparser
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -76,29 +76,18 @@ import edu.illinois.ncsa.daffodil.util.Maybe
  */
 class PhysicalElementUberCombinator(context: ElementBase,
   eBeforeContent: Gram,
-  eValue: Gram //    eAfterValue: Gram,
-  )
+  eValue: Gram,
+  eAfterValue: Gram)
   extends NamedGram(context)
   with Padded {
 
-  private lazy val uSetVars = context.setVariableStatements.map(_.gram.unparser).toArray
-
-  private lazy val beforeContent: Array[Unparser] =
-    if (eBeforeContent.isEmpty) Array()
-    else Array(eBeforeContent.unparser)
-
-  private lazy val value = Array(eValue.unparser)
-
   private lazy val subComb = {
-    val eBeforeValue = EmptyGram
-    val eAfterValue = EmptyGram
-    val eAfterContent = EmptyGram
     if (context.isParentUnorderedSequence) {
-      new ChoiceElementCombinator(context, eBeforeContent ~ eBeforeValue,
-        eValue, eAfterValue ~ eAfterContent)
+      new ChoiceElementCombinator(context, eBeforeContent,
+        eValue, eAfterValue)
     } else {
-      new ElementCombinator(context, eBeforeContent ~ eBeforeValue,
-        eValue, eAfterValue ~ eAfterContent)
+      new ElementCombinator(context, eBeforeContent,
+        eValue, eAfterValue)
     }
   }
 
@@ -110,6 +99,14 @@ class PhysicalElementUberCombinator(context: ElementBase,
 
     subComb.parser
   }
+
+  private lazy val uSetVars = context.setVariableStatements.map(_.gram.unparser).toArray
+
+  private lazy val beforeContent: Array[Unparser] =
+    if (eBeforeContent.isEmpty) Array()
+    else Array(eBeforeContent.unparser)
+
+  private lazy val value = Array((eValue ~ eAfterValue).unparser)
 
   override lazy val unparser: Unparser = {
     if (context.isOutputValueCalc) {
@@ -253,6 +250,14 @@ case class RightFill(ctxt: ElementBase)
 
   override lazy val unparser: Unparser = new RightFillUnparser(ctxt.erd,
     ctxt.maybeUnparseTargetLengthInBitsEv.get, ctxt.fillByteEv, unparsingPadChar)
+}
+
+case class OVCRetry(ctxt: ElementBase, v: Gram)
+  extends Terminal(ctxt, true) {
+  override def parser = v.parser
+
+  override def unparser = new OVCRetryUnparser(ctxt.erd,
+    ctxt.maybeUnparseTargetLengthInBitsEv, v.unparser)
 }
 
 case class CaptureContentLengthStart(ctxt: ElementBase)

@@ -41,12 +41,13 @@ object LoggerMacros {
 
     val level = TermName(c.freshName)
     val l = TermName(c.freshName)
+    val ths = This(typeNames.EMPTY)
     q"""
     {
       val $level = $lvl
       val $l = $level.lvl
-      if (getLoggingLevel().lvl >= $l)
-        doLogging($level, $msg, Seq(..$args))
+      if ($ths.getLoggingLevel().lvl >= $l)
+        $ths.doLogging($level, $msg, Seq(..$args))
     }
     """
   }

@@ -220,6 +220,11 @@ trait Logging extends Identity {
     else LoggingDefaults.logWriter
   }
 
+  final def areLogging(lvl: LogLevel.Type) : Boolean = {
+    val l = lvl.lvl
+    getLoggingLevel().lvl >= l
+  }
+  
   protected def doLogging(lvl: LogLevel.Type, msg: String, args: Seq[Any]) =
     getLogWriter.log(lvl, logID, msg, args)
 

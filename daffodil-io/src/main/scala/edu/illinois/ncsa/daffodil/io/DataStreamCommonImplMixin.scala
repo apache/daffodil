@@ -41,8 +41,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.Logging
 
-class DataStreamCommonState {
+trait DataStreamCommonState {
 
   var binaryFloatRep: BinaryFloatRep = BinaryFloatRep.Ieee
   var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
@@ -89,7 +90,7 @@ class DataStreamCommonState {
 /**
  * Shared by both DataInputStream and DataOutputStream implementations
  */
-trait DataStreamCommonImplMixin extends DataStreamCommon {
+trait DataStreamCommonImplMixin extends DataStreamCommon with Logging {
 
   protected def cst: DataStreamCommonState
 

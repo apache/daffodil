@@ -47,7 +47,8 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import AsIntConverters._
 
-trait WhereBlockedLocation {
+trait WhereBlockedLocation
+  extends Logging {
 
   private var priorNodeOrVar: Maybe[AnyRef] = Nope
   private var priorInfo: Maybe[AnyRef] = Nope
@@ -60,6 +61,7 @@ trait WhereBlockedLocation {
   private var maybeExc: Maybe[AnyRef] = Nope
 
   private var done_ : Boolean = false
+  private var isBlocked_ = false
 
   final def setDone {
     done_ = true
@@ -67,7 +69,15 @@ trait WhereBlockedLocation {
 
   final def isDone = done_
 
+  final def isBlocked = isBlocked_
+
+  final def setUnblocked() {
+    isBlocked_ = false
+  }
+
   final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef) {
+    log(LogLevel.Debug, "blocking %s due to %s", this, exc)
+
     Assert.usage(nodeOrVar ne null)
     Assert.usage(info ne null)
     Assert.usage(exc ne null)
@@ -80,9 +90,10 @@ trait WhereBlockedLocation {
     maybeIndex = MaybeInt(index.toInt)
     maybeExc = One(exc)
     done_ = false
+    isBlocked_ = true
   }
 
-  final def isBlocked: Boolean = !done_ && maybeNodeOrVar.isDefined
+  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(maybeExc, maybeNodeOrVar, maybeInfo, maybeIndex)
 
   final def isBlockedFirstTime: Boolean = {
     isBlocked &&
@@ -118,7 +129,7 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
   dpathText: String,
   ci: DPathCompileInfo,
   isEvaluatedAbove: Boolean)
-    extends CompiledExpression[T](qn, dpathText) {
+  extends CompiledExpression[T](qn, dpathText) {
 
   override def targetType = tt
 
@@ -207,8 +218,8 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
       case nd: InfosetNoDataException if nd.erd.outputValueCalcExpr.isDefined => {
         // we got a no-data exception from an element with outputValueCalc
         // that is, some OVC element requested the value of another OVC element
-        val ovc = new OutputValueCalcEvaluationException(nd.diElement)
-        whereBlockedInfo.block(ovc.diSimple, ovc.diSimple.erd.dpathElementCompileInfo, 0, ovc)
+        val ovc = new OutputValueCalcEvaluationException(nd)
+        whereBlockedInfo.block(nd.diElement, nd.erd.dpathElementCompileInfo, 0, ovc)
       }
       case ve: VariableException =>
         whereBlockedInfo.block(ve.qname, ve.context, 0, ve)

@@ -49,7 +49,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
-class StringDelimitedUnparser(erd: ElementRuntimeData,
+sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
   override val pad: MaybeChar,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],

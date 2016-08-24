@@ -111,8 +111,8 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  */
 
 trait DoSDEMixin {
-  
-    protected final def doSDE(e: Throwable, state: ParseOrUnparseState) = {
+
+  protected final def doSDE(e: Throwable, state: ParseOrUnparseState) = {
     e match {
       case sde: SchemaDefinitionDiagnosticBase => {
         state.setFailed(sde)
@@ -141,7 +141,6 @@ trait WithParseErrorThrowing extends DoSDEMixin {
     throw new ParseError(One(context), Nope, kind, args: _*)
   }
 
-
   /**
    * Wrap around parser code that wants to throw parse errors (e.g., parsers which call things which
    * call things which detect a parse error want to throw back to this)
@@ -149,7 +148,8 @@ trait WithParseErrorThrowing extends DoSDEMixin {
    * This wrapper then implements the required behavior for parsers
    * that being returning a failed parser state.
    */
-  @inline final def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
+  @inline
+  final def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
     val saveCanThrowParseErrors = WithParseErrorThrowing.flag
     WithParseErrorThrowing.flag = true
     try body

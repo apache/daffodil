@@ -39,33 +39,29 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.NotFound
 
-class DefaultablePhysicalOrComputed(ctxt: ElementBase,
-  scalarDefaultablePhysicalArg: => Gram,
+class PhysicalOrComputed(ctxt: ElementBase,
+  scalarPhysicalArg: => Gram,
   inputValueCalcElementArg: => Gram,
   outputValueCalcElementArg: => Gram)
   extends Terminal(ctxt, true) {
-  //Assert.invariant(!scalarDefaultablePhysical.isEmpty)
-  //Assert.invariant(!inputValueCalcElement.isEmpty)
-  //Assert.invariant(!outputValueCalcElement.isEmpty)
-  //Assert.invariant(!defaultableElement.isEmpty) // NYI? So this will be empty?
 
-  lazy val scalarDefaultablePhysical = scalarDefaultablePhysicalArg // once only
+  lazy val scalarPhysical = scalarPhysicalArg // once only
   lazy val inputValueCalcElement = inputValueCalcElementArg // once only
   lazy val outputValueCalcElement = outputValueCalcElementArg // once only
 
-  lazy val scalarDefaultablePhysicalParser = scalarDefaultablePhysical.parser
+  lazy val scalarPhysicalParser = scalarPhysical.parser
   lazy val inputValueCalcElementParser = inputValueCalcElement.parser
 
   lazy val inputValueCalcElementUnparser =
     inputValueCalcElement.unparser
-  lazy val scalarDefaultablePhysicalUnparser = scalarDefaultablePhysical.unparser
+  lazy val scalarPhysicalUnparser = scalarPhysical.unparser
   lazy val outputValueCalcElementUnparser = outputValueCalcElement.unparser
 
   override lazy val parser = {
     (ctxt.inputValueCalcOption, ctxt.outputValueCalcOption) match {
-      case (_: NotFound, _: Found) => scalarDefaultablePhysicalParser // outputValueCalc element is just a regular physical element for parser
+      case (_: NotFound, _: Found) => scalarPhysicalParser // outputValueCalc element is just a regular physical element for parser
       case (_: Found, _: NotFound) => inputValueCalcElementParser
-      case (_: NotFound, _: NotFound) => scalarDefaultablePhysicalParser
+      case (_: NotFound, _: NotFound) => scalarPhysicalParser
       case _ => Assert.impossibleCase()
     }
   }
@@ -80,7 +76,7 @@ class DefaultablePhysicalOrComputed(ctxt: ElementBase,
       // element values may need to be in the infoset
       case (_: Found, _: NotFound) =>
         inputValueCalcElementUnparser
-      case _ => scalarDefaultablePhysicalUnparser
+      case _ => scalarPhysicalUnparser
     }
   }
 

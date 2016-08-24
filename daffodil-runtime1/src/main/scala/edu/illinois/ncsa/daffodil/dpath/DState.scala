@@ -36,14 +36,10 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.LocalStack
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.io.DataStreamCommon
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
@@ -134,21 +130,21 @@ case class DState() {
   //  for a big complex expression, we would not redo the whole thing, but would
   //  block the co-routine right where it was unable to proceed e.g., in a call to
   //  node.dataValue, such that when it was resumed, it would resume right there.
-  //  retry the call to node.dataValue, and then carry on with the rest of the 
+  //  retry the call to node.dataValue, and then carry on with the rest of the
   //  expression.
   //
   //  If we don't do this, then we're not taking advantage of that optimization
   //  Then we don't really need coroutines at all to implement blocking. We just
-  //  keep the saved/cloned state around, and retry whatever needed to be done, from scratch. 
+  //  keep the saved/cloned state around, and retry whatever needed to be done, from scratch.
   //
   //  The vast bulk of expressions are going to be fairly small, so this extra
   //  overhead vs. the complexity of coroutines?? I think we should move away
-  //  From coroutines. 
-  //  
+  //  From coroutines.
+  //
   //  However, if expressions were to block on the infoset, by queuing themselves
   //  adjacent to what they need, then... well you can still just retry the whole
-  //  expression again, this time knowing it won't block in the same place. 
-  //  
+  //  expression again, this time knowing it won't block in the same place.
+  //
   //  private var thisExpressionCoroutine_ : Maybe[Coroutine[AnyRef]] = Nope
   //
   //  def setThisExpressionCoroutine(co: Maybe[Coroutine[AnyRef]]) {
@@ -309,32 +305,24 @@ case class DState() {
     _contextNode = One(node)
   }
 
-  private var _bitPos1b: MaybeULong = MaybeULong.Nope
-  private var _bitLimit1b: MaybeULong = MaybeULong.Nope
-  private var _dataStream: Maybe[DataStreamCommon] = Nope
-
-  def setLocationInfo(bitPos1b: Long, bitLimit1b: MaybeULong, dataStream: Maybe[DataStreamCommon]) {
-    _bitPos1b = MaybeULong(bitPos1b)
-    _bitLimit1b = bitLimit1b
-    _dataStream = dataStream
-  }
-
-  def setLocationInfo() {
-    _bitPos1b = MaybeULong.Nope
-    _bitLimit1b = MaybeULong.Nope
-    _dataStream = Nope
-  }
+  //  private var _bitPos1b: MaybeULong = MaybeULong.Nope
+  //  private var _bitLimit1b: MaybeULong = MaybeULong.Nope
+  //  private var _dataStream: Maybe[DataStreamCommon] = Nope
+  //
+  //  def setLocationInfo(bitPos1b: Long, bitLimit1b: MaybeULong, dataStream: Maybe[DataStreamCommon]) {
+  //    _bitPos1b = MaybeULong(bitPos1b)
+  //    _bitLimit1b = bitLimit1b
+  //    _dataStream = dataStream
+  //  }
+  //
+  //  def setLocationInfo() {
+  //    _bitPos1b = MaybeULong.Nope
+  //    _bitLimit1b = MaybeULong.Nope
+  //    _dataStream = Nope
+  //  }
 
   def contextLocation: Maybe[DataLocation] = {
-    if (_bitPos1b.isDefined && _dataStream.isDefined) {
-      val either = _dataStream.get match {
-        case dis: DataInputStream => Right(dis)
-        case dos: DataOutputStream => Left(dos)
-      }
-      One(new DataLoc(_bitPos1b.get, _bitLimit1b, either,
-        (if (contextNode.isEmpty) Nope else One { contextNode.value.erd })))
-    } else
-      Nope
+    Nope
   }
 
   private var _savesErrorsAndWarnings: Maybe[SavesErrorsAndWarnings] = Nope

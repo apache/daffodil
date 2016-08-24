@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.processors.SuspensionFactory
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.MainCoroutine
 
 // Pooling of these objects shut off while debugging the non-pooling version.
 //
@@ -79,17 +80,27 @@ trait SuspendableExpression
 
     override def toString = enclosing.toString
 
+    protected class MainC extends MainCoroutine(taskCoroutine) {
+
+      override def toString = enclosing.toString
+    }
+
     protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
 
-      override final protected def doTask() {
-        log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+      override final def doTask() {
         var v: Maybe[AnyRef] = Nope
-        while (v.isEmpty) {
+        if (!isBlocked) {
+          log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+        } else {
+          this.setUnblocked()
+          log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+        }
+        while (v.isEmpty && !this.isBlocked) {
           v = expr.evaluateForwardReferencing(ustate, this)
           if (v.isEmpty) {
             Assert.invariant(this.isBlocked)
             log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-            resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
+            // resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
             log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
           } else {
             Assert.invariant(this.isDone)
@@ -98,11 +109,11 @@ trait SuspendableExpression
             processExpressionResult(ustate, v.get)
           }
         }
-        Assert.invariant(this.isDone)
       }
     }
 
     override final protected lazy val taskCoroutine = new Task
+    override final protected lazy val mainCoroutine = new MainC
   }
 
   def run(ustate: UState) {
@@ -125,7 +136,8 @@ trait SuspendableExpression
     if (tst) {
       // nothing. We're done. Don't need the task object.
     } else {
-      val cloneUState = SuspensionFactory.setup(ustate, maybeKnownLengthInBits(ustate))
+      val mkl = maybeKnownLengthInBits(ustate)
+      val cloneUState = SuspensionFactory.setup(ustate, mkl)
       val se = new SuspendableExp(cloneUState)
       ustate.addSuspension(se)
     }

@@ -39,12 +39,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
-import edu.illinois.ncsa.daffodil.dsom.NotFound
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -109,8 +111,16 @@ trait ElementBaseGrammarMixin
   private lazy val parsedValue = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
-      captureLengthRegions(leftPadding, allowedValue, rightPadding ~ rightFill) ~
+      captureLengthRegions(leftPadding, ovcRetry(allowedValue), rightPadding ~ rightFill) ~
       terminatorRegion
+  }
+
+  private def ovcRetry(allowedValueArg: => Gram) = {
+    lazy val allowedValue = allowedValueArg
+    if (this.isOutputValueCalc)
+      OVCRetry(this, allowedValue)
+    else
+      allowedValue
   }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
@@ -449,29 +459,29 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  protected final lazy val empty = prod("empty", NYI && emptyIsAnObservableConcept) { emptyRepresentation }
+  protected final lazy val empty = prod("empty", NYI && emptyIsAnObservableConcept) { EmptyGram }
 
-  private lazy val emptyRepresentation = prod("emptyRepresentation") {
-    simpleOrNonImplicitComplexEmpty | complexImplicitEmpty
-  }
+  //  private lazy val emptyRepresentation = prod("emptyRepresentation") {
+  //    simpleOrNonImplicitComplexEmpty | complexImplicitEmpty
+  //  }
 
-  private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
-    isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
-      emptyElementInitiator ~
-        valueMTA ~
-        captureLengthRegions(EmptyGram, EmptyGram, EmptyGram) ~
-        emptyElementTerminator
-    }
-
-  /**
-   * This is about the case where we take an empty, parse a complex type recursively from it
-   * and potentially succeed.
-   */
-  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty",
-    isComplexType && lengthKind == LengthKind.Implicit) {
-      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
-        RestoreInputStream(this) ~ emptyElementTerminator
-    }
+  //  private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
+  //    isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
+  //      emptyElementInitiator ~
+  //        valueMTA ~
+  //        captureLengthRegions(EmptyGram, EmptyGram, EmptyGram) ~
+  //        emptyElementTerminator
+  //    }
+  //
+  //  /**
+  //   * This is about the case where we take an empty, parse a complex type recursively from it
+  //   * and potentially succeed.
+  //   */
+  //  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty",
+  //    isComplexType && lengthKind == LengthKind.Implicit) {
+  //      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
+  //        RestoreInputStream(this) ~ emptyElementTerminator
+  //    }
 
   //  private lazy val emptyDefaulted = prod("emptyDefaulted",
   //    isDefaultable && emptyIsAnObservableConcept) {
@@ -481,8 +491,8 @@ trait ElementBaseGrammarMixin
   private lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { delimMTA ~ Initiator(this) }
   private lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { delimMTA ~ Terminator(this) }
 
-  private lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { delimMTA ~ Initiator(this) }
-  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { delimMTA ~ Terminator(this) }
+  //  private lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { delimMTA ~ Initiator(this) }
+  //  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { delimMTA ~ Terminator(this) }
 
   private lazy val complexContent = prod("complexContent", isComplexType) {
     elementComplexType.mainGrammar
@@ -594,9 +604,9 @@ trait ElementBaseGrammarMixin
     nilOrEmptyOrValue
   }
 
-  private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
-    nilOrValue || nonNilNonEmptyParsedValue
-  }
+  //  private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
+  //    nilOrValue || nonNilNonEmptyParsedValue
+  //  }
 
   /**
    * Note: This must handle unspecified lengths, like lengthKind delimited,
@@ -650,7 +660,7 @@ trait ElementBaseGrammarMixin
     initiatorRegion ~
       captureLengthRegions(EmptyGram,
         specifiedLength(complexContent),
-        EmptyGram) ~
+        elementUnused) ~
         terminatorRegion
   }
 
@@ -669,9 +679,9 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
-    withDelimiterStack(withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent))
-  }
+  //  private lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
+  //    withDelimiterStack(withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent))
+  //  }
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
@@ -685,15 +695,27 @@ trait ElementBaseGrammarMixin
 
   private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 
-  private lazy val scalarNonDefaultPhysical = prod("scalarNonDefault") {
-    val bodyBefore = elementLeftFraming ~ dfdlScopeBegin
-    val body = scalarNonDefaultContent
-    val bodyAfter = elementRightFraming ~ dfdlScopeEnd
-    if (this.isParentUnorderedSequence)
-      new ChoiceElementCombinator(this, bodyBefore, body, bodyAfter)
-    else
-      new ElementCombinator(this, bodyBefore, body, bodyAfter)
-  }
+  // private lazy val scalarNonDefaultPhysical = prod("enclosedElementNonDefault") {
+  //
+  //    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
+  //      withDelimiterStack {
+  //      withEscapeScheme {
+  //        scalarDefaultableSimpleContent || scalarComplexContent
+  //      }
+  //    },
+  //      elementRightFraming ~ dfdlScopeEnd)
+  //
+  //        elem
+  //  }
+  //  {
+  //    val bodyBefore = elementLeftFraming ~ dfdlScopeBegin
+  //    val body = scalarNonDefaultContent
+  //    val bodyAfter = elementRightFraming ~ dfdlScopeEnd
+  //    if (this.isParentUnorderedSequence)
+  //      new ChoiceElementCombinator(this, bodyBefore, body, bodyAfter)
+  //    else
+  //      new ElementCombinator(this, bodyBefore, body, bodyAfter)
+  //  }
 
   protected final lazy val enclosedElement = prod("enclosedElement") {
     //
@@ -705,15 +727,19 @@ trait ElementBaseGrammarMixin
     // for the array case and scalar case that is the same for both.
     //
     checkVariousPropertyconstraints
-    new DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
+    new PhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
   }
 
-  lazy val scalarNonDefault = prod("scalarNonDefault") {
-    (inputValueCalcOption, outputValueCalcOption) match {
-      case (_: NotFound, _: NotFound) => scalarNonDefaultPhysical
-      case _ => enclosedElement
-    }
-  }
+  //
+  // Until empty detection is implemented, there really is no distinction between
+  // defaultable and non-defaulting elements.
+  //
+  protected final def enclosedElementNonDefault = enclosedElement
+
+  //  protected final lazy val enclosedElementNonDefault = prod("enclosedElementNonDefault") {
+  //    checkVariousPropertyconstraints
+  //    new PhysicalOrComputed(this, scalarNonDefaultPhysical, inputValueCalcElement, outputValueCalcElement)
+  //  }
 
   private lazy val inputValueCalcElement = prod("inputValueCalcElement",
     isSimpleType && inputValueCalcOption.isInstanceOf[Found], forWhat = BothParserAndUnparser) {
@@ -724,81 +750,91 @@ trait ElementBaseGrammarMixin
         InputValueCalc(self, inputValueCalcOption), dfdlScopeEnd)
     }
 
-  private lazy val ovcValueCalcObject = {
-    import LengthKind._
-    val UNKNOWN = -1
-    (lengthKind, knownLengthInBits) match {
-      case (Delimited, _) | (Pattern, _) =>
-        OutputValueCalcVariableLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent)
-      case (Explicit, UNKNOWN) =>
-        OutputValueCalcRuntimeLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, lengthEv, lengthUnits)
-      case (Explicit, _) =>
-        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
-      case (Implicit, k) if k != UNKNOWN =>
-        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
-      case other => Assert.invariantFailed("(lengthKind, knownLengthInbits) = " + other)
-    }
+  //  private lazy val ovcValueCalcObject = {
+  //    import LengthKind._
+  //    val UNKNOWN = -1
+  //    (lengthKind, knownLengthInBits) match {
+  //      case (Delimited, _) | (Pattern, _) =>
+  //        OutputValueCalcVariableLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent)
+  //      case (Explicit, UNKNOWN) =>
+  //        OutputValueCalcRuntimeLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, lengthEv, lengthUnits)
+  //      case (Explicit, _) =>
+  //        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
+  //      case (Implicit, k) if k != UNKNOWN =>
+  //        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
+  //      case other => Assert.invariantFailed("(lengthKind, knownLengthInbits) = " + other)
+  //    }
+  //  }
+  //
+  //  /**
+  //   * Returns length in bits, or -1 if not knowable because of the encoding, or because it's runtime valued.
+  //   */
+  //  private def knownLengthInBits: Long = {
+  //    import LengthKind._
+  //    import Representation._
+  //    import LengthUnits._
+  //    import PrimType._
+  //    val maxLengthLong = if (primType == String || primType == HexBinary) maxLength.longValueExact else -1
+  //    val result: Long =
+  //      lengthKind match {
+  //        case Implicit => {
+  //          (impliedRepresentation, primType, lengthUnits) match {
+  //            case (_, HexBinary, _) => maxLengthLong * 8
+  //            case (Binary, _, _) => this.implicitBinaryLengthInBits
+  //            case (Text, String, Bytes) => maxLengthLong * 8
+  //            case (Text, String, Characters) => {
+  //              if (isKnownEncoding && this.knownEncodingIsFixedWidth)
+  //                knownFixedWidthEncodingInCharsToBits(maxLengthLong)
+  //              else -1
+  //            }
+  //            case (Text, Boolean, _) => {
+  //              //
+  //              // Spec says longest of textBooleanTrueRep and textBooleanFalseRep, but
+  //              // those can be specified at runtime, so ..... we need an Ev which is the maxLength of those two Ev's value?
+  //              SDE("Boolean type not supported.")
+  //            }
+  //            case _ => Assert.invariantFailed(
+  //              "Element with dfdl:lengthKind %s and dfdl:outputValueCalc cannot have representation %s, type %s, and lengthUnits %s.".format(
+  //                lengthKind, impliedRepresentation, primType, lengthUnits))
+  //          }
+  //        }
+  //        case Delimited | Pattern => -1
+  //        case Explicit if lengthEv.isConstant => {
+  //          val len: Long = lengthEv.optConstant.get
+  //          (impliedRepresentation, lengthUnits) match {
+  //            case (Text, Characters) => len * this.knownEncodingWidthInBits
+  //            case (_, Bytes) => len * 8
+  //            case (_, Bits) => len
+  //            case _ =>
+  //              Assert.invariantFailed(
+  //                "Unexpected combination of representation (%s) with lengthUnits (%s).".format(impliedRepresentation, lengthUnits))
+  //          }
+  //        }
+  //        case Explicit => -1
+  //      }
+  //    Assert.invariant(result >= 0 || result == -1)
+  //    result
+  //  }
+
+  protected final lazy val ovcCompiledExpression = { // ovcValueCalcObject.expr
+    val exprProp = outputValueCalcOption.asInstanceOf[Found]
+    val exprText = exprProp.value
+    val exprNamespaces = exprProp.location.namespaces
+    val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
+    val expr = ExpressionCompilers.AnyRef.compile(qn,
+      primType, exprText, exprNamespaces, dpathCompileInfo, false)
+    expr
   }
 
-  /**
-   * Returns length in bits, or -1 if not knowable because of the encoding, or because it's runtime valued.
-   */
-  private def knownLengthInBits: Long = {
-    import LengthKind._
-    import Representation._
-    import LengthUnits._
-    import PrimType._
-    val maxLengthLong = if (primType == String || primType == HexBinary) maxLength.longValueExact else -1
-    val result: Long =
-      lengthKind match {
-        case Implicit => {
-          (impliedRepresentation, primType, lengthUnits) match {
-            case (_, HexBinary, _) => maxLengthLong * 8
-            case (Binary, _, _) => this.implicitBinaryLengthInBits
-            case (Text, String, Bytes) => maxLengthLong * 8
-            case (Text, String, Characters) => {
-              if (isKnownEncoding && this.knownEncodingIsFixedWidth)
-                knownFixedWidthEncodingInCharsToBits(maxLengthLong)
-              else -1
-            }
-            case (Text, Boolean, _) => {
-              //
-              // Spec says longest of textBooleanTrueRep and textBooleanFalseRep, but
-              // those can be specified at runtime, so ..... we need an Ev which is the maxLength of those two Ev's value?
-              SDE("Boolean type not supported.")
-            }
-            case _ => Assert.invariantFailed(
-              "Element with dfdl:lengthKind %s and dfdl:outputValueCalc cannot have representation %s, type %s, and lengthUnits %s.".format(
-                lengthKind, impliedRepresentation, primType, lengthUnits))
-          }
-        }
-        case Delimited | Pattern => -1
-        case Explicit if lengthEv.isConstant => {
-          val len: Long = lengthEv.optConstant.get
-          (impliedRepresentation, lengthUnits) match {
-            case (Text, Characters) => len * this.knownEncodingWidthInBits
-            case (_, Bytes) => len * 8
-            case (_, Bits) => len
-            case _ =>
-              Assert.invariantFailed(
-                "Unexpected combination of representation (%s) with lengthUnits (%s).".format(impliedRepresentation, lengthUnits))
-          }
-        }
-        case Explicit => -1
+  private lazy val outputValueCalcElement =
+
+    prod("outputValueCalcElement",
+      isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
+        scalarDefaultablePhysical
+        //      new ElementCombinator(this,
+        //        dfdlScopeBegin, ovcValueCalcObject,
+        //        elementRightFraming ~ dfdlScopeEnd)
       }
-    Assert.invariant(result >= 0 || result == -1)
-    result
-  }
-
-  protected final lazy val ovcCompiledExpression = ovcValueCalcObject.expr
-
-  private lazy val outputValueCalcElement = prod("outputValueCalcElement",
-    isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
-      scalarDefaultablePhysical
-      //      new ElementCombinator(this,
-      //        dfdlScopeBegin, ovcValueCalcObject,
-      //        elementRightFraming ~ dfdlScopeEnd)
-    }
 
   // Note: there is no such thing as defaultable complex content because you can't have a
   // default value for a complex type element....
@@ -809,14 +845,14 @@ trait ElementBaseGrammarMixin
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
 
-    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming, dfdlScopeBegin ~
-      (scalarDefaultableSimpleContent || scalarComplexContent) ~
+    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
+      withDelimiterStack {
+        withEscapeScheme {
+          scalarDefaultableSimpleContent || scalarComplexContent
+        }
+      },
       elementRightFraming ~ dfdlScopeEnd)
-    withDelimiterStack {
-      withEscapeScheme {
-        elem
-      }
-    }
+    elem
   }
 
   private def checkVariousPropertyconstraints {

@@ -46,7 +46,7 @@ abstract class ProcessingError(
   loc: Maybe[DataLocation],
   kind: String,
   args: Any*)
-    extends Exception with ThinThrowable with DiagnosticImplMixin {
+  extends Exception with ThinThrowable with DiagnosticImplMixin {
 
   /**
    * Used to convert a processing error into a parse error so that it
@@ -77,14 +77,15 @@ abstract class ProcessingError(
 
   def componentText: String = ""
 
-  override def toString = {
-    //
-    // Right here is where we would lookup the symbolic error kind id, and
-    // choose a locale-based message string.
-    //
-    // For now, we'll just do an automatic English message.
-    //
-    val msg = {
+  override def toString = msg
+  //
+  // Right here is where we would lookup the symbolic error kind id, and
+  // choose a locale-based message string.
+  //
+  // For now, we'll just do an automatic English message.
+  //
+  lazy val msg = {
+    val m =
       if (args.size > 0) {
         try {
           kind.format(args: _*)
@@ -93,8 +94,7 @@ abstract class ProcessingError(
             throw new IllegalArgumentException("""format string "%s" did not accept these arguments: %s""".format(kind, args.mkString(", ")))
         }
       } else kind
-    }
-    val res = pOrU + ": " + msg +
+    val res = pOrU + ": " + m +
       componentText +
       "\nSchema context: %s%s".format((if (rd.isDefined) rd.value.toString else "(no schema component identifier)"), schemaLocationsString) +
       (if (loc.isDefined)
@@ -104,5 +104,5 @@ abstract class ProcessingError(
     res
   }
 
-  override def getMessage = toString
+  override def getMessage = msg
 }

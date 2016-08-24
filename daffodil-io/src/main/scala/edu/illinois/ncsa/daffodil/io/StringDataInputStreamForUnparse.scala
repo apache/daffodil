@@ -49,7 +49,7 @@ final class StringDataInputStreamForUnparse
   extends DataInputStreamImplMixin {
   import DataInputStream._
 
-  final protected val cst = new DataStreamCommonState
+  final protected val cst = new AnyRef with DataStreamCommonState
 
   var str: String = null
   var dis: DataInputStream = null

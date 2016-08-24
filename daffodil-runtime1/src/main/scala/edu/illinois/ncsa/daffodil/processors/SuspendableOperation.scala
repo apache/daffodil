@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Logging
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -48,7 +50,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
  * being evaluated that has forward references.
  */
 trait SuspendableOperation
-  extends Serializable { enclosing =>
+  extends Serializable
+  with Logging { enclosing =>
 
   def rd: RuntimeData
 
@@ -76,49 +79,73 @@ trait SuspendableOperation
 
     override def toString = enclosing.toString
 
+    protected class MainC extends MainCoroutine(taskCoroutine) {
+
+      override def toString = enclosing.toString
+    }
+
     protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
-      override final protected def doTask() {
-        while (!isDone) {
+
+      override def toString = enclosing.toString
+
+      override final def doTask() {
+        if (isBlocked) {
+          setUnblocked()
+          log(LogLevel.Debug, "retrying %s", this)
+        }
+        while (!isDone && !isBlocked) {
           try {
             val tst = test(ustate)
+            log(LogLevel.Debug, "test() of %s %s", this, tst)
             if (tst)
               setDone
             else
-              block(ustate.dataOutputStream, Suspension.NoData, 0, SuspendableOperationException)
+              block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, enclosing)
           } catch {
             case e: RetryableException =>
-              block(ustate.dataOutputStream, Suspension.NoData, 0, e)
+              block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, e)
           }
           if (!isDone) {
             Assert.invariant(isBlocked)
-            resume(mainCoroutine, Suspension.NoData)
+            // resume(mainCoroutine, Suspension.NoData)
           }
         }
-        Assert.invariant(isDone)
-        continuation(ustate)
+        if (isDone) {
+          log(LogLevel.Debug, "continuation() of %s", this)
+          continuation(ustate)
+          log(LogLevel.Debug, "task of %s done!", this)
+
+        }
       }
     }
 
     override final protected lazy val taskCoroutine = new Task
+
+    override final protected lazy val mainCoroutine = new MainC
+
   }
 
   def run(ustate: UState) {
     val tst =
       try {
-        test(ustate)
+        val tst = test(ustate)
+        log(LogLevel.Debug, "test() of %s %s", this, tst)
+        tst
       } catch {
-        case _: RetryableException =>
+        case x: RetryableException =>
+          log(LogLevel.Debug, "test() of %s failed with %s", this, x)
           false
       }
     if (tst)
       continuation(ustate) // don't bother with Task if we can avoid it
     else {
-      val cloneUState = SuspensionFactory.setup(ustate, maybeKnownLengthInBits(ustate))
+      val mkl = maybeKnownLengthInBits(ustate)
+      val cloneUState = SuspensionFactory.setup(ustate, mkl)
       val se = new SuspendableOp(cloneUState)
       ustate.addSuspension(se)
     }
   }
 }
 
-object SuspendableOperationException extends Exception
+class SuspendableOperationException(m: String) extends Exception(m)
   with DiagnosticImplMixin with ThinThrowable

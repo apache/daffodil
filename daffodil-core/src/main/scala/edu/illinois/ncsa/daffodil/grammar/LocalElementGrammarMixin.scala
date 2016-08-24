@@ -50,14 +50,17 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 
   private lazy val notStopValue = prod("notStopValue", hasStopValue) { NotStopValue(this) }
 
-  private lazy val separatedEmpty = prod("separatedEmpty", emptyIsAnObservableConcept && isRecurring) { separatedForArrayPosition(empty) }
+  private lazy val separatedEmpty = prod("separatedEmpty", 
+      emptyIsAnObservableConcept && isRecurring) {
+    separatedForArrayPosition(empty)
+    }
 
   private lazy val separatedRecurringDefaultable = prod("separatedRecurringDefaultable", !isScalar) {
     separatedForArrayPosition(enclosedElement)
   }
 
   private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
-    separatedForArrayPosition(scalarNonDefault)
+    separatedForArrayPosition(enclosedElementNonDefault)
   }
 
   private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { enclosedElement }

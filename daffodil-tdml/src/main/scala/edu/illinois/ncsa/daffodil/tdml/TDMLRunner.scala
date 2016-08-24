@@ -835,7 +835,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     //
     // Test that we are getting the number of full bytes needed.
     val testData = outStream.toByteArray
-    val testDataLength = actual.resultState.bitPos0b
+    val testDataLength = actual.resultState.dataOutputStream.maybeAbsBitPos0b.get
     val fullBytesNeeded = (testDataLength + 7) / 8
     if (testData.length != fullBytesNeeded) {
       throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))

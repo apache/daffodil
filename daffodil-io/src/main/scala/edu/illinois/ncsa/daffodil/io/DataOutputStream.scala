@@ -37,6 +37,7 @@ import java.nio.charset.CharsetEncoder
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Logging
 
 /**
  * There is an asymmetry between DataInputStream and DataOutputStream with respect to the
@@ -91,7 +92,10 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
  * is known, then the relative bit limit is known and is equal.
  *
  */
-trait DataOutputStream extends DataStreamCommon {
+trait DataOutputStream extends DataStreamCommon
+  with Logging {
+
+  def id: Int
 
   def relBitPos0b: ULong
 
@@ -122,7 +126,7 @@ trait DataOutputStream extends DataStreamCommon {
   /**
    * sets, but also maintains the absolute bit limit, if that is defined.
    */
-  def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong): Boolean
+  def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean
 
   def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 

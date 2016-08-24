@@ -97,12 +97,15 @@ class UState private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     dataOutputStream: DataOutputStream,
-    initialSuspendedExpressions: mutable.Queue[Suspension] = new mutable.Queue[Suspension]) =
+    initialSuspendedExpressions: mutable.Queue[Suspension]) =
     this(infosetCursor, new VariableBox(vmap), diagnosticsArg, dataProcArg,
       dataOutputStream, initialSuspendedExpressions)
 
+  var prior: UState = null
+
   override def toString = {
-    "UState(" + dataOutputStream.toString() + ")"
+    val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
+    "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
 
   def cloneForSuspension(newDOS: DataOutputStream): UState = {
@@ -114,6 +117,8 @@ class UState private (
       newDOS,
       this.suspensions // inherit same place to put these OVC suspensions from original.
       )
+    clone.prior = this.prior
+    this.prior = clone
     Assert.invariant(currentInfosetNodeMaybe.isDefined)
     clone.currentInfosetNodeStack.copyFrom(this.currentInfosetNodeStack)
     clone.aaa_currentNode = clone.currentInfosetNodeStack.top
@@ -131,7 +136,7 @@ class UState private (
     dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
     dstate.setVBox(variableBox)
     dstate.setContextNode(thisElement.asInstanceOf[DINode]) // used for diagnostics
-    dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
+    // dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
     dstate.setErrorOrWarn(this)
     dstate.resetValue
     dstate.setMode(UnparserBlocking)
@@ -333,7 +338,8 @@ class UState private (
     }.toList
   }
 
-  def bitPos0b = dataOutputStream.relBitPos0b.toLong
+  def bitPos0b = dataOutputStream.maybeAbsBitPos0b.getOrElse(0L)
+
   def bitLimit0b = dataOutputStream.maybeRelBitLimit0b
 
   def charPos = -1L
@@ -368,17 +374,24 @@ class UState private (
     suspensions.enqueue(se)
   }
 
-  def evalSuspensions() {
-    var countOfNotMakingProgress = 0
-    while (!suspensions.isEmpty &&
-      countOfNotMakingProgress < suspensions.length) {
-      val se = suspensions.dequeue
-      se.run()
-      if (!se.isDone) suspensions.enqueue(se)
-      if (!se.isMakingProgress)
-        countOfNotMakingProgress += 1
-      else
-        countOfNotMakingProgress = 0
+  def evalSuspensions(ustate: UState) {
+    var i = 0
+    while (i < 2) {
+      i += 1
+      var countOfNotMakingProgress = 0
+      while (!suspensions.isEmpty &&
+        countOfNotMakingProgress < suspensions.length) {
+        val se = suspensions.dequeue
+        se.run()
+        if (!se.isDone) suspensions.enqueue(se)
+        if (!se.isMakingProgress)
+          countOfNotMakingProgress += 1
+        else
+          countOfNotMakingProgress = 0
+      }
+      if (suspensions.length > 1) {
+        System.err.println("There are still %s suspensions".format(suspensions.length))
+      }
     }
     // after the loop, did we terminate
     // with some expressions still unevaluated?
@@ -386,7 +399,15 @@ class UState private (
       // unable to evaluate all the expressions
       suspensions.map { sus =>
         sus.run() // good place for a breakpoint so we can debug why things are locked up.
+        sus.explain()
       }
+      System.err.println("Dump of UStates")
+      var us = ustate
+      while (us ne null) {
+        System.err.println(us)
+        us = us.prior
+      }
+
       throw new SuspensionDeadlockException(suspensions.seq)
     } else if (suspensions.length == 1) {
       Assert.invariantFailed("Single suspended expression making no forward progress. " + suspensions(0))
@@ -411,7 +432,8 @@ object UState {
 
     val variables = dataProc.getVariables
     val diagnostics = Nil
-    val newState = new UState(docSource, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out)
+    val newState = new UState(docSource, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
+      new mutable.Queue[Suspension]) // null means no prior UState
     newState
   }
 }

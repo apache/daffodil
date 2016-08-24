@@ -35,12 +35,13 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class SkipRegionUnparser(
   skipInBits: Int,
   e: RuntimeData,
   fillByteEv: FillByteEv)
-    extends PrimUnparserObject(e) {
+  extends PrimUnparserObject(e) {
 
   override def runtimeDependencies = List(fillByteEv)
 
@@ -51,22 +52,22 @@ class SkipRegionUnparser(
 }
 
 /**
- * Note: inherits directly from SuspendableOperation, so this isA suspendable, not 
+ * Note: inherits directly from SuspendableOperation, so this isA suspendable, not
  * merely has/uses one.
  */
 class AlignmentFillUnparser(
   alignmentInBits: Int,
   override val rd: RuntimeData,
   fillByteEv: FillByteEv)
-    extends PrimUnparserObject(rd)
-    with SuspendableOperation {
+  extends PrimUnparserObject(rd)
+  with SuspendableOperation {
 
   override def runtimeDependencies = List(fillByteEv)
 
   override def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
-      System.err.println(this.toString + " Unable to align to " + alignmentInBits + " bits becasue there is no absolute bit position.")
+      log(LogLevel.Debug, "%s %s Unable to align to %s bits because there is no absolute bit position.", this, ustate, alignmentInBits)
     }
     dos.maybeAbsBitPos0b.isDefined
   }
@@ -75,8 +76,15 @@ class AlignmentFillUnparser(
     val dos = state.dataOutputStream
     val fb = fillByteEv.evaluate(state)
     dos.setFillByte(fb)
+    val b4 = dos.relBitPos0b
     if (!dos.align(alignmentInBits))
       UE(state, "Unable to align to %s(bits).", alignmentInBits)
+    val aft = dos.relBitPos0b
+    val delta = aft - b4
+    if (delta == 0)
+      log(LogLevel.Debug, "%s did nothing.", this)
+    else
+      log(LogLevel.Debug, "%s moved %s bits to align to %s(bits).", this, delta, alignmentInBits)
   }
 
   override def unparse(state: UState): Unit = {
@@ -88,4 +96,4 @@ class MandatoryTextAlignmentUnparser(
   alignmentInBits: Int,
   e: RuntimeData,
   fillByteEv: FillByteEv)
-    extends AlignmentFillUnparser(alignmentInBits, e, fillByteEv)
+  extends AlignmentFillUnparser(alignmentInBits, e, fillByteEv)

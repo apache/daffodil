@@ -333,7 +333,8 @@ The message root is 'PCAP'.
                 then
                   (if (fn:exists(../../pcap:TransportLayer/pcap:UDP))
                     then dfdl:valueLength(../../pcap:TransportLayer/pcap:UDP/Data, 'bytes') + 20 + 8
-                    else dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/Data, 'bytes') + dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/TCPHeader/Options, 'bytes') + 20 + 20
+                    else dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/Data, 'bytes') + 
+                         dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/TCPHeader/Options, 'bytes') + 20 + 20
                   )
                 else if (fn:exists(../../pcap:ICMPv4/EchoRequest))
                      then dfdl:valueLength(../../pcap:ICMPv4/EchoRequest/Payload, 'bytes') + 20 + 8

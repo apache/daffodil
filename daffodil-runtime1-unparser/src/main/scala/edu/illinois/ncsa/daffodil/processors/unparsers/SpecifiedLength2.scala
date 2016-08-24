@@ -1,20 +1,22 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
-import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.DIComplex
+import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.processors.DISimple
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.RetryableException
+import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 
 /*
@@ -320,6 +322,41 @@ sealed abstract class SpecifiedLengthUnparserBase2(
   }
 }
 
+class OVCRetryUnparser(override val context: ElementRuntimeData,
+  maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
+  extends PrimUnparser
+  with SuspendableUnparser {
+
+  override final def runtimeDependencies = Nil
+
+  override def rd = context
+
+  def erd = context
+
+  final override lazy val childProcessors = List(vUnparser)
+
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
+    if (this.maybeUnparserTargetLengthInBitsEv.isDefined) {
+      val ev = this.maybeUnparserTargetLengthInBitsEv.get
+      val mjul = ev.evaluate(ustate)
+      if (mjul.isEmpty)
+        MaybeULong.Nope
+      else
+        MaybeULong(mjul.get)
+    } else
+      MaybeULong.Nope
+  }
+
+  protected def test(state: UState) = {
+    state.currentInfosetNode.asSimple.hasValue
+  }
+
+  protected def continuation(state: UState) {
+    vUnparser.unparse1(state, context)
+  }
+
+}
+
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparserObject(context) {
 
@@ -411,10 +448,6 @@ class ElementOVCSpecifiedLengthUnparser(
     val diSimple = state.currentInfosetNode.asSimple
 
     diSimple.setDataValue(v)
-    //
-    // now we have to unparse the value.
-    //
-    runContentUnparsers(state)
 
     computeSetVariables(state)
   }
@@ -432,25 +465,29 @@ class ElementOVCSpecifiedLengthUnparser(
 
     computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
 
-    run(state)
+    runContentUnparsers(state) // setup unparsing, which will block for no value
+
+    run(state) // run the expression
 
     endElement(state)
   }
 
-  override protected def maybeKnownLengthInBits(state: UState): MaybeULong = {
-    if (maybeTargetLengthEv.isDefined) {
-      val tlEv = maybeTargetLengthEv.get
-      val maybeTL = tlEv.evaluate(state)
-      if (maybeTL.isDefined) {
-        val tl = maybeTL.get
-        MaybeULong(tl)
-      } else {
-        MaybeULong.Nope
-      }
-    } else {
-      MaybeULong.Nope
-    }
-  }
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
+
+  //  override protected def maybeKnownLengthInBits(state: UState): MaybeULong = {
+  //    if (maybeTargetLengthEv.isDefined) {
+  //      val tlEv = maybeTargetLengthEv.get
+  //      val maybeTL = tlEv.evaluate(state)
+  //      if (maybeTL.isDefined) {
+  //        val tl = maybeTL.get
+  //        MaybeULong(tl)
+  //      } else {
+  //        MaybeULong.Nope
+  //      }
+  //    } else {
+  //      MaybeULong.Nope
+  //    }
+  //  }
 
   override def startElement(state: UState) {
     val elem =
@@ -675,14 +712,19 @@ class ElementUnusedUnparser(
   }
 
   protected final def skipTheBits(ustate: UState, skipInBits: Long) {
-    if (!targetLengthEv.isConstant)
-      System.err.println(Misc.getNameFromClass(this) + " filling " + skipInBits + " for " + rd.prettyName + " DOS " + ustate.dataOutputStream)
     if (skipInBits > 0) {
       val dos = ustate.dataOutputStream
       val fb = fillByteEv.evaluate(ustate)
       dos.setFillByte(fb)
       if (!dos.skip(skipInBits))
         UE(ustate, "Unable to skip %s(bits).", skipInBits)
+    }
+    if (skipInBits == 0) {
+      log(LogLevel.Debug, "%s no fill for %s DOS %s.",
+        Misc.getNameFromClass(this), rd.prettyName, ustate.dataOutputStream)
+    } else {
+      log(LogLevel.Debug, "%s filled %s bits for %s DOS %s.",
+        Misc.getNameFromClass(this), skipInBits, rd.prettyName, ustate.dataOutputStream)
     }
   }
 
@@ -814,15 +856,18 @@ class RightFillUnparser(
 
   override def continuation(state: UState) {
     val skipInBits = getSkipBits(state)
-    val cs = charset(state)
-    val skipInBitsMinusPadding =
-      if (maybePadChar.isDefined) {
-        skipInBits % cs.padCharWidthInBits
-      } else {
-        skipInBits
-      }
+    Assert.invariant(skipInBits >= 0)
+    if (skipInBits > 0) {
+      val cs = charset(state)
+      val skipInBitsMinusPadding =
+        if (maybePadChar.isDefined) {
+          skipInBits % cs.padCharWidthInBits
+        } else {
+          skipInBits
+        }
 
-    skipTheBits(state, skipInBitsMinusPadding)
+      skipTheBits(state, skipInBitsMinusPadding)
+    }
   }
 
 }

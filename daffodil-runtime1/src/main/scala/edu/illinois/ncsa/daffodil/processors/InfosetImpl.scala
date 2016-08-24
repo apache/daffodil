@@ -157,7 +157,7 @@ case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
  * For complex types indicates has not been setNilled.
  */
 case class InfosetNoDataException(val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Error", Nope, Nope, "Element %s does not have a value.", erd.namedQName)
+  extends ProcessingError("Error", One(erd.schemaFileLocation), Nope, "Element %s does not have a value.", erd.namedQName)
   with InfosetException with RetryableException
 
 case class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
@@ -179,15 +179,20 @@ case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRu
   extends ProcessingError("Error", Nope, Nope, "No parent element for element %s.", erd.namedQName)
   with InfosetException
 
-sealed abstract class InfosetLengthUnknownException(kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
+sealed abstract class InfosetLengthUnknownException(lengthState: LengthState, kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
   extends ProcessingError("Error", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
-  with InfosetException with RetryableException
+  with InfosetException with RetryableException {
 
-case class InfosetContentLengthUnknownException(override val diElement: DIElement, override val erd: ElementRuntimeData)
-  extends InfosetLengthUnknownException("Content", diElement, erd)
+  lazy val blockingDOS = lengthState.diagnoseNoLength()
 
-case class InfosetValueLengthUnknownException(override val diElement: DIElement, override val erd: ElementRuntimeData)
-  extends InfosetLengthUnknownException("Value", diElement, erd)
+  override def componentText = "BlockingDOS(" + blockingDOS + ")"
+}
+
+case class InfosetContentLengthUnknownException(lengthState: LengthState, override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetLengthUnknownException(lengthState, "Content", diElement, erd)
+
+case class InfosetValueLengthUnknownException(lengthState: LengthState, override val diElement: DIElement, override val erd: ElementRuntimeData)
+  extends InfosetLengthUnknownException(lengthState, "Value", diElement, erd)
 
 /**
  * Used to determine if expressions can be evaluated without any nodes.
@@ -302,14 +307,24 @@ sealed abstract class LengthState(ie: DIElement)
   protected def flavor: String
 
   override def toString() = {
+    lazy val stDOSid =
+      if (maybeStartDataOutputStream.isDefined)
+        "DOS(id=%s)".format(maybeStartDataOutputStream.get.id.toString)
+      else
+        "unk"
+    lazy val eDOSid =
+      if (maybeEndDataOutputStream.isDefined)
+        "DOS(id=%s)".format(maybeEndDataOutputStream.get.id.toString)
+      else
+        "unk"
     try {
       val (stStatus, stAbs, stDOS) =
         if (maybeStartPos0bInBits.isEmpty) ("unk", "", "")
-        else ("", maybeStartPos0bInBits, maybeStartDataOutputStream)
+        else ("", maybeStartPos0bInBits, stDOSid)
 
       val (eStatus, eAbs, eDOS) =
         if (maybeEndPos0bInBits.isEmpty) ("unk", "", "")
-        else ("", maybeEndPos0bInBits, maybeEndDataOutputStream)
+        else ("", maybeEndPos0bInBits, eDOSid)
 
       "%s(%s%s%s, %s%s%s)".format(flavor, stStatus, stAbs, stDOS, eStatus, eAbs, eDOS)
     } catch {
@@ -347,32 +362,30 @@ sealed abstract class LengthState(ie: DIElement)
   private def recheckStreams() {
     if (maybeStartDataOutputStream.isDefined) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
-      val dos = this.maybeStartDataOutputStream.get
+      val dos = this.maybeStartDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
       if (dos.maybeAbsBitPos0b.isDefined) {
         // we don't have absolute bit positions in this infoset element,
         // but the stream now has that information, so we have to migrate
         // that here.
-        val dosAbsStartBitPos0b = dos.maybeAbsBitPos0b.get
-        val dosRelStartBitPos0b = dos.relBitPos0b
-        val thisRelStartPos0bInBits = this.maybeStartPos0bInBits.get
-        val newStartBitPos0b = dosAbsStartBitPos0b - (dosRelStartBitPos0b - thisRelStartPos0bInBits)
+        val thisRelStartPos0bInBits = this.maybeStartPos0bInBits.getULong
+        val newStartBitPos0b = dos.toAbsolute(thisRelStartPos0bInBits)
+        log(LogLevel.Debug, "%sgth for %s new absolute start pos: %s", flavor, ie.name, newStartBitPos0b)
         this.maybeStartDataOutputStream = Nope
-        this.maybeStartPos0bInBits = MaybeULong(newStartBitPos0b)
+        this.maybeStartPos0bInBits = MaybeULong(newStartBitPos0b.longValue)
       }
     }
     if (maybeEndDataOutputStream.isDefined) {
       Assert.invariant(maybeEndPos0bInBits.isDefined)
-      val dos = this.maybeEndDataOutputStream.get
+      val dos = this.maybeEndDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
       if (dos.maybeAbsBitPos0b.isDefined) {
         // we don't have absolute bit positions in this infoset element,
         // but the stream now has that information, so we have to migrate
         // that here.
-        val dosAbsEndBitPos0b = dos.maybeAbsBitPos0b.get
-        val dosRelEndBitPos0b = dos.relBitPos0b
-        val thisRelEndPos0bInBits = this.maybeEndPos0bInBits.get
-        val newEndBitPos0b = dosAbsEndBitPos0b - (dosRelEndBitPos0b - thisRelEndPos0bInBits)
+        val thisRelEndPos0bInBits = this.maybeEndPos0bInBits.getULong
+        val newEndBitPos0b = dos.toAbsolute(thisRelEndPos0bInBits)
+        log(LogLevel.Debug, "%sgth for %s new absolute end pos: %s", flavor, ie.name, newEndBitPos0b)
         this.maybeEndDataOutputStream = Nope
-        this.maybeEndPos0bInBits = MaybeULong(newEndBitPos0b)
+        this.maybeEndPos0bInBits = MaybeULong(newEndBitPos0b.longValue)
       }
     }
   }
@@ -430,7 +443,7 @@ sealed abstract class LengthState(ie: DIElement)
       if (maybeComputedLength.isDefined) {
         val len = maybeComputedLength.get
         log(LogLevel.Debug, "%sgth of %s is %s, (was already computed)", flavor, ie.name, len)
-        MaybeULong(len)
+        return maybeComputedLength
       } else if (isStartUndef || isEndUndef) {
         log(LogLevel.Debug, "%sgth of %s cannot be computed yet. %s", flavor, ie.name, toString)
         MaybeULong.Nope
@@ -470,10 +483,10 @@ sealed abstract class LengthState(ie: DIElement)
 
         if (!dos.isFinished) {
           // found a non-finished DOS, can't calculate length
-          System.err.println("%sgth of %s is unknown due to unfinished output stream. %s".format(flavor, ie.name, toString))
+          log(LogLevel.Debug, "%sgth of %s is unknown due to unfinished output stream. %s", flavor, ie.name, toString)
           MaybeULong.Nope
         } else {
-          System.err.println("%sgth of %s is %s, by relative positions in same data stream. %s".format(flavor, ie.name, len, toString))
+          log(LogLevel.Debug, "%sgth of %s is %s, by relative positions in same data stream. %s", flavor, ie.name, len, toString)
           MaybeULong(len.toLong)
         }
       } else {
@@ -531,6 +544,21 @@ sealed abstract class LengthState(ie: DIElement)
     maybeEndPos0bInBits = MaybeULong(relPosInBits0b.longValue)
     maybeEndDataOutputStream = One(dos)
   }
+
+  /**
+   * returns the earliest unfinished preceding DOS
+   * or finished, but without absolute positioning information.
+   */
+  def diagnoseNoLength(): DirectOrBufferedDataOutputStream = {
+    if (isStartRelative) {
+      val s = this.maybeStartDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
+      s.findFirstBlocking
+    } else if (isEndRelative) {
+      val s = this.maybeEndDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
+      s.findFirstBlocking
+    } else
+      Assert.invariantFailed("absolute streams cannot block length calculations: " + this)
+  }
 }
 
 class ContentLengthState(ie: DIElement) extends LengthState(ie) {
@@ -539,7 +567,7 @@ class ContentLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
-    throw new InfosetContentLengthUnknownException(ie, ie.runtimeData)
+    throw new InfosetContentLengthUnknownException(this, ie, ie.runtimeData)
   }
 
 }
@@ -550,7 +578,7 @@ class ValueLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def throwUnknown = {
     Assert.invariant(ie ne null)
-    throw new InfosetValueLengthUnknownException(ie, ie.runtimeData)
+    throw new InfosetValueLengthUnknownException(this, ie, ie.runtimeData)
   }
 
 }
@@ -831,12 +859,8 @@ final class DIArray(
  * This should be caught in contexts that want to undertake on-demand
  * evaluation of the OVC expression.
  */
-case class OutputValueCalcEvaluationException(val diElement: DIElement)
-  extends Exception with ThinThrowable with DiagnosticImplMixin {
-  Assert.usage(diElement.isInstanceOf[DISimple])
-
-  def diSimple = diElement.asInstanceOf[DISimple]
-}
+case class OutputValueCalcEvaluationException(val cause: Exception)
+  extends Exception(cause) with ThinThrowable with DiagnosticImplMixin
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement

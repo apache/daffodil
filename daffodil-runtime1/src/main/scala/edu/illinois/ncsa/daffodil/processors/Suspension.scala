@@ -46,20 +46,22 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
  * Performs transient things like evaluates expressions, or finishes unparsing something, after
  * which it exits.
  */
-abstract class TaskCoroutine(ustate: UState, mainCoroutineArg: => MainCoroutine)
+abstract class TaskCoroutine(val ustate: UState, mainCoroutineArg: => MainCoroutine)
   extends Coroutine[AnyRef]
   with WhereBlockedLocation {
 
   private lazy val mainCoroutine = mainCoroutineArg // evaluate arg once only
 
-  protected def doTask(): Unit
+  def doTask(): Unit
 
   override final protected def run() {
+    ???
     try {
       waitForResume
       doTask()
       Assert.invariant(isDone)
       ustate.dataOutputStream.setFinished() // closes it out which will then chain forward to next buffering DOS.
+      log(LogLevel.Debug, "%s finished %s.", this, ustate)
       //
       mainCoroutine.isMakingProgress = true
       resumeFinal(mainCoroutine, Suspension.NoData)
@@ -86,7 +88,8 @@ abstract class TaskCoroutine(ustate: UState, mainCoroutineArg: => MainCoroutine)
  * expressions or finish unparsing something, and then exit, but always resume the main coroutine before doing so.
  */
 class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
-  extends Coroutine[AnyRef] {
+  extends Coroutine[AnyRef]
+  with Logging {
 
   override final def isMain = true
 
@@ -103,7 +106,8 @@ class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
    * This status is needed to implement circular deadlock detection
    */
   override final def run() {
-    resume(taskCoroutine, Suspension.NoData)
+    taskCoroutine.doTask()
+    // resume(taskCoroutine, Suspension.NoData)
     if (!taskCoroutine.isDone) {
 
       Assert.invariant(taskCoroutine.isBlocked)
@@ -115,6 +119,9 @@ class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
         isMakingProgress = true
       }
     } else {
+      taskCoroutine.ustate.dataOutputStream.setFinished()
+      log(LogLevel.Debug, "%s finished %s.", this, taskCoroutine.ustate)
+
       // Done. Suspension is completed.
       // TODO: release task object to pool
     }
@@ -143,7 +150,7 @@ object Suspension {
 abstract class Suspension(val ustate: UState)
   extends Serializable with Logging {
 
-  protected final lazy val mainCoroutine = new MainCoroutine(taskCoroutine)
+  protected def mainCoroutine: MainCoroutine
 
   final def isDone = mainCoroutine.isDone
 
@@ -159,6 +166,11 @@ abstract class Suspension(val ustate: UState)
 
   final def run() = mainCoroutine.run()
 
+  final def explain() {
+    val t = this.taskCoroutine
+    Assert.invariant(t.isBlocked)
+    log(LogLevel.Warning, "%s", t.blockedLocation)
+  }
 }
 
 object SuspensionFactory extends SuspensionFactory
@@ -185,7 +197,7 @@ class SuspensionFactory extends Logging {
      *
      */
 
-    val buffered = original.addBuffered.asInstanceOf[DirectOrBufferedDataOutputStream]
+    val buffered = original.addBuffered
 
     ustate.aaa_debug_DOS.push(buffered) //FIXME: remove. This is a memory leak. Just for debugging
 
@@ -204,11 +216,13 @@ class SuspensionFactory extends Logging {
         // This allows us to deal with alignment regions, that is, we can determine
         // their size since we know the absolute bit position.
 
-        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + maybeKnownLengthInBits.getULong)
+        val mkl = maybeKnownLengthInBits.getULong
+        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
 
       }
     } else {
-      log(LogLevel.Debug, "Buffered DOS created without knowning absolute start bit pos: %s %s",
+      // log(LogLevel.Debug,
+      log(LogLevel.Debug, "SuspensionFactory: %s : Buffered DOS created without knowning absolute start bit pos: %s\n",
         ustate.aaa_currentNode.get.erd.prettyName, buffered)
     }
 

@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.TextTruncationType
 
 /**
@@ -66,12 +65,6 @@ class StringOfSpecifiedLengthUnparser(
 
   override def unparse(state: UState) {
 
-    // this is the length we have to pad to, and fillByte any fragment of a character
-    //
-    // Now the problem is, we don't know how much to pad (or truncate) the string
-    // because until we know how many bits the string's value will take up, we
-    // can't figure out how many of the available bits will be remaining to be
-    // padded, and/or filled by fillByte.
     //
     // We have to stage the bits of the value just so as to be able to count them
     // Then we can figure out the number of padChars to add because a padChar must
@@ -83,12 +76,8 @@ class StringOfSpecifiedLengthUnparser(
       if (stringTruncationType _eq_ TextTruncationType.None)
         valueString
       else {
-        val maybeAvailableLengthInBits = {
-          if (state.bitLimit0b.isDefined)
-            MaybeULong(state.bitLimit0b.get - state.bitPos0b)
-          else
-            MaybeULong.Nope
-        }
+        val maybeAvailableLengthInBits = state.dataOutputStream.remainingBits
+
         if (maybeAvailableLengthInBits.isEmpty) {
           //
           // No limit on available space to write to

@@ -69,6 +69,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -289,8 +290,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.notifyDebugging(true)
       }
       unparserState.dataProc.get.init(ssrd.unparser)
+      // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
       unparse(unparserState)
-      unparserState.evalSuspensions() // handles outputValueCalc that were suspended due to forward references.
+      unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
     } catch {
       case ue: UnparseError => {
@@ -355,6 +357,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     //
     Assert.invariant(!state.dataOutputStream.isFinished)
     state.dataOutputStream.setFinished()
+    log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
+
     val ev = state.advanceMaybe
     if (ev.isDefined) {
       UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)

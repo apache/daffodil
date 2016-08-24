@@ -167,7 +167,7 @@ final class SpecifiedLengthImplicitUnparser(
  * allowing for 80 unicode characters. (Alternatively such data format might specify 80
  * bytes still, meaning up to 80 unicode characters, but possibly fewer.)
  */
-abstract class SpecifiedLengthCharactersUnparserBase(
+sealed abstract class SpecifiedLengthCharactersUnparserBase(
   eUnparser: Unparser,
   erd: ElementRuntimeData)
   extends UnparserObject(erd) with TextUnparserRuntimeMixin {

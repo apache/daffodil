@@ -67,7 +67,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     dstate.setVMap(state.variableMap)
     dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     dstate.setArrayPos(state.arrayPos)
-    dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
+    // dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
     dstate.setErrorOrWarn(state)
     dstate.resetValue
     dstate.isCompile = state match {
@@ -159,7 +159,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 }
 
 abstract class RecipeOp
-    extends Serializable {
+  extends Serializable {
 
   def run(dstate: DState): Unit
 
@@ -192,7 +192,7 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 }
 
 case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
-    extends RecipeOp {
+  extends RecipeOp {
 
   override def run(dstate: DState) {
     Assert.invariant(dstate.vmap != null)
@@ -213,7 +213,7 @@ case class Literal(v: Any) extends RecipeOp {
 }
 
 case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)
-    extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
+  extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -248,7 +248,7 @@ trait BinaryOpMixin { self: RecipeOp =>
 }
 
 case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: CompiledDPath)
-    extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(cop)
 
@@ -265,7 +265,7 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
 }
 
 case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledDPath)
-    extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(nop)
 

@@ -36,21 +36,32 @@ import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
 import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
 
 class BitOrderChangeUnparser(
-  val termRuntimeData: TermRuntimeData,
+  override val rd: TermRuntimeData,
   val bitOrder: BitOrder,
   val checkByteAndBitOrder: CheckByteAndBitOrderEv,
   val checkBitOrderAndCharset: CheckBitOrderAndCharsetEv)
-  extends PrimUnparserObject(termRuntimeData) {
+  extends PrimUnparserObject(rd)
+  with SuspendableOperation {
 
   override lazy val runtimeDependencies = Seq(checkByteAndBitOrder, checkBitOrderAndCharset)
 
-  def unparse(state: UState): Unit = {
+  override def test(ustate: UState) = {
+    val dos = ustate.dataOutputStream
+    dos.maybeAbsBitPos0b.isDefined
+  }
+
+  override def continuation(state: UState) {
     checkByteAndBitOrder(state)
     checkBitOrderAndCharset(state)
-    termRuntimeData.schemaDefinitionUnless(state.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
+    rd.schemaDefinitionUnless(state.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
     state.dataOutputStream.setBitOrder(bitOrder)
+  }
+
+  override def unparse(state: UState): Unit = {
+    run(state)
   }
 
 }
