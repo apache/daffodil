@@ -50,7 +50,7 @@
       dfdl:length="{ 13 }" />
     <xs:element name="mersenne" type="xs:integer"
       dfdl:lengthKind="explicit" dfdl:length="{ 207 }"
-      dfdl:textNumberPattern="000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000,000" />
+      dfdl:textNumberPattern="000,000" />
     <xs:element name="integer01" type="xs:integer"
       dfdl:lengthKind="explicit" dfdl:length="{ 20 }"
       dfdl:textNumberPattern="00000000000000000000" />
