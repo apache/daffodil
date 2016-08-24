@@ -37,9 +37,9 @@ import org.junit.AfterClass
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-object TestUnparseInfoset {
+object TestUnparseNegInfoset {
   val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
-  val aa = testDir + "infosetTest.tdml"
+  val aa = testDir + "unparseNegInfosetTest.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @AfterClass def tearDown() {
@@ -47,8 +47,11 @@ object TestUnparseInfoset {
   }
 }
 
-class TestUnparseInfoset {
-  import TestUnparseInfoset._
+class TestUnparseNegInfoset {
+  import TestUnparseNegInfoset._
+
+  @Test def test_schemaElementRoot1Good() { runner.runOneTest("schemaElementRoot1Good") }
+  @Test def test_schemaElementRoot2Good() { runner.runOneTest("schemaElementRoot2Good") }
 
   @Test def test_unexpectedNextNone() { runner.runOneTest("unexpectedNextNone") }
   @Test def test_unexpectedNextSingle() { runner.runOneTest("unexpectedNextSingle") }

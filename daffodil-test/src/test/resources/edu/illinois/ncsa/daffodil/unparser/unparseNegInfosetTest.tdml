@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -35,7 +35,7 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
-  xmlns="http://example.com">
+  xmlns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="model1">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
@@ -64,6 +64,30 @@
     
   </tdml:defineSchema>
   
+  <tdml:unparserTestCase name="schemaElementRoot1Good" root="root1" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root1>
+          <ex:one>1</ex:one>
+          <ex:two>2</ex:two>
+          <ex:c1>c1</ex:c1>
+        </ex:root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1;2;c1</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="schemaElementRoot2Good" root="root2" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root2>
+          <ex:c1>1</ex:c1>
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:unparserTestCase name="unexpectedNextNone" root="root1" model="model1">
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">
