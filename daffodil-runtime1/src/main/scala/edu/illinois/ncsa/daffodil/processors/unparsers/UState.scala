@@ -392,8 +392,8 @@ class SuspensionDeadlockException(suspExprs: Seq[Suspension])
   extends RuntimeSchemaDefinitionError(
     suspExprs(0).rd.schemaFileLocation,
     suspExprs(0).ustate,
-    "Expressions/Unparsers are circularly deadlocked (mutually defined): %s",
-    suspExprs.map { _.toString }.mkString("\n"))
+    "Expressions/Unparsers are circularly deadlocked (mutually defined):\n%s",
+    suspExprs.groupBy { _.rd }.mapValues { _(0) }.values.mkString(" - ", "\n - ", ""))
 
 object UState {
 

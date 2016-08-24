@@ -257,7 +257,8 @@ final class DirectOrBufferedDataOutputStream private[io] (val splitFrom: DirectO
         DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first) // from first, into direct stream's buffers
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
         //
-        first.convertToDirect(this) // first is now the direct stream
+        first.convertToDirect(directStream) // first is now the direct stream
+
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!
       }

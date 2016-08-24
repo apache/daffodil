@@ -173,7 +173,7 @@ The message root is 'PCAP'.
                     <xs:element name="Seconds" type="pcap:uint32"/> <!-- TODO: ts_sec should be a dateTime -->
                     <xs:element name="USeconds" type="pcap:uint32"/>
                     <xs:element name="InclLen" type="pcap:uint32" 
-                       dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:LinkLayer/pcap:Ethernet, 'bytes') }"/>
+                       dfdl:outputValueCalc="{ if (dfdl:valueLength(../../pcap:LinkLayer/pcap:Ethernet, 'bytes') le 60) then 60 else dfdl:valueLength(../../pcap:LinkLayer/pcap:Ethernet, 'bytes') }"/>
                     <xs:element name="OrigLen" type="pcap:uint32" 
                        dfdl:outputValueCalc="{ ../InclLen }"/>
                   </xs:sequence>
@@ -328,13 +328,17 @@ The message root is 'PCAP'.
               <xs:element name="DSCP" type="pcap:bit" dfdl:length="6" />
               <xs:element name="ECN" type="pcap:bit" dfdl:length="2" />
               <xs:element name="Length" type="pcap:bit" dfdl:length="16" 
-                dfdl:outputValueCalc="{ 
-                if (fn:exists(../../pcap:TransportLayer)) 
-                then dfdl:valueLength(../../pcap:TransportLayer, 'bytes') + 20
+                dfdl:outputValueCalc="{
+                if (fn:exists(../../pcap:TransportLayer))
+                then
+                  (if (fn:exists(../../pcap:TransportLayer/pcap:UDP))
+                    then dfdl:valueLength(../../pcap:TransportLayer/pcap:UDP/Data, 'bytes') + 20 + 8
+                    else dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/Data, 'bytes') + dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/TCPHeader/Options, 'bytes') + 20 + 20
+                  )
                 else if (fn:exists(../../pcap:ICMPv4/EchoRequest))
                      then dfdl:valueLength(../../pcap:ICMPv4/EchoRequest/Payload, 'bytes') + 20 + 8
                      else dfdl:valueLength(../../pcap:ICMPv4/EchoReply/Payload, 'bytes') + 20 + 8
-                }"/>
+                } "/>
               <xs:element name="Identification" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Flags" type="pcap:bit" dfdl:length="3" />
               <xs:element name="FragmentOffset" type="pcap:bit" dfdl:length="13" />
@@ -430,7 +434,11 @@ The message root is 'PCAP'.
               <xs:element name="TrafficClass" type="pcap:bit" dfdl:length="8" />
               <xs:element name="FlowLabel" type="pcap:bit" dfdl:length="20" />
               <xs:element name="PayloadLength" type="pcap:bit" dfdl:length="16" 
-              dfdl:outputValueCalc="{ dfdl:valueLength(../../pcap:TransportLayer, 'bytes') }"/>
+                dfdl:outputValueCalc="{
+                  if (fn:exists(../../pcap:TransportLayer/pcap:UDP))
+                    then dfdl:valueLength(../../pcap:TransportLayer/pcap:UDP/Data, 'bytes') + 8
+                    else dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/Data, 'bytes') + dfdl:valueLength(../../pcap:TransportLayer/pcap:TCP/TCPHeader/Options, 'bytes') + 20
+                } "/>
               <!-- TODO: Add support for extension headers -->
               <xs:element name="NextHeader" type="pcap:bit" dfdl:length="8"
                 dfdl:outputValueCalc="{
@@ -475,7 +483,8 @@ The message root is 'PCAP'.
               <xs:element name="PortDest" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Seq" type="pcap:bit" dfdl:length="32" />
               <xs:element name="Ack" type="pcap:bit" dfdl:length="32" />
-              <xs:element name="DataOffset" type="pcap:bit" dfdl:length="4" />
+              <xs:element name="DataOffset" type="pcap:bit" dfdl:length="4"
+                dfdl:outputValueCalc="{ (dfdl:valueLength(../Options, 'bytes') div 4) + 5 }" />
               <xs:element name="Reserved" type="pcap:bit" dfdl:length="3" />
               <xs:element name="Flags" type="pcap:bit" dfdl:length="9" />
               <xs:element name="WindowSize" type="pcap:bit" dfdl:length="16" />
