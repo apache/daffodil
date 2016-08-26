@@ -375,23 +375,16 @@ class UState private (
   }
 
   def evalSuspensions(ustate: UState) {
-    var i = 0
-    while (i < 2) {
-      i += 1
-      var countOfNotMakingProgress = 0
-      while (!suspensions.isEmpty &&
-        countOfNotMakingProgress < suspensions.length) {
-        val se = suspensions.dequeue
-        se.run()
-        if (!se.isDone) suspensions.enqueue(se)
-        if (!se.isMakingProgress)
-          countOfNotMakingProgress += 1
-        else
-          countOfNotMakingProgress = 0
-      }
-      if (suspensions.length > 1) {
-        System.err.println("There are still %s suspensions".format(suspensions.length))
-      }
+    var countOfNotMakingProgress = 0
+    while (!suspensions.isEmpty &&
+      countOfNotMakingProgress < suspensions.length) {
+      val se = suspensions.dequeue
+      se.run()
+      if (!se.isDone) suspensions.enqueue(se)
+      if (se.isDone || se.isMakingProgress)
+        countOfNotMakingProgress = 0
+      else
+        countOfNotMakingProgress += 1
     }
     // after the loop, did we terminate
     // with some expressions still unevaluated?

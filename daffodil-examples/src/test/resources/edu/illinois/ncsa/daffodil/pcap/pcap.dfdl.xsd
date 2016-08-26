@@ -73,7 +73,7 @@ The message root is 'PCAP'.
         choiceLengthKind="implicit" decimalSigned="yes"
         documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none"
         encoding="utf-8" encodingErrorPolicy="replace" escapeSchemeRef=""
-        fillByte="0" floating="no" ignoreCase="no" initiatedContent="no"
+        fillByte="%NUL;" floating="no" ignoreCase="no" initiatedContent="no"
         initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits"
         nilKind="literalValue" nilValueDelimiterPolicy="none" nilValue="NIL"
         occursCountKind="implicit" outputNewLine="%CR;%LF;"

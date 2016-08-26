@@ -465,10 +465,13 @@ sealed abstract class LengthState(ie: DIElement)
         val len = endPos - startPos
         log(LogLevel.Debug, "%sgth of %s is %s, by relative positions in same data stream. %s", flavor, ie.name, len, toString)
         MaybeULong(len)
-      } else if (isStartRelative && isEndRelative && maybeStartDataOutputStream.get.isFinished && maybeEndDataOutputStream.get.isFinished) {
+      } else if (isStartRelative && isEndRelative && maybeStartDataOutputStream.get.isFinished) {
         // if start and end DOSs are relative and different, but every DOS from
-        // start to end inclusive is finished, then we can calculate the length
-        // based on relative positions
+        // start inclusive to end excluste is finished, then we can calculate
+        // the length based on relative positions. Note that it is fine for the
+        // end DOS to be active because all we need are the relative bit
+        // positive from the beginning of the DOS. We don't care about any bits
+        // that maybe or may not occurr after it.
 
         // get partial lengths in the start and end DOS
         var len = (maybeStartDataOutputStream.get.relBitPos0b - maybeStartPos0bInBits.getULong) + maybeEndPos0bInBits.getULong
