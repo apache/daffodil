@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.pcap
 
-import org.junit.Test
+//import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -48,9 +48,7 @@ object TestPCAPDebug {
 
 class TestPCAPDebug {
 
-  import TestPCAPDebug._
+//  import TestPCAPDebug._
 
-  //DFDL-1341
-  @Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
 
 }

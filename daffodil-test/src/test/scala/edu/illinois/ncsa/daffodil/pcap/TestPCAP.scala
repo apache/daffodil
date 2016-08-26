@@ -55,6 +55,6 @@ class TestPCAP {
   @Test def test_invalid_network_type() { runner.runOneTest("invalid_network_type") }
 
   //DFDL-1341
-  //@Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
+  @Test def test_pcap_simple_1mb_test() { runner.runOneTest("pcap_simple_1mb_test") }
 
 }
