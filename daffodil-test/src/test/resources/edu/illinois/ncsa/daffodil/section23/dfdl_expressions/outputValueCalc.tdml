@@ -97,7 +97,6 @@
       </xs:complexType>
     </xs:element>
 
-
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="ovcHiddenCalculations1" root="root" model="ovc1" description="ovc test that computes 1.2.3.4 from 4 binary bytes, and invert of that for unparse.">
@@ -225,5 +224,203 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="ovc4" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:string" dfdl:outputValueCalc="{ dfdl:valueLength(../y, 'bytes') }" dfdl:initiator="{../xi}"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="y" type="xs:string" dfdl:outputValueCalc="{ dfdl:valueLength(../z, 'bytes')}"  dfdl:initiator="Y"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="z" type="xs:string" dfdl:initiator="Z"  dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="{ ../xi }" dfdl:outputValueCalc="{ dfdl:valueLength(../y, 'bytes')}" />
+          <xs:element name="y" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.000" dfdl:textStandardDecimalSeparator="{ ../yi }" dfdl:outputValueCalc="{ dfdl:valueLength(../z, 'bytes')}" />
+          <xs:element name="z" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.0" dfdl:textStandardDecimalSeparator="{ ../zi }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,##0.0" dfdl:textStandardGroupingSeparator="{ ../xi }" dfdl:outputValueCalc="{ dfdl:valueLength(../y, 'bytes') * 1000}" />
+          <xs:element name="y" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###,##0.000" dfdl:textStandardGroupingSeparator="{ ../yi }" dfdl:outputValueCalc="{ dfdl:valueLength(../z, 'bytes') * 1000000}" />
+          <xs:element name="z" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="##,##0.00" dfdl:textStandardGroupingSeparator="{ ../zi }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#00.##E00" dfdl:textStandardExponentRep="{ ../xi }" dfdl:outputValueCalc="{ dfdl:valueLength(../y, 'bytes') * 1000}" />
+          <xs:element name="y" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0.0E0" dfdl:textStandardExponentRep="{ ../yi }" dfdl:outputValueCalc="{ dfdl:valueLength(../z, 'bytes') * 10000}" />
+          <xs:element name="z" type="xs:float" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###0.##E000" dfdl:textStandardExponentRep="{ ../zi }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="5" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="5" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="5" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../xi }" dfdl:outputValueCalc="{ fn:concat('2017-8-',dfdl:valueLength(../y, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
+          <xs:element name="y" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../yi }" dfdl:outputValueCalc="{ fn:concat('1986-6-',dfdl:valueLength(../z, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
+          <xs:element name="z" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="{ ../zi }" dfdl:calendarPatternKind="explicit" dfdl:encoding="UTF-8" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <dfdl:defineEscapeScheme name="escapeScheme1">
+      <dfdl:escapeScheme escapeCharacter="{ ../xi }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="escapeScheme2">
+      <dfdl:escapeScheme escapeCharacter="{ ../yi }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="escapeScheme3">
+      <dfdl:escapeScheme escapeCharacter="{ ../zi }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme1" dfdl:outputValueCalc="{ fn:concat('test;',dfdl:valueLength(../y, 'bytes')) }" />
+          <xs:element name="y" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme2" dfdl:outputValueCalc="{ fn:concat('blah;',dfdl:valueLength(../z, 'bytes')) }" />
+          <xs:element name="z" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_initiator" root="e1" model="ovc4" description="ovc test with initiator as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <xi>X</xi>
+          <yi>Y</yi>
+          <zi>Z</zi>
+          <z>0123456789</z>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">XYZX2;Y10;Z0123456789;</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_dec_sep" root="e2" model="ovc4" description="ovc test with textStandardDecimalSeparator as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <xi>X</xi>
+          <yi>Y</yi>
+          <zi>Z</zi>
+          <z>5.0</z>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">XYZ$6X00$4Y000$5Z0</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_group_sep" root="e3" model="ovc4" description="ovc test with textStandardGroupingSeparator as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>
+          <xi>X</xi>
+          <yi>Y</yi>
+          <zi>Z</zi>
+          <z>12345.0</z>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">XYZ13X000.09Y000Y000.00012Z345.00</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_exp_rep" root="e4" model="ovc4" description="ovc test with textStandardExponentRep as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <xi>X</xi>
+          <yi>Y</yi>
+          <zi>Z</zi>
+          <z>1234.56789E5</z>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">XYZ5X038.0Y41.23Z008</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_cal_lang" root="e5" model="ovc4" description="ovc test with calendarLanguage as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <xi>en-GB</xi>
+          <yi>es-MX</yi>
+          <zi>ru-RU</zi>
+          <z>2013-03-01+00:00</z>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">en-GBes-MXru-RUWednesday August 2017lunes junio 1986пятница марта 2013</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_escape_char" root="e6" model="ovc4" description="ovc test with escapeCharacter as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <xi>x</xi>
+          <yi>y</yi>
+          <zi>z</zi>
+          <z>test;ing</z>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">xyztestx;7;blahy;9;testz;ing;</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
