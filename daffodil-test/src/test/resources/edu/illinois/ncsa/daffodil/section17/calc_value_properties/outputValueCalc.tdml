@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved. 
+	Developed by: Tresys Technology, LLC http://www.tresys.com Permission is 
+	hereby granted, free of charge, to any person obtaining a copy of this software 
+	and associated documentation files (the "Software"), to deal with the Software 
+	without restriction, including without limitation the rights to use, copy, 
+	modify, merge, publish, distribute, sublicense, and/or sell copies of the 
+	Software, and to permit persons to whom the Software is furnished to do so, 
+	subject to the following conditions: 1. Redistributions of source code must 
+	retain the above copyright notice, this list of conditions and the following 
+	disclaimers. 2. Redistributions in binary form must reproduce the above copyright 
+	notice, this list of conditions and the following disclaimers in the documentation 
+	and/or other materials provided with the distribution. 3. Neither the names 
+	of Tresys Technology, nor the names of its contributors may be used to endorse 
+	or promote products derived from this Software without specific prior written 
+	permission. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+	CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+	THE SOFTWARE. -->
+<tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+	<tdml:defineSchema name="outputValueCalc-Embedded.dfdl.xsd">
+
+
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			lengthUnits="bytes" encoding="utf-8" byteOrder="bigEndian" separator=""
+			initiator="" terminator="" occursCountKind="parsed" ignoreCase="no"
+			textNumberRep="standard" representation="text" alignment="8"
+			alignmentUnits='bits' />
+
+		<xs:element name="ovc_01">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xi" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="yi" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="zi" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+
+					<xs:element name="x" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:initiator="{ ../ex:xi }" dfdl:lengthKind="delimited"
+						dfdl:terminator=";" />
+					<xs:element name="y" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:initiator="{ ../ex:yi }" dfdl:lengthKind="delimited"
+						dfdl:terminator=";" />
+					<xs:element name="z" type="xs:string" dfdl:initiator="{ ../ex:zi }"
+						dfdl:lengthKind="delimited" dfdl:terminator=";" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_02">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xt" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="yt" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="zt" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+
+					<xs:element name="x" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:terminator="{ ../ex:xt }" dfdl:lengthKind="delimited"
+						dfdl:initiator=";" />
+					<xs:element name="y" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:terminator="{ ../ex:yt }" dfdl:lengthKind="delimited"
+						dfdl:initiator=";" />
+					<xs:element name="z" type="xs:string" dfdl:terminator="{ ../ex:zt }"
+						dfdl:lengthKind="delimited" dfdl:initiator=";" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_03">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xsep" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="ysep" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="zsep" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+
+					<xs:element name="data">
+						<xs:complexType>
+							<xs:sequence dfdl:separator="{ ../ex:xsep }"
+								dfdl:separatorPosition="prefix">
+								<xs:element name="x" type="xs:string"
+									dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+									dfdl:lengthKind="delimited" />
+								<xs:sequence dfdl:separator="{ ../ex:ysep  }"
+									dfdl:separatorPosition="prefix">
+									<xs:element name="y" type="xs:string"
+										dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+										dfdl:lengthKind="delimited" />
+									<xs:sequence dfdl:separator="{ ../ex:zsep }"
+										dfdl:separatorPosition="prefix">
+										<xs:element name="z" type="xs:string"
+											dfdl:lengthKind="delimited" />
+									</xs:sequence>
+								</xs:sequence>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_04">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xonl" type="xs:string" dfdl:length="2"
+						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%NEL;') }"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="yonl" type="xs:string" dfdl:length="1"
+						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%LF;') }"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="zonl" type="xs:string" dfdl:length="1"
+						dfdl:outputValueCalc="{ dfdl:decodeDFDLEntities('%CR;') }"
+						dfdl:lengthKind="explicit" />
+
+					<xs:element name="x" type="xs:string" dfdl:initiator="|"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:y,'bytes') }"
+						dfdl:outputNewLine="{ dfdl:encodeDFDLEntities(../ex:xonl) }"
+						dfdl:lengthKind="delimited" dfdl:terminator="%NL;|" />
+					<xs:element name="y" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:z, 'bytes') }"
+						dfdl:outputNewLine="{ dfdl:encodeDFDLEntities(../ex:yonl) }"
+						dfdl:lengthKind="delimited" dfdl:terminator="%NL;|" />
+					<xs:element name="z" type="xs:string"
+						dfdl:outputNewLine="{ dfdl:encodeDFDLEntities(../ex:zonl) }"
+						dfdl:lengthKind="delimited" dfdl:terminator="%NL;|" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_05">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xenc" type="xs:string"
+						dfdl:lengthKind="delimited" dfdl:terminator="|" />
+					<xs:element name="yenc" type="xs:string"
+						dfdl:lengthKind="delimited" dfdl:terminator="|" />
+					<xs:element name="zenc" type="xs:string"
+						dfdl:lengthKind="delimited" dfdl:terminator="|" />
+
+					<xs:element name="x" type="xs:string"
+						dfdl:outputValueCalc="{ fn:substring(../ex:z, 1, 1) }"
+						dfdl:encoding="{ ../ex:xenc }" dfdl:lengthKind="delimited"
+						dfdl:terminator="|" />
+					<xs:element name="y" type="xs:string"
+						dfdl:outputValueCalc="{ fn:substring(../ex:z, 2, 1) }"
+						dfdl:encoding="{ ../ex:yenc }" dfdl:lengthKind="delimited"
+						dfdl:terminator="|" />
+					<xs:element name="z" type="xs:string" dfdl:encoding="{ ../ex:zenc }"
+						dfdl:lengthKind="delimited" dfdl:terminator="|" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_06">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="xbo" type="xs:string" dfdl:lengthKind="delimited"
+						dfdl:terminator="|" />
+					<xs:element name="ybo" type="xs:string" dfdl:lengthKind="delimited"
+						dfdl:terminator="|" />
+					<xs:element name="zbo" type="xs:string" dfdl:lengthKind="delimited"
+						dfdl:terminator="|" />
+
+					<xs:element name="x" type="xs:int" dfdl:outputValueCalc="{ ../ex:y + 2 }"
+						dfdl:representation="binary" dfdl:byteOrder="{ ../ex:xbo }"
+						dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4"
+						dfdl:terminator="|" />
+					<xs:element name="y" type="xs:int" dfdl:outputValueCalc="{ ../ex:z }"
+						dfdl:representation="binary" dfdl:byteOrder="{ ../ex:ybo }"
+						dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4"
+						dfdl:terminator="|" />
+					<xs:element name="z" type="xs:int" dfdl:representation="binary"
+						dfdl:byteOrder="{ ../ex:zbo }" dfdl:lengthKind="explicit"
+						dfdl:lengthUnits="bytes" dfdl:length="4" dfdl:terminator="|" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_07">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="delim" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" />
+					<xs:element name="delimA" type="xs:string" dfdl:length="1"
+						dfdl:lengthKind="explicit" dfdl:terminator="--" />
+					<xs:element name="x" type="xs:string"
+						dfdl:outputValueCalc="{ dfdl:valueLength(../ex:nestA/ex:y, 'bytes') }"
+						dfdl:lengthKind="delimited" dfdl:terminator=";" />
+					<xs:element name="nestA" dfdl:initiator="{ ../ex:delim }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="delimB" type="xs:string"
+									dfdl:length="1" dfdl:lengthKind="explicit" />
+								<xs:element name="y" type="xs:string"
+									dfdl:outputValueCalc="{ dfdl:valueLength(../ex:nestB/ex:z, 'bytes') }"
+									dfdl:lengthKind="delimited" dfdl:terminator=";" />
+								<xs:element name="nestB" dfdl:initiator="{ ../../ex:delimA }">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="delimC" type="xs:string"
+												dfdl:length="1" dfdl:lengthKind="explicit" />
+											<xs:element name="z" type="xs:string"
+												dfdl:initiator="{ ../../ex:delimB }" dfdl:lengthKind="delimited"
+												dfdl:terminator=";" />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="ovc_08">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="|">
+					<xs:element name="a" minOccurs="1" maxOccurs="3"
+						dfdl:initiator="A:">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=",">
+								<xs:element name="q" type="xs:long"
+									dfdl:outputValueCalc="{ dfdl:occursIndex() * ../../ex:b[dfdl:occursIndex()]/ex:x }" />
+								<xs:element name="r" type="xs:long"
+									dfdl:outputValueCalc="{ dfdl:occursIndex() * ../../ex:b[dfdl:occursIndex()]/ex:y }" />
+								<xs:element name="s" type="xs:string" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="b" minOccurs="1" maxOccurs="3"
+						dfdl:initiator="B:">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=",">
+								<xs:element name="x" type="xs:long" dfdl:lengthKind="delimited"
+									dfdl:outputValueCalc="{ dfdl:occursIndex() + ../ex:y }" />
+								<xs:element name="y" type="xs:long"
+									dfdl:outputValueCalc="{ dfdl:occursIndex() + ../ex:z }"
+									dfdl:lengthKind="delimited" />
+								<xs:element name="z" type="xs:long"
+									dfdl:lengthKind="delimited" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="binaryIntegerBE" type="xs:integer"
+			dfdl:lengthKind="explicit" dfdl:representation="binary"
+			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="bigEndian" />
+		<xs:element name="binaryIntegerLE" type="xs:integer"
+			dfdl:lengthKind="explicit" dfdl:representation="binary"
+			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="littleEndian" />
+
+	</tdml:defineSchema>
+
+	<tdml:unparserTestCase name="binaryIntegerBE"
+		root="binaryIntegerBE" model="outputValueCalc-Embedded.dfdl.xsd"
+		description="Section 17 OutputValueCalc - DFDL-17-007R" roundTrip="true">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:binaryIntegerBE>437984285</ex:binaryIntegerBE>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="byte">1A1B1C1D</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+	<tdml:unparserTestCase name="binaryIntegerLE"
+		root="binaryIntegerLE" model="outputValueCalc-Embedded.dfdl.xsd"
+		description="Section 17 OutputValueCalc - DFDL-17-007R" roundTrip="true">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:binaryIntegerLE>437984285</ex:binaryIntegerLE>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="byte">1D1C1B1A</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_01
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_01
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:initiator
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_01"
+		root="ovc_01" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_01>
+					<xi>X</xi>
+					<yi>Y</yi>
+					<zi>Z</zi>
+					<z>0123456789</z>
+				</ex:ovc_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">XYZX2;Y10;Z0123456789;</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_02
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_02
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:terminator
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_02"
+		root="ovc_02" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_02>
+					<xt>X</xt>
+					<yt>Y</yt>
+					<zt>Z</zt>
+					<z>0123456789</z>
+				</ex:ovc_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">XYZ;2X;10Y;0123456789Z</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_03
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_03
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:separator
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_03"
+		root="ovc_03" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_03>
+					<xsep>X</xsep>
+					<ysep>Y</ysep>
+					<zsep>Z</zsep>
+					<data>
+						<z>0123456789</z>
+					</data>
+				</ex:ovc_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">XYZX2XY10YZ0123456789</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_04
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_04
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:outputNewLine
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_04"
+		root="ovc_04" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_04>
+					<z>0123456789</z>
+				</ex:ovc_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<!-- NEL is c285 LF is 0A CR is 0D -->
+			<tdml:documentPart type="byte">c2850A0D7C32c2857C31300A7C303132333435363738390D7C</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_05
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_06
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:encoding
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_05"
+		root="ovc_05" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_05>
+					<xenc>us-ascii</xenc>
+					<yenc>utf-16</yenc>
+					<zenc>utf-32</zenc>
+					<z>XYZ</z>
+				</ex:ovc_05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">us-ascii|utf-16|utf-32|</tdml:documentPart>
+			<tdml:documentPart type="byte">58</tdml:documentPart> <!-- X in us-ascii -->
+			<tdml:documentPart type="byte">7C</tdml:documentPart> <!-- | -->
+			<tdml:documentPart type="byte">0059</tdml:documentPart> <!-- Y in utf-16 -->
+			<tdml:documentPart type="byte">007C</tdml:documentPart> <!-- | -->
+			<tdml:documentPart type="byte">00000058000000590000005a</tdml:documentPart> <!-- XYZ in utf-32 -->
+			<tdml:documentPart type="byte">0000007C</tdml:documentPart> <!-- | -->
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_06
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_06
+       Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
+       Then unparses: z, y, x and output in x,y,z order. dfdl:byteOrder
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_06"
+		root="ovc_06" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_06>
+					<xbo>bigEndian</xbo>
+					<ybo>littleEndian</ybo>
+					<zbo>bigEndian</zbo>
+					<z>437984285</z>
+				</ex:ovc_06>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">bigEndian|littleEndian|bigEndian|</tdml:documentPart>
+			<tdml:documentPart type="byte">1A1B1C1F</tdml:documentPart> <!-- 437984287 -->
+			<tdml:documentPart type="byte">7C</tdml:documentPart> <!-- | -->
+			<tdml:documentPart type="byte">1D1C1B1A</tdml:documentPart> <!-- 488381210 -->
+			<tdml:documentPart type="byte">7C</tdml:documentPart> <!-- | -->
+			<tdml:documentPart type="byte">1A1B1C1D</tdml:documentPart> <!-- 437984285 -->
+			<tdml:documentPart type="byte">7C</tdml:documentPart> <!-- | -->
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_07
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_07
+       Purpose: This test demonstrates that OVC freezes the delimiter stacks
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_07"
+		root="ovc_07" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_07>
+					<delim>|</delim>
+					<delimA>(</delimA>
+					<nestA>
+						<delimB>{</delimB>
+						<nestB>
+							<delimC>[</delimC>
+							<z>test</z>
+						</nestB>
+					</nestA>
+				</ex:ovc_07>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">|(--1;|{4;([{test;</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_08
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_08
+       Purpose: This test demonstrates that OVC freezes the different dfdl:occursIndex values.
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_08"
+		root="ovc_08" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="false">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_08>
+					<a>
+						<s>array one</s>
+					</a>
+					<a>
+						<s>array two</s>
+					</a>
+					<b>
+						<z>10</z>
+					</b>
+					<b>
+						<z>20</z>
+					</b>
+				</ex:ovc_08>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">A:12,11,array one|A:48,44,array two|B:12,11,10|B:24,22,20</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+</tdml:testSuite>
