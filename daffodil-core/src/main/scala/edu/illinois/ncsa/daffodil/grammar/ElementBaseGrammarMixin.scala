@@ -585,15 +585,15 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val anyOfNilOrEmptyOrValue = prod("anyOfNilOrEmptyOrValue", isNillable && NYI && emptyIsAnObservableConcept) {
-    SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue)
+    ovcRetry(SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue))
   }
 
   private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
-    SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
+    ovcRetry(SimpleNilOrValue(this, nilLit || parsedNil, parsedValue))
   }
 
   private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
-    SimpleEmptyOrValue(this, empty, parsedValue)
+    ovcRetry(SimpleEmptyOrValue(this, empty, parsedValue))
   }
 
   private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
