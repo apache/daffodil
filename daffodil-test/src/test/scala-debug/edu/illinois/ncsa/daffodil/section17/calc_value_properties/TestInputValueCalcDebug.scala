@@ -69,9 +69,6 @@ class TestInputValueCalcDebug {
   //DFDL-1027
   @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
 
-  //DFDL-1028
-  @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
-
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
 }

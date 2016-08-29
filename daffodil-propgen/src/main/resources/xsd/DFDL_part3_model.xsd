@@ -280,17 +280,21 @@
   <!-- ======================================================== -->
 
   <xsd:attributeGroup name="FormatAG">
-    <xsd:attributeGroup ref="dfdl:ElementAG" />
+    <xsd:attributeGroup ref="dfdl:ElementFormatSubsetAG" />
     <xsd:attributeGroup ref="dfdl:GroupAG" />
     <xsd:attributeGroup ref="dfdl:DocumentPropertiesAG" />
   </xsd:attributeGroup>
 
-  <xsd:attributeGroup name="ElementAG">
+  <xsd:attributeGroup name="ElementFormatSubsetAG">
     <xsd:attributeGroup ref="dfdl:SimpleTypeAG" />
     <xsd:attributeGroup ref="dfdl:FloatingAG" />
     <xsd:attributeGroup ref="dfdl:NillableAG" />
     <xsd:attributeGroup ref="dfdl:DefaultValueControlAG" />
     <xsd:attributeGroup ref="dfdl:OccursAG" />
+  </xsd:attributeGroup>
+  
+   <xsd:attributeGroup name="ElementAG">
+    <xsd:attributeGroup ref="dfdl:ElementFormatSubsetAG" />
     <xsd:attributeGroup ref="dfdl:CalculatedValueAG" />
   </xsd:attributeGroup>
 

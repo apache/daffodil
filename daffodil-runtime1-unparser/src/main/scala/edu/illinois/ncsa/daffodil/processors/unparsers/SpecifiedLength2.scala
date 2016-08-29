@@ -617,7 +617,8 @@ trait NeedValueAndTargetLengthMixin {
       val mcs = targetLengthEv.lengthInBitsEv.maybeCharsetEv
       val cs = mcs.get.evaluate(ustate)
       val csName = cs.charsetName
-      ustate.SDE("For dfdl:lengthKind '%s', variable width character encoding '%s', and dfdl:lengthUnits '%s' are incompatible.", lk, csName, lu)
+      ustate.SDE("For dfdl:lengthKind '%s', variable width character encoding '%s', and dfdl:lengthUnits '%s' are incompatible.",
+        lk, csName, lu)
     }
     true
   }

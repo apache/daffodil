@@ -39,7 +39,7 @@ class TDMLException(msg: String, val causes: Seq[Throwable])
 
   def this(msg: String) = this(msg, Nil)
 
-  def this(cause: Exception) = this(cause.getMessage(), List(cause))
+  def this(cause: Throwable) = this(cause.getMessage(), List(cause))
 
   def this(causes: Seq[Throwable]) = this(
     {

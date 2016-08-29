@@ -39,7 +39,7 @@ import org.junit.AfterClass
 object TestInputValueCalc {
   val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
 
-  val runner = Runner(testDir, "inputValueCalc.tdml")
+  val runner = Runner(testDir, "inputValueCalc.tdml", validateTDMLFile = false)
   val runnerAR = Runner(testDir, "AR.tdml")
   val runnerAQ = Runner(testDir, "AQ.tdml")
   val runnerAA = Runner(testDir, "AA.tdml")

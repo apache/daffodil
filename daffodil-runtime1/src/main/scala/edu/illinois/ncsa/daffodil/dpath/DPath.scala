@@ -79,7 +79,7 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
 
   private def UE(msg: String, maybeCL: Maybe[DataLocation]) = UnparseError(One(ci.schemaFileLocation), maybeCL, msg)
 
-  private def doPE(e: Throwable, state: ParseOrUnparseState) = {
+  private def doPE(e: Throwable, state: ParseOrUnparseState): Null = {
     val msg = "Expression evaluation failed due to: %s.".format(DiagnosticUtils.getSomeMessage(e).get)
     state match {
       case null => Assert.usageError("state cannot be null")
@@ -87,7 +87,6 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
       case pstate: PState => {
         val pe = new ExpressionEvaluationException(e, state) // One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
         pstate.setFailed(pe)
-        null
       }
       case compState: CompileState => {
         val d = e match {
@@ -96,9 +95,9 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
             new ExpressionEvaluationException(e, state)
         }
         compState.setFailed(d)
-        null
       }
     }
+    null
   }
 
   private def handleCompileState(e: Diagnostic, state: ParseOrUnparseState) = {

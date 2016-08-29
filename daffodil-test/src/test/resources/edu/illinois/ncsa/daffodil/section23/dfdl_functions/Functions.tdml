@@ -8860,14 +8860,11 @@
     <tdml:document>
       <tdml:documentPart type="text">nil</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <not04>
-          <nameVal xsi:nil="true"/>
-          <nameNotExist>true</nameNotExist>
-        </not04>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>nameVal</tdml:error>
+      <tdml:error>not have a value</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -10476,14 +10473,10 @@
     <tdml:document>
       <tdml:documentPart type="text">nil</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <nilled01>
-          <a xsi:nil="true"/>
-          <nilled>true</nilled>
-        </nilled01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>not have a value</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
 <!--

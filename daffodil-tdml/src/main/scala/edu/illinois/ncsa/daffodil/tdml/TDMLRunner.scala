@@ -664,7 +664,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
         val diagObjs = actual.getDiagnostics
-        if (diagObjs.length == 1) throw diagObjs(0)
+        if (diagObjs.length == 1) throw new TDMLException(diagObjs(0))
         val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }

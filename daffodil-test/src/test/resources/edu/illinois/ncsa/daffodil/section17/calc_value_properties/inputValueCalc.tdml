@@ -1384,7 +1384,9 @@
 
     <tdml:document/>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>inputValueCalc</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>dfdl:format</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
