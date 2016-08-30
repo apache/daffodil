@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.Suspension
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dpath._
@@ -122,7 +123,7 @@ abstract class CompiledExpression[+T <: AnyRef](
    * The whereBlockedLocation is modified via its block(...) method to indicate where the
    * expression blocked (for forward progress checking).
    */
-  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: WhereBlockedLocation): Maybe[T]
+  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T]
 
   override def toString(): String = "CompiledExpression(" + valueForDebugPrinting.toString + ")"
 }
@@ -145,7 +146,7 @@ final case class ConstantExpression[+T <: AnyRef](
     value
   }
 
-  final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: WhereBlockedLocation): Maybe[T] = {
+  final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
     whereBlockedLocation.setDone
     Maybe(evaluate(state))
@@ -332,8 +333,8 @@ class DPathElementCompileInfo(
 
     val retryOptERD =
       if (optERD.isEmpty &&
-          DaffodilTunableParameters.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
-          step.prefix.isEmpty && step.namespace != NoNamespace) {
+        DaffodilTunableParameters.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+        step.prefix.isEmpty && step.namespace != NoNamespace) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.

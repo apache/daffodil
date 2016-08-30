@@ -33,71 +33,45 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.dpath.WhereBlockedLocation
-import edu.illinois.ncsa.daffodil.util.Coroutine
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.CoroutineException
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeInt
+import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 
 /**
- * Performs transient things like evaluates expressions, or finishes unparsing something, after
- * which it exits.
+ * The suspension object keeps track of the state of the task, i.e., whether it
+ * is done, whether it is making forward progress when run or not.
+ *
+ * A suspension" may block, by which we mean it may set isDone to false, and return.
+ *
+ * Running the suspension again tries again and will either block or complete.
+ *
  */
-abstract class TaskCoroutine(val ustate: UState, mainCoroutineArg: => MainCoroutine)
-  extends Coroutine[AnyRef]
-  with WhereBlockedLocation {
+trait Suspension
+  extends Serializable with Logging {
 
-  private lazy val mainCoroutine = mainCoroutineArg // evaluate arg once only
-
-  def doTask(): Unit
-
-  override final protected def run() {
-    ???
-    try {
-      waitForResume
-      doTask()
-      Assert.invariant(isDone)
-      ustate.dataOutputStream.setFinished() // closes it out which will then chain forward to next buffering DOS.
-      log(LogLevel.Debug, "%s finished %s.", this, ustate)
-      //
-      mainCoroutine.isMakingProgress = true
-      resumeFinal(mainCoroutine, Suspension.NoData)
-      // and since we fall through here, the task thread terminates now.
-      // only tasks that aren't completed should hang around in a list
-      // or on a data structure, so the coroutine should get picked up by the GC if
-      // the task itself is.
-
-    } catch {
-      case ie: InterruptedException => // do nothing, mainCoroutine killed us
-      case th: Throwable => {
-        // tell consumer we're exiting via a throw
-        // but not to rethrow it necessarily.
-        val ce = new CoroutineException(th)
-        resumeFinal(mainCoroutine, ce)
-      }
-    }
+  def UE(ustate: UState, s: String, args: Any*) = {
+    UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
-}
 
-/**
- * This object represents the "main" coroutine, the original thread of control to which
- * the corresponding task ultimately always resumes. The task coroutines do transient things like evaluate
- * expressions or finish unparsing something, and then exit, but always resume the main coroutine before doing so.
- */
-class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
-  extends Coroutine[AnyRef]
-  with Logging {
+  private var ustate_ : UState = null
 
-  override final def isMain = true
+  final def ustate = {
+    Assert.invariant(ustate_ ne null)
+    ustate_
+  }
 
-  private lazy val taskCoroutine = taskCoroutineArg // evaluate arg once only
+  def rd: RuntimeData
 
-  final def isDone = taskCoroutine.isDone
+  protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong.Nope
 
-  final var isMakingProgress: Boolean = true
+  protected def doTask(ustate: UState): Unit
 
   /**
    * After calling this, call isDone and if that's false call isMakingProgress to
@@ -105,97 +79,122 @@ class MainCoroutine(taskCoroutineArg: => TaskCoroutine)
    *
    * This status is needed to implement circular deadlock detection
    */
-  override final def run() {
-    taskCoroutine.doTask()
-    // resume(taskCoroutine, Suspension.NoData)
-    if (!taskCoroutine.isDone) {
-
-      Assert.invariant(taskCoroutine.isBlocked)
-      if (taskCoroutine.isBlockedSameLocation) {
-        isMakingProgress = false
-      } else if (taskCoroutine.isBlockedFirstTime) {
-        isMakingProgress = true
-      } else {
-        isMakingProgress = true
-      }
-    } else {
-      taskCoroutine.ustate.dataOutputStream.setFinished()
-      log(LogLevel.Debug, "%s finished %s.", this, taskCoroutine.ustate)
-
-      // Done. Suspension is completed.
-      // TODO: release task object to pool
+  final def runSuspension() {
+    doTask(ustate)
+    if (isDone) {
+      ustate.dataOutputStream.setFinished()
+      log(LogLevel.Debug, "%s finished %s.", this, ustate)
     }
   }
 
-}
+  final def run(ustate: UState) {
+    doTask(ustate)
+    if (!isDone) {
+      val mkl = maybeKnownLengthInBits(ustate)
+      setup(ustate, mkl)
+    }
+  }
 
-object Suspension {
-  object NoData
-}
+  final def explain() {
+    val t = this
+    Assert.invariant(t.isBlocked)
+    log(LogLevel.Warning, "%s", t.blockedLocation)
+  }
 
-/**
- * A suspension pairs a TaskCoroutine with the main coroutine (i.e., original main thread)
- *
- * The suspension object keeps track of the state of the TaskCoroutine so you can ask
- * the object whether the TaskCoroutine isDone.
- *
- * When executing, the "suspension" (which is a proxy to the task coroutine) may
- * block, by which we mean it may set isDone to false and resume the main coroutine.
- *
- * Resuming the suspension again resumes the task coroutine which loops to retry
- * what caused it to block.
- *
- * This repeats until main is resumed with isDone set to true.
- */
-abstract class Suspension(val ustate: UState)
-  extends Serializable with Logging {
+  private var priorNodeOrVar: Maybe[AnyRef] = Nope
+  private var priorInfo: Maybe[AnyRef] = Nope
+  private var priorIndex: MaybeInt = MaybeInt.Nope
+  private var priorExc: Maybe[AnyRef] = Nope
 
-  protected def mainCoroutine: MainCoroutine
+  private var maybeNodeOrVar: Maybe[AnyRef] = Nope
+  private var maybeInfo: Maybe[AnyRef] = Nope
+  private var maybeIndex: MaybeInt = MaybeInt.Nope
+  private var maybeExc: Maybe[AnyRef] = Nope
 
-  final def isDone = mainCoroutine.isDone
+  private var done_ : Boolean = false
+  private var isBlocked_ = false
 
-  protected def taskCoroutine: TaskCoroutine
+  final def setDone {
+    done_ = true
+  }
 
-  def rd: RuntimeData
+  final def isDone = done_
+
+  final def isBlocked = isBlocked_
+
+  final def setUnblocked() {
+    isBlocked_ = false
+  }
 
   /**
    * False if the expression blocked at the same spot, i.e.,
    * didn't make any forward progress.
    */
-  final def isMakingProgress = mainCoroutine.isMakingProgress
+  private var isMakingProgress_ : Boolean = true
 
-  final def run() = mainCoroutine.run()
+  final def isMakingProgress = isMakingProgress_
 
-  final def explain() {
-    val t = this.taskCoroutine
-    Assert.invariant(t.isBlocked)
-    log(LogLevel.Warning, "%s", t.blockedLocation)
+  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef) {
+    log(LogLevel.Debug, "blocking %s due to %s", this, exc)
+
+    Assert.usage(nodeOrVar ne null)
+    Assert.usage(info ne null)
+    Assert.usage(exc ne null)
+    priorNodeOrVar = maybeNodeOrVar
+    priorInfo = maybeInfo
+    priorIndex = maybeIndex
+    priorExc = maybeExc
+    maybeNodeOrVar = One(nodeOrVar)
+    maybeInfo = One(info)
+    maybeIndex = MaybeInt(index.toInt)
+    maybeExc = One(exc)
+    done_ = false
+    isBlocked_ = true
+
+    if (isBlockedSameLocation) {
+      isMakingProgress_ = false
+    } else if (isBlockedFirstTime) {
+      isMakingProgress_ = true
+    } else {
+      isMakingProgress_ = true
+    }
   }
-}
 
-object SuspensionFactory extends SuspensionFactory
+  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(maybeExc, maybeNodeOrVar, maybeInfo, maybeIndex)
 
-class SuspensionFactory extends Logging {
+  private def isBlockedFirstTime: Boolean = {
+    isBlocked &&
+      priorNodeOrVar.isEmpty
+  }
 
-  final def setup(ustate: UState, maybeKnownLengthInBits: MaybeULong): UState = {
+  private def isBlockedSameLocation: Boolean = {
+    val res = isBlocked &&
+      {
+        if (priorNodeOrVar.isEmpty) false
+        else {
+          Assert.invariant(maybeNodeOrVar.isDefined)
+          val res =
+            maybeNodeOrVar.get == priorNodeOrVar.get &&
+              maybeInfo.get == priorInfo.get &&
+              maybeIndex.get == priorIndex.get &&
+              maybeExc.get == priorExc.get
+          res
+        }
+      }
+    res
+  }
+
+  final protected def setup(ustate: UState, maybeKnownLengthInBits: MaybeULong) {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
 
-    /*
-     * Pessimistic again. No matter the reason for a suspension, this will split
-     * the data output stream so that everything "after" the possible suspension
-     * goes into a different data output stream.
-     *
-     * But there is a very real case where there's no reason for a suspension at
-     * all, which is when evaluating the target-length of an element. The target
-     * length itself doesn't go out into the data output, so there's no need to
-     * split the data input stream.
-     *
-     * TODO: Performance - Perhaps maybeKnownLengthInBits can be MaybeULong(0) to indicate this
-     * situation.
-     *
-     */
+    //    // if we know the length will be 0, no need to allocate a buffered DOS
+    //    // but if we don't know the length or we know the length is non-zero
+    //    // then we do need a buffered DOS
+    //    //
+    //    if (maybeKnownLengthInBits.isEmpty ||
+    //      (maybeKnownLengthInBits.get != 0)) {
 
     val buffered = original.addBuffered
 
@@ -217,14 +216,21 @@ class SuspensionFactory extends Logging {
         // their size since we know the absolute bit position.
 
         val mkl = maybeKnownLengthInBits.getULong
+        Assert.invariant(mkl >= ULong(0))
         buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
 
       }
     } else {
       // log(LogLevel.Debug,
-      log(LogLevel.Debug, "SuspensionFactory: %s : Buffered DOS created without knowning absolute start bit pos: %s\n",
+      log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
         ustate.aaa_currentNode.get.erd.prettyName, buffered)
     }
+
+    // the main-thread will carry on using the original ustate but unparsing
+    // into this buffered stream.
+    ustate.dataOutputStream = buffered
+
+    // }
 
     //
     // clone the ustate for use when evaluating the expression
@@ -234,11 +240,9 @@ class SuspensionFactory extends Logging {
     //
     val cloneUState = ustate.cloneForSuspension(original)
 
-    // the main-thread will carry on using the original ustate but unparsing
-    // into this buffered stream.
-    ustate.dataOutputStream = buffered
+    ustate_ = cloneUState
 
-    cloneUState
+    ustate.addSuspension(this)
   }
 }
 

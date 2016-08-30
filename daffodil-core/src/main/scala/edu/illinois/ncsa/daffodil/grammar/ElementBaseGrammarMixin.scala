@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
@@ -47,6 +46,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dsom.NotFound
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -115,6 +115,12 @@ trait ElementBaseGrammarMixin
       terminatorRegion
   }
 
+  /**
+   * Wrapped around the simple value unparsers used for dfdl:outputValueCalc (OVC)
+   * with a combinator. Will retry them until the value is available.
+   *
+   * Evaporates for parsing, and when the element is not dfdl:outputValueCalc.
+   */
   private def ovcRetry(allowedValueArg: => Gram) = {
     lazy val allowedValue = allowedValueArg
     if (this.isOutputValueCalc)
@@ -604,10 +610,6 @@ trait ElementBaseGrammarMixin
     nilOrEmptyOrValue
   }
 
-  //  private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
-  //    nilOrValue || nonNilNonEmptyParsedValue
-  //  }
-
   /**
    * Note: This must handle unspecified lengths, like lengthKind delimited,
    * as well, by not enclosing the body in a specified length enforcer.
@@ -679,10 +681,6 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  //  private lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
-  //    withDelimiterStack(withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent))
-  //  }
-
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
@@ -695,28 +693,6 @@ trait ElementBaseGrammarMixin
 
   private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 
-  // private lazy val scalarNonDefaultPhysical = prod("enclosedElementNonDefault") {
-  //
-  //    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
-  //      withDelimiterStack {
-  //      withEscapeScheme {
-  //        scalarDefaultableSimpleContent || scalarComplexContent
-  //      }
-  //    },
-  //      elementRightFraming ~ dfdlScopeEnd)
-  //
-  //        elem
-  //  }
-  //  {
-  //    val bodyBefore = elementLeftFraming ~ dfdlScopeBegin
-  //    val body = scalarNonDefaultContent
-  //    val bodyAfter = elementRightFraming ~ dfdlScopeEnd
-  //    if (this.isParentUnorderedSequence)
-  //      new ChoiceElementCombinator(this, bodyBefore, body, bodyAfter)
-  //    else
-  //      new ElementCombinator(this, bodyBefore, body, bodyAfter)
-  //  }
-
   protected final lazy val enclosedElement = prod("enclosedElement") {
     //
     // not isScalar, because this is reused inside arrays
@@ -727,7 +703,12 @@ trait ElementBaseGrammarMixin
     // for the array case and scalar case that is the same for both.
     //
     checkVariousPropertyconstraints
-    new PhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement)
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
+      case (_: Found, _: NotFound) => inputValueCalcElement
+      case (_: NotFound, _: Found) => outputValueCalcElement
+      case _ => SDE("Element with both dfdl:inputValueCalc and dfdl:outputValueCalc is not allowed.")
+    }
   }
 
   //
@@ -736,85 +717,14 @@ trait ElementBaseGrammarMixin
   //
   protected final def enclosedElementNonDefault = enclosedElement
 
-  //  protected final lazy val enclosedElementNonDefault = prod("enclosedElementNonDefault") {
-  //    checkVariousPropertyconstraints
-  //    new PhysicalOrComputed(this, scalarNonDefaultPhysical, inputValueCalcElement, outputValueCalcElement)
-  //  }
-
   private lazy val inputValueCalcElement = prod("inputValueCalcElement",
-    isSimpleType && inputValueCalcOption.isInstanceOf[Found], forWhat = BothParserAndUnparser) {
+    isSimpleType && inputValueCalcOption.isInstanceOf[Found]) {
       // No framing surrounding inputValueCalc elements.
       // Note that we need these elements even when unparsing, because they appear in the infoset
       // as regular elements (most times), and so we have to have an unparser that consumes the corresponding events.
       new ElementCombinator(this, dfdlScopeBegin,
         InputValueCalc(self, inputValueCalcOption), dfdlScopeEnd)
     }
-
-  //  private lazy val ovcValueCalcObject = {
-  //    import LengthKind._
-  //    val UNKNOWN = -1
-  //    (lengthKind, knownLengthInBits) match {
-  //      case (Delimited, _) | (Pattern, _) =>
-  //        OutputValueCalcVariableLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent)
-  //      case (Explicit, UNKNOWN) =>
-  //        OutputValueCalcRuntimeLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, lengthEv, lengthUnits)
-  //      case (Explicit, _) =>
-  //        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
-  //      case (Implicit, k) if k != UNKNOWN =>
-  //        OutputValueCalcStaticLength(self, outputValueCalcOption, elementLeftFraming ~ scalarNonDefaultContent, knownLengthInBits)
-  //      case other => Assert.invariantFailed("(lengthKind, knownLengthInbits) = " + other)
-  //    }
-  //  }
-  //
-  //  /**
-  //   * Returns length in bits, or -1 if not knowable because of the encoding, or because it's runtime valued.
-  //   */
-  //  private def knownLengthInBits: Long = {
-  //    import LengthKind._
-  //    import Representation._
-  //    import LengthUnits._
-  //    import PrimType._
-  //    val maxLengthLong = if (primType == String || primType == HexBinary) maxLength.longValueExact else -1
-  //    val result: Long =
-  //      lengthKind match {
-  //        case Implicit => {
-  //          (impliedRepresentation, primType, lengthUnits) match {
-  //            case (_, HexBinary, _) => maxLengthLong * 8
-  //            case (Binary, _, _) => this.implicitBinaryLengthInBits
-  //            case (Text, String, Bytes) => maxLengthLong * 8
-  //            case (Text, String, Characters) => {
-  //              if (isKnownEncoding && this.knownEncodingIsFixedWidth)
-  //                knownFixedWidthEncodingInCharsToBits(maxLengthLong)
-  //              else -1
-  //            }
-  //            case (Text, Boolean, _) => {
-  //              //
-  //              // Spec says longest of textBooleanTrueRep and textBooleanFalseRep, but
-  //              // those can be specified at runtime, so ..... we need an Ev which is the maxLength of those two Ev's value?
-  //              SDE("Boolean type not supported.")
-  //            }
-  //            case _ => Assert.invariantFailed(
-  //              "Element with dfdl:lengthKind %s and dfdl:outputValueCalc cannot have representation %s, type %s, and lengthUnits %s.".format(
-  //                lengthKind, impliedRepresentation, primType, lengthUnits))
-  //          }
-  //        }
-  //        case Delimited | Pattern => -1
-  //        case Explicit if lengthEv.isConstant => {
-  //          val len: Long = lengthEv.optConstant.get
-  //          (impliedRepresentation, lengthUnits) match {
-  //            case (Text, Characters) => len * this.knownEncodingWidthInBits
-  //            case (_, Bytes) => len * 8
-  //            case (_, Bits) => len
-  //            case _ =>
-  //              Assert.invariantFailed(
-  //                "Unexpected combination of representation (%s) with lengthUnits (%s).".format(impliedRepresentation, lengthUnits))
-  //          }
-  //        }
-  //        case Explicit => -1
-  //      }
-  //    Assert.invariant(result >= 0 || result == -1)
-  //    result
-  //  }
 
   protected final lazy val ovcCompiledExpression = { // ovcValueCalcObject.expr
     val exprProp = outputValueCalcOption.asInstanceOf[Found]
@@ -829,11 +739,8 @@ trait ElementBaseGrammarMixin
   private lazy val outputValueCalcElement =
 
     prod("outputValueCalcElement",
-      isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
+      isSimpleType && outputValueCalcOption.isInstanceOf[Found]) {
         scalarDefaultablePhysical
-        //      new ElementCombinator(this,
-        //        dfdlScopeBegin, ovcValueCalcObject,
-        //        elementRightFraming ~ dfdlScopeEnd)
       }
 
   // Note: there is no such thing as defaultable complex content because you can't have a
@@ -842,6 +749,24 @@ trait ElementBaseGrammarMixin
   // recursively defaultable and has no syntax. So you could recursively "parse"
   // it, get default values for simple type elements in the complex type structure,
   // yet consume zero bits.
+  //
+  // When parsing that's exactly what should happen. It should parse, come back with
+  // a complex type element, and have consumed no bits.
+  //
+  // When unparsing, we have to recognize that the complex type element matches
+  // this default value, and then choose to unparse nothing.
+  //
+  // TBD: is this actually required by DFDL? Perhaps it is legal to simply
+  // unparse the overall structure. When we unparse a simple type, and the
+  // representation happens to be empty (such as empty string) the question is
+  // are we to recognize this, and put down the emptyValueInitiator/Terminator based
+  // on the emptyValueDelimiterPolicy? That has to be right. In order for a complex
+  // type to be defaultable, and for us to output nothing (empty) corresponding
+  // to a complex type, then all the contained simple type elements must be empty
+  // and must have effectively no initiator nor terminator for empty values.
+  //
+  // But there are additional things like when empty string causes a Nil value to be
+  // created, or a zero to be created for a text number.
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
 

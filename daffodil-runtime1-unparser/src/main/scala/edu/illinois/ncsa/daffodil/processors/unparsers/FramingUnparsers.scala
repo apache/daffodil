@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
+import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
 import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class SkipRegionUnparser(
@@ -51,18 +52,11 @@ class SkipRegionUnparser(
   }
 }
 
-/**
- * Note: inherits directly from SuspendableOperation, so this isA suspendable, not
- * merely has/uses one.
- */
-class AlignmentFillUnparser(
+class AlignmentFillUnparserSuspendableOperation(
   alignmentInBits: Int,
   override val rd: RuntimeData,
   fillByteEv: FillByteEv)
-  extends PrimUnparserObject(rd)
-  with SuspendableOperation {
-
-  override def runtimeDependencies = List(fillByteEv)
+  extends SuspendableOperation {
 
   override def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
@@ -86,10 +80,20 @@ class AlignmentFillUnparser(
     else
       log(LogLevel.Debug, "%s moved %s bits to align to %s(bits).", this, delta, alignmentInBits)
   }
+}
 
-  override def unparse(state: UState): Unit = {
-    run(state)
-  }
+class AlignmentFillUnparser(
+  alignmentInBits: Int,
+   val rd: RuntimeData,
+  fillByteEv: FillByteEv)
+  extends PrimUnparserObject(rd)
+  with SuspendableUnparser {
+
+  override def runtimeDependencies = List(fillByteEv)
+
+  override def suspendableOperation =
+    new AlignmentFillUnparserSuspendableOperation(
+      alignmentInBits, rd, fillByteEv)
 }
 
 class MandatoryTextAlignmentUnparser(

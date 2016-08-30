@@ -645,7 +645,7 @@
 
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
-      occursCountKind="parsed" ignoreCase="no" inputValueCalc="{ 5 }"
+      occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
 
     <xs:element name="e1" type="xs:int" />

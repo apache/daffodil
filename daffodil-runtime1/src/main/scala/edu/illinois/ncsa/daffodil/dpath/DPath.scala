@@ -47,77 +47,6 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import AsIntConverters._
 
-trait WhereBlockedLocation
-  extends Logging {
-
-  private var priorNodeOrVar: Maybe[AnyRef] = Nope
-  private var priorInfo: Maybe[AnyRef] = Nope
-  private var priorIndex: MaybeInt = MaybeInt.Nope
-  private var priorExc: Maybe[AnyRef] = Nope
-
-  private var maybeNodeOrVar: Maybe[AnyRef] = Nope
-  private var maybeInfo: Maybe[AnyRef] = Nope
-  private var maybeIndex: MaybeInt = MaybeInt.Nope
-  private var maybeExc: Maybe[AnyRef] = Nope
-
-  private var done_ : Boolean = false
-  private var isBlocked_ = false
-
-  final def setDone {
-    done_ = true
-  }
-
-  final def isDone = done_
-
-  final def isBlocked = isBlocked_
-
-  final def setUnblocked() {
-    isBlocked_ = false
-  }
-
-  final def block(nodeOrVar: AnyRef, info: AnyRef, index: Long, exc: AnyRef) {
-    log(LogLevel.Debug, "blocking %s due to %s", this, exc)
-
-    Assert.usage(nodeOrVar ne null)
-    Assert.usage(info ne null)
-    Assert.usage(exc ne null)
-    priorNodeOrVar = maybeNodeOrVar
-    priorInfo = maybeInfo
-    priorIndex = maybeIndex
-    priorExc = maybeExc
-    maybeNodeOrVar = One(nodeOrVar)
-    maybeInfo = One(info)
-    maybeIndex = MaybeInt(index.toInt)
-    maybeExc = One(exc)
-    done_ = false
-    isBlocked_ = true
-  }
-
-  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(maybeExc, maybeNodeOrVar, maybeInfo, maybeIndex)
-
-  final def isBlockedFirstTime: Boolean = {
-    isBlocked &&
-      priorNodeOrVar.isEmpty
-  }
-
-  final def isBlockedSameLocation: Boolean = {
-    val res = isBlocked &&
-      {
-        if (priorNodeOrVar.isEmpty) false
-        else {
-          Assert.invariant(maybeNodeOrVar.isDefined)
-          val res =
-            maybeNodeOrVar.get == priorNodeOrVar.get &&
-              maybeInfo.get == priorInfo.get &&
-              maybeIndex.get == priorIndex.get &&
-              maybeExc.get == priorExc.get
-          res
-        }
-      }
-    res
-  }
-}
-
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Error",
     One(s.schemaFileLocation),
@@ -202,7 +131,7 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
    * the block location. I.e., where in the infoset are we blocked. Used for forward-progress-checking
    * so as to detect deadlocks.
    */
-  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedInfo: WhereBlockedLocation): Maybe[T] = {
+  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedInfo: Suspension): Maybe[T] = {
     var value: Maybe[AnyRef] = Nope
     try {
       // TODO: This assumes a distinct state object (with its own dState) for every expression that
@@ -211,6 +140,8 @@ class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, rec
       value = Maybe(processForwardExpressionResults(dstate))
       whereBlockedInfo.setDone
     } catch {
+      case unfin: InfosetNodeNotFinalException =>
+        whereBlockedInfo.block(unfin.node, unfin.node.erd.dpathElementCompileInfo, 0, unfin)
       case noChild: InfosetNoSuchChildElementException =>
         whereBlockedInfo.block(noChild.diComplex, noChild.info, 0, noChild)
       case noArrayIndex: InfosetArrayIndexOutOfBoundsException =>

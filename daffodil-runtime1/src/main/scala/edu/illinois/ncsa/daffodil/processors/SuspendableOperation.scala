@@ -33,13 +33,11 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -50,12 +48,9 @@ import edu.illinois.ncsa.daffodil.util.Logging
  * being evaluated that has forward references.
  */
 trait SuspendableOperation
-  extends Serializable
-  with Logging { enclosing =>
+  extends Suspension {
 
-  def rd: RuntimeData
-
-  protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong.Nope
+  override def rd: RuntimeData
 
   override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.prettyName)
 
@@ -72,78 +67,46 @@ trait SuspendableOperation
    */
   protected def continuation(ustate: UState): Unit
 
-  private class SuspendableOp(override val ustate: UState)
-    extends Suspension(ustate) {
-
-    override def rd = enclosing.rd
-
-    override def toString = enclosing.toString
-
-    protected class MainC extends MainCoroutine(taskCoroutine) {
-
-      override def toString = enclosing.toString
+  override protected final def doTask(ustate: UState) {
+    if (isBlocked) {
+      setUnblocked()
+      log(LogLevel.Debug, "retrying %s", this)
     }
-
-    protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
-
-      override def toString = enclosing.toString
-
-      override final def doTask() {
-        if (isBlocked) {
-          setUnblocked()
-          log(LogLevel.Debug, "retrying %s", this)
-        }
-        while (!isDone && !isBlocked) {
-          try {
-            val tst = test(ustate)
-            log(LogLevel.Debug, "test() of %s %s", this, tst)
-            if (tst)
-              setDone
-            else
-              block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, enclosing)
-          } catch {
-            case e: RetryableException =>
-              block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, e)
-          }
-          if (!isDone) {
-            Assert.invariant(isBlocked)
-            // resume(mainCoroutine, Suspension.NoData)
-          }
-        }
-        if (isDone) {
-          log(LogLevel.Debug, "continuation() of %s", this)
-          continuation(ustate)
-          log(LogLevel.Debug, "task of %s done!", this)
-
-        }
-      }
-    }
-
-    override final protected lazy val taskCoroutine = new Task
-
-    override final protected lazy val mainCoroutine = new MainC
-
-  }
-
-  def run(ustate: UState) {
-    val tst =
+    while (!isDone && !isBlocked) {
       try {
         val tst = test(ustate)
-        log(LogLevel.Debug, "test() of %s %s", this, tst)
-        tst
+        if (tst) {
+          log(LogLevel.Debug, "test() of %s %s passed", this, tst)
+          setDone
+        } else {
+          log(LogLevel.Debug, "test() of %s %s failed", this, tst)
+          block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, this)
+        }
       } catch {
-        case x: RetryableException =>
-          log(LogLevel.Debug, "test() of %s failed with %s", this, x)
-          false
+        case e: RetryableException => {
+          log(LogLevel.Debug, "test() of %s threw %s", this, e)
+          block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, e)
+        }
       }
-    if (tst)
-      continuation(ustate) // don't bother with Task if we can avoid it
-    else {
-      val mkl = maybeKnownLengthInBits(ustate)
-      val cloneUState = SuspensionFactory.setup(ustate, mkl)
-      val se = new SuspendableOp(cloneUState)
-      ustate.addSuspension(se)
+      if (!isDone) {
+        Assert.invariant(isBlocked)
+      }
     }
+    if (isDone) {
+      log(LogLevel.Debug, "continuation() of %s", this)
+      continuation(ustate)
+      log(LogLevel.Debug, "continuation() of %s done!", this)
+
+    }
+  }
+}
+
+trait SuspendableUnparser {
+
+  protected def suspendableOperation: SuspendableOperation
+
+  final def unparse(state: UState): Unit = {
+    suspendableOperation.run(state)
   }
 }
 

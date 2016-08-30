@@ -379,7 +379,7 @@ class UState private (
     while (!suspensions.isEmpty &&
       countOfNotMakingProgress < suspensions.length) {
       val se = suspensions.dequeue
-      se.run()
+      se.runSuspension()
       if (!se.isDone) suspensions.enqueue(se)
       if (se.isDone || se.isMakingProgress)
         countOfNotMakingProgress = 0
@@ -391,7 +391,7 @@ class UState private (
     if (suspensions.length > 1) {
       // unable to evaluate all the expressions
       suspensions.map { sus =>
-        sus.run() // good place for a breakpoint so we can debug why things are locked up.
+        sus.runSuspension() // good place for a breakpoint so we can debug why things are locked up.
         sus.explain()
       }
       System.err.println("Dump of UStates")

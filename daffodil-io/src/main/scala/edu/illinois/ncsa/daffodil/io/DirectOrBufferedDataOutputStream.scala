@@ -128,6 +128,11 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     toDisplay
   }
 
+  /**
+   * This is for debugging. It works backward through the chain of DOS' until
+   * it finds one that is holding things up (preventing collapsing)
+   * by not having any absolute position information, or being still active.
+   */
   def findFirstBlocking: DirectOrBufferedDataOutputStream = {
     if (maybeAbsBitPos0b.isEmpty || !isFinished) this
     else {

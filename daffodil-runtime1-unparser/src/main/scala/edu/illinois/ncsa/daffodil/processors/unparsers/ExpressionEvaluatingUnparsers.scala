@@ -39,18 +39,11 @@ import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
-/**
- * Note that this unparser isA SuspendableExpression. It doesn't merely contain 
- * one. It inherits directly from the trait.
- */
-final class SetVariableUnparser(
+final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,
   referencingContext: NonTermRuntimeData)
-    extends UnparserObject(rd)
-    with SuspendableExpression {
-
-  override lazy val childProcessors = Nil
+  extends SuspendableExpression {
 
   override protected def processExpressionResult(ustate: UState, v: AnyRef) {
     val newVMap =
@@ -60,9 +53,22 @@ final class SetVariableUnparser(
   }
 
   override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
+}
+
+final class SetVariableUnparser(
+  val expr: CompiledExpression[AnyRef],
+  val rd: VariableRuntimeData,
+  referencingContext: NonTermRuntimeData)
+  extends UnparserObject(rd) {
+
+  override lazy val childProcessors = Nil
+
+  def suspendableExpression =
+    new SetVariableSuspendableExpression(
+      expr, rd, referencingContext)
 
   override def unparse(state: UState): Unit = {
-    run(state)
+    suspendableExpression.run(state)
   }
 
 }
@@ -70,7 +76,7 @@ final class SetVariableUnparser(
 // When implemented this almost certainly wants to be a combinator
 // Not two separate unparsers.
 class NewVariableInstanceStartUnparser(vrd: RuntimeData)
-    extends UnparserObject(vrd) {
+  extends UnparserObject(vrd) {
 
   override lazy val childProcessors = Nil
 
@@ -82,7 +88,7 @@ class NewVariableInstanceStartUnparser(vrd: RuntimeData)
 }
 
 class NewVariableInstanceEndUnparser(vrd: RuntimeData)
-    extends UnparserObject(vrd) {
+  extends UnparserObject(vrd) {
 
   override lazy val childProcessors = Nil
 

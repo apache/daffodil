@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 
 // TODO: JIRA DFDL-1581 - rename classes to remove "Statement" prefix (and rename file)
-abstract class StatementElementUnparserBase(
+abstract class ElementUnparserBase(
   rd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
@@ -139,14 +139,14 @@ abstract class StatementElementUnparserBase(
   }
 }
 
-class StatementElementUnparser(
+class ElementUnparser(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends StatementElementUnparserBase(
+  extends ElementUnparserBase(
     erd,
     name,
     setVarUnparsers,
@@ -217,11 +217,11 @@ class StatementElementUnparser(
  * whether to place separators, and there should not be any separator
  * corresponding to an IVC element.
  */
-class StatementElementUnparserNoRep(
+class ElementUnparserNoRep(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser])
-  extends StatementElementUnparser(
+  extends ElementUnparser(
     erd,
     name,
     setVarUnparsers,
@@ -239,14 +239,14 @@ class StatementElementUnparserNoRep(
   }
 }
 
-class StatementElementOutputValueCalcUnparser(
+class ElementOutputValueCalcUnparser(
   erd: ElementRuntimeData,
   name: String,
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends StatementElementUnparser(
+  extends ElementUnparser(
     erd,
     name,
     setVarUnparsers,

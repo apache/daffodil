@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 
 /*
  * These are all tests of OVC and alignment interactions
@@ -83,11 +84,11 @@ class TestOutputValueCalcAndAlignment {
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <!-- 
-             corner case: OVC element has variable length. So aligned element 
-             after it cannot be unparsed (alignment region size isn't known) 
-             until we know just how big the representation of s1 is, in bytes. 
-             So the alignment must be deferred. 
+            <!--
+             corner case: OVC element has variable length. So aligned element
+             after it cannot be unparsed (alignment region size isn't known)
+             until we know just how big the representation of s1 is, in bytes.
+             So the alignment must be deferred.
              -->
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="T" dfdl:outputValueCalc="{ ../s2 }"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="S" dfdl:alignment="8"/>
@@ -100,7 +101,7 @@ class TestOutputValueCalcAndAlignment {
     // below, the two XX are inserted to align to an 8 byte boundary. But the
     // number of bytes to insert to achieve alignment can't be computed until
     // the OVC element gets its value, and therefore it can be unparsed, which
-    // finishes the suspended unparse for the OVC, the absolute position 
+    // finishes the suspended unparse for the OVC, the absolute position
     // propagates to the next (buffered) data output stream, so when the
     // alignment is retried, then it can determine 2 bytes are needed.
     //
@@ -121,12 +122,12 @@ class TestOutputValueCalcAndAlignment {
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
-            <!-- 
-             corner case: OVC element has variable length. 
+            <!--
+             corner case: OVC element has variable length.
              So alignment needed for i2 can't be determined since we don't have
              the starting absolute position.
              However, that alignment region length is needed to compute
-             the dfdl:contentLength of s2. So we deadlock. 
+             the dfdl:contentLength of s2. So we deadlock.
              -->
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="T" dfdl:outputValueCalc="{ dfdl:valueLength(../s2, 'bytes') }"/>
             <xs:element name="s2" dfdl:lengthKind="delimited" dfdl:terminator="S">
@@ -142,12 +143,21 @@ class TestOutputValueCalcAndAlignment {
       </xs:element>, elementFormDefault = "unqualified")
     val infoset = <ex:e1 xmlns:ex={ example }><s2><i1>A</i1><i2>B</i2></s2></ex:e1>
     val areTracing = false
-    val e = intercept[Exception] {
+    try {
       TestUtils.testUnparsing(sch, infoset, "ignored", areTracing)
+    } catch {
+      case e: RuntimeSchemaDefinitionError => {
+        val msg = DiagnosticUtils.getSomeMessage(e).get.toLowerCase
+        if (!msg.contains("Schema Definition Error".toLowerCase))
+          fail(msg + " did not contain Schema Definition Error")
+
+        assertTrue(msg.contains("Deadlock".toLowerCase))
+      }
+      case x: Throwable => {
+        val y = x.toString
+        System.err.println(y)
+      }
     }
-    val msg = DiagnosticUtils.getSomeMessage(e).get.toLowerCase
-    assertTrue(msg.contains("Schema Definition Error".toLowerCase))
-    assertTrue(msg.contains("Deadlock".toLowerCase))
   }
 
 }

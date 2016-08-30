@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-abstract class StatementElementParserBase(
+abstract class ElementParserBase(
   rd: RuntimeData,
   name: String,
   patDiscrimParser: Maybe[Parser],
@@ -213,7 +213,7 @@ abstract class StatementElementParserBase(
   }
 }
 
-class StatementElementParser(
+class ElementParser(
   erd: ElementRuntimeData,
   name: String,
   patDiscrim: Maybe[Parser],
@@ -224,7 +224,7 @@ class StatementElementParser(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
-  extends StatementElementParserBase(
+  extends ElementParserBase(
     erd,
     name,
     patDiscrim,
@@ -284,7 +284,7 @@ class StatementElementParser(
   }
 }
 
-class StatementElementParserNoRep(
+class ElementParserNoRep(
   erd: ElementRuntimeData,
   name: String,
   patDiscrim: Maybe[Parser],
@@ -295,7 +295,7 @@ class StatementElementParserNoRep(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
-  extends StatementElementParser(
+  extends ElementParser(
     erd,
     name,
     patDiscrim,
@@ -316,7 +316,7 @@ class StatementElementParserNoRep(
   }
 }
 
-class ChoiceStatementElementParser(
+class ChoiceElementParser(
   erd: ElementRuntimeData,
   name: String,
   patDiscrim: Maybe[Parser],
@@ -327,7 +327,7 @@ class ChoiceStatementElementParser(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
-  extends StatementElementParserBase(
+  extends ElementParserBase(
     erd,
     name,
     patDiscrim,

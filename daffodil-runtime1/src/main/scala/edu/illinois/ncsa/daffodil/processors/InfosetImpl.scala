@@ -110,14 +110,16 @@ trait RetryableException
 
 trait InfosetException extends DiagnosticImplMixin with ThinThrowable
 
-trait InfosetNodeNotFinalException extends InfosetException with RetryableException
+trait InfosetNodeNotFinalException extends InfosetException with RetryableException {
+  def node: DINode
+}
 
-case class InfosetArrayNotFinalException(val a: DIArray)
-  extends ProcessingError("Error", Nope, Nope, "Array is not finalized.", a)
+case class InfosetArrayNotFinalException(override val node: DIArray)
+  extends ProcessingError("Error", Nope, Nope, "Array is not finalized.", node)
   with InfosetNodeNotFinalException
 
-case class InfosetComplexElementNotFinalException(val a: DIComplex)
-  extends ProcessingError("Error", Nope, Nope, "ComplexType element is not finalized.", a)
+case class InfosetComplexElementNotFinalException(override val node: DIComplex)
+  extends ProcessingError("Error", Nope, Nope, "ComplexType element is not finalized.", node)
   with InfosetNodeNotFinalException
 
 /**
@@ -552,13 +554,17 @@ sealed abstract class LengthState(ie: DIElement)
    * returns the earliest unfinished preceding DOS
    * or finished, but without absolute positioning information.
    */
-  def diagnoseNoLength(): DirectOrBufferedDataOutputStream = {
+  def diagnoseNoLength(): String = {
     if (isStartRelative) {
       val s = this.maybeStartDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
-      s.findFirstBlocking
+      s.findFirstBlocking.toString
     } else if (isEndRelative) {
       val s = this.maybeEndDataOutputStream.get.asInstanceOf[DirectOrBufferedDataOutputStream]
-      s.findFirstBlocking
+      s.findFirstBlocking.toString
+    } else if (isStartUndef) {
+      toString
+    } else if (isEndUndef) {
+      toString
     } else
       Assert.invariantFailed("absolute streams cannot block length calculations: " + this)
   }
@@ -792,7 +798,8 @@ final class DIArray(
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
   override def requireFinal {
-    if (!isFinal) throw nfe
+    if (!isFinal)
+      throw nfe
   }
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
@@ -1245,20 +1252,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   override def children = _slots.map { s => if (Maybe.WithNulls.isDefined(s)) Some(s) else None }.flatten.toStream
 
-  final override def getChild(erd: ElementRuntimeData): InfosetElement = getChild(erd.dpathElementCompileInfo)
+  final def getChild(erd: ElementRuntimeData): InfosetElement =
+    getChild(erd.dpathElementCompileInfo)
 
   final def getChild(info: DPathElementCompileInfo): InfosetElement = {
-    val res = getChildMaybe(info)
-    if (res ne null) res
-    else {
-      throw new InfosetNoSuchChildElementException(this, info)
-    }
-  }
-
-  final override def getChildMaybe(erd: ElementRuntimeData): InfosetElement =
-    getChildMaybe(erd.dpathElementCompileInfo)
-
-  final def getChildMaybe(info: DPathElementCompileInfo): InfosetElement = {
     val slot = info.slotIndexInParent
     val res =
       if (slot >= slots.length) Assert.invariantFailed("slot number out of range") // null // TODO should this out-of-range be an exception?

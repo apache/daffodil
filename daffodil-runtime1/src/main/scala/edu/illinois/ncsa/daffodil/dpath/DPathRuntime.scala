@@ -67,7 +67,6 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     dstate.setVMap(state.variableMap)
     dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     dstate.setArrayPos(state.arrayPos)
-    // dstate.setLocationInfo(state.bitPos1b, state.bitLimit1b, state.dataStream)
     dstate.setErrorOrWarn(state)
     dstate.resetValue
     dstate.isCompile = state match {
@@ -124,36 +123,13 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
     res
   }
 
-  /**
-   * Keeps track of which op it is currently running in the dstate.
-   *
-   * This allows a restart at that same location in order to retry
-   * exactly what it was doing before.
-   */
   def run(dstate: DState) {
-    if (dstate.mode == UnparserBlocking) {
-      Assert.invariant(ops.length > 0)
-      Assert.invariant(dstate.opIndex < ops.length)
-      while (dstate.opIndex < ops.length) {
-        val op = ops(dstate.opIndex)
-        op.run(dstate)
-        dstate.opIndex += 1
-      }
-      //
-      // The assumption here is that the code exits via a throw if a "restart"
-      // of the op may be needed. Hence, this assignment back to 0 does not happen.
-      // This assignment back to 0 only happens if the expression evaluates completely.
-      //
-      dstate.opIndex = 0
-    } else {
-      // non-blocking mode
-      dstate.opIndex = 0
-      var i = 0
-      while (i < ops.length) {
-        val op = ops(i)
-        op.run(dstate)
-        i += 1
-      }
+    dstate.opIndex = 0
+    var i = 0
+    while (i < ops.length) {
+      val op = ops(i)
+      op.run(dstate)
+      i += 1
     }
   }
 }

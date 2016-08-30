@@ -18,6 +18,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
 
 /*
  * Notes on variable-width characters with lengthUnits 'characters'
@@ -173,8 +174,12 @@ sealed abstract class SpecifiedLengthUnparserBase2(
    * uses this same code path, just there is no possibility of pad/fill regions.
    *
    * It's a degenerate case of specified length.
+   *
+   * Note: thread safety: This must be def, not val/lazyval because TargetLengthOperation is
+   * a stateful class instance, so cannot be a static member of an unparser
+   * object (unparsers are shared by multiple threads. Suspensions cannot be.)
    */
-  private val maybeTLOp = {
+  private def maybeTLOp = {
     val mtlop = if (maybeTargetLengthEv.isDefined)
       One(new TargetLengthOperation(context, maybeTargetLengthEv.get))
     else
@@ -322,18 +327,9 @@ sealed abstract class SpecifiedLengthUnparserBase2(
   }
 }
 
-class OVCRetryUnparser(override val context: ElementRuntimeData,
+class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
-  extends PrimUnparser
-  with SuspendableUnparser {
-
-  override final def runtimeDependencies = Nil
-
-  override def rd = context
-
-  def erd = context
-
-  final override lazy val childProcessors = List(vUnparser)
+  extends SuspendableOperation {
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
     if (this.maybeUnparserTargetLengthInBitsEv.isDefined) {
@@ -352,8 +348,21 @@ class OVCRetryUnparser(override val context: ElementRuntimeData,
   }
 
   protected def continuation(state: UState) {
-    vUnparser.unparse1(state, context)
+    vUnparser.unparse1(state, rd)
   }
+}
+
+class OVCRetryUnparser(override val context: ElementRuntimeData,
+  maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
+  extends PrimUnparser
+  with SuspendableUnparser {
+
+  override final def runtimeDependencies = Nil
+
+  final override lazy val childProcessors = List(vUnparser)
+
+  def suspendableOperation = new OVCRetryUnparserSuspendableOperation(
+    context, maybeUnparserTargetLengthInBitsEv, vUnparser)
 
 }
 
@@ -431,18 +440,12 @@ class ElementSpecifiedLengthUnparser(
 /**
  * For dfdl:outputValueCalc elements.
  */
-class ElementOVCSpecifiedLengthUnparser(
-  override val context: ElementRuntimeData,
-  maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
-  override val setVarUnparsers: Array[Unparser],
-  override val beforeContentUnparsers: Array[Unparser],
-  override val contentUnparsers: Array[Unparser])
-  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv)
-  with SuspendableExpression {
+class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
+  override val rd: ElementRuntimeData,
+  val setVarUnparsers: Array[Unparser])
+  extends SuspendableExpression {
 
-  override val runtimeDependencies = maybeTargetLengthEv.toList
-
-  override def rd = context
+  override lazy val expr = rd.outputValueCalcExpr.get
 
   override final protected def processExpressionResult(state: UState, v: AnyRef) {
     val diSimple = state.currentInfosetNode.asSimple
@@ -452,24 +455,17 @@ class ElementOVCSpecifiedLengthUnparser(
     computeSetVariables(state)
   }
 
-  Assert.invariant(context.outputValueCalcExpr.isDefined)
-  override lazy val expr = context.outputValueCalcExpr.get
-
-  override def unparse(state: UState): Unit = {
-
-    startElement(state)
-
-    captureRuntimeValuedExpressionValues(state)
-
-    doBeforeContentUnparsers(state)
-
-    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
-
-    runContentUnparsers(state) // setup unparsing, which will block for no value
-
-    run(state) // run the expression
-
-    endElement(state)
+  private def computeSetVariables(state: UState) {
+    // variable assignment. Always after the element value, but
+    // also still with this element itself as the context, so before
+    // we end element.
+    {
+      var i = 0;
+      while (i < setVarUnparsers.length) {
+        setVarUnparsers(i).unparse1(state, rd)
+        i += 1
+      }
+    }
   }
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
@@ -488,6 +484,41 @@ class ElementOVCSpecifiedLengthUnparser(
   //      MaybeULong.Nope
   //    }
   //  }
+
+}
+
+class ElementOVCSpecifiedLengthUnparser(
+  override val context: ElementRuntimeData,
+  maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
+  override val setVarUnparsers: Array[Unparser],
+  override val beforeContentUnparsers: Array[Unparser],
+  override val contentUnparsers: Array[Unparser])
+  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv) {
+
+  override val runtimeDependencies = maybeTargetLengthEv.toList
+
+  private def suspendableExpression =
+    new ElementOVCSpecifiedLengthUnparserSuspendableExpresion(context,
+      setVarUnparsers)
+
+  Assert.invariant(context.outputValueCalcExpr.isDefined)
+
+  override def unparse(state: UState): Unit = {
+
+    startElement(state)
+
+    captureRuntimeValuedExpressionValues(state)
+
+    doBeforeContentUnparsers(state)
+
+    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
+
+    suspendableExpression.run(state) // run the expression. It might or might not have a value.
+
+    runContentUnparsers(state) // setup unparsing, which will block for no value
+
+    endElement(state)
+  }
 
   override def startElement(state: UState) {
     val elem =
@@ -543,79 +574,6 @@ class ElementOVCSpecifiedLengthUnparser(
   }
 }
 
-//class ComplexElementSpecifiedLengthUnparser(
-//  override val context: ElementRuntimeData,
-//  targetLengthEv: UnparseTargetLengthInBitsEv,
-//  eUnparser: Maybe[Unparser],
-//  eElementUnusedUnparser: Maybe[Unparser])
-//    extends {
-//      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
-//
-//      override val contentUnparsers = (eUnparser.toList).toArray
-//
-//      override val afterValueUnparsers = (eElementUnusedUnparser.toList).toArray
-//
-//      override val runtimeDependencies = List(targetLengthEv)
-//
-//    } with SpecifiedLengthUnparserBase2(context, targetLengthEv) {
-//
-//}
-
-//class HexBinarySpecifiedLengthUnparser(
-//  override val context: ElementRuntimeData,
-//  targetLengthEv: UnparseTargetLengthInBitsEv,
-//  eUnparser: Maybe[Unparser],
-//  eRightFillUnparser: Maybe[Unparser])
-//    extends {
-//      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
-//
-//      override val contentUnparsers = (eUnparser.toList).toArray
-//
-//      override val afterValueUnparsers = (eRightFillUnparser.toList).toArray
-//
-//      override val runtimeDependencies = List(targetLengthEv)
-//
-//    } with SpecifiedLengthUnparserBase2(context, targetLengthEv) {
-//
-//}
-//
-//class SimpleBinarySpecifiedLengthUnparser(
-//  override val context: ElementRuntimeData,
-//  targetLengthEv: UnparseTargetLengthInBitsEv,
-//  eUnparser: Maybe[Unparser])
-//    extends {
-//      override val beforeValueUnparsers: Array[Unparser] = Nil.toArray
-//
-//      override val contentUnparsers = (eUnparser.toList).toArray
-//
-//      override val afterValueUnparsers: Array[Unparser] = Nil.toArray
-//
-//      override val runtimeDependencies = List(targetLengthEv)
-//
-//    } with SpecifiedLengthUnparserBase2(context, targetLengthEv) {
-//
-//}
-//
-//class SimpleTextSpecifiedLengthUnparser(
-//  context: ElementRuntimeData,
-//  targetLengthEv: UnparseTargetLengthInBitsEv,
-//  eLeftPaddingUnparser: Maybe[Unparser],
-//  eUnparser: Maybe[Unparser],
-//  eRightPaddingUnparser: Maybe[Unparser],
-//  eRightFillUnparser: Maybe[Unparser])
-//    extends {
-//
-//      override val beforeValueUnparsers = (eLeftPaddingUnparser.toList).toArray
-//
-//      override val contentUnparsers = (eUnparser.toList).toArray
-//
-//      override val afterValueUnparsers = (eRightPaddingUnparser.toList ++
-//        eRightFillUnparser.toList).toArray
-//
-//      override val runtimeDependencies = List(targetLengthEv)
-//
-//    } with SpecifiedLengthUnparserBase2(context, targetLengthEv)
-
 /**
  * Carries out computation of the target length for a specified-length element.
  */
@@ -639,13 +597,6 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
   override def continuation(state: UState) {
     // once we have evaluated the targetLengthEv, nothing else to do
     // here
-  }
-}
-
-trait SuspendableUnparser extends SuspendableOperation {
-
-  final def unparse(state: UState): Unit = {
-    run(state)
   }
 }
 
@@ -691,15 +642,12 @@ trait NeedValueAndTargetLengthMixin {
 
 }
 
-class ElementUnusedUnparser(
+class ElementUnusedUnparserSuspendableOperation(
   override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   fillByteEv: FillByteEv)
-  extends PrimUnparserObject(rd)
-  with SuspendableUnparser
+  extends SuspendableOperation
   with NeedValueAndTargetLengthMixin {
-
-  override lazy val runtimeDependencies = List(targetLengthEv, fillByteEv)
 
   /**
    * determine delta between value length and target length
@@ -730,13 +678,25 @@ class ElementUnusedUnparser(
 
 }
 
+class ElementUnusedUnparser(
+  val rd: ElementRuntimeData,
+  val targetLengthEv: UnparseTargetLengthInBitsEv,
+  fillByteEv: FillByteEv)
+  extends PrimUnparserObject(rd)
+  with SuspendableUnparser {
+
+  override lazy val runtimeDependencies = List(targetLengthEv, fillByteEv)
+
+  override def suspendableOperation =
+    new ElementUnusedUnparserSuspendableOperation(
+      rd, targetLengthEv, fillByteEv)
+
+}
+
 trait PaddingUnparserMixin
-  extends SuspendableUnparser
-  with NeedValueAndTargetLengthMixin { self: Unparser =>
+  extends NeedValueAndTargetLengthMixin { self: SuspendableOperation =>
 
   protected def charsKind = "pad"
-
-  override lazy val runtimeDependencies = List(targetLengthEv)
 
   protected def maybePadChar: MaybeChar
 
@@ -782,19 +742,33 @@ trait PaddingUnparserMixin
   }
 }
 
+class OnlyPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+  override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  override val maybePadChar: MaybeChar)
+  extends SuspendableOperation
+  with PaddingUnparserMixin
+
 /**
  * Doesn't matter if we're left or right padding if we're the only padding
  */
-class OnlyPaddingUnparser(override val rd: ElementRuntimeData,
-  override val targetLengthEv: UnparseTargetLengthInBitsEv,
-  override val maybePadChar: MaybeChar)
+class OnlyPaddingUnparser(
+  val rd: ElementRuntimeData,
+  val targetLengthEv: UnparseTargetLengthInBitsEv,
+  val maybePadChar: MaybeChar)
   extends PrimUnparserObject(rd)
-  with PaddingUnparserMixin
+  with SuspendableUnparser {
 
-class NilLiteralCharacterUnparser(override val rd: ElementRuntimeData,
+  override lazy val runtimeDependencies = List(targetLengthEv)
+
+  override def suspendableOperation =
+    new OnlyPaddingUnparserSuspendableOperation(
+      rd, targetLengthEv, maybePadChar)
+}
+
+class NilLiteralCharacterUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   literalNilChar: Char)
-  extends PrimUnparserObject(rd)
+  extends SuspendableOperation
   with PaddingUnparserMixin {
 
   override def charsKind = "dfdl:nilKind 'literalCharacter'"
@@ -821,10 +795,24 @@ class NilLiteralCharacterUnparser(override val rd: ElementRuntimeData,
 
 }
 
-class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
+class NilLiteralCharacterUnparser(
+  val rd: ElementRuntimeData,
+  val targetLengthEv: UnparseTargetLengthInBitsEv,
+  literalNilChar: Char)
+  extends PrimUnparserObject(rd)
+  with SuspendableUnparser {
+
+  override lazy val runtimeDependencies = List(targetLengthEv)
+
+  override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
+    rd, targetLengthEv, literalNilChar)
+
+}
+
+class RightCenteredPaddingUnparserSuspendaableOperation(rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybePadChar: MaybeChar)
-  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -832,10 +820,20 @@ class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
   }
 }
 
-class LeftCenteredPaddingUnparser(override val rd: ElementRuntimeData,
+class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybePadChar: MaybeChar)
   extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+
+  override def suspendableOperation =
+    new RightCenteredPaddingUnparserSuspendaableOperation(
+      rd, targetLengthEv, maybePadChar)
+}
+
+class LeftCenteredPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+  targetLengthEv: UnparseTargetLengthInBitsEv,
+  maybePadChar: MaybeChar)
+  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -846,12 +844,22 @@ class LeftCenteredPaddingUnparser(override val rd: ElementRuntimeData,
   }
 }
 
-class RightFillUnparser(
-  override val rd: ElementRuntimeData,
-  override val targetLengthEv: UnparseTargetLengthInBitsEv,
+class LeftCenteredPaddingUnparser(override val rd: ElementRuntimeData,
+  targetLengthEv: UnparseTargetLengthInBitsEv,
+  maybePadChar: MaybeChar)
+  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+
+  override def suspendableOperation =
+    new LeftCenteredPaddingUnparserSuspendableOperation(
+      rd, targetLengthEv, maybePadChar)
+}
+
+class RightFillUnparserSuspendableOperation(
+  rd: ElementRuntimeData,
+  targetLengthEv: UnparseTargetLengthInBitsEv,
   fillByteEv: FillByteEv,
   override val maybePadChar: MaybeChar)
-  extends ElementUnusedUnparser(rd, targetLengthEv, fillByteEv)
+  extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, fillByteEv)
   with PaddingUnparserMixin {
 
   override def continuation(state: UState) {
@@ -869,6 +877,19 @@ class RightFillUnparser(
       skipTheBits(state, skipInBitsMinusPadding)
     }
   }
+
+}
+
+class RightFillUnparser(
+  rd: ElementRuntimeData,
+  targetLengthEv: UnparseTargetLengthInBitsEv,
+  fillByteEv: FillByteEv,
+  val maybePadChar: MaybeChar)
+  extends ElementUnusedUnparser(rd, targetLengthEv, fillByteEv) {
+
+  override def suspendableOperation =
+    new RightFillUnparserSuspendableOperation(
+      rd, targetLengthEv, fillByteEv, maybePadChar)
 
 }
 

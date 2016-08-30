@@ -35,113 +35,65 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Suspension
-import edu.illinois.ncsa.daffodil.processors.TaskCoroutine
-import edu.illinois.ncsa.daffodil.processors.SuspensionFactory
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.MainCoroutine
-
-// Pooling of these objects shut off while debugging the non-pooling version.
-//
-// This might get put back if we decide to pool these objects.
-//
-//  private val pool = new Pool[SuspendableExpression] {
-//    def allocate = new SuspendableExpression
-//  }
-//  def get() = pool.getFromPool
-//  def put(se: SuspendableExpression) {
-//    se.reset()
-//    pool.returnToPool(se)
-//  }
-//
 
 trait SuspendableExpression
-  extends WhereBlockedLocation { enclosing =>
+  extends Suspension {
 
   protected def expr: CompiledExpression[AnyRef]
 
-  def rd: RuntimeData
-
   override def toString = "SuspendableExpression(" + rd.prettyName + ", expr=" + expr.prettyExpr + ")"
-
-  protected def maybeKnownLengthInBits(ustate: UState): MaybeULong
 
   protected def processExpressionResult(ustate: UState, v: AnyRef): Unit
 
-  protected class SuspendableExp(override val ustate: UState)
-    extends Suspension(ustate) {
-
-    override def rd = enclosing.rd
-
-    override def toString = enclosing.toString
-
-    protected class MainC extends MainCoroutine(taskCoroutine) {
-
-      override def toString = enclosing.toString
-    }
-
-    protected class Task extends TaskCoroutine(ustate, mainCoroutine) {
-
-      override final def doTask() {
-        var v: Maybe[AnyRef] = Nope
-        if (!isBlocked) {
-          log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-        } else {
-          this.setUnblocked()
-          log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-        }
-        while (v.isEmpty && !this.isBlocked) {
-          v = expr.evaluateForwardReferencing(ustate, this)
-          if (v.isEmpty) {
-            Assert.invariant(this.isBlocked)
-            log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-            // resume(mainCoroutine, Suspension.NoData) // so main thread gets control back
-            log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-          } else {
-            Assert.invariant(this.isDone)
-            Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-            log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
-            processExpressionResult(ustate, v.get)
-          }
-        }
-      }
-    }
-
-    override final protected lazy val taskCoroutine = new Task
-    override final protected lazy val mainCoroutine = new MainC
-  }
-
-  def run(ustate: UState) {
-    val tst =
-      try {
-        // don't bother with Task if we can avoid it
-        Assert.invariant(ustate.dState.mode eq UnparserBlocking)
-        ustate.dState.setMode(UnparserNonBlocking) // temporarily set to just test for blocking
-        val result = Maybe(expr.evaluate(ustate))
-        if (result.isDefined) {
-          processExpressionResult(ustate, result.get)
-          true
-        } else false
-      } catch {
-        case _: RetryableException =>
-          false
-      } finally {
-        ustate.dState.setMode(UnparserBlocking) // restore invariant.
-      }
-    if (tst) {
-      // nothing. We're done. Don't need the task object.
+  override protected final def doTask(ustate: UState) {
+    var v: Maybe[AnyRef] = Nope
+    if (!isBlocked) {
+      log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
     } else {
-      val mkl = maybeKnownLengthInBits(ustate)
-      val cloneUState = SuspensionFactory.setup(ustate, mkl)
-      val se = new SuspendableExp(cloneUState)
-      ustate.addSuspension(se)
+      this.setUnblocked()
+      log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+    }
+    while (v.isEmpty && !this.isBlocked) {
+      v = expr.evaluateForwardReferencing(ustate, this)
+      if (v.isEmpty) {
+        Assert.invariant(this.isBlocked)
+        log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+      } else {
+        Assert.invariant(this.isDone)
+        Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
+        log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+        processExpressionResult(ustate, v.get)
+      }
     }
   }
+
+  //  def run(ustate: UState) {
+  //    val tst =
+  //      try {
+  //        Assert.invariant(ustate.dState.mode eq UnparserBlocking)
+  //        ustate.dState.setMode(UnparserNonBlocking) // temporarily set to just test for blocking
+  //        val result = Maybe(expr.evaluate(ustate))
+  //        if (result.isDefined) {
+  //          processExpressionResult(ustate, result.get)
+  //          true
+  //        } else false
+  //      } catch {
+  //        case _: RetryableException =>
+  //          false
+  //      } finally {
+  //        ustate.dState.setMode(UnparserBlocking) // restore invariant.
+  //      }
+  //    if (tst) {
+  //      // nothing. We're done. Don't need the task object.
+  //    } else {
+  //      val mkl = maybeKnownLengthInBits(ustate)
+  //      setup(ustate, mkl)
+  //    }
+  //  }
 
 }
 

@@ -81,7 +81,7 @@
 	<tdml:defineSchema name="test_ExplicitLengthBits">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="left" textPadKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"
                       truncateSpecifiedLengthString="no"/>
       </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />

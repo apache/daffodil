@@ -41,6 +41,33 @@ object LoggerMacros {
 
     val level = TermName(c.freshName)
     val l = TermName(c.freshName)
+
+    /*
+     *  ths is the stand in for 'this', and it means not the object where
+     *  log is called on. E.g., in
+     *  {{{
+     *
+     *  class Foo(...) extends Logging {
+     *  ...
+     *     bar.baz.log(...)
+     *
+     *  ...
+     *  }
+     *  }}}
+     *  In the above, the expansion of log is going to have 'this' mean the
+     *  instance of class Foo where the macro is being expanded. This is not
+     *  at all like a method, where this means the object where the method is
+     *  being called. But this is the nature of macros.
+     *
+     *  If you think of just text substitution, then the binding of the name 'this'
+     *  comes from the surrounding context of the code text, not the object
+     *  whose type provided the source of the macro.
+     *
+     *  TBD: what is the idiom for getting the object instance on which the
+     *  log "macro method" was called? That is, the other possible thing that
+     *  one might want that one might think of as 'this'.
+     */
+
     val ths = This(typeNames.EMPTY)
     q"""
     {

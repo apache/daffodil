@@ -105,7 +105,6 @@ trait InfosetElement extends InfosetItem {
 trait InfosetComplexElement extends InfosetElement {
 
   def getChild(erd: ElementRuntimeData): InfosetElement
-  def getChildMaybe(erd: ElementRuntimeData): InfosetElement
   def getChildArray(erd: ElementRuntimeData): InfosetArray
   def setChildArray(erd: ElementRuntimeData, a: InfosetArray): Unit
 

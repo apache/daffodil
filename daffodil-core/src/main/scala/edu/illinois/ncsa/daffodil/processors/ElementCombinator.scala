@@ -51,9 +51,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.NilLiteralCharacterUnpars
 import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyPaddingUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.RightCenteredPaddingUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.RightFillUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementOutputValueCalcUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnparserNoRep
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
@@ -301,7 +301,7 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
 
   lazy val parser: Parser =
     if (context.isRepresented)
-      new StatementElementParser(
+      new ElementParser(
         context.erd,
         context.name,
         patDiscrim,
@@ -313,7 +313,7 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
         eParser,
         eAfterParser)
     else
-      new StatementElementParserNoRep(
+      new ElementParserNoRep(
         context.erd,
         context.name,
         patDiscrim,
@@ -328,15 +328,15 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
   override lazy val unparser: Unparser = {
     if (context.isRepresented) {
       if (context.isOutputValueCalc) {
-        new StatementElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       } else {
-        new StatementElementUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       }
     } else {
       // dfdl:inputValueCalc case.
       // This unparser will assume the events are in the event stream, having been inferred and put
       // in place by the next element resolver.
-      new StatementElementUnparserNoRep(context.erd, context.name, uSetVar)
+      new ElementUnparserNoRep(context.erd, context.name, uSetVar)
     }
   }
 }
@@ -344,7 +344,7 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
 class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) with HasNoUnparser {
 
-  lazy val parser: Parser = new ChoiceStatementElementParser(
+  lazy val parser: Parser = new ChoiceElementParser(
     context.erd,
     context.name,
     patDiscrim,
