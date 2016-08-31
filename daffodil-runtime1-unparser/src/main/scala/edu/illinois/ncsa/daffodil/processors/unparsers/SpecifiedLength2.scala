@@ -581,6 +581,8 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv)
   extends SuspendableOperation {
 
+  override val isReadOnly = true
+
   override def toString = "target length for " + rd.prettyName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv.toBriefXML()
 
   /**

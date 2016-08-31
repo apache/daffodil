@@ -56,6 +56,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 trait Suspension
   extends Serializable with Logging {
 
+  val isReadOnly = false
+
   def UE(ustate: UState, s: String, args: Any*) = {
     UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
@@ -81,7 +83,7 @@ trait Suspension
    */
   final def runSuspension() {
     doTask(ustate)
-    if (isDone) {
+    if (isDone && !isReadOnly) {
       ustate.dataOutputStream.setFinished()
       log(LogLevel.Debug, "%s finished %s.", this, ustate)
     }
@@ -239,6 +241,9 @@ trait Suspension
     // Some sort of copy-on-write scheme would be better.
     //
     val cloneUState = ustate.cloneForSuspension(original)
+    if (isReadOnly) {
+      original.setFinished()
+    }
 
     ustate_ = cloneUState
 
