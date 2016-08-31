@@ -118,6 +118,9 @@
    lengthUnits="bytes"
    alignmentUnits="bytes"
    fillByte="X"
+   textStringPadCharacter="X"
+   textTrimKind="padChar"
+   textPadKind="none"
   />
 
   <xs:group name="g1">

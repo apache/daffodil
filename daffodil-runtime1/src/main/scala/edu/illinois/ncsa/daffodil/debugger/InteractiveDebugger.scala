@@ -57,6 +57,7 @@ import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.util.Misc
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -1277,7 +1278,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       }
 
       object InfoDelimiterStack extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "delmiterStack"
+        val name = "delimiterStack"
         val desc = "display the delimiter stack"
         val longDesc = desc
         override lazy val short = "ds"
@@ -1386,8 +1387,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               if (pstate.delimitedParseResult.isDefined) {
                 val pr = pstate.delimitedParseResult.get
                 debugPrintln("%s:".format(name))
-                debugPrintln("foundField: %s".format(pr.field.get), "  ")
-                debugPrintln("foundDelimiter: %s".format(pr.matchedDelimiterValue.get), "  ")
+                debugPrintln("foundField: %s".format(Misc.remapStringToVisibleGlyphs(pr.field.get)), "  ")
+                debugPrintln("foundDelimiter: %s".format(Misc.remapStringToVisibleGlyphs(pr.matchedDelimiterValue.get)), "  ")
               } else {
                 debugPrintln("%s: nothing found".format(name))
               }

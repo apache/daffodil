@@ -798,8 +798,23 @@ final class DIArray(
   private lazy val nfe = new InfosetArrayNotFinalException(this)
 
   override def requireFinal {
-    if (!isFinal)
-      throw nfe
+    if (!isFinal) {
+      // If this DIArray isn't final, either we haven't gotten all of its
+      // children yet, or the array is empty and we'll never get its children.
+      // In the former case,  we'll eventually get all the children and isFinal
+      // will be set to true. However, in the latter case, isFinal will never
+      // get set since the InfosetCursorFromXMLEventCursor, which sets the
+      // isFinal state, doesn't know anything about the array. So we must check
+      // if the parent isFinal. If the parent is final, that means we had a
+      // zero-length array, and it should now be marked as final. If the parent
+      // isn't final then we could still be wainting for events to come in, so
+      // throw an nfe.
+      if (parent.isFinal) {
+        isFinal = true
+      } else {
+        throw nfe
+      }
+    }
   }
 
   override def toString = "DIArray(" + namedQName + "," + _contents + ")"
