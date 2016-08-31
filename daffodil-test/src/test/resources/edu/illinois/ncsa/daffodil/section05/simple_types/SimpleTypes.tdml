@@ -5884,6 +5884,17 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="hB_specifiedLengthUnaligned">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hblen" type="xs:unsignedInt" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="7" />
+          <xs:element name="hb" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../ex:hblen }" />
+          <xs:element name="extra1" type="xs:unsignedInt" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
   </tdml:defineSchema>
   
   <!--
@@ -6116,6 +6127,30 @@
           <hB>610069006E0074002000</hB>
           <extra>7400680061007400200073006F006D00650020007400650078007400</extra>
         </hB_imp3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: hexBinary_specifiedLengthUnaligned
+    Schema: HexBinary
+    Purpose: This document demonstrates the use of unaligned hexBinary with a specified length
+  -->
+
+  <tdml:parserTestCase name="hexBinary_specifiedLengthUnaligned" root="hB_specifiedLengthUnaligned"
+      model="HexBinary" description="Section 12 Length Props - hexBinary - DFDL-12-069R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="bits">0000011</tdml:documentPart>
+      <tdml:documentPart type="byte">FFFFFF</tdml:documentPart>
+      <tdml:documentPart type="bits">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_specifiedLengthUnaligned>
+          <hblen>3</hblen>
+          <hb>FFFFFF</hb>
+          <extra1>0</extra1>
+        </hB_specifiedLengthUnaligned>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

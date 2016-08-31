@@ -487,6 +487,14 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // At some complexity this could be made faster by some low-level coding trickery,
     // Such as grabbing the data in chunks of 64 bits instead of one byte at a time.
     //
+
+    if (st.maybeBitLimitOffset0b.isDefined && st.maybeBitLimitOffset0b.get > 0) {
+      // The actual bit limit is greater than the limit of our data, but by
+      // less than a whole byte. In order to get the last fragment byte, we
+      // need to increase the data limit by one byte. We will undo this later.
+      data.limit(data.limit + 1)
+    }
+
     val nBytesTransferred = {
       var priorSrcByte: Int = if (src.remaining > 0) Bits.asUnsignedByte(src.get()) else return MaybeInt.Nope
       var countBytesTransferred: Int = 0
@@ -535,6 +543,11 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       }
       countBytesTransferred
     }
+    if (st.maybeBitLimitOffset0b.isDefined && st.maybeBitLimitOffset0b.get > 0) {
+      // since we increased the data.limit above, we now need to set it back
+      data.limit(data.limit - 1)
+    }
+
     Assert.invariant(bitLimit0b.isDefined)
     //
     // Important detail: the bitPos after this method may be shorter than 8 * number of bytes

@@ -57,4 +57,6 @@ class TestSimpleTypesNew {
   @Test def test_dateTime_calendarTimeZone_EST() { runner.runOneTest("dateTime_calendarTimeZone_EST") }
 
   @Test def test_hexBinary_Delimited_04() { runner.runOneTest("hexBinary_Delimited_04") }
+
+  @Test def test_hexBinary_specifiedLengthUnaligned() { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
 }
