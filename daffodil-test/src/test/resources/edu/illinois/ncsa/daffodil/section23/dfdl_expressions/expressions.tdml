@@ -5398,13 +5398,13 @@ c]]></value>
   </tdml:parserTestCase>
 
   <!--
-     Test Name: comparison_operators_27
+     Test Name: comparison_operators_76
         Schema: comparisonOperators 
           Root: e37
        Purpose: This test demonstrates that comparison operators work for dateTime
   -->
 
-  <tdml:parserTestCase name="comparison_operators_27" root="e37"
+  <tdml:parserTestCase name="comparison_operators_76" root="e37"
     model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
 
     <tdml:document><![CDATA[03-24-1988 04:55:23,03-24-1988 04:55:24]]></tdml:document>
@@ -5420,13 +5420,13 @@ c]]></value>
   </tdml:parserTestCase>
   
   <!--
-     Test Name: comparison_operators_28
+     Test Name: comparison_operators_77
         Schema: comparisonOperators 
           Root: e38
        Purpose: This test demonstrates that comparison operators work for dateTime
   -->
 
-  <tdml:parserTestCase name="comparison_operators_28" root="e38"
+  <tdml:parserTestCase name="comparison_operators_77" root="e38"
     model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
 
     <tdml:document><![CDATA[03-24-1988 04:55:24,03-24-1988 04:55:23]]></tdml:document>
