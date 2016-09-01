@@ -236,6 +236,35 @@ class UnparseTargetLengthInBitsEv(
   }
 }
 
+class UnparseTargetLengthInCharactersEv(
+  val lengthEv: LengthEv,
+  val charsetEv: CharsetEv,
+  minLen: Long,
+  rd: ElementRuntimeData)
+  extends Evaluatable[MaybeJULong](rd)
+  with InfosetCachedEvaluatable[MaybeJULong] {
+
+  override lazy val runtimeDependencies = List(this.lengthEv, charsetEv)
+
+  /**
+   * Note: use of MaybeJULong type. New Maybe type added which can be stored in
+   * a generic data structure. (I.e., a MaybeJULong is an AnyRef, not an AnyVal
+   * like Long and MaybeULong).
+   *
+   * Ev values that are runtime dependent get stored in a generic cache of
+   * AnyRef values, so this gives us the benefits of a maybe object on top of
+   * the boxing that is required to store a number in in the cache.
+   *
+   */
+
+  override protected def compute(state: ParseOrUnparseState): MaybeJULong = {
+    Assert.usage(charsetEv.evaluate(state).maybeFixedWidth.isEmpty) // must be variable-width-chars
+    val len = lengthEv.evaluate(state)
+    val targetLen = scala.math.max(len, minLen)
+    MaybeJULong(targetLen)
+  }
+}
+
 class OccursCountEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](
     expr,

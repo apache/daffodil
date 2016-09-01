@@ -32,10 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
-
 import scala.Right
 import scala.collection.mutable
 
@@ -66,6 +62,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.processors.charset.EncoderDecoderMixin
 
 object MPState {
 
@@ -186,6 +183,7 @@ abstract class ParseOrUnparseState protected (
   with StateForDebugger
   with ThrowsSDE with SavesErrorsAndWarnings
   with LocalBufferMixin
+  with EncoderDecoderMixin
   with Logging {
 
   def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], status: ProcessorResult = Success) =
@@ -308,38 +306,6 @@ abstract class ParseOrUnparseState protected (
     diagnostics = rsdw :: diagnostics
   }
 
-  /**
-   * The reason for these caches is that otherwise to
-   * get a decoder you have to take the Charset and call
-   * newDecoder which allocates. We always want the same one for a given
-   * thread using Daffodil to parse/unparse with a particular PState/UState.
-   *
-   * Using java.util.HashMap because scala hash maps return option types, which
-   * might be allocated objects. Use of java hash maps insures this does not allocate
-   * except when adding a new not-seen-before encoder or decoder.
-   */
-  private val decoderCache = new java.util.HashMap[Charset, CharsetDecoder]
-  private val encoderCache = new java.util.HashMap[Charset, CharsetEncoder]
-
-  def getDecoder(charset: Charset): CharsetDecoder = {
-    // threadCheck()
-    var decoder = decoderCache.get(charset)
-    if (decoder eq null) {
-      decoder = charset.newDecoder()
-      decoderCache.put(charset, decoder)
-    }
-    decoder
-  }
-
-  def getEncoder(charset: Charset): CharsetEncoder = {
-    // threadCheck()
-    var encoder = encoderCache.get(charset)
-    if (encoder eq null) {
-      encoder = charset.newEncoder()
-      encoderCache.put(charset, encoder)
-    }
-    encoder
-  }
 }
 
 /**

@@ -1,24 +1,22 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
+import edu.illinois.ncsa.daffodil.processors.CharsetEv
+import edu.illinois.ncsa.daffodil.processors.LengthEv
 
 /*
  * Notes on variable-width characters with lengthUnits 'characters'
@@ -143,190 +141,6 @@ import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
  * the number of bits to characters.
  */
 
-/**
- * Base class for unparsing elements with specified length.
- *
- * Depends on use of separate unparsers for the padding/fill regions which
- * calculate their own sizes, generally after the length of the value region
- * has been determined.
- */
-sealed abstract class SpecifiedLengthUnparserBase2(
-  override val context: ElementRuntimeData,
-  maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv])
-  extends PrimUnparser {
-
-  def erd = context
-
-  final override lazy val childProcessors =
-    contentUnparsers.toList ++
-      setVarUnparsers.toList ++
-      beforeContentUnparsers.toList
-
-  protected def beforeContentUnparsers: Array[Unparser]
-  protected def contentUnparsers: Array[Unparser]
-  protected def setVarUnparsers: Array[Unparser]
-
-  /**
-   * This is a maybeTLOp so that this base class can be used to handle
-   * data types that do not have specified length as well.
-   *
-   * An example is lengthKind 'pattern' which while not "specified" length,
-   * uses this same code path, just there is no possibility of pad/fill regions.
-   *
-   * It's a degenerate case of specified length.
-   *
-   * Note: thread safety: This must be def, not val/lazyval because TargetLengthOperation is
-   * a stateful class instance, so cannot be a static member of an unparser
-   * object (unparsers are shared by multiple threads. Suspensions cannot be.)
-   */
-  private def maybeTLOp = {
-    val mtlop = if (maybeTargetLengthEv.isDefined)
-      One(new TargetLengthOperation(context, maybeTargetLengthEv.get))
-    else
-      Nope
-    mtlop
-  }
-
-  protected def computeTargetLength(state: UState) {
-    if (maybeTLOp.isDefined)
-      maybeTLOp.get.run(state);
-  }
-
-  protected def computeSetVariables(state: UState) {
-    // variable assignment. Always after the element value, but
-    // also still with this element itself as the context, so before
-    // we end element.
-    {
-      var i = 0;
-      while (i < setVarUnparsers.length) {
-        setVarUnparsers(i).unparse1(state, context)
-        i += 1
-      }
-    }
-  }
-
-  protected def doBeforeContentUnparsers(state: UState) {
-    {
-      var i = 0;
-      while (i < beforeContentUnparsers.length) {
-        beforeContentUnparsers(i).unparse1(state, context)
-        i += 1
-      }
-    }
-  }
-
-  protected def runContentUnparsers(state: UState) {
-    {
-      var i = 0
-      while (i < contentUnparsers.length) {
-        contentUnparsers(i).unparse1(state, context)
-        i += 1
-      }
-    }
-  }
-
-  protected def captureRuntimeValuedExpressionValues(state: UState) {
-    //
-    // Forces the evaluation of runtime-valued things, and this will cause those
-    // that actually are runtime-expressions to be cached on the infoset element.
-    //
-    // Then later when the actual unparse occurs, these will be accessed off the
-    // infoset element's cache.
-    //
-    // So we have to do this here in order to Freeze the state of these
-    // evaluations on the Infoset at the time this unparse call happens.
-
-    runtimeDependencies.foreach { dep =>
-      try {
-        dep.evaluate(state) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
-      } catch {
-        case _: RetryableException => ()
-      }
-    }
-  }
-
-  override def unparse(state: UState): Unit = {
-
-    startElement(state)
-
-    captureRuntimeValuedExpressionValues(state)
-
-    doBeforeContentUnparsers(state)
-
-    computeTargetLength(state)
-
-    runContentUnparsers(state)
-
-    computeSetVariables(state)
-
-    endElement(state)
-  }
-
-  protected def move(start: UState) {
-    val grIndex = start.groupIndexStack.pop()
-    start.groupIndexStack.push(grIndex + 1)
-    val childIndex = start.childIndexStack.pop()
-    start.childIndexStack.push(childIndex + 1)
-  }
-
-  /**
-   * Consumes the required infoset events and changes context so that the
-   * element's DIElement node is the context element.
-   */
-  protected def startElement(state: UState): Unit = {
-    val elem =
-      if (!erd.isHidden) {
-        // Hidden elements are not in the infoset, so we will never get an event
-        // for them. Only try to consume start events for non-hidden elements
-        val event = state.advanceOrError
-        if (!event.isStart || event.erd != erd) {
-          // it's not a start element event, or it's a start element event, but for a different element.
-          // this indicates that the incoming infoset (as events) doesn't match the schema
-          UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
-        }
-        event.asElement
-      } else {
-        // Since we never get events for hidden elements, their infoset elements
-        // will have never been created. This means we need to manually create them
-        val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
-        state.currentInfosetNode.asComplex.addChild(e)
-        e
-      }
-
-    // When the infoset events are being advanced, the currentInfosetNodeStack
-    // is pushing and popping to match the events. This provides the proper
-    // context for evaluation of expressions.
-    val e = One(elem)
-    state.currentInfosetNodeStack.push(e)
-    state.aaa_currentNode = e
-  }
-
-  /**
-   * Restores prior context. Consumes end-element event.
-   */
-  protected def endElement(state: UState): Unit = {
-    if (!erd.isHidden) {
-      // Hidden elements are not in the infoset, so we will never get an event
-      // for them. Only try to consume end events for non-hidden elements
-      val event = state.advanceOrError
-      if (!event.isEnd || event.erd != erd) {
-        // it's not an end-element event, or it's an end element event, but for a different element.
-        // this indicates that the incoming infoset (as events) doesn't match the schema
-        UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
-      }
-    }
-
-    state.currentInfosetNodeStack.pop
-    state.aaa_currentNode =
-      if (state.currentInfosetNodeStack.isEmpty)
-        Nope
-      else
-        state.currentInfosetNodeStack.top
-
-    move(state)
-  }
-}
-
 class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
   extends SuspendableOperation {
@@ -423,158 +237,6 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
 }
 
 /**
- * For regular (not dfdl:outputValueCalc) elements.
- */
-class ElementSpecifiedLengthUnparser(
-  override val context: ElementRuntimeData,
-  maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
-  override val setVarUnparsers: Array[Unparser],
-  override val beforeContentUnparsers: Array[Unparser],
-  override val contentUnparsers: Array[Unparser])
-  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv) {
-
-  override val runtimeDependencies = maybeTargetLengthEv.toList
-
-}
-
-/**
- * For dfdl:outputValueCalc elements.
- */
-class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
-  override val rd: ElementRuntimeData,
-  val setVarUnparsers: Array[Unparser])
-  extends SuspendableExpression {
-
-  override lazy val expr = rd.outputValueCalcExpr.get
-
-  override final protected def processExpressionResult(state: UState, v: AnyRef) {
-    val diSimple = state.currentInfosetNode.asSimple
-
-    diSimple.setDataValue(v)
-
-    computeSetVariables(state)
-  }
-
-  private def computeSetVariables(state: UState) {
-    // variable assignment. Always after the element value, but
-    // also still with this element itself as the context, so before
-    // we end element.
-    {
-      var i = 0;
-      while (i < setVarUnparsers.length) {
-        setVarUnparsers(i).unparse1(state, rd)
-        i += 1
-      }
-    }
-  }
-
-  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
-
-  //  override protected def maybeKnownLengthInBits(state: UState): MaybeULong = {
-  //    if (maybeTargetLengthEv.isDefined) {
-  //      val tlEv = maybeTargetLengthEv.get
-  //      val maybeTL = tlEv.evaluate(state)
-  //      if (maybeTL.isDefined) {
-  //        val tl = maybeTL.get
-  //        MaybeULong(tl)
-  //      } else {
-  //        MaybeULong.Nope
-  //      }
-  //    } else {
-  //      MaybeULong.Nope
-  //    }
-  //  }
-
-}
-
-class ElementOVCSpecifiedLengthUnparser(
-  override val context: ElementRuntimeData,
-  maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
-  override val setVarUnparsers: Array[Unparser],
-  override val beforeContentUnparsers: Array[Unparser],
-  override val contentUnparsers: Array[Unparser])
-  extends SpecifiedLengthUnparserBase2(context, maybeTargetLengthEv) {
-
-  override val runtimeDependencies = maybeTargetLengthEv.toList
-
-  private def suspendableExpression =
-    new ElementOVCSpecifiedLengthUnparserSuspendableExpresion(context,
-      setVarUnparsers)
-
-  Assert.invariant(context.outputValueCalcExpr.isDefined)
-
-  override def unparse(state: UState): Unit = {
-
-    startElement(state)
-
-    captureRuntimeValuedExpressionValues(state)
-
-    doBeforeContentUnparsers(state)
-
-    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
-
-    suspendableExpression.run(state) // run the expression. It might or might not have a value.
-
-    runContentUnparsers(state) // setup unparsing, which will block for no value
-
-    endElement(state)
-  }
-
-  override def startElement(state: UState) {
-    val elem =
-      if (!erd.isHidden) {
-        // outputValueCalc elements are optional in the infoset. If the next event
-        // is for this is for this OVC element, then consume the start/end events.
-        // Otherwise, the next event is for a following element, and we do not want
-        // to consume it. Don't even bother checking all this if it's hidden. It
-        // definitely won't be in the infoset in that case.
-        val eventMaybe = state.inspectMaybe
-        if (eventMaybe.isDefined && eventMaybe.get.erd == erd) {
-          // Event existed for this OVC element, should be a start and end events
-          val startEv = state.advanceOrError // Consume the start event
-          Assert.invariant(startEv.isStart && startEv.erd == erd)
-          val endEv = state.advanceOrError // Consume the end event
-          Assert.invariant(endEv.isEnd && endEv.erd == erd)
-
-          val e = startEv.asSimple
-          // Remove any state that was set by what created this event. Later
-          // code asserts that OVC elements do not have a value
-          e.resetValue
-          e
-        } else {
-          // Event was optional and didn't exist, create a new InfosetElement and add it
-          val e = new DISimple(erd)
-          state.currentInfosetNode.asComplex.addChild(e)
-          e
-        }
-      } else {
-        // Event was hidden and will never exist, create a new InfosetElement and add it
-        val e = new DISimple(erd)
-        state.currentInfosetNode.asComplex.addChild(e)
-        e
-      }
-
-    val e = One(elem)
-    state.currentInfosetNodeStack.push(e)
-    state.aaa_currentNode = e
-  }
-
-  override def endElement(state: UState) {
-    state.currentInfosetNodeStack.pop
-
-    // if an OVC element existed, the start AND end events were consumed in
-    // startElement. No need to advance the cursor here.
-    state.aaa_currentNode =
-      if (state.currentInfosetNodeStack.isEmpty)
-        Nope
-      else
-        state.currentInfosetNodeStack.top
-
-    move(state)
-  }
-}
-
-/**
  * Carries out computation of the target length for a specified-length element.
  */
 class TargetLengthOperation(override val rd: ElementRuntimeData,
@@ -609,19 +271,11 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
 trait NeedValueAndTargetLengthMixin {
 
   def targetLengthEv: UnparseTargetLengthInBitsEv
+  def lengthEv: LengthEv = targetLengthEv.lengthInBitsEv.lengthEv
+  def maybeCharsetEv: Maybe[CharsetEv] = targetLengthEv.lengthInBitsEv.maybeCharsetEv
 
   protected final def hasTargetLength(ustate: UState): Boolean = {
-    val mtl = targetLengthEv.evaluate(ustate)
-    if (mtl.isEmpty) {
-      val lib = targetLengthEv.lengthInBitsEv
-      val lu = lib.lengthUnits
-      val lk = lib.lengthKind
-      val mcs = targetLengthEv.lengthInBitsEv.maybeCharsetEv
-      val cs = mcs.get.evaluate(ustate)
-      val csName = cs.charsetName
-      ustate.SDE("For dfdl:lengthKind '%s', variable width character encoding '%s', and dfdl:lengthUnits '%s' are incompatible.",
-        lk, csName, lu)
-    }
+    targetLengthEv.evaluate(ustate)
     true
   }
 
@@ -634,15 +288,32 @@ trait NeedValueAndTargetLengthMixin {
   }
 
   protected def getSkipBits(ustate: UState): Long = {
-    val mtl = targetLengthEv.evaluate(ustate)
-    val tl = mtl.get
     val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
-    val vl = e.valueLength.lengthInBits.longValue
-    Assert.invariant(tl >= vl)
-    val skipInBits = tl - vl
-    skipInBits
+    val mtl = targetLengthEv.evaluate(ustate)
+    if (mtl.isDefined) {
+      val tl = mtl.get
+      val vl = e.valueLength.lengthInBits.longValue
+      Assert.invariant(tl >= vl)
+      val skipInBits = tl - vl
+      skipInBits
+    } else {
+      // it's measured in variable width characters
+      val tlChars = lengthEv.evaluate(ustate)
+      e match {
+        case s: DISimple => {
+          val v = s.dataValueAsString
+          val vlChars = v.length
+          val nPadChars = tlChars - vlChars
+          Assert.invariant(nPadChars >= 0)
+          val cs: DFDLCharset = maybeCharsetEv.get.evaluate(ustate)
+          val paddingLengthInBits = cs.padCharWidthInBits * nPadChars
+          paddingLengthInBits
+        }
+        case c: DIComplex =>
+          ???
+      }
+    }
   }
-
 }
 
 class ElementUnusedUnparserSuspendableOperation(

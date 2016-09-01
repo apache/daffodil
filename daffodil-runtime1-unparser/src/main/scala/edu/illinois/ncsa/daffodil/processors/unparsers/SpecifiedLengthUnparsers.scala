@@ -32,15 +32,20 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 //import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.processors.InfosetNoDataException
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
-import edu.illinois.ncsa.daffodil.processors.LengthEv
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
+import edu.illinois.ncsa.daffodil.processors.CharsetEv
+import edu.illinois.ncsa.daffodil.processors.RetryableException
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.util.MaybeJULong
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInCharactersEv
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /**
  * Restricts the bits available for unparsing to just those within
@@ -54,34 +59,188 @@ import edu.illinois.ncsa.daffodil.processors.LengthEv
  */
 sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
   erd: ElementRuntimeData)
+
+final class SpecifiedLengthExplicitImplicitUnparser(
+  eUnparser: Unparser,
+  erd: ElementRuntimeData,
+  targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
+  maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv])
   extends UnparserObject(erd) with TextUnparserRuntimeMixin {
 
   override lazy val childProcessors = Seq(eUnparser)
 
-  /**
-   * Computes number of bits in length. If an error occurs this should
-   * modify the state to reflect a processing error.
-   */
-  protected def getBitLength(s: UState): Long
+  private val libEv = targetLengthInBitsEv.lengthInBitsEv
+  private val mcsEv = libEv.maybeCharsetEv
+  private val lengthUnits = libEv.lengthUnits
+  private val lengthKind = libEv.lengthKind
+
+  private def getCharset(state: UState) = {
+    val csEv: CharsetEv = mcsEv.get
+    val dcs = csEv.evaluate(state)
+    dcs
+  }
 
   override final def unparse(state: UState): Unit = {
 
-    val maybeNBits =
-      try {
-        MaybeULong(getBitLength(state))
-      } catch {
-        case noData: InfosetNoDataException => MaybeULong.Nope
-        case noChild: InfosetNoSuchChildElementException => MaybeULong.Nope
+    erd.impliedRepresentation match {
+      case Representation.Binary =>
+        unparseBits(state)
+      case Representation.Text => {
+        val dcs = getCharset(state)
+        if (dcs.maybeFixedWidth.isDefined)
+          unparseBits(state)
+        else {
+          // we know the encoding is variable width characters
+          // but we don't know if the length units characters or bits/bytes.
+          lengthUnits match {
+            case LengthUnits.Bits | LengthUnits.Bytes =>
+              unparseVarWidthCharactersInBits(state)
+            case LengthUnits.Characters =>
+              unparseVarWidthCharactersInCharacters(state)
+          }
+        }
       }
+    }
+  }
 
-    if (maybeNBits.isDefined) {
-      val nBits = maybeNBits.get
-      if (state.status _ne_ Success) return
+  /**
+   * Encoding is variable width (e.g., utf-8, but the
+   * target length is expressed in bits.
+   *
+   * Truncation, in this case, requires determining how many
+   * of the string's characters fit within the available target length
+   * bits.
+   */
+  def unparseVarWidthCharactersInBits(state: UState) {
+    val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
+
+    if (maybeTLBits.isDefined) {
+      //
+      // We know the target length. We can use it.
+      //
+      if (areTruncating) {
+        val diSimple = state.currentInfosetNode.asSimple
+        val v = diSimple.dataValue.asInstanceOf[String]
+        val tl = maybeTLBits.get
+        val cs = getCharset(state)
+        val newV = state.truncateToBits(v, cs, tl)
+        //
+        // JIRA DFDL-1592
+        //
+        // BUG: should not modify the actual dataset value.
+        // as fn:string-length of the value should always return the same
+        // value which is the un-truncated length.
+        //
+        diSimple.overwriteDataValue(newV)
+      }
+      eUnparser.unparse1(state, erd)
+    } else {
+      // target length unknown
+      // ignore constraining the output length. Just unparse it.
+      //
+      // This happens when we're unparsing, and this element depends on a prior element for
+      // determining its length, but that prior element has dfdl:outputValueCalc that depends
+      // on this element.
+      // This breaks the chicken-egg cycle.
+      //
+      eUnparser.unparse1(state, erd)
+    }
+  }
+
+  private def areTruncating = {
+    if (erd.optPrimType.get eq PrimType.String) {
+      Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
+      erd.optTruncateSpecifiedLengthString.get
+    } else
+      false
+  }
+
+  /**
+   * Encoding is variable width (e.g., utf-8). The target
+   * length is expressed in characters.
+   */
+  def unparseVarWidthCharactersInCharacters(state: UState) {
+
+    //
+    // variable-width encodings and lengthUnits characters, and lengthKind explicit
+    // is not supported (currently) for complex types
+    //
+    state.schemaDefinitionUnless(erd.isSimpleType,
+      "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
+      getCharset(state).charsetName, lengthKind.toString, lengthUnits.toString)
+
+    Assert.invariant(erd.isSimpleType)
+    Assert.invariant(this.maybeTargetLengthInCharactersEv.isDefined)
+    val tlEv = this.maybeTargetLengthInCharactersEv.get
+    val tlChars = this.getMaybeTL(state, tlEv)
+
+    if (tlChars.isDefined) {
+      //
+      // possibly truncate
+      //
+      if (areTruncating) {
+        val diSimple = state.currentInfosetNode.asSimple
+        val v = diSimple.dataValue.asInstanceOf[String]
+        val tl = tlChars.get
+        if (v.length > tl) {
+          // string is too long, truncate to target length
+          val newV = v.substring(0, tl.toInt)
+          //
+          // BUG: JIRA DFDL-1592 - should not be overwriting the value with
+          // truncated value.
+          //
+          diSimple.overwriteDataValue(newV)
+        }
+      }
+      eUnparser.unparse1(state, erd)
+    } else {
+      // target length unknown
+      // ignore constraining the output length. Just unparse it.
+      //
+      // This happens when we're unparsing, and this element depends on a prior element for
+      // determining its length, but that prior element has dfdl:outputValueCalc that depends
+      // on this element.
+      // This breaks the chicken-egg cycle.
+      //
+      eUnparser.unparse1(state, erd)
+    }
+  }
+
+  private def getMaybeTL(state: UState, TLEv: Evaluatable[MaybeJULong]): MaybeJULong = {
+    val maybeTLBits = try {
+      val tlRes = TLEv.evaluate(state)
+      Assert.invariant(tlRes.isDefined) // otherwise we shouldn't be in this method at all
+      tlRes
+    } catch {
+      case e: RetryableException => {
+        //
+        // TargetLength expression couldn't be evaluated.
+        //
+        MaybeJULong.Nope
+      }
+    }
+    maybeTLBits
+  }
+
+  /**
+   * Regardless of the type (text or binary), the target length
+   * will be provided in bits.
+   */
+  def unparseBits(state: UState) {
+
+    val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
+
+    if (maybeTLBits.isDefined) {
+      //
+      // We know the target length. We can use it.
+      //
+      val nBits = maybeTLBits.get
       val dos = state.dataOutputStream
-      //val startingBitPos0b = dos.relBitPos0b
+
       val isLimitOk = dos.withBitLengthLimit(nBits) {
         eUnparser.unparse1(state, erd)
       }
+
       if (!isLimitOk) {
         val availBits = if (dos.remainingBits.isDefined) dos.remainingBits.get.toString else "(unknown)"
         UE(state, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
@@ -99,7 +258,8 @@ sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
       //
 
     } else {
-      // we couldn't get the explicit length
+      //
+      // we couldn't get the target length
       //
       // This happens when we're unparsing, and this element depends on a prior element for
       // determining its length via a length expression, but that prior element
@@ -119,149 +279,3 @@ sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
     }
   }
 }
-
-final class SpecifiedLengthExplicitUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  lengthEv: LengthEv,
-  bitsMultiplier: Int)
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
-
-  override def getBitLength(s: UState): Long = {
-    val nBytesAsAny = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes * bitsMultiplier
-  }
-
-}
-
-final class SpecifiedLengthImplicitUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  nBits: Long)
-  extends SpecifiedLengthUnparserBase(eUnparser, erd) {
-
-  override def getBitLength(s: UState): Long = nBits
-
-}
-
-/**
- * This is used when length is measured in characters, and couldn't be
- * converted to a computation on length in bytes because a character is encoded as a variable number
- * of bytes, e.g., in utf-8 encoding where a character can be 1 to 4 bytes.
- *
- * In addition this is used when the encoding is an expression, so we don't know
- * a priori whether the encoding will be fixed or variable width.
- *
- * This base is used for complex types where we need to know how long the "box"
- * is, that all the complex content must fit within, where that box length is
- * measured in characters. In the complex content case we do not need the string that is all the
- * characters, as we're going to recursively descend and parse it into the complex structure.
- *
- * This is a very uncommon situation. It seems it is really there in DFDL just to provide some
- * orthogonality of the lengthKind property to the type of the element.
- *
- * A possible use case where this would be needed is data which used to be fixed length
- * (such as 80 bytes), but which has been updated to use utf-8, instead of the original
- * single-byte character set. Such data might now specify that there are 80 characters still,
- * allowing for 80 unicode characters. (Alternatively such data format might specify 80
- * bytes still, meaning up to 80 unicode characters, but possibly fewer.)
- */
-sealed abstract class SpecifiedLengthCharactersUnparserBase(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData)
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
-
-  final override def childProcessors = Seq(eUnparser)
-
-  protected def getCharLength(s: UState): Long
-
-  override final def unparse(state: UState) {
-
-    val maybeNChars =
-      try {
-        MaybeULong(getCharLength(state))
-      } catch {
-        case noData: InfosetNoDataException => MaybeULong.Nope
-      }
-    if (maybeNChars.isDefined) {
-      val nChars = maybeNChars.get
-      //
-      // because we don't know how many bytes a character requires,
-      // we can't depend on the regular maybeBitLimit0b to constrain
-      // how long the unparsed text can get. So we make a finite
-      // char buffer, and a charBufferOutputStream (fails on binary stuff)
-      // and we unparse to that.
-      //
-      // This will either leave some chars unused, or fill them all
-      //
-      state.charBufferDataOutputStream { cbdos =>
-        state.withLocalCharBuffer { lcb =>
-          val cb = lcb.getBuf(nChars)
-          cbdos.setCharBuffer(cb)
-          state.withTemporaryDataOutputStream(cbdos) {
-            eUnparser.unparse1(state, erd)
-          }
-          val charsUnused = cb.remaining()
-          //
-          // at this point, the char buffer has been filled in
-          // with at most nChars of data.
-          //
-          cb.flip
-          val nCharsWritten = state.dataOutputStream.putCharBuffer(cb)
-          //
-          // Note: it's possible that nCharsWritten is less than nChars
-          // because this entire parser could be surrounded by some
-          // context that has a bit limit.
-          //
-          if (nCharsWritten < nChars) {
-            //
-            // cb might not be full, because the recursive unparse
-            // might not use it all up.
-            //
-            // In that case, we have to fill out any chars, if there is room
-            // for them, with fill bytes, which is what skip does.
-            val encInfo = erd.encodingInfo
-            val dcharset = encInfo.getDFDLCharset(state)
-            val charMinWidthInBits = encInfo.encodingMinimumCodePointWidthInBits(dcharset)
-            val nSkipBits = charsUnused * charMinWidthInBits
-            if (!state.dataOutputStream.skip(nSkipBits)) UE(state, "Insufficient space to write %s characters.", nChars)
-          }
-        }
-      }
-    } else {
-      // we couldn't get the explicit length
-      // ignore constraining the output length. Just unparse it.
-      //
-      // This happens when we're unparsing, and this element depends on a prior element for
-      // determining its length, but that prior element has dfdl:outputValueCalc that depends
-      // on this element.
-      // This breaks the chicken-egg cycle.
-      //
-      eUnparser.unparse1(state, erd)
-    }
-  }
-}
-
-final class SpecifiedLengthExplicitCharactersUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  lengthEv: LengthEv)
-  extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
-
-  override def getCharLength(s: UState): Long = {
-    val nCharsAsAny = lengthEv.evaluate(s)
-    val nChars = AsIntConverters.asLong(nCharsAsAny)
-    nChars
-  }
-}
-
-final class SpecifiedLengthImplicitCharactersUnparser(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData,
-  nChars: Long)
-  extends SpecifiedLengthCharactersUnparserBase(eUnparser, erd) {
-
-  override def getCharLength(s: UState): Long = nChars
-}
-

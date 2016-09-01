@@ -39,14 +39,14 @@ import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.lang.{ Long => JLong }
 
-abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
+sealed abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
   extends PrimParserObject(erd) {
 
   protected def getLength(pstate: PState): Long
 
   private val zeroLengthArray = new Array[Byte](0)
 
-  final def parse(start: PState): Unit = {
+  override final def parse(start: PState): Unit = {
 
     val nBytes = getLength(start)
     if (nBytes == 0) {

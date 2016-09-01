@@ -290,7 +290,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.notifyDebugging(true)
       }
       unparserState.dataProc.get.init(ssrd.unparser)
-      // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
       unparse(unparserState)
       unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
@@ -341,6 +340,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def unparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     rootUnparser.unparse(state)
     //
     // All the DOS that precede the last one

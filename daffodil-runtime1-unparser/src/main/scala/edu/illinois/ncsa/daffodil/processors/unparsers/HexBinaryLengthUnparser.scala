@@ -40,12 +40,12 @@ import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.processors.RetryableException
 
-abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData, fillByteEv: FillByteEv)
-    extends PrimUnparserObject(erd) {
+abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillByteEv)
+  extends PrimUnparserObject(erd) {
 
   protected def getLength(state: UState): Long
 
-  final def unparse(state: UState): Unit = {
+  override final def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
@@ -77,22 +77,16 @@ abstract class HexBinaryLengthInBytesUnparser(erd: ElementRuntimeData, fillByteE
   }
 }
 
-final class HexBinaryFixedLengthInBytesUnparser(nBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
-    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
-
-  override def getLength(state: UState): Long = nBytes
-}
-
 final class HexBinaryDelimitedMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
-    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
+  extends HexBinaryUnparserBase(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = {
     state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length
   }
 }
 
-final class HexBinaryVariableLengthInBytesUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong], fillByteEv: FillByteEv)
-    extends HexBinaryLengthInBytesUnparser(erd, fillByteEv) {
+final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong], fillByteEv: FillByteEv)
+  extends HexBinaryUnparserBase(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = {
     val l: Long = try {

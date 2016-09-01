@@ -34,44 +34,173 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
+import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
+import edu.illinois.ncsa.daffodil.processors.RetryableException
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 
-// TODO: JIRA DFDL-1581 - rename classes to remove "Statement" prefix (and rename file)
-abstract class ElementUnparserBase(
-  rd: ElementRuntimeData,
-  name: String,
+/**
+ * Elements that, when unparsing, have no length specified.
+ *
+ * That is, lengtKind delimited, pattern, and implicit(for complexTypes)
+ */
+class ElementUnspecifiedLengthUnparser(
+  erd: ElementRuntimeData,
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends TermUnparser(rd) {
+  extends ElementUnparserBase(
+    erd,
+    setVarUnparsers,
+    eBeforeUnparser,
+    eUnparser,
+    eAfterUnparser)
+  with RegularElementUnparserStartEndStrategy
+  with RepMoveMixin {
 
-  override lazy val childProcessors: Seq[Processor] = setVarUnparsers ++ eBeforeUnparser.toSeq ++ eUnparser.toSeq ++ eAfterUnparser.toSeq
+}
 
-  def move(state: UState): Unit // implement for different kinds of "moving over to next thing"
-  def unparseBegin(state: UState): Unit
-  def unparseEnd(state: UState): Unit
-
-  def doSetVars(state: UState) {
-    var i: Int = 0
-    while (i < setVarUnparsers.length) {
-      val unp = setVarUnparsers(i)
-      i += 1
-      unp.unparse1(state, rd)
-    }
+trait RepMoveMixin {
+  def move(start: UState) {
+    val grIndex = start.groupIndexStack.pop()
+    start.groupIndexStack.push(grIndex + 1)
+    val childIndex = start.childIndexStack.pop()
+    start.childIndexStack.push(childIndex + 1)
   }
+}
+
+/**
+ * The unparser used for an element that has inputValueCalc.
+ *
+ * The only thing we do is move over one child element, because the
+ * inputValueCalc element does take up one child element position.
+ * However, not in the group - because that is what is used to decide
+ * whether to place separators, and there should not be any separator
+ * corresponding to an IVC element.
+ */
+class ElementUnparserNoRep(
+  erd: ElementRuntimeData,
+  setVarUnparsers: Array[Unparser])
+  extends ElementUnparserBase(
+    erd,
+    setVarUnparsers,
+    Nope,
+    Nope,
+    Nope)
+  with RegularElementUnparserStartEndStrategy {
+
+  /**
+   * Move over in the element children, but not in the group.
+   * This avoids separators for this IVC element.
+   */
+  override def move(state: UState) {
+    val childIndex = state.childIndexStack.pop()
+    state.childIndexStack.push(childIndex + 1)
+  }
+}
+
+class ElementOVCUnspecifiedLengthUnparser(
+  erd: ElementRuntimeData,
+  setVarUnparsers: Array[Unparser],
+  eBeforeUnparser: Maybe[Unparser],
+  eUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser])
+  extends ElementUnparserBase(
+    erd,
+    setVarUnparsers,
+    eBeforeUnparser,
+    eUnparser,
+    eAfterUnparser)
+  with OVCStartEndStrategy
+  with RepMoveMixin {
+
+}
+
+/**
+ * Base class for unparsing elements
+ *
+ * Depends on use of separate unparsers for the padding/fill regions which
+ * calculate their own sizes, generally after the length of the value region
+ * has been determined.
+ */
+sealed abstract class ElementUnparserBase(
+  val erd: ElementRuntimeData,
+  val setVarUnparsers: Array[Unparser],
+  val eBeforeUnparser: Maybe[Unparser],
+  val eUnparser: Maybe[Unparser],
+  val eAfterUnparser: Maybe[Unparser])
+  extends TermUnparser(erd)
+  with RepMoveMixin
+  with ElementUnparserStartEndStrategy {
+
+  final override lazy val childProcessors =
+    eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ setVarUnparsers.toList
+
+  private val name = erd.name
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
         (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1) else "") +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
-        setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
         (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
+        setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
         "</Element>"
+  }
+
+  final def computeSetVariables(state: UState) {
+    // variable assignment. Always after the element value, but
+    // also still with this element itself as the context, so before
+    // we end element.
+    {
+      var i = 0;
+      while (i < setVarUnparsers.length) {
+        setVarUnparsers(i).unparse1(state, context)
+        i += 1
+      }
+    }
+  }
+
+  protected def doBeforeContentUnparser(state: UState) {
+    if (eBeforeUnparser.isDefined)
+      eBeforeUnparser.get.unparse1(state, context)
+  }
+
+  protected def doAfterContentUnparser(state: UState) {
+    if (eAfterUnparser.isDefined)
+      eAfterUnparser.get.unparse1(state, context)
+  }
+
+  protected def runContentUnparser(state: UState) {
+    if (eUnparser.isDefined)
+      eUnparser.get.unparse1(state, context)
+  }
+
+  override def unparse(state: UState): Unit = {
+
+    if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
+
+    unparseBegin(state)
+
+    captureRuntimeValuedExpressionValues(state)
+
+    doBeforeContentUnparser(state)
+
+    runContentUnparser(state)
+
+    doAfterContentUnparser(state)
+
+    computeSetVariables(state)
+
+    unparseEnd(state)
+
+    if (state.dataProc.isDefined) state.dataProc.value.endElement(state, this)
+
   }
 
   def validate(state: UState): Unit = {
@@ -96,78 +225,163 @@ abstract class ElementUnparserBase(
     //      }
     //    }
   }
+}
 
-  def unparse(state: UState): Unit = {
+trait ElementSpecifiedLengthMixin {
 
-    if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
-    unparseBegin(state)
-    if (eBeforeUnparser.isDefined) {
-      eBeforeUnparser.get.unparse1(state, rd)
-    }
+  protected def maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv]
+  protected def erd: ElementRuntimeData
 
-    Assert.invariant(state.hasInfoset)
+  /**
+   * This is a maybeTLOp so that this base class can be used to handle
+   * data types that do not have specified length as well.
+   *
+   * An example is lengthKind 'pattern' which while not "specified" length,
+   * uses this same code path, just there is no possibility of pad/fill regions.
+   *
+   * It's a degenerate case of specified length.
+   *
+   * Note: thread safety: This must be def, not val/lazyval because TargetLengthOperation is
+   * a stateful class instance, so cannot be a static member of an unparser
+   * object (unparsers are shared by multiple threads. Suspensions cannot be.)
+   */
+  private def maybeTLOp = {
+    val mtlop = if (maybeTargetLengthEv.isDefined)
+      One(new TargetLengthOperation(erd, maybeTargetLengthEv.get))
+    else
+      Nope
+    mtlop
+  }
 
-    //
-    // We used to try to capture the starts and ends of the content region
-    // and value regions here in this unparse method.
-    //
-    // The reason we can't do this here, is that the data grammar has a variety
-    // of places where a content region begins, a value region begins, a value
-    // region ends, and a content region ends. We can litter the grammar with
-    // "capture" unparsers that gather this information and that way this
-    // combinator doesn't have to have 36 categories of argument unparsers
-    // that it does before or after one or the other. For example, there's
-    // content and value regions for literal nil values, as well as regular values,
-    // and nils have their own delimiters. The grammar is just not set up for
-    // those to share one element combinator. Such an element combinator would
-    // have as arguments, every grammar term for nils, empties, and regular values
-    // including all their delimiters. It's just not a useful factoring.
-    //
-
-    if (eUnparser.isDefined) {
-      eUnparser.get.unparse1(state, rd)
-    }
-
-    doSetVars(state) // Even unparsing, setVars are always after the element so they can refer to "."
-
-    if (eAfterUnparser.isDefined) {
-      eAfterUnparser.get.unparse1(state, rd)
-    }
-    unparseEnd(state)
-    if (state.dataProc.isDefined) state.dataProc.value.endElement(state, this)
-
+  protected def computeTargetLength(state: UState) {
+    if (maybeTLOp.isDefined)
+      maybeTLOp.get.run(state);
   }
 }
 
-class ElementUnparser(
-  erd: ElementRuntimeData,
-  name: String,
+/**
+ * For regular (not dfdl:outputValueCalc) elements.
+ */
+class ElementSpecifiedLengthUnparser(
+  context: ElementRuntimeData,
+  override val maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(
-    erd,
-    name,
+  extends ElementUnparserBase(context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
-    eAfterUnparser) {
+    eAfterUnparser)
+  with RegularElementUnparserStartEndStrategy
+  with ElementSpecifiedLengthMixin {
 
-  def move(start: UState) {
-    val grIndex = start.groupIndexStack.pop()
-    start.groupIndexStack.push(grIndex + 1)
-    val childIndex = start.childIndexStack.pop()
-    start.childIndexStack.push(childIndex + 1)
+  override lazy val runtimeDependencies = maybeTargetLengthEv.toList
+
+  override def runContentUnparser(state: UState) {
+    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
+    super.runContentUnparser(state) // setup unparsing, which will block for no valu
   }
 
-  def unparseBegin(state: UState): Unit = {
+}
+
+/**
+ * For dfdl:outputValueCalc elements.
+ */
+class ElementOVCSpecifiedLengthUnparserSuspendableExpresion(
+  callingUnparser: ElementOVCSpecifiedLengthUnparser)
+  extends SuspendableExpression {
+
+  override def rd = callingUnparser.erd
+
+  override lazy val expr = rd.outputValueCalcExpr.get
+
+  override final protected def processExpressionResult(state: UState, v: AnyRef) {
+    val diSimple = state.currentInfosetNode.asSimple
+
+    diSimple.setDataValue(v)
+
+    //
+    // These are now done in the main unparse, but they will
+    // suspend if they cannot be evaluated because there is not data value yet.
+    //
+    // callingUnparser.computeSetVariables(state)
+  }
+
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
+
+}
+
+class ElementOVCSpecifiedLengthUnparser(
+  context: ElementRuntimeData,
+  override val maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
+  setVarUnparsers: Array[Unparser],
+  eBeforeUnparser: Maybe[Unparser],
+  eUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser])
+  extends ElementUnparserBase(context,
+    setVarUnparsers,
+    eBeforeUnparser,
+    eUnparser,
+    eAfterUnparser)
+  with OVCStartEndStrategy
+  with ElementSpecifiedLengthMixin {
+
+  override lazy val runtimeDependencies = maybeTargetLengthEv.toList
+
+  private def suspendableExpression =
+    new ElementOVCSpecifiedLengthUnparserSuspendableExpresion(this)
+
+  Assert.invariant(context.outputValueCalcExpr.isDefined)
+
+  override def runContentUnparser(state: UState) {
+    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
+    suspendableExpression.run(state) // run the expression. It might or might not have a value.
+    super.runContentUnparser(state) // setup unparsing, which will block for no valu
+  }
+
+}
+
+/**
+ * specifies the way the element will consume infoset events,
+ */
+sealed trait ElementUnparserStartEndStrategy {
+  /**
+   * Consumes the required infoset events and changes context so that the
+   * element's DIElement node is the context element.
+   */
+  protected def unparseBegin(state: UState): Unit
+
+  /**
+   * Restores prior context. Consumes end-element event.
+   */
+  protected def unparseEnd(state: UState): Unit
+
+  protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit
+
+  protected def move(start: UState)
+
+  protected def erd: ElementRuntimeData
+
+  protected def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+}
+
+sealed trait RegularElementUnparserStartEndStrategy
+  extends ElementUnparserStartEndStrategy {
+  /**
+   * Consumes the required infoset events and changes context so that the
+   * element's DIElement node is the context element.
+   */
+  final override protected def unparseBegin(state: UState): Unit = {
     val elem =
       if (!erd.isHidden) {
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume start events for non-hidden elements
         val event = state.advanceOrError
-        if (!event.isStart) { //  || event.erd != erd) {
+        if (!event.isStart || event.erd != erd) {
+          // it's not a start element event, or it's a start element event, but for a different element.
+          // this indicates that the incoming infoset (as events) doesn't match the schema
           UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.", erd.namedQName, event)
         }
         event.asElement
@@ -187,12 +401,17 @@ class ElementUnparser(
     state.aaa_currentNode = e
   }
 
-  def unparseEnd(state: UState): Unit = {
+  /**
+   * Restores prior context. Consumes end-element event.
+   */
+  final override protected def unparseEnd(state: UState): Unit = {
     if (!erd.isHidden) {
       // Hidden elements are not in the infoset, so we will never get an event
       // for them. Only try to consume end events for non-hidden elements
       val event = state.advanceOrError
-      if (!event.isEnd) { //  || event.erd != erd) {
+      if (!event.isEnd || event.erd != erd) {
+        // it's not an end-element event, or it's an end element event, but for a different element.
+        // this indicates that the incoming infoset (as events) doesn't match the schema
         UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.", erd.namedQName, event)
       }
     }
@@ -206,55 +425,18 @@ class ElementUnparser(
 
     move(state)
   }
+
+  final override protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit = {}
+
 }
 
-/**
- * The unparser used for an element that has inputValueCalc.
- *
- * The only thing we do is move over one child element, because the
- * inputValueCalc element does take up one child element position.
- * However, not in the group - because that is what is used to decide
- * whether to place separators, and there should not be any separator
- * corresponding to an IVC element.
- */
-class ElementUnparserNoRep(
-  erd: ElementRuntimeData,
-  name: String,
-  setVarUnparsers: Array[Unparser])
-  extends ElementUnparser(
-    erd,
-    name,
-    setVarUnparsers,
-    Nope,
-    Nope,
-    Nope) {
+trait OVCStartEndStrategy
+  extends ElementUnparserStartEndStrategy {
 
   /**
-   * Move over in the element children, but not in the group.
-   * This avoids separators for this IVC element.
+   * For OVC, the behavior w.r.t. consuming infoset events is different.
    */
-  override def move(state: UState) {
-    val childIndex = state.childIndexStack.pop()
-    state.childIndexStack.push(childIndex + 1)
-  }
-}
-
-class ElementOutputValueCalcUnparser(
-  erd: ElementRuntimeData,
-  name: String,
-  setVarUnparsers: Array[Unparser],
-  eBeforeUnparser: Maybe[Unparser],
-  eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser])
-  extends ElementUnparser(
-    erd,
-    name,
-    setVarUnparsers,
-    eBeforeUnparser,
-    eUnparser,
-    eAfterUnparser) {
-
-  override def unparseBegin(state: UState) {
+  protected final override def unparseBegin(state: UState) {
     val elem =
       if (!erd.isHidden) {
         // outputValueCalc elements are optional in the infoset. If the next event
@@ -293,7 +475,9 @@ class ElementOutputValueCalcUnparser(
     state.aaa_currentNode = e
   }
 
-  override def unparseEnd(state: UState) {
+  protected final override def unparseEnd(state: UState) {
+    state.currentInfosetNodeStack.pop
+
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
     state.aaa_currentNode =
@@ -303,5 +487,76 @@ class ElementOutputValueCalcUnparser(
         state.currentInfosetNodeStack.top
 
     move(state)
+  }
+
+  // For OVC, or for a target length expression,
+  //
+  // If we delayed evaluating the expressions, some variables might not be read
+  // until we come back to retrying the suspension. Those variables might
+  // be set downstream. That set would be illegal (set after read), but we
+  // would not detect it, because we would not have read it at the point where
+  // the element was first encountered.
+  //
+  // This problem would presumably be caught if the same schema was being used
+  // to parse data.
+  //
+  // Note that we can't try to be clever and just evaluate all the variables
+  // in the expressions... because expressions can have conditional branches
+  // so we can't tell which variables will be read if they're in the arms of
+  // conditionals.
+  //
+  // For runtime-valued properties, the expressions cannot block, so we can evaluate
+  // them at the time we first encounter the element. We could, at that point
+  // remember them, or we could just re-evaluate them again later when their
+  // values are actually needed. Variables that are read will have the right
+  // state.
+  //
+  // So caching the result values of the runtime-valued properties is allowed,
+  // but not required. Really we just need the side-effects of the expressions
+  // on reading of variables.
+  //
+  // Additionally, even if the target length is computed without suspending, some other
+  // aspect of the content might be suspended (something as simple as
+  // a mandatory text alignment, for example)
+  //
+  // This can cause value lengths/content lengths for many things to be
+  // non computable. That can cause arbitrary unparsing to block. That unparsing
+  // might need say, properties like those for controlling text number format,
+  // many of which are runtime-valued.
+  //
+  // Those expressions might reference variables.
+  //
+  // Only runtime-valued properties relevant to this element are needed.
+
+  // TODO: Performance: Ideas: maybe each unparse should sport a captureRuntimeValueProperties, and
+  // similarly each Ev. Then suspend could capture exactly and only what is
+  // needed. (Similarly, for parts of the UState that need to be saved, each
+  // unparser could have specific methods for capturing that information and
+  // caching it on the Infoset node. (E.g., delimiter stack - but only when
+  // delimiters are relevant instead of every time as we do now.)
+  //
+  // Right now we pessimistically clone the entire DOS, the entire UState
+  // (though we share the variable map) including various stacks. (We need the whole
+  // delimiter stack, but probably could get a way with only top of stack for
+  // many other things.
+
+  final override protected def captureRuntimeValuedExpressionValues(state: UState) {
+    //
+    // Forces the evaluation of runtime-valued things, and this will cause those
+    // that actually are runtime-expressions to be cached on the infoset element.
+    //
+    // Then later when the actual unparse occurs, these will be accessed off the
+    // infoset element's cache.
+    //
+    // So we have to do this here in order to Freeze the state of these
+    // evaluations on the Infoset at the time this unparse call happens.
+
+    runtimeDependencies.foreach { dep =>
+      try {
+        dep.evaluate(state) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
+      } catch {
+        case _: RetryableException => ()
+      }
+    }
   }
 }

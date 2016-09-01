@@ -67,7 +67,7 @@ case class Found(value: String, location: LookupLocation, override val pname: St
 
 case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation], override val pname: String)
   extends PropertyLookupResult(pname) {
-    override def isDefined = false
+  override def isDefined = false
 }
 
 /**

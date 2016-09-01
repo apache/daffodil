@@ -40,11 +40,14 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.processors.unparsers._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitImplicitUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthExplicitParser
+import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
-    extends Terminal(e, true) {
+  extends Terminal(e, true) {
 
-  lazy val eGram = eGramArg // once only 
+  lazy val eGram = eGramArg // once only
   lazy val eParser = eGram.parser
   lazy val eUnparser = eGram.unparser
 
@@ -60,7 +63,7 @@ abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gr
 }
 
 class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
-    extends SpecifiedLengthCombinatorBase(e, eGram) {
+  extends SpecifiedLengthCombinatorBase(e, eGram) {
 
   val kind = "Pattern"
 
@@ -81,12 +84,29 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
 
   // When unparsing, the pattern is not used to calculate a length, so just
   // skip that parser and go straight to unparsing the string in the eUnparser
-  override lazy val unparser: Unparser = eUnparser
+  override lazy val unparser: Unparser = {
+    pattern
+    // force pattern just so we detect regex syntax errors even though
+    // we don't use the pattern when unparsing.
+    eUnparser
+  }
+}
 
+trait SpecifiedLengthExplicitImplicitUnparserMixin {
+
+  def e: ElementBase
+  def eUnparser: Unparser
+
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitImplicitUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    e.unparseTargetLengthInBitsEv,
+    e.maybeUnparseTargetLengthInCharactersEv)
 }
 
 class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)
-    extends SpecifiedLengthCombinatorBase(e, eGram) {
+  extends SpecifiedLengthCombinatorBase(e, eGram)
+  with SpecifiedLengthExplicitImplicitUnparserMixin {
 
   Assert.usage(bitsMultiplier > 0)
 
@@ -98,16 +118,11 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
     e.lengthEv,
     bitsMultiplier)
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    e.lengthEv,
-    bitsMultiplier)
-
 }
 
 class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
-    extends SpecifiedLengthCombinatorBase(e, eGram) {
+  extends SpecifiedLengthCombinatorBase(e, eGram)
+  with SpecifiedLengthExplicitImplicitUnparserMixin {
 
   lazy val kind = "Implicit_" + e.lengthUnits.toString
 
@@ -118,15 +133,11 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
     e.elementRuntimeData,
     nBits)
 
-  lazy val unparser: Unparser = new SpecifiedLengthImplicitUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    nBits)
-
 }
 
 class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
-    extends SpecifiedLengthCombinatorBase(e, eGram) {
+  extends SpecifiedLengthCombinatorBase(e, eGram)
+  with SpecifiedLengthExplicitImplicitUnparserMixin {
 
   val kind = "ExplicitCharacters"
 
@@ -134,25 +145,16 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
     eParser,
     e.elementRuntimeData,
     e.lengthEv)
-
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitCharactersUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    e.lengthEv)
 }
 
 class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: Long)
-    extends SpecifiedLengthCombinatorBase(e, eGram) {
+  extends SpecifiedLengthCombinatorBase(e, eGram)
+  with SpecifiedLengthExplicitImplicitUnparserMixin {
 
   val kind = "ImplicitCharacters"
 
   lazy val parser: Parser = new SpecifiedLengthImplicitCharactersParser(
     eParser,
-    e.elementRuntimeData,
-    nChars)
-
-  lazy val unparser: Unparser = new SpecifiedLengthImplicitCharactersUnparser(
-    eUnparser,
     e.elementRuntimeData,
     nChars)
 }

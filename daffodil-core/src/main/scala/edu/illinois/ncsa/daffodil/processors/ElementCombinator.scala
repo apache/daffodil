@@ -51,8 +51,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.NilLiteralCharacterUnpars
 import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyPaddingUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.RightCenteredPaddingUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.RightFillUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnparserNoRep
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
@@ -61,6 +59,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.unparsers.OVCRetryUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOVCUnspecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementUnspecifiedLengthUnparser
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -74,7 +74,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.OVCRetryUnparser
  * get very complicated to reason about, as if it isn't already :-), well this
  * is going to make it worse.
  */
-class PhysicalElementUberCombinator(context: ElementBase,
+class ElementCombinator(context: ElementBase,
   eBeforeContent: Gram,
   eValue: Gram,
   eAfterValue: Gram)
@@ -86,7 +86,7 @@ class PhysicalElementUberCombinator(context: ElementBase,
       new ChoiceElementCombinator(context, eBeforeContent,
         eValue, eAfterValue)
     } else {
-      new ElementCombinator(context, eBeforeContent,
+      new ElementParseAndUnspecifiedLength(context, eBeforeContent,
         eValue, eAfterValue)
     }
   }
@@ -102,19 +102,26 @@ class PhysicalElementUberCombinator(context: ElementBase,
 
   private lazy val uSetVars = context.setVariableStatements.map(_.gram.unparser).toArray
 
-  private lazy val beforeContent: Array[Unparser] =
-    if (eBeforeContent.isEmpty) Array()
-    else Array(eBeforeContent.unparser)
+  private lazy val eBeforeUnparser: Maybe[Unparser] =
+    if (eBeforeContent.isEmpty) Maybe.Nope
+    else Maybe(eBeforeContent.unparser)
 
-  private lazy val value = Array((eValue ~ eAfterValue).unparser)
+  private lazy val eUnparser: Maybe[Unparser] =
+    if (eValue.isEmpty) Maybe.Nope
+    else Maybe(eValue.unparser)
+
+  private lazy val eAfterUnparser: Maybe[Unparser] =
+    if (eAfterValue.isEmpty) Maybe.Nope
+    else Maybe(eAfterValue.unparser)
 
   override lazy val unparser: Unparser = {
     if (context.isOutputValueCalc) {
       new ElementOVCSpecifiedLengthUnparser(context.erd,
         context.maybeUnparseTargetLengthInBitsEv,
         uSetVars,
-        beforeContent,
-        value)
+        eBeforeUnparser,
+        eUnparser,
+        eAfterUnparser)
     } else if ((context.lengthKind _eq_ LengthKind.Explicit) ||
       (context.isSimpleType &&
         (context.lengthKind _eq_ LengthKind.Implicit) &&
@@ -123,8 +130,9 @@ class PhysicalElementUberCombinator(context: ElementBase,
       new ElementSpecifiedLengthUnparser(context.erd,
         context.maybeUnparseTargetLengthInBitsEv,
         uSetVars,
-        beforeContent,
-        value)
+        eBeforeUnparser,
+        eUnparser,
+        eAfterUnparser)
     } else {
       subComb.unparser
     }
@@ -296,7 +304,7 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
  * new stuff for specified length unparsing above here.
  */
 
-class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
+class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram) {
 
   lazy val parser: Parser =
@@ -328,15 +336,15 @@ class ElementCombinator(context: ElementBase, eBeforeGram: Gram, eGram: Gram, eA
   override lazy val unparser: Unparser = {
     if (context.isRepresented) {
       if (context.isOutputValueCalc) {
-        new ElementOutputValueCalcUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementOVCUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       } else {
-        new ElementUnparser(context.erd, context.name, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
       }
     } else {
       // dfdl:inputValueCalc case.
       // This unparser will assume the events are in the event stream, having been inferred and put
       // in place by the next element resolver.
-      new ElementUnparserNoRep(context.erd, context.name, uSetVar)
+      new ElementUnparserNoRep(context.erd, uSetVar)
     }
   }
 }

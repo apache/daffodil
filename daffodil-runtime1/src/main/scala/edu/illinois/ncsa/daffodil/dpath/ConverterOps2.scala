@@ -48,9 +48,9 @@ case object AnyAtomicToString extends Converter {
   }
 }
 
-trait XSDateTimeKind {
+trait XSDateTimeKind extends Serializable {
   val timeZoneID = "UTC"
-  lazy val calendar = new ThreadLocal[Calendar] {
+  @transient lazy val calendar = new ThreadLocal[Calendar] {
     override def initialValue = {
       val cal = Calendar.getInstance()
       cal.clear()

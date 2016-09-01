@@ -32,35 +32,35 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import scala.Boolean
+
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryVariableLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryFixedLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
-import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
+import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
+import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
+import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
+import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
+import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryDelimitedMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends Terminal(e, true) {
@@ -80,8 +80,8 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
   override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
     e.elementRuntimeData)
 
-  override lazy val unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(nBytes,
-    e.elementRuntimeData, e.fillByteEv)
+  override lazy val unparser: DaffodilUnparser = new HexBinarySpecifiedLengthUnparser(
+    e.elementRuntimeData, e.lengthEv, e.fillByteEv)
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
@@ -93,7 +93,7 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
   override lazy val parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
     e.lengthEv)
 
-  override lazy val unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
+  override lazy val unparser: DaffodilUnparser = new HexBinarySpecifiedLengthUnparser(e.elementRuntimeData,
     e.lengthEv, e.fillByteEv)
 }
 
@@ -113,7 +113,7 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
   // if the encoding is known, if it is fixed width then we just calculate the fixed length in bytes/bits
   // directly rather than calling a method that outputs the string to bytes in order to measure it.
 
-  override lazy val unparser: Unparser =
+  override lazy val unparser: DaffodilUnparser =
     new StringOfSpecifiedLengthUnparser(stringTruncationType,
       e.elementRuntimeData, e.primType eq NodeInfo.PrimType.String, e.lengthKind == LengthKind.Pattern)
 
@@ -179,6 +179,7 @@ abstract class StringDelimited(e: ElementBase)
     textDelimitedParser,
     fieldDFAParseEv,
     isDelimRequired)
+
   override lazy val unparser: DaffodilUnparser =
     new StringDelimitedUnparser(e.elementRuntimeData,
       justificationPad,
@@ -229,7 +230,11 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.rawNilValuesForParse)
 
   override lazy val unparser: DaffodilUnparser =
-    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, eb.nilStringLiteralForUnparserEv, justificationPad, parsingPadChar, isDelimRequired)
+    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData,
+      eb.nilStringLiteralForUnparserEv,
+      justificationPad,
+      parsingPadChar,
+      isDelimRequired)
 
 }
 

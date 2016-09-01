@@ -303,7 +303,7 @@ case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String])
 
 case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
-  
+
   override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "unsignedLong"
   override val prettyType = "Unsigned Long"
@@ -370,7 +370,7 @@ case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
 
   val MAX_VALUE = new JBigDecimal(Double.MaxValue)
   val MIN_VALUE = new JBigDecimal(Double.MinValue)
-  
+
   override def getNum(num: Number) = num.doubleValue
   override val xsdType = "double"
   override val prettyType = "Double"
@@ -387,7 +387,7 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
 
   val MAX_VALUE = new JBigDecimal(Float.MaxValue)
   val MIN_VALUE = new JBigDecimal(Float.MinValue)
-  
+
   override def getNum(num: Number) = num.floatValue
   override val xsdType = "float"
   override val prettyType = "Float"
@@ -616,20 +616,20 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
     numFormat
     new ThreadLocal[NumberFormat] {
-    override def initialValue() = {
-      generateNumFormat(
-        decSep,
-        groupSep,
-        expRep,
-        infRep,
-        nanRep,
-        checkPolicy,
-        pattern,
-        rounding,
-        roundingMode,
-        roundingInc)
+      override def initialValue() = {
+        generateNumFormat(
+          decSep,
+          groupSep,
+          expRep,
+          infRep,
+          nanRep,
+          checkPolicy,
+          pattern,
+          rounding,
+          roundingMode,
+          roundingInc)
+      }
     }
-  }
   }
 }
 

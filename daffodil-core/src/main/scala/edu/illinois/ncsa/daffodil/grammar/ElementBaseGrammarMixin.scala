@@ -359,11 +359,6 @@ trait ElementBaseGrammarMixin
     binaryFloatRepEv.optConstant.get
   }
 
-  //  private lazy val binary = {
-  //    subset(lengthKind == LengthKind.Explicit, "Currently only lengthKind='explicit' is supported.")
-  //    LengthKind(lengthKind.toString, this)
-  //  }
-
   val bin = BinaryNumberRep.Binary // shorthands for table dispatch
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
@@ -529,9 +524,8 @@ trait ElementBaseGrammarMixin
   private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
-    val nilLength = 0
     captureLengthRegions(EmptyGram,
-      new SpecifiedLengthImplicit(this, LiteralValueNilOfSpecifiedLength(this), nilLength),
+      nilLitContent,
       //
       // Because nil complex can only be ES (e.g., length 0), there's no possible
       // ElementUnused region after a nil.
@@ -722,7 +716,7 @@ trait ElementBaseGrammarMixin
       // No framing surrounding inputValueCalc elements.
       // Note that we need these elements even when unparsing, because they appear in the infoset
       // as regular elements (most times), and so we have to have an unparser that consumes the corresponding events.
-      new ElementCombinator(this, dfdlScopeBegin,
+      new ElementParseAndUnspecifiedLength(this, dfdlScopeBegin,
         InputValueCalc(self, inputValueCalcOption), dfdlScopeEnd)
     }
 
@@ -770,7 +764,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
 
-    val elem = new PhysicalElementUberCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
+    val elem = new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin,
       withDelimiterStack {
         withEscapeScheme {
           scalarDefaultableSimpleContent || scalarComplexContent

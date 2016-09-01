@@ -48,8 +48,8 @@ import java.lang.{ Long => JLong }
 
 sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
-    extends ParserObject(erd)
-    with WithParseErrorThrowing {
+  extends ParserObject(erd)
+  with WithParseErrorThrowing {
 
   override lazy val childProcessors = Seq(eParser)
 
@@ -97,7 +97,7 @@ class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   pattern: java.util.regex.Pattern)
-    extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
@@ -124,7 +124,7 @@ class SpecifiedLengthExplicitParser(
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong],
   toBits: Int)
-    extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = {
     val nBytesAsAny = lengthEv.evaluate(s)
@@ -137,7 +137,7 @@ class SpecifiedLengthImplicitParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nBits: Long)
-    extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): Long = nBits
 }
@@ -146,7 +146,7 @@ class SpecifiedLengthImplicitParser(
  * This is used when length is measured in characters, and couldn't be
  * converted to a computation on length in bits because a character is encoded as a variable number
  * of bytes, e.g., in utf-8 encoding where a character can be 1 to 4 bytes.
- * 
+ *
  * Alternatively, this is also used if the encoding is coming from an expression, so we don't
  * know if it will come back as utf-8 (variable width) or ascii (fixed width)
  *
@@ -158,7 +158,7 @@ class SpecifiedLengthImplicitParser(
 sealed abstract class SpecifiedLengthCharactersParserBase(
   eParser: Parser,
   erd: ElementRuntimeData)
-    extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
@@ -184,7 +184,7 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
     // nbits more cheaply by just multiplying.
     //
     // We only need this more general code for the real case where
-    // the encoding is variable width. 
+    // the encoding is variable width.
     //
     val mBitLimit = maybeBitPosAfterNChars(s, nChars)
     if (!mBitLimit.isDefined)
@@ -201,7 +201,7 @@ final class SpecifiedLengthImplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nChars: Long)
-    extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
   override def getCharLength(s: PState) = nChars
 
@@ -211,7 +211,7 @@ final class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong])
-    extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
   def getCharLength(s: PState): Long = {
     val nChars = lengthEv.evaluate(s)
