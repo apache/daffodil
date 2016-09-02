@@ -6,7 +6,7 @@
 
   <parserTestCase name="AG000" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
-    roundTrip="false">
+    roundTrip="true">
     <document><![CDATA[1
 zone 1
 ]]></document>
@@ -21,7 +21,7 @@ zone 1
 
   <parserTestCase name="AG001" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
-    roundTrip="false">
+    roundTrip="true">
     <document><![CDATA[2
 zone 2
 ]]></document>
@@ -36,7 +36,7 @@ zone 2
 
   <parserTestCase name="AG002" root="allZones" model="AG.dfdl.xsd"
     description="Discriminated choices"
-    roundTrip="false">
+    roundTrip="true">
     <document><![CDATA[3
 zone 3
 ]]></document>
