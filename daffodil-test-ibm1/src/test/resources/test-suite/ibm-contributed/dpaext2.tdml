@@ -57,7 +57,7 @@
    <parserTestCase name="simple_type_properties_pad_trim_13_04" root="Fixed_string_with_Pads_9"
 		model="./fvt/ext/dpa/dpaflstrm101_03.dfdl.xsd" validation="on"
 		 description="Section 13.2 trimming on fixed length text fields, justification='center'"
-		 roundTrip="false">
+		 roundTrip="true">
 
 		<document>xAAAAAAAx</document>
 		<infoset>
