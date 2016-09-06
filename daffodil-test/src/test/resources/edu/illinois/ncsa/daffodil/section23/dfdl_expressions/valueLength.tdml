@@ -190,6 +190,5 @@
     </tdml:infoset>
 
   </tdml:unparserTestCase>
-  
-  
-  </tdml:testSuite>
+
+</tdml:testSuite>

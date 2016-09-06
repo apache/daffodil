@@ -310,7 +310,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 0) }" />
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bits') }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -342,11 +342,11 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
-          <xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:string" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'characters' ) }" />
+          <xs:element name="conLen" dfdl:lengthKind="delimited" type="xs:string" dfdl:inputValueCalc="{ dfdl:contentLength( ../ex:str, 'bits' ) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
     <xs:element name="e_concat">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -753,6 +753,67 @@
 
 </tdml:defineSchema>
   
+  <tdml:defineSchema name="Functions-binary.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      separator="" terminator="" leadingSkip="0" trailingSkip="0"
+      textBidi="no" floating="no" byteOrder="bigEndian"
+      alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="binary"
+      lengthKind="implicit" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
+      initiatedContent="no" separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix" />
+
+    <xs:element name="valueContentLength1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c1" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="15">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e1" type="xs:unsignedInt"  dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+                <xs:element name="e2" type="xs:unsignedInt"  dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e3" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+          <xs:element name="c1CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1, 'bits') }" />
+          <xs:element name="c1VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1, 'bits') }" />
+          <xs:element name="e1CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1/ex:e1, 'bits') }" />
+          <xs:element name="e1VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1/ex:e1, 'bits') }" />
+          <xs:element name="e2CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1/ex:e2, 'bits') }" />
+          <xs:element name="e2VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1/ex:e2, 'bits') }" />
+          <xs:element name="e3CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:e3, 'bits') }" />
+          <xs:element name="e3VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:e3, 'bits') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueContentLength2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="c1" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e1" type="xs:unsignedInt"  dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+                <xs:element name="e2" type="xs:unsignedInt"  dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e3" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="6" />
+          <xs:element name="c1CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1, 'bits') }" />
+          <xs:element name="c1VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1, 'bits') }" />
+          <xs:element name="e1CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1/ex:e1, 'bits') }" />
+          <xs:element name="e1VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1/ex:e1, 'bits') }" />
+          <xs:element name="e2CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:c1/ex:e2, 'bits') }" />
+          <xs:element name="e2VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:c1/ex:e2, 'bits') }" />
+          <xs:element name="e3CL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:contentLength(../ex:e3, 'bits') }" />
+          <xs:element name="e3VL" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:valueLength(../ex:e3, 'bits') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
 <!--
     Test Name: concat_01
        Schema: Functions.dfdl.xsd
@@ -3496,7 +3557,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <valueLength>
           <str>test</str>
-          <valLen>4</valLen>
+          <valLen>32</valLen>
         </valueLength>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3534,7 +3595,7 @@
 -->
 
   <tdml:parserTestCase name="contentLength_0" root="contentLength"
-    model="Functions.dfdl.xsd" description="Section 23 ">
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
@@ -3558,7 +3619,7 @@
 -->
 
   <tdml:parserTestCase name="contentLength_1" root="contentLength2"
-    model="Functions.dfdl.xsd" description="Section 23 ">
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
@@ -3568,12 +3629,82 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <contentLength2>
           <str>test</str>
-          <conLen>12</conLen>
+          <conLen>96</conLen>
         </contentLength2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+<!--
+    Test Name: valueContentLength1
+       Schema: Functions.dfdl.xsd
+         Root: valueContentLength1
+      Purpose: This test demonstrates the contentLength and valueLength functions
+-->
+
+  <tdml:parserTestCase name="valueContentLength1" root="valueContentLength1"
+    model="Functions-binary.dfdl.xsd" description="dfdl:valueLength and dfdl:contentLength functions.">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">10101000 01010100 110011</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:valueContentLength1>
+          <ex:c1>
+            <ex:e1>42</ex:e1>
+            <ex:e2>21</ex:e2>
+          </ex:c1>
+          <ex:e3>51</ex:e3>
+          <ex:c1CL>15</ex:c1CL>
+          <ex:c1VL>14</ex:c1VL>
+          <ex:e1CL>6</ex:e1CL>
+          <ex:e1VL>6</ex:e1VL>
+          <ex:e2CL>6</ex:e2CL>
+          <ex:e2VL>6</ex:e2VL>
+          <ex:e3CL>6</ex:e3CL>
+          <ex:e3VL>6</ex:e3VL>
+        </ex:valueContentLength1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueContentLength2
+       Schema: Functions.dfdl.xsd
+         Root: valueContentLength2
+      Purpose: This test demonstrates the contentLength and valueLength functions
+-->
+
+  <tdml:parserTestCase name="valueContentLength2" root="valueContentLength2"
+    model="Functions-binary.dfdl.xsd" description="dfdl:outputValueCalc and dfdl:valueLength during parse.">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">10101000 01010100 110011</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:valueContentLength2>
+          <ex:c1>
+            <ex:e1>42</ex:e1>
+            <ex:e2>21</ex:e2>
+          </ex:c1>
+          <ex:e3>51</ex:e3>
+          <ex:c1CL>14</ex:c1CL>
+          <ex:c1VL>14</ex:c1VL>
+          <ex:e1CL>6</ex:e1CL>
+          <ex:e1VL>6</ex:e1VL>
+          <ex:e2CL>6</ex:e2CL>
+          <ex:e2VL>6</ex:e2VL>
+          <ex:e3CL>6</ex:e3CL>
+          <ex:e3VL>6</ex:e3VL>
+        </ex:valueContentLength2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="XPathFunctions">
     <dfdl:format ref="ex:daffodilTest1"/>
 

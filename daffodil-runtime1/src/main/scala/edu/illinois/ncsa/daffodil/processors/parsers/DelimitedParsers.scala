@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressU
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.processors.AllTerminatingMarkupDelimiterIterator
+import passera.unsigned.ULong
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -55,9 +56,12 @@ class StringDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean)
-  extends PrimParserObject(erd) {
+  extends PrimParserObject(erd)
+  with CaptureParsingValueLength {
 
-  override val runtimeDependencies = List(fieldDFAEv)
+  override val runtimeDependencies = List(fieldDFAEv, erd.encInfo.charsetEv)
+
+  override val charsetEv = erd.encInfo.charsetEv
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
@@ -66,6 +70,7 @@ class StringDelimitedParser(
       val result = parseResult.get
       val field = result.field.getOrElse("")
       state.simpleElement.setDataValue(field)
+      captureValueLengthOfString(state, field)
       if (result.matchedDelimiterValue.isDefined)
         state.saveDelimitedParseResult(parseResult)
     }
@@ -134,6 +139,7 @@ class LiteralNilDelimitedEndOfDataParser(
         isNilLiteral) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
+        captureValueLengthOfString(state, field)
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
         return
       } else {
@@ -172,6 +178,7 @@ class HexBinaryDelimitedParser(
       val field = result.field.getOrElse("")
       val fieldBytes = field.getBytes(StandardCharsets.ISO_8859_1)
       state.simpleElement.setDataValue(fieldBytes)
+      captureValueLength(state, ULong(0), ULong(fieldBytes.length * 8))
       if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
       return
     }

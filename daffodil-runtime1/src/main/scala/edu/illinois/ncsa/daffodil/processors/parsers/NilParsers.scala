@@ -46,6 +46,10 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(
 
   private val eName = erd.name
 
+  override val runtimeDependencies = List(erd.encInfo.charsetEv)
+
+  override val charsetEv = erd.encInfo.charsetEv
+
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + eName + " nilValue='" + cookedNilValuesForParse + "'/>"
   }

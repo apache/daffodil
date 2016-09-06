@@ -170,14 +170,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
 
-  // DFDL-581
-  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
-  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-
-  // DFDL-578
-  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
-  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
   //DFDL-1076
   @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
   //DFDL-1233

@@ -34,24 +34,30 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
+import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.equality._
 import java.lang.{ Long => JLong }
 
 sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
   extends ParserObject(erd)
-  with WithParseErrorThrowing {
+  with WithParseErrorThrowing
+  with CaptureParsingValueLength {
 
   override lazy val childProcessors = Seq(eParser)
+
+  override def charsetEv = Assert.invariantFailed("Specified Length parsers should not capture value length using the charset")
 
   /**
    * Computes number of bits in length. If an error occurs this should
@@ -82,6 +88,9 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
     // a section at the end.
     if (pState.status ne Success) return
     val finalEndPos0b = startingBitPos0b + nBits
+
+    captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
+
     Assert.invariant(dis eq pState.dataInputStream)
     val bitsToSkip = finalEndPos0b - dis.bitPos0b
     Assert.invariant(bitsToSkip >= 0) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
@@ -218,4 +227,52 @@ final class SpecifiedLengthExplicitCharactersParser(
     nChars
   }
 
+}
+
+class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+
+  override val runtimeDependencies = Nil
+
+  override def parse(state: PState) {
+    val dis = state.dataInputStream
+    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    elem.contentLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
+  }
+}
+
+class CaptureEndOfContentLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+
+  override val runtimeDependencies = Nil
+
+  override def parse(state: PState) {
+    val dis = state.dataInputStream
+    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    elem.contentLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))
+  }
+}
+
+class CaptureStartOfValueLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+
+  override val runtimeDependencies = Nil
+
+  override def parse(state: PState) {
+    val dis = state.dataInputStream
+    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    elem.valueLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
+  }
+}
+
+class CaptureEndOfValueLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+
+  override val runtimeDependencies = Nil
+
+  override def parse(state: PState) {
+    val dis = state.dataInputStream
+    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    elem.valueLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))
+  }
 }

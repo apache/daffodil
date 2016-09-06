@@ -39,6 +39,9 @@ import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.DIElement
+import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.processors.CharsetEv
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
@@ -55,6 +58,8 @@ final class StringOfSpecifiedLengthParser(
 
   override lazy val runtimeDependencies = List(erd.encInfo.charsetEv)
 
+  override lazy val charsetEv = erd.encInfo.charsetEv
+
   override def context = erd
 
   private val eName = erd.name
@@ -70,17 +75,46 @@ final class StringOfSpecifiedLengthParser(
 
 }
 
+trait CaptureParsingValueLength {
+  def charsetEv: CharsetEv
+
+  final def captureValueLength(state: PState, startBitPos0b: ULong, endBitPos0b: ULong) {
+    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    elem.valueLength.setAbsStartPos0bInBits(startBitPos0b)
+    elem.valueLength.setAbsEndPos0bInBits(endBitPos0b)
+  }
+
+  final def captureValueLengthOfString(state: PState, str: String) {
+    val lengthInBits = state.lengthInBits(str, charsetEv.evaluate(state))
+    // TODO: this is a hack, it doesn't actually set the correct start/end
+    // pos due to padding. But it does set the correct information so that
+    // the valueLength can be calculated, which is all this is really
+    // needed for. For debug purposes, we might want to eventually set the
+    // actual start/end bit positions.
+    captureValueLength(state, ULong(0), ULong(lengthInBits))
+  }
+}
+
 trait StringOfSpecifiedLengthMixin
-  extends PaddingRuntimeMixin {
+  extends PaddingRuntimeMixin
+  with CaptureParsingValueLength {
 
   protected final def parseString(start: PState): String = {
     val dis = start.dataInputStream
     val maxLen = dis.limits.maximumSimpleElementSizeInCharacters
+    val startBitPos0b = dis.bitPos0b
+
     val str = dis.getSomeString(maxLen).getOrElse("")
     // TODO: Performance - trimByJustification wants to operate on a StringBuilder
     // That means that dis.getSomeString wants to return a StringBuilder instead of
     // a string itself.
     val field = trimByJustification(str)
+
+    justificationTrim match {
+      case TextJustificationType.None => captureValueLength(start, ULong(startBitPos0b), ULong(dis.bitPos0b))
+      case _ => captureValueLengthOfString(start, field)
+    }
+
     field
   }
 }

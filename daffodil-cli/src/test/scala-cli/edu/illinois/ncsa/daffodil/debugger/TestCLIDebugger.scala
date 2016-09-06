@@ -520,11 +520,13 @@ class TestCLIdebugger {
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
+      shell.sendLine("step")
       shell.expect(contains("<tns:cell>0</tns:cell>"))
 
       shell.sendLine("continue")
       shell.expect(contains("</tns:cell>"))
 
+      shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
@@ -560,6 +562,7 @@ class TestCLIdebugger {
       shell.sendLine("continue")
       shell.expect(contains("</tns:cell>"))
 
+      shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")
       shell.sendLine("step")

@@ -53,5 +53,4 @@ class TestDFDLValueLength {
   @Test def test_valueLengthPair2() { runner.runOneTest("valueLengthPair2") }
   @Test def test_valueLengthPair3() { runner.runOneTest("valueLengthPair3") }
   @Test def test_valueLengthAndOccurs1() { runner.runOneTest("valueLengthAndOccurs1") }
-
 }

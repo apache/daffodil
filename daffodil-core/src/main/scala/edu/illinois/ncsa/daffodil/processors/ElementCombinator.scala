@@ -39,6 +39,10 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 import edu.illinois.ncsa.daffodil.grammar.NamedGram
 import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.processors.parsers.CaptureEndOfContentLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.CaptureEndOfValueLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.CaptureStartOfContentLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.CaptureStartOfValueLengthParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureEndOfContentLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureEndOfValueLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.CaptureStartOfContentLengthUnparser
@@ -270,7 +274,7 @@ case class OVCRetry(ctxt: ElementBase, v: Gram)
 
 case class CaptureContentLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new NadaParser(ctxt.erd)
+  override def parser = new CaptureStartOfContentLengthParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
     new CaptureStartOfContentLengthUnparser(ctxt.erd)
@@ -278,7 +282,7 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
 
 case class CaptureContentLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new NadaParser(ctxt.erd)
+  override def parser = new CaptureEndOfContentLengthParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
     new CaptureEndOfContentLengthUnparser(ctxt.erd)
@@ -286,7 +290,19 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
 
 case class CaptureValueLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new NadaParser(ctxt.erd)
+  override def parser = {
+    // For simple elements with text representation, valueLength is captured in
+    // individual parsers since they handle removing delimiters and padding.
+    //
+    // For complex elements with specified length, valueLength is captured in
+    // the specified length parsers, since they handle skipping unused element
+    // regions.
+    //
+    // For all other elements, we can just use the Capture*ValueLength parsers.
+    if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
+        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
+    else new CaptureStartOfValueLengthParser(ctxt.erd)
+  }
 
   override lazy val unparser: Unparser =
     new CaptureStartOfValueLengthUnparser(ctxt.erd)
@@ -294,7 +310,19 @@ case class CaptureValueLengthStart(ctxt: ElementBase)
 
 case class CaptureValueLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new NadaParser(ctxt.erd)
+  override def parser = {
+    // For simple elements with text representation, valueLength is captured in
+    // individual parsers since they handle removing delimiters and padding.
+    //
+    // For complex elements with specified length, valueLength is captured in
+    // the specified length parsers, since they handle skipping unused element
+    // regions.
+    //
+    // For all other elements, we can just use the Capture*ValueLength parsers.
+    if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
+        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
+    else new CaptureEndOfValueLengthParser(ctxt.erd)
+  }
 
   override lazy val unparser: Unparser =
     new CaptureEndOfValueLengthUnparser(ctxt.erd)
