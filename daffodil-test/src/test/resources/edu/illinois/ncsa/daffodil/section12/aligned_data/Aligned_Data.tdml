@@ -2125,7 +2125,7 @@
     <!--
      Test Name: alignmentTerminatorBitSkip
         Schema: alignmentSchema
-          Root: e12
+          Root: e12WithTerm
        Purpose: This test demonstrates that a terminator after a non-byte-sized data field
        Is properly aligned for the characters of the terminator.
   -->

@@ -78,8 +78,8 @@ class TestAlignedData {
   @Test def test_leftAndRightFraming02() = { runner1.runOneTest("leftAndRightFraming02") }
 
   @Test def test_alignmentStringErr() = { runner1.runOneTest("alignmentStringErr") }
-  //  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
-  //  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
+  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
+  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
 
   @Test def test_explicitAlignmentNoSkips01() = { runner1.runOneTest("explicitAlignmentNoSkips01") }
   @Test def test_explicitAlignmentNoSkips02() = { runner1.runOneTest("explicitAlignmentNoSkips02") }
