@@ -615,21 +615,6 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
     numFormat
-    new ThreadLocal[NumberFormat] {
-      override def initialValue() = {
-        generateNumFormat(
-          decSep,
-          groupSep,
-          expRep,
-          infRep,
-          nanRep,
-          checkPolicy,
-          pattern,
-          rounding,
-          roundingMode,
-          roundingInc)
-      }
-    }
   }
 }
 
