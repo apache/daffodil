@@ -148,7 +148,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   }
 
   private def areTruncating = {
-    if (erd.optPrimType.get eq PrimType.String) {
+    if (erd.isSimpleType && (erd.optPrimType.get eq PrimType.String)) {
       Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
       erd.optTruncateSpecifiedLengthString.get
     } else

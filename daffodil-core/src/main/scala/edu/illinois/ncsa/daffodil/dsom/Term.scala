@@ -386,6 +386,9 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * which only a single branch be all defaultable or OVC. If any elements in a
    * hidden group are not defaultable or OVC, then it is an SDE. This function
    * assumes it is only called on elements inside of a hidden group.
+   *
+   * Note that this currently only requires OVC since default's aren't
+   * implemented. This function may need to change when we support defaults.
    */
   lazy val childrenInHiddenGroupNotDefaultableOrOVC: Seq[ElementBase] = {
     // this should only be called on hidden elements
@@ -399,7 +402,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         val branches = c.groupMembersNoRefs.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
         val countFullyDefaultableOrOVCBranches = branches.count { _.length == 0 }
         if (countFullyDefaultableOrOVCBranches == 0) {
-          c.SDE("xs:choice inside a hidden group must contain a branch with all children either defaultable or have the dfdl:outputValueCalc property set.")
+          c.SDE("xs:choice inside a hidden group must contain a branch with all children having the dfdl:outputValueCalc property set.")
           // TODO: Diagnostics to display which branches contained non-defaultable elements, and what those elements were
         }
         Nil

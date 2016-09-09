@@ -1272,7 +1272,6 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>hidden group</tdml:error>
-      <tdml:error>defaultable</tdml:error>
       <tdml:error>outputValueCalc</tdml:error>
       <tdml:error>inty</tdml:error>
     </tdml:errors>
@@ -1312,7 +1311,6 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
     <tdml:errors>
       <tdml:error>choice</tdml:error>
       <tdml:error>hidden group</tdml:error>
-      <tdml:error>defaultable</tdml:error>
       <tdml:error>outputValueCalc</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

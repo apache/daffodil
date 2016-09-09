@@ -342,9 +342,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
     import UnparserInfo._
-    if (isScalar && isDefaultable) ScalarDefaultable
-    else if (isArray && isDefaultable) ArrayDefaultable
-    else if (!isRepresented) MustExist
+    //if (isScalar && isDefaultable) ScalarDefaultable
+    //else if (isArray && isDefaultable) ArrayDefaultable
+    if (!isRepresented) MustExist
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
     else if (isArray && !isRequiredArrayElement) Optional

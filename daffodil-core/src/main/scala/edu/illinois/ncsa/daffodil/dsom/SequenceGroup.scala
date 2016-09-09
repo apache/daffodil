@@ -204,7 +204,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (this.isHidden) {
       val nonDefaultableOrOVC = this.childrenInHiddenGroupNotDefaultableOrOVC
       if (nonDefaultableOrOVC.length > 0) {
-        this.SDE("Element(s) of hidden group is not defaultable or dfdl:outputValueCalc:\n%s", nonDefaultableOrOVC.mkString("\n"))
+        this.SDE("Element(s) of hidden group must define dfdl:outputValueCalc:\n%s", nonDefaultableOrOVC.mkString("\n"))
       }
     }
   }

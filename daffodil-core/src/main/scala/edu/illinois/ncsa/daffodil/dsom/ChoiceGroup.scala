@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ChoiceRuntimeData
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
@@ -164,7 +165,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     val noDupes = eventMap.map {
       case (event, trds) =>
         if (trds.length > 1) {
-          if (trds.exists {
+          if (event.isInstanceOf[ChoiceBranchStartEvent] && trds.exists {
             // any element children in any of the trds?
             // because if so, we have a true ambiguity here.
             case sg: Sequence => {
@@ -182,11 +183,16 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
               "The offending choice branches are:\n%s",
               event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
           } else {
+            val eventType = event match {
+              case _: ChoiceBranchEndEvent => "end"
+              case _: ChoiceBranchStartEvent => "start"
+            }
             // there are no element children in any of the branches.
-            SDW("Multiple choice branches are associated with the next element of %s.\n" +
+            SDW("Multiple choice branches are associated with the %s of element %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-              "The offending choice branches are:\n%s",
-              event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
+              "The offending choice branches are:\n%s\n" +
+              "The first branch will be used during unparsing when an infoset ambiguity exists.",
+              eventType, event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
           }
         }
         (event, trds(0).runtimeData)
