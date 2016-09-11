@@ -269,11 +269,9 @@
 
 	</tdml:defineSchema>
 
-  <!-- See DFDL-1557 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
 		root="fixed1" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R"
-        roundTrip="false">
+		description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
 		</tdml:document>
@@ -303,11 +301,9 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<!-- See DFDL-1557 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
 		root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R"
-		roundTrip="false">
+		description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
 			</tdml:documentPart>
@@ -704,7 +700,6 @@
                 by an expression.
 -->
 
-  <!-- See DFDL-1557 to make this roundTrip="true" -->
 	<tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
 		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>

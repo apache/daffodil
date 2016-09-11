@@ -326,11 +326,9 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- See DFDL-1557 to make roundTrip="true" -->
   <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength" root="e1"
     model="DelimiterProperties-Embedded2.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass"
-    roundTrip="false">
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
     <tdml:document><![CDATA[12 45 78  
 257 1 9  4]]></tdml:document>
     <tdml:infoset>
@@ -350,11 +348,9 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- See DFDL-1557 to make roundTrip="true" -->
   <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength2" root="e1"
     model="DelimiterProperties-Embedded2.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass"
-    roundTrip="false">
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
     <tdml:document><![CDATA[12 45 78  257 1 9  4]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
