@@ -77,19 +77,19 @@ object ElementBase {
  * Shared by all forms of elements, local or global or element reference.
  */
 abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
-    extends Term(xmlArg, parent, position)
-    with AnnotatedMixin
-    with Element_AnnotationMixin
-    with NillableMixin
-    with DFDLStatementMixin
-    with ElementBaseGrammarMixin
-    with ElementRuntimeValuedPropertiesMixin
-    with StringTextMixin
-    with NumberTextMixin
-    with CalendarTextMixin
-    with BooleanTextMixin
-    with TextNumberFormatMixin
-    with RealTermMixin {
+  extends Term(xmlArg, parent, position)
+  with AnnotatedMixin
+  with Element_AnnotationMixin
+  with NillableMixin
+  with DFDLStatementMixin
+  with ElementBaseGrammarMixin
+  with ElementRuntimeValuedPropertiesMixin
+  with StringTextMixin
+  with NumberTextMixin
+  with CalendarTextMixin
+  with BooleanTextMixin
+  with TextNumberFormatMixin
+  with RealTermMixin {
 
   override final def eBase = this
 
@@ -670,7 +670,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (!isFixedLength) false
     else {
       val fl = fixedLengthValue
-      n =#= fl
+      n.toLong =#= fl
     }
   }
 

@@ -30,10 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.equality
+package edu.illinois.ncsa.daffodil.testEquality
 
 import org.junit.Test
 import org.junit.Assert._
+import edu.illinois.ncsa.daffodil.equality._
 
 class TestEqualityOperators {
 
@@ -41,9 +42,9 @@ class TestEqualityOperators {
   def testConveribleNumberEquality() {
     val x = 5
     val y = 6L
-    assertFalse(x =#= y)
+    assertFalse(x.toLong =#= y)
     // assertFalse (x =#= "x")  // compile error - wrong types
-    assertFalse(5 =#= 6.0)
+    assertFalse(5 =#= 6.0.toInt)
   }
 
   @Test
@@ -53,5 +54,41 @@ class TestEqualityOperators {
     assertTrue(x =:= y) // allowed since they're subtypes
     // assertFalse(x =:= "List(1, 2, 3") // compile error
     assertFalse(Nil =:= x)
+  }
+
+  // prevent optimizations from using constant objects
+  val xObj = if (scala.math.random == -0.0) "foo" else "bar"
+  val yObj = if (scala.math.random == -0.0) "bar" else "foo"
+
+  @Test
+  def testStronglyTypedEqualityInlineAnyRef() {
+    if (TestEqualityOperators.compare(xObj, yObj))
+      fail("equal")
+  }
+
+  private val ylong = scala.math.random.toLong
+
+  @Test
+  def testStronglyTypedEqualityInline() {
+    val x = 5
+    val y = ylong
+    if (TestEqualityOperators.compareIntLong(x, y))
+      fail("equal")
+  }
+}
+
+/**
+ * By looking at the byte code for the methods of this
+ * object, one can determine whether these typed equality operators
+ * are allocating or not, and what code is generated.
+ */
+object TestEqualityOperators {
+
+  def compare(x: String, y: String) = {
+    x =:= y
+  }
+
+  def compareIntLong(x: Int, y: Long) = {
+    x.toLong =#= y
   }
 }

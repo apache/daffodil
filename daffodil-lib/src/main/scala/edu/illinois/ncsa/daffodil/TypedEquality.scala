@@ -55,43 +55,58 @@ package object equality {
 
   // Convertible types - strongly typed equality
 
-  implicit class ViewEqual[L](val left: L) extends AnyVal {
-    def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
-      equality.areEqual(left, right)
-    def !=#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
-      !equality.areEqual(left, right)
+  implicit class ViewEqual[T](val left: T) extends AnyVal {
+    @inline def =#=(right: T) = left == right
+    @inline def !=#=(right: T) = left != right
   }
-  @implicitNotFound("View equality requires ${L} and ${R} to be in an implicit conversion relationship, i.e. one can be viewed as the other!")
-  private[equality] sealed trait ViewEquality[L, R] {
-    def areEqual(left: L, right: R): Boolean
-  }
-  private[equality] object ViewEquality extends LowPriorityViewEqualityImplicits {
-    implicit def rightToLeftEquality[L, R](implicit view: R => L): ViewEquality[L, R] =
-      new RightToLeftViewEquality(view)
-  }
-  private[equality] trait LowPriorityViewEqualityImplicits {
-    implicit def leftToRightEquality[L, R](implicit view: L => R): ViewEquality[L, R] =
-      new LeftToRightViewEquality(view)
-  }
-  private class LeftToRightViewEquality[L, R](view: L => R) extends ViewEquality[L, R] {
-    override def areEqual(left: L, right: R): Boolean =
-      view(left) == right
-  }
-  private class RightToLeftViewEquality[L, R](view: R => L) extends ViewEquality[L, R] {
-    override def areEqual(left: L, right: R): Boolean =
-      left == view(right)
-  }
+  //  implicit class ViewEqual[L](val left: L) extends AnyVal {
+  //    def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
+  //      equality.areEqual(left, right)
+  //    @inline def !=#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
+  //      !equality.areEqual(left, right)
+  //  }
+  //  @implicitNotFound("View equality requires ${L} and ${R} to be in an implicit conversion relationship, i.e. one can be viewed as the other!")
+  //  private[equality] sealed trait ViewEquality[L, R] extends Any {
+  //    def areEqual(left: L, right: R): Boolean
+  //  }
+  //
+  //  private[equality] object ViewEquality extends LowPriorityViewEqualityImplicits {
+  //    implicit def rightToLeftEquality[L, R](implicit view: R => L): ViewEquality[L, R] =
+  //      new RightToLeftViewEquality(view)
+  //  }
+  //  private[equality] trait LowPriorityViewEqualityImplicits extends Any {
+  //    implicit def leftToRightEquality[L, R](implicit view: L => R): ViewEquality[L, R] =
+  //      new LeftToRightViewEquality(view)
+  //  }
+  //
+  //  /**
+  //   * At least in theory this is a value class and so has no representation.
+  //   *
+  //   * Unfortunately it does seem that if you use =#= then if you examine
+  //   * the byte code there is a call to NEW. But it might be for some closure.
+  //   * Associated with the implicit view converter being passed.
+  //   * It doesn't seem to correspond directly to the calls to new in the ViewEquality
+  //   * object's methods.
+  //   */
+  //  private[equality] class LeftToRightViewEquality[L, R](val view: L => R) extends AnyVal with ViewEquality[L, R] {
+  //    override def areEqual(left: L, right: R): Boolean =
+  //      view(left) == right
+  //  }
+  //  private[equality] class RightToLeftViewEquality[L, R](val view: R => L) extends AnyVal with ViewEquality[L, R] {
+  //    override def areEqual(left: L, right: R): Boolean =
+  //      left == view(right)
+  //  }
 
   // Type wise - allows bi-directional subtypes, not just subtype on right.
 
   implicit class TypeEqual[L <: AnyRef](val left: L) extends AnyVal {
-    def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    @inline def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       equality.areEqual(left, right)
-    def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    @inline def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       !equality.areEqual(left, right)
-    def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    @inline def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       equality.areEq(left, right)
-    def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    @inline def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       !equality.areEq(left, right)
   }
 
@@ -100,18 +115,23 @@ package object equality {
     def areEqual(left: L, right: R): Boolean
     def areEq(left: L, right: R): Boolean
   }
+
   private[equality] object TypeEquality extends LowPriorityTypeEqualityImplicits {
-    implicit def rightSubtypeOfLeftEquality[L <: AnyRef, R <: L]: TypeEquality[L, R] =
+    @inline implicit def rightSubtypeOfLeftEquality[L <: AnyRef, R <: L]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
   private[equality] trait LowPriorityTypeEqualityImplicits {
-    implicit def leftSubtypeOfRightEquality[R <: AnyRef, L <: R]: TypeEquality[L, R] =
+    @inline implicit def leftSubtypeOfRightEquality[R <: AnyRef, L <: R]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
-  private object AnyTypeEquality extends TypeEquality[AnyRef, AnyRef] {
-    override def areEqual(left: AnyRef, right: AnyRef): Boolean =
+
+  // must be public or scala compiler complains that it can't embed the
+  // static reference.
+  //
+  object AnyTypeEquality extends TypeEquality[AnyRef, AnyRef] {
+    @inline override def areEqual(left: AnyRef, right: AnyRef): Boolean =
       left == right
-    override def areEq(left: AnyRef, right: AnyRef): Boolean =
+    @inline override def areEq(left: AnyRef, right: AnyRef): Boolean =
       left eq right
   }
 
