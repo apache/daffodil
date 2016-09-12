@@ -647,8 +647,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (processor.isError) {
       val diagObjs = processor.getDiagnostics
       if (diagObjs.length == 1) throw diagObjs(0)
-      val diags = diagObjs.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
+      throw new TDMLException(diagObjs)
     }
     processor.setValidationMode(validationMode)
 
@@ -718,7 +717,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val xmlEventCursor = new XMLEventCursorFromInput(scala.io.Source.fromString(string))
         val unparseResult = processor.unparse(output, xmlEventCursor).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
-          throw new TDMLException(unparseResult.getDiagnostics)
+          val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
+          if (diagObjs.length == 1) throw diagObjs(0)
+          throw new TDMLException(diagObjs)
         }
         output.close()
 

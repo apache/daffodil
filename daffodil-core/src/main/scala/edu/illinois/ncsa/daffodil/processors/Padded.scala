@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
 trait PaddingInfoMixin {
   def eBase: ElementBase
@@ -62,23 +63,32 @@ trait PaddingInfoMixin {
     case TextTrimKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
   }
 
-  lazy val (unparsingPadChar: MaybeChar, justificationPad) = eBase.textPadKind match {
-    case TextPadKind.None => (MaybeChar.Nope, TextJustificationType.None)
-    case TextPadKind.PadChar if eBase.isSimpleType &&
-      eBase.impliedRepresentation == Representation.Text => padCharAndJustificationForType
-    case _ => (MaybeChar.Nope, TextJustificationType.None)
+  lazy val (unparsingPadChar: MaybeChar, justificationPad) = {
+    val tpk = eBase.textPadKind
+    val res = tpk match {
+      case TextPadKind.None => (MaybeChar.Nope, TextJustificationType.None)
+      case TextPadKind.PadChar if eBase.isSimpleType &&
+        eBase.impliedRepresentation == Representation.Text => padCharAndJustificationForType
+      case _ => (MaybeChar.Nope, TextJustificationType.None)
+    }
+    res
   }
 
-  lazy val stringTruncationType: TextTruncationType.Type =
-    if (eBase.primType != PrimType.String) TextTruncationType.None
-    else if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
-    else eBase.textStringJustification match {
-      case TextStringJustification.Left => TextTruncationType.Left
-      case TextStringJustification.Right => TextTruncationType.Right
-      case TextStringJustification.Center => {
-        eBase.SDE("Properties dfdl:truncateSpecifiedLengthString 'yes' and dfdl:textStringJustification 'center' are incompatible.")
+  lazy val stringTruncationType: TextTruncationType.Type = {
+    val res =
+      if (eBase.primType != PrimType.String) TextTruncationType.None
+      else if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
+      else if ((eBase.lengthKind eq LengthKind.Pattern) ||
+        (eBase.lengthKind eq LengthKind.Prefixed)) TextTruncationType.None
+      else eBase.textStringJustification match {
+        case TextStringJustification.Left => TextTruncationType.Left
+        case TextStringJustification.Right => TextTruncationType.Right
+        case TextStringJustification.Center => {
+          eBase.SDE("Properties dfdl:truncateSpecifiedLengthString 'yes' and dfdl:textStringJustification 'center' are incompatible.")
+        }
       }
-    }
+    res
+  }
 
   private lazy val padCharAndJustificationForType: (MaybeChar, TextJustificationType.Type) = {
     val theJust = eBase.primType match {

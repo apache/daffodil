@@ -234,17 +234,25 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       //
       // We know the target length. We can use it.
       //
-      val nBits = maybeTLBits.get
-      val dos = state.dataOutputStream
+      //      val nBits = maybeTLBits.get
+      //      val dos = state.dataOutputStream
 
-      val isLimitOk = dos.withBitLengthLimit(nBits) {
-        eUnparser.unparse1(state, erd)
-      }
+      //
+      // withBitLengthLimit is incorrect. It doesn't take into account
+      // that after the unparse, we could be looking at a current state
+      // with a distinct DOS
+      //
+      //      val isLimitOk = dos.withBitLengthLimit(nBits) {
+      //        eUnparser.unparse1(state, erd)
+      //      }
+      //
+      //      if (!isLimitOk) {
+      //        val availBits = if (dos.remainingBits.isDefined) dos.remainingBits.get.toString else "(unknown)"
+      //        UE(state, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
+      //      }
 
-      if (!isLimitOk) {
-        val availBits = if (dos.remainingBits.isDefined) dos.remainingBits.get.toString else "(unknown)"
-        UE(state, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
-      }
+      eUnparser.unparse1(state, erd)
+
       // at this point the recursive parse of the children is finished
 
       if (state.status ne Success) return

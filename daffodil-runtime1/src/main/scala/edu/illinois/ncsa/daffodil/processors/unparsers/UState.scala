@@ -367,9 +367,6 @@ class UState private (
    */
   private val suspensions = initialSuspendedExpressions
 
-  // FIXME: remove. For debug only. THIS IS A MEMORY LEAK
-  val aaa_debug_DOS = new MStackOf[DataOutputStream]()
-
   def addSuspension(se: Suspension) {
     suspensions.enqueue(se)
   }

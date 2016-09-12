@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
@@ -47,34 +46,17 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
-  justificationPad: TextJustificationType.Type,
-  override val pad: MaybeChar,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
   isDelimRequired: Boolean)
-  extends PrimUnparserObject(erd) with PaddingRuntimeMixin with TextUnparserRuntimeMixin {
+  extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {
 
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(erd)
 
   protected def theString(state: UState) =
     state.currentInfosetNode.asSimple.dataValueAsString
-
-  override val padToLength: Int = {
-    if (erd.minLength.isDefined) { erd.minLength.get.intValue() } else { 0 }
-  }
-
-  def padOrTruncateByJustification(str: String): String = {
-    val result = justificationPad match {
-      case TextJustificationType.None => str
-      case TextJustificationType.Right => addLeftPadding(str)
-      case TextJustificationType.Left => addRightPadding(str)
-      case TextJustificationType.Center => addPadding(str)
-    }
-    result
-  }
 
   def unparse(state: UState): Unit = {
 
@@ -128,11 +110,10 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
           }
         } else valueString // No EscapeScheme
 
-      val paddedValue = padOrTruncateByJustification(escapedValue)
-
       val outStream = state.dataOutputStream
-      val nCharsWritten = outStream.putString(paddedValue)
-      if (nCharsWritten != paddedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.", nom, paddedValue.length)
+      val nCharsWritten = outStream.putString(escapedValue)
+      if (nCharsWritten != escapedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
+        nom, escapedValue.length)
       log(LogLevel.Debug, "Ended at bit position " + outStream.relBitPos0b)
     } catch {
       // Characters in infoset element cannot be encoded without error.
@@ -149,10 +130,8 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
 class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
   slForUnparserEv: NilStringLiteralForUnparserEv,
-  justPad: TextJustificationType.Type,
-  padChar: MaybeChar,
   isDelimRequired: Boolean)
-  extends StringDelimitedUnparser(erd, justPad, padChar, Nope, isDelimRequired) {
+  extends StringDelimitedUnparser(erd, Nope, isDelimRequired) {
 
   final override def theString(ustate: UState) = slForUnparserEv.evaluate(ustate)
 

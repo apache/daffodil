@@ -2894,7 +2894,7 @@
   <tdml:defineSchema name="SimpleTypes-padding">
     <dfdl:format ref="ex:daffodilTest1" representation="text"
       lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" 
-      textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar"
+      textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" textPadKind="padChar"
       textNumberJustification="left" textNumberPadCharacter="#" />
 
     <xs:element name="string" dfdl:lengthKind="explicit" dfdl:length="29" type="xs:string" />
@@ -3002,7 +3002,7 @@
 
   <tdml:parserTestCase name="literalChar_padding" root="string"
       model="SimpleTypes-padding" description="Section 13 Simple Types - textStringPadCharacter DFDL-13-042R"
-      roundTrip="false">
+      >
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[remove padding pleaseXXXXXXXX]]></tdml:documentPart>
     </tdml:document>
@@ -3290,8 +3290,7 @@
 
   <tdml:parserTestCase name="padding_nil" root="nil"
       model="SimpleTypes-padding" description="Spec errata - On parsing the element value is nil if
-      the trimmed data matches one of the literal strings in the list"
-    roundTrip="false">
+      the trimmed data matches one of the literal strings in the list">
     <tdml:document>
       <tdml:documentPart type="text">///o///</tdml:documentPart>
     </tdml:document>

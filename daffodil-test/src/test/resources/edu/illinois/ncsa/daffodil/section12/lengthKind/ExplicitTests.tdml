@@ -532,10 +532,8 @@
                 There are two "extra" bytes ("XX") in the data for each address.
 -->
 
-  <!-- See DFDL-1557 to enable roundTrip="true" -->
   <tdml:parserTestCase name="ExplicitLengthBytesFixed50"
-    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
-    roundTrip="false">
+    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NYXX000118Ridgewood Circle    Rochester           NYXX]]></tdml:documentPart>
     </tdml:document>

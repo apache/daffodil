@@ -196,7 +196,7 @@ abstract class ParseOrUnparseState protected (
 
   def status = status_
 
-  def setFailed(failureDiagnostic: Diagnostic) {
+  final def setFailed(failureDiagnostic: Diagnostic) {
     // threadCheck()
     status_ = new Failure(failureDiagnostic)
     diagnostics = failureDiagnostic :: diagnostics

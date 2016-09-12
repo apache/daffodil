@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
-sealed trait LengthEv extends EvaluatableBase[JLong]
+sealed trait LengthEv extends Evaluatable[JLong]
 
 class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
   extends EvaluatableExpression[JLong](

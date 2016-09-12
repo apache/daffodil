@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
@@ -46,7 +45,7 @@ abstract class ProcessingError(
   loc: Maybe[DataLocation],
   kind: String,
   args: Any*)
-  extends Exception with ThinThrowable with DiagnosticImplMixin {
+  extends Exception with DiagnosticImplMixin {
 
   /**
    * Used to convert a processing error into a parse error so that it

@@ -33,15 +33,15 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextTruncationType
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
 
 class LiteralValueNilOfSpecifiedLengthUnparser(
   override val erd: ElementRuntimeData,
   slEv: NilStringLiteralForUnparserEv,
   isForPattern: Boolean)
-  extends StringOfSpecifiedLengthUnparser( TextTruncationType.None, erd,
-    false, // false meaning this is not for a string, but a literal nil
-    isForPattern) {
+  extends StringNoTruncateUnparser(erd) {
+
+  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = List(slEv)
 
   override protected def contentString(state: UState) = slEv.evaluate(state)
 

@@ -71,6 +71,10 @@ import edu.illinois.ncsa.daffodil.processors.MinLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.unparsers.NilStringLiteralForUnparserEv
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInCharactersEv
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.util.MaybeJULong
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 
 /*
  * These are the DFDL properties which can have their values come
@@ -226,14 +230,14 @@ trait ElementRuntimeValuedPropertiesMixin
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
   }
 
-  private lazy val explicitLengthEv = {
+  private lazy val explicitLengthEv: LengthEv = {
     Assert.usage(lengthKind eq LengthKind.Explicit)
     val ev = new ExplicitLengthEv(lengthExpr, erd)
     ev.compile()
     ev
   }
 
-  private lazy val implicitLengthEv = {
+  private lazy val implicitLengthEv: LengthEv = {
     Assert.usage(lengthKind eq LengthKind.Implicit)
     import Representation._
     import NodeInfo._
@@ -248,8 +252,6 @@ trait ElementRuntimeValuedPropertiesMixin
     ev
   }
 
-  // TODO: remove when no longer being used
-  // @deprecated("2016-08-11", "Use elementLengthInBitsEv instead. Converts to bits for you.")
   final lazy val lengthEv = {
     val ev =
       lengthKind match {
@@ -260,6 +262,11 @@ trait ElementRuntimeValuedPropertiesMixin
       }
     Assert.invariant(ev.isCompiled)
     ev
+  }
+
+  final lazy val maybeLengthEv: Maybe[LengthEv] = {
+    if (this.optionLengthRaw.isDefined) One(lengthEv)
+    else None
   }
 
   protected final lazy val optLengthConstant: Option[Long] = lengthEv.optConstant.map { _.longValue }
@@ -310,22 +317,29 @@ trait ElementRuntimeValuedPropertiesMixin
     ev
   }
 
-  private lazy val (minLenUnits: LengthUnits, minLen: Long) = {
-    Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
+  protected lazy val (minLenUnits: LengthUnits, minLen: Long) = {
     import LengthKind._
     import Representation._
     import NodeInfo._
     lazy val maxLengthLong = maxLength.longValueExact
     lazy val minLengthLong = minLength.longValueExact
-    (lengthKind, impliedRepresentation, typeDef.kind) match {
-      case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
-      case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
-      case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length
-      case (Explicit, Text, String) => (lengthUnits, minLengthLong)
-      case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, minLengthLong)
-      case (Explicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength)
-      case _ => (LengthUnits.Bits, 0L) // anything else. This shuts off checking a min.
-    }
+    val res: (LengthUnits, Long) =
+      (lengthKind, impliedRepresentation, typeDef.kind) match {
+        case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
+        case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
+        case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length
+        case (Explicit, Text, String) => (lengthUnits, minLengthLong)
+        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, minLengthLong)
+        case (Explicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength)
+        case (Prefixed, _, String) => (lengthUnits, minLengthLong)
+        case (Prefixed, Text, _) => (lengthUnits, textOutputMinLength)
+        case (Pattern, _, String) => (lengthUnits, minLengthLong)
+        case (Pattern, Text, _) => (lengthUnits, textOutputMinLength)
+        case (Delimited, _, String) => (lengthUnits, minLengthLong)
+        case (Delimited, Text, _) => (lengthUnits, textOutputMinLength)
+        case _ => (LengthUnits.Bits, 0L) // anything else. This shuts off checking a min.
+      }
+    res
   }
 
   final lazy val maybeUnparseTargetLengthInBitsEv = {
@@ -333,6 +347,26 @@ trait ElementRuntimeValuedPropertiesMixin
       (lengthKind _eq_ LengthKind.Explicit)) ||
       ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
       val ev = unparseTargetLengthInBitsEv
+      One(ev)
+    } else
+      Nope
+  }
+
+  /**
+   * Used for padding, which might be for specified-length, or might be
+   * for delimited.
+   */
+  final lazy val maybeUnparseMinOrTargetLengthInBitsEv: Maybe[Evaluatable[MaybeJULong]] = {
+    if ((this.optionLengthRaw.isDefined &&
+      (lengthKind _eq_ LengthKind.Explicit)) ||
+      ((lengthKind _eq_ LengthKind.Implicit) && isSimpleType)) {
+      maybeUnparseTargetLengthInBitsEv
+    } else if (this.isDelimitedPrefixedPatternWithPadding) {
+      //
+      // if delimited but there is a min length, we just need the min
+      // length. There is no target length other than it.
+      //
+      val ev = minLengthInBitsEv
       One(ev)
     } else
       Nope
@@ -390,6 +424,13 @@ trait ElementRuntimeValuedPropertiesMixin
     val ev = new NilStringLiteralForUnparserEv(termRuntimeData, maybeOutputNewLineEv, rawNilValuesForUnparse.head)
     ev.compile()
     ev
+  }
+
+  lazy val maybeLiteralNilEv = {
+    if (this.isNillable && (this.nilKind eq NilKind.LiteralValue))
+      One(nilStringLiteralForUnparserEv)
+    else
+      Nope
   }
 }
 

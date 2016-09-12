@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 import edu.illinois.ncsa.daffodil.xml.XMLEventCursor
+import edu.illinois.ncsa.daffodil.processors.Failure
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -219,8 +220,15 @@ object DFDL {
     protected def resultState: State
     var diagnostics: Seq[Diagnostic] = Nil
 
+    private def resultStatusDiagnostics: Seq[Diagnostic] = {
+      resultState.status match {
+        case Failure(c) => List(c)
+        case Success => Nil
+      }
+    }
+
     def getDiagnostics = {
-      diagnostics ++ resultState.diagnostics
+      (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 
     def addDiagnostic(d: Diagnostic) {

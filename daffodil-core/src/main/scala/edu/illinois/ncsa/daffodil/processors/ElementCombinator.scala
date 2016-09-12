@@ -206,18 +206,26 @@ case class ElementUnused(ctxt: ElementBase)
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new ElementUnusedUnparser(ctxt.erd,
-    ctxt.maybeUnparseTargetLengthInBitsEv.get, ctxt.fillByteEv)
+    ctxt.maybeUnparseTargetLengthInBitsEv.get,
+    ctxt.maybeLengthEv,
+    ctxt.maybeCharsetEv,
+    ctxt.maybeLiteralNilEv,
+    ctxt.fillByteEv)
 }
 
 case class OnlyPadding(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  extends Terminal(ctxt, ctxt.shouldAddPadding)
   with Padded {
 
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
     new OnlyPaddingUnparser(ctxt.erd,
-      ctxt.maybeUnparseTargetLengthInBitsEv.get, unparsingPadChar)
+      ctxt.maybeUnparseMinOrTargetLengthInBitsEv.get,
+      ctxt.maybeLengthEv,
+      ctxt.maybeCharsetEv,
+      ctxt.maybeLiteralNilEv,
+      unparsingPadChar)
 }
 
 case class NilLiteralCharacter(ctxt: ElementBase)
@@ -232,27 +240,37 @@ case class NilLiteralCharacter(ctxt: ElementBase)
   override lazy val unparser: Unparser =
     new NilLiteralCharacterUnparser(ctxt.erd,
       ctxt.maybeUnparseTargetLengthInBitsEv.get,
+      ctxt.maybeLengthEv,
+      ctxt.maybeCharsetEv,
       nilLitCharacter)
 }
 
 case class RightCenteredPadding(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  extends Terminal(ctxt, ctxt.shouldAddPadding)
   with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
     new RightCenteredPaddingUnparser(ctxt.erd,
-      ctxt.maybeUnparseTargetLengthInBitsEv.get, unparsingPadChar)
+      ctxt.maybeUnparseMinOrTargetLengthInBitsEv.get,
+      ctxt.maybeLengthEv,
+      ctxt.maybeCharsetEv,
+      ctxt.maybeLiteralNilEv,
+      unparsingPadChar)
 }
 
 case class LeftCenteredPadding(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  extends Terminal(ctxt, ctxt.shouldAddPadding)
   with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
     new LeftCenteredPaddingUnparser(ctxt.erd,
-      ctxt.maybeUnparseTargetLengthInBitsEv.get, unparsingPadChar)
+      ctxt.maybeUnparseMinOrTargetLengthInBitsEv.get,
+      ctxt.maybeLengthEv,
+      ctxt.maybeCharsetEv,
+      ctxt.maybeLiteralNilEv,
+      unparsingPadChar)
 }
 
 case class RightFill(ctxt: ElementBase)
@@ -261,7 +279,12 @@ case class RightFill(ctxt: ElementBase)
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new RightFillUnparser(ctxt.erd,
-    ctxt.maybeUnparseTargetLengthInBitsEv.get, ctxt.fillByteEv, unparsingPadChar)
+    ctxt.maybeUnparseTargetLengthInBitsEv.get,
+    ctxt.maybeLengthEv,
+    ctxt.maybeCharsetEv,
+    ctxt.maybeLiteralNilEv,
+    ctxt.fillByteEv,
+    unparsingPadChar)
 }
 
 case class OVCRetry(ctxt: ElementBase, v: Gram)
@@ -300,7 +323,7 @@ case class CaptureValueLengthStart(ctxt: ElementBase)
     //
     // For all other elements, we can just use the Capture*ValueLength parsers.
     if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
+      (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
     else new CaptureStartOfValueLengthParser(ctxt.erd)
   }
 
@@ -320,7 +343,7 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
     //
     // For all other elements, we can just use the Capture*ValueLength parsers.
     if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
+      (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
     else new CaptureEndOfValueLengthParser(ctxt.erd)
   }
 

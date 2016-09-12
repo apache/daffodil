@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 
 class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], kind: String, args: Any*)
   extends ProcessingError("Parse Error", rd, loc, kind, args: _*)
+  with ThinThrowable
 
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state.currentLocation), "Assertion failed. %s", msg) {

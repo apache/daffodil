@@ -62,7 +62,8 @@ trait ElementBaseGrammarMixin
   private val context = this
 
   private lazy val (leftPadding, rightPadding) = {
-    if (unparsingPadChar.isEmpty) (EmptyGram, EmptyGram)
+    if (unparsingPadChar.isEmpty)
+      (EmptyGram, EmptyGram)
     else {
       import TextJustificationType._
       this.justificationPad match {
@@ -73,6 +74,28 @@ trait ElementBaseGrammarMixin
       }
     }
   }
+
+  /**
+   * true if padding will be inserted for this delimited element when unparsing.
+   */
+  protected lazy val isDelimitedPrefixedPatternWithPadding = {
+    import LengthKind._
+    val isRightLengthKind =
+      lengthKind match {
+        case Delimited => true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
+        case Pattern => true
+        case Prefixed => true
+        case _ => false
+      }
+    (isRightLengthKind &&
+      (impliedRepresentation eq Representation.Text) &&
+      (justificationPad ne TextJustificationType.None) &&
+      minLen > 0)
+  }
+
+  lazy val shouldAddPadding =
+    maybeUnparseTargetLengthInBitsEv.isDefined ||
+      isDelimitedPrefixedPatternWithPadding
 
   private lazy val rightFill = new RightFill(context)
 

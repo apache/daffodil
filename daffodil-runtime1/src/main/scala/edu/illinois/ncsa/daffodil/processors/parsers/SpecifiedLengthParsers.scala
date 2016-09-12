@@ -72,7 +72,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
     val dis = pState.dataInputStream
 
     val startingBitPos0b = dis.bitPos0b
-    val isLimitOk = dis.withBitLengthLimit(nBits) {
+    val isLimitOk: Boolean = dis.withBitLengthLimit(nBits) {
       eParser.parse1(pState)
     }
     if (!isLimitOk) {

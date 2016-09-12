@@ -200,8 +200,6 @@ trait Suspension
 
     val buffered = original.addBuffered
 
-    ustate.aaa_debug_DOS.push(buffered) //FIXME: remove. This is a memory leak. Just for debugging
-
     if (maybeKnownLengthInBits.isDefined) {
       // since we know the length of the unparsed representation that we're skipping for now,
       // that means we know the absolute position of the bits in the buffer we're creating

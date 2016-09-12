@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.tdml
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-
 class TDMLException(msg: String, val causes: Seq[Throwable])
   extends Exception(msg, if (causes.length > 0) causes(0) else null) {
 
@@ -43,7 +41,6 @@ class TDMLException(msg: String, val causes: Seq[Throwable])
 
   def this(causes: Seq[Throwable]) = this(
     {
-      Assert.usage(causes.length > 0)
       causes.map { _.getMessage() }.mkString("\n")
     },
     causes)

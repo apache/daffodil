@@ -11,12 +11,15 @@ import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
 import edu.illinois.ncsa.daffodil.processors.CharsetEv
 import edu.illinois.ncsa.daffodil.processors.LengthEv
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.util.MaybeJULong
 
 /*
  * Notes on variable-width characters with lengthUnits 'characters'
@@ -268,11 +271,12 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
  * Several sub-unparsers need to have the value length, and the target length
  * in order to compute their own length.
  */
-trait NeedValueAndTargetLengthMixin {
+sealed trait NeedValueAndTargetLengthMixin {
 
-  def targetLengthEv: UnparseTargetLengthInBitsEv
-  def lengthEv: LengthEv = targetLengthEv.lengthInBitsEv.lengthEv
-  def maybeCharsetEv: Maybe[CharsetEv] = targetLengthEv.lengthInBitsEv.maybeCharsetEv
+  def targetLengthEv: Evaluatable[MaybeJULong]
+  def maybeLengthEv: Maybe[LengthEv]
+  def maybeCharsetEv: Maybe[CharsetEv]
+  def maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv]
 
   protected final def hasTargetLength(ustate: UState): Boolean = {
     targetLengthEv.evaluate(ustate)
@@ -287,30 +291,55 @@ trait NeedValueAndTargetLengthMixin {
     }
   }
 
+  /**
+   * returns the value as a string, or if nillable and isNilled, the nil value
+   * for use when unparsing.
+   */
+  private def valueString(s: DISimple, ustate: UState) = {
+    val vs =
+      if (s.erd.isNillable && s.isNilled) {
+        Assert.invariant(this.maybeLiteralNilEv.isDefined)
+        maybeLiteralNilEv.get.evaluate(ustate)
+      } else {
+        s.dataValueAsString
+      }
+    vs
+  }
+
   protected def getSkipBits(ustate: UState): Long = {
     val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
     val mtl = targetLengthEv.evaluate(ustate)
     if (mtl.isDefined) {
       val tl = mtl.get
       val vl = e.valueLength.lengthInBits.longValue
-      Assert.invariant(tl >= vl)
       val skipInBits = tl - vl
-      skipInBits
+      if (skipInBits > 0)
+        skipInBits
+      else
+        0L // nothing to skip, value was too big. A string might have been truncated
+      // but for any non-truncate situation, this is an error
+      //
     } else {
       // it's measured in variable width characters
-      val tlChars = lengthEv.evaluate(ustate)
-      e match {
-        case s: DISimple => {
-          val v = s.dataValueAsString
-          val vlChars = v.length
-          val nPadChars = tlChars - vlChars
-          Assert.invariant(nPadChars >= 0)
-          val cs: DFDLCharset = maybeCharsetEv.get.evaluate(ustate)
-          val paddingLengthInBits = cs.padCharWidthInBits * nPadChars
-          paddingLengthInBits
+      if (maybeLengthEv.isDefined) {
+        val lengthEv = maybeLengthEv.get
+        val tlChars = lengthEv.evaluate(ustate)
+        e match {
+          case s: DISimple => {
+            val v = valueString(s, ustate)
+            val vlChars = v.length
+            val nPadChars = tlChars - vlChars
+            Assert.invariant(nPadChars >= 0)
+            val cs: DFDLCharset = maybeCharsetEv.get.evaluate(ustate)
+            val paddingLengthInBits = cs.padCharWidthInBits * nPadChars
+            paddingLengthInBits
+          }
+          case c: DIComplex =>
+            ???
         }
-        case c: DIComplex =>
-          ???
+      } else {
+        0L // must be delimited, so we don't pad unless there's a minLength, which
+        // is not this case.
       }
     }
   }
@@ -319,6 +348,9 @@ trait NeedValueAndTargetLengthMixin {
 class ElementUnusedUnparserSuspendableOperation(
   override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  override val maybeLengthEv: Maybe[LengthEv],
+  override val maybeCharsetEv: Maybe[CharsetEv],
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   fillByteEv: FillByteEv)
   extends SuspendableOperation
   with NeedValueAndTargetLengthMixin {
@@ -354,7 +386,10 @@ class ElementUnusedUnparserSuspendableOperation(
 
 class ElementUnusedUnparser(
   val rd: ElementRuntimeData,
-  val targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: UnparseTargetLengthInBitsEv,
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   fillByteEv: FillByteEv)
   extends PrimUnparserObject(rd)
   with SuspendableUnparser {
@@ -363,7 +398,7 @@ class ElementUnusedUnparser(
 
   override def suspendableOperation =
     new ElementUnusedUnparserSuspendableOperation(
-      rd, targetLengthEv, fillByteEv)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv)
 
 }
 
@@ -377,7 +412,7 @@ trait PaddingUnparserMixin
   override def test(ustate: UState): Boolean = {
     super.test(ustate) && {
       // we know there is a charset. We can't have a padChar without one
-      val charsetEv = targetLengthEv.lengthInBitsEv.maybeCharsetEv.get
+      val charsetEv = maybeCharsetEv.get
       charsetEv.evaluate(ustate)
       true
     }
@@ -387,7 +422,7 @@ trait PaddingUnparserMixin
     skipInBits / charWidthInBits // discarding any fragment of a character
 
   protected final def charset(state: UState) =
-    targetLengthEv.lengthInBitsEv.maybeCharsetEv.get.evaluate(state)
+    maybeCharsetEv.get.evaluate(state)
 
   protected final def charWidthInBits(charset: DFDLCharset) = {
     val res = charset.maybeFixedWidth.get
@@ -417,7 +452,10 @@ trait PaddingUnparserMixin
 }
 
 class OnlyPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
-  override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  override val targetLengthEv: Evaluatable[MaybeJULong],
+  override val maybeLengthEv: Maybe[LengthEv],
+  override val maybeCharsetEv: Maybe[CharsetEv],
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   override val maybePadChar: MaybeChar)
   extends SuspendableOperation
   with PaddingUnparserMixin
@@ -427,8 +465,11 @@ class OnlyPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeDat
  */
 class OnlyPaddingUnparser(
   val rd: ElementRuntimeData,
-  val targetLengthEv: UnparseTargetLengthInBitsEv,
-  val maybePadChar: MaybeChar)
+  targetLengthEv: Evaluatable[MaybeJULong],
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
+  maybePadChar: MaybeChar)
   extends PrimUnparserObject(rd)
   with SuspendableUnparser {
 
@@ -436,14 +477,18 @@ class OnlyPaddingUnparser(
 
   override def suspendableOperation =
     new OnlyPaddingUnparserSuspendableOperation(
-      rd, targetLengthEv, maybePadChar)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 }
 
 class NilLiteralCharacterUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
+  override val maybeLengthEv: Maybe[LengthEv],
+  override val maybeCharsetEv: Maybe[CharsetEv],
   literalNilChar: Char)
   extends SuspendableOperation
   with PaddingUnparserMixin {
+
+  override def maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv] = Nope
 
   override def charsKind = "dfdl:nilKind 'literalCharacter'"
 
@@ -472,6 +517,8 @@ class NilLiteralCharacterUnparserSuspendableOperation(override val rd: ElementRu
 class NilLiteralCharacterUnparser(
   val rd: ElementRuntimeData,
   val targetLengthEv: UnparseTargetLengthInBitsEv,
+  val maybeLengthEv: Maybe[LengthEv],
+  val maybeCharsetEv: Maybe[CharsetEv],
   literalNilChar: Char)
   extends PrimUnparserObject(rd)
   with SuspendableUnparser {
@@ -479,14 +526,17 @@ class NilLiteralCharacterUnparser(
   override lazy val runtimeDependencies = List(targetLengthEv)
 
   override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
-    rd, targetLengthEv, literalNilChar)
+    rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, literalNilChar)
 
 }
 
 class RightCenteredPaddingUnparserSuspendaableOperation(rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: Evaluatable[MaybeJULong],
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   maybePadChar: MaybeChar)
-  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -495,19 +545,25 @@ class RightCenteredPaddingUnparserSuspendaableOperation(rd: ElementRuntimeData,
 }
 
 class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: Evaluatable[MaybeJULong],
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   maybePadChar: MaybeChar)
-  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparser(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar) {
 
   override def suspendableOperation =
     new RightCenteredPaddingUnparserSuspendaableOperation(
-      rd, targetLengthEv, maybePadChar)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 }
 
 class LeftCenteredPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: Evaluatable[MaybeJULong],
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   maybePadChar: MaybeChar)
-  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
@@ -519,21 +575,27 @@ class LeftCenteredPaddingUnparserSuspendableOperation(override val rd: ElementRu
 }
 
 class LeftCenteredPaddingUnparser(override val rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: Evaluatable[MaybeJULong],
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   maybePadChar: MaybeChar)
-  extends OnlyPaddingUnparser(rd, targetLengthEv, maybePadChar) {
+  extends OnlyPaddingUnparser(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar) {
 
   override def suspendableOperation =
     new LeftCenteredPaddingUnparserSuspendableOperation(
-      rd, targetLengthEv, maybePadChar)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 }
 
 class RightFillUnparserSuspendableOperation(
   rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   fillByteEv: FillByteEv,
   override val maybePadChar: MaybeChar)
-  extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, fillByteEv)
+  extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv)
   with PaddingUnparserMixin {
 
   override def continuation(state: UState) {
@@ -557,13 +619,16 @@ class RightFillUnparserSuspendableOperation(
 class RightFillUnparser(
   rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
+  maybeLengthEv: Maybe[LengthEv],
+  maybeCharsetEv: Maybe[CharsetEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   fillByteEv: FillByteEv,
   val maybePadChar: MaybeChar)
-  extends ElementUnusedUnparser(rd, targetLengthEv, fillByteEv) {
+  extends ElementUnusedUnparser(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv) {
 
   override def suspendableOperation =
     new RightFillUnparserSuspendableOperation(
-      rd, targetLengthEv, fillByteEv, maybePadChar)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv, maybePadChar)
 
 }
 

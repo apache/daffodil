@@ -646,6 +646,28 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
       true
     }
   }
+
+  /**
+   * Convenience methods that temporarily set and (reliably) restore the bitLimit.
+   * The argument gives the limit length. Note this is a length, not a bit position.
+   *
+   * This is added to the current bit position to get the limiting bit position
+   * which is then set as the bitLimit when
+   * the body is evaluated. On return the bit limit is restored to its
+   * prior value.
+   * <p>
+   * The return value is false if the new bit limit is beyond the existing bit limit range.
+   * Otherwise the return value is true.
+   * <p>
+   * The prior value is restored even if an Error/Exception is thrown. (ie., via a try-finally)
+   * <p>
+   * These are intended for use implementing specified-length types (simple or complex).
+   * <p>
+   * Note that length limits in lengthUnits Characters are not implemented
+   * this way. See fillCharBuffer(cb) method.
+   */
+  // private def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForOutput
+
 }
 
 /**
@@ -686,22 +708,34 @@ object DirectOrBufferedDataOutputStream {
     // no fragment bytes anywhere - just take the bytes
     // fragment byte on directDOS, fragment byte on bufDOS, or both.
 
-    directDOS.withBitLengthLimit(bufferNBits.toLong) {
+    {
+      import edu.illinois.ncsa.daffodil.util.MaybeULong
+      import edu.illinois.ncsa.daffodil.io.DataOutputStream
 
-      if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
+      val dStream: DataOutputStream = directDOS
+      val newLengthLimit = bufferNBits.toLong
+      val savedLengthLimit = dStream.maybeRelBitLimit0b
 
-        val nBytes = (bufferNBits / 8).toInt
-        val nBytesPut = directDOS.putBytes(ba, 0, nBytes)
-        Assert.invariant(nBytesPut == nBytes)
+      if (dStream.setMaybeRelBitLimit0b(MaybeULong(dStream.relBitPos0b + newLengthLimit))) {
+        try {
+          if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
 
-      } else {
-        if (bufDOS.cst.fragmentLastByteLimit > 0) {
-          val bufDOSStream = bufDOS.getJavaOutputStream()
-          bufDOSStream.write(bufDOS.cst.fragmentLastByte.toByte)
+            val nBytes = (bufferNBits / 8).toInt
+            val nBytesPut = directDOS.putBytes(ba, 0, nBytes)
+            Assert.invariant(nBytesPut == nBytes)
+
+          } else {
+            if (bufDOS.cst.fragmentLastByteLimit > 0) {
+              val bufDOSStream = bufDOS.getJavaOutputStream()
+              bufDOSStream.write(bufDOS.cst.fragmentLastByte.toByte)
+            }
+
+            val nBitsPut = directDOS.putBitBuffer(bufDOS.getByteBuffer, bufferNBits.toLong)
+            Assert.invariant(nBitsPut == bufferNBits.toLong)
+          }
+        } finally {
+          dStream.resetMaybeRelBitLimit0b(savedLengthLimit)
         }
-
-        val nBitsPut = directDOS.putBitBuffer(bufDOS.getByteBuffer, bufferNBits.toLong)
-        Assert.invariant(nBitsPut == bufferNBits.toLong)
       }
     }
   }
