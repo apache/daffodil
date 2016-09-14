@@ -40,6 +40,8 @@
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
            xmlns:u="USMTF"
            targetNamespace="USMTF">
+           
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
     
     <xs:element name="e1" dfdl:terminator="/">
         <xs:complexType>
@@ -58,7 +60,7 @@
     
     <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format initiator="" terminator="" leadingSkip="0"
+      <dfdl:format ref="u:daffodilTest1" initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
         fillByte="f" occursCountKind="implicit"
