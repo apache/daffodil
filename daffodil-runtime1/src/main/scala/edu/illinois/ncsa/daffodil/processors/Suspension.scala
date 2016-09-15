@@ -62,11 +62,13 @@ trait Suspension
     UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
 
-  private var ustate_ : UState = null
+  private var savedUstate_ : UState = null
 
-  final def ustate = {
-    Assert.invariant(ustate_ ne null)
-    ustate_
+  final def savedUstate = {
+    Assert.invariant(savedUstate_ ne null)
+    // Assert above fails if no suspension state created yet. Can't ask for ustate.
+    // means we are pre-evaluating to decide if we need to suspend.
+    savedUstate_
   }
 
   def rd: RuntimeData
@@ -82,10 +84,10 @@ trait Suspension
    * This status is needed to implement circular deadlock detection
    */
   final def runSuspension() {
-    doTask(ustate)
+    doTask(savedUstate)
     if (isDone && !isReadOnly) {
-      ustate.dataOutputStream.setFinished()
-      log(LogLevel.Debug, "%s finished %s.", this, ustate)
+      savedUstate.dataOutputStream.setFinished()
+      log(LogLevel.Debug, "%s finished %s.", this, savedUstate)
     }
   }
 
@@ -243,7 +245,7 @@ trait Suspension
       original.setFinished()
     }
 
-    ustate_ = cloneUState
+    savedUstate_ = cloneUState
 
     ustate.addSuspension(this)
   }

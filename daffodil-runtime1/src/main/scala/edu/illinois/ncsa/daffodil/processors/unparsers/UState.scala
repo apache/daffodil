@@ -410,7 +410,7 @@ class UState private (
 class SuspensionDeadlockException(suspExprs: Seq[Suspension])
   extends RuntimeSchemaDefinitionError(
     suspExprs(0).rd.schemaFileLocation,
-    suspExprs(0).ustate,
+    suspExprs(0).savedUstate,
     "Expressions/Unparsers are circularly deadlocked (mutually defined):\n%s",
     suspExprs.groupBy { _.rd }.mapValues { _(0) }.values.mkString(" - ", "\n - ", ""))
 

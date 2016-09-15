@@ -432,7 +432,18 @@ class TestSimpleTypes {
   @Test def test_decimal_binary_fail_04() { runner.runOneTest("decimal_binary_fail_04") }
 
   @Test def test_double_text() { runner.runOneTest("double_text") }
-  @Test def test_double_text2() { runner.runOneTest("double_text2") }
+  @Test def test_double_text2_parse_ab() { runner.runOneTest("double_text2_parse_ab") }
+  @Test def test_double_text2_parse_ac() { runner.runOneTest("double_text2_parse_ac") }
+  @Test def test_double_text2_parse_ub() { runner.runOneTest("double_text2_parse_ub") }
+  @Test def test_double_text2_parse_uc() { runner.runOneTest("double_text2_parse_uc") }
+  @Test def test_double_text2_unparse_ab() { runner.runOneTest("double_text2_unparse_ab") }
+  @Test def test_double_text2_unparse_ac() { runner.runOneTest("double_text2_unparse_ac") }
+  @Test def test_double_text2_unparse_ub() { runner.runOneTest("double_text2_unparse_ub") }
+  @Test def test_double_text2_unparse_uc() { runner.runOneTest("double_text2_unparse_uc") }
+  @Test def test_double_text2_unparse_fail_ab() { runner.runOneTest("double_text2_unparse_fail_ab") }
+  @Test def test_double_text2_unparse_fail_ac() { runner.runOneTest("double_text2_unparse_fail_ac") }
+  @Test def test_double_text2_unparse_fail_ub() { runner.runOneTest("double_text2_unparse_fail_ub") }
+  @Test def test_double_text2_unparse_fail_uc() { runner.runOneTest("double_text2_unparse_fail_uc") }
   @Test def test_double_text3() { runner.runOneTest("double_text3") }
   @Test def test_double_text4() { runner.runOneTest("double_text4") }
   @Test def test_characterDuringValidDouble() { runner.runOneTest("characterDuringValidDouble") }

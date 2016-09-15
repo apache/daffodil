@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressU
 import edu.illinois.ncsa.daffodil.processors.ByteOrderChange
 
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
+
   final protected lazy val thereIsAByteOrderDefined: Boolean = {
     val byteOrdLookup = this.findPropertyOption("byteOrder")
     byteOrdLookup match {
@@ -51,9 +52,14 @@ trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
       term.isInstanceOf[ElementBase] &&
         term.thereIsAByteOrderDefined).asInstanceOf[Option[ElementBase]]
     val optThis = this match { case e: ElementBase => Some(e); case _ => None }
-    val optPriorByteOrder = optPrior.map { _.byteOrderEv.optConstant }
-    val optThisByteOrder = optThis.map { _.byteOrderEv.optConstant }
-    val res = optThisByteOrder =:= optPriorByteOrder
+    val optPriorByteOrder = optPrior.flatMap { _.byteOrderEv.optConstant }
+    val optThisByteOrder = optThis.flatMap { _.byteOrderEv.optConstant }
+    val res =
+      if (optThisByteOrder.isDefined &&
+        optPriorByteOrder.isDefined)
+        optThisByteOrder =:= optPriorByteOrder
+      else
+        false
     res
   }
 

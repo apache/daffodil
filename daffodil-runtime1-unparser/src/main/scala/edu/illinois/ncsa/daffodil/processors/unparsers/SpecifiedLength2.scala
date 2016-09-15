@@ -306,6 +306,13 @@ sealed trait NeedValueAndTargetLengthMixin {
     vs
   }
 
+  /**
+   * Returns number of bits to skip.
+   *
+   * This can be negative if the unparsed data was too big.
+   *
+   * It is up to the caller to determine if this is an error or not.
+   */
   protected def getSkipBits(ustate: UState): Long = {
     val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
     val mtl = targetLengthEv.evaluate(ustate)
@@ -313,12 +320,7 @@ sealed trait NeedValueAndTargetLengthMixin {
       val tl = mtl.get
       val vl = e.valueLength.lengthInBits.longValue
       val skipInBits = tl - vl
-      if (skipInBits > 0)
-        skipInBits
-      else
-        0L // nothing to skip, value was too big. A string might have been truncated
-      // but for any non-truncate situation, this is an error
-      //
+      skipInBits
     } else {
       // it's measured in variable width characters
       if (maybeLengthEv.isDefined) {
@@ -328,8 +330,7 @@ sealed trait NeedValueAndTargetLengthMixin {
           case s: DISimple => {
             val v = valueString(s, ustate)
             val vlChars = v.length
-            val nPadChars = tlChars - vlChars
-            Assert.invariant(nPadChars >= 0)
+            val nPadChars = tlChars - vlChars // negative if data too long for available space.
             val cs: DFDLCharset = maybeCharsetEv.get.evaluate(ustate)
             val paddingLengthInBits = cs.padCharWidthInBits * nPadChars
             paddingLengthInBits
@@ -362,6 +363,8 @@ class ElementUnusedUnparserSuspendableOperation(
    */
   override def continuation(ustate: UState) {
     val skipInBits = getSkipBits(ustate)
+    if (skipInBits < 0)
+      UE(ustate, "Data too long by %s bits. Unable to truncate.", -skipInBits)
     skipTheBits(ustate, skipInBits)
   }
 
@@ -431,6 +434,7 @@ trait PaddingUnparserMixin
 
   override def continuation(state: UState) {
     val skipInBits = getSkipBits(state)
+    if (skipInBits <= 0) return // padding doesn't worry about data too long. RightFill and ElementUnused do.
     val cs = charset(state)
 
     val nChars = numPadChars(skipInBits, cs.padCharWidthInBits)
@@ -600,7 +604,7 @@ class RightFillUnparserSuspendableOperation(
 
   override def continuation(state: UState) {
     val skipInBits = getSkipBits(state)
-    Assert.invariant(skipInBits >= 0)
+    if (skipInBits == 0L) return
     if (skipInBits > 0) {
       val cs = charset(state)
       val skipInBitsMinusPadding =
@@ -611,6 +615,8 @@ class RightFillUnparserSuspendableOperation(
         }
 
       skipTheBits(state, skipInBitsMinusPadding)
+    } else {
+      UE(state, "Data too long by %s bits. Unable to truncate.", -skipInBits)
     }
   }
 

@@ -56,10 +56,10 @@ class TestOutputValueCalc {
   @Test def test_OutputValueCalc_03() { runner.runOneTest("OutputValueCalc_03") }
   @Test def test_OutputValueCalc_04() { runner.runOneTest("OutputValueCalc_04") }
   @Test def test_OutputValueCalc_05() { runner.runOneTest("OutputValueCalc_05") }
-  //@Test def test_OutputValueCalc_06() { runner.runOneTest("OutputValueCalc_06") }
+  @Test def test_OutputValueCalc_06() { runner.runOneTest("OutputValueCalc_06") }
   @Test def test_OutputValueCalc_07() { runner.runOneTest("OutputValueCalc_07") }
   @Test def test_OutputValueCalc_08() { runner.runOneTest("OutputValueCalc_08") }
-  
+
   @Test def test_binaryInteger_BigEndian() { runner.runOneTest("binaryIntegerBE") }
   @Test def test_binaryInteger_LittleEndian() { runner.runOneTest("binaryIntegerLE") }
 

@@ -121,7 +121,23 @@
     <xs:element name="decimalTextFail" type="xs:decimal"
       dfdl:lengthKind="implicit" />
     <xs:element name="doubleText" type="xs:double"
-      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />    
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>    
+    <xs:element name="doubleTextAB" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }"  dfdl:encoding="ascii" dfdl:lengthUnits="bytes"/>  
+    <xs:element name="doubleTextAC" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }"  dfdl:encoding="ascii" dfdl:lengthUnits="characters"/>    
+    <xs:element name="doubleTextUB" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }"  dfdl:encoding="utf-8" dfdl:lengthUnits="bytes"/>    
+    <xs:element name="doubleTextUC" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }"  dfdl:encoding="utf-8" dfdl:lengthUnits="characters"/>     
+    <xs:element name="doubleText5AB" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }"  dfdl:encoding="ascii" dfdl:lengthUnits="bytes"/>  
+    <xs:element name="doubleText5AC" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }"  dfdl:encoding="ascii" dfdl:lengthUnits="characters"/>    
+    <xs:element name="doubleText5UB" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }"  dfdl:encoding="utf-8" dfdl:lengthUnits="bytes"/>    
+    <xs:element name="doubleText5UC" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }"  dfdl:encoding="utf-8" dfdl:lengthUnits="characters"/>   
     <xs:element name="doubleText2" type="xs:double"
       dfdl:lengthKind="explicit" dfdl:length="{ 18 }"
       dfdl:textNumberPattern="000.00000000000000" />
@@ -2244,20 +2260,157 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="double_text2" root="doubleText"
+  <tdml:parserTestCase name="double_text2_parse_ab" root="doubleTextAB"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
     roundTrip="false">
     <!--  test doesn't round trip because the fixed length is 4, and so .555 
           becomes 0.555 which should fail to unparse since that won't fit in 4 characters
-          and we don't truncate numbers. It happens that it doesn't error (separate bug)
-          but regardless, this shouldn't round trip.  -->
+          and we don't truncate numbers. -->
     <tdml:document><![CDATA[.555]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doubleText>0.555</doubleText>
+        <ex:doubleTextAB>0.555</ex:doubleTextAB>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </tdml:parserTestCase>
+  </tdml:parserTestCase> 
+  
+  <tdml:parserTestCase name="double_text2_parse_ac" root="doubleTextAC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <!--  test doesn't round trip because the fixed length is 4, and so .555 
+          becomes 0.555 which should fail to unparse since that won't fit in 4 characters
+          and we don't truncate numbers. -->
+    <tdml:document><![CDATA[.555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextAC>0.555</ex:doubleTextAC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase> 
+  
+  <tdml:parserTestCase name="double_text2_parse_ub" root="doubleTextUB"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <!--  test doesn't round trip because the fixed length is 4, and so .555 
+          becomes 0.555 which should fail to unparse since that won't fit in 4 characters
+          and we don't truncate numbers. -->
+    <tdml:document><![CDATA[.555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextUB>0.555</ex:doubleTextUB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase> 
+   
+    <tdml:parserTestCase name="double_text2_parse_uc" root="doubleTextUC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <!--  test doesn't round trip because the fixed length is 4, and so .555 
+          becomes 0.555 which should fail to unparse since that won't fit in 4 characters
+          and we don't truncate numbers. -->
+    <tdml:document><![CDATA[.555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextUC>0.555</ex:doubleTextUC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase> 
+  
+  <tdml:unparserTestCase name="double_text2_unparse_ab" root="doubleText5AB"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleText5AB>0.555</ex:doubleText5AB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>0.555</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_ac" root="doubleText5AC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleText5AC>0.555</ex:doubleText5AC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>0.555</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_ub" root="doubleText5UB"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleText5UB>0.555</ex:doubleText5UB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>0.555</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_uc" root="doubleText5UC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleText5UC>0.555</ex:doubleText5UC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>0.555</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_fail_ab" root="doubleTextAB"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextAB>0.555</ex:doubleTextAB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>truncate</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_fail_ac" root="doubleTextAC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextAC>0.555</ex:doubleTextAC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>truncate</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_fail_ub" root="doubleTextUB"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextUB>0.555</ex:doubleTextUB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>truncate</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="double_text2_unparse_fail_uc" root="doubleTextUC"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:doubleTextUC>0.555</ex:doubleTextUC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>truncate</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="double_text3" root="doubleText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
