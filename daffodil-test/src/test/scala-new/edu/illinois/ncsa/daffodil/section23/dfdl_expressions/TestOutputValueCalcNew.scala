@@ -36,7 +36,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestOutputValueCalcDebug {
+object TestOutputValueCalcNew {
   private val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
 
   val runner = Runner(testDir, "outputValueCalc.tdml")
@@ -46,8 +46,8 @@ object TestOutputValueCalcDebug {
   }
 }
 
-class TestOutputValueCalcDebug {
-  import TestOutputValueCalcDebug._
+class TestOutputValueCalcNew {
+  import TestOutputValueCalcNew._
 
   @Test def test_ovc_w_runtime_escape_char() { runner.runOneTest("ovc_w_runtime_escape_char") }
 }

@@ -123,6 +123,7 @@ class UState private (
     clone.currentInfosetNodeStack.copyFrom(this.currentInfosetNodeStack)
     clone.aaa_currentNode = clone.currentInfosetNodeStack.top
     clone.arrayIndexStack.copyFrom(this.arrayIndexStack)
+    clone.escapeSchemeEVCache.copyFrom(this.escapeSchemeEVCache)
     /*
      * If an OVC element is delimited, and by it's location in the schema
      * it can be delimited by any of the separators or terminators of a bunch of
