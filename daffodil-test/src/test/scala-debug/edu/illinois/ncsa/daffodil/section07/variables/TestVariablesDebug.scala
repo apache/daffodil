@@ -54,9 +54,6 @@ class TestVariablesDebug {
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
 
-  //DFDL-1356
-  @Test def test_unparse_setVarOnGroupRef() { runner.runOneTest("unparse_setVarOnGroupRef") }
-
   // DFDL-1443 & DFDL-1448 - workaround for too-early variable evaluation
   @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
   @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }

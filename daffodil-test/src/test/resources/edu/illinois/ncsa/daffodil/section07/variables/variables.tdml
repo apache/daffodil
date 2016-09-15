@@ -497,7 +497,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="unparse_setVarOnGroupRef" root="e8"
+  <tdml:unparserTestCase name="unparse_setVarOnGroupRef" root="e8" roundTrip="false"
     model="v" description="setVariable on a group reference - DFDL-7-121R">
 
     <tdml:infoset>
@@ -509,7 +509,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     
-    <tdml:document>January,23</tdml:document>
+    <tdml:document>23</tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="setVarSimpleType" root="e6"

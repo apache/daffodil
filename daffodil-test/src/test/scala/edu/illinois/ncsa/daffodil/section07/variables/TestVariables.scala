@@ -71,7 +71,7 @@ class TestVariables {
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }
   @Test def test_unparse_setVarOnSeq() { runner.runOneTest("unparse_setVarOnSeq") }
   @Test def test_setVarOnGroupRef() { runner.runOneTest("setVarOnGroupRef") }
-  //@Test def test_unparse_setVarOnGroupRef() { runner.runOneTest("unparse_setVarOnGroupRef") }
+  @Test def test_unparse_setVarOnGroupRef() { runner.runOneTest("unparse_setVarOnGroupRef") }
   @Test def test_setVarSimpleType() { runner.runOneTest("setVarSimpleType") }
 
   @Test def test_setVarValAttribute() { runner.runOneTest("setVarValAttribute") }
