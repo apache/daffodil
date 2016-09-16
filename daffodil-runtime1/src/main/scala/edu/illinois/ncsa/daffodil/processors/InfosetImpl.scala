@@ -32,6 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
+import java.lang.{ Boolean => JBoolean }
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
@@ -65,6 +66,12 @@ import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -971,7 +978,14 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         // logical value for debug or for XML output.
         //
         _stringRep = null
-        _value = asAnyRef(x)
+        _value = x match {
+          case dc: DFDLCalendar => dc
+          case arb: Array[Byte] => arb
+          case b: JBoolean => b
+          case  _: AtomicLong | _: AtomicInteger => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+          case n: java.lang.Number => n
+          case ar: AnyRef => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+        }
       }
     }
     _isNilled = false
@@ -1553,19 +1567,19 @@ object Infoset {
         val cal = new GregorianCalendar()
         val pos = new java.text.ParsePosition(0)
         new com.ibm.icu.text.SimpleDateFormat("HH:mm:ssZZZZZ").parse(value, cal, pos)
-        cal
+        DFDLTime(cal, true)
       }
       case DateTime => {
         val cal = new GregorianCalendar()
         val pos = new java.text.ParsePosition(0)
         new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
-        cal
+        DFDLDateTime(cal, true)
       }
       case Date => {
         val cal = new GregorianCalendar()
         val pos = new java.text.ParsePosition(0)
         new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd").parse(value, cal, pos)
-        cal
+        DFDLDate(cal, true)
       }
     }
     res.asInstanceOf[AnyRef]

@@ -35,9 +35,14 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-import edu.illinois.ncsa.daffodil.calendar._
-import edu.illinois.ncsa.daffodil.processors._
-import com.ibm.icu.util.GregorianCalendar
+
+import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.CalendarEv
+import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
+import edu.illinois.ncsa.daffodil.processors.ConvertTextCalendarProcessorBase
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
 
 case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   xsdType: String,
@@ -80,10 +85,7 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
 
     val calValue = node.dataValue match {
       case dc: DFDLCalendar => dc.calendar
-      case gc: GregorianCalendar => gc
-      case dt: java.util.Date => dt
-      // TODO: either always put GregorianCalendars in the infoset, or never.
-      // This match/case should be unnecessary. See JIRA DFDL-1504
+      case x => Assert.invariantFailed("ConvertTextCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
     }
 
     val str = df.format(calValue)

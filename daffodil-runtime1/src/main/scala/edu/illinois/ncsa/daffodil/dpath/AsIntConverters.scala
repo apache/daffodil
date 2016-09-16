@@ -32,10 +32,19 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Byte => JByte }
+import java.lang.{ Double => JDouble }
+import java.lang.{ Float => JFloat }
+import java.lang.{ Integer => JInt }
+import java.lang.{ Long => JLong }
+import java.lang.{ Number => JNumber }
+import java.lang.{ Short => JShort }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
-import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 
 object AsIntConverters {
 
