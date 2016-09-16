@@ -315,8 +315,6 @@ class TestCLIunparsing {
     }
   }
 
-  /*
-  // See DFDL-1348
   @Test def test_3583_CLI_Unparsing_SimpleUnparse_rootPath() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
@@ -327,14 +325,13 @@ class TestCLIunparsing {
       val cmd = String.format("""echo '<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>' | %s unparse -s %s -r hcp2 -p /""", Util.binPath, testSchemaFile)
 
       shell.sendLine(cmd)
-      shell.expect(contains("[12]"))
+      shell.expect(contains("12"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
       shell.close()
     }
   }
-*/
 
   /*
   // See DFDL-1346
