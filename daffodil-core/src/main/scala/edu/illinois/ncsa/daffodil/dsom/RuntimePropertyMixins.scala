@@ -86,6 +86,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 
 trait TermRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
+  with PropertyReferencedElementInfosMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
   private lazy val encodingExpr = LV('encoding) {
@@ -153,6 +154,20 @@ trait TermRuntimeValuedPropertiesMixin
       Nope
   }
 
+  private lazy val myPropertyContentReferencedElementInfos =
+    propExprElts(optionEncodingRaw, encodingEv, creis(_)) ++
+      propExprElts(optionOutputNewLineRaw, outputNewLineEv, creis(_))
+
+  override protected def propertyContentReferencedElementInfos =
+    myPropertyContentReferencedElementInfos
+
+  private lazy val myPropertyValueReferencedElementInfos =
+    propExprElts(optionEncodingRaw, encodingEv, vreis(_)) ++
+      propExprElts(optionOutputNewLineRaw, outputNewLineEv, vreis(_))
+
+  override protected def propertyValueReferencedElementInfos =
+    myPropertyValueReferencedElementInfos
+
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
@@ -166,7 +181,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     }
   }
 
-  private lazy val initiatorExpr = {
+  final protected lazy val initiatorExpr = {
     val qn = this.qNameForProperty("initiator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -186,7 +201,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   final def initiatorLoc = (this.prettyName, this.path)
 
-  private lazy val terminatorExpr = LV('terminator) {
+  final protected lazy val terminatorExpr = LV('terminator) {
     val qn = this.qNameForProperty("terminator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -205,6 +220,14 @@ trait DelimitedRuntimeValuedPropertiesMixin
     ev.compile()
     ev
   }
+
+  private lazy val myPropertyContentReferencedElementInfos =
+    super.propertyContentReferencedElementInfos ++
+      propExprElts(optionInitiatorRaw, initiatorExpr, creis(_)) ++
+      propExprElts(optionTerminatorRaw, terminatorExpr, creis(_))
+
+  override protected def propertyContentReferencedElementInfos =
+    myPropertyContentReferencedElementInfos
 }
 
 trait ElementRuntimeValuedPropertiesMixin
@@ -230,7 +253,7 @@ trait ElementRuntimeValuedPropertiesMixin
     ExpressionCompilers.JLong.compile(qn, NodeInfo.Long, lengthRaw)
   }
 
-  private lazy val explicitLengthEv: LengthEv = {
+  private lazy val explicitLengthEv: ExplicitLengthEv = {
     Assert.usage(lengthKind eq LengthKind.Explicit)
     val ev = new ExplicitLengthEv(lengthExpr, erd)
     ev.compile()
@@ -246,7 +269,8 @@ trait ElementRuntimeValuedPropertiesMixin
       case (Text, String) => new ImplicitLengthEv(maxLengthLong, erd)
       case (Binary, HexBinary) => new ImplicitLengthEv(maxLengthLong, erd)
       case (Binary, _) => new ImplicitLengthEv(implicitBinaryLengthInBits, erd)
-      case (Text, _) => SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.kind.name)
+      case (Text, _) =>
+        SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.kind.name)
     }
     ev.compile()
     ev
@@ -265,7 +289,7 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   final lazy val maybeLengthEv: Maybe[LengthEv] = {
-    if (this.optionLengthRaw.isDefined) One(lengthEv)
+    if (this.optionLengthRaw.isDefined && (lengthKind eq LengthKind.Explicit)) One(lengthEv)
     else None
   }
 
@@ -432,6 +456,52 @@ trait ElementRuntimeValuedPropertiesMixin
     else
       Nope
   }
+
+  private def lengthReferencedElements(f: F) =
+    if (maybeLengthEv.isDefined)
+      f(this.explicitLengthEv)
+    else
+      ReferencedElementInfos.None
+
+  private def localElementPropertyReferencedElements(f: F) = {
+    propExprElts(optionByteOrderRaw, byteOrderEv, f) ++
+      lengthReferencedElements(f) ++
+      propExprElts(optionOccursCountRaw, occursCountEv, f) ++
+      propExprElts(optionTextStandardDecimalSeparatorRaw, textStandardDecimalSeparatorEv, f) ++
+      propExprElts(optionTextStandardGroupingSeparatorRaw, textStandardGroupingSeparatorEv, f) ++
+      propExprElts(optionTextStandardExponentRepRaw, textStandardExponentRepEv, f) ++
+      propExprElts(optionBinaryFloatRepRaw, binaryFloatRepEv, f) ++
+      propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
+      propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f) ++
+      propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
+      (
+        if (optionEscapeScheme.isDefined) {
+          val es: DFDLEscapeScheme = optionEscapeScheme.get
+          val ee =
+            if (es.optionEscapeEscapeCharacterEv.isDefined)
+              f(es.optionEscapeEscapeCharacterEv.get)
+            else
+              ReferencedElementInfos.None
+          ee ++
+            propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
+        } else {
+          ReferencedElementInfos.None
+        })
+  }
+
+  private lazy val myPropertyContentReferencedElementInfos =
+    super.propertyContentReferencedElementInfos ++
+      localElementPropertyReferencedElements(creis(_))
+
+  final override protected def propertyContentReferencedElementInfos =
+    myPropertyContentReferencedElementInfos
+
+  private lazy val myPropertyValueReferencedElementInfos =
+    super.propertyValueReferencedElementInfos ++
+      localElementPropertyReferencedElements(vreis(_))
+
+  final override protected def propertyValueReferencedElementInfos =
+    myPropertyValueReferencedElementInfos
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -458,6 +528,21 @@ trait SequenceRuntimeValuedPropertiesMixin
   }
 
   final def separatorLoc = (this.prettyName, this.path)
+
+  private lazy val myPropertyContentReferencedElementInfos =
+    super.propertyContentReferencedElementInfos ++
+      propExprElts(optionSeparatorRaw, separatorExpr, creis(_))
+
+  final override protected def propertyContentReferencedElementInfos =
+    myPropertyContentReferencedElementInfos
+
+  private lazy val myPropertyValueReferencedElementInfos =
+    super.propertyContentReferencedElementInfos ++
+      propExprElts(optionSeparatorRaw, separatorExpr, vreis(_))
+
+  final override protected def propertyValueReferencedElementInfos =
+    myPropertyValueReferencedElementInfos
+
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin

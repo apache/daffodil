@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -236,7 +235,7 @@ class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData
 
   override def parse(state: PState) {
     val dis = state.dataInputStream
-    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    val elem = state.infoset
     elem.contentLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
   }
 }
@@ -248,7 +247,7 @@ class CaptureEndOfContentLengthParser(override val context: ElementRuntimeData)
 
   override def parse(state: PState) {
     val dis = state.dataInputStream
-    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    val elem = state.infoset
     elem.contentLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))
   }
 }
@@ -260,7 +259,7 @@ class CaptureStartOfValueLengthParser(override val context: ElementRuntimeData)
 
   override def parse(state: PState) {
     val dis = state.dataInputStream
-    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(ULong(dis.bitPos0b))
   }
 }
@@ -272,7 +271,7 @@ class CaptureEndOfValueLengthParser(override val context: ElementRuntimeData)
 
   override def parse(state: PState) {
     val dis = state.dataInputStream
-    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    val elem = state.infoset
     elem.valueLength.setAbsEndPos0bInBits(ULong(dis.bitPos0b))
   }
 }

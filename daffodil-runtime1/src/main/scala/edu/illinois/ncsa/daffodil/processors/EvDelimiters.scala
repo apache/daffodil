@@ -40,7 +40,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 
 trait DelimiterEvMixin[+T <: AnyRef]
-    extends ExprEvalMixin[String] { self: Evaluatable[T] =>
+  extends ExprEvalMixin[String] { self: Evaluatable[T] =>
+
+  final def isKnownNonEmpty = expr.isKnownNonEmpty
 
   def expr: CompiledExpression[String]
   def converter: Converter[String, List[String]]
@@ -60,13 +62,11 @@ trait DelimiterEvMixin[+T <: AnyRef]
 }
 
 abstract class DelimiterParseEv(delimType: DelimiterTextType.Type, override val expr: CompiledExpression[String], override val trd: TermRuntimeData)
-    extends Evaluatable[Array[DFADelimiter]](trd)
-    with InfosetCachedEvaluatable[Array[DFADelimiter]]
-    with DelimiterEvMixin[Array[DFADelimiter]] {
+  extends Evaluatable[Array[DFADelimiter]](trd)
+  with InfosetCachedEvaluatable[Array[DFADelimiter]]
+  with DelimiterEvMixin[Array[DFADelimiter]] {
 
   override lazy val runtimeDependencies = Nil
-
-  def isKnownNonEmpty = !isConstant || optConstant.get.length > 0
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[UState]) {
@@ -83,9 +83,9 @@ abstract class DelimiterParseEv(delimType: DelimiterTextType.Type, override val 
 }
 
 abstract class DelimiterUnparseEv(delimType: DelimiterTextType.Type, override val expr: CompiledExpression[String], outputNewLine: OutputNewLineEv, override val trd: TermRuntimeData)
-    extends Evaluatable[Option[DFADelimiter]](trd)
-    with InfosetCachedEvaluatable[Option[DFADelimiter]]
-    with DelimiterEvMixin[Option[DFADelimiter]] {
+  extends Evaluatable[Option[DFADelimiter]](trd)
+  with InfosetCachedEvaluatable[Option[DFADelimiter]]
+  with DelimiterEvMixin[Option[DFADelimiter]] {
 
   override lazy val runtimeDependencies = Seq(outputNewLine)
 
@@ -105,37 +105,37 @@ abstract class DelimiterUnparseEv(delimType: DelimiterTextType.Type, override va
 }
 
 class InitiatorParseEv(expr: CompiledExpression[String], trd: TermRuntimeData)
-    extends DelimiterParseEv(DelimiterTextType.Initiator, expr, trd) {
+  extends DelimiterParseEv(DelimiterTextType.Initiator, expr, trd) {
 
   override val converter = InitiatorCooker
 }
 
 class InitiatorUnparseEv(expr: CompiledExpression[String], outputNewLine: OutputNewLineEv, trd: TermRuntimeData)
-    extends DelimiterUnparseEv(DelimiterTextType.Initiator, expr, outputNewLine, trd) {
+  extends DelimiterUnparseEv(DelimiterTextType.Initiator, expr, outputNewLine, trd) {
 
   override val converter = InitiatorCooker
 }
 
 class TerminatorParseEv(expr: CompiledExpression[String], isLengthKindDelimited: Boolean, trd: TermRuntimeData)
-    extends DelimiterParseEv(DelimiterTextType.Terminator, expr, trd) {
+  extends DelimiterParseEv(DelimiterTextType.Terminator, expr, trd) {
 
   override val converter = if (isLengthKindDelimited) TerminatorCookerNoES else TerminatorCooker
 }
 
 class TerminatorUnparseEv(expr: CompiledExpression[String], isLengthKindDelimited: Boolean, outputNewLine: OutputNewLineEv, trd: TermRuntimeData)
-    extends DelimiterUnparseEv(DelimiterTextType.Terminator, expr, outputNewLine, trd) {
+  extends DelimiterUnparseEv(DelimiterTextType.Terminator, expr, outputNewLine, trd) {
 
   override val converter = if (isLengthKindDelimited) TerminatorCookerNoES else TerminatorCooker
 }
 
 class SeparatorParseEv(expr: CompiledExpression[String], trd: TermRuntimeData)
-    extends DelimiterParseEv(DelimiterTextType.Separator, expr, trd) {
+  extends DelimiterParseEv(DelimiterTextType.Separator, expr, trd) {
 
   override val converter = SeparatorCooker
 }
 
 class SeparatorUnparseEv(expr: CompiledExpression[String], outputNewLine: OutputNewLineEv, trd: TermRuntimeData)
-    extends DelimiterUnparseEv(DelimiterTextType.Separator, expr, outputNewLine, trd) {
+  extends DelimiterUnparseEv(DelimiterTextType.Separator, expr, outputNewLine, trd) {
 
   override val converter = SeparatorCooker
 }

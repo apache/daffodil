@@ -341,6 +341,8 @@ final class ElementRuntimeData(
   lazy val optTruncateSpecifiedLengthString = optTruncateSpecifiedLengthStringArg
   lazy val outputValueCalcExpr = outputValueCalcExprArg
 
+  def isReferencedByExpressions = !notReferencedByExpressions
+
   override def preSerialization: Unit = {
     super.preSerialization
     parent

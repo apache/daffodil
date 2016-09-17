@@ -72,7 +72,7 @@ object MPState {
     obj
   }
 
-  class Mark {
+  final class Mark {
 
     var arrayIndexStackMark: MStack.Mark = _
     var groupIndexStackMark: MStack.Mark = _
@@ -88,13 +88,13 @@ object MPState {
       occursBoundsStackMark = MStack.nullMark
     }
 
-    def setMarkFrom(mp: MPState) {
+    def captureFrom(mp: MPState) {
       arrayIndexStackMark = mp.arrayIndexStack.mark
       groupIndexStackMark = mp.groupIndexStack.mark
       childIndexStackMark = mp.childIndexStack.mark
       occursBoundsStackMark = mp.occursBoundsStack.mark
     }
-    def resetFromMark(mp: MPState) {
+    def restoreInto(mp: MPState) {
       mp.arrayIndexStack.reset(this.arrayIndexStackMark)
       mp.groupIndexStack.reset(this.groupIndexStackMark)
       mp.childIndexStack.reset(this.childIndexStackMark)
@@ -336,7 +336,7 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
 
   private lazy val infoset_ : Maybe[DIElement] = Nope
 
-  def infoset: InfosetItem =
+  def infoset: DIElement =
     if (infoset_.isDefined)
       infoset_.value
     else
@@ -348,14 +348,14 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
   private val occursBoundsStack_ = MStackOfLong()
   def occursBoundsStack: MStackOfLong = occursBoundsStack_
 
-  def thisElement: InfosetElement = infoset.asInstanceOf[InfosetElement]
+  def thisElement = infoset
 
   // Members declared in edu.illinois.ncsa.daffodil.processors.StateForDebugger
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 }
 
 final class PState private (
-  var infoset: InfosetItem,
+  var infoset: DIElement,
   var dataInputStream: DataInputStream,
   vmap: VariableMap,
   status: ProcessorResult,
@@ -365,9 +365,9 @@ final class PState private (
   var delimitedParseResult: Maybe[dfa.ParseResult])
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
 
-  override def currentNode = Maybe(infoset.asInstanceOf[DINode])
+  override def currentNode = Maybe(infoset)
 
-  val discriminatorStack = MStackOfBoolean()
+  private val discriminatorStack = MStackOfBoolean()
   discriminatorStack.push(false)
 
   override def dataStream = One(dataInputStream)
@@ -383,7 +383,7 @@ final class PState private (
   }
 
   override def hasInfoset = true
-  def thisElement = infoset.asInstanceOf[InfosetElement]
+  def thisElement = infoset
 
   override def groupPos = mpstate.groupPos
   override def arrayPos = mpstate.arrayPos
@@ -395,13 +395,13 @@ final class PState private (
   def mark: PState.Mark = {
     // threadCheck()
     val m = markPool.getFromPool
-    m.assignFromPState(this)
+    m.captureFrom(this)
     m
   }
 
   def reset(m: PState.Mark) {
     // threadCheck()
-    m.resetOntoPState(this)
+    m.restoreInto(this)
     m.clear()
     markPool.returnToPool(m)
   }
@@ -447,7 +447,17 @@ final class PState private (
     dataInputStream.setBitLimit0b(MaybeULong(bitLimit0b))
   }
 
-  def setParent(newParent: InfosetItem) {
+  /**
+   * This takes newParent as DIElement, not DIComplex, because there is code
+   * where we don't know whether the node is simple or complex but we set it as
+   * the parent anyway. If simple children will simply not be appended.
+   *
+   * But this invariant that there is always a parent we could append a child into
+   * is being maintained. THis invariant starts at the very top as there is a
+   * Document which is the parent of the root element. So there's no time when there
+   * isn't a parent there.
+   */
+  def setParent(newParent: DIElement) {
     this.infoset = newParent
   }
 
@@ -482,22 +492,6 @@ final class PState private (
     discriminatorStack.push(disc)
   }
 
-  //  def setPos(bitPos: Long) {
-  ////    val newInStream = inStream.withPos(bitPos)
-  ////    this.inStream = newInStream
-  //    dataInputStream.asInstanceOf[ByteBufferDataInputStream].setBitPos0b(bitPos)
-  //  }
-
-  def captureInfosetElementState = {
-    // threadCheck()
-    thisElement.captureState()
-  }
-
-  def restoreInfosetElementState(st: InfosetElementState) = {
-    // threadCheck()
-    thisElement.restoreState(st)
-  }
-
   final def notifyDebugging(flag: Boolean) {
     // threadCheck()
     dataInputStream.setDebugging(flag)
@@ -515,46 +509,52 @@ object PState {
 
     def bitPos0b = disMark.bitPos0b
 
-    var infosetState: InfosetElementState = _
+    val simpleElementState = DISimpleState()
+    val complexElementState = DIComplexState()
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
     var status: ProcessorResult = _
     var diagnostics: List[Diagnostic] = _
-    var discriminatorStackMark: MStack.Mark = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
 
     val mpStateMark = new MPState.Mark
 
     def clear() {
-      infosetState = null
+      simpleElementState.clear()
+      complexElementState.clear()
       disMark = null
       variableMap = null
       status = null
       diagnostics = null
-      discriminatorStackMark = MStack.nullMark
       delimitedParseResult = Nope
       mpStateMark.clear()
     }
 
-    def assignFromPState(ps: PState) {
-      this.infosetState = ps.captureInfosetElementState
+    def captureFrom(ps: PState) {
+      val e = ps.thisElement
+      if (e.isSimple)
+        simpleElementState.captureFrom(e)
+      else
+        complexElementState.captureFrom(e)
       this.disMark = ps.dataInputStream.mark
       this.variableMap = ps.variableMap
       this.status = ps.status
       this.diagnostics = ps.diagnostics
-      this.discriminatorStackMark = ps.discriminatorStack.mark
-      this.mpStateMark.setMarkFrom(ps.mpstate)
+      this.mpStateMark.captureFrom(ps.mpstate)
     }
 
-    def resetOntoPState(ps: PState) {
-      ps.restoreInfosetElementState(this.infosetState)
+    def restoreInto(ps: PState) {
+      val e = ps.thisElement
+      e match {
+        case s: DISimple => simpleElementState.restoreInto(e)
+        case c: DIComplex => complexElementState.restoreInto(e)
+      }
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
       ps.status_ = this.status
       ps.diagnostics = this.diagnostics
-      ps.discriminatorStack.reset(this.discriminatorStackMark)
       ps.delimitedParseResult = this.delimitedParseResult
-      mpStateMark.resetFromMark(ps.mpstate)
+      mpStateMark.restoreInto(ps.mpstate)
     }
 
   }
@@ -571,7 +571,7 @@ object PState {
     dis: DataInputStream,
     dataProc: DFDL.DataProcessor): PState = {
 
-    val doc = Infoset.newDocument(root)
+    val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
@@ -595,7 +595,7 @@ object PState {
     val diagnostics = Nil
     val mutablePState = MPState()
 
-    val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
+    val newState = new PState(doc.asInstanceOf[DIElement], dis, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }
@@ -626,5 +626,4 @@ object PState {
       ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit, bitOrder)
     createInitialPState(root, dis, dataProc)
   }
-
 }

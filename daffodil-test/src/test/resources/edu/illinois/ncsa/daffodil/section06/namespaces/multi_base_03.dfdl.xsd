@@ -40,7 +40,8 @@
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" outputNewLine="%LF;"
-        fillByte="%SP;" truncateSpecifiedLengthString="yes" escapeSchemeRef=""/>
+        fillByte="%SP;" truncateSpecifiedLengthString="yes" escapeSchemeRef=""
+        textPadKind='none'/>
     </xs:appinfo>
   </xs:annotation>
    

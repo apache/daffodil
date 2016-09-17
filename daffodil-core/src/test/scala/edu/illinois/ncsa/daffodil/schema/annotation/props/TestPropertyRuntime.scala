@@ -81,8 +81,11 @@ class TestPropertyRuntime {
   class HasMixin extends {
     override val xml = <foo/>
   } with SchemaComponentBase(<dummy/>, null)
-      with TheExamplePropMixin
-      with LookupLocation {
+    with TheExamplePropMixin
+    with LookupLocation {
+
+    final override def enclosingComponent: Option[SchemaComponentBase] = None
+
     // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
     def columnDescription: String = ???
     def fileDescription: String = ???
@@ -125,7 +128,7 @@ object TheExampleProp extends Enum[TheExampleProp] {
 }
 
 trait TheExamplePropMixin
-    extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
+  extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)

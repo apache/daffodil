@@ -75,27 +75,245 @@ trait ElementBaseGrammarMixin
     }
   }
 
+  protected lazy val isDelimitedPrefixedPattern = {
+    import LengthKind._
+    lengthKind match {
+      case Delimited => true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
+      case Pattern => true
+      case Prefixed => true
+      case _ => false
+    }
+  }
+
   /**
    * true if padding will be inserted for this delimited element when unparsing.
    */
   protected lazy val isDelimitedPrefixedPatternWithPadding = {
-    import LengthKind._
-    val isRightLengthKind =
-      lengthKind match {
-        case Delimited => true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
-        case Pattern => true
-        case Prefixed => true
-        case _ => false
-      }
-    (isRightLengthKind &&
+    (isDelimitedPrefixedPattern &&
       (impliedRepresentation eq Representation.Text) &&
       (justificationPad ne TextJustificationType.None) &&
       minLen > 0)
   }
 
-  lazy val shouldAddPadding =
-    maybeUnparseTargetLengthInBitsEv.isDefined ||
-      isDelimitedPrefixedPatternWithPadding
+  /**
+   * Quite tricky when we add padding or fill
+   *
+   * For complex types, there has to be a length defined. That's it.
+   *
+   * For simple types, we need the fill region processors
+   * to detect excess length
+   */
+  final lazy val shouldAddPadding = {
+    val res =
+      if (isComplexType &&
+        (this.maybeLengthEv.isDefined) &&
+        (lengthUnits eq LengthUnits.Characters))
+        maybeUnparseTargetLengthInBitsEv.isDefined // "pad" complex types.
+      else if (isDelimitedPrefixedPatternWithPadding)
+        true // simple type for unparse that needs to be padded.
+      else
+        // simple type, specified length.
+        (maybeUnparseTargetLengthInBitsEv.isDefined &&
+          (justificationPad ne TextJustificationType.None)) // None if not text.
+    //    if (res)
+    //      println("%s should add padding.".format(this.prettyName))
+    //    else
+    //      println("%s NOT adding padding.".format(this.prettyName))
+    res
+  }
+
+  /**
+   * We add fill to complex types of specified length so long as length units
+   * are bytes/bits. If characters then "pad" puts the characters on.
+   *
+   * We also add it to text elements of variable specified length again, unless
+   * length units are in characters.
+   */
+  final lazy val shouldAddFill = {
+    val res =
+      (isComplexType &&
+        isSpecifiedLengthForUnparsing &&
+        (lengthUnits ne LengthUnits.Characters)) ||
+        (isSimpleType &&
+          isSpecifiedLengthForUnparsing &&
+          couldBeVariableLengthInfoset &&
+          (lengthUnits ne LengthUnits.Characters))
+    //    if (res)
+    //      println("%s should add fill.".format(this.prettyName))
+    //    else
+    //      println("%s NOT adding fill.".format(this.prettyName))
+    res
+  }
+
+  //  /**
+  //   * Means the representation could have varying sizes.
+  //   *
+  //   * Does not mean the infoset element might be bigger or smaller and
+  //   * might get truncated or padded to fit a fixed size representation.
+  //   *
+  //   * This is about whether the box we're fitting it into is fixed or varying size.
+  //   */
+  //  final protected lazy val isVariableLengthRep: Boolean = {
+  //    isDelimitedPrefixedPattern ||
+  //      ((lengthKind eq LengthKind.Explicit) &&
+  //        !lengthEv.optConstant.isDefined)
+  //        //
+  //        // TODO: do we have to consider utf-8 situation for strings when
+  //        // even though the length is constant, because it's utf-8
+  //        // the length units are characters but we don't know
+  //        // how many bytes without knowing what characters are?
+  //        //
+  //        // This requires an Evaluatable, since it depends on charset.
+  //        //
+  //        // Also, whether we want this to be true/false depends on
+  //        // context. If the context is a complex type with lengthUnits characters
+  //        // then we're ok with utf-8 fixed number of characters. We're not
+  //        // ok if the complex type has length its bytes, but contains an
+  //        // element with length units bytes and charset utf-8.
+  //        //
+  //  }
+
+  /**
+   * Means the specified length must, necessarily, be big enough to hold the representation
+   * so long as the value in the infoset is legal for the type.
+   *
+   * This does not include numeric range checking. So for example if you
+   * have an xs:unsignedInt but length is 3 bits, this will be true even though an
+   * integer value of greater than 7 cannot fit.
+   *
+   * Another way to think of this is that legal infoset values will have fixed
+   * length representations.
+   *
+   * This is a conservative analysis, meaning if true the property definitely
+   * holds, but if false it may mean we just couldn't tell if it holds or not.
+   *
+   * If this is true, then we never need to check how many bits were written when
+   * unparsing, because we know a legal value has to fit. If the value is illegal
+   * then we'll get an unparse error anyway.
+   *
+   * If this is false, then it's possible that the value, even a legal value,
+   * might not fit if the length is specified. We're unable to prove that all
+   * legal values WILL fit.
+   *
+   * A critical case is that fixed length binary integers should always
+   * return true here so that we're not doing excess length checks on them
+   * Or computing their value length unnecessarily.
+   */
+  final protected lazy val mustBeFixedLengthInfoset = {
+    (isSimpleType &&
+      (impliedRepresentation eq Representation.Binary) &&
+      (primType ne PrimType.HexBinary) &&
+      {
+        import NodeInfo._
+        primType match {
+          case Float => true
+          case Double => true;
+          case n: Numeric.Kind =>
+            binaryNumberRep eq BinaryNumberRep.Binary
+          case _ => true
+        }
+      } &&
+      ((lengthKind eq LengthKind.Implicit) ||
+        ((lengthKind eq LengthKind.Explicit) &&
+          lengthEv.optConstant.isDefined)) // TODO: consider if delimiters matter, alignment, nil values,.... Are we excluding
+          // that stuff here? For example, if the element is nillable, but
+          // if isNilled, the representation will still be exactly the same
+          // length, then we'd like this to be true.
+          ) ||
+          (
+            // a fixed-length textual number, where a legal value
+            // (or nil value) must by definition be smaller than the
+            // fixed length. E.g., since the largest unsignedByte value
+            // is 256, and with textNumberPattern="###" the max width is 3
+            // then so long as the fixed length is 3 or greater we know
+            // it's going to fit.
+            //
+            // Furthermore, if it is nillable, and the nilValue is "nil", which
+            // is also length 3, then it's going to fit.
+            //
+            // Also matters that if the textNumberPattern can output fewer
+            // characters than the fixed width, then padding must be enabled and a
+            // pad char specified, and that the padChar is the same width as
+            // a digit. (similarly if the nilValue was "-" we need to pad that too)
+            //
+            // This also assumes that in every charset encoding the digit
+            // characters are always the same width so the whole utf-8
+            // variable-width encoding crud doesn't apply.
+            //
+            // However, textNumberPattern
+            // matters, because sometimes the lengths of positive and negative
+            // numbers can differ. So the fixed length has to be big enough
+            // for the largest possible textNumber matching the pattern.
+            //
+            false // TODO: implement this
+            ) ||
+            (isComplexType && !isNillable &&
+              (
+                //
+                // recursively, the complex type can contain only isFixedLengthInfoset items
+                // but in addition, no delimiter can be varying width - so there can only be one
+                // delimiter value for each of these, nor can there be any variable-width
+                // alignment regions.
+                //
+                false // TODO: implement this
+                ))
+  }
+
+  /**
+   * Means the infoset element could have varying length.
+   *
+   * And that means if there is a specified length box to fit it into
+   * that we have to check if it is too big/small for the box.
+   *
+   * So that means hexBinary, or representation text (for simple types)
+   * or any complex type unless everything in it is fixedLengthInfoset.
+   *
+   * So for example, a complex type containing only fixed length binary
+   * integers is itself fixed length.
+   */
+  final protected lazy val couldBeVariableLengthInfoset: Boolean = {
+    !mustBeFixedLengthInfoset
+  }
+
+  /**
+   * Only strings can be truncated, only if they are specified length,
+   * and only if truncateSpecifiedLengthString is 'yes'.
+   *
+   * Note that specified length might mean fixed length or variable (but specified)
+   * length.
+   */
+  final protected lazy val isTruncatable = {
+    isSimpleType &&
+      (primType eq PrimType.String) &&
+      (truncateSpecifiedLengthString eq YesNo.Yes) &&
+      isSpecifiedLengthForUnparsing
+  }
+
+  /**
+   * Fixed length, or variable length with explicit length expression.
+   */
+  final protected lazy val isSpecifiedLengthForUnparsing: Boolean = {
+    (isSimpleType && (
+      (lengthKind eq LengthKind.Explicit) ||
+      (lengthKind eq LengthKind.Implicit))) ||
+      (isComplexType &&
+        (lengthKind eq LengthKind.Explicit))
+  }
+
+  /**
+   * Check for excess length if it's variable length and we cannot truncate it.
+   */
+  final lazy val shouldCheckExcessLength = {
+    val res =
+      couldBeVariableLengthInfoset &&
+        !isTruncatable &&
+        isSpecifiedLengthForUnparsing
+    //    if (res)
+    //      println("%s should check excess length.".format(this.prettyName))
+    //    else
+    //      println("%s NOT checking excess length.".format(this.prettyName))
+    res
+  }
 
   private lazy val rightFill = new RightFill(context)
 
@@ -734,13 +952,17 @@ trait ElementBaseGrammarMixin
   //
   protected final def enclosedElementNonDefault = enclosedElement
 
+  private lazy val inputValueCalcPrim = InputValueCalc(self, inputValueCalcOption)
+
+  protected final def ivcCompiledExpression = inputValueCalcPrim.expr
+
   private lazy val inputValueCalcElement = prod("inputValueCalcElement",
     isSimpleType && inputValueCalcOption.isInstanceOf[Found]) {
       // No framing surrounding inputValueCalc elements.
       // Note that we need these elements even when unparsing, because they appear in the infoset
       // as regular elements (most times), and so we have to have an unparser that consumes the corresponding events.
       new ElementParseAndUnspecifiedLength(this, dfdlScopeBegin,
-        InputValueCalc(self, inputValueCalcOption), dfdlScopeEnd)
+        inputValueCalcPrim, dfdlScopeEnd)
     }
 
   protected final lazy val ovcCompiledExpression = { // ovcValueCalcObject.expr

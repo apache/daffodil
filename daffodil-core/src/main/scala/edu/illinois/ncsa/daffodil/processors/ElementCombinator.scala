@@ -142,67 +142,11 @@ class ElementCombinator(context: ElementBase,
     }
   }
 
-  //  private lazy val specifiedLengthUnparser: Unparser = {
-  //    context.typeDef.kind match {
-  //      case NodeInfo.Complex => complexSpecifiedLengthUnparser
-  //      case NodeInfo.HexBinary => hexBinarySpecifiedLengthUnparser
-  //      case st: NodeInfo.AnySimpleType.Kind if context.impliedRepresentation _eq_ Representation.Text =>
-  //        simpleTextSpecifiedLengthUnparser
-  //      case st: NodeInfo.AnySimpleType.Kind if context.impliedRepresentation _eq_ Representation.Binary =>
-  //        simpleBinarySpecifiedLengthUnparser
-  //      case k => Assert.invariantFailed("type not accepted: " + k + " with representation " + context.impliedRepresentation + " with lengthKind " + context.lengthKind)
-  //    }
-  //  }
-
-  //  private def maybeUnp(unp: Gram): Maybe[Unparser] = {
-  //    if (unp.isEmpty) Nope
-  //    else One(unp.unparser)
-  //  }
-
-  //  private lazy val complexSpecifiedLengthUnparser: Unparser = {
-  //    val elementUnused = new ElementUnused(context)
-  //    new ComplexElementSpecifiedLengthUnparser(context.erd,
-  //      context.unparseTargetLengthInBitsEv,
-  //      eUnparser, maybeUnp(elementUnused))
-  //  }
-  //
-  //  private lazy val hexBinarySpecifiedLengthUnparser: Unparser = {
-  //    val rightFill = new RightFill(context)
-  //    new HexBinarySpecifiedLengthUnparser(context.erd,
-  //      context.unparseTargetLengthInBitsEv,
-  //      eUnparser, maybeUnp(rightFill))
-  //  }
-  //
-  //  private lazy val simpleBinarySpecifiedLengthUnparser: Unparser = {
-  //    new SimpleBinarySpecifiedLengthUnparser(context.erd,
-  //      context.unparseTargetLengthInBitsEv,
-  //      eUnparser)
-  //  }
-  //
-  //  private lazy val simpleTextSpecifiedLengthUnparser: Unparser = {
-  //    val (leftPadding, rightPadding) = {
-  //      if (unparsingPadChar.isEmpty) (EmptyGram, EmptyGram)
-  //      else {
-  //        import TextJustificationType._
-  //        this.justificationPad match {
-  //          case None => (EmptyGram, EmptyGram)
-  //          case Left => (EmptyGram, OnlyPadding(context))
-  //          case Right => (OnlyPadding(context), EmptyGram)
-  //          case Center => (LeftCenteredPadding(context), RightCenteredPadding(context))
-  //        }
-  //      }
-  //    }
-  //    val rightFill = new RightFill(context)
-  //    new SimpleTextSpecifiedLengthUnparser(context.erd,
-  //      context.unparseTargetLengthInBitsEv,
-  //      maybeUnp(leftPadding), eUnparser,
-  //      maybeUnp(rightPadding), maybeUnp(rightFill))
-  //  }
-
 }
 
 case class ElementUnused(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined) {
+  extends Terminal(ctxt, ctxt.shouldAddFill ||
+    ctxt.shouldCheckExcessLength) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new ElementUnusedUnparser(ctxt.erd,
@@ -219,13 +163,16 @@ case class OnlyPadding(ctxt: ElementBase)
 
   override def parser = new NadaParser(ctxt.erd)
 
-  override lazy val unparser: Unparser =
+  override lazy val unparser: Unparser = {
+    Assert.invariant(ctxt.maybeUnparseMinOrTargetLengthInBitsEv.isDefined)
+    val mmtlev = ctxt.maybeUnparseMinOrTargetLengthInBitsEv.get
     new OnlyPaddingUnparser(ctxt.erd,
-      ctxt.maybeUnparseMinOrTargetLengthInBitsEv.get,
+      mmtlev,
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
       unparsingPadChar)
+  }
 }
 
 case class NilLiteralCharacter(ctxt: ElementBase)
@@ -274,7 +221,8 @@ case class LeftCenteredPadding(ctxt: ElementBase)
 }
 
 case class RightFill(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined)
+  extends Terminal(ctxt, ctxt.shouldAddFill ||
+    ctxt.shouldCheckExcessLength)
   with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
@@ -297,58 +245,86 @@ case class OVCRetry(ctxt: ElementBase, v: Gram)
 
 case class CaptureContentLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new CaptureStartOfContentLengthParser(ctxt.erd)
+  override def parser =
+    if (ctxt.isReferencedByContentLengthParserExpressions)
+      new CaptureStartOfContentLengthParser(ctxt.erd)
+    else
+      new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    new CaptureStartOfContentLengthUnparser(ctxt.erd)
+    if (ctxt.isReferencedByContentLengthUnparserExpressions)
+      new CaptureStartOfContentLengthUnparser(ctxt.erd)
+    else
+      new NadaUnparser(ctxt.erd)
 }
 
 case class CaptureContentLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = new CaptureEndOfContentLengthParser(ctxt.erd)
+  override def parser =
+    if (ctxt.isReferencedByContentLengthParserExpressions)
+      new CaptureEndOfContentLengthParser(ctxt.erd)
+    else
+      new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    new CaptureEndOfContentLengthUnparser(ctxt.erd)
+    if (ctxt.isReferencedByContentLengthUnparserExpressions)
+      new CaptureEndOfContentLengthUnparser(ctxt.erd)
+    else
+      new NadaUnparser(ctxt.erd)
 }
 
 case class CaptureValueLengthStart(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = {
-    // For simple elements with text representation, valueLength is captured in
-    // individual parsers since they handle removing delimiters and padding.
-    //
-    // For complex elements with specified length, valueLength is captured in
-    // the specified length parsers, since they handle skipping unused element
-    // regions.
-    //
-    // For all other elements, we can just use the Capture*ValueLength parsers.
-    if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-      (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
-    else new CaptureStartOfValueLengthParser(ctxt.erd)
-  }
+  override def parser =
+    if (ctxt.isReferencedByValueLengthParserExpressions) {
+      // For simple elements with text representation, valueLength is captured in
+      // individual parsers since they handle removing delimiters and padding.
+      //
+      // For complex elements with specified length, valueLength is captured in
+      // the specified length parsers, since they handle skipping unused element
+      // regions.
+      //
+      // For all other elements, we can just use the Capture*ValueLength parsers.
+      if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
+        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit))
+        new NadaParser(ctxt.erd)
+      else
+        new CaptureStartOfValueLengthParser(ctxt.erd)
+    } else
+      new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    new CaptureStartOfValueLengthUnparser(ctxt.erd)
+    if (ctxt.isReferencedByValueLengthUnparserExpressions) {
+      new CaptureStartOfValueLengthUnparser(ctxt.erd)
+    } else
+      new NadaUnparser(ctxt.erd)
 }
 
 case class CaptureValueLengthEnd(ctxt: ElementBase)
   extends Terminal(ctxt, true) {
-  override def parser = {
-    // For simple elements with text representation, valueLength is captured in
-    // individual parsers since they handle removing delimiters and padding.
-    //
-    // For complex elements with specified length, valueLength is captured in
-    // the specified length parsers, since they handle skipping unused element
-    // regions.
-    //
-    // For all other elements, we can just use the Capture*ValueLength parsers.
-    if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-      (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit)) new NadaParser(ctxt.erd)
-    else new CaptureEndOfValueLengthParser(ctxt.erd)
-  }
+  override def parser =
+    if (ctxt.isReferencedByValueLengthParserExpressions) {
+      // For simple elements with text representation, valueLength is captured in
+      // individual parsers since they handle removing delimiters and padding.
+      //
+      // For complex elements with specified length, valueLength is captured in
+      // the specified length parsers, since they handle skipping unused element
+      // regions.
+      //
+      // For all other elements, we can just use the Capture*ValueLength parsers.
+      if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
+        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit))
+        new NadaParser(ctxt.erd)
+      else
+        new CaptureEndOfValueLengthParser(ctxt.erd)
+    } else
+      new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    new CaptureEndOfValueLengthUnparser(ctxt.erd)
+    if (ctxt.isReferencedByValueLengthUnparserExpressions) {
+      new CaptureEndOfValueLengthUnparser(ctxt.erd)
+    } else
+      new NadaUnparser(ctxt.erd)
 }
 
 /*

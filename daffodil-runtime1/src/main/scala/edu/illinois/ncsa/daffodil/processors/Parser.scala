@@ -223,17 +223,9 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
     var i: Int = 0
     while (i < numChildParsers) {
       val parser = childParsers(i)
-
-      // val beforeParse = pstate.dataInputStream.mark
       parser.parse1(pstate)
-      //Assert.invariant(pstate.dataProc.handlers == handlers)
-      if (pstate.status ne Success) {
-        // pstate.dataInputStream.reset(beforeParse)
+      if (pstate.status ne Success)
         return
-      } else {
-        // pstate.dataInputStream.discard(beforeParse)
-      }
-
       i += 1
     }
   }
@@ -248,63 +240,69 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
   override def nom = "alt"
 
   def parse(pstate: PState): Unit = {
+    var pBefore: PState.Mark = null
+
     pstate.pushDiscriminator
-    var pBefore = pstate.mark
     var diagnostics: Seq[Diagnostic] = Nil
-    val cloneNode = pstate.captureInfosetElementState // we must undo side-effects on the JDOM if we backtrack.
-    childParsers.foreach { parser =>
-      {
-        log(LogLevel.Debug, "Trying choice alternative: %s", parser)
-        try {
-          pstate.reset(pBefore)
-          pBefore = pstate.mark
-          parser.parse1(pstate)
-        } catch {
-          case rsde: RuntimeSchemaDefinitionError => { pstate.discard(pBefore); throw rsde }
-        }
-        if (pstate.status eq Success) {
-          log(LogLevel.Debug, "Choice alternative success: %s", parser)
-          pstate.popDiscriminator
-          pstate.discard(pBefore)
-          return
-        }
+    var i = 0
+    var parser: Parser = null
+    val limit = childParsers.length
+    var returnFlag = false
+    while (!returnFlag && i < limit) {
+      parser = childParsers(i)
+      i += 1
+      log(LogLevel.Debug, "Trying choice alternative: %s", parser)
+      pBefore = pstate.mark
+      parser.parse1(pstate)
+      if (pstate.status eq Success) {
+        log(LogLevel.Debug, "Choice alternative success: %s", parser)
+        pstate.discard(pBefore)
+        pBefore = null
+        returnFlag = true
+      } else {
         // If we get here, then we had a failure
         log(LogLevel.Debug, "Choice alternative failed: %s", parser)
-        //
-        //
-        // Unwind any side effects on the Infoset
-        //
-        pstate.restoreInfosetElementState(cloneNode)
         //
         // capture diagnostics
         //
         val diag = new ParseAlternativeFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
         diagnostics = diag +: diagnostics
-
+        //
         // check for discriminator evaluated to true.
+        //
         if (pstate.discriminator == true) {
           log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded.")
           // If so, then we don't run the next alternative, we
           // consume this discriminator status result (so it doesn't ripple upward)
-          // and return the failed state withall the diagnostics.
+          // and return the failed state with all the diagnostics.
           //
           val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
-          pstate.discard(pBefore)
+          pstate.discard(pBefore) // because disc set, we don't unwind side effects on input stream & infoset
+          pBefore = null
           pstate.setFailed(allDiags)
-          pstate.popDiscriminator
-          return
+          returnFlag = true
+        } else {
+          //
+          // Here we have a failure, but no discriminator was set, so we try the next alternative.
+          // Which means we just go around the loop
+          //
+          // But we have to unwind side-effects on input-stream, infoset, variables, etc.
+          pstate.reset(pBefore)
+          pBefore = null
+          returnFlag = false
         }
-        //
-        // Here we have a failure, but no discriminator was set, so we try the next alternative.
-        // Which means we just go around the loop
       }
     }
-    // Out of alternatives. All of them failed.
+    Assert.invariant(i <= limit)
+    if (returnFlag == false) {
+      Assert.invariant(i == limit)
+      // Out of alternatives. All of them failed.
+      val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+      pstate.setFailed(allDiags)
+      log(LogLevel.Debug, "All AltParser alternatives failed.")
+    }
 
-    pstate.reset(pBefore)
-    val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
-    pstate.setFailed(allDiags)
-    log(LogLevel.Debug, "All AltParser alternatives failed.")
+    Assert.invariant(pBefore eq null)
     pstate.popDiscriminator
   }
 

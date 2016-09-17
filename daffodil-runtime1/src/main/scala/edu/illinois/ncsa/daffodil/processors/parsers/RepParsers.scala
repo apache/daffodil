@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
-import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -128,56 +127,60 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(n, rParser, erd, "AtMostTotalN") {
 
   def parseAllRepeats(initialState: PState): Unit = {
-    val startState = initialState.mark
-    var priorState = initialState.mark
-    val pstate = initialState
-    while (pstate.mpstate.arrayPos <= intN) {
-      // Since each one could fail, each is a new point of uncertainty.
-      //
-      // save the state of the infoset
-      //
-      val cloneNode = pstate.captureInfosetElementState
-      val infosetElement = pstate.infoset
+    if (initialState.mpstate.arrayPos <= intN) {
+      val startState = initialState.mark
+      var priorState = initialState.mark
+      val pstate = initialState
+      var returnFlag = false
+      while (!returnFlag && (pstate.mpstate.arrayPos <= intN)) {
+        // Since each one could fail, each is a new point of uncertainty.
 
-      pstate.pushDiscriminator
+        pstate.pushDiscriminator
 
-      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+        if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
 
-      rParser.parse1(pstate)
+        rParser.parse1(pstate)
 
-      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
+        if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
-      if (pstate.status ne Success) {
-        //
-        // Did not succeed
-        //
-        // Was a discriminator set?
-        //
-        if (pstate.discriminator == true) {
-          // we fail the whole RepUnbounded, because there was a discriminator set
-          // before the failure.
-          // pstate.popDiscriminator // pop happens when we reset.
-          pstate.reset(startState)
-          return
+        if (pstate.status ne Success) {
+          //
+          // Did not succeed
+          //
+          // Was a discriminator set?
+          //
+          if (pstate.discriminator == true) {
+            // we fail the whole RepUnbounded, because there was a discriminator set
+            // before the failure.
+            pstate.reset(startState)
+            pstate.discard(priorState)
+            returnFlag = true
+          } else {
+            //
+            // backout any element appended as part of this attempt.
+            //
+            pstate.reset(priorState)
+            pstate.discard(startState)
+            returnFlag = true // success at prior state.
+          }
+        } else {
+          //
+          // Success
+          //
+          pstate.discard(priorState)
+          priorState = pstate.mark
+          pstate.mpstate.moveOverOneArrayIndexOnly
+          returnFlag = false
         }
-        //
-        // backout any element appended as part of this attempt.
-        //
-        pstate.infoset = infosetElement
-        pstate.restoreInfosetElementState(cloneNode)
-        pstate.reset(priorState)
-        pstate.discard(startState)
-        return // success at prior state.
+
+        pstate.popDiscriminator
       }
-      //
-      // Success
-      //
-      pstate.discard(priorState)
-      priorState = pstate.mark
-      pstate.mpstate.moveOverOneArrayIndexOnly
-      pstate.popDiscriminator
+      if (returnFlag == false) {
+        // we exited the loop due to arrayPos hitting the upper limit
+        pstate.discard(priorState)
+        pstate.discard(startState)
+      }
     }
-    pstate.discard(startState)
   }
 }
 
@@ -198,12 +201,12 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   extends RepParser(-1, rParser, erd, "Unbounded") {
 
   def parseAllRepeats(initialState: PState): Unit = {
-    Assert.invariant(initialState.status =:= Success)
+    Assert.invariant(initialState.status eq Success)
     val startState = initialState.mark
     val pstate = initialState
     var priorState = initialState.mark
-
-    while (pstate.status eq Success) {
+    var returnFlag = false
+    while (!returnFlag && (pstate.status eq Success)) {
 
       //      erd.maxOccurs.foreach { maxOccurs =>
       //        if ((occursCountKind == OccursCountKind.Implicit) &&
@@ -222,8 +225,6 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       //        }
       //      }
 
-      val cloneNode = pstate.captureInfosetElementState
-      val infosetElement = pstate.infoset
       //
       // Every parse is a new point of uncertainty.
       pstate.pushDiscriminator
@@ -239,37 +240,39 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
         if (pstate.discriminator == true) {
           // we fail the whole RepUnbounded, because there was a discriminator set
           // before the failure.
-          pstate.popDiscriminator
           pstate.reset(startState)
-          return
+          pstate.discard(priorState)
+        } else {
+          //
+          // no discriminator, so suppress the failure. Loop terminated with prior element.
+          //
+
+          log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
+          pstate.reset(priorState)
+          pstate.discard(startState)
         }
-        //
-        // no discriminator, so suppress the failure. Loop terminated with prior element.
-        //
-        pstate.infoset = infosetElement
-        pstate.restoreInfosetElementState(cloneNode)
-        log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
-        pstate.reset(priorState)
-        pstate.discard(startState)
-        return // note that it has the prior point of uncertainty. No restore needed.
+        returnFlag = true
+      } else {
+        // Success
+        // Need to check for forward progress
+        if (pstate.bitPos =#= priorState.bitPos0b) {
+          pstate.discard(priorState) // didn't move, but might have assigned variables, have to undo those.
+          pstate.discard(startState)
+          PE(pstate,
+            "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
+              "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
+            pstate.bytePos, erd.prettyName)
+          returnFlag = true
+        } else {
+          pstate.discard(priorState)
+          priorState = pstate.mark
+          pstate.mpstate.moveOverOneArrayIndexOnly
+          returnFlag = false
+        }
       }
-      // Success
-      // Need to check for forward progress
-      if (pstate.bitPos =#= priorState.bitPos0b) {
-        pstate.discard(priorState) // didn't move, but might have assigned variables.
-        pstate.discard(startState)
-        PE(pstate,
-          "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
-            "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
-          pstate.bytePos, erd.prettyName)
-        return
-      }
-      pstate.discard(priorState)
-      priorState = pstate.mark
-      pstate.mpstate.moveOverOneArrayIndexOnly // was pstate, not pNext....why?
-      pstate.popDiscriminator // point of uncertainty has been resolved.
+      pstate.popDiscriminator
     }
-    Assert.invariantFailed("Unbounded loop terminated wrong")
+    Assert.invariant(returnFlag == true)
   }
 }
 

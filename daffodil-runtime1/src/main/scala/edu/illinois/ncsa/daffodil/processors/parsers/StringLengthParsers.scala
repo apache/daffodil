@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.DIElement
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.processors.CharsetEv
 
@@ -79,7 +78,7 @@ trait CaptureParsingValueLength {
   def charsetEv: CharsetEv
 
   final def captureValueLength(state: PState, startBitPos0b: ULong, endBitPos0b: ULong) {
-    val elem = state.currentNode.get.asInstanceOf[DIElement]
+    val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(startBitPos0b)
     elem.valueLength.setAbsEndPos0bInBits(endBitPos0b)
   }

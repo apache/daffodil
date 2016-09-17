@@ -34,6 +34,40 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
+trait PropertyReferencedElementInfosMixin {
+  protected final type F = ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]
+
+  /**
+   * Convenience method to make gathering up all elements referenced in expressions
+   * easier.
+   */
+  protected final def propExprElts(rawProp: PropertyLookupResult,
+    evArg: => ContentValueReferencedElementInfoMixin,
+    f: F): Set[DPathElementCompileInfo] = {
+    lazy val ev = evArg
+    if (rawProp.isDefined) f(ev) else Set()
+  }
+
+  final protected def creis(rei: ContentValueReferencedElementInfoMixin) = rei.contentReferencedElementInfos
+  final protected def vreis(rei: ContentValueReferencedElementInfoMixin) = rei.valueReferencedElementInfos
+
+  protected def propertyContentReferencedElementInfos: Set[DPathElementCompileInfo]
+  protected def propertyValueReferencedElementInfos: Set[DPathElementCompileInfo]
+
+  protected def statementContentParserReferencedElementInfos: Set[DPathElementCompileInfo]
+  protected def calcContentParserReferencedElementInfos = ReferencedElementInfos.None
+
+  protected def statementContentUnparserReferencedElementInfos: Set[DPathElementCompileInfo]
+  protected def calcContentUnparserReferencedElementInfos = ReferencedElementInfos.None
+
+  protected def statementValueParserReferencedElementInfos: Set[DPathElementCompileInfo]
+  protected def calcValueParserReferencedElementInfos = ReferencedElementInfos.None
+
+  protected def statementValueUnparserReferencedElementInfos: Set[DPathElementCompileInfo]
+  protected def calcValueUnparserReferencedElementInfos = ReferencedElementInfos.None
+
+}
+
 /**
  * A RealTerm is an element or a sequence or a choice. Group references
  * are excluded as they go away and really have no realization.
@@ -184,5 +218,75 @@ trait RealTermMixin { self: Term =>
     }
     listOfNextTerm
   }.value
+
+  /**
+   * Set of elements referenced from an expression in the scope of this term.
+   *
+   * Specific to certain function call contexts e.g., only elements referenced
+   * by dfdl:valueLength or dfdl:contentLength.
+   *
+   * Separated by parser/unparser since parsers have to derive from
+   * dfdl:inputValueCalc, and must include discriminators and assert test
+   * expressions. Unparsers must derive from dfdl:outputValueCalc and exclude
+   * discriminators and asserts. Both must include setVariable/newVariableInstance,
+   * and property expressions are nearly the same. There are some unparser-specfic
+   * properties that take runtime-valued expressions - dfdl:outputNewLine is
+   * one example.
+   */
+  final lazy val contentLengthParserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyContentReferencedElementInfos
+    val stmtRefs = statementContentParserReferencedElementInfos
+    val calcRefs = calcContentParserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthParserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val contentLengthUnparserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyContentReferencedElementInfos
+    val stmtRefs = statementContentUnparserReferencedElementInfos
+    val calcRefs = calcContentUnparserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthUnparserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val valueLengthParserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyValueReferencedElementInfos
+    val stmtRefs = statementValueParserReferencedElementInfos
+    val calcRefs = calcValueParserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthParserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val valueLengthUnparserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyValueReferencedElementInfos
+    val stmtRefs = statementValueUnparserReferencedElementInfos
+    val calcRefs = calcValueUnparserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthUnparserReferencedElementInfos) }
+    res
+  }
+
+  private lazy val realChildren: Seq[RealTermMixin] = {
+    this match {
+      case mg: ModelGroup => mg.groupMembersNoRefs.asInstanceOf[Seq[RealTermMixin]]
+      case eb: ElementBase if (eb.isComplexType) => Seq(eb.elementComplexType.group)
+      case eb: ElementBase => Seq()
+    }
+  }
 
 }

@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.equality._
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-    extends OverlapCheckMixin { self: ElementBase =>
+  extends OverlapCheckMixin { self: ElementBase =>
 
   private def eRefNonDefault: Option[ChainPropProvider] = LV('eRefNonDefault) {
     elementRef.map {
@@ -237,4 +237,5 @@ trait ElementDeclMixin
 
   final override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
   final override lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
+
 }

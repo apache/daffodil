@@ -106,11 +106,10 @@ abstract class ElementParserBase(
       if (pstate.status ne Success) {
         pstate.dataInputStream.discard(startingBitPos)
         return
+      } else {
+        pstate.dataInputStream.reset(startingBitPos)
       }
-      pstate.dataInputStream.reset(startingBitPos)
-    }
-
-    if (patAssertParser.length > 0) {
+    } else if (patAssertParser.length > 0) {
       val startingBitPos = pstate.dataInputStream.mark
       var i: Int = 0
       val size = patAssertParser.size
@@ -243,7 +242,7 @@ class ElementParser(
   }
 
   def parseBegin(pstate: PState): Unit = {
-    val currentElement = Infoset.newElement(erd)
+    val currentElement = Infoset.newElement(erd).asInstanceOf[DIElement]
 
     log(LogLevel.Debug, "currentElement = %s", currentElement)
     val priorElement = pstate.infoset
@@ -260,8 +259,8 @@ class ElementParser(
   }
 
   def parseEnd(pstate: PState): Unit = {
-    val currentElement = pstate.thisElement
-    val priorElement = currentElement.parent
+    val currentElement = pstate.infoset
+    val priorElement = currentElement.diParent
 
     if (pstate.status eq Success) {
       val shouldValidate =

@@ -58,6 +58,18 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     else false
   }.value
 
+  final lazy val isKnownToBeTextAligned: Boolean = {
+    if (self.encodingInfo.isKnownEncoding &&
+      self.encodingInfo.knownEncodingAlignmentInBits == 1)
+      true
+    else if (isKnownToBePrecededByAllByteLengthItems)
+      true
+    else if (this.rootElement.get.isScannable)
+      true
+    else
+      false
+  }
+
   // TODO: deal with case of a bit field that is not a multiple of bytes wide
   // but has a terminator which is text and so has mandatory alignment.
   //  /**

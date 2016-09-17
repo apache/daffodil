@@ -43,16 +43,16 @@ import edu.illinois.ncsa.daffodil.grammar._
  * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
  */
 final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementRef: Option[ElementRef])
-    extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
-    with GlobalComponentMixin
-    with ElementDeclMixin
-    with GlobalElementDeclGrammarMixin
-    /*
+  extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
+  with GlobalComponentMixin
+  with ElementDeclMixin
+  with GlobalElementDeclGrammarMixin
+  /*
    * global elements combined with element references referring to them can
    * be multiple occurring (aka arrays) hence, we have to have things
    * that take root and referenced situation into account.
    */
-    with RequiredOptionalMixin {
+  with RequiredOptionalMixin {
 
   override lazy val maxOccurs = elementRef match {
     case Some(er) => er.maxOccurs
@@ -68,7 +68,7 @@ final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, o
 
   override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
 
-  override lazy val enclosingComponent = elementRef.flatMap { _.enclosingComponent }
+  final override protected def enclosingComponentDef = elementRef.flatMap { _.enclosingComponent }
 
   override lazy val referringComponent: Option[SchemaComponent] = elementRef
 

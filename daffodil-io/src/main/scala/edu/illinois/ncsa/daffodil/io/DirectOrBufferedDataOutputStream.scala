@@ -357,7 +357,9 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    * information when setFinished occurs, which is, after all, the time when we
    * can push such info forward.
    *
-   * However, see setFinished comment that nothing is doing this push forward.
+   * However, see setFinished comment. Where we setFinished and there is a following
+   * DOS we reach forward and ask that for its maybeAbsBitPos0b, which pulls the information
+   * forward by one DOS in the chain. So this chain should never be very long.
    */
   override def maybeAbsBitPos0b: MaybeULong = {
     val mSuper = super.maybeAbsBitPos0b

@@ -76,9 +76,9 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
   // package private because used in unit test
-  private[dsom] final lazy val optionEscapeCharacterRaw = findPropertyOption("escapeCharacter")
+  final lazy val optionEscapeCharacterRaw = findPropertyOption("escapeCharacter")
   private[dsom] final lazy val escapeCharacterRaw = requireProperty(optionEscapeCharacterRaw)
-  protected final lazy val optionEscapeEscapeCharacterRaw = findPropertyOption("escapeEscapeCharacter")
+  final lazy val optionEscapeEscapeCharacterRaw = findPropertyOption("escapeEscapeCharacter")
   protected final lazy val escapeEscapeCharacterRaw = requireProperty(optionEscapeEscapeCharacterRaw)
   protected final lazy val optionEscapeBlockStartRaw = findPropertyOption("escapeBlockStart")
   protected final lazy val escapeBlockStartRaw = requireProperty(optionEscapeBlockStartRaw)

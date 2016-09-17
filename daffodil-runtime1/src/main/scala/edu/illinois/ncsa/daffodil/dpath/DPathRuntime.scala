@@ -186,6 +186,7 @@ case class Literal(v: Any) extends RecipeOp {
     dstate.setCurrentValue(v)
   }
   override def toXML = toXML(v.toString)
+
 }
 
 case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)

@@ -69,7 +69,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
-
 /**
  * Some grammar rules need to be conditional based on whether we're trying
  * for a parser or an unparser.
@@ -91,6 +90,8 @@ class ProcessorFactory(val sset: SchemaSet)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
+  final override def enclosingComponent: Option[SchemaComponentBase] = None
+
   lazy val (generateParser, generateUnparser) = {
     val (context, policy) =
       if (DaffodilTunableParameters.parseUnparsePolicy.isDefined) {
@@ -100,8 +101,8 @@ class ProcessorFactory(val sset: SchemaSet)
       }
     rootElem.checkParseUnparsePolicyCompatibility(context, policy)
     policy match {
-      case ParseUnparsePolicy.Both        => (true, true)
-      case ParseUnparsePolicy.ParseOnly   => (true, false)
+      case ParseUnparsePolicy.Both => (true, true)
+      case ParseUnparsePolicy.ParseOnly => (true, false)
       case ParseUnparsePolicy.UnparseOnly => (false, true)
     }
   }
@@ -268,18 +269,18 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
       case "parseUnparsePolicy" => {
         val policy = value.toLowerCase match {
-          case "parseonly"   => Some(ParseUnparsePolicy.ParseOnly)
+          case "parseonly" => Some(ParseUnparsePolicy.ParseOnly)
           case "unparseonly" => Some(ParseUnparsePolicy.UnparseOnly)
-          case "both"        => Some(ParseUnparsePolicy.Both)
-          case "schema"      => None
+          case "both" => Some(ParseUnparsePolicy.Both)
+          case "schema" => None
           case _ => Assert.usageError("Unknown value for parseUnparsePolicy tunable. Value must be \"parseOnly\", \"unparseOnly\", \"both\", or \"schema\".")
         }
         DaffodilTunableParameters.parseUnparsePolicy = policy
       }
       case "unqualifiedpathsteppolicy" => {
         val policy = value.toLowerCase match {
-          case "nonamespace"            => DaffodilTunableParameters.UnqualifiedPathStepPolicy.NoNamespace
-          case "defaultnamespace"       => DaffodilTunableParameters.UnqualifiedPathStepPolicy.DefaultNamespace
+          case "nonamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.NoNamespace
+          case "defaultnamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.DefaultNamespace
           case "preferdefaultnamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.PreferDefaultNamespace
           case _ => Assert.usageError("Unknown value for unqualifiedPathStepPolicy tunable. Value must be \"noNamespace\", \"defaultNamespace\", or \"perferDefaultNamespace\".")
         }

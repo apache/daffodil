@@ -80,20 +80,12 @@ case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
 
   private val alignment = e.alignmentValueInBits
 
-  //  def isAligned(currBitPos: Long): Boolean = {
-  //    if (alignment == 0 || currBitPos == 0) return true
-  //    if ((currBitPos - alignment) < 0) return false
-  //    if ((currBitPos % alignment) == 0) return true
-  //    return false
-  //  }
-
   lazy val parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
   lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData, e.fillByteEv)
 }
 
-case class FinalUnusedRegion(e: ElementBase) extends UnimplementedPrimitive(e, false)
-
-case class MandatoryTextAlignment(e: Term, alignmentInBits: Int) extends Terminal(e, alignmentInBits > 1) {
+case class MandatoryTextAlignment(e: Term, alignmentInBits: Int) extends Terminal(e,
+  !e.isKnownToBeTextAligned) {
   Assert.invariant(alignmentInBits > 0)
 
   lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.runtimeData)

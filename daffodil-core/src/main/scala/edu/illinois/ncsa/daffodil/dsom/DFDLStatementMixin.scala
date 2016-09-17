@@ -32,8 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.xml.Node
+
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.processors.AssertBase
 
 /**
  * The other kind of DFDL annotations are DFDL 'statements'.
@@ -110,4 +113,61 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
     checkDistinctVariableNames(svs)
   }
 
+  private def getParserExprReferencedElements(s: DFDLStatement,
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
+    s match {
+
+      case a: DFDLAssertionBase if (a.testKind eq TestKind.Expression) => {
+        a.gram match {
+          case ab: AssertBase => f(ab.expr)
+          case _ => ReferencedElementInfos.None
+        }
+      }
+
+      case _ => getUnparserExprReferencedElements(s, f)
+    }
+  }
+
+  private def getUnparserExprReferencedElements(s: DFDLStatement,
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
+    s match {
+      case sv: DFDLSetVariable => {
+        val mdv = sv.defv.maybeDefaultValueExpr
+        if (mdv.isDefined)
+          f(mdv.get)
+        else
+          ReferencedElementInfos.None
+      }
+      case nv: DFDLNewVariableInstance => {
+        // nv.defaultValueExpr.contentReferencedElementInfos
+        ???
+      }
+      case _ => ReferencedElementInfos.None
+    }
+  }
+
+  private def creis(rei: ContentValueReferencedElementInfoMixin) = rei.contentReferencedElementInfos
+  private def vreis(rei: ContentValueReferencedElementInfoMixin) = rei.valueReferencedElementInfos
+
+  private def statementReferencedElementInfos(f: DFDLStatement => Set[DPathElementCompileInfo]) = {
+
+    val stmtSets: Seq[DPathElementCompileInfo] = {
+      val s = statements
+      val sets = s.flatMap(f)
+      sets
+    }
+    stmtSets.toSet
+  }
+
+  final protected lazy val statementContentParserReferencedElementInfos =
+    statementReferencedElementInfos(x => getParserExprReferencedElements(x, creis(_)))
+
+  final protected lazy val statementContentUnparserReferencedElementInfos =
+    statementReferencedElementInfos(x => getUnparserExprReferencedElements(x, creis(_)))
+
+  final protected lazy val statementValueParserReferencedElementInfos =
+    statementReferencedElementInfos(x => getParserExprReferencedElements(x, vreis(_)))
+
+  final protected lazy val statementValueUnparserReferencedElementInfos =
+    statementReferencedElementInfos(x => getUnparserExprReferencedElements(x, vreis(_)))
 }

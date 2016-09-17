@@ -70,7 +70,7 @@ sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocu
     res
   }
 
-  final override lazy val enclosingComponent = groupRef.enclosingComponent
+  final override protected def enclosingComponentDef = groupRef.enclosingComponent
 
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children

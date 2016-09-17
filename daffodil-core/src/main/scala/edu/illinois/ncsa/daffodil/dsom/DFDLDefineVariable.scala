@@ -82,7 +82,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   final override lazy val runtimeData = variableRuntimeData
 
-  private lazy val maybeDefaultValueExpr = {
+  lazy val maybeDefaultValueExpr = {
     val compilationTargetType = primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>

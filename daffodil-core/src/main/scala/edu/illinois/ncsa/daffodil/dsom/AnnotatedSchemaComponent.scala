@@ -198,7 +198,10 @@ trait AnnotatedMixin
     val dais = ais.filter { ai =>
       {
         ai.attribute("source") match {
-          case None => false
+          case None => {
+            this.SDW("""xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""")
+            false
+          }
           case Some(n) => {
             val sourceNS = NS(n.text)
             //
@@ -232,9 +235,9 @@ trait AnnotatedMixin
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  final def annotationObjs = LV('annotationObjs) {
+  final lazy val annotationObjs = {
     // println(dais)
-    dais.flatMap { dai =>
+    val objs = dais.flatMap { dai =>
       {
         val children = dai.child
         val res = children.filter { _.isInstanceOf[scala.xml.Elem] }.flatMap { child =>
@@ -245,7 +248,8 @@ trait AnnotatedMixin
         res
       }
     }
-  }.value
+    objs
+  }
 
   /**
    * Here we establish an invariant which is that every annotatable schema component has, definitely, has an

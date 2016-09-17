@@ -66,6 +66,42 @@ abstract class Expression extends OOLAGHost
   requiredEvaluations(isTypeCorrect)
   requiredEvaluations(compiledDPath_)
 
+  /**
+   * Override where we traverse/access elements.
+   */
+  def leafContentLengthReferencedElements = ReferencedElementInfos.None
+  def leafValueLengthReferencedElements = ReferencedElementInfos.None
+
+  def contentReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val clds = children
+    val cldsreis: Set[DPathElementCompileInfo] =
+      clds.foldLeft(ReferencedElementInfos.None) {
+        (s, item) =>
+          {
+            val ireis = item.contentReferencedElementInfos
+            s.union(ireis)
+          }
+      }
+    val res = cldsreis ++
+      leafContentLengthReferencedElements
+    res
+  }
+
+  def valueReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val clds = children
+    val cldsreis: Set[DPathElementCompileInfo] =
+      clds.foldLeft(ReferencedElementInfos.None) {
+        (s, item) =>
+          {
+            val ireis = item.valueReferencedElementInfos
+            s.union(ireis)
+          }
+      }
+    val res = cldsreis ++
+      leafValueLengthReferencedElements
+    res
+  }
+
   // This split allows overrides of this lazy val to still reuse this
   // (super.isTypeCorrect doesn't work inside an overridden lazy val.)
   lazy val isTypeCorrect: Boolean = checkTypeCorrectness
@@ -1118,7 +1154,7 @@ abstract class LiteralExpressionBase(value: Any)
   }
 
   override def toString = text
-  
+
   def isValidInt(n: Number): Boolean = {
     val bd = new JBigDecimal(n.toString())
     val res = try {
@@ -1129,7 +1165,7 @@ abstract class LiteralExpressionBase(value: Any)
     }
     res
   }
-  
+
   def isValidLong(n: Number): Boolean = {
     val bd = new JBigDecimal(n.toString())
     val res = try {
@@ -1140,7 +1176,7 @@ abstract class LiteralExpressionBase(value: Any)
     }
     res
   }
-  
+
   def isDecimalDouble(bd: JBigDecimal): Boolean = {
     val d = bd.doubleValue()
     !d.isInfinity && equals(bd)
@@ -1254,6 +1290,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
   extends PrimaryExpression(expressions) {
 
   override def text = functionObject.text
+
+  final override def leafContentLengthReferencedElements = functionObject.leafContentLengthReferencedElements
+  final override def leafValueLengthReferencedElements = functionObject.leafValueLengthReferencedElements
 
   lazy val functionQName: RefQName = resolveRef(functionQNameString)
 
@@ -1486,7 +1525,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       }
 
       case (RefQName(_, "contentLength", DFDL), args) =>
-        FNTwoArgsExpr(functionQNameString, functionQName, args,
+        ContentLengthExpr(functionQNameString, functionQName, args,
           NodeInfo.Long, NodeInfo.Exists, NodeInfo.String, DFDLContentLength(_))
       // The above specifies Exists, because we want to know a node exists, but
       // it has to be a node, not a simple value. E.g., dfdl:contentLength("foobar", "bits") makes no sense.
@@ -1497,7 +1536,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       // But that's fairly pointless.
 
       case (RefQName(_, "valueLength", DFDL), args) => {
-        FNTwoArgsExpr(functionQNameString, functionQName, args,
+        ValueLengthExpr(functionQNameString, functionQName, args,
           NodeInfo.Long, NodeInfo.Exists, NodeInfo.String, DFDLValueLength(_))
       }
 
@@ -1775,7 +1814,7 @@ case class FNOneArgExprConversionDisallowed(nameAsParsed: String, fnQName: RefQN
   }
 }
 
-case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
+abstract class FNTwoArgsExprBase(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
   constructor: List[CompiledDPath] => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
@@ -1799,6 +1838,44 @@ case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
     val res = new CompiledDPath(constructor(List(arg1Recipe, arg2Recipe)) +: conversions)
     res
   }
+}
+
+case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
+  constructor: List[CompiledDPath] => RecipeOp)
+  extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor)
+
+sealed abstract class LengthExprBase(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
+  constructor: List[CompiledDPath] => RecipeOp)
+  extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
+
+  protected final def leafReferencedElements = {
+       val arg = args(0).asInstanceOf[PathExpression]
+    val steps = arg.steps
+    val lst = steps.last
+    val elem = lst.stepElement
+    val res = Set(elem)
+    res
+  }
+
+}
+
+case class ContentLengthExpr(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
+  constructor: List[CompiledDPath] => RecipeOp)
+  extends LengthExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
+
+    override lazy val leafContentLengthReferencedElements = leafReferencedElements
+}
+
+
+case class ValueLengthExpr(nameAsParsed: String, fnQName: RefQName,
+  args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
+  constructor: List[CompiledDPath] => RecipeOp)
+  extends LengthExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
+
+    override lazy val leafValueLengthReferencedElements = leafReferencedElements
 }
 
 case class FNThreeArgsExpr(nameAsParsed: String, fnQName: RefQName,

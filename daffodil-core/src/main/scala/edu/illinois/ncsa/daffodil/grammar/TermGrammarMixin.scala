@@ -42,9 +42,9 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 /////////////////////////////////////////////////////////////////
 
 trait TermGrammarMixin
-    extends AlignedMixin
-    with BitOrderMixin
-    with EncodingChangeMixin { self: Term =>
+  extends AlignedMixin
+  with BitOrderMixin
+  with EncodingChangeMixin { self: Term =>
 
   override protected final def grammarContext = this
 
@@ -200,7 +200,16 @@ trait TermGrammarMixin
   /**
    * Mandatory text alignment for delimiters
    */
-  protected lazy val delimMTA = prod("delimMTA", hasDelimiters) {
-    mtaBase
-  }
+  protected lazy val delimMTA = prod("delimMTA",
+    {
+      //      if (!hasDelimiters) {
+      //        println("Removing MTA for delimiters of " + this.prettyName)
+      //      } else {
+      //        println("MTA region inserted for " + this.prettyName)
+      //      }
+      hasDelimiters
+    }) {
+      mtaBase
+    }
+
 }

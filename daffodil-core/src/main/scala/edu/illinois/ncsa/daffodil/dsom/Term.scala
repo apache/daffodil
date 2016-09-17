@@ -47,13 +47,13 @@ import java.lang.{ Integer => JInt }
 
 // A term is content of a group
 abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
-    extends AnnotatedSchemaComponent(xmlArg, parentArg)
-    with TermRuntimeValuedPropertiesMixin
-    with LocalComponentMixin
-    with TermGrammarMixin
-    with DelimitedRuntimeValuedPropertiesMixin
-    with InitiatedTerminatedMixin
-    with TermEncodingMixin {
+  extends AnnotatedSchemaComponent(xmlArg, parentArg)
+  with TermRuntimeValuedPropertiesMixin
+  with LocalComponentMixin
+  with TermGrammarMixin
+  with DelimitedRuntimeValuedPropertiesMixin
+  with InitiatedTerminatedMixin
+  with TermEncodingMixin {
 
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")

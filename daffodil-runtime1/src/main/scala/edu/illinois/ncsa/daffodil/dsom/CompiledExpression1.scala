@@ -49,6 +49,11 @@ import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
 
+trait ContentValueReferencedElementInfoMixin {
+
+  def contentReferencedElementInfos: Set[DPathElementCompileInfo]
+  def valueReferencedElementInfos: Set[DPathElementCompileInfo]
+}
 /**
  * For the DFDL path/expression language, this provides the place to
  * type check the expression (SDE if not properly typed)
@@ -72,7 +77,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathS
 abstract class CompiledExpression[+T <: AnyRef](
   val qName: NamedQName,
   valueForDebugPrinting: AnyRef)
-  extends Serializable {
+  extends ContentValueReferencedElementInfoMixin with Serializable {
 
   final def toBriefXML(depth: Int = -1) = {
     "'" + prettyExpr + "'"
@@ -126,6 +131,13 @@ abstract class CompiledExpression[+T <: AnyRef](
   def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T]
 
   override def toString(): String = "CompiledExpression(" + valueForDebugPrinting.toString + ")"
+
+}
+
+object ReferencedElementInfos {
+
+  val None = Set.empty.asInstanceOf[Set[DPathElementCompileInfo]]
+
 }
 
 final case class ConstantExpression[+T <: AnyRef](
@@ -156,6 +168,9 @@ final case class ConstantExpression[+T <: AnyRef](
 
   def constant: T = value
   def isConstant = true
+
+  override def contentReferencedElementInfos = ReferencedElementInfos.None
+  override def valueReferencedElementInfos = ReferencedElementInfos.None
 }
 
 /**

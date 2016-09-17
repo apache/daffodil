@@ -238,7 +238,10 @@
     <tdml:document><![CDATA[04:44:23.3000]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Type time cannot have lengthKind='implicit' when representation='text'</tdml:error>
+      <tdml:error>time</tdml:error>
+      <tdml:error>lengthKind='implicit'</tdml:error>
+      <tdml:error></tdml:error>
+      <tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

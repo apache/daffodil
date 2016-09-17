@@ -52,10 +52,10 @@ import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
  * doesn't.
  */
 final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
-    extends LocalElementBase(xmlArg, parent, position)
-    with ElementReferenceGrammarMixin
-    with HasRefMixin
-    with NamedMixin {
+  extends LocalElementBase(xmlArg, parent, position)
+  with ElementReferenceGrammarMixin
+  with HasRefMixin
+  with NamedMixin {
 
   requiredEvaluations(referencedElement)
 

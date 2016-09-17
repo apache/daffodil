@@ -34,18 +34,25 @@ package edu.illinois.ncsa.daffodil.pcap
 
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPCAP {
+  lazy val runner = Runner("/edu/illinois/ncsa/daffodil/pcap/", "pcap.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+}
 
 class TestPCAP {
 
-  lazy val runner = Runner("/edu/illinois/ncsa/daffodil/pcap/", "pcap.tdml")
+  import TestPCAP._
 
-  @Test def test_pcap_test_dns() = // Debugger.withDebugger
-    { runner.runOneTest("pcap_test_dns") }
+  @Test def test_pcap_test_dns() = { runner.runOneTest("pcap_test_dns") }
   @Test def test_pcap_test_http_ipv6() = { runner.runOneTest("pcap_test_http_ipv6") }
   @Test def test_pcap_test_icmp() { runner.runOneTest("pcap_test_icmp") }
   @Test def test_pcap_test_tcp_ecn() { runner.runOneTest("pcap_test_tcp_ecn") }
 
-  // DFDL-1561
   @Test def test_pcap_test_icmp_unparse1() { runner.runOneTest("pcap_test_icmp_unparse1") }
 
 }

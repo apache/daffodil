@@ -78,7 +78,10 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
         res
       }
       case None => {
-        new RuntimeExpressionDPath[T](qn, nodeInfoKind, recipe, expr, context, isEvaluatedAbove)
+        val contentReferencedElementInfos = tree.contentReferencedElementInfos
+        val valueReferencedElementInfos = tree.valueReferencedElementInfos
+        new RuntimeExpressionDPath[T](qn, nodeInfoKind, recipe, expr, context, isEvaluatedAbove,
+          contentReferencedElementInfos, valueReferencedElementInfos)
       }
     }
     res
@@ -93,10 +96,10 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
    *  Before this fix the following would occur:
    *
    *  Given:
-   * 	{ ../../e1 eq 1 }
+   *   { ../../e1 eq 1 }
    *
    *  Was interpreted as:
-   * 	{ ../../e1eq1 }
+   *   { ../../e1eq1 }
    *
    *  This was incorrect.
    */

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,9 +37,9 @@ import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
-    extends SchemaComponent(xmlArg, parent)
-    with TypeBase
-    with ComplexTypeBaseGrammarMixin {
+  extends SchemaComponent(xmlArg, parent)
+  with TypeBase
+  with ComplexTypeBaseGrammarMixin {
 
   requiredEvaluations(modelGroup)
 
@@ -102,7 +102,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 }
 
 final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-    extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 
@@ -112,15 +112,15 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
  * For unit testing purposes, the element argument might be supplied as null.
  */
 final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
-    extends ComplexTypeBase(xmlArg, schemaDocumentArg)
-    with GlobalComponentMixin {
+  extends ComplexTypeBase(xmlArg, schemaDocumentArg)
+  with GlobalComponentMixin {
 
   lazy val referringComponent = Option(element)
 
 }
 
 final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
-    extends ComplexTypeBase(xmlArg, element)
-    with LocalComponentMixin {
+  extends ComplexTypeBase(xmlArg, element)
+  with LocalComponentMixin {
   //nothing
 }

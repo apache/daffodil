@@ -212,9 +212,7 @@ final class FakeDINode extends DISimple(null) {
   private def die = throw new InfosetNoInfosetException(Nope)
 
   override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = die
-  override def captureState(): InfosetElementState = die
   override def removeHiddenElements(): InfosetElement = die
-  override def restoreState(state: InfosetElementState): Unit = die
 
   override def parent = die
   override def diParent = die
@@ -226,7 +224,6 @@ final class FakeDINode extends DISimple(null) {
   override def valid = die
   override def setValid(validity: Boolean): Unit = die
 
-  private var _value: AnyRef = null
   override def dataValue: AnyRef = _value
   override def setDataValue(s: AnyRef): Unit = { _value = asAnyRef(s) }
 
@@ -352,12 +349,19 @@ sealed abstract class LengthState(ie: DIElement)
   private var maybeComputedLength: MaybeULong = MaybeULong.Nope
 
   def copyFrom(other: LengthState) {
-    other.recheckStreams()
     this.maybeStartDataOutputStream = other.maybeStartDataOutputStream
     this.maybeStartPos0bInBits = other.maybeStartPos0bInBits
     this.maybeEndDataOutputStream = other.maybeEndDataOutputStream
     this.maybeEndPos0bInBits = other.maybeEndPos0bInBits
     this.maybeComputedLength = other.maybeComputedLength
+  }
+
+  def clear() {
+    maybeStartDataOutputStream = Nope
+    maybeStartPos0bInBits = MaybeULong.Nope
+    maybeEndDataOutputStream = Nope
+    maybeEndPos0bInBits = MaybeULong.Nope
+    maybeComputedLength = MaybeULong.Nope
   }
 
   protected def throwUnknown: Nothing
@@ -599,27 +603,216 @@ class ValueLengthState(ie: DIElement) extends LengthState(ie) {
 
 }
 
-trait DIElementState extends InfosetElementState {
-  val contentLength = new ContentLengthState(null)
-  val valueLength = new ValueLengthState(null)
+sealed trait DIElementSharedInterface {
+  def contentLength: ContentLengthState
+  def valueLength: ValueLengthState
+  def restoreInto(e: DIElement): Unit
+  def captureFrom(e: DIElement): Unit
+  def clear(): Unit
 }
 
-class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val lastSlotAdded: Int, val arraySize: MaybeInt)
-  extends DIElementState
+sealed trait DIElementSharedMembersMixin {
 
-case class DISimpleState(var isNilled: Boolean,
-  var isDefaulted: Boolean,
-  var validity: MaybeBoolean,
-  var value: AnyRef //  ,
-  //  var maybeValueLengthInCharacters: MaybeULong,
-  //  var maybeValueLengthInBits: MaybeULong
-  ) extends DIElementState
+  protected final var _contentLength: ContentLengthState = null
+  protected final var _valueLength: ValueLengthState = null
+
+  protected final var _isNilled: Boolean = false
+  protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
+
+  protected def allocContentLength: ContentLengthState
+  protected def allocValueLength: ValueLengthState
+
+  /**
+   * Copy method keeps these objects null
+   * to avoid allocation unless they are really needed.
+   */
+  final protected def copyContentLengthFrom(e: DIElementSharedMembersMixin) {
+    if (e._contentLength eq null)
+      if (this._contentLength eq null) {
+        // do nothing
+      } else {
+        this._contentLength = null
+      }
+    else {
+      if (this._contentLength eq null) {
+        this._contentLength = allocContentLength
+      }
+      this._contentLength.copyFrom(e._contentLength)
+    }
+  }
+
+  /**
+   * Copy method keeps these objects null
+   * to avoid allocation unless they are really needed.
+   */
+  final protected def copyValueLengthFrom(e: DIElementSharedMembersMixin) {
+    if (e._valueLength eq null)
+      if (this._valueLength eq null) {
+        // do nothing
+      } else {
+        this._valueLength = null
+      }
+    else {
+      if (this._valueLength eq null) {
+        this._valueLength = allocValueLength
+      }
+      this._valueLength.copyFrom(e._valueLength)
+    }
+  }
+
+  /*
+   * Initialized on demand
+   */
+  final def contentLength = {
+    if (_contentLength eq null) {
+      _contentLength = allocContentLength
+    }
+    _contentLength
+  }
+
+  final def valueLength = {
+    if (_valueLength eq null) {
+      _valueLength = allocValueLength
+    }
+    _valueLength
+  }
+
+}
+
+sealed abstract class DIElementState
+  extends DIElementSharedInterface
+  with DIElementSharedImplMixin {
+
+  final override protected def allocContentLength = new ContentLengthState(null)
+  final override protected def allocValueLength = new ValueLengthState(null)
+
+}
+
+sealed trait DIElementSharedImplMixin
+  extends DIElementSharedInterface
+  with DIElementSharedMembersMixin {
+
+  override def restoreInto(e: DIElement) {
+    e._isNilled = this._isNilled
+    e._validity = this._validity
+
+    e copyContentLengthFrom (this)
+    e.copyValueLengthFrom(this)
+  }
+
+  override def captureFrom(e: DIElement) {
+    this._isNilled = e._isNilled
+    this._validity = e._validity
+
+    this.copyContentLengthFrom(e)
+    this.copyValueLengthFrom(e)
+  }
+
+  override def clear() {
+    this._isNilled = false
+    this._validity = MaybeBoolean.Nope
+    contentLength.clear()
+    valueLength.clear()
+  }
+
+}
+
+sealed trait DIComplexSharedMembersMixin {
+
+  final var _lastSlotAdded: Int = -1
+  final var _arraySize: MaybeInt = MaybeInt.Nope
+}
+
+sealed trait DIComplexSharedImplMixin
+  extends DIElementSharedInterface
+  with DIComplexSharedMembersMixin {
+
+  abstract override def restoreInto(e: DIElement) {
+    val c = e.asInstanceOf[DIComplex]
+    c.restoreFrom(this)
+    c._lastSlotAdded = this._lastSlotAdded
+    super.restoreInto(e)
+  }
+
+  abstract override def captureFrom(e: DIElement) {
+    val c = e.asInstanceOf[DIComplex]
+    c.captureInto(this)
+    this._lastSlotAdded = c._lastSlotAdded
+    super.captureFrom(e)
+  }
+
+  abstract override def clear() {
+    _lastSlotAdded = -1
+    _arraySize = MaybeInt.Nope
+    super.clear()
+  }
+}
+
+final class DIComplexState private ()
+  extends DIElementState
+  with DIElementSharedImplMixin
+  with DIComplexSharedImplMixin
+
+object DIComplexState {
+  def apply() = { val c = new DIComplexState(); c.clear(); c }
+}
+
+sealed trait DISimpleSharedMembersMixin {
+
+  protected var _isDefaulted: Boolean = false
+
+  protected var _value: AnyRef = null
+}
+
+sealed trait DISimpleSharedImplMixin
+  extends DIElementSharedInterface
+  with DISimpleSharedMembersMixin {
+
+  abstract override def restoreInto(e: DIElement) {
+    super.restoreInto(e)
+    val s = e.asInstanceOf[DISimple]
+    s._isDefaulted = this._isDefaulted
+    s._value = this._value
+  }
+
+  abstract override def captureFrom(e: DIElement) {
+    super.captureFrom(e)
+    val s = e.asInstanceOf[DISimple]
+    this._isDefaulted = s._isDefaulted
+    this._value = s._value
+  }
+
+  abstract override def clear() {
+    super.clear()
+    _isDefaulted = false
+    _value = null
+  }
+}
+
+final class DISimpleState private ()
+  extends DIElementState
+  with DIElementSharedImplMixin
+  with DISimpleSharedImplMixin
+
+object DISimpleState {
+  def apply() = { val s = new DISimpleState(); s.clear(); s }
+}
 
 /**
  * Base for non-array elements. That is either scalar or optional (
  * minOccurs 0, maxOccurs 1)
  */
-sealed trait DIElement extends DINode with DITerm with InfosetElement {
+sealed trait DIElement
+  extends DINode
+  with DITerm
+  with InfosetElement
+  with DIElementSharedImplMixin {
+
+  final override protected def allocContentLength = new ContentLengthState(this)
+  final override protected def allocValueLength = new ValueLengthState(this)
+
+  def isSimple: Boolean
+  def isComplex: Boolean
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
   override final def namedQName = erd.namedQName
@@ -682,10 +875,8 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
 
   final def runtimeData = erd
   protected final var _parent: InfosetComplexElement = null
-  protected final var _isNilled: Boolean = false
-  protected final var _isNilledSet: Boolean = false
 
-  protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
+  protected final var _isNilledSet: Boolean = false
 
   override def parent = _parent
   def diParent = _parent.asInstanceOf[DIComplex]
@@ -775,20 +966,6 @@ sealed trait DIElement extends DINode with DITerm with InfosetElement {
     writer.write("\n")
   }
 
-  val contentLength = new ContentLengthState(this)
-  val valueLength = new ValueLengthState(this)
-
-  override def restoreState(st: InfosetElementState): Unit = {
-    val ss = st.asInstanceOf[DIElementState]
-    this.contentLength.copyFrom(ss.contentLength)
-    this.valueLength.copyFrom(ss.valueLength)
-  }
-
-  protected final def captureStateInto(st: InfosetElementState) {
-    val ss = st.asInstanceOf[DIElementState]
-    ss.contentLength.copyFrom(this.contentLength)
-    ss.valueLength.copyFrom(this.valueLength)
-  }
 }
 
 // This is not a mutable collection class on purpose.
@@ -896,13 +1073,14 @@ case class OutputValueCalcEvaluationException(val cause: Exception)
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement
+  with DISimpleSharedImplMixin
   with InfosetSimpleElement {
+
+  final override def isSimple = true
+  final override def isComplex = false
 
   def filledSlots: IndexedSeq[DINode] = IndexedSeq.empty
 
-  protected var _isDefaulted: Boolean = false
-
-  private var _value: AnyRef = null
   private var _stringRep: String = null
 
   override def children: Stream[DINode] = Stream.Empty
@@ -1136,72 +1314,6 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     }
   }
 
-  //TODO: make these use a pool of these DISimpleState objects
-  // so as to avoid allocating and discarding when really we only need
-  // a handful of them and they obey a stack discipline.
-  //
-  override def captureState(): InfosetElementState = {
-    val st = DISimpleState(_isNilled, _isDefaulted, _validity, _value //        ,
-    //        this.maybeValueLengthInCharacters_,
-    //        this.maybeValueLengthInBits_
-    )
-    captureStateInto(st)
-    st
-  }
-
-  override def restoreState(st: InfosetElementState): Unit = {
-    super.restoreState(st)
-    val ss = st.asInstanceOf[DISimpleState]
-    _isNilled = ss.isNilled
-    _validity = ss.validity
-    _isDefaulted = ss.isDefaulted
-    _value = ss.value
-    //    maybeValueLengthInCharacters_ = ss.maybeValueLengthInCharacters
-    //    maybeValueLengthInBits_ = ss.maybeValueLengthInBits
-  }
-  //
-  //  private var maybeValueLengthInCharacters_ : MaybeULong = MaybeULong.Nope
-  //  private var maybeValueLengthInBits_ : MaybeULong = MaybeULong.Nope
-  //
-  //  def valueLengthInCharacters: ULong = {
-  //    erd.SDE("dfdl:valueLength with length units 'characters' is not supported.")
-  //    // TODO: when fixing the above, consider that parsers and unparsers that deal with text
-  //    // must all participate in keeping track of number of characters. At runtime, if the
-  //    // element is not scannable, then units of characters isn't meaningful.
-  //    //
-  //    // Also: keep in mind that valueLength *includes* escape characters, escape-escape, and escapeBlockStart/End characters,
-  //    // but excludes padding characters.
-  //    //
-  //    if (maybeValueLengthInCharacters_.isDefined) maybeValueLengthInCharacters_.getULong
-  //    else throw new InfosetValueLengthUnknownException(this, this.runtimeData)
-  //  }
-  //
-  //  def valueLengthInBits: ULong = {
-  //    if (maybeValueLengthInBits_.isDefined) maybeValueLengthInBits_.getULong
-  //    else throw new InfosetValueLengthUnknownException(this, this.runtimeData)
-  //  }
-  //
-  //  def valueLengthInBytes: ULong = {
-  //    // TODO: assert check for length in bytes makes sense - length units is bytes, or is characters, but characters
-  //    // are byte based (that is not 7-bit or 6-bit)
-  //    // or is bits, but for some reason we know it's a multiple of 8.
-  //    // For now, this is just going to round up to the next number of bytes whenever there is a frag byte.
-  //    val clbits = valueLengthInBits
-  //    val wholeBytes = math.ceil(clbits.toDouble / 8.0).toLong
-  //    ULong(wholeBytes)
-  //  }
-  //
-  //  def setValueLengthInBits(len: ULong) {
-  //    maybeValueLengthInBits_ = MaybeULong(len.longValue)
-  //  }
-  //
-  //  def setValueLengthInCharacters(len: ULong) {
-  //    maybeValueLengthInCharacters_ = MaybeULong(len.longValue)
-  //  }
-  //
-  //  def setValueLengthInBytes(len: ULong) {
-  //    maybeValueLengthInBits_ = MaybeULong(len * 8)
-  //  }
 }
 /**
  * Arrays and complex elements have a notion of being finalized, when unparsing.
@@ -1242,9 +1354,14 @@ sealed trait DIFinalizable {
  * The DIArray object's length gives the number of occurrences.
  */
 sealed class DIComplex(override val erd: ElementRuntimeData)
-  extends DIElement with InfosetComplexElement
+  extends DIElement
+  with DIComplexSharedImplMixin
+  with InfosetComplexElement
   with DIFinalizable // with HasModelGroupMixin
   { diComplex =>
+
+  final override def isSimple = false
+  final override def isComplex = true
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 
@@ -1274,8 +1391,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     val slots = new Array[DINode](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
     slots
   }
-
-  private var _lastSlotAdded = -1
 
   override lazy val filledSlots: IndexedSeq[DINode] = slots.filter { _ ne null }
 
@@ -1364,10 +1479,11 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     this
   }
 
-  //TODO: make these use a thread-local pool so that we avoid allocating
-  //these objects that obey a stack discipline.
-  final override def captureState(): InfosetElementState = {
-    val arrSize =
+  final def captureInto(cs: DIComplexSharedImplMixin) {
+    Assert.invariant(_arraySize == MaybeInt.Nope)
+    Assert.invariant(cs._arraySize == MaybeInt.Nope)
+
+    cs._arraySize =
       if (_lastSlotAdded >= 0) {
         _slots(_lastSlotAdded) match {
           case arr: DIArray => MaybeInt(arr.length.toInt)
@@ -1376,26 +1492,20 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       } else {
         MaybeInt.Nope
       }
-    val st = new DIComplexState(_isNilled, _validity, _lastSlotAdded, arrSize)
-    captureStateInto(st)
-    st
   }
 
-  final override def restoreState(st: InfosetElementState): Unit = {
-    super.restoreState(st)
-    val ss = st.asInstanceOf[DIComplexState]
-    _isNilled = ss.isNilled
-    _validity = ss.validity
+  final def restoreFrom(cs: DIComplexSharedImplMixin) {
+    Assert.invariant(_arraySize == MaybeInt.Nope)
 
     var i = _lastSlotAdded
-    while (i > ss.lastSlotAdded) {
+    while (i > cs._lastSlotAdded) {
       _slots(i) = null
       i -= 1
     }
-    _lastSlotAdded = ss.lastSlotAdded
+    _lastSlotAdded = cs._lastSlotAdded
 
-    if (ss.arraySize.isDefined) {
-      _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(ss.arraySize.get)
+    if (cs._arraySize.isDefined) {
+      _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(cs._arraySize.get)
     }
   }
 

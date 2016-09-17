@@ -37,13 +37,6 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.util.Maybe
 
-/**
- * Saved for backtracking. Used to restore to prior Infoset element content.
- */
-trait InfosetElementState {
-  // nothing
-}
-
 trait InfosetCommon {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
 }
@@ -79,20 +72,6 @@ trait InfosetElement extends InfosetItem {
   def namespace: NS
   def name: String
   def isHidden: Boolean
-
-  /**
-   * These should maintain a per-thread pool.
-   *
-   * Capture state should obtain an object of the
-   * appropriate type and populate it. Restore should
-   * restore the infoset object per what was saved,
-   * and then release the captured-state-object back
-   * to the pool. The released object should be cleared
-   * (to avoid holding onto references to anything)
-   * when put back into the pool.
-   */
-  def captureState(): InfosetElementState
-  def restoreState(state: InfosetElementState): Unit
 
   /**
    * Removes child elements that are hidden. Except this element itself,

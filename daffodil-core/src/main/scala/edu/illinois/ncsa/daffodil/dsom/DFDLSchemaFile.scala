@@ -81,7 +81,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
 
   lazy val schemaSource = schemaSourceArg
 
-  override lazy val enclosingComponent = None
+  final override protected def enclosingComponentDef = None
 
   private var validationDiagnostics_ : Seq[Diagnostic] = Nil
 

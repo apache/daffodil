@@ -63,7 +63,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case s if (s.trim().length() == 0) => None
     case txt => Some(txt.trim())
   } // package visible for unit testing
-
+  
   private lazy val testPattern = {
     val optPattern = getAttributeOption("testPattern")
     if (optPattern.isDefined) {

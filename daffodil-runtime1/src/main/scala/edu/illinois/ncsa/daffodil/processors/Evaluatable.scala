@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.dpath.EvalMode
 import edu.illinois.ncsa.daffodil.dpath.UnparserNonBlocking
 import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
+import edu.illinois.ncsa.daffodil.dsom.ContentValueReferencedElementInfoMixin
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -204,7 +205,7 @@ trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
         // outputValueCalc since we need to maintain the state. Otherwise, it
         // is more memory efficient to just recalculate any evaluatables
         Assert.invariant(state.currentNode.isDefined)
-        val cn = state.currentNode.get
+        val cn = state.infoset
         val termNode = cn match {
           case t: DITerm => t
           case _ => Assert.invariantFailed("current node was not a term.")
@@ -450,7 +451,10 @@ final class EvalCache {
   }
 }
 
-trait ExprEvalMixin[T <: AnyRef] extends DoSDEMixin {
+trait ExprEvalMixin[T <: AnyRef]
+  extends DoSDEMixin with ContentValueReferencedElementInfoMixin {
+
+  protected def expr: CompiledExpression[T]
 
   protected def maybeUseUnparserMode: Maybe[EvalMode]
 
@@ -485,6 +489,9 @@ trait ExprEvalMixin[T <: AnyRef] extends DoSDEMixin {
     expressionResult
   }
 
+  final def contentReferencedElementInfos = expr.contentReferencedElementInfos
+  final def valueReferencedElementInfos = expr.valueReferencedElementInfos
+
 }
 
 /**
@@ -492,10 +499,10 @@ trait ExprEvalMixin[T <: AnyRef] extends DoSDEMixin {
  * of the property.
  */
 abstract class EvaluatableExpression[ExprType <: AnyRef](
-  expr: CompiledExpression[ExprType],
+  override protected val expr: CompiledExpression[ExprType],
   rd: RuntimeData)
-    extends Evaluatable[ExprType](rd)
-    with ExprEvalMixin[ExprType] {
+  extends Evaluatable[ExprType](rd)
+  with ExprEvalMixin[ExprType] {
 
   override lazy val runtimeDependencies = Nil
 
@@ -513,11 +520,9 @@ abstract class EvaluatableExpression[ExprType <: AnyRef](
  * See the cookers for string literals such as TextStandardInfinityRepCooker.
  */
 trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: AnyRef]
-    extends ExprEvalMixin[ExprType] { self: Evaluatable[ConvertedType] =>
+  extends ExprEvalMixin[ExprType] { self: Evaluatable[ConvertedType] =>
 
   protected def converter: Converter[ExprType, ConvertedType]
-
-  protected def expr: CompiledExpression[ExprType]
 
   override lazy val runtimeDependencies = Nil
 
@@ -543,6 +548,6 @@ abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType
   val expr: CompiledExpression[ExprType],
   val converter: Converter[ExprType, ConvertedType],
   rd: RuntimeData)
-    extends Evaluatable[ConvertedType](rd)
-    with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]
+  extends Evaluatable[ConvertedType](rd)
+  with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]
 

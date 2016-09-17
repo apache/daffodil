@@ -70,6 +70,11 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   val context: SchemaComponent = parent
 
+  override protected def enclosingComponentDef =
+    super.enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
+
+  override final lazy val enclosingComponent = enclosingComponentDef
+
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
    *
@@ -175,11 +180,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     }
   }.value
 
-  override lazy val enclosingComponent = LV('enclosingComponent) {
-    val res = enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
-    res
-  }.value
-
   /**
    * All schema components except the root have an enclosing element.
    */
@@ -192,6 +192,16 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     }
     ee
   }.value
+
+  final lazy val rootElement: Option[GlobalElementDecl] = {
+    enclosingElement match {
+      case Some(e) => e.rootElement
+      case None => this match {
+        case eb: ElementBase => Some(eb.asInstanceOf[GlobalElementDecl])
+        case _ => None
+      }
+    }
+  }
 
   final lazy val enclosingTerm: Option[Term] = {
     enclosingComponent match {
@@ -209,6 +219,18 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   override lazy val path = {
     val p = scPath.map { _.prettyName }.mkString("::")
     p
+  }
+
+  /**
+   * Elements only e.g., /foo/ex:bar
+   */
+  final lazy val slashPath: String = {
+    val thisOne = "/" + prettyName
+    val encElem = enclosingElement
+    if (encElem.isDefined)
+      encElem.get.slashPath + thisOne
+    else
+      thisOne
   }
 
   override def toString = prettyName
@@ -282,7 +304,7 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
 
   override def targetNamespace: NS = namespace
 
-  override lazy val enclosingComponent = None
+  final override protected def enclosingComponentDef = None
   override lazy val schemaDocument: SchemaDocument = Assert.usageError("schemaDocument should not be called on Schema")
 
   override lazy val schemaSet = schemaSetArg

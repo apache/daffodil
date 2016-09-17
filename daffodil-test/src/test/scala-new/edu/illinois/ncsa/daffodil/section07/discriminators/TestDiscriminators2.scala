@@ -1,4 +1,4 @@
-/* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,26 +30,26 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.section07.discriminators
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaComponentBase)
-  extends OOLAGHost(parent) {
+object TestDiscriminators2 {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
+  val runner2 = Runner(testDir, "discriminator2.tdml")
 
-  val xml = xmlArg
-  val aaa_xml = xml // for debugging, so we don't have to scroll down.
+  @AfterClass def shutDown() {
+    runner2.reset
+  }
 
-  /**
-   * override in derived class to narrow the result type.
-   *
-   * Concrete here only for unit tests that create instances.
-   */
-  protected def enclosingComponentDef =
-    if (parent != null) Some(parent) else None
+}
 
-  def enclosingComponent : Option[SchemaComponentBase]
- 
-  def isHidden = false
+class TestDiscriminators2 {
+
+  import TestDiscriminators2._
+
+  @Test def test_discrimFailStopsFollowingAssert1() { runner2.runOneTest("discrimFailStopsFollowingAssert1") }
 
 }

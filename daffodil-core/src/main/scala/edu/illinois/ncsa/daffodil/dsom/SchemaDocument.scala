@@ -64,7 +64,7 @@ import edu.illinois.ncsa.daffodil.dsom.IIUtils.IIMap
  */
 trait SchemaDocumentMixin { self: SchemaComponent =>
 
-  final override lazy val enclosingComponent: Option[SchemaComponent] = None
+  protected final override def enclosingComponentDef: Option[SchemaComponent] = None
 
 }
 

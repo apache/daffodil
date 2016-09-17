@@ -202,7 +202,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       doParse(ssrd.parser, state)
       val pr = new ParseResult(this, state)
       pr.validateResult(state)
-
       val s = state
       val dp = s.dataProc
       val ssrdParser = ssrd.parser

@@ -44,7 +44,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
-import edu.illinois.ncsa.daffodil.dpath.WholeExpression
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.SeveralPossibilitiesForNextElement
 import edu.illinois.ncsa.daffodil.equality._
@@ -78,7 +77,6 @@ object ElementBase {
  */
 abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends Term(xmlArg, parent, position)
-  with AnnotatedMixin
   with Element_AnnotationMixin
   with NillableMixin
   with DFDLStatementMixin
@@ -121,16 +119,71 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def isRequired = true // overridden in particle mixin.
 
-  final lazy val notReferencedByExpressions = {
-    val ise = inScopeExpressions
-    val hasThem = ise.exists { _.hasReferenceTo(dpathElementCompileInfo) }
-    !hasThem
+  override final protected def calcContentParserReferencedElementInfos =
+    if (this.inputValueCalcOption.isDefined)
+      ivcCompiledExpression.contentReferencedElementInfos
+    else
+      ReferencedElementInfos.None
+
+  override final protected def calcContentUnparserReferencedElementInfos =
+    if (this.outputValueCalcOption.isDefined)
+      ovcCompiledExpression.contentReferencedElementInfos
+    else
+      ReferencedElementInfos.None
+
+  override final protected def calcValueParserReferencedElementInfos =
+    if (this.inputValueCalcOption.isDefined) {
+      val ivcCE = ivcCompiledExpression
+      val setERs = ivcCE.valueReferencedElementInfos
+      setERs
+    } else
+      ReferencedElementInfos.None
+
+  override final protected def calcValueUnparserReferencedElementInfos =
+    if (this.outputValueCalcOption.isDefined)
+      ovcCompiledExpression.valueReferencedElementInfos
+    else
+      ReferencedElementInfos.None
+
+  final lazy val isReferencedByContentLengthParserExpressions: Boolean =
+    rootElement.get.contentLengthParserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+
+  final lazy val isReferencedByContentLengthUnparserExpressions: Boolean =
+    rootElement.get.contentLengthUnparserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+
+  final lazy val isReferencedByValueLengthParserExpressions: Boolean = {
+    val setElems = rootElement.get.valueLengthParserReferencedElementInfos
+    //    if (this eq rootElement.get)
+    //      println("PARSER these are referenced by valueCalc: " + setElems.toString)
+    val res = setElems.contains(this.dpathElementCompileInfo)
+    res
+  }
+
+  final lazy val isReferencedByValueLengthUnparserExpressions: Boolean = {
+    val setElems = rootElement.get.valueLengthUnparserReferencedElementInfos
+    //    if (this eq rootElement.get)
+    //      println("UNPARSER these are referenced by valueCalc: " + setElems.toString)
+    val isInExprs = setElems.contains(this.dpathElementCompileInfo)
+    val res = isInExprs ||
+      otherwiseShouldCaptureValueRegionLength
+    res
   }
 
   /**
-   * Stream because we don't want to necessarily enumerate all of them
+   * Besides being referenced by the dfdl:valueLength function,
+   * We need the valueLength to be computed for unparser pad/fill, to check
+   * excess length, and for alignmentFills.
+   *
+   * TBD: why for alignment fills? Don't see using it in the code. Try without this?
    */
-  def inScopeExpressions: Stream[WholeExpression] = Stream.empty
+  private lazy val otherwiseShouldCaptureValueRegionLength: Boolean = {
+    val pad = this.shouldAddPadding
+    val fill = this.shouldAddFill
+    val len = this.shouldCheckExcessLength
+    val alg = !this.isKnownToBeAligned // alignment fill uses the value length.
+    val res = pad || fill || len || alg
+    res
+  }
 
   final lazy val simpleType = {
     Assert.usage(isSimpleType)
@@ -155,7 +208,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       enclosingElement.map { _.dpathElementCompileInfo },
       variableMap,
       namespaces,
-      path,
+      slashPath,
       slotIndexInParent,
       name,
       isArray,
@@ -455,7 +508,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       //
       // unparser specific items
       //
-      notReferencedByExpressions,
+      false, // !isReferencedByExpressions, // assume it is always to be referenced by expressions
       optTruncateSpecifiedLengthString,
       if (isOutputValueCalc) Some(ovcCompiledExpression) else None)
     newERD
