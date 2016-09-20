@@ -32,35 +32,24 @@
 
 package edu.illinois.ncsa.daffodil.section17.calc_value_properties
 
-import org.junit.Test
+//import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestOutputValueCalc {
+object TestOutputValueCalcNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
 
   val runner = Runner(testDir, "outputValueCalc.tdml")
+  val runner2 = Runner(testDir, "outputValueCalc2.tdml")
 
   @AfterClass def shutDown {
     runner.reset
+    runner2.reset
   }
 
 }
 
-class TestOutputValueCalc {
-
-  import TestOutputValueCalc._
-
-  @Test def test_OutputValueCalc_01() { runner.runOneTest("OutputValueCalc_01") }
-  @Test def test_OutputValueCalc_02() { runner.runOneTest("OutputValueCalc_02") }
-  @Test def test_OutputValueCalc_03() { runner.runOneTest("OutputValueCalc_03") }
-  @Test def test_OutputValueCalc_04() { runner.runOneTest("OutputValueCalc_04") }
-  @Test def test_OutputValueCalc_05() { runner.runOneTest("OutputValueCalc_05") }
-  @Test def test_OutputValueCalc_06() { runner.runOneTest("OutputValueCalc_06") }
-  @Test def test_OutputValueCalc_07() { runner.runOneTest("OutputValueCalc_07") }
-  @Test def test_OutputValueCalc_08() { runner.runOneTest("OutputValueCalc_08") }
-
-  @Test def test_binaryInteger_BigEndian() { runner.runOneTest("binaryIntegerBE") }
-  @Test def test_binaryInteger_LittleEndian() { runner.runOneTest("binaryIntegerLE") }
+class TestOutputValueCalcNew {
+//  import TestOutputValueCalcNew._
 
 }

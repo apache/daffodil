@@ -31,7 +31,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
     SOFTWARE.
 -->
-<tdml:testSuite suiteName="outputValueCalc" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+<tdml:testSuite suiteName="outputValueCalc2" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" xmlns:fn="http://www.w3.org/2005/xpath-functions" defaultRoundTrip="false">
 
   <tdml:defineSchema name="ovc1" elementFormDefault="unqualified">
@@ -324,6 +324,32 @@
       </xs:complexType>
     </xs:element>
 
+    <dfdl:defineEscapeScheme name="escapeScheme4">
+      <dfdl:escapeScheme escapeEscapeCharacter="{ ../xi }"
+        escapeKind="escapeCharacter" escapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="escapeScheme5">
+      <dfdl:escapeScheme escapeEscapeCharacter="{ ../yi }"
+        escapeKind="escapeCharacter" escapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="escapeScheme6">
+      <dfdl:escapeScheme escapeEscapeCharacter="{ ../zi }"
+        escapeKind="escapeCharacter" escapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="xi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="yi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="zi" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+
+          <xs:element name="x" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme4" dfdl:outputValueCalc="{ fn:concat(dfdl:valueLength(../y, 'bytes'),'test^') }" />
+          <xs:element name="y" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme5" dfdl:outputValueCalc="{ fn:concat(dfdl:valueLength(../z, 'bytes'),'blah^') }" />
+          <xs:element name="z" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:escapeSchemeRef="escapeScheme6" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -420,6 +446,22 @@
     </tdml:infoset>
     <tdml:document>
       <tdml:documentPart type="text">xyztestx;7;blahy;9;testz;ing;</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ovc_w_runtime_escape_escape_char" root="e7" model="ovc4" description="ovc test with escapeEscapeCharacter as runtime valued property">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <xi>x</xi>
+          <yi>y</yi>
+          <zi>z</zi>
+          <z>test^</z>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">xyz7testx^;6blahy^;testz^;</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 
