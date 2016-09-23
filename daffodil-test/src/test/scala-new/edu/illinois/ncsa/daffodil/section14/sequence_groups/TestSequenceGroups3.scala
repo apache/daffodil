@@ -38,16 +38,14 @@ import org.junit.AfterClass
 
 object TestSequenceGroups3 {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
 
-  val runner1 = Runner(testDir, "SequenceGroupDelimiters.tdml")
-  val runner2 = Runner(testDir, "SequenceGroup.tdml", validateTDMLFile = false)
+  val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
   var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown {
-    runner1.reset
-    runner2.reset
+    runner_01.reset
+    runner_02.reset
   }
 
 }
@@ -55,11 +53,9 @@ object TestSequenceGroups3 {
 class TestSequenceGroups3 {
   import TestSequenceGroups3._
 
-  @Test def test_lastElts() { runner1.runOneTest("lastElts") }
+  @Test def test_lastElts() { runner_01.runOneTest("lastElts") }
 
-  @Test def test_hiddenGroupSeqWithRequiredElements() { runner2.runOneTest("hiddenGroupSeqWithRequiredElements") }
-  @Test def test_hiddenGroupChoiceWithAllRequiredBranches() { runner2.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
-
-  @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
+  @Test def test_hiddenGroupSeqWithRequiredElements() { runner_02.runOneTest("hiddenGroupSeqWithRequiredElements") }
+  @Test def test_hiddenGroupChoiceWithAllRequiredBranches() { runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
 
 }

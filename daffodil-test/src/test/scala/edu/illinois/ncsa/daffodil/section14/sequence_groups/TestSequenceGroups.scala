@@ -110,4 +110,5 @@ class TestSequenceGroups {
   @Test def test_AS000() { runner_02.runOneTest("AS000") }
 
   @Test def test_noDefaultSeqKind() { runner_02.runOneTest("noDefaultSeqKind") }
+  @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
 }
