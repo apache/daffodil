@@ -57,6 +57,9 @@ class TestContentFramingPropertiesDebug {
   @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") }
   @Test def test_alignmentPacked7BitASCII_05() { runner2.runOneTest("alignmentPacked7BitASCII_05") }
 
+  // DFDL-1614: Sequence with 7-bit ASCII encoding expecting more bits
+  @Test def test_packed7BitASCII10() { runner2.runOneTest("packed7BitASCII10") }
+
   // Implementing DFDL-951 caused regression - see DFDL-965
   @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }

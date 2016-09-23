@@ -260,6 +260,17 @@
     <xs:element name="e10" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="5" />
 
+    <xs:element name="e11">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
+            dfdl:length="2" />
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit"
+            dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <!--
@@ -475,6 +486,29 @@
     <tdml:errors>
       <tdml:error>Left over data</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: packed7BitASCII10
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates the simple use of the X-DFDL-US-ASCII-7-BIT-PACKED
+    encoding, with two elements in a sequence.
+  -->
+  <tdml:parserTestCase name="packed7BitASCII10" root="e11"
+    model="packed7BitASCII" roundTrip="true">
+    <tdml:document  bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+      0110010 0110100 0110010 0110100
+      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e11>
+          <s1>42</s1>
+          <s2>42</s2>
+        </e11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
