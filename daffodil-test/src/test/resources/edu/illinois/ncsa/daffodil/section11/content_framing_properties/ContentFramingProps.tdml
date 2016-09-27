@@ -263,10 +263,10 @@
     <xs:element name="e11">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit"
-            dfdl:length="2" />
-          <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit"
-            dfdl:length="2" />
+          <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit"
+            dfdl:length="2" dfdl:alignmentUnits="bits" dfdl:alignment="1" />
+          <xs:element name="s2" type="xs:int" dfdl:lengthKind="explicit"
+            dfdl:length="2" dfdl:alignmentUnits="bits" dfdl:alignment="1" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -503,13 +503,33 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e11>
-          <s1>42</s1>
-          <s2>42</s2>
-        </e11>
+        <ex:e11>
+          <ex:s1>42</ex:s1>
+          <ex:s2>42</ex:s2>
+        </ex:e11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+    Test name: packed7BitASCII_unparse
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates the simple use of the X-DFDL-US-ASCII-7-BIT-PACKED
+    encoding, with unparse.
+  -->
+  <tdml:unparserTestCase name="packed7BitASCII_unparse" root="e1"
+    model="packed7BitASCII" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>B$</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document  bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+      0100100 1000010
+      ]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <!--
     Test name: alignmentPacked7BitASCII
