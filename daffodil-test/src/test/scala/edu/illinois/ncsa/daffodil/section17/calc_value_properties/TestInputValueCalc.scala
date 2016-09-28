@@ -137,5 +137,5 @@ class TestInputValueCalc {
   @Test def test_InputValueCalc_Int_Range_Max_Fail_RunTime() { runner.runOneTest("InputValueCalc_Int_Range_Max_Fail_RunTime") }
   @Test def test_InputValueCalc_nonmatching_types() { runner.runOneTest("InputValueCalc_nonmatching_types") }
   @Test def test_InputValueCalc_no_representation() { runner.runOneTest("InputValueCalc_no_representation") }
-
+  @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 }
