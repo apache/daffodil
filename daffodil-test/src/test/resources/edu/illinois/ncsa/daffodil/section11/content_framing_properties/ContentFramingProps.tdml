@@ -532,6 +532,23 @@
   </tdml:unparserTestCase>
 
   <!--
+    Test name: packed7BitASCII_unparse2
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates use of the X-DFDL-US-ASCII-7-BIT-PACKED encoding, with an invalid character.
+  -->
+  <tdml:unparserTestCase name="packed7BitASCII_unparse2" root="e1"
+    model="packed7BitASCII" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>£</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
     Test name: alignmentPacked7BitASCII
     Schema: packed7BitASCII
     Purpose: This test demonstrates that the required alignment for 7-bit ASCII is 1 bit.

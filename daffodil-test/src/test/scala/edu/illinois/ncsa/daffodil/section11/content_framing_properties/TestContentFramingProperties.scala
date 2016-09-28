@@ -85,6 +85,8 @@ class TestContentFramingProperties {
   @Test def test_packed7BitASCII9() = { runner2.runOneTest("packed7BitASCII9") }
   @Test def test_packed7BitASCII10() { runner2.runOneTest("packed7BitASCII10") }
   @Test def test_packed7BitASCII_unparse() { runner2.runOneTest("packed7BitASCII_unparse") }
+  // DFDL-1620: IllegalArgumentException with invalid character with 7-Bit encoding
+  //@Test def test_packed7BitASCII_unparse2() { runner2.runOneTest("packed7BitASCII_unparse2") }
 
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
