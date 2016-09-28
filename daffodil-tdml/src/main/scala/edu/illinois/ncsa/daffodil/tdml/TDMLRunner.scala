@@ -857,7 +857,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // verifyAllDiagnosticsFound(actual, warnings)
 
     if (roundTrip) {
-      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)))
+      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), testDataLength)
 
       if (!parseActual.canProceed) {
         // Means there was an error, not just warnings.
@@ -1039,8 +1039,15 @@ object VerifyTestCase {
   }
 
   def verifyTextData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
-    val actualText = actualOutStream.toString(encodingName)
-    val expectedText = IOUtils.toString(Channels.newInputStream(expectedData), encodingName)
+    // Getting this decoder and decoding the bytes to text this way is
+    // necessary, as opposed to toString(encodingName), because it is possible
+    // that encodingName is a custom DFDL specific decoder (e.g. 7-bit ASCII)
+    // that Java does not know about.
+    val decoder = CharsetUtils.getCharset(encodingName).newDecoder()
+    val actualBytes = actualOutStream.toByteArray
+    val expectedBytes = IOUtils.toByteArray(Channels.newInputStream(expectedData))
+    val actualText = decoder.decode(ByteBuffer.wrap(actualBytes)).toString
+    val expectedText = decoder.decode(ByteBuffer.wrap(expectedBytes)).toString
     expectedData.close()
     if (expectedText.length == 0) {
       // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
