@@ -44,6 +44,4 @@ class TestContentFramingPropertiesNew {
 
   @Test def test_encodingErrorReplace_unparse() { runner2.runOneTest("encodingErrorReplace_unparse") }
 
-  // DFDL-1615: Error unparsing with 7-bit encoding
-  @Test def test_packed7BitASCII_unparse() { runner2.runOneTest("packed7BitASCII_unparse") }
 }

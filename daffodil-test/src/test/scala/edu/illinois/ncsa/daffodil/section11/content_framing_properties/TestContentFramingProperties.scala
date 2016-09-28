@@ -84,8 +84,7 @@ class TestContentFramingProperties {
   @Test def test_packed7BitASCII8() = { runner2.runOneTest("packed7BitASCII8") }
   @Test def test_packed7BitASCII9() = { runner2.runOneTest("packed7BitASCII9") }
   @Test def test_packed7BitASCII10() { runner2.runOneTest("packed7BitASCII10") }
-  // DFDL-1615: Error unparsing with 7-bit encoding
-  //@Test def test_packed7BitASCII_unparse() { runner2.runOneTest("packed7BitASCII_unparse") }
+  @Test def test_packed7BitASCII_unparse() { runner2.runOneTest("packed7BitASCII_unparse") }
 
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
