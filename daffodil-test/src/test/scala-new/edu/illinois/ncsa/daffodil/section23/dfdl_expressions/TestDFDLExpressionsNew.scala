@@ -81,4 +81,7 @@ class TestDFDLExpressionsNew {
   @Test def test_valueContentLength1() { runner2.runOneTest("valueContentLength1") }
   @Test def test_valueContentLength2() { runner2.runOneTest("valueContentLength2") }
 
+  @Test def test_exists_11() { runner2.runOneTest("exists_11") }
+  @Test def test_exists_12() { runner2.runOneTest("exists_12") }
+
 }

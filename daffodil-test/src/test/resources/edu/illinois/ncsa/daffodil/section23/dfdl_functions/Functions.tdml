@@ -4237,7 +4237,22 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="exists08">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exists" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists(../ex:seq/ex:item[10]) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="exactly-one01">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
@@ -9745,6 +9760,75 @@
           <dobExists>true</dobExists>
           <ssnExists>true</ssnExists>
         </exists07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: exists_11
+       Schema: XPathFunctions
+         Root: exists08
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing an array index that
+               exists, and should be set to true.
+-->
+
+  <tdml:parserTestCase name="exists_11" root="exists08"
+    model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3,4,5,6,7,8,9,10</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists08>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+            <item>6</item>
+            <item>7</item>
+            <item>8</item>
+            <item>9</item>
+            <item>10</item>
+          </seq>
+          <exists>true</exists>
+        </exists08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: exists_12
+       Schema: XPathFunctions
+         Root: exists08
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing an array index that
+               does not exist, and should be set to false.
+-->
+
+  <tdml:parserTestCase name="exists_12" root="exists08"
+    model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3,4,5,6,7,8,9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists08>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+            <item>6</item>
+            <item>7</item>
+            <item>8</item>
+            <item>9</item>
+          </seq>
+          <exists>false</exists>
+        </exists08>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

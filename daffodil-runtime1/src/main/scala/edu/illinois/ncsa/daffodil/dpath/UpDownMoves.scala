@@ -106,6 +106,10 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
+    // restore the saved node since the above .run set it to null. This is
+    // necessary since one of the following functions could throw, leaving the
+    // current node to null. And future calls depend on a current node to be set
+    dstate.setCurrentNode(savedCurrentElement)
     val childArrayElementERD: ElementRuntimeData = dstate.withRetryIfBlocking(savedCurrentElement.erd.childERDs(childSlot))
     val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD))
     val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
