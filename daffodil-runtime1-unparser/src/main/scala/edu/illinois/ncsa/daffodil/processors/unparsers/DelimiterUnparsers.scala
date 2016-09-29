@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
+import java.nio.charset.UnmappableCharacterException
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
@@ -86,6 +87,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextTy
       // implemented.
       //
       case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
+      case u: UnmappableCharacterException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
     }
   }
 

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
-import java.nio.charset.{ Charset, CoderResult, CharsetDecoder, CharsetEncoder }
+import java.nio.charset.{ Charset, CoderResult, CharsetDecoder, CharsetEncoder, CodingErrorAction }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -393,24 +393,47 @@ class USASCII7BitPackedEncoder
 
         val char = in.get()
         val charCode = char.toInt
-        if (charCode > 127) {
-          // character must fit in 7-bits
-          return CoderResult.unmappableForLength(1)
-        }
+        val charCodeToWrite =
+          if (charCode <= 127) {
+            charCode
+          } else {
+            // character must fit in 7-bits, unmappable error
+            if (unmappableCharacterAction == CodingErrorAction.REPLACE) {
+              // CharsetEncoder, which handles character replacement, assumes
+              // that the replacement character is made up of full bytes. That
+              // isn't the case for this charset, so we will just manually
+              // replace the character ourselves and not let CharsetEncoder
+              // know there was ever a problem. This uses '?' as the
+              // replacement character, which is 0x3F
+              0x3F
+            } else {
+              Assert.invariant(unmappableCharacterAction == CodingErrorAction.REPORT)
+              // Just report the unmappable character. Note that we should back
+              // up the position of the CharBuffer since we read a character
+              // but it was invalid. The charset encoder that called encodeLoop
+              // will handle skipping the invalid character. Note that the
+              // character is only skipped in CodingErrorAction.IGNORE and
+              // REPLACE. We handle REPLACE ourselves, and IGNORE isn't
+              // supported by DFDL, so this *shouldn't* matter, but it might
+              // someday if IGNORE is supported.
+              in.position(in.position() - 1)
+              return CoderResult.unmappableForLength(1)
+            }
+          }
 
         if (partialByteLenInBits == 0) {
           // no partial byte exists, make this the partial byte
-          partialByte = charCode
+          partialByte = charCodeToWrite
           partialByteLenInBits = 7
         } else {
           // there's a partial byte, add enough bits to make it a full byte and
           // write it, then save whatever is remaining (could be 0 bits
           // remaining) as a partial byte
-          partialByte |= (charCode << partialByteLenInBits) & 0xFF
+          partialByte |= (charCodeToWrite << partialByteLenInBits) & 0xFF
           out.put(partialByte.toByte)
 
           val usedBits = 8 - partialByteLenInBits
-          partialByte = charCode >> usedBits
+          partialByte = charCodeToWrite >> usedBits
           partialByteLenInBits = 7 - usedBits
         }
       }

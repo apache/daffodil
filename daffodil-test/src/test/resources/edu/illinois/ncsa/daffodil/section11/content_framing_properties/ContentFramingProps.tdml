@@ -184,6 +184,8 @@
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
       dfdl:length="2" />
+    <xs:element name="e1_1" type="xs:string" dfdl:lengthKind="explicit"
+      dfdl:length="2" dfdl:encodingErrorPolicy="error"/>
     <xs:element name="e2" type="xs:string" dfdl:lengthKind="explicit"
       dfdl:length="64" />
     <xs:element name="e3" type="xs:string" dfdl:lengthKind="delimited"
@@ -534,17 +536,42 @@
   <!--
     Test name: packed7BitASCII_unparse2
     Schema: packed7BitASCII
-    Purpose: This test demonstrates use of the X-DFDL-US-ASCII-7-BIT-PACKED encoding, with an invalid character.
+    Purpose: This test demonstrates use of the X-DFDL-US-ASCII-7-BIT-PACKED
+             encoding, with an invalid character with
+             encodingErrorPolicy="replace". The pound sign is replaced with a
+             question mark (0b0111111), and a pad character (0b0100000) is
+             added to make the string length 2
   -->
   <tdml:unparserTestCase name="packed7BitASCII_unparse2" root="e1"
-    model="packed7BitASCII" roundTrip="true">
+    model="packed7BitASCII" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e1>£</ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+      0100000 0111111
+      ]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: packed7BitASCII_unparse3
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates use of the X-DFDL-US-ASCII-7-BIT-PACKED
+             encoding, with an invalid character with
+             encodingErrorPolicy="report".
+  -->
+  <tdml:unparserTestCase name="packed7BitASCII_unparse3" root="e1_1"
+    model="packed7BitASCII" roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1_1>£</ex:e1_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>UnmappableCharacterException</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

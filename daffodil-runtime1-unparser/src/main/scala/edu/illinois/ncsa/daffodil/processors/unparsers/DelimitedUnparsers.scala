@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import java.nio.charset.MalformedInputException
+import java.nio.charset.UnmappableCharacterException
 
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -122,6 +123,7 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
       // implemented.
       //
       case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
+      case u: UnmappableCharacterException => { UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
     }
   }
 

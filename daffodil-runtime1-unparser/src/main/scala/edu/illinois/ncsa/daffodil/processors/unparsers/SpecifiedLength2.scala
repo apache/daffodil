@@ -21,6 +21,9 @@ import edu.illinois.ncsa.daffodil.processors.LengthEv
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.util.MaybeJULong
 
+import java.nio.charset.MalformedInputException
+import java.nio.charset.UnmappableCharacterException
+
 /*
  * Notes on variable-width characters with lengthUnits 'characters'
  *
@@ -447,8 +450,13 @@ trait PaddingUnparserMixin
       val padChar = maybePadChar.get
       val padString = padChar.toString
       while (i < nChars) {
-        if (dos.putString(padString) != 1)
-          UE(state, "Unable to output %s %s characters.", nChars, charsKind)
+        try {
+          if (dos.putString(padString) != 1)
+            UE(state, "Unable to output %s %s characters.", nChars, charsKind)
+        } catch {
+          case m: MalformedInputException => { UnparseError(One(self.rd.schemaFileLocation), One(state.currentLocation), "MalformedInputException: \n%s", m.getMessage()) }
+          case u: UnmappableCharacterException => { UnparseError(One(self.rd.schemaFileLocation), One(state.currentLocation), "UnmappableCharacterException: \n%s", u.getMessage()) }
+        }
         i += 1
       }
     }

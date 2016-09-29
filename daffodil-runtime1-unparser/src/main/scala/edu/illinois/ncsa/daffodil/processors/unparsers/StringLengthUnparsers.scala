@@ -41,6 +41,9 @@ import edu.illinois.ncsa.daffodil.util.MaybeJULong
 import edu.illinois.ncsa.daffodil.processors.LengthEv
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 
+import java.nio.charset.MalformedInputException
+import java.nio.charset.UnmappableCharacterException
+
 sealed abstract class StringSpecifiedLengthUnparserBase(
   val erd: ElementRuntimeData)
   extends PrimUnparser {
@@ -64,7 +67,12 @@ class StringNoTruncateUnparser(
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
     val valueToWrite = contentString(state)
-    val nCharsWritten = dos.putString(valueToWrite)
+    val nCharsWritten = try {
+      dos.putString(valueToWrite)
+    } catch {
+      case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
+      case u: UnmappableCharacterException => { UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
+    }
     Assert.invariant(nCharsWritten == valueToWrite.length)
   }
 
