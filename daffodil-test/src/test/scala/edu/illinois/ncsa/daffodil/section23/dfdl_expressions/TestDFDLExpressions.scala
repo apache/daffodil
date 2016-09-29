@@ -365,7 +365,7 @@ class TestDFDLExpressions {
   @Test def test_not_02() { runner2.runOneTest("not_02") }
   @Test def test_not_03() { runner2.runOneTest("not_03") }
   //DFDL-1076
-  @Test def test_not_04() { runner2.runOneTest("not_04") }
+  //@Test def test_not_04() { runner2.runOneTest("not_04") }
   //DFDL-1075
   //@Test def test_not_05() { runner2.runOneTest("not_05") }
   //@Test def test_not_07() { runner2.runOneTest("not_07") }
@@ -514,7 +514,7 @@ class TestDFDLExpressions {
   //@Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
 
   //DFDL-1076
-  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+  //@Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
   //DFDL-1233
   //@Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
   //@Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
