@@ -44,7 +44,4 @@ class TestContentFramingPropertiesNew {
 
   @Test def test_encodingErrorReplace_unparse() { runner2.runOneTest("encodingErrorReplace_unparse") }
 
-  // DFDL-1620: IllegalArgumentException with invalid character with 7-Bit encoding
-  @Test def test_packed7BitASCII_unparse2() { runner2.runOneTest("packed7BitASCII_unparse2") }
-  @Test def test_packed7BitASCII_unparse3() { runner2.runOneTest("packed7BitASCII_unparse3") }
 }
