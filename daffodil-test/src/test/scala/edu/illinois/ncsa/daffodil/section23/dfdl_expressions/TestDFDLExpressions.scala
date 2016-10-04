@@ -53,6 +53,7 @@ object TestDFDLExpressions {
   val runner3 = Runner(testDir, "expression_fail.tdml", validateTDMLFile = false)
   val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
   val runner_fun = Runner(testDir, "functions.tdml")
+  val runner5 = Runner(testDir, "valueLength.tdml")
 
   @AfterClass def shutDown() {
     runner4.reset
@@ -62,6 +63,7 @@ object TestDFDLExpressions {
     runner2_utf8.reset
     runner2b.reset
     runner3.reset
+    runner5.reset
   }
 }
 
@@ -922,6 +924,7 @@ class TestDFDLExpressions {
   @Test def test_valueLength_4() { runner2.runOneTest("valueLength_4") }
   // DFDL-1627: valueLength fails with complex type during parsing
   //@Test def test_valueLength_5() { runner2.runOneTest("valueLength_5") }
+  @Test def test_valueLength_sde() { runner2.runOneTest("valueLength_sde") }
   @Test def test_valueLength_unparse_0() { runner2.runOneTest("valueLength_unparse_0") }
   // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
   //@Test def test_valueLength_unparse_1() { runner2.runOneTest("valueLength_unparse_1") }
@@ -946,4 +949,8 @@ class TestDFDLExpressions {
   //
   @Test def test_no_closing_brace() { runner3.runOneTest("no_closing_brace") } // no closing } for expression
 
+  @Test def test_valueLengthPair1() { runner5.runOneTest("valueLengthPair1") }
+  @Test def test_valueLengthPair2() { runner5.runOneTest("valueLengthPair2") }
+  @Test def test_valueLengthPair3() { runner5.runOneTest("valueLengthPair3") }
+  @Test def test_valueLengthAndOccurs1() { runner5.runOneTest("valueLengthAndOccurs1") }
 }

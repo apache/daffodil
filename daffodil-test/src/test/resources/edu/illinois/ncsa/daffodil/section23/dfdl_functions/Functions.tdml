@@ -449,6 +449,16 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="valueLength12">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'wrong') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="contentLength">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -3811,6 +3821,25 @@
         </valueLength10>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_sde
+       Schema: Functions.dfdl.xsd
+         Root: valueLength12
+      Purpose: This test demonstrates the valueLength function throws a SDE with an invalid lengthUnit.
+-->
+
+  <tdml:parserTestCase name="valueLength_sde" root="valueLength12"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[test]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unknown value for lengthUnits property</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
