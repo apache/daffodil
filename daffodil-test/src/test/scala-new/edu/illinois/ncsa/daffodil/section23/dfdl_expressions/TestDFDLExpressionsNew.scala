@@ -72,14 +72,8 @@ class TestDFDLExpressionsNew {
   val tdml4 = testDir4 + "expressions.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
 
-  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
-  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_valueContentLength1() { runner2.runOneTest("valueContentLength1") }
-  @Test def test_valueContentLength2() { runner2.runOneTest("valueContentLength2") }
 
   @Test def test_exists_11() { runner2.runOneTest("exists_11") }
   @Test def test_exists_12() { runner2.runOneTest("exists_12") }

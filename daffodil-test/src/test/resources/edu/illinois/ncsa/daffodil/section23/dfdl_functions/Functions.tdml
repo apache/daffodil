@@ -325,7 +325,130 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="valueLength3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'characters') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <dfdl:defineEscapeScheme name="es1">
+      <dfdl:escapeScheme escapeCharacter='*'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="!"
+        extraEscapedCharacters="?" generateEscapeBlock="whenNeeded" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="valueLength4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" dfdl:escapeSchemeRef="ex:es1"
+            dfdl:terminator=";" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" dfdl:escapeSchemeRef="ex:es1"
+            dfdl:terminator=";" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bits' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'characters') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar"
+            dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited"
+             nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="NIL" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited"
+             nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="NIL" />
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:str, 'bytes' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength10">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=","
+                dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:terminator=";">
+                <xs:element name="num" type="xs:int" maxOccurs="unbounded"
+                  minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:seq, 'bytes' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength11">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:initiatedContent="no"
+                dfdl:separatorPosition="infix" dfdl:separator=","
+                dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:terminator=";">
+                <xs:element name="num" type="xs:int" maxOccurs="unbounded"
+                  minOccurs="0" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="valLen" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ dfdl:valueLength( ../ex:seq, 'bytes' ) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="contentLength">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -3586,6 +3709,231 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_2
+       Schema: Functions.dfdl.xsd
+         Root: valueLength3
+      Purpose: This test demonstrates the valueLength function with a lengthUnit of 'characters'.
+-->
+
+  <tdml:parserTestCase name="valueLength_2" root="valueLength3"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <valueLength3>
+          <str>test</str>
+          <valLen>4</valLen>
+        </valueLength3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_3
+       Schema: Functions.dfdl.xsd
+         Root: valueLength4
+      Purpose: This test demonstrates the valueLength function with escapeCharacters.
+-->
+
+  <tdml:parserTestCase name="valueLength_3" root="valueLength4"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[/te*,st!*;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <valueLength4>
+          <str>te,st*</str>
+          <valLen>6</valLen>
+        </valueLength4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_4
+       Schema: Functions.dfdl.xsd
+         Root: valueLength8
+      Purpose: This test demonstrates the valueLength function with a nil element.
+-->
+
+  <tdml:parserTestCase name="valueLength_4" root="valueLength8"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NIL]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <valueLength8>
+          <str xsi:nil="true"/>
+          <valLen>3</valLen>
+        </valueLength8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_5
+       Schema: Functions.dfdl.xsd
+         Root: valueLength10
+      Purpose: This test demonstrates the valueLength function with a complex element.
+-->
+
+  <tdml:parserTestCase name="valueLength_5" root="valueLength10"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,2,3,4,5,6;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <valueLength10>
+          <seq>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+            <num>4</num>
+            <num>5</num>
+            <num>6</num>
+          </seq>
+          <valLen>12</valLen>
+        </valueLength10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_unparse_0
+       Schema: Functions.dfdl.xsd
+         Root: valueLength5
+      Purpose: This test demonstrates the valueLength function with escapeCharacters during unparse.
+-->
+
+  <tdml:unparserTestCase name="valueLength_unparse_0" root="valueLength5"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:valueLength5>
+          <ex:str>te,st*</ex:str>
+        </ex:valueLength5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[te*,st!*;,64]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: valueLength_unparse_1
+       Schema: Functions.dfdl.xsd
+         Root: valueLength6
+      Purpose: This test demonstrates the valueLength function with a lengthUnit of 'characters' during unparse.
+-->
+
+  <tdml:unparserTestCase name="valueLength_unparse_1" root="valueLength6"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:valueLength6>
+          <ex:str>test</ex:str>
+        </ex:valueLength6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[test,4]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: valueLength_unparse_2
+       Schema: Functions.dfdl.xsd
+         Root: valueLength7
+      Purpose: This test demonstrates the valueLength function with a lengthUnit of 'bytes' during unparse.
+-->
+
+  <tdml:unparserTestCase name="valueLength_unparse_2" root="valueLength7"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:valueLength7>
+          <ex:str>test</ex:str>
+        </ex:valueLength7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[test,4]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: valueLength_unparse_3
+       Schema: Functions.dfdl.xsd
+         Root: valueLength9
+      Purpose: This test demonstrates the valueLength function with a nil element during unparse.
+-->
+
+  <tdml:unparserTestCase name="valueLength_unparse_3" root="valueLength9"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:valueLength9>
+          <ex:str xsi:nil="true"/>
+        </ex:valueLength9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NIL,3]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: valueLength_unparse_4
+       Schema: Functions.dfdl.xsd
+         Root: valueLength11
+      Purpose: This test demonstrates the valueLength function with a complex element during unparse.
+-->
+
+  <tdml:unparserTestCase name="valueLength_unparse_4" root="valueLength11"
+    model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:valueLength11>
+          <ex:seq>
+            <ex:num>1</ex:num>
+            <ex:num>2</ex:num>
+            <ex:num>3</ex:num>
+            <ex:num>4</ex:num>
+            <ex:num>5</ex:num>
+            <ex:num>6</ex:num>
+          </ex:seq>
+        </ex:valueLength11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1,2,3,4,5,6;/12]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
 <!--
     Test Name: contentLength_0

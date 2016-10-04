@@ -914,11 +914,26 @@ class TestDFDLExpressions {
 
   @Test def test_more_count_4() { runner2.runOneTest("more_count_4") }
 
-  //  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
-  //  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
+  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+  // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
+  //@Test def test_valueLength_2() { runner2.runOneTest("valueLength_2") }
+  @Test def test_valueLength_3() { runner2.runOneTest("valueLength_3") }
+  @Test def test_valueLength_4() { runner2.runOneTest("valueLength_4") }
+  // DFDL-1627: valueLength fails with complex type during parsing
+  //@Test def test_valueLength_5() { runner2.runOneTest("valueLength_5") }
+  @Test def test_valueLength_unparse_0() { runner2.runOneTest("valueLength_unparse_0") }
+  // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
+  //@Test def test_valueLength_unparse_1() { runner2.runOneTest("valueLength_unparse_1") }
+  @Test def test_valueLength_unparse_2() { runner2.runOneTest("valueLength_unparse_2") }
+  @Test def test_valueLength_unparse_3() { runner2.runOneTest("valueLength_unparse_3") }
+  @Test def test_valueLength_unparse_4() { runner2.runOneTest("valueLength_unparse_4") }
 
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+
+  @Test def test_valueContentLength1() { runner2.runOneTest("valueContentLength1") }
+  @Test def test_valueContentLength2() { runner2.runOneTest("valueContentLength2") }
 
   @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
   @Test def test_fn_not_declared_2() { runner2b.runOneTest("fn_not_declared_2") }
