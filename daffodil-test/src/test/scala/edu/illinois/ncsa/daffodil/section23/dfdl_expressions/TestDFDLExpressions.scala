@@ -918,16 +918,16 @@ class TestDFDLExpressions {
 
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-  // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
-  //@Test def test_valueLength_2() { runner2.runOneTest("valueLength_2") }
+  // DFDL-1516:dfdl:contentLength & dfdl:valueLength specifying lengthUnits 'characters' and variable-width encodings
+  @Test def test_valueLength_2() { runner2.runOneTest("valueLength_2") }
   @Test def test_valueLength_3() { runner2.runOneTest("valueLength_3") }
   @Test def test_valueLength_4() { runner2.runOneTest("valueLength_4") }
   // DFDL-1627: valueLength fails with complex type during parsing
   //@Test def test_valueLength_5() { runner2.runOneTest("valueLength_5") }
   @Test def test_valueLength_sde() { runner2.runOneTest("valueLength_sde") }
   @Test def test_valueLength_unparse_0() { runner2.runOneTest("valueLength_unparse_0") }
-  // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
-  //@Test def test_valueLength_unparse_1() { runner2.runOneTest("valueLength_unparse_1") }
+  // DFDL-1516:dfdl:contentLength & dfdl:valueLength specifying lengthUnits 'characters' and variable-width encodings
+  @Test def test_valueLength_unparse_1() { runner2.runOneTest("valueLength_unparse_1") }
   @Test def test_valueLength_unparse_2() { runner2.runOneTest("valueLength_unparse_2") }
   @Test def test_valueLength_unparse_3() { runner2.runOneTest("valueLength_unparse_3") }
   @Test def test_valueLength_unparse_4() { runner2.runOneTest("valueLength_unparse_4") }
