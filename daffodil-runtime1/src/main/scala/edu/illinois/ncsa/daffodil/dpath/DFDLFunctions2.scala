@@ -58,7 +58,8 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
             // from the length-in-bits by just dividing by a codepoint width
             // code point width.
             //
-            ??? // lengthState(elt).lengthInCharacters
+            throw new IllegalArgumentException("dfdl:%sLength's second argument of 'characters' is not yet supported.".format(kind))
+            //lengthState(elt).lengthInCharacters
         }
       }
     len

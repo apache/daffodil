@@ -3733,6 +3733,7 @@
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
     </tdml:document>
+    <!--
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -3742,6 +3743,11 @@
         </valueLength3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    -->
+    <tdml:errors>
+      <tdml:error>not yet supported</tdml:error>
+      <tdml:error>characters</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -3883,9 +3889,15 @@
         </ex:valueLength6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <!--
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[test,4]]></tdml:documentPart>
     </tdml:document>
+    -->
+    <tdml:errors>
+      <tdml:error>not yet supported</tdml:error>
+      <tdml:error>characters</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 <!--

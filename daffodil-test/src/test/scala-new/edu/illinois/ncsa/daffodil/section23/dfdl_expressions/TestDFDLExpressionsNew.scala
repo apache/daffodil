@@ -78,4 +78,7 @@ class TestDFDLExpressionsNew {
   @Test def test_exists_11() { runner2.runOneTest("exists_11") }
   @Test def test_exists_12() { runner2.runOneTest("exists_12") }
 
+  // DFDL-1626: valueLength with lengthUnit 'characters' not implemented
+  @Test def test_valueLength_2() { runner2.runOneTest("valueLength_2") }
+  @Test def test_valueLength_unparse_1() { runner2.runOneTest("valueLength_unparse_1") }
 }
