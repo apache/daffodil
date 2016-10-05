@@ -78,4 +78,6 @@ class TestDFDLExpressionsNew {
   @Test def test_exists_11() { runner2.runOneTest("exists_11") }
   @Test def test_exists_12() { runner2.runOneTest("exists_12") }
 
+  // DFDL-1627: valueLength fails with complex type during parsing
+  @Test def test_valueLength_5() { runner2.runOneTest("valueLength_5") }
 }

@@ -184,7 +184,4 @@ class TestDFDLExpressionsDebug {
   @Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
 
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
-
-  // DFDL-1627: valueLength fails with complex type during parsing
-  @Test def test_valueLength_5() { runner2.runOneTest("valueLength_5") }
 }

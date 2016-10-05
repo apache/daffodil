@@ -281,12 +281,13 @@ case class CaptureValueLengthStart(ctxt: ElementBase)
       // individual parsers since they handle removing delimiters and padding.
       //
       // For complex elements with specified length, valueLength is captured in
-      // the specified length parsers, since they handle skipping unused element
-      // regions.
+      // the specified length parsers, since they handle skipping unused
+      // element regions. For complex elements, this means lengthKind is not
+      // implicit or delimited.
       //
       // For all other elements, we can just use the Capture*ValueLength parsers.
       if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit))
+        (ctxt.isComplexType && (ctxt.lengthKind != LengthKind.Implicit && ctxt.lengthKind != LengthKind.Delimited)))
         new NadaParser(ctxt.erd)
       else
         new CaptureStartOfValueLengthParser(ctxt.erd)
@@ -308,12 +309,13 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
       // individual parsers since they handle removing delimiters and padding.
       //
       // For complex elements with specified length, valueLength is captured in
-      // the specified length parsers, since they handle skipping unused element
-      // regions.
+      // the specified length parsers, since they handle skipping unused
+      // element regions. For complex elements, this means lengthKind is not
+      // implicit or delimited.
       //
       // For all other elements, we can just use the Capture*ValueLength parsers.
       if ((ctxt.isSimpleType && ctxt.impliedRepresentation == Representation.Text) ||
-        (ctxt.isComplexType && ctxt.lengthKind != LengthKind.Implicit))
+        (ctxt.isComplexType && (ctxt.lengthKind != LengthKind.Implicit && ctxt.lengthKind != LengthKind.Delimited)))
         new NadaParser(ctxt.erd)
       else
         new CaptureEndOfValueLengthParser(ctxt.erd)
