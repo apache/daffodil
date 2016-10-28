@@ -116,7 +116,7 @@ trait InfosetDocument extends InfosetItem {
 
 trait InfosetItem extends InfosetCommon {
   // override def toString = toXML(true, false).toString
-  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, indentStep: Int = 2, indentLevel: Int = 0): Unit
+  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0): Unit
 
   /**
    * The totalElementCount is the total count of how many elements this InfosetItem contains.
