@@ -782,7 +782,17 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="e45">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/>
+          <xs:element name="ulong1" type="xs:unsignedLong"/>
+          <xs:element name="intEqULong" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 eq ../ex:ulong1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
@@ -6479,6 +6489,50 @@ c]]></value>
     <tdml:errors>
         <tdml:error>Value 'cray' is not a valid boolean value {true, false, 1, 0}.</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_78
+        Schema: comparisonOperators
+          Root: e45
+       Purpose: This test demonstrates that int and unsignedLong types can compare
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_78" root="e45"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>0,0</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e45>
+          <int1>0</int1>
+          <ulong1>0</ulong1>
+          <intEqULong>true</intEqULong>
+        </e45>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_79
+        Schema: comparisonOperators
+          Root: e45
+       Purpose: This test demonstrates that int and unsignedLong types can compare
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_79" root="e45"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>1,0</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e45>
+          <int1>1</int1>
+          <ulong1>0</ulong1>
+          <intEqULong>false</intEqULong>
+        </e45>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--

@@ -82,16 +82,6 @@ abstract class CompareOp
   def compare(op: String, v1: AnyRef, v2: AnyRef): JBoolean
 }
 
-case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPath)
-  extends CompareOp {
-
-  def compare(op: String, v1: AnyRef, v2: AnyRef): JBoolean = {
-    if (op == "eq") v1 == v2
-    else if (op == "ne") v1 != v2
-    else Assert.invariantFailed("EqualtyCompareOp only supports eq and ne")
-  }
-}
-
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
   override def run(dstate: DState) {

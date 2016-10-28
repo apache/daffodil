@@ -277,6 +277,11 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
       case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
       case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
+      case ("=", _) => subsetError("Unsupported operation '%s'. Use 'eq' instead.", op)
+      case ("!=", _) => subsetError("Unsupported operation '%s'. Use 'ne' instead.", op)
+
+      case ("eq", _) => EQ_Compare
+      case ("ne", _) => NE_Compare
 
       case ("lt", Boolean) => LT_Boolean
       case ("gt", Boolean) => GT_Boolean
@@ -620,24 +625,6 @@ case class OrExpression(ands: List[Expression])
 case class AndExpression(comps: List[Expression])
   extends ExpressionLists(comps) with BooleanExpression {
   val op = "and"
-}
-
-case class EqualityComparisonExpression(op: String, adds: List[Expression])
-  extends ExpressionLists(adds) with BinaryExpMixin {
-
-  override lazy val compiledDPath = {
-    val leftDPath = left.compiledDPath
-    val rightDPath = right.compiledDPath
-    val c = conversions
-
-    if (op == "=" || op == "!=") SDE("Unsupported operation '%s'.", op)
-
-    val res = new CompiledDPath(EqualityCompareOp(op, leftDPath, rightDPath) +: c)
-    res
-  }
-  override lazy val inherentType = NodeInfo.Boolean
-
-  override def targetTypeForSubexpression(subexp: Expression) = NodeInfo.AnyAtomic
 }
 
 case class AdditiveExpression(op: String, mults: List[Expression])

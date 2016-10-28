@@ -196,6 +196,8 @@ class TestDFDLExpressions {
   @Test def test_comparison_operators_75() { runner.runOneTest("comparison_operators_75") }
   @Test def test_comparison_operators_76() { runner.runOneTest("comparison_operators_76") }
   @Test def test_comparison_operators_77() { runner.runOneTest("comparison_operators_77") }
+  @Test def test_comparison_operators_78() { runner.runOneTest("comparison_operators_78") }
+  @Test def test_comparison_operators_79() { runner.runOneTest("comparison_operators_79") }
 
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }

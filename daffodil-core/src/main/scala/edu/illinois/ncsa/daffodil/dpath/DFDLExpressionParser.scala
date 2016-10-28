@@ -243,12 +243,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
 
   def ComparisonExpr = log(AdditiveExpr ~ (Comp ~ AdditiveExpr).? ^^ { x =>
     x match {
-      case a1 ~ Some(vc ~ a2) => {
-        if (List("eq", "ne", "=", "!=").contains(vc))
-          EqualityComparisonExpression(vc, List(a1, a2))
-        else
-          ComparisonExpression(vc, List(a1, a2))
-      }
+      case a1 ~ Some(vc ~ a2) => ComparisonExpression(vc, List(a1, a2))
       case a1 ~ None => a1
     }
   })("compare")
