@@ -78,4 +78,9 @@ class TestDFDLExpressionsNew {
   @Test def test_exists_11() { runner2.runOneTest("exists_11") }
   @Test def test_exists_12() { runner2.runOneTest("exists_12") }
 
+  //DFDL-1076
+  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+  //DFDL-1233
+  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
+  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
 }

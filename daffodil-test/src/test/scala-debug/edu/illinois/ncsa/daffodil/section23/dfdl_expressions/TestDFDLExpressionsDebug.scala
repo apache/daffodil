@@ -170,13 +170,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
 
-  //DFDL-1076
-  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
-  //DFDL-1233
-  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
-  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
-  @Test def test_nilled_04() { runner2.runOneTest("nilled_04") }
-
   // These tests had the same names as others in the tdml file, and so were not
   // being seen or run. Names changed so they run, and they fail.
   @Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
