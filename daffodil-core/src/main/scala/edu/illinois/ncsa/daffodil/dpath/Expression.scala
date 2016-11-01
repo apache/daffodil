@@ -1669,7 +1669,11 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
 
   override lazy val compiledDPath = {
     checkArgCount(1)
-    new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNCount) ++ conversions)
+    val arg0Recipe = args(0).compiledDPath
+    val arg0Type = args(0).inherentType
+    val c = conversions
+    val res = new CompiledDPath(FNCount(arg0Recipe, arg0Type) +: c)
+    res
   }
 }
 
