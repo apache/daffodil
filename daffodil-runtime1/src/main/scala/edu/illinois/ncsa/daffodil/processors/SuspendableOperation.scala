@@ -80,12 +80,12 @@ trait SuspendableOperation
           setDone
         } else {
           log(LogLevel.Debug, "test() of %s %s failed", this, tst)
-          block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, this)
+          block(ustate.currentInfosetNodeMaybe.getOrElse("No Node"), ustate.dataOutputStream, 0, this)
         }
       } catch {
         case e: RetryableException => {
           log(LogLevel.Debug, "test() of %s threw %s", this, e)
-          block(ustate.aaa_currentNode.getOrElse("No Node"), ustate.dataOutputStream, 0, e)
+          block(ustate.currentInfosetNodeMaybe.getOrElse("No Node"), ustate.dataOutputStream, 0, e)
         }
       }
       if (!isDone) {

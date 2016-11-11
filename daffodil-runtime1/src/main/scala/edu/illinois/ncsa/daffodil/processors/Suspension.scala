@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.unparsers.UStateMain
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
@@ -225,7 +226,7 @@ trait Suspension
     } else {
       // log(LogLevel.Debug,
       log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
-        ustate.aaa_currentNode.get.erd.prettyName, buffered)
+        ustate.currentInfosetNode.erd.prettyName, buffered)
     }
 
     // the main-thread will carry on using the original ustate but unparsing
@@ -240,14 +241,14 @@ trait Suspension
     // TODO: Performance - copying this whole state, just for OVC is painful.
     // Some sort of copy-on-write scheme would be better.
     //
-    val cloneUState = ustate.cloneForSuspension(original)
+    val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
     if (isReadOnly) {
       original.setFinished()
     }
 
     savedUstate_ = cloneUState
 
-    ustate.addSuspension(this)
+    ustate.asInstanceOf[UStateMain].addSuspension(this)
   }
 }
 

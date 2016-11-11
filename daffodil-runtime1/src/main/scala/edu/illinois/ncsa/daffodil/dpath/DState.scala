@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.LocalStack
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
@@ -105,7 +104,6 @@ case class DState() {
 
   var opIndex: Int = 0
 
-  val withArray8 = new LocalStack[Array[Int]](new Array[Int](8))
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have

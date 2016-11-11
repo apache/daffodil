@@ -172,52 +172,29 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
 case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
 
   override def run(dstate: DState) {
+    var byteVal: Int = 0
+
     Assert.invariant(bitRecipes.length == 8)
     val saved = dstate.currentNode
-    dstate.withArray8 { ar =>
-      {
-        var i = 0
-        var bitR = bitRecipes
-        while (i < 8) {
-          val br = bitR.head
-          dstate.setCurrentNode(saved)
-          br.run(dstate)
-          val currentVal = dstate.intValue
-          ar(i) = currentVal
-          i += 1
-          bitR = bitR.tail
-        }
-        // at this point we have ar with 8 values in it.
-        val byteVal = setBits(ar)
-        dstate.setCurrentValue(byteVal)
+    var i = 0
+    var bitR = bitRecipes
+    while (i < 8) {
+      val br = bitR.head
+      dstate.setCurrentNode(saved)
+      br.run(dstate)
+      val currentVal = dstate.intValue
+      if (processValue(currentVal)) {
+        byteVal |= 1 << i
       }
+      i += 1
+      bitR = bitR.tail
     }
+    dstate.setCurrentValue(byteVal)
   }
 
   private def processValue(i: Int): Boolean = {
     if (i < 0 || i > 1) throw new IllegalArgumentException("dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i))
     if (i == 0) false
     else true
-  }
-
-  private def setBits(args: Array[Int]): Int = {
-    val bp0 = processValue(args(0))
-    val bp1 = processValue(args(1))
-    val bp2 = processValue(args(2))
-    val bp3 = processValue(args(3))
-    val bp4 = processValue(args(4))
-    val bp5 = processValue(args(5))
-    val bp6 = processValue(args(6))
-    val bp7 = processValue(args(7))
-    var uByte: Int = 0
-    if (bp0) uByte += 1
-    if (bp1) uByte += 2
-    if (bp2) uByte += 4
-    if (bp3) uByte += 8
-    if (bp4) uByte += 16
-    if (bp5) uByte += 32
-    if (bp6) uByte += 64
-    if (bp7) uByte += 128
-    uByte
   }
 }

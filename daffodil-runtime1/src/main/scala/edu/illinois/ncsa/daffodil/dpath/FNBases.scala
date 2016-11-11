@@ -149,7 +149,8 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
   extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
-    val List(recipe1, recipe2) = recipes
+    val recipe1 = recipes(0)
+    val recipe2 = recipes(1)
 
     val savedNode = dstate.currentNode
     dstate.resetValue()
@@ -172,7 +173,8 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
   extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
-    val List(recipe1, recipe2) = recipes
+    val recipe1 = recipes(0)
+    val recipe2 = recipes(1)
 
     val savedNode = dstate.currentNode
     dstate.resetValue()
@@ -194,7 +196,9 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
 abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
-    val List(recipe1, recipe2, recipe3) = recipes
+    val recipe1 = recipes(0)
+    val recipe2 = recipes(1)
+    val recipe3 = recipes(2)
 
     val savedNode = dstate.currentNode
     recipe1.run(dstate)

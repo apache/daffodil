@@ -1201,7 +1201,9 @@ sealed class DISimple(override val erd: ElementRuntimeData)
       } else {
         throw new InfosetNoDataException(this, erd)
       }
-    this.erd.schemaDefinitionUnless(_value != null, "Value has not been set.")
+    if (_value == null) {
+      this.erd.schemaDefinitionError("Value has not been set.")
+    }
     _value
   }
 

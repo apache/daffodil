@@ -295,8 +295,9 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
             case NodeInfo.UnsignedLong => asLong(value)
             case NodeInfo.NonEmptyString => {
               Assert.invariant(value.isInstanceOf[String])
-              ci.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
-                "Non-empty string required.")
+              if (value.asInstanceOf[String].length == 0) {
+                ci.schemaDefinitionError("Non-empty string required.")
+              }
               value
             }
             case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {

@@ -61,6 +61,7 @@ abstract class LocalBuffer[T <: java.nio.Buffer] {
  * class this will end up sharing the local stack object across threads, which
  * is a very bad idea (not thread safe).
  */
+ // move to common state shared by everything
 trait LocalBufferMixin {
 
   /**
@@ -74,7 +75,7 @@ trait LocalBufferMixin {
     protected def allocate(length: Long) = ByteBuffer.allocate(length.toInt)
   }
 
-  final val withLocalCharBuffer = new LocalStack[LocalCharBuffer](new LocalCharBuffer)
+  final lazy val withLocalCharBuffer = new LocalStack[LocalCharBuffer](new LocalCharBuffer)
 
-  final val withLocalByteBuffer = new LocalStack[LocalByteBuffer](new LocalByteBuffer)
+  final lazy val withLocalByteBuffer = new LocalStack[LocalByteBuffer](new LocalByteBuffer)
 }

@@ -194,7 +194,21 @@ protected abstract class MStack[@specialized T] private[util] (
 
   def copyFrom(other: MStack[T]) {
     this.index = other.index
-    this.table = other.table.clone
+    if (this.table.length < other.index) {
+      // the other table has too many items to fit into this table, so just
+      // clone it which will allocate enough space
+      this.table = other.table.clone
+    } else {
+      // this table is big enough to store everything from the other table, so
+      // avoid the clone (which allocates a new table) and just copy the items
+      // to this table
+      var i = 0
+      while (i < other.index) {
+        this.table(i) = other.table(i)
+        i += 1
+      }
+
+    }
   }
   // private var currentIteratorIndex = -1
 

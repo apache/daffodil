@@ -258,7 +258,43 @@ object Misc {
    * Requires an even number of nibbles.
    */
   def hex2Bytes(hex: String): Array[Byte] = {
-    hex.sliding(2, 2).toArray.map { Integer.parseInt(_, 16).toByte }
+    // This function originally just looked like this:
+    //
+    //   hex.sliding(2, 2).toArray.map { Integer.parseInt(_, 16).toByte }
+    //
+    // Although that is very clear and simple, it is actually very slow. The
+    // code below, which accomplishes the same thing, is about 2 orders of
+    // magnitude faster. We're leaving the above comment in place to more
+    // clearly show what this function is doing, but keeping this below code
+    // due to its speed, which is very important for schemas containing
+    // xs:hexBinary types.
+
+    def hexCharToValue(c: Char): Int = {
+      val i = c.toInt
+      val v =
+        if (i >= 48 && i <= 57) i - 48 // number 0-9
+        else if (i >= 65 && i <= 70) (i - 65) + 10 // capital A-F
+        else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
+        else throw new java.lang.IllegalArgumentException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'" )
+      v
+    }
+
+    val len = hex.length
+    if (len % 2 != 0) {
+      throw new java.lang.IllegalArgumentException("Hex string must have an even number of characters, but was " + len)
+    }
+    val numBytes: Int = len / 2
+    val arr = new Array[Byte](numBytes)
+    var arrIdx: Int = 0
+    var hexIdx: Int = 0
+    while (arrIdx < numBytes) {
+      val l = hexCharToValue(hex(hexIdx))
+      val r = hexCharToValue(hex(hexIdx + 1))
+      arr(arrIdx) = ((l << 4) | r).toByte
+      arrIdx += 1
+      hexIdx += 2
+    }
+    arr
   }
 
   def hex2Bits(hex: String): String = {

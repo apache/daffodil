@@ -251,19 +251,19 @@ private[unparsers] final class InfosetCursorFromXMLReader(
   }
 
   private def handleStartElement() {
-    val elem = createElement()
+    val e = createElement()
     //
     // There's state changes to the parent (which is complex or array)
     // and to the nodeStack to be done, and we have to either
     // populate the accessor with this node, or populate based on
     // an array transition.
     //
-    (top, elem) match {
-      case (c: DIComplex, e: DIElement) if (!e.erd.isArray) => {
+    if (top.isInstanceOf[DIComplex]) {
+      val c = top.asInstanceOf[DIComplex]
+      if (!e.erd.isArray) {
         c.addChild(e)
         start(e)
-      }
-      case (c: DIComplex, e: DIElement) if (e.erd.isArray) => {
+      } else {
         val a = c.getChildArray(e.erd).asInstanceOf[DIArray]
         a.append(e)
         nodeStack.push(a)
@@ -278,7 +278,10 @@ private[unparsers] final class InfosetCursorFromXMLReader(
         queueAnotherEvent(StartKind, e)
         e.setParent(a.parent)
       }
-      case (a: DIArray, e: DIElement) if (!e.erd.isArray) => {
+    } else {
+      // top must be an array
+      val a = top.asInstanceOf[DIArray]
+      if (!e.erd.isArray) {
         //
         // not an element of this array so we have to end this
         // array, and then see what this element requires
@@ -289,8 +292,7 @@ private[unparsers] final class InfosetCursorFromXMLReader(
         val c = top.asInstanceOf[DIComplex]
         c.addChild(e)
         queueAnotherEvent(StartKind, e)
-      }
-      case (a: DIArray, e: DIElement) if (e.erd.isArray) => {
+      } else {
         // could be an element of this array, or start of the next one
         if (a.erd eq e.erd) {
           // same array
@@ -310,18 +312,18 @@ private[unparsers] final class InfosetCursorFromXMLReader(
           e.setParent(nextA.parent)
         }
       }
-      case other => Assert.invariantFailed("Cannot be " + other)
     }
-    elem match {
-      case c: DIComplex => nodeStack.push(elem)
-      case s: DISimple => queueAnotherEvent(EndKind, elem)
+
+    e match {
+      case c: DIComplex => nodeStack.push(e)
+      case s: DISimple => queueAnotherEvent(EndKind, e)
     }
-    Assert.invariant(elem.parent ne null)
+    Assert.invariant(e.parent ne null)
     nextElementResolver =
-      if (elem.erd.isSimpleType)
-        elem.erd.nextElementResolver
+      if (e.erd.isSimpleType)
+        e.erd.nextElementResolver
       else
-        elem.erd.childElementResolver
+        e.erd.childElementResolver
   }
 
   private def createElement() = {

@@ -75,182 +75,56 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import passera.unsigned.ULong
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
-class UState private (
-  private val infosetCursor: InfosetCursor,
+abstract class UState(
+  dos: DataOutputStream,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
-  dataProcArg: DataProcessor,
-  var dataOutputStream: DataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[Suspension])
-  extends ParseOrUnparseState(vbox, diagnosticsArg, One(dataProcArg), Success)
+  dataProcArg: Maybe[DataProcessor])
+  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, Success)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
-
-  dState.setMode(UnparserBlocking)
-
-  def this(
-    infosetCursor: InfosetCursor,
-    vmap: VariableMap,
-    diagnosticsArg: List[Diagnostic],
-    dataProcArg: DataProcessor,
-    dataOutputStream: DataOutputStream,
-    initialSuspendedExpressions: mutable.Queue[Suspension]) =
-    this(infosetCursor, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      dataOutputStream, initialSuspendedExpressions)
-
-  var prior: UState = null
 
   override def toString = {
     val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
+  
+  var dataOutputStream: DataOutputStream = dos
 
-  def cloneForSuspension(newDOS: DataOutputStream): UState = {
-    val clone = new UState(
-      NonUsableInfosetCursor,
-      this.variableBox, // important- when we clone for suspension, we don't clone the vmap, we share it via the vbox.
-      Nil, // no diagnostics for now. Any that accumulate here must eventually be output.
-      dataProcArg, // same data proc.
-      newDOS,
-      this.suspensions // inherit same place to put these OVC suspensions from original.
-      )
-    clone.prior = this.prior
-    this.prior = clone
-    Assert.invariant(currentInfosetNodeMaybe.isDefined)
-    clone.currentInfosetNodeStack.copyFrom(this.currentInfosetNodeStack)
-    clone.aaa_currentNode = clone.currentInfosetNodeStack.top
-    clone.arrayIndexStack.copyFrom(this.arrayIndexStack)
-    clone.escapeSchemeEVCache.copyFrom(this.escapeSchemeEVCache)
-    /*
-     * If an OVC element is delimited, and by it's location in the schema
-     * it can be delimited by any of the separators or terminators of a bunch of
-     * enclosing groups. In that case we need to "freeze" the delimiter
-     * stack so that it will have the right stuff on stack such time in the
-     * future as the OVC expression can successfully evaluate.
-     */
-    clone.delimiterStack.copyFrom(this.delimiterStack)
+  def prior: UStateForSuspension
+  def currentInfosetNode: DINode
+  def currentInfosetNodeMaybe: Maybe[DINode]
+  def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
+  def setVariables(newVariableMap: VariableMap): Unit
 
-    val dstate = clone.dState
-    dstate.setCurrentNode(thisElement.asInstanceOf[DINode])
-    dstate.setVBox(variableBox)
-    dstate.setContextNode(thisElement.asInstanceOf[DINode]) // used for diagnostics
-    // dstate.setLocationInfo(bitPos1b, bitLimit1b, dataStream)
-    dstate.setErrorOrWarn(this)
-    dstate.resetValue
-    dstate.setMode(UnparserBlocking)
-    clone
-  }
+  def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
+  def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
+  def withByteArrayOutputStream: LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
+  
+  def allTerminatingMarkup: List[DFADelimiter]
+  def localDelimiters: DelimiterStackUnparseNode
+  def pushDelimiters(node: DelimiterStackUnparseNode): Unit
+  def popDelimiters(): Unit
+  
+  def currentInfosetNodeStack: MStackOfMaybe[DINode]
+  def arrayIndexStack: MStackOfLong
+  def childIndexStack: MStackOfLong
+  def groupIndexStack: MStackOfLong
+  def moveOverOneArrayIndexOnly(): Unit
+  def moveOverOneGroupIndexOnly(): Unit
+  def moveOverOneElementChildOnly(): Unit
+  
+  def inspectOrError: InfosetAccessor
+  def advanceOrError: InfosetAccessor
+  def isInspectArrayEnd: Boolean
 
-  //  private val dstateTable = new NonAllocatingMap[CompiledExpression, DState](
-  //    new java.util.LinkedHashMap[CompiledExpression, DState])
-  //  /**
-  //   * Every expression has a DState that can be used for that expression.
-  //   */
-  //  def dState(expr: CompiledExpression): DState = {
-  //    val maybeDstate = dstateTable.get(expr)
-  //    if (maybeDstate.isDefined) maybeDstate.get
-  //    else {
-  //      val newDstate = new DState
-  //      dstateTable.put(expr, newDstate)
-  //      newDstate
-  //    }
-  //  }
   override def dataStream = Maybe(dataOutputStream)
 
-  final val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
-  final val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
-  final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
-    {
-      val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
-      val dos = DirectOrBufferedDataOutputStream(baos, null)
-      (baos, dos)
-    },
-    pair => pair match {
-      case (baos, dos) =>
-        baos.reset()
-        dos.setMaybeRelBitLimit0b(MaybeULong.Nope)
-        dos.setRelBitPos0b(ULong(0L))
-    })
-
-  @inline final def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
-    val savedDOS = dataOutputStream
-    try {
-      dataOutputStream = temp
-      body
-    } finally {
-      dataOutputStream = savedDOS
-    }
-  }
-
-  def addUnparseError(ue: UnparseError) {
-    diagnostics = ue :: diagnostics
-    status_ = new Failure(ue)
-  }
-
-  override def advance: Boolean = infosetCursor.advance
-  override def advanceAccessor: InfosetAccessor = infosetCursor.advanceAccessor
-  override def inspect: Boolean = infosetCursor.inspect
-  override def inspectAccessor: InfosetAccessor = infosetCursor.inspectAccessor
-  override def fini: Unit = { infosetCursor.fini }
-
-  /**
-   * Use this so if there isn't an event we get a clean diagnostic message saying
-   * that is what has gone wrong.
-   */
-  def inspectOrError = {
-    val m = inspectMaybe
-    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
-    m.get
-  }
-
-  def advanceOrError = {
-    val m = advanceMaybe
-    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
-    m.get
-  }
-
-  def isInspectArrayEnd = {
-    if (!inspect) false
-    else {
-      val p = inspectAccessor
-      val res = p match {
-        case e if e.isEnd && e.isArray => true
-        case _ => false
-      }
-      res
-    }
-  }
-
-  private var currentInfosetEvent_ : Maybe[InfosetAccessor] = Nope
-  def currentInfosetNode: DINode =
-    if (currentInfosetNodeMaybe.isEmpty) null
-    else currentInfosetNodeMaybe.get
-
   override def currentNode = currentInfosetNodeMaybe
-
-  /**
-   * This exists for debugging, so we have easy access to the current node.
-   */
-  var aaa_currentNode: Maybe[DINode] = Nope
-
-  def currentInfosetNodeMaybe: Maybe[DINode] =
-    if (currentInfosetNodeStack.isEmpty) {
-      aaa_currentNode = Nope
-      Nope
-    } else {
-      val t = currentInfosetNodeStack.top
-      aaa_currentNode = t
-      t
-    }
-
-  def currentInfosetEvent = currentInfosetEvent_
-
-  def setCurrentInfosetEvent(ev: Maybe[InfosetAccessor]) {
-    currentInfosetEvent_ = ev
-  }
 
   override def hasInfoset = currentInfosetNodeMaybe.isDefined
 
@@ -273,8 +147,6 @@ class UState private (
     }
   }
 
-  val unparseResult = new UnparseResult(dataProcArg, this)
-
   private def maybeCurrentInfosetElement: Maybe[DIElement] = {
     if (!Maybe.WithNulls.isDefined(currentInfosetNode)) Nope
     else {
@@ -285,59 +157,13 @@ class UState private (
     }
   }
 
-  /**
-   * flag indicates that the caller of the unparser does NOT care that the infoset
-   * elements are retained; hence, the unparser is free to delete them, clobber
-   * them or whatever it wants.
-   */
-  var removeUnneededInfosetElements = false // set from API of top level Unparser call.
-
   def currentLocation: DataLocation = {
     val m = maybeCurrentInfosetElement
     new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),
       if (m.isDefined) Maybe(m.value.runtimeData) else Nope)
   }
 
-  val currentInfosetNodeStack = new MStackOfMaybe[DINode]
-
-  val arrayIndexStack = MStackOfLong()
-  arrayIndexStack.push(1L)
-  def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
-  def arrayPos = arrayIndexStack.top
-
-  val groupIndexStack = MStackOfLong()
-  groupIndexStack.push(1L)
-
-  def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
-  def groupPos = groupIndexStack.top
-
-  // TODO: it doesn't look anything is actually reading the value of childindex
-  // stack. Can we get rid of it?
-  val childIndexStack = MStackOfLong()
-  childIndexStack.push(1L)
-  def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
-  def childPos = childIndexStack.top
-
-  val occursBoundsStack = MStackOfLong()
-
-  def updateBoundsHead(ob: Long) = {
-    occursBoundsStack.pop()
-    occursBoundsStack.push(ob)
-  }
-
-  def occursBounds = occursBoundsStack.top
-
-  val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
-
-  val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
-  def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
-  def popDelimiters() = delimiterStack.pop
-  def localDelimiters = delimiterStack.top
-  def allTerminatingMarkup = {
-    delimiterStack.iterator.flatMap { dnode =>
-      (dnode.separator.toList ++ dnode.terminator.toList)
-    }.toList
-  }
+  lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
   def bitPos0b = dataOutputStream.maybeAbsBitPos0b.getOrElse(0L)
 
@@ -345,18 +171,250 @@ class UState private (
 
   def charPos = -1L
 
+  final def notifyDebugging(flag: Boolean) {
+    dataOutputStream.setDebugging(flag)
+  }
+
+
+  def addUnparseError(ue: UnparseError) {
+    diagnostics = ue :: diagnostics
+    status_ = new Failure(ue)
+  }
+
   def validationError(msg: String, args: Any*) {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
     diagnostics = vde :: diagnostics
   }
+}
 
-  def setVariables(newVariableMap: VariableMap) = {
-    setVariableMap(newVariableMap)
+/**
+ * When we create a suspension during unparse, we need to clone the UStateMain
+ * for when the suspension is later resumed. However, we do not need nearly as
+ * much information for these cloned ustates as the main unparse. Either we can
+ * access the necessary information directly from the main UState, or the
+ * information isn't used and there's no need to copy it/take up valuable
+ * memory.
+ */
+class UStateForSuspension (
+  val mainUState: UStateMain,
+  dos: DataOutputStream,
+  vbox: VariableBox,
+  override val currentInfosetNode: DINode,
+  arrayIndex: Long,
+  escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
+  delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
+  override val prior: UStateForSuspension)
+  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc) {
+
+  dState.setMode(UnparserBlocking)
+  dState.setCurrentNode(thisElement.asInstanceOf[DINode])
+  dState.setContextNode(thisElement.asInstanceOf[DINode])
+  dState.setVBox(vbox)
+  dState.setErrorOrWarn(this)
+
+  private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
+
+  override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
+  override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
+  override def withByteArrayOutputStream = mainUState.withByteArrayOutputStream
+
+  override def advance: Boolean = die
+  override def advanceAccessor: InfosetAccessor = die
+  override def inspect: Boolean = die
+  override def inspectAccessor: InfosetAccessor = die
+  override def fini: Unit = {}
+  override def inspectOrError = die
+  override def advanceOrError = die
+  override def isInspectArrayEnd = die
+
+  override def currentInfosetNodeStack = die
+  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
+
+  override def arrayIndexStack = die
+  override def moveOverOneArrayIndexOnly() = die
+  override def arrayPos = arrayIndex
+
+  override def groupIndexStack = die
+  override def moveOverOneGroupIndexOnly() = die
+  override def groupPos = die
+
+  override def childIndexStack = die
+  override def moveOverOneElementChildOnly() = die
+  override def childPos = die
+
+  override def occursBoundsStack = die
+
+  override def pushDelimiters(node: DelimiterStackUnparseNode) = die
+  override def popDelimiters() = die
+  override def localDelimiters = delimiterStackMaybe.get.top
+  override def allTerminatingMarkup = {
+    delimiterStackMaybe.get.iterator.flatMap { dnode =>
+      (dnode.separator.toList ++ dnode.terminator.toList)
+    }.toList
+  }
+  
+  override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = escapeSchemeEVCacheMaybe.get
+
+  override def setVariables(newVariableMap: VariableMap) = die
+}
+
+class UStateMain private (
+  private val infosetCursor: InfosetCursor,
+  vbox: VariableBox,
+  diagnosticsArg: List[Diagnostic],
+  dataProcArg: DataProcessor,
+  dos: DataOutputStream,
+  initialSuspendedExpressions: mutable.Queue[Suspension])
+  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg)) {
+
+  dState.setMode(UnparserBlocking)
+
+  def this(
+    infosetCursor: InfosetCursor,
+    vmap: VariableMap,
+    diagnosticsArg: List[Diagnostic],
+    dataProcArg: DataProcessor,
+    dataOutputStream: DataOutputStream,
+    initialSuspendedExpressions: mutable.Queue[Suspension]) =
+    this(infosetCursor, new VariableBox(vmap), diagnosticsArg, dataProcArg,
+      dataOutputStream, initialSuspendedExpressions)
+
+  private var _prior: UStateForSuspension = null
+  override def prior = _prior
+
+  def cloneForSuspension(suspendedDOS: DataOutputStream): UState = {
+    val es =
+      if (!escapeSchemeEVCache.isEmpty) {
+        // If there are any escape schemes, then we need to clone the whole
+        // MStack, since the escape scheme cache logic requires an MStack. We
+        // reallyjust need the top for cloning for suspensions, but that
+        // requires changes to how the escape schema cache is accessed, which
+        // isn't a trivial change.
+        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper]()
+        esClone.copyFrom(escapeSchemeEVCache)
+        Maybe(esClone)
+      } else {
+        Nope
+      }
+    val ds =
+      if (!delimiterStack.isEmpty) {
+        // If there are any delimiters, then we need to clone them all since
+        // they may be needed for escaping
+        val dsClone = new MStackOf[DelimiterStackUnparseNode]()
+        dsClone.copyFrom(delimiterStack)
+        Maybe(dsClone)
+      } else {
+        Nope
+      }
+
+    val clone = new UStateForSuspension(
+      this,
+      suspendedDOS,
+      variableBox,
+      currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
+      arrayIndexStack.top, // only need the to of the stack, not the whole thing
+      es,
+      ds,
+      prior
+      )
+
+    this._prior = clone
+    clone
   }
 
-  final def notifyDebugging(flag: Boolean) {
-    dataOutputStream.setDebugging(flag)
+  override lazy val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
+  override lazy val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
+  override lazy val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
+    {
+      val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
+      val dos = DirectOrBufferedDataOutputStream(baos, null)
+      (baos, dos)
+    },
+    pair => pair match {
+      case (baos, dos) =>
+        baos.reset()
+        dos.setMaybeRelBitLimit0b(MaybeULong.Nope)
+        dos.setRelBitPos0b(ULong(0L))
+    })
+
+  override def advance: Boolean = infosetCursor.advance
+  override def advanceAccessor: InfosetAccessor = infosetCursor.advanceAccessor
+  override def inspect: Boolean = infosetCursor.inspect
+  override def inspectAccessor: InfosetAccessor = infosetCursor.inspectAccessor
+  override def fini: Unit = { infosetCursor.fini }
+
+  /**
+   * Use this so if there isn't an event we get a clean diagnostic message saying
+   * that is what has gone wrong.
+   */
+  override def inspectOrError = {
+    val m = inspectMaybe
+    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    m.get
+  }
+
+  override def advanceOrError = {
+    val m = advanceMaybe
+    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    m.get
+  }
+
+  override def isInspectArrayEnd = {
+    if (!inspect) false
+    else {
+      val p = inspectAccessor
+      val res = p match {
+        case e if e.isEnd && e.isArray => true
+        case _ => false
+      }
+      res
+    }
+  }
+
+  def currentInfosetNode: DINode =
+    if (currentInfosetNodeMaybe.isEmpty) null
+    else currentInfosetNodeMaybe.get
+
+  def currentInfosetNodeMaybe: Maybe[DINode] =
+    if (currentInfosetNodeStack.isEmpty) Nope
+    else currentInfosetNodeStack.top
+
+  override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
+
+  override val arrayIndexStack = MStackOfLong()
+  arrayIndexStack.push(1L)
+  override def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
+  override def arrayPos = arrayIndexStack.top
+
+  override val groupIndexStack = MStackOfLong()
+  groupIndexStack.push(1L)
+  override def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  override def groupPos = groupIndexStack.top
+
+  // TODO: it doesn't look anything is actually reading the value of childindex
+  // stack. Can we get rid of it?
+  override val childIndexStack = MStackOfLong()
+  childIndexStack.push(1L)
+  override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
+  override def childPos = childIndexStack.top
+
+  val occursBoundsStack = MStackOfLong()
+
+  override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
+
+  val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
+  override def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
+  override def popDelimiters() = delimiterStack.pop
+  override def localDelimiters = delimiterStack.top
+  override def allTerminatingMarkup = {
+    delimiterStack.iterator.flatMap { dnode =>
+      (dnode.separator.toList ++ dnode.terminator.toList)
+    }.toList
+  }
+
+  override def setVariables(newVariableMap: VariableMap) = {
+    setVariableMap(newVariableMap)
   }
 
   /**
@@ -419,11 +477,11 @@ object UState {
   def createInitialUState(
     out: DataOutputStream,
     dataProc: DFDL.DataProcessor,
-    docSource: InfosetCursor): UState = {
+    docSource: InfosetCursor): UStateMain = {
 
     val variables = dataProc.getVariables
     val diagnostics = Nil
-    val newState = new UState(docSource, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
+    val newState = new UStateMain(docSource, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
       new mutable.Queue[Suspension]) // null means no prior UState
     newState
   }

@@ -407,7 +407,6 @@ sealed trait RegularElementUnparserStartEndStrategy
     // context for evaluation of expressions.
     val e = One(elem)
     state.currentInfosetNodeStack.push(e)
-    state.aaa_currentNode = e
   }
 
   /**
@@ -426,11 +425,6 @@ sealed trait RegularElementUnparserStartEndStrategy
     }
 
     state.currentInfosetNodeStack.pop
-    state.aaa_currentNode =
-      if (state.currentInfosetNodeStack.isEmpty)
-        Nope
-      else
-        state.currentInfosetNodeStack.top
 
     move(state)
   }
@@ -481,7 +475,6 @@ trait OVCStartEndStrategy
 
     val e = One(elem)
     state.currentInfosetNodeStack.push(e)
-    state.aaa_currentNode = e
   }
 
   protected final override def unparseEnd(state: UState) {
@@ -489,11 +482,6 @@ trait OVCStartEndStrategy
 
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
-    state.aaa_currentNode =
-      if (state.currentInfosetNodeStack.isEmpty)
-        Nope
-      else
-        state.currentInfosetNodeStack.top
 
     move(state)
   }

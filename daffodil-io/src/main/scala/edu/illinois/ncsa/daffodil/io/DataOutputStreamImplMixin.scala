@@ -377,25 +377,33 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     encoder.onMalformedInput(codingErrorAction)
     encoder.onUnmappableCharacter(codingErrorAction)
     val cs = encoder.charset()
-    val (mCharWidthInBits: MaybeInt, mandatoryAlignInBits) = {
-      if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE)
-        if (maybeUTF16Width.isDefined && maybeUTF16Width.get == UTF16Width.Fixed) (MaybeInt(16), 8)
-        else (MaybeInt.Nope, 8)
-      else {
-        cs match {
-          case encoderWithBits: NonByteSizeCharset =>
-            (MaybeInt(encoderWithBits.bitWidthOfACodeUnit), 1)
-          case _ => {
-            val maxBytes = encoder.maxBytesPerChar()
-            if (maxBytes == encoder.averageBytesPerChar())
-              (MaybeInt((maxBytes * 8).toInt), 8)
-            else (MaybeInt.Nope, 8)
+
+    if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE) {
+      if (maybeUTF16Width.isDefined && maybeUTF16Width.get == UTF16Width.Fixed) {
+        maybeCharWidthInBits = MaybeInt(16)
+        encodingMandatoryAlignmentInBits = 8
+      } else {
+        maybeCharWidthInBits = MaybeInt.Nope
+        encodingMandatoryAlignmentInBits = 8
+      }
+    } else {
+      cs match {
+        case encoderWithBits: NonByteSizeCharset => {
+          maybeCharWidthInBits = MaybeInt(encoderWithBits.bitWidthOfACodeUnit)
+          encodingMandatoryAlignmentInBits = 1
+        }
+        case _ => {
+          val maxBytes = encoder.maxBytesPerChar()
+          if (maxBytes == encoder.averageBytesPerChar()) {
+            maybeCharWidthInBits = MaybeInt((maxBytes * 8).toInt)
+            encodingMandatoryAlignmentInBits = 8
+          } else {
+            maybeCharWidthInBits = MaybeInt.Nope
+            encodingMandatoryAlignmentInBits = 8
           }
         }
       }
     }
-    maybeCharWidthInBits = mCharWidthInBits
-    encodingMandatoryAlignmentInBits = mandatoryAlignInBits
   }
 
   final def encodingErrorPolicy = {
