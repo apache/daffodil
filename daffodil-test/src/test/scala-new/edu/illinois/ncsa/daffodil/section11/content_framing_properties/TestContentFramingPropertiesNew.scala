@@ -43,5 +43,42 @@ class TestContentFramingPropertiesNew {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   @Test def test_encodingErrorReplace_unparse() { runner2.runOneTest("encodingErrorReplace_unparse") }
+  
+  @Test def test_packed7BitASCII11() { runner2.runOneTest("packed7BitASCII11") }
+  @Test def test_packed7BitASCII12() { runner2.runOneTest("packed7BitASCII12") }
 
+
+
+  @Test def test_packed6BitASCII1() { runner2.runOneTest("packed6BitASCII1") }
+  @Test def test_encoding_property_expression2() { runner2.runOneTest("encoding_property_expression2") }
+  @Test def test_encoding_property_expression3() { runner2.runOneTest("encoding_property_expression3") }
+  @Test def test_encoding_property_expression4() { runner2.runOneTest("encoding_property_expression4") }
+  @Test def test_encoding_property_expression2_unparse() { runner2.runOneTest("encoding_property_expression2_unparse") }
+  @Test def test_alignmentPacked6BitASCII() { runner2.runOneTest("alignmentPacked6BitASCII") }
+  @Test def test_packed6BitASCII_unparse1() { runner2.runOneTest("packed6BitASCII_unparse1") }
+  @Test def test_packed6BitASCII_unparse2() { runner2.runOneTest("packed6BitASCII_unparse2") }
+  @Test def test_packed6BitASCII3() { runner2.runOneTest("packed6BitASCII3") }
+  @Test def test_packed6BitASCII4() { runner2.runOneTest("packed6BitASCII4") }
+  @Test def test_packed6BitASCII5() { runner2.runOneTest("packed6BitASCII5") }
+  
+  @Test def test_packed5Bit1() { runner2.runOneTest("packed5Bit1") }
+  @Test def test_packed5Bit2() { runner2.runOneTest("packed5Bit2") }
+  @Test def test_packed5Bit3() { runner2.runOneTest("packed5Bit3") }
+  @Test def test_packed5Bit4() { runner2.runOneTest("packed5Bit4") }
+  @Test def test_packed5Bit5() { runner2.runOneTest("packed5Bit5") }
+  @Test def test_packed5Bit6() { runner2.runOneTest("packed5Bit6") }
+  @Test def test_packed5Bit_unparse1() { runner2.runOneTest("packed5Bit_unparse1") }
+  @Test def test_packed5Bit_unparse2() { runner2.runOneTest("packed5Bit_unparse2") }
+  @Test def test_packed5Bit_unparse3() { runner2.runOneTest("packed5Bit_unparse3") }
+
+  @Test def test_octalLSBF1() { runner2.runOneTest("octalLSBF1") }
+  @Test def test_octalLSBF2() { runner2.runOneTest("octalLSBF2") }
+  @Test def test_octalLSBF_unparse1() { runner2.runOneTest("octalLSBF_unparse1") }
+  @Test def test_octalLSBF_unparse_error() { runner2.runOneTest("octalLSBF_unparse_error") }
+  @Test def test_octalLSBF3() { runner2.runOneTest("octalLSBF3") }
+
+  @Test def test_hexLSBF1() { runner2.runOneTest("hexLSBF1") }
+  @Test def test_hexLSBF2() { runner2.runOneTest("hexLSBF2") }
+  @Test def test_hexLSBF_unparse1() { runner2.runOneTest("hexLSBF_unparse1") }
+  
 }

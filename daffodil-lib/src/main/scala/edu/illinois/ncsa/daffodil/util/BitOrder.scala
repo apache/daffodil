@@ -195,4 +195,13 @@ object Bits {
     }
   }
 
+  /**
+   * Returns a string of '1' and '0' characters for a single unsigned byte.
+   *
+   * This is for debugging
+   */
+  def asBits(unsignedByte: Int): String = {
+    String.format("%8s", unsignedByte.toBinaryString).replace(' ', '0')
+  }
+
 }

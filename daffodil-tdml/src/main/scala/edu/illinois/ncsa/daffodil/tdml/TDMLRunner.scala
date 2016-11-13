@@ -1460,8 +1460,10 @@ case class Document(d: NodeSeq, parent: TestCase) {
 class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
 
   lazy val encoder = {
-    if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED" || encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED")
-      Assert.usage(partBitOrder == LSBFirst, "encoding X-DFDL-US-ASCII-7-BIT-PACKED requires bitOrder='LSBFirst'")
+    val upperName = encodingName.toUpperCase
+    if (upperName == "US-ASCII-7-BIT-PACKED" || upperName == "X-DFDL-US-ASCII-7-BIT-PACKED" || upperName == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
+        upperName == "X-DFDL-US-ASCII-6-BIT-PACKED" || upperName == "X-DFDL-5-BIT-PACKED" || upperName == "X-DFDL-HEX-LSBF" || upperName == "X-DFDL-OCTAL-LSBF")
+      Assert.usage(partBitOrder == LSBFirst, "encoding " + upperName + " requires bitOrder='LSBFirst'")
     CharsetUtils.getCharset(encodingName).newEncoder()
   }
 
@@ -1485,12 +1487,14 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     // in our data and our infoset.
     // So instead we must do our own UTF-8-like encoding of the data
     // so that we can put in codepoints we want.
+    //System.out.println("encodeUtf8ToBits")
     val bytes = UTF8Encoder.utf8LikeEncode(textContentWithoutEntities).toArray
     val res = bytes.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     res
   }
 
-  def encodeWith7BitEncoder(s: String): Seq[String] = {
+  def encodeWithNonByteSizeEncoder(s: String, byteSize: Int): Seq[String] = {
+    //System.out.println("encodeWith3BitEncoder")
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -1502,11 +1506,12 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val nBits = s.length * enc.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
-    val sevenBitChunks = allBits.reverse.sliding(7, 7).map { _.reverse }.toList
-    sevenBitChunks
+    val bitChunks = allBits.reverse.sliding(byteSize, byteSize).map { _.reverse }.toList
+    bitChunks
   }
 
   def encodeWith8BitEncoder(s: String): Seq[String] = {
+    //System.out.println("encodeWith8BitEncoder")
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -1525,7 +1530,15 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
         encodeUtf8ToBits(textContentWithoutEntities)
       else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
         encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
-        encodeWith7BitEncoder(textContentWithoutEntities)
+        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 7)
+      else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-6-BIT-PACKED") {
+        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 6) }
+      else if (encodingName.toUpperCase == "X-DFDL-5-BIT-PACKED") {
+        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 5) }
+      else if (encodingName.toUpperCase == "X-DFDL-HEX-LSBF")
+        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 4)
+      else if (encodingName.toUpperCase == "X-DFDL-OCTAL-LSBF") {
+        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 3) }
       else encodeWith8BitEncoder(textContentWithoutEntities)
     bytesAsStrings
   }

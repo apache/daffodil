@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -46,67 +46,69 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
 /**
  * Some encodings are not byte-oriented.
  *
- * X-DFDL-US-ASCII-7-BIT-PACKED occupies only 7 bits with each
+ * X-DFDL-HEX-LSBF occupies only 4 bits with each
  * code unit.
  *
- * There are 6 bit and 5 bit encodings in use as well. (One can even think of hexadecimal as
- * a 4-bit encoding of 16 possible characters - might be a cool way to
- * implement packed decimals of various sorts.)
  */
 
-trait USASCII7BitPackedCharsetMixin
+trait HexLSBF4BitCharsetMixin
   extends NonByteSizeCharset {
 
-  val bitWidthOfACodeUnit = 7 // in units of bits
+  val bitWidthOfACodeUnit = 4 // in units of bits
   val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 }
 
-object USASCII7BitPackedCharset
-  extends java.nio.charset.Charset("X-DFDL-US-ASCII-7-BIT-PACKED", Array("US-ASCII-7-BIT-PACKED"))
-  with USASCII7BitPackedCharsetMixin {
+object HexLSBF4BitCharset
+  extends java.nio.charset.Charset("X-DFDL-HEX-LSBF", Array())
+  with HexLSBF4BitCharsetMixin {
 
   def contains(cs: Charset): Boolean = false
 
-  def newDecoder(): CharsetDecoder = new USASCII7BitPackedDecoder
+  def newDecoder(): CharsetDecoder = new HexLSBF4BitDecoder
 
-  def newEncoder(): CharsetEncoder = new USASCII7BitPackedEncoder
+  def newEncoder(): CharsetEncoder = new HexLSBF4BitEncoder
 
-  private[charset] def charsPerByte = 8.0F / 7.0F
-  private[charset] def bytesPerChar = 1.0F // can't use 7/8 here because CharsetEncoder base class requires it to be 1 or greater.
+  private[charset] def charsPerByte = 8.0F / 4.0F
+  private[charset] def bytesPerChar = 1.0F // can't use 4/8 here because CharsetEncoder base class requires it to be 1 or greater.
 }
 
 /**
  * You have to initialize one of these for a specific ByteBuffer because
- * the encoding is 7-bits wide, so we need additional state beyond just
+ * the encoding is 4-bits wide, so we need additional state beyond just
  * the byte position and limit that a ByteBuffer provides in order to
  * properly sequence through the data.
  */
-class USASCII7BitPackedDecoder
-  extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.charsPerByte, // average
-    USASCII7BitPackedCharset.charsPerByte) // maximum
+class HexLSBF4BitDecoder
+  extends java.nio.charset.CharsetDecoder(HexLSBF4BitCharset,
+    HexLSBF4BitCharset.charsPerByte, // average
+    HexLSBF4BitCharset.charsPerByte) // maximum
   with NonByteSizeCharsetDecoder
-  with USASCII7BitPackedCharsetMixin {
+  with HexLSBF4BitCharsetMixin {
+
+  private val decodeString = "0123456789ABCDEF"
 
   def output(charCode: Int, out: CharBuffer) {
-    val char = charCode.toChar
-    out.put(char)
+    out.put(decodeString(charCode))
   }
-
 }
 
-class USASCII7BitPackedEncoder
-  extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.bytesPerChar, // average
-    USASCII7BitPackedCharset.bytesPerChar) // maximum
+class HexLSBF4BitEncoder
+  extends java.nio.charset.CharsetEncoder(HexLSBF4BitCharset,
+    HexLSBF4BitCharset.bytesPerChar, // average
+    HexLSBF4BitCharset.bytesPerChar) // maximum
   with NonByteSizeCharsetEncoder
-  with USASCII7BitPackedCharsetMixin {
+  with HexLSBF4BitCharsetMixin {
 
-  val replacementChar = 0x3F
+  val replacementChar = 0x00
 
   def charToCharCode(char: Char): MaybeInt = {
-    val charAsInt = char.toInt
-    if (charAsInt <= 127) MaybeInt(charAsInt)
+    // Convert hex values 0 through F to decimal values 0 through 15
+    // char '0' through '9' are decimal values 48 through 57, so subtract 48
+    // char 'A' through 'F' are decimal values 65 through 70, so subtract 55
+    // char 'a' through 'f' are decimal values 92 through 102, so subtract 87
+    if (char >= '0' && char <= '9') MaybeInt(char - 48)
+    else if (char >= 'A' && char <= 'F') MaybeInt(char - 55)
+    else if (char >= 'a' && char <= 'f') MaybeInt(char - 87)
     else MaybeInt.Nope
   }
 

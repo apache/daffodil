@@ -63,6 +63,9 @@
 
     <xs:element name="e7" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="%ES;" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="ISO-8859-1" />
 
+    <xs:element name="e8" type="xs:hexBinary" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:fillByte="年" dfdl:lengthKind="explicit" dfdl:length="3"
+      dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentSchema">
@@ -3509,18 +3512,15 @@
   <!--
      Test Name: fillByte_03
         Schema: s1
-          Root: e4
+          Root: e8
        Purpose: This test demonstrates the fillByte property where encoding is a non byte size charset
   -->
 
-  <tdml:unparserTestCase name="fillByte_03" root="e5"
+  <tdml:unparserTestCase name="fillByte_03" root="e8"
       model="s1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e5>
-          <ex:encoding>X-DFDL-US-ASCII-7-BIT-PACKED</ex:encoding>
-          <ex:e3>a1a2</ex:e3>
-        </ex:e5>
+        <ex:e8>a1a2</ex:e8>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>

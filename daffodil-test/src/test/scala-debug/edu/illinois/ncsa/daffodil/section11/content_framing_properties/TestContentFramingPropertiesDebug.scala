@@ -63,4 +63,5 @@ class TestContentFramingPropertiesDebug {
 
   // JIRA Ticket DFDL-1386 - 4-byte utf-8 characters/surrogate-pair issue.
   @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
+
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -46,67 +46,67 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
 /**
  * Some encodings are not byte-oriented.
  *
- * X-DFDL-US-ASCII-7-BIT-PACKED occupies only 7 bits with each
+ * X-DFDL-US-ASCII-6-BIT-PACKED occupies only 6 bits with each
  * code unit.
  *
- * There are 6 bit and 5 bit encodings in use as well. (One can even think of hexadecimal as
- * a 4-bit encoding of 16 possible characters - might be a cool way to
- * implement packed decimals of various sorts.)
  */
 
-trait USASCII7BitPackedCharsetMixin
+trait USASCII6BitPackedCharsetMixin
   extends NonByteSizeCharset {
 
-  val bitWidthOfACodeUnit = 7 // in units of bits
+  val bitWidthOfACodeUnit = 6 // in units of bits
   val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 }
 
-object USASCII7BitPackedCharset
-  extends java.nio.charset.Charset("X-DFDL-US-ASCII-7-BIT-PACKED", Array("US-ASCII-7-BIT-PACKED"))
-  with USASCII7BitPackedCharsetMixin {
+object USASCII6BitPackedCharset
+  extends java.nio.charset.Charset("X-DFDL-US-ASCII-6-BIT-PACKED", Array())
+  with USASCII6BitPackedCharsetMixin {
 
   def contains(cs: Charset): Boolean = false
 
-  def newDecoder(): CharsetDecoder = new USASCII7BitPackedDecoder
+  def newDecoder(): CharsetDecoder = new USASCII6BitPackedDecoder
 
-  def newEncoder(): CharsetEncoder = new USASCII7BitPackedEncoder
+  def newEncoder(): CharsetEncoder = new USASCII6BitPackedEncoder
 
-  private[charset] def charsPerByte = 8.0F / 7.0F
-  private[charset] def bytesPerChar = 1.0F // can't use 7/8 here because CharsetEncoder base class requires it to be 1 or greater.
+  private[charset] def charsPerByte = 8.0F / 6.0F
+  private[charset] def bytesPerChar = 1.0F // can't use 6/8 here because CharsetEncoder base class requires it to be 1 or greater.
 }
+
 
 /**
  * You have to initialize one of these for a specific ByteBuffer because
- * the encoding is 7-bits wide, so we need additional state beyond just
+ * the encoding is 6-bits wide, so we need additional state beyond just
  * the byte position and limit that a ByteBuffer provides in order to
  * properly sequence through the data.
  */
-class USASCII7BitPackedDecoder
-  extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.charsPerByte, // average
-    USASCII7BitPackedCharset.charsPerByte) // maximum
+class USASCII6BitPackedDecoder
+  extends java.nio.charset.CharsetDecoder(USASCII6BitPackedCharset,
+    USASCII6BitPackedCharset.charsPerByte, // average
+    USASCII6BitPackedCharset.charsPerByte) // maximum
   with NonByteSizeCharsetDecoder
-  with USASCII7BitPackedCharsetMixin {
+  with USASCII6BitPackedCharsetMixin {
 
   def output(charCode: Int, out: CharBuffer) {
-    val char = charCode.toChar
+    val adjustedCharCode = if(charCode <= 31) charCode + 64 else charCode
+    val char = adjustedCharCode.toChar
     out.put(char)
   }
 
 }
 
-class USASCII7BitPackedEncoder
-  extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.bytesPerChar, // average
-    USASCII7BitPackedCharset.bytesPerChar) // maximum
+class USASCII6BitPackedEncoder
+  extends java.nio.charset.CharsetEncoder(USASCII6BitPackedCharset,
+    USASCII6BitPackedCharset.bytesPerChar, // average
+    USASCII6BitPackedCharset.bytesPerChar) // maximum
   with NonByteSizeCharsetEncoder
-  with USASCII7BitPackedCharsetMixin {
+  with USASCII6BitPackedCharsetMixin {
 
-  val replacementChar = 0x3F
+  val replacementChar = 0x1F
 
   def charToCharCode(char: Char): MaybeInt = {
-    val charAsInt = char.toInt
-    if (charAsInt <= 127) MaybeInt(charAsInt)
+    val charCode = char.toInt
+    if (charCode >= 64 && charCode <= 95) MaybeInt(charCode - 64)
+    else if (charCode <= 63 && charCode >= 32) MaybeInt(charCode)
     else MaybeInt.Nope
   }
 

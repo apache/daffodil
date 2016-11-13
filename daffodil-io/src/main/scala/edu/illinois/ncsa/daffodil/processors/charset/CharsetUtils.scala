@@ -123,6 +123,14 @@ object CharsetUtils {
         if (csn == "US-ASCII-7-BIT-PACKED" || // deprecated name
           csn == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name
           USASCII7BitPackedCharset
+        else if (csn == "X-DFDL-US-ASCII-6-BIT-PACKED")
+          USASCII6BitPackedCharset
+        else if (csn == "X-DFDL-5-BIT-PACKED")
+          DFDL5BitPackedCharset
+        else if (csn == "X-DFDL-HEX-LSBF")
+          HexLSBF4BitCharset
+        else if (csn == "X-DFDL-OCTAL-LSBF")
+          OctalLSBF3BitCharset
         else Charset.forName(csn)
       One(cs)
     } catch {

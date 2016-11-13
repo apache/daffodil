@@ -32,11 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.unparsers.EncodingChangeUnparser
 import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
 import edu.illinois.ncsa.daffodil.processors.parsers.EncodingChangeParser
+import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
 
 case class EncodingChange(t: Term) extends Terminal(t, true) {
 
@@ -46,8 +47,14 @@ case class EncodingChange(t: Term) extends Terminal(t, true) {
     ev
   }
 
-  override lazy val parser = new EncodingChangeParser(t.termRuntimeData, checkBitOrderAndCharset)
+  lazy val checkEncoding = {
+    val ev = new CheckEncodingEv(t.termRuntimeData, t.alignmentValueInBits, t.charsetEv)
+    ev.compile()
+    ev
+  }
 
-  override lazy val unparser = new EncodingChangeUnparser(t.termRuntimeData, checkBitOrderAndCharset)
+  override lazy val parser = new EncodingChangeParser(t.termRuntimeData, checkBitOrderAndCharset, checkEncoding)
+
+  override lazy val unparser = new EncodingChangeUnparser(t.termRuntimeData, checkBitOrderAndCharset, checkEncoding)
 
 }

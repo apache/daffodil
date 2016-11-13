@@ -149,3 +149,26 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
   }
 
 }
+
+class CheckEncodingEv(t: TermRuntimeData, alignmentInBits: Integer, charsetEv: CharsetEv)
+  extends Evaluatable[Ok](t)
+  with InfosetCachedEvaluatable[Ok] {
+
+  override lazy val runtimeDependencies = List(charsetEv)
+
+  final protected def compute(state: ParseOrUnparseState): Ok = {
+
+    if(!charsetEv.isConstant) {
+      val dfdlCS = charsetEv.evaluate(state)
+      dfdlCS.charset match {
+        case nbsc: NonByteSizeCharset =>
+          t.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
+            "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +
+            "The encoding found was '%s'.", dfdlCS.charsetName)
+        case _ => // do nothing
+      }
+    }
+
+    Ok
+  }
+}

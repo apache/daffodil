@@ -70,9 +70,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   /**
    * When the encoding is known, this tells us the mandatory
    * alignment required. This is always 1 or 8.
-   * <p>
-   * We only have one non-8-bit encoding right now, but there
-   * are some 5, 6, and 9 bit encodings out there.
    */
   override final lazy val knownEncodingAlignmentInBits = {
     if (isKnownEncoding) {
@@ -82,7 +79,10 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
           1
         }
         case "X-DFDL-US-ASCII-7-BIT-PACKED" => 1 // new official name.
-        case "X-DFDL-US-ASCII-6-BIT-PACKED" => 1 // 6 bit is in the official DFDL standard too
+        case "X-DFDL-US-ASCII-6-BIT-PACKED" => 1
+        case "X-DFDL-5-BIT-PACKED" => 1
+        case "X-DFDL-HEX-LSBF" => 1
+        case "X-DFDL-OCTAL-LSBF" => 1
         case _ => 8
       }
     } else 8 // unknown encodings always assumed to be 8-bit aligned.

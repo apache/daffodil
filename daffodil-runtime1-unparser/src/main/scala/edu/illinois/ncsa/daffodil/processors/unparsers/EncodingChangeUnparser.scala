@@ -34,14 +34,16 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
+import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
 
-class EncodingChangeUnparser(val context: TermRuntimeData, checkBitOrderAndCharset: CheckBitOrderAndCharsetEv)
+class EncodingChangeUnparser(val context: TermRuntimeData, checkBitOrderAndCharset: CheckBitOrderAndCharsetEv, checkEncoding: CheckEncodingEv)
   extends PrimUnparser with TextUnparserRuntimeMixin {
 
-  lazy val runtimeDependencies = Seq(context.encodingInfo.charsetEv, checkBitOrderAndCharset)
+  lazy val runtimeDependencies = Seq(context.encodingInfo.charsetEv, checkBitOrderAndCharset, checkEncoding)
 
   def unparse(state: UState): Unit = {
     checkBitOrderAndCharset(state)
+    checkEncoding(state)
     setupEncoder(state, context)
   }
 
