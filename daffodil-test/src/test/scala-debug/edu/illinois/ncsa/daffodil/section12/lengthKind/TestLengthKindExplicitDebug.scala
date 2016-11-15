@@ -50,5 +50,5 @@ class TestLengthKindExplicitDebug {
 
   import TestLengthKindExplicitDebug._
 
-  @Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
+  @Test def test_lengthRuntimeSDENaN() = { runner.runOneTest("test_lengthRuntimeSDENaN") }
 }

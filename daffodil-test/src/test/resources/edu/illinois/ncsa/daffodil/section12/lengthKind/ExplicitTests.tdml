@@ -664,7 +664,7 @@
 		<xs:element name="runtimeSDE">
 			<xs:complexType>
 				<xs:sequence>
-          <xs:element name="len" type="xs:string"
+          <xs:element name="len" type="xs:int"
             dfdl:lengthKind="explicit" dfdl:length="{ 3 }" 
             dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
 					<xs:element name="address" dfdl:lengthKind="explicit"
@@ -746,7 +746,7 @@
 		</tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:parserTestCase name="test_lengthRuntimeSDE"
+	<tdml:parserTestCase name="test_lengthRuntimeSDENaN"
 		root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
@@ -756,6 +756,17 @@
 		</tdml:errors>
   </tdml:parserTestCase>
 
+	<tdml:parserTestCase name="test_lengthRuntimeSDENegative"
+		root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[-10000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Runtime Schema Definition Error</tdml:error>
+			<tdml:error>dfdl:length</tdml:error>
+			<tdml:error>-10</tdml:error>
+		</tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="explicitLenBytes">
     <dfdl:format ref="ex:daffodilTest1" />

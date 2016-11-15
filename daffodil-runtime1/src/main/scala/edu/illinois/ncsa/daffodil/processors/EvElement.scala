@@ -60,6 +60,14 @@ class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
    * UnparserNonBlocking when unparsing.
    */
   override protected final def maybeUseUnparserMode: Maybe[EvalMode] = Maybe(UnparserBlocking)
+
+  override def compute(state: State): JLong = {
+    val v: JLong = super.compute(state)
+    if (v < 0) {
+      state.SDE("dfdl:length expression result must be non-negative, but was: %d", v)
+    }
+    v
+  }
 }
 
 class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
