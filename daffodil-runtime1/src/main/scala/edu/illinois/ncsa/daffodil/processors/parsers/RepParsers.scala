@@ -153,7 +153,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
             // we fail the whole RepUnbounded, because there was a discriminator set
             // before the failure.
             pstate.reset(startState)
-            pstate.discard(priorState)
+            // no need discard priorState, that is implicitly discarded by resetting the startState
             returnFlag = true
           } else {
             //
@@ -241,7 +241,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
           // we fail the whole RepUnbounded, because there was a discriminator set
           // before the failure.
           pstate.reset(startState)
-          pstate.discard(priorState)
+          // no need discard priorState, that is implicitly discarded by resetting the startState
         } else {
           //
           // no discriminator, so suppress the failure. Loop terminated with prior element.

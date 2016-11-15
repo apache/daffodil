@@ -80,4 +80,5 @@ class TestDiscriminators {
   @Test def test_discrimExpression_01() = { runner.runOneTest("discrimExpression_01") }
   @Test def test_discrimExpression_02() = { runner.runOneTest("discrimExpression_02") }
   @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }
+  @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 }

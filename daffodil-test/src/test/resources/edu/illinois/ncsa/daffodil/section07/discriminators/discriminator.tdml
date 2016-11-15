@@ -547,6 +547,27 @@
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ints" dfdl:occursCountKind="implicit" minOccurs="0" maxOccurs="5">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator testKind="expression" test='{ fn:true() }' />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:parserTestCase name="discrimExpression_01"
@@ -578,6 +599,19 @@
     <tdml:errors>
       <tdml:error>Discriminator failed</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimExpression_04"
+    root="e3" model="discrimExpression"
+    description="Property Name: test - DFDL-7-076R">
+    <tdml:document><![CDATA[abc]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <string>abc</string>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice3">
