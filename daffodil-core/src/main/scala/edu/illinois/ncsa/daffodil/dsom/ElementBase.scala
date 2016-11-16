@@ -203,7 +203,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
 
-  final lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
+  lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
     val eci = new DPathElementCompileInfo(
       enclosingElement.map { _.dpathElementCompileInfo },
       variableMap,

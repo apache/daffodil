@@ -54,6 +54,9 @@ class TestDFDLExpressionsNew {
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
+  val vl = testDir + "valueLength.tdml"
+  lazy val runner5 = new DFDLTestSuite(Misc.getRequiredResource(vl))
+
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
@@ -83,4 +86,7 @@ class TestDFDLExpressionsNew {
   //DFDL-1233
   @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
   @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
+
+  //DFDL-1657
+  @Test def test_valueLengthRef1 { runner5.runOneTest("valueLengthRef1") }
 }
