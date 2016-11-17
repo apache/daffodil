@@ -33,7 +33,8 @@
 -->
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="s1">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -535,6 +536,27 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="r22">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="rep" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="missing" type="xs:int" minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:occursCountKind="implicit">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ fn:false() }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="ivcMissing" type="xs:int" dfdl:inputValueCalc="{ ../ex:missing }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <!--
@@ -993,6 +1015,22 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit24
+       Schema: s1
+         Root: r21
+      Purpose: This test shows that when an SDE occurs inside a repetition parser, the mark pool is correctly cleaned up and the SDE is displayed
+  -->
+  <tdml:parserTestCase name="ockImplicit24" root="r22" model="s1" description="Section 14.2.2">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>missing</tdml:error>
+      <tdml:error>does not exist</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

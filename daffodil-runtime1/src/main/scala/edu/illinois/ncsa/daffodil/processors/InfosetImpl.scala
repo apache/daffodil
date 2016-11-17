@@ -79,16 +79,18 @@ sealed trait DINode {
   def asSimple: DISimple = {
     this match {
       case diSimple: DISimple => diSimple
-      case _ =>
-        throw new InfosetWrongNodeType(this) // see comment with exception class definition for why this can happen
+      case _ => {
+        throw new InfosetWrongNodeType("simpleType", this) // see comment with exception class definition for why this can happen
+      }
     }
   }
 
   def asComplex: DIComplex = {
     this match {
       case diComplex: DIComplex => diComplex
-      case _ =>
-        throw new InfosetWrongNodeType(this) // see comment with exception class definition for why this can happen
+      case _ => {
+        throw new InfosetWrongNodeType("complexType", this) // see comment with exception class definition for why this can happen
+      }
     }
   }
 
@@ -143,8 +145,8 @@ case class InfosetComplexElementNotFinalException(override val node: DIComplex)
  * These are all case classes so we get the automatic equals function that compares
  * the constructor args for equality.
  */
-case class InfosetWrongNodeType(val node: DINode)
-  extends ProcessingError("Error", Nope, Nope, "Wrong type (simple when complex expected or vice versa)", node)
+case class InfosetWrongNodeType(expectedType: String, val node: DINode)
+  extends ProcessingError("Error", Nope, Nope, "Expression expected %s to be a %s node.", node.namedQName, expectedType)
   with InfosetException
 
 /**

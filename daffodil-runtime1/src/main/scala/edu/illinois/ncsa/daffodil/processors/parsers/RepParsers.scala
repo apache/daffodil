@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.lang.{ Long => JLong }
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends ParserObject(context) {
@@ -139,7 +140,14 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
         if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
 
-        rParser.parse1(pstate)
+        try {
+          rParser.parse1(pstate)
+        } catch {
+          case sde: SchemaDefinitionError => {
+            pstate.discard(startState)
+            throw sde
+          }
+        }
 
         if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
@@ -229,7 +237,16 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       // Every parse is a new point of uncertainty.
       pstate.pushDiscriminator
       if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
-      rParser.parse1(pstate)
+
+      try {
+        rParser.parse1(pstate)
+      } catch {
+        case sde: SchemaDefinitionError => {
+          pstate.discard(startState)
+          throw sde
+        }
+      }
+
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
       if (pstate.status ne Success) {
         //

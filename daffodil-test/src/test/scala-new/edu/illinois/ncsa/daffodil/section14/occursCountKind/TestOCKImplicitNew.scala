@@ -32,6 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section14.occursCountKind
 
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
@@ -48,4 +49,7 @@ class TestOCKImplicitNew {
   //  LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   //  runner.runOneTest("ockImplicit7")
   //}
+
+  //DFDL-1662
+  @Test def test_ockImplicit24() { runner.runOneTest("ockImplicit24") }
 }
