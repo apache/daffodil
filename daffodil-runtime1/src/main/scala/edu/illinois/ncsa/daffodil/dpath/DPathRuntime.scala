@@ -124,6 +124,14 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   }
 
   def run(dstate: DState) {
+    // We are running a subexpression. The currentNode may have been changed by
+    // previous expressions, so we need to reset the currentNode back to the
+    // original contextNode. It is up to the caller of this subexpression to
+    // save and reset the currentNode if they need it. Note that contextNode
+    // might not be defined when compiling for constants, but at runtime
+    // contextNode should always be defined.
+    if (dstate.contextNode.isDefined) dstate.setCurrentNode(dstate.contextNode.get)
+
     dstate.opIndex = 0
     var i = 0
     while (i < ops.length) {

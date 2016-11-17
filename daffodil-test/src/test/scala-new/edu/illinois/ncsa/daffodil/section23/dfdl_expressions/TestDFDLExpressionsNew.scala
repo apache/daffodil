@@ -64,6 +64,9 @@ class TestDFDLExpressionsNew {
   @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
   @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
 
+  //DFDL-1660
+  @Test def test_array_index_relative_path_subexpression_01() { runner.runOneTest("array_index_relative_path_subexpression_01") }
+
   //DFDL-1059
   @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }

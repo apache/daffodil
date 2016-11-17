@@ -5293,6 +5293,29 @@ c]]></value>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|">
+                <xs:element name="arr" minOccurs='0' maxOccurs='unbounded' type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="parent">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="idx" type="xs:int" />
+                <xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ ../../ex:data/ex:arr[../ex:idx] }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <!--
@@ -5395,6 +5418,32 @@ c]]></value>
       <tdml:error>arr</tdml:error>
       <tdml:error>length 3</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: array_index_relative_path_subexpression_01
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that the context node of relative sub expression remains correct
+  -->
+  <tdml:parserTestCase name="array_index_relative_path_subexpression_01" root="e2"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <ex:data>
+            <ex:arr>a</ex:arr>
+            <ex:arr>b</ex:arr>
+            <ex:arr>c</ex:arr>
+          </ex:data>
+          <ex:parent>
+            <ex:idx>2</ex:idx>
+            <ex:ivc>b</ex:ivc>
+          </ex:parent>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
