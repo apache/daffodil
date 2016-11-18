@@ -32,10 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.xml.XMLEvent
-import edu.illinois.ncsa.daffodil.xml.XMLEventCursor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import javax.xml.stream.events.XMLEvent
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import javax.xml.stream.XMLStreamException
 
 /**
  * various diagnostic situations associated with the incoming XML for creating and
@@ -45,14 +46,21 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
  */
 object InvalidInfosetXML {
 
-  private def err(info: ElementRuntimeData, xmlCursor: XMLEventCursor, event: XMLEvent, str: String, args: Any*) = {
+  private def err(info: ElementRuntimeData, str: String, args: Any*) = {
     UnparseError(One(info.schemaFileLocation), Nope, str.format(args: _*))
   }
 
-  def textInElementOnlyContent(info: ElementRuntimeData, xmlCursor: XMLEventCursor, accessorXMLEvent: XMLEvent): Nothing =
-    err(info, xmlCursor, accessorXMLEvent, "Non-whitespace text found in element-only context: '%s'", accessorXMLEvent)
+  def errorWhenTagExpected(info: ElementRuntimeData, xse: XMLStreamException, xev: XMLEvent): Nothing =
+    err(info, "An error occurred: %s.\nLast event was %s.", DiagnosticUtils.getSomeMessage(xse).get, xev.toString)
 
-  def elementFoundInSimpleContent(parent: ElementRuntimeData, sibling: ElementRuntimeData, xmlCursor: XMLEventCursor,  accessorXMLEvent: XMLEvent): Nothing = {
-    err(parent, xmlCursor, accessorXMLEvent, "Sibling element found as child in simple content: '%s'", sibling)
+  def missingInfosetContent(info: ElementRuntimeData): Nothing =
+    err(info, "No infoset XML found. Expected %s.", info.prettyName)
+
+  def illegalContentWhereTagExpected(info: ElementRuntimeData, xev: XMLEvent): Nothing =
+    err(info, "Illegal content where element tag expected: %s", xev.toString())
+
+  def nonTextFoundInSimpleContent(parent: ElementRuntimeData,
+    event: XMLEvent): Nothing = {
+    err(parent, "Illegal content for simple element %s.\nContent was %s.", parent.namedQName.toPrettyString, event.toString())
   }
 }

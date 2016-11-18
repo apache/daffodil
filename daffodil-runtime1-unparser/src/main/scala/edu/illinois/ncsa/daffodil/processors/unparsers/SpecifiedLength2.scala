@@ -177,7 +177,7 @@ class OVCRetryUnparser(override val context: ElementRuntimeData,
   extends PrimUnparser
   with SuspendableUnparser {
 
-  override final def runtimeDependencies = Nil
+  override final def runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toList
 
   final override lazy val childProcessors = List(vUnparser)
 

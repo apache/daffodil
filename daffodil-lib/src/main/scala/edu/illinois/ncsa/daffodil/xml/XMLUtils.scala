@@ -421,7 +421,6 @@ object XMLUtils {
     sb.toString
   }
 
-
   /**
    * We don't want to be sensitive to which prefix people bind
    */
@@ -922,20 +921,6 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
-  /**
-   * Converts a scala XML node into an XMLEventCursor
-   */
-  def nodeToXMLEventCursor(node: scala.xml.Node): XMLEventCursor = {
-    //
-    // We're going to serialize the input infoset to a string, then
-    // create an XML event source from that.
-    // This is inefficient, but sufficent for the TDML runner.
-    //
-    val src = scala.io.Source.fromString(node.toString)
-
-    val cursor = new XMLEventCursorFromInput(src)
-    cursor
-  }
 }
 
 trait GetAttributesMixin extends ThrowsSDE {

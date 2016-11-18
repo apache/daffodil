@@ -739,7 +739,7 @@ class TestScalaAPI {
     assertEquals(1, diags.size)
     val d = diags(0);
     assertTrue(d.getMessage().contains("wrong"))
-    assertTrue(d.getMessage().contains("e2"))
+    assertTrue(d.getMessage().contains("e1"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())

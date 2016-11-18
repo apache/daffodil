@@ -708,14 +708,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       if (roundTrip && testPass < 2) {
         val outStream = new java.io.ByteArrayOutputStream()
-        val output = java.nio.channels.Channels.newChannel(outStream)
-        val stringWriter = new java.io.StringWriter()
-        actual.toWriter(stringWriter)
-        val string = stringWriter.toString
-        //println("Parse Result: " + string)
+       val output = java.nio.channels.Channels.newChannel(outStream)
+        val xmlNode = actual.result
 
-        val xmlEventCursor = new XMLEventCursorFromInput(scala.io.Source.fromString(string))
-        val unparseResult = processor.unparse(output, xmlEventCursor).asInstanceOf[UnparseResult]
+        val unparseResult = processor.unparse(output, xmlNode).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
           if (diagObjs.length == 1) throw diagObjs(0)
@@ -827,8 +823,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val output = java.nio.channels.Channels.newChannel(outStream)
     val infosetXML = inputInfoset.dfdlInfoset.rawContents
 
-    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
-    val actual = processor.unparse(output, xmlEventCursor).asInstanceOf[UnparseResult]
+    val actual = processor.unparse(output, infosetXML).asInstanceOf[UnparseResult]
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
@@ -897,9 +892,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       else {
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        val infoset = inputInfoset.dfdlInfoset.rawContents
-        val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infoset)
-        val actual = processor.unparse(output, xmlEventCursor)
+        val infosetXML = inputInfoset.dfdlInfoset.rawContents
+        val actual = processor.unparse(output, infosetXML)
         output.close()
 
         // Verify that some partial output has shown up in the bytes.

@@ -260,9 +260,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     state.dataInputStream.validateFinalStreamState
   }
 
-  def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = {
+  def unparse(output: DFDL.Output, reader: java.io.Reader): DFDL.UnparseResult = {
     val rootERD = ssrd.elementRuntimeData
-    val infosetCursor = InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD)
+    val infosetCursor = InfosetCursor.fromXMLReader(reader, rootERD)
     unparse(output, infosetCursor)
   }
 
@@ -329,11 +329,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.setFailed(new UnparseError(None, None, e.getMessage))
         unparserState.unparseResult
       }
+      case th: Throwable => throw th
     }
-
-    if (unparserState.dataProc.isDefined) unparserState.dataProc.value.fini(ssrd.unparser)
-    infosetCursor.fini
-
     res
   }
 

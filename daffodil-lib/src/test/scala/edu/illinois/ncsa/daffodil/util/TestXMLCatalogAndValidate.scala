@@ -52,6 +52,7 @@ import scala.language.reflectiveCalls
 import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.collection.mutable
+import javax.xml.XMLConstants
 
 object Implicits {
   /**
@@ -421,6 +422,14 @@ class SchemaAwareFactoryAdapter()
   f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
   f.setFeature("http://apache.org/xml/features/validation/schema", true)
   f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+
+  // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
+  // using XML trickery.
+  // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
+  //  f.setFeature("http://xml.org/sax/features/external-general-entities", false)
+  //  f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+  f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+
   f.setValidating(true)
   val p = f.newSAXParser()
   val xr = p.getXMLReader()

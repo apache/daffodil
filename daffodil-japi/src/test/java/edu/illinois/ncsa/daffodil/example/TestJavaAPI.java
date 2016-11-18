@@ -52,14 +52,14 @@ import org.junit.Test;
 import edu.illinois.ncsa.daffodil.japi.Daffodil;
 import edu.illinois.ncsa.daffodil.japi.DataProcessor;
 import edu.illinois.ncsa.daffodil.japi.Diagnostic;
+import edu.illinois.ncsa.daffodil.japi.InvalidUsageException;
 import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
 import edu.illinois.ncsa.daffodil.japi.ParseResult;
-import edu.illinois.ncsa.daffodil.japi.UnparseResult;
 import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
+import edu.illinois.ncsa.daffodil.japi.UnparseResult;
 import edu.illinois.ncsa.daffodil.japi.ValidationMode;
 import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
-import edu.illinois.ncsa.daffodil.japi.InvalidUsageException;
 
 public class TestJavaAPI {
 
@@ -747,7 +747,7 @@ public class TestJavaAPI {
 
 		org.jdom2.Document doc = null;
 		try {
-			doc = (org.jdom2.Document) builder.build(file);
+			doc = builder.build(file);
 		} catch (Exception e) {
 			fail();
 		}
@@ -762,7 +762,7 @@ public class TestJavaAPI {
 		assertEquals(1, diags.size());
 		Diagnostic d = diags.get(0);
 		assertTrue(d.getMessage().contains("wrong"));
-		assertTrue(d.getMessage().contains("e2"));
+		assertTrue(d.getMessage().contains("e1"));
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());

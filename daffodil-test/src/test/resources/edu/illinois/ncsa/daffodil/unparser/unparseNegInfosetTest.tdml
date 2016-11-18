@@ -187,10 +187,9 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Found next element</tdml:error>
+      <tdml:error>Illegal content</tdml:error>
+      <tdml:error>simple</tdml:error>
       <tdml:error>foo</tdml:error>
-      <tdml:error>expected</tdml:error>
-      <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -222,7 +221,9 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Sibling element found as child</tdml:error>
+      <tdml:error>Illegal content</tdml:error>
+      <tdml:error>simple</tdml:error>
+      <tdml:error>one</tdml:error>
       <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

@@ -50,7 +50,7 @@ daffodil-extra/*
 eclipse-projects/*/src/main
 eclipse-projects/*/src/test
 eclipse-projects/*/bin/
-
+eclipse-projects/*/.tmpBin/
 #
 # FOR EMACS ENSIME
 #

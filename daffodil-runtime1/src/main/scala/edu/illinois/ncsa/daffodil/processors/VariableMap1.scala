@@ -116,7 +116,8 @@ object VariableUtils {
   }
 
   def convert(v: String, rd: VariableRuntimeData): AnyRef =
-    Infoset.convertToInfosetRepType(rd.primType, v, rd)
+    rd.primType.fromXMLString(v)
+  // Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
 
 abstract class VariableException(val qname: NamedQName, val context: ThrowsSDE, msg: String) extends Exception(msg) with DiagnosticImplMixin with ThinThrowable

@@ -186,7 +186,7 @@
     Schema: parseUnparsePolicy
     Purpose: Compatible parseUnparsePolicies, but not unparsable
   --> 
-  <tdml:unparserTestCase name="pp_unparse" root="pb" model="parseUnparsePolicy" description="parseUnparsePolicy" roundTrip="false">
+  <tdml:unparserTestCase name="pp_unparse" root="pp" model="parseUnparsePolicy" description="parseUnparsePolicy" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:pp>

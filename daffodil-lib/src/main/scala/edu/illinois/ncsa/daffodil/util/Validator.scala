@@ -76,11 +76,14 @@ object Validator extends NoBindingFactoryAdapter {
       f.setNamespaceAware(true)
       f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
       //
-      // Leaving these lines in, to document that they don't work if enabled.
-      //
+
+      // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
+      // using XML trickery.
+      // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
       //      f.setFeature("http://xml.org/sax/features/external-general-entities", false)
       //      f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-      //
+      f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+
       //      // Issue DFDL-76 in Jira - just adding these two lines does check more stuff, but it seems to
       //      // cause all sorts of havoc with not finding various schemas, etc.
       //      // Commented out for now pending more thorough investigation of how to fix this issue.

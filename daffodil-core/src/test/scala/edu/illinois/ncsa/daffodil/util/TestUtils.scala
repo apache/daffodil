@@ -137,12 +137,11 @@ object TestUtils {
     }
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infosetXML)
     if (areTracing) {
       u.setDebugger(builtInTracer)
       u.setDebugging(true)
     }
-    val actual = u.unparse(out, xmlEventCursor)
+    val actual = u.unparse(out, infosetXML)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -161,8 +160,7 @@ object TestUtils {
     val u = pf.onPath("/")
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(infoset)
-    val actual = u.unparse(out, xmlEventCursor)
+    val actual = u.unparse(out, infoset)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -257,7 +255,7 @@ class Fakes private () {
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
     def parse(file: File): DFDL.ParseResult = null
-    def unparse(output: DFDL.Output, xmlEventCursor: XMLEventCursor): DFDL.UnparseResult = null
+    def unparse(output: DFDL.Output, rdr: java.io.Reader): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty

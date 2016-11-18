@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
@@ -43,10 +42,11 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.DISimple
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
-class TestInfosetCursorFromXMLEventCursor2 {
+class TestInfosetCursorFromReader2 {
 
-  def infosetUnlimitedSource(size: Long) = {
+  def infosetUnlimitedSource(size: Int) = {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
@@ -67,12 +67,39 @@ class TestInfosetCursorFromXMLEventCursor2 {
       val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
-    val advanceAccessor = new XMLAccessor
-    val xmlEventCursor = new FakeXMLEventCursor(size, advanceAccessor)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
-    is
+    def foos: Stream[String] = "<foo>Hello</foo>" #:: foos
+    val ex = XMLUtils.EXAMPLE_NAMESPACE.toString
+    def strings =
+      (("<bar xmlns='" + ex + "' >") #:: foos.take(size))
+
+    val rdr = new java.io.InputStreamReader(
+      new StreamInputStream(strings))
+
+    val ic = Adapter(InfosetCursor.fromXMLReader(rdr, rootERD))
+    ic
+  }
+
+  class StreamInputStream(
+    private var strings: Stream[String]) extends java.io.InputStream {
+
+    private var bytes = {
+      val ss = strings.flatMap { _.getBytes() } ++ "</bar>".getBytes().toStream
+      strings = Nil.toStream
+      ss
+    }
+
+    override def read(): Int = {
+      if (bytes.isEmpty) -1
+      else {
+        val b = bytes.head
+        bytes = bytes.tail
+        b.toInt
+      }
+    }
+
+    override def close() { bytes = Nil.toStream }
   }
 
   @Test def testStreamingBehavior1() {
@@ -85,7 +112,7 @@ class TestInfosetCursorFromXMLEventCursor2 {
       val End(foo_1_e: DISimple) = is.next
       assertTrue(foo_1_s eq foo_1_e)
       assertTrue(foo_1_s.dataValue.isInstanceOf[String])
-      assertTrue(foo_1_s.dataValueAsString =:= "Hello")
+      assertEquals("Hello", foo_1_s.dataValueAsString)
     }
     val End(foo_arr_e: DIArray) = is.next
     val End(bar_e: DIComplex) = is.next
@@ -96,7 +123,7 @@ class TestInfosetCursorFromXMLEventCursor2 {
 
   // @Test // uncomment to watch storage on jvisualvm to convince self of non-leaking.
   def testStreamingBehavior2() {
-    val count = 10000000
+    val count = 100000000
     val is = infosetUnlimitedSource(count)
     val Start(bar_s: DIComplex) = is.next
     val Start(foo_arr_s: DIArray) = is.next
@@ -107,8 +134,10 @@ class TestInfosetCursorFromXMLEventCursor2 {
       assertTrue(foo_1_s.dataValue.isInstanceOf[String])
       assertTrue(foo_1_s.dataValueAsString =:= "Hello")
       val arr = bar_s.getChildArray(foo_1_s.runtimeData)
-      if (arr.length % 10000L =#= 0L) {
+      if (arr.length % 100L =#= 0L) {
         // println("array length is " + arr.length)
+        bar_s.resetChildArray(0)
+        foo_arr_s.reduceToSize(0)
       }
       arr.asInstanceOf[DIArray].children
     }

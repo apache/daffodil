@@ -143,7 +143,7 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   /**
    * Implement to fill in the accessor defined by the var`accessor`
    */
-  protected def fill: Boolean
+  protected def fill(): Boolean
 
   /**
    * Assign this var to whatever accessor you want filled by the next
@@ -167,7 +167,6 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
       case Unsuccessful => return false
     }
     // successful
-    Assert.invariant(isFilled == false)
     res
   }
 
@@ -187,10 +186,9 @@ trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] { self: Cursor[Acc
   }
 
   private def doAdvance(isFilledValue: Boolean) = {
-    Assert.invariant(isFilled == false)
-    val res = fill
+    val res = fill()
     if (!res) priorOpKind = Unsuccessful
-    isFilled = if (res) isFilledValue else false
+    isFilled = res
     res
   }
 

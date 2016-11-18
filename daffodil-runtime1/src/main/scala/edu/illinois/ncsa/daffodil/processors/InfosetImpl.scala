@@ -40,11 +40,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
-import com.ibm.icu.util.GregorianCalendar
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import scala.xml.Elem
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import scala.xml.MetaData
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -52,7 +48,6 @@ import scala.xml.Null
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.equality._
@@ -66,12 +61,10 @@ import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -881,7 +874,9 @@ sealed trait DIElement
   protected final var _isNilledSet: Boolean = false
 
   override def parent = _parent
+
   def diParent = _parent.asInstanceOf[DIComplex]
+
   override def setParent(p: InfosetComplexElement) {
     Assert.invariant(_parent eq null)
     _parent = p
@@ -996,7 +991,7 @@ final class DIArray(
       // isn't final then we could still be wainting for events to come in, so
       // throw an nfe.
       if (parent.isFinal) {
-        isFinal = true
+        setFinal()
       } else {
         throw nfe
       }
@@ -1162,7 +1157,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           case dc: DFDLCalendar => dc
           case arb: Array[Byte] => arb
           case b: JBoolean => b
-          case  _: AtomicLong | _: AtomicInteger => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+          case _: AtomicLong | _: AtomicInteger => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
           case n: java.lang.Number => n
           case ar: AnyRef => Assert.invariantFailed("Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
         }
@@ -1325,7 +1320,10 @@ sealed class DISimple(override val erd: ElementRuntimeData)
  * questioned.
  */
 sealed trait DIFinalizable {
-  var isFinal: Boolean = false
+  private var _isFinal: Boolean = false
+
+  def setFinal() { _isFinal = true }
+  def isFinal = _isFinal
 
   /**
    * use to require it be finalized or throw the appropriate
@@ -1452,6 +1450,16 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   final def setChildArray(slot: Int, arr: DIArray) {
     Assert.invariant(_slots(slot) eq null)
     _slots(slot) = arr
+    _lastSlotAdded = slot
+  }
+
+  /**
+   * Used to prune parts of the array away to allow streaming. It allows us
+   * to not keep all of the children of the array in the infoset tree for the
+   * duration of the parse/unparse, once they are no longer needed.
+   */
+  final def resetChildArray(slot: Int) {
+    _slots(slot) = null
     _lastSlotAdded = slot
   }
 
@@ -1618,84 +1626,84 @@ object Infoset {
    */
   // TODO: consolidate into the NodeInfo object where there is already similar
   // code. Or maybe consolidates into the DPath Conversions.scala code?
-  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): AnyRef = {
-    import NodeInfo.PrimType._
-    val res = primType match {
-      case String => value
-      case Int => value.toInt
-      case Byte => value.toByte
-      case Short => value.toShort
-      case Long => value.toLong
-      case Integer => new java.math.BigInteger(value)
-      case Decimal => new java.math.BigDecimal(value)
-      case UnsignedInt => {
-        val res = java.lang.Long.parseLong(value)
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-        res
-      }
-      case UnsignedByte => {
-        val res = value.toShort
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-        res
-      }
-      case UnsignedShort => {
-        val res = value.toInt
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
-        res
-      }
-      case UnsignedLong => {
-        val res = new java.math.BigInteger(value)
-        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
-        res
-      }
-      case NonNegativeInteger => {
-        val res = new java.math.BigInteger(value)
-        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
-        res
-      }
-      case Double => {
-        value match {
-          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
-          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
-          case XMLUtils.NaNString => scala.Double.NaN
-          case _ => value.toDouble
-        }
-      }
-      case Float => {
-        value match {
-          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
-          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
-          case XMLUtils.NaNString => scala.Float.NaN
-          case _ => value.toFloat
-        }
-      }
-      case HexBinary => Misc.hex2Bytes(value) // convert hex constant into byte array
-      case Boolean => {
-        if (value == "true") true
-        if (value == "false") false
-        else context.schemaDefinitionError("Cannot convert %s to %s.", value, primType.name)
-      }
-      case Time => {
-        val cal = new GregorianCalendar()
-        val pos = new java.text.ParsePosition(0)
-        new com.ibm.icu.text.SimpleDateFormat("HH:mm:ssZZZZZ").parse(value, cal, pos)
-        DFDLTime(cal, true)
-      }
-      case DateTime => {
-        val cal = new GregorianCalendar()
-        val pos = new java.text.ParsePosition(0)
-        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
-        DFDLDateTime(cal, true)
-      }
-      case Date => {
-        val cal = new GregorianCalendar()
-        val pos = new java.text.ParsePosition(0)
-        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd").parse(value, cal, pos)
-        DFDLDate(cal, true)
-      }
-    }
-    res.asInstanceOf[AnyRef]
-  }
+  //  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): AnyRef = {
+  //    import NodeInfo.PrimType._
+  //    val res = primType match {
+  //      case String => value
+  //      case Int => value.toInt
+  //      case Byte => value.toByte
+  //      case Short => value.toShort
+  //      case Long => value.toLong
+  //      case Integer => new java.math.BigInteger(value)
+  //      case Decimal => new java.math.BigDecimal(value)
+  //      case UnsignedInt => {
+  //        val res = java.lang.Long.parseLong(value)
+  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+  //        res
+  //      }
+  //      case UnsignedByte => {
+  //        val res = value.toShort
+  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+  //        res
+  //      }
+  //      case UnsignedShort => {
+  //        val res = value.toInt
+  //        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+  //        res
+  //      }
+  //      case UnsignedLong => {
+  //        val res = new java.math.BigInteger(value)
+  //        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
+  //        res
+  //      }
+  //      case NonNegativeInteger => {
+  //        val res = new java.math.BigInteger(value)
+  //        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
+  //        res
+  //      }
+  //      case Double => {
+  //        value match {
+  //          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
+  //          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
+  //          case XMLUtils.NaNString => scala.Double.NaN
+  //          case _ => value.toDouble
+  //        }
+  //      }
+  //      case Float => {
+  //        value match {
+  //          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
+  //          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
+  //          case XMLUtils.NaNString => scala.Float.NaN
+  //          case _ => value.toFloat
+  //        }
+  //      }
+  //      case HexBinary => Misc.hex2Bytes(value) // convert hex constant into byte array
+  //      case Boolean => {
+  //        if (value == "true") true
+  //        else if (value == "false") false
+  //        else context.schemaDefinitionError("Cannot convert %s to %s.", value, primType.name)
+  //      }
+  //      case Time => {
+  //        val cal = new GregorianCalendar()
+  //        val pos = new java.text.ParsePosition(0)
+  //        new com.ibm.icu.text.SimpleDateFormat("HH:mm:ssZZZZZ").parse(value, cal, pos)
+  //        DFDLTime(cal, true)
+  //      }
+  //      case DateTime => {
+  //        val cal = new GregorianCalendar()
+  //        val pos = new java.text.ParsePosition(0)
+  //        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
+  //        DFDLDateTime(cal, true)
+  //      }
+  //      case Date => {
+  //        val cal = new GregorianCalendar()
+  //        val pos = new java.text.ParsePosition(0)
+  //        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd").parse(value, cal, pos)
+  //        DFDLDate(cal, true)
+  //      }
+  //    }
+  //    res.asInstanceOf[AnyRef]
+  //  }
 
   /**
    * Used to detect arrays
@@ -1724,152 +1732,12 @@ object Infoset {
    */
 
   def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
-    val infosetElem = Infoset.newElement(erd)
-    populate(erd, infosetElem, xmlElem)
-    infosetElem
-  }
-
-  def elem2InfosetDocument(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetDocument = {
-    val rootElem = elem2Infoset(erd, xmlElem)
-    val doc = newDocument(rootElem)
-    doc
-  }
-
-  def populate(erd: ElementRuntimeData,
-    ie: InfosetElement,
-    node: scala.xml.Node) {
-    // TODO: in the future (for unparsing especially) we may want to look
-    // in the scala node for dafint:valid="true" or "false", and populate
-    // the isValid data member.
-    ie match {
-      case is: InfosetSimpleElement => populateSimple(erd, is, node)
-      case ic: InfosetComplexElement => populateComplex(erd, ic, node)
-    }
-  }
-
-  /**
-   * Use to fill in a DISimple
-   */
-  def populateSimple(erd: ElementRuntimeData,
-    ie: InfosetSimpleElement,
-    node: scala.xml.Node) {
-    val rep = valueOrNullForNil(erd, node)
-    if (rep == null) ie.setNilled()
-    else ie.setDataValue(rep)
-  }
-
-  /**
-   *  use to fill in a DIComplex
-   */
-  def populateComplex(erd: ElementRuntimeData,
-    ie: InfosetComplexElement,
-    node: scala.xml.Node) {
-
-    if (erd.isNillable && hasXSINilTrue(node)) {
-      ie.setNilled()
-      return
-    }
-    val runs = groupRuns(node.child.filter { _.isInstanceOf[Elem] }).map { _.toSeq }
-    //
-    // There is one run per slot
-    //
-    val erds = runs.map {
-      case Seq(hd, _*) =>
-        val label = hd.label
-        // must ignore whitespace nodes here.
-        val children = erd.childERDs.filter { _.name == label }
-        if (children.isEmpty) {
-          Assert.usageError("Declared element '%s' does not have child named '%s'.".format(erd.name, label))
-        }
-        Assert.invariant(children.length =#= 1)
-        children(0)
-    }
-    (runs zip erds) foreach { pair =>
-      pair match {
-        //
-        // For each slot
-        //
-        case (Seq(onlyOne), childERD) if (!childERD.isArray) => {
-          //
-          // isolated uniquely named child (not an array)
-          // goes into this slot.
-          //
-          val childInfosetElem = elem2Infoset(childERD, onlyOne)
-          ie.addChild(childInfosetElem.asInstanceOf[DIElement])
-        }
-        case (list, childERD) if (childERD.isArray) => {
-          //
-          // run of one to many identically named children
-          //
-          // In this case, the current slot must be filled in with
-          // a DIArray
-          val diComplex = ie.asInstanceOf[DIComplex]
-          val arr = new DIArray(childERD, diComplex)
-          val c = ie.asInstanceOf[DIComplex]
-          c.setChildArray(childERD, arr)
-
-          // now we have to populate the array
-
-          list.map { elem =>
-            val occurrenceIE = elem2Infoset(childERD, elem)
-            occurrenceIE.setParent(ie)
-            occurrenceIE
-          }.foreach { arr.append(_) }
-        }
-        // FIXME: this case could happen if a DFDL schema actually has
-        // two scalar elements with the same name back-to-back. That's
-        // allowed in XSD, but it's not a very good idea.
-        case (list, childERD) if list.length > 1 && !childERD.isArray => Assert.usageError(
-          "more than one occurrence, but element is not an array")
-        case _ => Assert.invariantFailed("no other cases")
-      }
-    }
-  }
-
-  private[processors] def valueOrNullForNil(erd: ElementRuntimeData, node: scala.xml.Node): AnyRef = {
-    Assert.usage(erd.isSimpleType)
-    val primType = erd.optPrimType.get
-    val rep =
-      if (erd.isNillable && hasXSINilTrue(node)) null
-      else {
-        // the .text method removes XML escaping.
-        // so if the node has &amp; in it, an & character will be produced.
-        // Also if the node has <![CDATA[...]]> it will be removed.
-        // (Different XML Loader may have converted the CDATA into a
-        // scala.xml.PCData node, or may have converted it into
-        // escapified text. Either way the .text method gets us
-        // to "real" data)
-        // The .text method similarly concatenates all the children of
-        // a node. Wierd that node.child produces a NodeSeq of children
-        // which are Text or PCData or ...? nodes. But .text does the
-        // right thing with them.
-        val value = node.child.text
-        val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(value)
-        convertToInfosetRepType(primType, remapped, erd)
-      }
-    rep
-  }
-
-  /**
-   * Returns true if the node has xsi:nil="true" attribute.
-   *
-   * Does not require the xsi namespace to be defined.
-   */
-  private[processors] def hasXSINilTrue(node: scala.xml.Node): Boolean = {
-    val attribsList = if (node.attributes == null) Nil else node.attributes
-
-    val res = attribsList.exists { (attribute: MetaData) =>
-      {
-        val name = attribute.key
-        val value = attribute.value.text
-        val prefixedKey = attribute.prefixedKey
-        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val hasXSINil = (prefix == "xsi" && name == "nil")
-        val res = hasXSINil && value == "true"
-        res
-      }
-    }
-    res
+    val ic = InfosetCursor.fromXMLNode(xmlElem, erd)
+    val aacc = ic.advanceAccessor
+    Assert.invariant(ic.advance == true)
+    val infosetRootNode = aacc.node
+    while (ic.advance) {}
+    infosetRootNode.asInstanceOf[InfosetElement]
   }
 
 }

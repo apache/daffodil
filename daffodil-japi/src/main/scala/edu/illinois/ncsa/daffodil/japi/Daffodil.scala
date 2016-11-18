@@ -61,7 +61,6 @@ import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
-import edu.illinois.ncsa.daffodil.xml.XMLEventCursorFromInput
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
@@ -544,9 +543,8 @@ class DataProcessor private[japi] (dp: SDataProcessor)
     val rawFormat = org.jdom2.output.Format.getRawFormat()
     val xmlOutputter = new org.jdom2.output.XMLOutputter(rawFormat)
     val string = xmlOutputter.outputString(infoset)
-
-    val xmlEventCursor = new XMLEventCursorFromInput(scala.io.Source.fromString(string))
-    val ur = dp.unparse(output, xmlEventCursor).asInstanceOf[SUnparseResult]
+    val rdr = new java.io.StringReader(string)
+    val ur = dp.unparse(output, rdr).asInstanceOf[SUnparseResult]
     new UnparseResult(ur)
   }
 }

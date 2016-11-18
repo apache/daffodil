@@ -80,7 +80,6 @@ import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.tdml.TDMLException
 import edu.illinois.ncsa.daffodil.xml.RefQName
-import scala.io.Source
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
@@ -801,7 +800,7 @@ object Main extends Logging {
         }
 
         val rc = processor match {
-          case Some(processor) if (processor.canProceed) => {
+          case Some(processor: DataProcessor) if (processor.canProceed) => {
             val infile = new java.io.File(performanceOpts.infile())
 
             val files = {
@@ -826,9 +825,9 @@ object Main extends Logging {
               val newArr: Array[Byte] = data.clone()
               val inData = performanceOpts.unparse() match {
                 case true => {
-                  val input = Source.fromBytes(data)
-                  val xmlEventCursor = new XMLEventCursorFromInput(input)
-                  Left(xmlEventCursor)
+                  val input = new java.io.ByteArrayInputStream(data)
+                  val rdr = new java.io.InputStreamReader(input)
+                  Left(rdr)
                 }
                 case false => {
                   val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
@@ -863,7 +862,7 @@ object Main extends Logging {
                   val task: Future[(Int, Long, Boolean)] = Future {
                     val (_ /* path */ , inData, len) = c
                     val (time, result) = inData match {
-                      case Left(xmlData) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, xmlData) })
+                      case Left(rdr) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, rdr) })
                       case Right(channel) => Timer.getTimeResult({ processor.parse(channel, len) })
                     }
 
@@ -936,18 +935,16 @@ object Main extends Logging {
         //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
-        val source = unparseOpts.infile.get match {
-          case Some("-") | None => Source.createBufferedSource(System.in)
-          case Some(fileName) => Source.fromFile(new File(fileName))
+        val rdr = unparseOpts.infile.get match {
+          case Some("-") | None => new java.io.InputStreamReader(System.in)
+          case Some(fileName) => new java.io.FileReader(new File(fileName))
         }
-
-        val xmlEventCursor = new XMLEventCursorFromInput(source)
 
         val rc = processor match {
           case None => 1
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
-            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, xmlEventCursor))
+            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, rdr))
             output.close()
             displayDiagnostics(unparseResult)
             if (unparseResult.isError) 1 else 0

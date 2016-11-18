@@ -37,7 +37,6 @@ import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarnU1 { EqualitySuppressUnusedImportWarning() }
-import scala.io.Source
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.compiler.Compiler
@@ -88,12 +87,11 @@ class TestInfosetDefaultingInUnparser {
       throw new Exception(msgs)
     }
 
-    val source = Source.fromString(<bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>.toString)
+    val xml = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><afterFoo>Hello</afterFoo></bar>
 
-    val xmlEventCursor = new XMLEventCursorFromInput(source)
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetCursor.fromXMLEventCursor(xmlEventCursor, rootERD))
+    val is = Adapter(InfosetCursor.fromXMLNode(xml, rootERD))
 
     val Start(bar_s: DIComplex) = is.next
     assertNotNull(bar_s)

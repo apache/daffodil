@@ -402,6 +402,13 @@ trait SchemaAwareLoaderMixin {
     f.setNamespaceAware(true)
     f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
 
+    // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
+    // using XML trickery.
+    // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
+    //    f.setFeature("http://xml.org/sax/features/external-general-entities", false)
+    //    f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+    f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+
     if (doValidation) {
       f.setFeature("http://xml.org/sax/features/validation", true)
       f.setFeature("http://apache.org/xml/features/validation/dynamic", true)

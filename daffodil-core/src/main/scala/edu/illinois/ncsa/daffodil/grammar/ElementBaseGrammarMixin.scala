@@ -361,6 +361,11 @@ trait ElementBaseGrammarMixin
    * with a combinator. Will retry them until the value is available.
    *
    * Evaporates for parsing, and when the element is not dfdl:outputValueCalc.
+   *
+   * Note: must be wrapped around the unparsed value only, not the framing.
+   * Because some framing is alignment regions, which are themselves possibly
+   * blocking/retrying. Setup of these must happen on the first pass, we cannot
+   * do setups of ustate/data-output-streams when unparsing the result of an OVC.
    */
   private def ovcRetry(allowedValueArg: => Gram) = {
     lazy val allowedValue = allowedValueArg
@@ -821,29 +826,31 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val nilOrEmptyOrValue = prod("nilOrEmptyOrValue") {
-    anyOfNilOrEmptyOrValue ||
-      nilOrValue ||
-      emptyOrValue ||
+    // anyOfNilOrEmptyOrValue ||
+    nilOrValue ||
+      //   emptyOrValue ||
       nonNilNonEmptyParsedValue
   }
 
-  private lazy val anyOfNilOrEmptyOrValue = prod("anyOfNilOrEmptyOrValue", isNillable && NYI && emptyIsAnObservableConcept) {
-    ovcRetry(SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue))
-  }
+  //  private lazy val anyOfNilOrEmptyOrValue = prod("anyOfNilOrEmptyOrValue", isNillable && NYI && emptyIsAnObservableConcept) {
+  //    SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue)
+  //  }
 
   private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
-    ovcRetry(SimpleNilOrValue(this, nilLit || parsedNil, parsedValue))
+    SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
   }
 
-  private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
-    ovcRetry(SimpleEmptyOrValue(this, empty, parsedValue))
-  }
+  //  private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
+  //    SimpleEmptyOrValue(this, empty, parsedValue)
+  //  }
 
   private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
     parsedValue
   }
 
   private lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
+    schemaDefinitionWhen(isNillable && isOutputValueCalc,
+      "An element cannot be nillable and have dfdl:outputValueCalc. Such an element could never be nilled.")
     nilOrEmptyOrValue
   }
 

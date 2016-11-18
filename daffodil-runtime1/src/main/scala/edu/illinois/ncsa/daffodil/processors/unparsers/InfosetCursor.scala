@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.DINode
-import edu.illinois.ncsa.daffodil.processors.InfosetItem
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DISimple
@@ -43,7 +42,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.util.Cursor
 import edu.illinois.ncsa.daffodil.util.Accessor
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
@@ -51,15 +49,10 @@ class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset
 
 object InfosetCursor {
 
-  def fromInfosetTree(infoset: InfosetItem): InfosetCursor = {
-    val is = new InfosetCursorFromTree(infoset)
-    is
-  }
-
   def fromXMLNode(xmlDocument: scala.xml.Node, erd: ElementRuntimeData): InfosetCursor = {
-    val xmlEventCursor = XMLUtils.nodeToXMLEventCursor(xmlDocument)
-    val is = fromXMLEventCursor(xmlEventCursor, erd)
-    is
+    val rdr = new java.io.StringReader(xmlDocument.toString())
+    val ic = fromXMLReader(rdr, erd)
+    ic
   }
 
   /**
@@ -69,8 +62,8 @@ object InfosetCursor {
    * This is schema aware as it must infer when arrays are starting and ending
    * in order to generate those events as well as the startElement endElement events.
    */
-  def fromXMLEventCursor(xmlEventCursor: XMLEventCursor, rootElementERD: ElementRuntimeData): InfosetCursor = {
-    val orig = new InfosetCursorFromXMLEventCursor(xmlEventCursor, rootElementERD)
+  def fromXMLReader(rdr: java.io.Reader, rootElementERD: ElementRuntimeData): InfosetCursor = {
+    val orig = new InfosetCursorFromXMLReader(rdr, rootElementERD)
     orig
   }
 
@@ -96,17 +89,17 @@ object NonUsableInfosetCursor extends InfosetCursor {
   override def fini = doNotUse
 }
 
-// TODO - Performance - It's silly to use both a StartKind and EndKind accessor when
+// Performance Note - It's silly to use both a StartKind and EndKind accessor when
 // delivering a simple type node. Separate start/end for XML makes sense because there
 // are separate events for the contents between those tags, which can be widely separated.
-// In Daffodil, the two events will always be back-to-back.
-//
-// Consider adding a SimpleKind used for simple type elements.
+// In Daffodil, the two events will always be back-to-back.... except....
+// NOTE: for large blob/clob objects there's a reason for a start/end event
+// because we may want to open a stream to get the contents in between without
+// allocating a string to hold it.
 //
 sealed trait InfosetEventKind
 case object StartKind extends InfosetEventKind { override def toString = "start" }
 case object EndKind extends InfosetEventKind { override def toString = "end" }
-// case object SimpleKind extends InfosetEventKind
 
 /**
  * An infoset event accessor.

@@ -55,7 +55,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w></ex:list>
+    val xmlInfoset = <list xmlns={ ex }><w>4</w></list>
 
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -91,7 +91,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w><c>7</c></ex:list>
+    val xmlInfoset = <list xmlns={ ex }><w>4</w><c>7</c></list>
 
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -106,7 +106,7 @@ class TestInfoset1 {
     //    val wSlot = w.slotIndexInParent
     val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
-    assertEquals(null, infoset.parent)
+    assertNotNull(infoset.parent)
     assertEquals(list_erd, infoset.runtimeData)
     val wItem = infoset.getChild(w_erd).asInstanceOf[InfosetSimpleElement]
     assertEquals(4, wItem.dataValue)
@@ -134,7 +134,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w><w>5</w></ex:list>
+    val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(wRun) = runs
@@ -182,7 +182,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w><w>5</w><c>7</c></ex:list>
+    val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w><c>7</c></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(wRun, _) = runs
@@ -228,7 +228,7 @@ class TestInfoset1 {
         </xs:complexType>
       </xs:element>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><x xsi:nil='true'/></ex:list>
+    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(xRun) = runs
@@ -275,7 +275,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><x xsi:nil='true'/></ex:list>
+    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(xRun) = runs
@@ -323,7 +323,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></ex:list>
+    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(wRun, xRun) = runs
@@ -379,7 +379,7 @@ class TestInfoset1 {
         </xs:sequence>
       </xs:complexType>)
 
-    val xmlInfoset = <ex:list xmlns:ex={ ex }><x><c>7</c></x><x><b>8</b></x></ex:list>
+    val xmlInfoset = <list xmlns={ ex }><x><c>7</c></x><x><b>8</b></x></list>
 
     val runs = Infoset.groupRuns(xmlInfoset.child)
     val Seq(xRun) = runs

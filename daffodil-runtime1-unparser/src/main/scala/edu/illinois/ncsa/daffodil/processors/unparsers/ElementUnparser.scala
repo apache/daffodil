@@ -245,17 +245,26 @@ trait ElementSpecifiedLengthMixin {
    * a stateful class instance, so cannot be a static member of an unparser
    * object (unparsers are shared by multiple threads. Suspensions cannot be.)
    */
-  private def maybeTLOp = {
-    val mtlop = if (maybeTargetLengthEv.isDefined)
-      One(new TargetLengthOperation(erd, maybeTargetLengthEv.get))
-    else
-      Nope
-    mtlop
-  }
+  //  private def maybeTLOp = {
+  //    val mtlop = if (maybeTargetLengthEv.isDefined)
+  //      One(new TargetLengthOperation(erd, maybeTargetLengthEv.get))
+  //    else
+  //      Nope
+  //    mtlop
+  //  }
 
   protected def computeTargetLength(state: UState) {
-    if (maybeTLOp.isDefined)
-      maybeTLOp.get.run(state);
+    if (maybeTargetLengthEv.isDefined) {
+      val tlEv = maybeTargetLengthEv.get
+      if (tlEv.isConstant) {
+        // bypass creating a suspension when we know the target length is constant
+        // do nothing
+      } else {
+        // it is an expression. It might suspend.
+        val op = new TargetLengthOperation(erd, tlEv)
+        op.run(state)
+      }
+    }
   }
 }
 

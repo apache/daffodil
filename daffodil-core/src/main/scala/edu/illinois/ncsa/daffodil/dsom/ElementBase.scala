@@ -361,9 +361,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           // will work.
           //
           val str = defaultValueAsString
-          val value = Infoset.convertToInfosetRepType(
-            primType,
-            str, this)
+          val value = primType.fromXMLString(str)
           value
         }
       Some(dv)

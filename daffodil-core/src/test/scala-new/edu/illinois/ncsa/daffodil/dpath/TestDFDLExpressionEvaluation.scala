@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppre
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
+import edu.illinois.ncsa.daffodil.processors.DIDocument
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
@@ -62,8 +63,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
     val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
     val compiledExpr = exprCompiler.compile(expr)
-    val doc = Infoset.newDocument(erd)
-    doc.setRootElement(infosetRootElem)
+    val doc = infosetRootElem.parent.asInstanceOf[DIDocument]
 
     val dis = ByteBufferDataInputStream(java.nio.ByteBuffer.allocate(0), 0L) // fake. Zero bits available.
     val pstate = PState.createInitialPState(doc, erd, dis, dp)
@@ -92,7 +92,8 @@ class TestDFDLExpressionEvaluation extends Parsers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val data = <b xmlns="http://example.com"><a>aaaaa</a></b>
+    val ex = "http://example.com"
+    val data = <ex:b xmlns:ex={ ex }><a>aaaaa</a></ex:b>
     testExpr(schema, data, "{ /tns:b/a }") { (res: Any) =>
       assertEquals("aaaaa", res)
     }
@@ -108,7 +109,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
+    val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ fn:count(/tns:b/a) }") { (res: Any) =>
       assertEquals(2L, res)
     }
@@ -124,7 +125,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
+    val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ /tns:b/a[1] }") { (res: Any) =>
       assertEquals("aaaaa", res)
     }
@@ -140,7 +141,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
+    val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ /tns:b/a[2] }") { (res: Any) =>
       assertEquals("bbbbb", res)
     }

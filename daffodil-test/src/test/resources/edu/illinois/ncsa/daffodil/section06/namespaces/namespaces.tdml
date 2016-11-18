@@ -1802,16 +1802,34 @@
     (this one is approx 5200 characters)
   -->
 
-  <tdml:parserTestCase name="namespaceLimit" root="one"
+  <tdml:parserTestCase name="namespaceLimitParse" root="one"
     model="namespaceCharLim.dfdl.xsd"
-    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R"
+    roundTrip="false">
     <tdml:document>1:42</tdml:document>
-    <tdml:infoset>
+    <tdml:errors>
+      <tdml:error>length of entity</tdml:error>
+      <tdml:error>5,248</tdml:error>
+      <tdml:error>exceeds</tdml:error>
+      <tdml:error>limit</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:unparserTestCase name="namespaceLimitUnparse" root="one"
+    model="namespaceCharLim.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R"
+    roundTrip="false">
+    <tdml:infoset xmlns="http://example.com" >
       <tdml:dfdlInfoset>
         <one>42</one>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </tdml:parserTestCase>
+    <tdml:errors>
+      <tdml:error>5,248</tdml:error>
+      <tdml:error>exceeds</tdml:error>
+      <tdml:error>limit</tdml:error>
+      </tdml:errors>
+  </tdml:unparserTestCase>
 
   <!--
     Test name: namespaceSpecialChars
