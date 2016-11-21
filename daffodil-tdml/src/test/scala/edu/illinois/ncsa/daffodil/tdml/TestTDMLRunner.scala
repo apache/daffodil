@@ -175,6 +175,25 @@ class TestTDMLRunner {
     assertEquals(expected, actual)
   }
 
+  @Test def testInfosetFromFile() {
+    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+                <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
+                  <document>
+                    <documentPart type="file">test/tdml/test.bin</documentPart>
+                  </document>
+                  <infoset>
+                    <dfdlInfoset type="file">test/tdml/test.xml</dfdlInfoset>
+                  </infoset>
+                </parserTestCase>
+              </testSuite>
+    val ts = new DFDLTestSuite(xml)
+    val ptc = ts.parserTestCases(0)
+    val infoset = ptc.optExpectedOrInputInfoset.get
+    val actual = infoset.contents
+    val expected = <byte1>123</byte1>
+    assertEquals(expected, actual)
+  }
+
   @Test def test1() {
     val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">

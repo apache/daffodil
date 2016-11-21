@@ -233,6 +233,14 @@
     <sequence>
       <any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
+    <attribute name="type" use="optional" default="infoset">
+      <simpleType>
+        <restriction base="xs:string">
+          <enumeration value="infoset"/>
+          <enumeration value="file"/>
+        </restriction>
+      </simpleType>
+    </attribute>
   </complexType>
 
   <complexType name="errorsType">
