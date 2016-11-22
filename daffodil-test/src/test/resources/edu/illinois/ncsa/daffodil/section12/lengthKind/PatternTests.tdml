@@ -214,6 +214,22 @@
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
+
+    <xs:element name="e9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="arr" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="hb" type="xs:hexBinary" dfdl:lengthKind="pattern" dfdl:lengthPattern=".*?(?=\xFF[\x01-\xFE])" dfdl:encoding="ISO-8859-1" />
+                <xs:element name="sep" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="2" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lengthKindPatternFail"
@@ -224,6 +240,28 @@
       <tdml:error></tdml:error>
       <tdml:error></tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinaryLengthKindPattern01"
+    root="e9" model="lengthKindPattern-Embedded.dfdl.xsd"
+    description="lengthKind pattern - length of the element is given by scanning for a regular expression, with element type hexBinary - DFDL-12-038R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00010203FF00010203 FF01 112233FFFF00112233 FFFE</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>
+          <arr>
+            <hb>00010203FF00010203</hb>
+            <sep>FF01</sep>
+          </arr>
+          <arr>
+            <hb>112233FFFF00112233</hb>
+            <sep>FFFE</sep>
+          </arr>
+        </e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="AI000_rev" root="list"

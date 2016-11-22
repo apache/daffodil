@@ -92,9 +92,9 @@ trait TermRuntimeValuedPropertiesMixin
   private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")
     this match {
-      case eb: ElementBase if (eb.isSimpleType && eb.primType =:= PrimType.HexBinary && eb.lengthKind =:= LengthKind.Delimited) => {
+      case eb: ElementBase if (eb.isSimpleType && eb.primType =:= PrimType.HexBinary && (eb.lengthKind =:= LengthKind.Delimited || eb.lengthKind =:= LengthKind.Pattern)) => {
         if (encodingRaw.value.toUpperCase != "ISO-8859-1") {
-          SDE("xs:hexBinary with dfdl:lengthKind=\"delimited\" must have dfdl:encoding=\"ISO-8859-1\", but was \"%s\"", encodingRaw.value)
+          SDE("xs:hexBinary with dfdl:lengthKind=\"delimited\" or dfdl:lengthKind=\"pattern\" must have dfdl:encoding=\"ISO-8859-1\", but was \"%s\"", encodingRaw.value)
         }
         //
         // We treat delimited hex binary as a string in iso-8859-1 encoding.

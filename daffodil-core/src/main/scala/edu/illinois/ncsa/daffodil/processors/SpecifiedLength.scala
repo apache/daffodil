@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitImplicitUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthImplicitParser
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
@@ -75,7 +76,14 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
         e.SDE(x)
     }
 
-  if (!e.encodingInfo.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
+  if (!e.encodingInfo.isScannable && !(e.isSimpleType && e.primType == PrimType.HexBinary)) {
+    // lengthKind="pattern" requires scanability. However, xs:hexBinary types
+    // are not scannable, but we do allow pattern lengths if the encoding is
+    // ISO-8859-1. The ISO-8859-1 check is done elsewhere, so to allow pattern
+    // lengths, either this must be scannable or the type must be xs:hexBinary.
+    // Anything else is an error.
+    e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
+  }
 
   override lazy val parser: Parser = new SpecifiedLengthPatternParser(
     eParser,

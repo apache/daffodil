@@ -443,12 +443,14 @@ trait ElementBaseGrammarMixin
 
   private lazy val hexBinaryDelimitedEndOfData = prod("hexBinaryDelimitedEndOfData") { HexBinaryDelimitedEndOfData(this) }
 
+  private lazy val hexBinaryLengthPattern = prod("hexBinaryLengthPattern") { new SpecifiedLengthPattern(this, new HexBinaryEndOfBitLimit(this)) }
+
   private lazy val hexBinaryValue = prod("hexBinaryValue") {
     lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthHexBinary
       case LengthKind.Explicit => variableLengthHexBinary
       case LengthKind.Delimited => hexBinaryDelimitedEndOfData
-      case LengthKind.Pattern => SDE("lengthKind Pattern is not allowed for hexBinary.")
+      case LengthKind.Pattern => hexBinaryLengthPattern
       case LengthKind.Implicit => implicitLengthHexBinary
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     }

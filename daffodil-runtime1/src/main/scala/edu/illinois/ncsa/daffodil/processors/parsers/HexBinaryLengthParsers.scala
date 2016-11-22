@@ -91,3 +91,13 @@ final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, overri
   extends HexBinaryLengthInBytesParser(erd)
   with HasVariableLength {
 }
+
+final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
+  extends HexBinaryLengthInBytesParser(erd) {
+
+  def getLength(pstate: PState): Long = {
+    val bitLength = pstate.bitLimit0b.get - pstate.bitPos0b
+    Assert.invariant(bitLength % 8 == 0)
+    bitLength / 8
+  }
+}

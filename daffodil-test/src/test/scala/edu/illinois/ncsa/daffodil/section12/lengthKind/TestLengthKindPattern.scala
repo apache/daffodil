@@ -92,4 +92,5 @@ class TestLengthKindPattern {
   @Test def test_nested_patterns_02() { runner.runOneTest("nested_patterns_02") }
   @Test def test_nested_patterns_03() { runner.runOneTest("nested_patterns_03") }
 
+  @Test def test_hexBinaryLengthKindPattern01() { runner.runOneTest("hexBinaryLengthKindPattern01") }
 }

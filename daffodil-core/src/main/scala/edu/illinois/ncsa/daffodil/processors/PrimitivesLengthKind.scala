@@ -44,12 +44,13 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryDelimitedMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
@@ -202,7 +203,7 @@ abstract class HexBinaryDelimited(e: ElementBase)
     fieldDFAParseEv,
     isDelimRequired)
 
-  override lazy val unparser: DaffodilUnparser = new HexBinaryDelimitedMinLengthInBytesUnparser(
+  override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
     e.minLength.longValue,
     e.elementRuntimeData,
     e.fillByteEv)
@@ -211,6 +212,16 @@ abstract class HexBinaryDelimited(e: ElementBase)
 case class HexBinaryDelimitedEndOfData(e: ElementBase)
   extends HexBinaryDelimited(e) {
   val isDelimRequired: Boolean = false
+}
+
+case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(e.elementRuntimeData)
+
+  override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
+    e.minLength.longValue,
+    e.elementRuntimeData,
+    e.fillByteEv)
 }
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)

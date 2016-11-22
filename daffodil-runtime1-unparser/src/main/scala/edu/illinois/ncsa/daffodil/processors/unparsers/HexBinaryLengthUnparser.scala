@@ -77,7 +77,7 @@ abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillBy
   }
 }
 
-final class HexBinaryDelimitedMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
+final class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
   extends HexBinaryUnparserBase(erd, fillByteEv) {
 
   override def getLength(state: UState): Long = {
