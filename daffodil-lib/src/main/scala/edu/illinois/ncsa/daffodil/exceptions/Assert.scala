@@ -46,6 +46,27 @@ trait ThinThrowable { self: Throwable =>
   override def fillInStackTrace(): Throwable = null
 }
 
+trait ThinThrowableWithCause extends ThinThrowable { self: Throwable =>
+  // The Throwable(cause: Throwable) constructor calls cause.toString and saves
+  // it in the private detailMessage variable. In our case, often times this
+  // detailedMessage will never even be accessed because of backtracking or
+  // suspensions. In these cases, we really only want to build the string when
+  // calling getMessage() to save memory and computation time.
+  //
+  // Note that this only applies when extending a Throwable(cause: Throwable)
+  // or the equivalent Exception. If extending an Exception accepts a a
+  // (message: String) or does not accept a (cause: Throwable), then using this
+  // is unnecessary.
+
+  // The cause for this exception. Override this rather than passing the cause
+  // as an argument to the Throwable constructor.
+  val throwableCause: Throwable
+
+  override lazy val getMessage: String = throwableCause.getMessage
+
+  override lazy val getCause: Throwable = throwableCause
+}
+
 abstract class UnsuppressableException(m: String) extends Exception(m) {
   def this() = this("") // no arg constructor also.
 }

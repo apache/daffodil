@@ -201,8 +201,8 @@ trait EncoderDecoderMixin
    * might be allocated objects. Use of java hash maps insures this does not allocate
    * except when adding a new not-seen-before encoder or decoder.
    */
-  private val decoderCache = new java.util.HashMap[Charset, CharsetDecoder]
-  private val encoderCache = new java.util.HashMap[Charset, CharsetEncoder]
+  private lazy val decoderCache = new java.util.HashMap[Charset, CharsetDecoder]
+  private lazy val encoderCache = new java.util.HashMap[Charset, CharsetEncoder]
 
   def getDecoder(charset: Charset): CharsetDecoder = {
     // threadCheck()

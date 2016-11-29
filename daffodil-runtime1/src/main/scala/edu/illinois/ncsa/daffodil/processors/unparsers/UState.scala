@@ -77,6 +77,9 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import passera.unsigned.ULong
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.Charset
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
@@ -214,6 +217,9 @@ class UStateForSuspension (
   dState.setErrorOrWarn(this)
 
   private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
+
+  override def getDecoder(cs: Charset): CharsetDecoder = mainUState.getDecoder(cs)
+  override def getEncoder(cs: Charset): CharsetEncoder = mainUState.getEncoder(cs)
 
   override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream

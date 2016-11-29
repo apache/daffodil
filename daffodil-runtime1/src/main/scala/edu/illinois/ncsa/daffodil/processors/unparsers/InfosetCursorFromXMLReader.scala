@@ -159,13 +159,27 @@ private[unparsers] final class InfosetCursorFromXMLReader(
    * Queues used to hold additional events, thereby allowing a single pull to result
    * in multiple infoset events. For each pull, the first event coming back is not
    * queued. Only additional extra events are queued.
+   *
+   * Note that there should never be more than 3 events in the queue. This
+   * occurs when ending an array following by a new array of simple elements.
+   * In this case, we get events 1) End Old DIArray 2) Start New DIArray 3)
+   * Start DISimple 4) End DISimple. The first event is stored in the cursor,
+   * the remaining events are queued. We also always empty the queue before
+   * enqueuing anything again. So implement this queue as an array of size 3,
+   * and when all items have been dequeued, reset the indices to start the next
+   * enqueues at the beginning of the array.
    */
-  private val pendingNodes = new scala.collection.mutable.Queue[DINode]
-  private val pendingStartOrEnd = new scala.collection.mutable.Queue[InfosetEventKind]
+  final private val MaxPendingQueueSize = 3
+  private val pendingNodes = new Array[DINode](MaxPendingQueueSize)
+  private val pendingStartOrEnd = new Array[InfosetEventKind](MaxPendingQueueSize)
+  private var pendingCurIndex: Int = 0
+  private var pendingLength: Int = 0
 
   private def queueAnotherEvent(kind: InfosetEventKind, node: DINode) {
-    pendingNodes.enqueue(node)
-    pendingStartOrEnd.enqueue(kind)
+    Assert.invariant(pendingLength < MaxPendingQueueSize)
+    pendingNodes(pendingLength) = node
+    pendingStartOrEnd(pendingLength) = kind
+    pendingLength += 1
     if (kind eq EndKind) {
       node match {
         case f: DIFinalizable => f.setFinal()
@@ -174,11 +188,22 @@ private[unparsers] final class InfosetCursorFromXMLReader(
     }
   }
 
-  private def isPending: Boolean = pendingNodes.length > 0
+  private def isPending: Boolean = pendingCurIndex < pendingLength
 
   private def dequeuePending(): (InfosetEventKind, DINode) = {
+    Assert.invariant(pendingCurIndex >= 0)
+    Assert.invariant(pendingCurIndex < pendingLength)
     Assert.usage(isPending)
-    (pendingStartOrEnd.dequeue(), pendingNodes.dequeue())
+    val p = (pendingStartOrEnd(pendingCurIndex), pendingNodes(pendingCurIndex))
+    pendingCurIndex += 1
+    if (pendingCurIndex == pendingLength) {
+      // the last element of the queue has been removed. The queue is now
+      // empty, so reset the indices to start filling the array from the
+      // beginning on the next enqueue
+      pendingCurIndex = 0
+      pendingLength = 0
+    }
+    p
   }
 
   /**

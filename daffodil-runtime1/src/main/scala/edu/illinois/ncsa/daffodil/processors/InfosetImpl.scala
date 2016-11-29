@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowableWithCause
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
@@ -1065,8 +1066,8 @@ final class DIArray(
  * This should be caught in contexts that want to undertake on-demand
  * evaluation of the OVC expression.
  */
-case class OutputValueCalcEvaluationException(val cause: Exception)
-  extends Exception(cause) with ThinThrowable with DiagnosticImplMixin
+case class OutputValueCalcEvaluationException(override val throwableCause: Exception)
+  extends Exception() with ThinThrowableWithCause with DiagnosticImplMixin
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement
