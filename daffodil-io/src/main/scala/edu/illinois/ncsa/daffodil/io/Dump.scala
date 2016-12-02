@@ -443,7 +443,6 @@ class DataDumper {
       // see http://unicode.org/reports/tr11/tr11-8.html
       //
       case UCharacter.EastAsianWidth.AMBIGUOUS => 1
-      case UCharacter.EastAsianWidth.COUNT => Assert.invariantFailed("No idea what COUNT means.")
       case UCharacter.EastAsianWidth.FULLWIDTH => 2
       case UCharacter.EastAsianWidth.HALFWIDTH => 1
       case UCharacter.EastAsianWidth.NARROW => 1

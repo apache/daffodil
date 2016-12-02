@@ -24,20 +24,20 @@ transitiveClassifiers := Seq("sources", "javadoc")
 resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.illinois.edu/nexus/content/repositories/releases"
 
 libraryDependencies in ThisBuild := Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
+  "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
   "junit" % "junit" % "4.11" % "test",
-  "com.novocode" % "junit-interface" % "0.10" % "test",
-  "net.sf.expectit" % "expectit-core" % "0.6.1" % "test",
-  "org.jdom" % "jdom2" % "2.0.5",
-  "com.ibm.icu" % "icu4j" % "51.1",// classifier "" classifier "charset" classifier "localespi",
-  "xerces" % "xercesImpl" % "2.10.0",
+  "com.novocode" % "junit-interface" % "0.11" % "test",
+  "net.sf.expectit" % "expectit-core" % "0.8.1" % "test",
+  "org.jdom" % "jdom2" % "2.0.6",
+  "com.ibm.icu" % "icu4j" % "51.1", // new versions avail. 58.1 requires code changes
+  "xerces" % "xercesImpl" % "2.11.0",
   "xml-resolver" % "xml-resolver" % "1.2",
-  "jline" % "jline" % "2.12",
-  "org.fusesource.jansi" % "jansi" % "1.11",
-  "org.rogach" %% "scallop" % "0.9.5",
-  "commons-io" % "commons-io" % "2.4",
-  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test"
+  "jline" % "jline" % "2.12", // newer versions avail. 3.0.0-M1 requires code changes
+  "org.fusesource.jansi" % "jansi" % "1.14",
+  "org.rogach" %% "scallop" % "0.9.5", // new version avail. 2.0.5 requires code changes
+  "commons-io" % "commons-io" % "2.5",
+  "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 )
 
 initialize := {
