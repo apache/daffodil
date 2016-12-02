@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -308,8 +308,8 @@ class TestDFDLExpressions {
   @Test def test_sequential_and_or_07() { runner.runOneTest("sequential_and_or_07") }
 
   //DFDL-1059
-  //@Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
-  //@Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
+  @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
+  @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
   //@Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   //@Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
@@ -474,6 +474,9 @@ class TestDFDLExpressions {
 
   //DFDL-1120
   //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
+
+  @Test def test_exists_11() { runner2.runOneTest("exists_11") }
+  @Test def test_exists_12() { runner2.runOneTest("exists_12") }
 
   //DFDL-1189
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
@@ -931,8 +934,8 @@ class TestDFDLExpressions {
   @Test def test_valueLength_unparse_3() { runner2.runOneTest("valueLength_unparse_3") }
   @Test def test_valueLength_unparse_4() { runner2.runOneTest("valueLength_unparse_4") }
 
-  //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
-  //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
+  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
   @Test def test_valueContentLength1() { runner2.runOneTest("valueContentLength1") }
   @Test def test_valueContentLength2() { runner2.runOneTest("valueContentLength2") }
@@ -952,4 +955,15 @@ class TestDFDLExpressions {
   @Test def test_valueLengthPair2() { runner5.runOneTest("valueLengthPair2") }
   @Test def test_valueLengthPair3() { runner5.runOneTest("valueLengthPair3") }
   @Test def test_valueLengthAndOccurs1() { runner5.runOneTest("valueLengthAndOccurs1") }
+
+// Added from scala-new for DFDL-1198
+  @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
+  @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }
+  @Test def test_array_index_oob_03() { runner.runOneTest("array_index_oob_03") }
+  @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
+  @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
+
+// Added from scala-new for DFDL-1660
+  @Test def test_array_index_relative_path_subexpression_01() { runner.runOneTest("array_index_relative_path_subexpression_01") }
+
 }

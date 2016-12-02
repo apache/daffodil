@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
-import org.junit.Test
+//import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
@@ -54,31 +54,9 @@ class TestDFDLExpressionsNew {
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-  @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
-  @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
-
-  //DFDL-1198
-  @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
-  @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }
-  @Test def test_array_index_oob_03() { runner.runOneTest("array_index_oob_03") }
-  @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
-  @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
-
-  //DFDL-1660
-  @Test def test_array_index_relative_path_subexpression_01() { runner.runOneTest("array_index_relative_path_subexpression_01") }
-
-  //DFDL-1059
-  @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
-  @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
 
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml4 = testDir4 + "expressions.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
-
-  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
-  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_exists_11() { runner2.runOneTest("exists_11") }
-  @Test def test_exists_12() { runner2.runOneTest("exists_12") }
 
 }
