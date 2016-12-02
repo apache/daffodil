@@ -34,7 +34,8 @@ import sbt._
 import Keys._
 import scala.language.existentials
 import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
+import com.typesafe.sbt.packager.Keys._
+import com.typesafe.sbt.packager.rpm.RpmPlugin
 import com.typesafe.sbt.SbtLicenseReport.autoImportImpl._
 import com.typesafe.sbt.license.LicenseCategory
 import com.typesafe.sbt.license.LicenseInfo
@@ -127,6 +128,7 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .configs(CliTest)
                              .dependsOn(tdml)
+			     .enablePlugins(RpmPlugin)
 
   lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
                              .configs(DebugTest)
@@ -160,7 +162,6 @@ object DaffodilBuild extends Build {
            .configs(NewTest)
            .dependsOn(tdml)
   }
-
 
   //set up 'sbt stage' as a dependency
   lazy val cliTestTask = Keys.test in CliTest
@@ -357,7 +358,35 @@ object DaffodilBuild extends Build {
     },
     mappings in Universal <+= (packageBin in sapi in Compile, name in sapi in Compile, organization, version) map {
       (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
-    }
+    },
+    version in Rpm:= {
+	val idx = version.value.indexOf('-')
+	if (idx == -1)
+		version.value
+	else
+		version.value.substring(0, idx) },
+    maintainer in Rpm := "Tresys <daffodil-users@oss.tresys.com>",
+    packageArchitecture in Rpm := "noarch",
+    packageSummary in Rpm := "Open source implementation of the Data Format Description Language (DFDL)",
+    packageDescription in Rpm := """Daffodil is the open source implementation of the Data Format Description 
+Language (DFDL), a specification created by the Open Grid Forum. DFDL is 
+capable of describing many data formats, including textual and binary, 
+commercial record-oriented, scientific and numeric, modern and legacy, and 
+many industry standards. It leverages XML technology and concepts, using a 
+subset of W3C XML schema type system and annotations to describe such data. 
+Daffodil uses this description to parse data into an XML infoset for ingestion 
+and validation.""",
+    packageName in Linux := "daffodil",
+    rpmRelease in Rpm := {
+	val idx = version.value.indexOf('-')
+	if (idx == -1)
+		"1"
+	else
+		"0." + version.value.toLowerCase.takeRight(version.value.length - (idx + 1))
+	},
+    rpmVendor in Rpm := "Tresys Technology",
+    rpmLicense in Rpm := Some( licenses.value.map{ case (n: String, _) => n }.mkString(" and ")  ),
+    name := "daffodil"
   )
   cliOnlySettings ++= packageSettings
 

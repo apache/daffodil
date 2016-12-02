@@ -22,7 +22,8 @@
 
 
 MAINCLASS=edu.illinois.ncsa.daffodil.Main
-BINDIR="$( dirname "$0" )"
+SCRIPT=$( readlink -m $( type -p $0 )) 	# Full path to script, needed for symlinks
+BINDIR=`dirname ${SCRIPT}`		# Directory script is run in
 LIBDIR="$BINDIR/../lib"
 CLASSPATH=$LIBDIR/'*'
 
