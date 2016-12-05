@@ -1,6 +1,6 @@
 <classpath>
         <!-- This file is updated by the UpdateEclipseClasspath app. -->
-        <classpathentry kind="src" path="src/main/resources"/><classpathentry kind="src" path="src/main/scala"/><classpathentry kind="src" path="src/test/scala"/><classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/><classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/><classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/><classpathentry kind="output" path="target/eclipse/classes"/><!--
+        <classpathentry path="src/main/resources" kind="src"/><classpathentry path="src/main/scala" kind="src"/><classpathentry path="src/test/scala" kind="src"/><classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"/><classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/><classpathentry path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4" kind="con"/><classpathentry path="target/eclipse/classes" kind="output"/><!--
 ***********
 *********** Entries below this comment are maintained using the UpdateEclipseClasspaths
 *********** Utility and should not be modified by hand or using the Eclipse
@@ -56,9 +56,9 @@
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.8.1-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.11.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.11.0.jar">
+          </classpathentry><classpathentry sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.11.0-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.10.0-javadoc.jar!/"/>
                 </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-sbt/test-interface/test-interface-1.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.scala-sbt/test-interface/test-interface-1.0.jar">
             <attributes>

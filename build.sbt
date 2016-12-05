@@ -31,7 +31,7 @@ libraryDependencies in ThisBuild := Seq(
   "net.sf.expectit" % "expectit-core" % "0.8.1" % "test",
   "org.jdom" % "jdom2" % "2.0.6",
   "com.ibm.icu" % "icu4j" % "51.1", // new versions avail. 58.1 requires code changes
-  "xerces" % "xercesImpl" % "2.11.0",
+  "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.12", // newer versions avail. 3.0.0-M1 requires code changes
   "org.fusesource.jansi" % "jansi" % "1.14",
