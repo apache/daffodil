@@ -20,9 +20,21 @@
 # environment variable will be used. If that is not specified, reasonable
 # defaults for Daffodil will be defined.
 
+realpath() {
+  THISPWD=$PWD
+  LNK=$1
+  while [ "$LNK" ]; do
+    cd "$(dirname "$LNK")"
+    BN=$(basename "$LNK")
+    LNK=$(readlink "$BN")
+  done
+  REALPATH="$PWD/$BN"
+  cd "$THISPWD"
+  echo "$REALPATH"
+}
 
 MAINCLASS=edu.illinois.ncsa.daffodil.Main
-SCRIPT=$( readlink -m $( type -p $0 )) 	# Full path to script, needed for symlinks
+SCRIPT=$(realpath "$0")			# Full path to script, needed for symlinks
 BINDIR=`dirname ${SCRIPT}`		# Directory script is run in
 LIBDIR="$BINDIR/../lib"
 CLASSPATH=$LIBDIR/'*'
