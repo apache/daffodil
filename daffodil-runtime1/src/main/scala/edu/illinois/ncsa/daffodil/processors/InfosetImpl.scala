@@ -89,7 +89,7 @@ sealed trait DINode {
   }
 
   def children: Stream[DINode]
-  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, indentStep: Int = 2, indentLevel: Int = 0): Unit
+  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0): Unit
   def totalElementCount: Long
   def namedQName: NamedQName
   def erd: ElementRuntimeData
@@ -942,20 +942,20 @@ sealed trait DIElement
   protected final lazy val startTag = "<" + qn + uniqueScopeString + ">"
   protected final lazy val endTag = "</" + qn + ">"
 
-  protected def writeContents(writer: java.io.Writer, removeHidden: Boolean, indentStep: Int, indentLevel: Int): Unit
+  protected def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean = false, indentStep: Int, indentLevel: Int): Unit
 
-  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, indentStep: Int = 2, indentLevel: Int = 0) {
+  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
     if (isHidden && removeHidden) return
     val indentString = " " * (indentStep * indentLevel)
     writer.write(indentString)
-    if (isNilled) {
+    if ((!allowUnsetValues || _isNilledSet) && isNilled) {
       writer.write(nilledTag)
     } else {
       writer.write(startTag)
       if (erd.isComplexType) {
         writer.write("\n")
       }
-      writeContents(writer, removeHidden, indentStep, indentLevel + 1)
+      writeContents(writer, removeHidden, allowUnsetValues, indentStep, indentLevel + 1)
       if (erd.isComplexType) {
         writer.write(indentString)
       }
@@ -1047,8 +1047,8 @@ final class DIArray(
     _contents.flatMap { _.toXML(removeHidden, showFormatInfo) }
   }
 
-  final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, indentStep: Int = 2, indentLevel: Int = 0) {
-    _contents.foreach { _.toWriter(writer, removeHidden, indentStep, indentLevel) }
+  final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
+    _contents.foreach { _.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
   }
 
   final def totalElementCount: Long = {
@@ -1261,10 +1261,8 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     Nope
   }
 
-  override final def writeContents(writer: java.io.Writer, removeHidden: Boolean, indentStep: Int, indentLevel: Int) {
-    // this element might not have a value if we are writing the contents while
-    // debugging. Don't write anything if this is the case.
-    if (hasValue) {
+  override final def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean, indentStep: Int, indentLevel: Int) {
+    if (!allowUnsetValues || hasValue) {
       val escapeWithCData = shouldEscapeWithCData(remapped)
       if (escapeWithCData.isDefined) {
         writer.write(escapeWithCData.get)
@@ -1544,8 +1542,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  override def writeContents(writer: java.io.Writer, removeHidden: Boolean, indentStep: Int, indentLevel: Int) {
-    _slots.foreach { slot => if (slot ne null) slot.toWriter(writer, removeHidden, indentStep, indentLevel) }
+  override def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean = false, indentStep: Int, indentLevel: Int) {
+    _slots.foreach { slot => if (slot ne null) slot.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
   }
 
   override def totalElementCount: Long = {
@@ -1597,8 +1595,8 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
     if (root != null) root.toXML(removeHidden)
     else <document/>
 
-  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, indentStep: Int = 2, indentLevel: Int = 0) {
-    if (root != null) root.toWriter(writer, removeHidden, indentStep, indentLevel)
+  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
+    if (root != null) root.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel)
     else writer.write("<document/>")
   }
 }

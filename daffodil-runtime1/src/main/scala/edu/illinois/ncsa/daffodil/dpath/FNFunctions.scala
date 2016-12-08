@@ -487,8 +487,21 @@ case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null)
   }
 }
 
-case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, NodeInfo.Nillable) {
-  override def computeValue(value: AnyRef, dstate: DState): JBoolean = value.asInstanceOf[DIElement].isNilled
+case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe) {
+
+  override def run(dstate: DState) {
+    // FNNilled wants to use FNOneArg. However, the run() method in FNOneArg
+    // attempts to get currentValue of the argument, and then it calls
+    // computeValue() passing in the value. However, with FNNilled, we cannot
+    // call currentValue because nilled elements do not have a value, causing
+    // an exception to be thrown. Instead, we override the run() method to run
+    // the recipe and then determine if the resulting node is nilled, avoiding
+    // ever trying to get the currentValue.
+    recipe.run(dstate)
+    val nilled = dstate.currentNode.asInstanceOf[DIElement].isNilled
+    dstate.setCurrentValue(nilled)
+  }
 }
 
 trait ExistsKind {

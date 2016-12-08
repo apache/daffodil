@@ -36,19 +36,26 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.InfosetNoInfosetException
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 
-case object FNCount extends RecipeOp {
+case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe)
+  with ExistsKind {
 
   override def run(dstate: DState) {
-    dstate.mode match {
-      case UnparserBlocking | UnparserNonBlocking => {
-        // we are unparsing, so asking for an array count is asking for the
-        // final count, not however many are in there at this point
-        // so we have to know if the array is closed or not.
-        dstate.setCurrentValue(dstate.finalArrayLength)
+    val res = exists(recipe, dstate)
+    if (res) {
+      dstate.mode match {
+        case UnparserBlocking | UnparserNonBlocking => {
+          // we are unparsing, so asking for an array count is asking for the
+          // final count, not however many are in there at this point
+          // so we have to know if the array is closed or not.
+          dstate.setCurrentValue(dstate.finalArrayLength)
+        }
+        case ParserNonBlocking => {
+          dstate.setCurrentValue(dstate.arrayLength)
+        }
       }
-      case ParserNonBlocking => {
-        dstate.setCurrentValue(dstate.arrayLength)
-      }
+    } else {
+      dstate.setCurrentValue(0)
     }
   }
 }

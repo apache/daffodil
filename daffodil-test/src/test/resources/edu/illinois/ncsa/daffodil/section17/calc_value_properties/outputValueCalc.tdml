@@ -276,6 +276,15 @@
 			</xs:complexType>
 		</xs:element>
 
+		<xs:element name="ovc_09">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="count" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ fn:count(../ex:e1) }"/>
+					<xs:element name="e1" type="xs:string" minOccurs="0" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
 		<xs:element name="binaryIntegerBE" type="xs:integer"
 			dfdl:lengthKind="explicit" dfdl:representation="binary"
 			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="bigEndian" />
@@ -541,6 +550,52 @@
 		</tdml:infoset>
 		<tdml:document>
 			<tdml:documentPart type="text">A:12,11,array one|A:48,44,array two|B:12,11,10|B:24,22,20</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_09
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_09
+       Purpose: This test demonstrates that OVC works with fn:count() when count > 0
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_09"
+		root="ovc_09" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="true">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_09>
+					<count>2</count>
+					<e1>a</e1>
+					<e1>b</e1>
+				</ex:ovc_09>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">2ab</tdml:documentPart>
+		</tdml:document>
+	</tdml:unparserTestCase>
+
+<!--
+     	Test Name: OutputValueCalc_10
+        Schema: outputValueCalc-Embedded.dfdl.xsd
+          Root: ovc_09
+       Purpose: This test demonstrates that OVC works with fn:count() when count == 0 (note that the infoset value of <count> is ignored)
+-->
+	<tdml:unparserTestCase name="OutputValueCalc_10"
+		root="ovc_09" model="outputValueCalc-Embedded.dfdl.xsd" description="Section 17 OutputValueCalc - DFDL-17-007R"
+		roundTrip="true">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:ovc_09>
+					<count>0</count>
+				</ex:ovc_09>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document>
+			<tdml:documentPart type="text">0</tdml:documentPart>
 		</tdml:document>
 	</tdml:unparserTestCase>
 

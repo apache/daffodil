@@ -39,7 +39,11 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import java.lang.{ Integer => JInt }
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -378,6 +382,44 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def isKnownRequiredElement = false
   def isKnownToBePrecededByAllByteLengthItems: Boolean = false
   def hasKnownRequiredSyntax = false
+
+  def isAllKnownToBeByteAlignedAndByteLength: Boolean = {
+    // this will not eliminate alignment parsers when only some of the file is
+    // byte aligned (which isKnownToBePrecededByAllByteLengthItems would find
+    // if it worked). However, this is much easier to calculate and works for
+    // the common case. It is not very likely to mix byte and bit alignment.
+    // This is not intended to find all cases, but to easily find the most
+    // common cases where alignment is not actually needed.
+    val isByteAligned = alignmentValueInBits == 8
+
+    val isSkipRegionByteLength = alignmentUnits match {
+      case AlignmentUnits.Bytes => true
+      case AlignmentUnits.Bits => (leadingSkip % 8 == 0) && (trailingSkip % 8 == 0)
+    }
+
+    val isByteLength = this match {
+      case m: ModelGroup => m.groupMembersNoRefs.forall { _.isAllKnownToBeByteAlignedAndByteLength }
+      case e: ElementBase => {
+        val isSelfByteSizeEncoding = e.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
+        val isSelfByteLength = e.lengthKind match {
+          case LengthKind.Implicit => true
+          case LengthKind.Explicit =>
+            e.lengthUnits match {
+              case LengthUnits.Bytes => true
+              case LengthUnits.Bits => e.lengthEv.optConstant.map { _ % 8 == 0 }.getOrElse(false)
+              case LengthUnits.Characters => isSelfByteSizeEncoding
+            }
+          case _ => false
+        }
+        if (e.isComplexType) {
+          isSelfByteSizeEncoding && isSelfByteLength && e.elementComplexType.group.isAllKnownToBeByteAlignedAndByteLength
+        } else {
+          isSelfByteSizeEncoding && isSelfByteLength
+        }
+      }
+    }
+    isByteAligned && isSkipRegionByteLength && isByteLength
+  }
 
   /*
    * This function returns at list of simple elements that are descendents of

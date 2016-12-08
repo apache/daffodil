@@ -52,9 +52,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   //  }
 
   final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
-    if (alignmentValueInBits == 1) true
+    if (rootElement.get.isAllKnownToBeByteAlignedAndByteLength) true
+    else if (alignmentValueInBits == 1) true
     else if (alignmentValueInBits == 8)
-      isKnownToBePrecededByAllByteLengthItems
+      isKnownToBePrecededByAllByteLengthItems || rootElement.get.isAllKnownToBeByteAlignedAndByteLength
     else false
   }.value
 
@@ -62,7 +63,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (self.encodingInfo.isKnownEncoding &&
       self.encodingInfo.knownEncodingAlignmentInBits == 1)
       true
-    else if (isKnownToBePrecededByAllByteLengthItems)
+    else if (isKnownToBePrecededByAllByteLengthItems || rootElement.get.isAllKnownToBeByteAlignedAndByteLength)
       true
     else if (this.rootElement.get.isScannable)
       true

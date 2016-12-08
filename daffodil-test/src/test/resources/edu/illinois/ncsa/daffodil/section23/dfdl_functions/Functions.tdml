@@ -9106,15 +9106,9 @@
 
     <xs:element name="nilled03">
       <xs:complexType>
-        <xs:sequence dfdl:separator="|">
-          <xs:element name="seq">
-            <xs:complexType>
-              <xs:sequence dfdl:separator=",">
-                <xs:element name="item" type="xs:int" minOccurs="0" maxOccurs="15" dfdl:lengthKind="delimited"/>
-              </xs:sequence>
-            </xs:complexType>
-          </xs:element>
-          <xs:element name="nilled" type="xs:boolean" dfdl:inputValueCalc="{ fn:nilled(../ex:seq) }"/>
+        <xs:sequence>
+          <xs:element name="item" type="xs:int" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="nilled" type="xs:boolean" dfdl:inputValueCalc="{ fn:nilled(../ex:item) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -11116,47 +11110,20 @@
 <!--
     Test Name: nilled_03
        Schema: booleanFunctions
-         Root: nilled02
-      Purpose: This test demonstrates that the fn:nilled function returns empty sequence if arg is an element node and [nilled] has no value
--->
-
-  <tdml:parserTestCase name="nilled_03" root="nilled02"
-    model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
-
-    <tdml:document>
-      <tdml:documentPart type="text">test</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <nilled02>
-          <a>test</a>
-          <nilled/>>
-        </nilled02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-<!--
-    Test Name: nilled_04
-       Schema: booleanFunctions
          Root: nilled03
-      Purpose: This test demonstrates that the fn:nilled function returns empty sequence if arg is the empty sequence
+      Purpose: This test demonstrates that the fn:nilled function causes and SDE if arg does not exist
 -->
 
-  <tdml:parserTestCase name="nilled_04" root="nilled03"
+  <tdml:parserTestCase name="nilled_03" root="nilled03"
     model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
 
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <nilled03>
-          <seq/>
-          <nilled/>
-        </nilled03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>item</tdml:error>
+      <tdml:error>does not exist</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--

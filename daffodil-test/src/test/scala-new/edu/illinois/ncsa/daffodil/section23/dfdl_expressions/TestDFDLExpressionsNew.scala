@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
-//import org.junit.Test
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
@@ -59,4 +59,9 @@ class TestDFDLExpressionsNew {
   val tdml4 = testDir4 + "expressions.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
 
+  //DFDL-1076
+  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+  //DFDL-1233
+  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
+  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
 }

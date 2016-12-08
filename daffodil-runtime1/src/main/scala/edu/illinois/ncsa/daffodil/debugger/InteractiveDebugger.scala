@@ -400,7 +400,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
     val sw = new java.io.StringWriter()
-    ie.toWriter(sw)
+    ie.toWriter(sw, removeHidden=DebuggerConfig.removeHidden, allowUnsetValues=true)
     debugPrintln(sw.toString)
   }
 
@@ -1444,7 +1444,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
           val sw = new java.io.StringWriter()
           val infoset = getInfoset(state.infoset)
-          infoset.toWriter(sw, DebuggerConfig.removeHidden)
+          infoset.toWriter(sw, removeHidden=DebuggerConfig.removeHidden, allowUnsetValues=true)
           val infosetString = sw.toString()
           val lines = infosetString.split("\n")
           val tailLines =

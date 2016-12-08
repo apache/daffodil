@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section17.calc_value_properties
 
-//import org.junit.Test
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -50,6 +50,8 @@ object TestOutputValueCalcNew {
 }
 
 class TestOutputValueCalcNew {
-//  import TestOutputValueCalcNew._
+  import TestOutputValueCalcNew._
 
+  @Test def test_OutputValueCalc_09() { runner.runOneTest("OutputValueCalc_09") }
+  @Test def test_OutputValueCalc_10() { runner.runOneTest("OutputValueCalc_10") }
 }
