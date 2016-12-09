@@ -76,10 +76,6 @@
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalacheck/scalacheck_2.11/scalacheck_2.11-1.13.4-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/jline/jline/jline-2.12-sources.jar" exported="true" kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar">
-            <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.12.1-javadoc.jar!/"/>
-                </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/jline/jline/jline-2.12.1-sources.jar" exported="true" kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.1.jar">
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.12.1-javadoc.jar!/"/>

@@ -33,7 +33,7 @@ libraryDependencies in ThisBuild := Seq(
   "com.ibm.icu" % "icu4j" % "51.1", // new versions avail. 58.1 requires code changes
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
-  "jline" % "jline" % "2.12", // newer versions avail. 3.0.0-M1 requires code changes
+  "jline" % "jline" % "2.12.1", // newer versions avail. 3.0.0-M1 requires code changes
   "org.fusesource.jansi" % "jansi" % "1.14",
   "org.rogach" %% "scallop" % "0.9.5", // new version avail. 2.0.5 requires code changes
   "commons-io" % "commons-io" % "2.5",
