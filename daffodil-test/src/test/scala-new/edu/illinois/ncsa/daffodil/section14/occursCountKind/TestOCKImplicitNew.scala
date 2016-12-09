@@ -32,15 +32,15 @@
 
 package edu.illinois.ncsa.daffodil.section14.occursCountKind
 
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+//import org.junit.Test
+//import edu.illinois.ncsa.daffodil.util._
+//import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
 class TestOCKImplicitNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
-  val aa = testDir + "ockImplicit.tdml"
-  val res = Misc.getRequiredResource(aa)
-  lazy val runner = new DFDLTestSuite(res)
+//  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
+//  val aa = testDir + "ockImplicit.tdml"
+//  val res = Misc.getRequiredResource(aa)
+//  lazy val runner = new DFDLTestSuite(res)
 
   //Needs proper implementation of runtime check to generate SDE
   //@Test def test_ockImplicit14() { runner.runOneTest("ockImplicit14") }
@@ -51,5 +51,5 @@ class TestOCKImplicitNew {
   //}
 
   //DFDL-1662
-  @Test def test_ockImplicit24() { runner.runOneTest("ockImplicit24") }
+  //@Test def test_ockImplicit24() { runner.runOneTest("ockImplicit24") }
 }

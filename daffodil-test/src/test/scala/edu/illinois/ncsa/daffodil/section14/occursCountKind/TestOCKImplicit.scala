@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -78,4 +78,6 @@ class TestOCKImplicit {
   @Test def test_ockImplicit21() { runner.runOneTest("ockImplicit21") }
   @Test def test_ockImplicit22() { runner.runOneTest("ockImplicit22") }
   @Test def test_ockImplicit23() { runner.runOneTest("ockImplicit23") }
+  //DFDL-1662
+  @Test def test_ockImplicit24() { runner.runOneTest("ockImplicit24") }
 }
