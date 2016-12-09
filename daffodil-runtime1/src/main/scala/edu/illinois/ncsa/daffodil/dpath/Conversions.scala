@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import java.text.ParsePosition
 import com.ibm.icu.util.Calendar
@@ -46,17 +45,17 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLDate
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
  * types DFDL does not allow removed.
  *
- *  S\T   bool dat dbl dec dT  flt hxB int str tim 
- *  bool   Y    N   Y   Y   N   Y   N   Y   Y   N  
- *  dat    N    Y   N   N   Y   N   N   N   Y   N  
- *  dbl    Y    N   Y   M   N   Y   N   M   Y   N  
- *  dec    Y    N   Y   Y   N   Y   N   Y   Y   N  
- *  dT     N    Y   N   N   Y   N   N   N   Y   Y  
- *  flt    Y    N   Y   M   N   Y   N   M   Y   N  
- *  hxB    N    N   N   N   N   N   Y   N   Y   N  
- *  int    Y    N   Y   Y   N   Y   N   Y   Y   N  
- *  str    M    M   M   M   M   M   M   M   Y   M  
- *  tim    N    N   N   N   N   N   N   N   Y   Y  
+ *  S\T   bool dat dbl dec dT  flt hxB int str tim
+ *  bool   Y    N   Y   Y   N   Y   N   Y   Y   N
+ *  dat    N    Y   N   N   Y   N   N   N   Y   N
+ *  dbl    Y    N   Y   M   N   Y   N   M   Y   N
+ *  dec    Y    N   Y   Y   N   Y   N   Y   Y   N
+ *  dT     N    Y   N   N   Y   N   N   N   Y   Y
+ *  flt    Y    N   Y   M   N   Y   N   M   Y   N
+ *  hxB    N    N   N   N   N   N   Y   N   Y   N
+ *  int    Y    N   Y   Y   N   Y   N   Y   Y   N
+ *  str    M    M   M   M   M   M   M   M   Y   M
+ *  tim    N    N   N   N   N   N   N   N   Y   Y
  */
 
 object Conversion {
@@ -72,7 +71,7 @@ object Conversion {
       case (_, Array) => Nil
       case (x, y) if (x == y) => Nil
       case (x, Nillable) => {
-        // we don't have enough information here to check whether the 
+        // we don't have enough information here to check whether the
         // item under scrutiny is nillable or not.
         Nil
       }
@@ -365,51 +364,4 @@ object Conversion {
     val calendar = constructCalendar(value, inFormat, fncName, toType)
     DFDLTime(calendar, expectsTZ)
   }
-
-  /**
-   * Compute types the args should be converted to, and the resulting type
-   * from the operation on them.
-   */
-  def numericBinaryOpTargetTypes(op: String, inherent1: NodeInfo.Numeric.Kind, inherent2: NodeInfo.Numeric.Kind): (NodeInfo.Numeric.Kind, NodeInfo.Numeric.Kind) = {
-    import NodeInfo._
-    /*
-     * Adjust for the Decimal result type when div is used on any integer types.
-     */
-    def divResult(t: NodeInfo.Numeric.Kind) =
-      if (op == "div") Decimal else t
-    val (argType: Numeric.Kind, resultType: Numeric.Kind) = (inherent1, inherent2) match {
-      case (_, Decimal) => (Decimal, Decimal)
-      case (Decimal, _) => (Decimal, Decimal)
-      case (_, Double) => (Double, Double)
-      case (Double, _) => (Double, Double)
-      case (_, Float) => (Double, Double)
-      case (Float, _) => (Double, Double)
-      case (x, Integer) => (Integer, divResult(Integer))
-      case (Integer, x) => (Integer, divResult(Integer))
-      case (x, NonNegativeInteger) => (NonNegativeInteger, divResult(Integer))
-      case (NonNegativeInteger, x) => (NonNegativeInteger, divResult(Integer))
-      case (x, UnsignedLong) => (UnsignedLong, divResult(Integer))
-      case (UnsignedLong, x) => (UnsignedLong, divResult(Integer))
-      case (x, ArrayIndex) => (ArrayIndex, ArrayIndex)
-      case (ArrayIndex, x) => (ArrayIndex, ArrayIndex)
-      case (x, Long) => (Long, divResult(Long))
-      case (Long, x) => (Long, divResult(Long))
-      case (x, UnsignedInt) => (UnsignedInt, divResult(Long))
-      case (UnsignedInt, x) => (UnsignedInt, divResult(Long))
-      case (x, Int) => (Int, divResult(Int))
-      case (Int, x) => (Int, divResult(Int))
-      case (x, UnsignedShort) => (UnsignedShort, divResult(Int))
-      case (UnsignedShort, x) => (UnsignedShort, divResult(Int))
-      case (x, Short) => (Short, divResult(Int))
-      case (Short, x) => (Short, divResult(Int))
-      case (x, UnsignedByte) => (UnsignedByte, divResult(Int))
-      case (UnsignedByte, x) => (UnsignedByte, divResult(Int))
-      case (x, Byte) => (Byte, divResult(Int))
-      case (Byte, x) => (Byte, divResult(Int))
-      case _ => Assert.usageError(
-        "Unsupported types for op '%s' were %s and %s.".format(op, inherent1, inherent2))
-    }
-    (argType, resultType)
-  }
-
 }

@@ -392,23 +392,23 @@ case class ComparisonExpression(op: String, adds: List[Expression])
 
   override def targetTypeForSubexpression(child: Expression): NodeInfo.Kind = convergedArgType
 
-  lazy val (convergedArgType, _) = (left.inherentType, right.inherentType) match {
+  lazy val convergedArgType = (left.inherentType, right.inherentType) match {
     // String => Numeric conversions are not allowed for comparison Ops.
     //
     // See http://www.w3.org/TR/xpath20/#mapping
     //
     case (left: NodeInfo.String.Kind, right: NodeInfo.String.Kind) =>
-      (NodeInfo.String, NodeInfo.String)
+      NodeInfo.String
     case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
-      Conversion.numericBinaryOpTargetTypes(op, left, right)
+      NodeInfoUtils.generalizeArgTypesForComparisonOp(op, left, right)
     case (left: NodeInfo.Date.Kind, right: NodeInfo.Date.Kind) =>
-      (NodeInfo.Date, NodeInfo.Date)
+      NodeInfo.Date
     case (left: NodeInfo.Time.Kind, right: NodeInfo.Time.Kind) =>
-      (NodeInfo.Time, NodeInfo.Time)
+      NodeInfo.Time
     case (left: NodeInfo.DateTime.Kind, right: NodeInfo.DateTime.Kind) =>
-      (NodeInfo.DateTime, NodeInfo.DateTime)
+      NodeInfo.DateTime
     case (left: NodeInfo.Boolean.Kind, right: NodeInfo.Boolean.Kind) =>
-      (NodeInfo.Boolean, NodeInfo.Boolean)
+      NodeInfo.Boolean
     case (l, r) =>
       SDE("Cannot compare %s with %s for operator '%s'", l, r, op)
   }
@@ -540,7 +540,7 @@ trait NumericExpression extends BinaryExpMixin {
 
   lazy val (convergedArgType, convergedResult) = (left.inherentType, right.inherentType) match {
     case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
-      Conversion.numericBinaryOpTargetTypes(op, left, right)
+      NodeInfoUtils.generalizeArgAndResultTypesForNumericOp(op, left, right)
     case (left: NodeInfo.Numeric.Kind, r) =>
       SDE("Right operand for operator '%s' must have numeric type. Type was: %s.", op, r)
     case (l, r: NodeInfo.Numeric.Kind) =>
@@ -614,7 +614,7 @@ case class IfExpression(ifthenelse: List[Expression])
     // we need the type which is the generalization of the thenPart and
     // elsePart inherent types, but it's an error if they have no generalization.
     //
-    NodeInfoUtils.generalize(thenPart, elsePart)
+    NodeInfoUtils.generalizeIfThenElse(thenPart, elsePart)
   }
 }
 
@@ -1842,7 +1842,7 @@ sealed abstract class LengthExprBase(nameAsParsed: String, fnQName: RefQName,
   extends FNTwoArgsExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
 
   protected final def leafReferencedElements = {
-       val arg = args(0).asInstanceOf[PathExpression]
+    val arg = args(0).asInstanceOf[PathExpression]
     val steps = arg.steps
     val lst = steps.last
     val elem = lst.stepElement
@@ -1857,16 +1857,15 @@ case class ContentLengthExpr(nameAsParsed: String, fnQName: RefQName,
   constructor: List[CompiledDPath] => RecipeOp)
   extends LengthExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
 
-    override lazy val leafContentLengthReferencedElements = leafReferencedElements
+  override lazy val leafContentLengthReferencedElements = leafReferencedElements
 }
-
 
 case class ValueLengthExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
   constructor: List[CompiledDPath] => RecipeOp)
   extends LengthExprBase(nameAsParsed, fnQName, args, resultType, arg1Type, arg2Type, constructor) {
 
-    override lazy val leafValueLengthReferencedElements = leafReferencedElements
+  override lazy val leafValueLengthReferencedElements = leafReferencedElements
 }
 
 case class FNThreeArgsExpr(nameAsParsed: String, fnQName: RefQName,

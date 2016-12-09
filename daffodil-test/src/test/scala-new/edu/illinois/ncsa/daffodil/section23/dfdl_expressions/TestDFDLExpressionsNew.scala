@@ -54,14 +54,19 @@ class TestDFDLExpressionsNew {
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml4 = testDir4 + "expressions.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
+
+  val tdml5 = testDir4 + "expressions2.tdml"
+  lazy val runner5 = new DFDLTestSuite(Misc.getRequiredResource(tdml5))
 
   //DFDL-1076
   @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
   //DFDL-1233
   @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
   @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
+
+  // DFDL-1669
+  @Test def test_dfdl_1669_unsignedLong_conversion() { runner5.runOneTest("test_dfdl_1669_unsignedLong_conversion") }
 }

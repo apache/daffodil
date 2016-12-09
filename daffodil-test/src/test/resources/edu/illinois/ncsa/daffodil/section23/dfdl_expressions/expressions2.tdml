@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+
+ Developed by: Tresys Technology, LLC
+ http://www.tresys.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a 
+ copy of
+ this software and associated documentation files (the "Software"), to deal 
+ with
+ the Software without restriction, including without limitation the rights 
+ to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished 
+ to do
+ so, subject to the following conditions:
+
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimers.
+
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimers in the
+ documentation and/or other materials provided with the distribution.
+
+ 3. Neither the names of Tresys Technology, nor the names of its contributors
+ may be used to endorse or promote products derived from this Software
+ without specific prior written permission.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+ THE
+ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ THE
+ SOFTWARE.
+-->
+<tdml:testSuite
+ suiteName="expressions2"
+ description="misc expression language tests"
+ xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:ex="http://example.com"
+ xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+ xmlns:fn="http://www.w3.org/2005/xpath-functions"
+ defaultRoundTrip="true">
+
+ <tdml:defineSchema name="s1" 
+ elementFormDefault="unqualified"
+ >
+  <dfdl:format
+   ref="ex:daffodilTest1"
+   lengthKind="explicit" 
+   representation="binary" lengthUnits="bits"/>
+
+  <xs:element name="e1" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="ul" type="xs:unsignedLong" dfdl:length="2" />
+     <!-- 
+     DFDL-1669, the comparison of ul and 1 would return false because it
+     was comparing a java.math.BigInteger with a java.lang.Long
+      -->
+      <xs:element name="comp" type="xs:int"
+       dfdl:inputValueCalc="{ if ( ../ul eq 1 ) then 1 else 0 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+ </tdml:defineSchema>
+
+ <tdml:parserTestCase
+  name="test_dfdl_1669_unsignedLong_conversion"
+  root="e1"
+  model="s1"
+  description="Show that unsignedLong element values get compared to literal integers properly."
+  roundTrip="false"
+ >
+
+  <tdml:document>
+  <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+  <tdml:infoset>
+  <tdml:dfdlInfoset>
+   <ex:e1 xmlns:ex="http://example.com">
+    <ul>1</ul>
+    <comp>1</comp>
+   </ex:e1>
+   </tdml:dfdlInfoset>
+  </tdml:infoset>
+ </tdml:parserTestCase>
+
+</tdml:testSuite>

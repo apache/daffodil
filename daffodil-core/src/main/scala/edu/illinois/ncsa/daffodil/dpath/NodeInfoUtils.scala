@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,31 +32,125 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+
+import NodeInfo._
+
 object NodeInfoUtils {
+
   /**
-   * When operating on two operands, this computes the type to which
-   * they are mutually converted before the operation. Such as if you
-   * add an Int and a Double, the Int is converted to Double before adding, and
-   * the result type is Double.
+   * Generalizes the type of the two alternatives of an if-then-else
    */
-  def generalize(aExpr: Expression, bExpr: Expression): NodeInfo.Kind = {
-    val a = aExpr.inherentType
-    val b = bExpr.inherentType
+  def generalizeIfThenElse(thenExpr: Expression, elseExpr: Expression): NodeInfo.Kind = {
+    val a = thenExpr.inherentType
+    val b = elseExpr.inherentType
     if (a == b) a
     else if (a.isSubtypeOf(b)) b
     else if (b.isSubtypeOf(a)) a
     else
       (a, b) match {
-        case (s: NodeInfo.String.Kind, _) => NodeInfo.String
-        case (_, s: NodeInfo.String.Kind) => NodeInfo.String
-        case (NodeInfo.Float, NodeInfo.Double) => NodeInfo.Double
-        case (NodeInfo.Double, NodeInfo.Float) => NodeInfo.Double
-        case (NodeInfo.Decimal, NodeInfo.Double) => NodeInfo.Decimal
-        case (NodeInfo.Double, NodeInfo.Decimal) => NodeInfo.Decimal
-        case (NodeInfo.Boolean, bt: NodeInfo.Numeric.Kind) => bt
-        case (bt: NodeInfo.Numeric.Kind, NodeInfo.Boolean) => bt
-        case (it: NodeInfo.Long.Kind, NodeInfo.ArrayIndex) => NodeInfo.ArrayIndex
-        case _ => aExpr.SDE("Static type error: expressions '%s' and '%s' have incompatible types %s and %s.", aExpr.text, bExpr.text, a, b)
+        case (s: String.Kind, _) => String
+        case (_, s: String.Kind) => String
+        case (Float, Double) => Double
+        case (Double, Float) => Double
+        case (Decimal, Double) => Decimal
+        case (Double, Decimal) => Decimal
+        case (Boolean, bt: Numeric.Kind) => bt
+        case (bt: Numeric.Kind, Boolean) => bt
+        case (it: Long.Kind, ArrayIndex) => ArrayIndex
+        case _ => thenExpr.SDE("Static type error: expressions '%s' and '%s' have incompatible types %s and %s.", thenExpr.text, elseExpr.text, a, b)
       }
+  }
+
+  /**
+   * For a comparison operator, compute type to which the args should be converted
+   */
+  def generalizeArgTypesForComparisonOp(op: String,
+    inherent1: Numeric.Kind,
+    inherent2: Numeric.Kind): Numeric.Kind = {
+
+    val argType: Numeric.Kind = (inherent1, inherent2) match {
+      case (x, y) if (x eq y) => x
+      case (_, Decimal) => Decimal
+      case (Decimal, _) => Decimal
+      case (_, Double) => Double
+      case (Double, _) => Double
+      case (_, Float) => Double
+      case (Float, _) => Double
+      case (_, Integer) => Integer
+      case (Integer, _) => Integer
+      case (_, NonNegativeInteger) => Integer
+      case (NonNegativeInteger, _) => Integer
+      case (_: UnsignedLong.Kind, UnsignedLong) => UnsignedLong
+      case (UnsignedLong, _: UnsignedLong.Kind) => UnsignedLong
+      case (_, UnsignedLong) => Integer
+      case (UnsignedLong, _) => Integer
+      case (_, ArrayIndex) => ArrayIndex
+      case (ArrayIndex, _) => ArrayIndex
+      case (_, Long) => Long
+      case (Long, _) => Long
+      case (_, UnsignedInt) => Long
+      case (UnsignedInt, _) => Long
+      case (_, Int) => Int
+      case (Int, _) => Int
+      case (_, UnsignedShort) => Int
+      case (UnsignedShort, _) => Int
+      case (_, Short) => Short
+      case (Short, _) => Short
+      case (_, UnsignedByte) => Short
+      case (UnsignedByte, _) => Short
+      case (_, Byte) => Byte
+      case (Byte, _) => Byte
+      case _ => Assert.usageError(
+        "Unsupported types for comparison op '%s' were %s and %s.".format(op, inherent1, inherent2))
+    }
+    argType
+  }
+
+  /**
+   * For a numeric operation, compute types the args should be converted to, and the resulting type
+   * from the operation on them.
+   */
+  def generalizeArgAndResultTypesForNumericOp(op: String,
+    inherent1: Numeric.Kind,
+    inherent2: Numeric.Kind): (Numeric.Kind, Numeric.Kind) = {
+    /*
+     * Adjust for the Decimal result type when div is used on any integer types.
+     */
+    def divResult(t: NodeInfo.Numeric.Kind) =
+      if (op == "div") Decimal else t
+    val (argType: Numeric.Kind, resultType: Numeric.Kind) = (inherent1, inherent2) match {
+      case (_, Decimal) => (Decimal, Decimal)
+      case (Decimal, _) => (Decimal, Decimal)
+      case (_, Double) => (Double, Double)
+      case (Double, _) => (Double, Double)
+      case (_, Float) => (Double, Double)
+      case (Float, _) => (Double, Double)
+      case (_, Integer) => (Integer, divResult(Integer))
+      case (Integer, _) => (Integer, divResult(Integer))
+      case (_, NonNegativeInteger) => (NonNegativeInteger, divResult(Integer))
+      case (NonNegativeInteger, _) => (NonNegativeInteger, divResult(Integer))
+      case (_, UnsignedLong) => (UnsignedLong, divResult(Integer))
+      case (UnsignedLong, _) => (UnsignedLong, divResult(Integer))
+      case (_, ArrayIndex) => (ArrayIndex, ArrayIndex)
+      case (ArrayIndex, _) => (ArrayIndex, ArrayIndex)
+      case (_, Long) => (Long, divResult(Long))
+      case (Long, _) => (Long, divResult(Long))
+      case (_, UnsignedInt) => (UnsignedInt, divResult(Long))
+      case (UnsignedInt, _) => (UnsignedInt, divResult(Long))
+      case (_, Int) => (Int, divResult(Int))
+      case (Int, _) => (Int, divResult(Int))
+      case (_, UnsignedShort) => (UnsignedShort, divResult(Int))
+      case (UnsignedShort, _) => (UnsignedShort, divResult(Int))
+      case (_, Short) => (Short, divResult(Int))
+      case (Short, _) => (Short, divResult(Int))
+      case (_, UnsignedByte) => (UnsignedByte, divResult(Int))
+      case (UnsignedByte, _) => (UnsignedByte, divResult(Int))
+      case (_, Byte) => (Byte, divResult(Int))
+      case (Byte, _) => (Byte, divResult(Int))
+      case _ => Assert.usageError(
+        "Unsupported types for numeric op '%s' were %s and %s.".format(op, inherent1, inherent2))
+    }
+    (argType, resultType)
   }
 }
