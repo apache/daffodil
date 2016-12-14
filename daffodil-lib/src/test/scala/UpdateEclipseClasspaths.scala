@@ -12,8 +12,11 @@ import scala.xml._
  * Then you have to refresh all the daffodil eclipse projects in eclipse, and do a clean
  * and build.
  */
-object UpdateEclipseClasspaths extends App {
-  main()
+
+object UpdateDaffodilClasspaths extends UpdateEclipseClasspaths with App {
+
+  override lazy val libRoot = new java.io.File(dafHome + "/lib_managed")
+  override lazy val baseFile = new java.io.File(dafHome)
 
   def main(): Int = {
 
@@ -27,16 +30,23 @@ object UpdateEclipseClasspaths extends App {
     0
   }
 
+  main()
+}
+
+trait UpdateEclipseClasspaths {
+
   lazy val dafHome = {
     val s = System.getenv("DAFFODIL_HOME")
     assert(s ne null)
     s
   }
-  lazy val baseFile = new java.io.File(dafHome)
+
+  def baseFile: java.io.File
   lazy val baseURI = baseFile.toURI
 
+  def libRoot: java.io.File
+
   lazy val updatedLibChildren: Seq[Node] = {
-    val libRoot = new java.io.File("/home/mbeckerle/dataiti/git/daffodil/lib_managed")
     assert(libRoot.exists())
     val bundlesDir = libRoot.listFiles().find { _.getName == "bundles" }.get
     val jarsDir = libRoot.listFiles().find { _.getName == "jars" }.get
