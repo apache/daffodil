@@ -42,163 +42,81 @@ package edu.illinois.ncsa.daffodil.util
 import javax.xml.transform.stream.StreamSource
 import javax.xml.XMLConstants
 import javax.xml.validation.SchemaFactory
-import javax.xml.parsers.SAXParser
-import javax.xml.parsers.SAXParserFactory
-import javax.xml.validation.Schema
 import scala.xml.parsing.NoBindingFactoryAdapter
 import scala.xml._
-import java.io.Reader
-import java.io.File
 import java.io.StringReader
 import java.net.URI
-import org.xml.sax.helpers.DefaultHandler
-import org.xml.sax.Attributes
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
+import scala.collection.mutable
+import org.xml.sax.ErrorHandler
 
-// Leaving this in temporarily, but commented out.
-// We may want to use this for extra validation passes in the TDML Runner
-// to do a validation pass on the TDML expected Infoset w.r.t. the model and to
-// do a validation pass on the actual result w.r.t. the model as an XML document.
-//
+/**
+ * Use this for extra validation passes in the TDML Runner
+ * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
+ * do a validation pass on the actual result w.r.t. the model as an XML document.
+ */
 object Validator extends NoBindingFactoryAdapter {
 
-  val xr = parser.getXMLReader()
-  val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+  private type CacheType = mutable.HashMap[Seq[String], javax.xml.validation.Validator]
 
-  def makeParser(schema: Option[Schema] = None): SAXParser = {
-    var parser: SAXParser = null
-    try {
-      val f = SAXParserFactory.newInstance()
-      schema match {
-        case Some(s) => f.setSchema(s)
-        case _ => // Do Nothing
-      }
-      f.setNamespaceAware(true)
-      f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
-      //
-
-      // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
-      // using XML trickery.
-      // f.setFeature("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
-      //      f.setFeature("http://xml.org/sax/features/external-general-entities", false)
-      //      f.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-      f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-
-      //      // Issue DFDL-76 in Jira - just adding these two lines does check more stuff, but it seems to
-      //      // cause all sorts of havoc with not finding various schemas, etc.
-      //      // Commented out for now pending more thorough investigation of how to fix this issue.
-      //
-      //      f.setFeature("http://apache.org/xml/features/validation/schema", true)
-      //      f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-      //
-
-      f.setFeature("http://xml.org/sax/features/validation", true)
-      f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
-      f.setFeature("http://apache.org/xml/features/validation/schema", true)
-      f.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-      //f.setValidating(true)
-      parser = f.newSAXParser()
-    } catch {
-      case s: scala.util.control.ControlThrowable => throw s
-      case u: UnsuppressableException => throw u
-      case e: Exception =>
-        // Console.err.println("error: Unable to instantiate parser")
-        throw e
+  private val validationSchemaCache =
+    new ThreadLocal[CacheType] {
+      override def initialValue =
+        new CacheType
     }
-    return parser
-  }
 
-  def validateXMLFiles(schemaFile: File, documentFile: File): Elem = {
-    val xml = validateXML(new StreamSource(schemaFile), new InputSource(documentFile.toURI().toASCIIString()))
-    return xml
-  }
-
-  def validateXMLStream(schemaResource: URI, documentReader: Reader, documentSystemId: String = "") = {
-    val schemaSource = new StreamSource(schemaResource.toASCIIString())
-    val document = new InputSource(documentReader)
-    if (documentSystemId != "") document.setSystemId(documentSystemId)
-    validateXML(schemaSource, document)
-  }
-
-  def validateXMLSources(schemaFileNames: Seq[String], document: Node): Unit = {
-    val schemaSources: Seq[javax.xml.transform.Source] = schemaFileNames.map { fn =>
-      {
-        val uri = new URI(fn)
-        val f = new File(uri)
-        if (!f.exists()) {
-          // we don't have the schema file, so we can't validate against it.
-          throw ValidationException("Unable to validate. File not found: " + f)
+  def validateXMLSources(schemaFileNames: Seq[String], document: Node, errHandler: ErrorHandler): Unit = {
+    val cache = validationSchemaCache.get()
+    val validator = {
+      val optCachedValidator = cache.get(schemaFileNames)
+      optCachedValidator match {
+        case Some(validator) => {
+          validator.reset()
+          validator
         }
-        val stream = new StreamSource(f)
-        stream
+        case None => {
+          val schemaSources: Seq[javax.xml.transform.Source] = schemaFileNames.map { fn =>
+            {
+              val uri = new URI(fn)
+              val is = uri.toURL.openStream()
+              val stream = new StreamSource(is)
+              stream.setSystemId(uri.toString) // must set this so that relative URIs will be created for import/include files.
+              stream
+            }
+          }
+
+          val schemaLang = "http://www.w3.org/2001/XMLSchema"
+          val factory = SchemaFactory.newInstance(schemaLang)
+          //          val hdlr = new ContentHandler()
+          factory.setErrorHandler(errHandler)
+          val resolver = DFDLCatalogResolver.get
+          factory.setResourceResolver(resolver)
+          val schema = factory.newSchema(schemaSources.toArray)
+          val validator = schema.newValidator()
+          validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+          //
+          validator.setFeature("http://xml.org/sax/features/validation", true)
+
+          // If you enable the feature below, it seems to do no validation at all. Just passes.
+          //          validator.setFeature("http://apache.org/xml/features/validation/dynamic", true)
+
+          validator.setFeature("http://apache.org/xml/features/validation/schema", true)
+          validator.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+          validator.setErrorHandler(errHandler)
+          validator.setResourceResolver(resolver)
+          cache.put(schemaFileNames, validator)
+          validator
+        }
       }
     }
-    val documentSource = new InputSource(new StringReader(document.toString()))
-    val schema = sf.newSchema(schemaSources.toArray)
-
-    val parser = makeParser(Some(schema))
-
-    val dh = new ContentHandler() //new DefaultHandler()
-    parser.parse(documentSource, dh)
+    val documentSource = new StreamSource(new StringReader(
+      document.toString() //
+      ))
+    validator.validate(documentSource)
   }
-
-  def validateXML(schemaSource: StreamSource, documentSource: InputSource) = {
-    val schema = sf.newSchema(schemaSource)
-    val parser = makeParser()
-    val xr = parser.getXMLReader()
-    val vh = schema.newValidatorHandler()
-    vh.setContentHandler(this)
-    xr.setContentHandler(vh)
-    scopeStack.push(TopScope)
-    xr.parse(documentSource)
-    scopeStack.pop
-    rootElem.asInstanceOf[Elem]
-  }
-
-  /**
-   * Convenient for unit tests
-   * @param schemaNode
-   * @param documentNode
-   * @return
-   */
-  def validateXMLNodes(schemaNode: Node, documentNode: NodeSeq): Elem = {
-    // serialize the scala document XML node back to a string because
-    // java library wants to read the document from an InputSource.
-    val documentSource = new InputSource(new StringReader(documentNode.toString()))
-    val schemaSource = new StreamSource(new StringReader(schemaNode.toString()))
-    return validateXML(schemaSource, documentSource)
-  }
-
-  /**
-   * Retrieve a schema that is part of the daffodil-lib.
-   */
-  // Note: for a resource, a path begining with "/" means classPath root relative.
-  def dfdlSchemaFileName(): String = "/xsd/XMLSchema.xsd"
-
 }
 
-case class ValidationException(msg: String) extends Exception(msg) {
-
-}
-
-class ContentHandler extends DefaultHandler {
-  private var element: String = ""
-
-  override def startElement(uri: String, localName: String, qName: String, attributes: Attributes): Unit = {
-    if (localName != null && !localName.isEmpty) element = localName
-    else element = qName
-  }
-  override def warning(exception: SAXParseException): Unit = {
-    val msg: java.lang.String = element + ": " + exception.getMessage
-    throw new ValidationException(msg)
-  }
-  override def error(exception: SAXParseException): Unit = {
-    val msg: java.lang.String = element + ": " + exception.getMessage
-    throw new ValidationException(msg)
-  }
-  override def fatalError(exception: SAXParseException): Unit = {
-    val msg: java.lang.String = element + ": " + exception.getMessage
-    throw new ValidationException(msg)
-  }
-  def getElement(): String = element
+class ValidationException(msg: String, cause: Throwable) extends Exception(msg, cause) {
+  def this(msg: String) = this(msg, null)
+  def this(cause: Throwable) = this(null, cause)
 }

@@ -70,6 +70,7 @@ import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.xml.sax.ErrorHandler
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -201,7 +202,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       state.dataProc.get.init(ssrd.parser)
       doParse(ssrd.parser, state)
       val pr = new ParseResult(this, state)
-      pr.validateResult(state)
+      if (!pr.isError) {
+        pr.validateResult(state)
+      }
       val s = state
       val dp = s.dataProc
       val ssrdParser = ssrd.parser
@@ -365,7 +368,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
 class ParseResult(dp: DataProcessor, override val resultState: PState)
   extends DFDL.ParseResult
-  with WithDiagnosticsImpl {
+  with WithDiagnosticsImpl
+  with ErrorHandler {
 
   def toWriter(writer: java.io.Writer) = {
     resultState.infoset.toWriter(writer)
@@ -378,7 +382,7 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   private def validateWithXerces(state: PState): Unit = {
     if (state.status eq Success) {
       val schemaURIStrings = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
-      Validator.validateXMLSources(schemaURIStrings, result)
+      Validator.validateXMLSources(schemaURIStrings, result, this)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
@@ -395,9 +399,6 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
       try {
         validateWithXerces(state)
       } catch {
-        case (spe: SAXParseException) =>
-          state.reportValidationErrorNoContext(spe.getMessage)
-
         case (se: SAXException) =>
           state.reportValidationErrorNoContext(se.getMessage)
 
@@ -405,6 +406,16 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
           state.reportValidationErrorNoContext(ve.getMessage)
       }
     }
+  }
+
+  override def warning(spe: SAXParseException): Unit = {
+    resultState.reportValidationErrorNoContext(spe.getMessage)
+  }
+  override def error(spe: SAXParseException): Unit = {
+    resultState.reportValidationErrorNoContext(spe.getMessage)
+  }
+  override def fatalError(spe: SAXParseException): Unit = {
+    resultState.reportValidationErrorNoContext(spe.getMessage)
   }
 
   lazy val isValidationSuccess = {

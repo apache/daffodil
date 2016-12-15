@@ -121,7 +121,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false,
-  val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault)
+  val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
+  val defaultValidationDefault: String = Runner.defaultValidationDefaultDefault)
   extends Logging with HasSetDebugger {
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
@@ -228,6 +229,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val defaultRoundTrip = {
     val str = (ts \ "@defaultRoundTrip").text
     if (str == "") defaultRoundTripDefault else str.toBoolean
+  }
+  val defaultValidation = {
+    val str = (ts \ "@defaultValidation").text
+    if (str == "") defaultValidationDefault else str
   }
   val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
   val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
@@ -364,6 +369,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
   lazy val defaultRoundTrip: Boolean = parent.defaultRoundTrip
+  lazy val defaultValidation: String = parent.defaultValidation
 
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
@@ -436,10 +442,17 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     case "false" => false
     case _ => false
   }
-  lazy val validationMode = (testCaseXML \ "@validation").text match {
+  lazy val validationMode: ValidationMode.Type = (testCaseXML \ "@validation").text match {
     case "on" => ValidationMode.Full
     case "limited" => ValidationMode.Limited
-    case _ => ValidationMode.Off
+    case "off" => ValidationMode.Off
+    case "" => defaultValidation match {
+      case "on" => ValidationMode.Full
+      case "limited" => ValidationMode.Limited
+      case "off" => ValidationMode.Off
+      case other => Assert.invariantFailed("unrecognized default validation enum string: " + other)
+    }
+    case other => Assert.invariantFailed("unrecognized validation enum string: " + other)
   }
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
@@ -708,7 +721,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       if (roundTrip && testPass < 2) {
         val outStream = new java.io.ByteArrayOutputStream()
-       val output = java.nio.channels.Channels.newChannel(outStream)
+        val output = java.nio.channels.Channels.newChannel(outStream)
         val xmlNode = actual.result
 
         val unparseResult = processor.unparse(output, xmlNode).asInstanceOf[UnparseResult]

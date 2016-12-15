@@ -45,14 +45,18 @@ import edu.illinois.ncsa.daffodil.util.Misc
  *
  * defaultRoundTripDefault if true the round trip default for the test suite will be
  * this value, if the test suite does not specify defaultRoundTrip attribute.
+ *
+ * defaultRoundTripDefaultDefault
  */
 object Runner {
   def apply(dir: String, file: String,
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
-    defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault): Runner = new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-    defaultRoundTripDefault)
+    defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault,
+    defaultValidationDefault: String = defaultValidationDefaultDefault): Runner =
+    new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+      defaultRoundTripDefault, defaultValidationDefault)
 
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:
@@ -62,6 +66,7 @@ object Runner {
   // defaultRoundTripDefaultDefault - on runner factory
   //
   def defaultRoundTripDefaultDefault = false
+  def defaultValidationDefaultDefault = "off"
 }
 
 /**
@@ -74,7 +79,8 @@ class Runner private (dir: String, file: String,
   validateTDMLFile: Boolean,
   validateDFDLSchemas: Boolean,
   compileAllTopLevel: Boolean,
-  defaultRoundTripDefault: Boolean) {
+  defaultRoundTripDefault: Boolean,
+  defaultValidationDefault: String) {
 
   private def getTS = {
     if (ts == null) {
@@ -83,7 +89,7 @@ class Runner private (dir: String, file: String,
       // In other words, we don't need to use "\\" for windows here. "/" works there as well.
       val d = if (dir.endsWith("/")) dir else dir + "/"
       tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-        defaultRoundTripDefault))
+        defaultRoundTripDefault, defaultValidationDefault))
     }
     ts
   }

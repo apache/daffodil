@@ -59,6 +59,7 @@
       <attribute name="ID" type="xs:token" use="optional"/>
       <attribute name="description" type="xs:string" use="optional"/>
       <attribute name="defaultRoundTrip" type="xs:boolean" use="optional"/>
+      <attribute name="defaultValidation" type="tns:validationType" use="optional"/>
     </complexType>
     <unique name="unique-parserTestCase-name">
       <selector xpath="parserTestCase"/>
@@ -136,7 +137,7 @@
     <attribute name="roundTrip" type="xs:boolean" use="optional"/>
     <attribute name="description" type="xs:string" use="optional"/>
     <attribute name="unsupported" type="xs:boolean" use="optional" default="false"/>
-    <attribute name="validation" type="tns:onOff" use="optional" default="off"/>
+    <attribute name="validation" type="tns:validationType" use="optional"/>
   </attributeGroup>
 
   <simpleType name="elementFormDefaultType">
@@ -146,7 +147,7 @@
     </restriction>
   </simpleType>
 
-  <simpleType name="onOff">
+  <simpleType name="validationType">
     <restriction base="xs:token">
       <enumeration value="on"/>
       <enumeration value="limited"/>
