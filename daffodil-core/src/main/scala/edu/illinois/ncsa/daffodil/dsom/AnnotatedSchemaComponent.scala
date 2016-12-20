@@ -176,7 +176,7 @@ trait AnnotatedMixin
   extends EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
   def xml: Node
-  def prettyName: String
+  def diagnosticDebugName: String
   def path: String
 
   /**

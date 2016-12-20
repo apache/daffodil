@@ -80,14 +80,14 @@ sealed trait RuntimeData
   extends ImplementsThrowsSDE
   with HasSchemaFileLocation {
   val schemaFileLocation: SchemaFileLocation
-  val prettyName: String
+  val diagnosticDebugName: String
   val path: String
   val namespaces: NamespaceBinding
 
   def immediateEnclosingElementRuntimeData: Option[ElementRuntimeData]
   def immediateEnclosingTermRuntimeData: Maybe[TermRuntimeData]
   def variableMap: VariableMap
-  override def toString = prettyName
+  override def toString = diagnosticDebugName
 
 }
 
@@ -168,7 +168,7 @@ sealed class NonTermRuntimeData(
    */
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
@@ -178,7 +178,7 @@ sealed class NonTermRuntimeData(
 
   override lazy val variableMap = variableMapArg
   lazy val schemaFileLocation = schemaFileLocationArg
-  lazy val prettyName = prettyNameArg
+  lazy val diagnosticDebugName = diagnosticDebugNameArg
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
   lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
@@ -188,7 +188,7 @@ sealed class NonTermRuntimeData(
     super.preSerialization
     variableMap
     schemaFileLocation
-    prettyName
+    diagnosticDebugName
     path
     namespaces
     immediateEnclosingElementRuntimeData
@@ -235,7 +235,7 @@ final class ElementRuntimeData(
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam dpathElementCompileInfoArg: => DPathElementCompileInfo,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam minimizedScopeArg: => NamespaceBinding,
@@ -305,7 +305,7 @@ final class ElementRuntimeData(
   lazy val encInfo = encInfoArg
   lazy val dpathElementCompileInfo = dpathElementCompileInfoArg
   lazy val schemaFileLocation = schemaFileLocationArg
-  lazy val prettyName = prettyNameArg
+  lazy val diagnosticDebugName = diagnosticDebugNameArg
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
   lazy val minimizedScope = minimizedScopeArg
@@ -354,7 +354,7 @@ final class ElementRuntimeData(
     encInfo
     dpathElementCompileInfo
     schemaFileLocation
-    prettyName
+    diagnosticDebugName
     path
     namespaces
     minimizedScope
@@ -432,7 +432,7 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
   @TransientParam ciArg: => DPathCompileInfo,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
@@ -453,7 +453,7 @@ sealed abstract class ModelGroupRuntimeData(
   lazy val encInfo = encInfoArg
   lazy val schemaFileLocation = schemaFileLocationArg
   lazy val ci = ciArg
-  lazy val prettyName = prettyNameArg
+  lazy val diagnosticDebugName = diagnosticDebugNameArg
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
   lazy val groupMembers = groupMembersArg
@@ -466,7 +466,7 @@ sealed abstract class ModelGroupRuntimeData(
     encInfo
     schemaFileLocation
     ci
-    prettyName
+    diagnosticDebugName
     path
     namespaces
     groupMembers
@@ -487,7 +487,7 @@ final class SequenceRuntimeData(
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
   @TransientParam ciArg: => DPathCompileInfo,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
@@ -499,7 +499,7 @@ final class SequenceRuntimeData(
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
-  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
     erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
 
 final class ChoiceRuntimeData(
@@ -512,7 +512,7 @@ final class ChoiceRuntimeData(
   @TransientParam encInfoArg: => EncodingRuntimeData,
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
   @TransientParam ciArg: => DPathCompileInfo,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
@@ -524,12 +524,12 @@ final class ChoiceRuntimeData(
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
   @TransientParam optIgnoreCaseArg: => Option[YesNo])
-  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, prettyNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
+  extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
     erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
 
 final class VariableRuntimeData(
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,
-  @TransientParam prettyNameArg: => String,
+  @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam externalArg: => Boolean,
@@ -540,7 +540,7 @@ final class VariableRuntimeData(
   extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,
-    prettyNameArg,
+    diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
     None,

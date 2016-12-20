@@ -33,11 +33,12 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -52,7 +53,7 @@ trait SuspendableOperation
 
   override def rd: RuntimeData
 
-  override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.prettyName)
+  override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
 
   /**
    * Returns true if continuation can be run.
@@ -110,5 +111,8 @@ trait SuspendableUnparser {
   }
 }
 
-class SuspendableOperationException(m: String) extends Exception(m)
-  with DiagnosticImplMixin with ThinThrowable
+class SuspendableOperationException(m: String)
+  extends Diagnostic(Nope, Nope, Nope, Maybe(m)) {
+  def isError = true
+  def modeName= "Unparse"
+}

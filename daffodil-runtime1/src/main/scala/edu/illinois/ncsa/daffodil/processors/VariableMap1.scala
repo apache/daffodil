@@ -76,8 +76,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 sealed abstract class VariableState extends Serializable
 
@@ -120,9 +119,13 @@ object VariableUtils {
   // Infoset.convertToInfosetRepType(rd.primType, v, rd)
 }
 
-abstract class VariableException(val qname: NamedQName, val context: ThrowsSDE, msg: String) extends Exception(msg) with DiagnosticImplMixin with ThinThrowable
+abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)
+  extends Diagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
+  def isError = true
+  def modeName = "Variable"
+}
 
-class VariableHasNoValue(qname: NamedQName, context: ThrowsSDE) extends VariableException(qname, context,
+class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
   "Variable map (runtime): variable %s has no value. It was not set, and has no default value.".format(qname))
   with RetryableException
 
@@ -233,7 +236,7 @@ class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
    * previously been read yet.
    */
   def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
-    val referringContext: ThrowsSDE = vrd
+    val referringContext: VariableRuntimeData = vrd
     val varQName = vrd.globalQName
     val lists = vTable.get(varQName)
     lists match {

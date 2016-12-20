@@ -319,7 +319,7 @@ class TestCLISaveParser {
     var cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
-    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+    shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
     cmd = Util.binPath + " save-parser --validate -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
@@ -327,14 +327,14 @@ class TestCLISaveParser {
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
-    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+    shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
     cmd = Util.binPath + " save-parser --validate limited -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
 
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
-    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+    shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
     cmd = Util.binPath + " save-parser --validate off -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)

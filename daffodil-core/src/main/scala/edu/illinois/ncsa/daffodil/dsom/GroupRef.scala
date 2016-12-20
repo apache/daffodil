@@ -44,13 +44,13 @@ import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
  * referred-to Global Group Definition object.
  */
 final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
-    extends GroupBase(xmlArg, parent, position)
-    with DFDLStatementMixin
-    with GroupRefGrammarMixin
-    with Group_AnnotationMixin
-    with SeparatorSuppressionPolicyMixin
-    with SequenceRuntimeValuedPropertiesMixin
-    with HasRefMixin {
+  extends GroupBase(xmlArg, parent, position)
+  with DFDLStatementMixin
+  with GroupRefGrammarMixin
+  with Group_AnnotationMixin
+  with SeparatorSuppressionPolicyMixin
+  with SequenceRuntimeValuedPropertiesMixin
+  with HasRefMixin {
 
   requiredEvaluations(groupDef)
 

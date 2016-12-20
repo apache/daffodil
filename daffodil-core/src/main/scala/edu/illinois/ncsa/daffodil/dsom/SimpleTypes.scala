@@ -257,7 +257,6 @@ final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
     else notYetImplemented("local simpleType with base attribute.") // should go find the global simple type here
     res
   }
-
 }
 
 /**
@@ -282,6 +281,7 @@ final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDo
   def forElement(element: ElementBase) = new GlobalSimpleTypeDef(None, xml, schemaDocument, Some(element))
   def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), xml, schemaDocument, None)
 
+  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
 /**
  * The instance type for global simple type definitions.
@@ -306,6 +306,6 @@ final class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: 
     case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 
-  override lazy val prettyName = "simpleType." + name
+  override lazy val diagnosticDebugName = this.namedQName.diagnosticDebugName
 
 }

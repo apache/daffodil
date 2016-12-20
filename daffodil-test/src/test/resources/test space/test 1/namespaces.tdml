@@ -607,7 +607,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Overlapping properties</tdml:error>
-      <tdml:error>textNumberPadCharacter overlaps between element.nest2 and simpleType.nestType.</tdml:error>
+      <tdml:error>textNumberPadCharacter overlaps between nest2 and nestType.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

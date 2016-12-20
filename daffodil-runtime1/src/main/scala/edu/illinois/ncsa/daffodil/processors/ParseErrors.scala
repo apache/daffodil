@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -44,10 +43,16 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
-class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], kind: String, args: Any*)
-  extends ProcessingError("Parse Error", rd, loc, kind, args: _*)
-  with ThinThrowable
+class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], causedBy: Maybe[Throwable], kind: Maybe[String], args: Any*)
+  extends ProcessingError("Parse", rd, loc, causedBy, kind, args: _*) {
+  def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], kind: String, args: Any*) =
+    this(rd, loc, Maybe.Nope, Maybe(kind), args: _*)
+
+  override def toParseError = this
+}
 
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state.currentLocation), "Assertion failed. %s", msg) {
@@ -87,9 +92,10 @@ class AltParseFailed(rd: SchemaFileLocation, state: PState,
   }
 }
 
-class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixin {
+class GeneralParseFailure(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
   Assert.usage(msg != null && msg != "")
-  override def getMessage() = msg
+  override def isError = true
+  override def modeName = "Parse"
 }
 
 /**
@@ -120,7 +126,7 @@ trait DoSDEMixin {
         throw sde
       }
       case other => {
-        val sde = new RuntimeSchemaDefinitionError(state.getContext().schemaFileLocation, state, e.getMessage())
+        val sde = new RuntimeSchemaDefinitionError(state.getContext().schemaFileLocation, state, Maybe(e), Nope)
         state.setFailed(sde)
         throw sde
       }
@@ -159,6 +165,12 @@ trait WithParseErrorThrowing extends DoSDEMixin {
         doSDE(e, pstate)
       case v: VariableException =>
         doSDE(v, pstate)
+      case eee: ExpressionEvaluationException => {
+        Assert.invariant(pstate.status ne Success)
+        // If it's an EEE then the status is already failure
+        // but we want a parse error.
+        pstate.setFailed(eee.toParseError)
+      }
       case e: IndexOutOfBoundsException => {
         // This should come through as an InfosetException, not a raw java exception like this.
         Assert.invariantFailed("Should not be allowing propagation of " + e)

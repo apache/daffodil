@@ -226,7 +226,7 @@ trait Suspension
     } else {
       // log(LogLevel.Debug,
       log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
-        ustate.currentInfosetNode.erd.prettyName, buffered)
+        ustate.currentInfosetNode.erd.diagnosticDebugName, buffered)
     }
 
     // the main-thread will carry on using the original ustate but unparsing

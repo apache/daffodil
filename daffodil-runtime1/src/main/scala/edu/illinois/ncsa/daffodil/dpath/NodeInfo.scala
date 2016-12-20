@@ -86,7 +86,7 @@ sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
     list.size > 0
   }
 
-  lazy val globalQName: GlobalQName = QName.createGlobal(name, XMLUtils.XSD_NAMESPACE)
+  lazy val globalQName: GlobalQName = QName.createGlobal(name, XMLUtils.XSD_NAMESPACE, scala.xml.TopScope)
 }
 
 /*
@@ -137,7 +137,7 @@ object NodeInfo extends Enum {
 
   // Primitives are not "global" because they don't appear in any schema document
   sealed trait PrimType
-      extends AnyAtomic.Kind with SimpleTypeBase {
+    extends AnyAtomic.Kind with SimpleTypeBase {
 
     /**
      * When class name is isomorphic to the type name, compute automatically.

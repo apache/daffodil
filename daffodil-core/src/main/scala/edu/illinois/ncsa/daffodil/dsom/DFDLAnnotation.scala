@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Base class for any DFDL annotation
@@ -66,12 +67,17 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
 
   final lazy val annotatedSC = annotatedSCArg
 
-  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
-
-  //  match {
-  //      case sc : SchemaComponent => sc
-  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
-  //    }
-
   override def toString = path
+
+  override lazy val diagnosticDebugName: String = {
+    val cn = Misc.getNameFromClass(this)
+    val n =
+      if (cn.startsWith("DFDL")) {
+        val nn = cn.replaceFirst("DFDL", "")
+        Misc.initialLowerCase(nn)
+      } else {
+        cn
+      }
+    n
+  }
 }

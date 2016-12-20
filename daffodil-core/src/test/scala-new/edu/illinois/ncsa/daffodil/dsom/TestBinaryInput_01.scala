@@ -53,7 +53,7 @@ class TestBinaryInput_01 {
     dis = ByteBufferDataInputStream(ba, bitStartPos)
     dis.setBitOrder(bitOrd)
     dis.setByteOrder(byteOrd)
-    startOver = dis.mark
+    startOver = dis.mark("TestBinaryInput_01")
     dis
   }
 
@@ -61,7 +61,7 @@ class TestBinaryInput_01 {
     dis = ByteBufferDataInputStream(ByteBuffer.wrap(str.getBytes("utf-8")), bitStartPos)
     dis.setBitOrder(bitOrd)
     dis.setByteOrder(byteOrd)
-    startOver = dis.mark
+    startOver = dis.mark("TestBinaryInput_01")
     dis
   }
 
@@ -71,14 +71,14 @@ class TestBinaryInput_01 {
 
   def getLong(dis: DataInputStream, offset: Int, len: Int) = {
     dis.reset(startOver)
-    startOver = dis.mark
+    startOver = dis.mark("TestBinaryInput_01")
     if (offset > 0) dis.skip(offset)
     dis.getUnsignedLong(len).toLong
   }
 
   def getBigInt(dis: DataInputStream, offset: Int, len: Int) = {
     dis.reset(startOver)
-    startOver = dis.mark
+    startOver = dis.mark("TestBinaryInput_01")
     if (offset > 0) dis.skip(offset)
     dis.getSignedBigInt(len)
   }

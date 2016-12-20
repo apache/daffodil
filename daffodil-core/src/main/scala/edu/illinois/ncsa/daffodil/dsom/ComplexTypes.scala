@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.xml.QName
 
 abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   extends SchemaComponent(xmlArg, parent)
@@ -106,6 +107,7 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 
+  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
 
 /**

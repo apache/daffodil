@@ -276,7 +276,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
       schemaFileLocation,
       dpathCompileInfo,
-      prettyName,
+      diagnosticDebugName,
       path,
       namespaces,
       defaultBitOrder,

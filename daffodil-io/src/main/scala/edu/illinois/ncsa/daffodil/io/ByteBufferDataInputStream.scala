@@ -184,7 +184,7 @@ private[io] class TLState {
  * The state that must be saved and restored by mark/reset calls
  */
 final class MarkState(initialBitPos0b: Long)
-    extends DataStreamCommonState with DataInputStream.Mark {
+  extends DataStreamCommonState with DataInputStream.Mark {
 
   def defaultCodingErrorAction = ByteBufferDataInputStream.defaultCodingErrorAction
 
@@ -267,7 +267,7 @@ private object BBSLimits extends DataStreamCommon.Limits {
  * these objects, and those may have non-zero positions. E.g., see the def makeACopy.
  */
 final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitPos0b: Long)
-    extends DataInputStreamImplMixin with TLStateMixin {
+  extends DataInputStreamImplMixin with TLStateMixin {
   import DataInputStream._
 
   Assert.usage(initialBitPos0b >= 0)
@@ -730,8 +730,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     true
   }
 
-  def mark: DataInputStream.Mark = {
-    val m = markPool.getFromPool
+  def mark(requestorID: String): DataInputStream.Mark = {
+    val m = markPool.getFromPool(requestorID)
     m.assignFrom(st)
     m.savedBytePosition0b = data.position()
     m.savedByteLimit0b = data.limit()
@@ -1233,8 +1233,8 @@ private[io] class CharIteratorState {
 }
 
 class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
-    extends DataInputStream.CharIterator
-    with ThreadCheckMixin {
+  extends DataInputStream.CharIterator
+  with ThreadCheckMixin {
 
   def reset() {
     st.charIteratorState.clear()

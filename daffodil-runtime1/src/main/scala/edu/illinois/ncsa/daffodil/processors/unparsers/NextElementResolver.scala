@@ -55,7 +55,7 @@ trait NextElementResolver extends Serializable {
   def nextElement(name: String, nameSpace: String): ElementRuntimeData
 
   // TODO: PERFORMANCE: We really should be interning all QNames so that comparison of QNames can be pointer equality
-  // or nearly so. We're going to do tons of lookups in hash tables, which will compute the hash code, find it is equal, 
+  // or nearly so. We're going to do tons of lookups in hash tables, which will compute the hash code, find it is equal,
   // compare the entire namespace string character by character, only to say yes, and yes will be by far the vast
   // bulk of the lookup results.  Pointer equality would be so much faster....
   //
@@ -73,23 +73,24 @@ class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: Resolv
     val sqn = StepQName(None, local, NS(namespace))
     UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but no element is expected.", resolverType.name, sqn)
   }
-  
+
   override def toString() = "NoNextElement"
 
 }
 
 class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)
   extends NextElementResolver {
-  
+
   override def nextElement(local: String, namespace: String): ElementRuntimeData = {
     val nqn = nextERD.namedQName
     val sqn = StepQName(None, local, NS(namespace))
     if (!sqn.matches(nqn)) {
-      UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but expected %s.", resolverType.name, sqn, nqn)
+      UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but expected %s.", resolverType.name,
+        sqn.toExtendedSyntax, nqn.toExtendedSyntax)
     }
     nextERD
   }
-  
+
   override def toString() = "OnlyOne(" + nextERD.namedQName + ")"
 }
 
@@ -119,10 +120,11 @@ class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Ma
     val optNextERD = nextERDMap.get(sqn.asInstanceOf[QNameBase])
     val res = optNextERD.getOrElse {
       val keys = nextERDMap.keys.toSeq
-      UnparseError(One(loc), Nope, "Found %s element %s, but expected one of %s.", resolverType.name, sqn, keys.mkString(", "))
+      UnparseError(One(loc), Nope, "Found %s element %s, but expected one of %s.",
+        resolverType.name, sqn.toExtendedSyntax, keys.mkString(", "))
     }
     res
   }
-  
+
   override def toString() = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
 }

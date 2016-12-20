@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.lang.{ Long => JLong }
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends ParserObject(context) {
@@ -129,8 +129,8 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
   def parseAllRepeats(initialState: PState): Unit = {
     if (initialState.mpstate.arrayPos <= intN) {
-      val startState = initialState.mark
-      var priorState = initialState.mark
+      val startState = initialState.mark("RepAtMostTotalNParser1")
+      var priorState = initialState.mark("RepAtMostTotalNParser2")
       val pstate = initialState
       var returnFlag = false
       while (!returnFlag && (pstate.mpstate.arrayPos <= intN)) {
@@ -143,7 +143,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         try {
           rParser.parse1(pstate)
         } catch {
-          case sde: SchemaDefinitionError => {
+          case sde: SchemaDefinitionDiagnosticBase => {
             pstate.discard(startState)
             throw sde
           }
@@ -176,7 +176,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
           // Success
           //
           pstate.discard(priorState)
-          priorState = pstate.mark
+          priorState = pstate.mark("RepAtMostTotalNParser3")
           pstate.mpstate.moveOverOneArrayIndexOnly
           returnFlag = false
         }
@@ -210,9 +210,9 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
 
   def parseAllRepeats(initialState: PState): Unit = {
     Assert.invariant(initialState.status eq Success)
-    val startState = initialState.mark
+    val startState = initialState.mark("RepUnboundedParser1")
     val pstate = initialState
-    var priorState = initialState.mark
+    var priorState = initialState.mark("RepUnboundedParser2")
     var returnFlag = false
     while (!returnFlag && (pstate.status eq Success)) {
 
@@ -241,7 +241,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       try {
         rParser.parse1(pstate)
       } catch {
-        case sde: SchemaDefinitionError => {
+        case sde: SchemaDefinitionDiagnosticBase => {
           pstate.discard(startState)
           throw sde
         }
@@ -278,11 +278,11 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
           PE(pstate,
             "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
               "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
-            pstate.bytePos, erd.prettyName)
+            pstate.bytePos, erd.diagnosticDebugName)
           returnFlag = true
         } else {
           pstate.discard(priorState)
-          priorState = pstate.mark
+          priorState = pstate.mark("RepUnboundedParser3")
           pstate.mpstate.moveOverOneArrayIndexOnly
           returnFlag = false
         }

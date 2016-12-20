@@ -82,7 +82,7 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     // ISO-8859-1. The ISO-8859-1 check is done elsewhere, so to allow pattern
     // lengths, either this must be scannable or the type must be xs:hexBinary.
     // Anything else is an error.
-    e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
+    e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.diagnosticDebugName)
   }
 
   override lazy val parser: Parser = new SpecifiedLengthPatternParser(

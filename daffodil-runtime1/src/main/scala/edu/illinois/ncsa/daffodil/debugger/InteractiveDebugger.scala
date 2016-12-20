@@ -183,7 +183,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
         if (after.status ne Success) {
           debugPrintln("failure:")
-          debugPrintln("%s".format(after.diagnostics.head.getMessage), "  ")
+          debugPrintln("%s".format(after.diagnostics.head.getMessage()), "  ")
         }
 
         if (debugState == DebugState.Trace) {
@@ -365,9 +365,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       DebuggerConfig.breakpoints
         .filter(_.enabled)
         .filter { bp =>
-          bp.breakpoint == processor.context.prettyName ||
-            bp.breakpoint == processor.context.path ||
-            "element." + bp.breakpoint == processor.context.prettyName
+          bp.breakpoint == processor.context.diagnosticDebugName ||
+            bp.breakpoint == processor.context.path
         }
         .find { bp =>
           bp.condition match {
@@ -400,7 +399,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
     val sw = new java.io.StringWriter()
-    ie.toWriter(sw, removeHidden=DebuggerConfig.removeHidden, allowUnsetValues=true)
+    ie.toWriter(sw, removeHidden = DebuggerConfig.removeHidden, allowUnsetValues = true)
     debugPrintln(sw.toString)
   }
 
@@ -1094,7 +1093,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             } catch {
               case s: scala.util.control.ControlThrowable => throw s
               case u: UnsuppressableException => throw u
-              case e: Throwable => throw new DebugException("failed to write history file: " + e.getMessage)
+              case e: Throwable => throw new DebugException("failed to write history file: " + e.getMessage())
             }
           }
         }
@@ -1444,7 +1443,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
           val sw = new java.io.StringWriter()
           val infoset = getInfoset(state.infoset)
-          infoset.toWriter(sw, removeHidden=DebuggerConfig.removeHidden, allowUnsetValues=true)
+          infoset.toWriter(sw, removeHidden = DebuggerConfig.removeHidden, allowUnsetValues = true)
           val infosetString = sw.toString()
           val lines = infosetString.split("\n")
           val tailLines =

@@ -346,7 +346,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    *
    * @return diagnostic message in string form
    */
-  def getMessage(): String = d.getMessage
+  def getMessage(): String = d.getMessage()
 
   override def toString() = d.toString
 

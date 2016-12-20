@@ -279,11 +279,11 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
           val occurrence = actualOccurs - 1
           if (isUnbounded && occurrence < minOccurs)
             state.validationError("%s occurred '%s' times when it was expected to be a " +
-              "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
+              "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
               occurrence, minOccurs)
           else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
             state.validationError("%s occurred '%s' times when it was expected to be a " +
-              "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
+              "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
               occurrence, minOccurs, maxOccurs)
         }
         case _ => // ok

@@ -56,7 +56,7 @@ class TestImplicits {
         2 + 2
       }
     }
-    assertTrue(e.getMessage.contains("Failed to intercept"))
+    assertTrue(e.getMessage().contains("Failed to intercept"))
   }
 
   @Test
@@ -67,7 +67,7 @@ class TestImplicits {
         throw new Exception("yadda")
       }
     }
-    assertTrue(e.getMessage.contains("Expected 'java.io.FileNotFoundException'"))
+    assertTrue(e.getMessage().contains("Expected 'java.io.FileNotFoundException'"))
   }
 
 }

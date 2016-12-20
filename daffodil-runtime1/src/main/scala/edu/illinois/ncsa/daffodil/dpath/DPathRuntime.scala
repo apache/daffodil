@@ -112,11 +112,11 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         // all the pieces are constant, but evaluating will throw NumberFormatException
         // or dfdl:length='{ 5 / 0 }' - contrived yes, but in larger expressions misakes like this
         // are typically typographical errors so it is good to pick them up here.
-        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
+        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
-        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
-        case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
+        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
       }
     val res =
       if (isConstant) Some(dstate.currentValue) else None

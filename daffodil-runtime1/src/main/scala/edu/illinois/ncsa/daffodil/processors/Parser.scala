@@ -252,7 +252,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
       parser = childParsers(i)
       i += 1
       log(LogLevel.Debug, "Trying choice alternative: %s", parser)
-      pBefore = pstate.mark
+      pBefore = pstate.mark("AltCompParser1")
       parser.parse1(pstate)
       if (pstate.status eq Success) {
         log(LogLevel.Debug, "Choice alternative success: %s", parser)

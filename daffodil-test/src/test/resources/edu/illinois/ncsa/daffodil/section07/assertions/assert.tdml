@@ -1187,4 +1187,71 @@
     </tdml:warnings>
   </tdml:parserTestCase>
 
+ <tdml:defineSchema name="s4">
+  <dfdl:format
+   ref="ex:daffodilTest1"
+   lengthKind="delimited" />
+   
+  <xs:element name="e1">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element
+      name="e2"
+      type="xs:string"
+     >
+      <xs:annotation>
+       <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert>{ xs:int(.) eq 5 }</dfdl:assert>
+       </xs:appinfo>
+      </xs:annotation>
+     </xs:element>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+ <xs:element name="e2">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element
+     name="e3"
+     type="xs:int"
+     dfdl:inputValueCalc='{ xs:int("notANumber") }' />
+   </xs:sequence>
+  </xs:complexType>
+ </xs:element>
+
+ </tdml:defineSchema>
+
+ <tdml:parserTestCase
+  name="testNumberFormatErrorInExprRuntime"
+  root="e1"
+  model="s4"
+  description="a number format error at runtime in an expression should be PE, not SDE"
+  roundTrip="false"
+ >
+  <tdml:document>notANumber</tdml:document>
+
+  <tdml:errors>
+   <tdml:error>Parse Error</tdml:error>
+   <tdml:error>cannot convert</tdml:error>
+   <tdml:error>notANumber</tdml:error>
+  </tdml:errors>
+ </tdml:parserTestCase>
+
+ <tdml:parserTestCase
+  name="testNumberFormatErrorInExprCompileTime"
+  root="e2"
+  model="s4"
+  description="a number format error at compile time in an expression should be SDE, not PE"
+  roundTrip="false"
+ >
+  <tdml:document/>
+  <tdml:errors>
+   <tdml:error>Schema Definition Error</tdml:error>
+   <tdml:error>cannot convert</tdml:error>
+   <tdml:error>notANumber</tdml:error>
+  </tdml:errors>
+ </tdml:parserTestCase>
+ 
+
 </tdml:testSuite>

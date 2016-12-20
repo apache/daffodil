@@ -1246,7 +1246,7 @@ case class VariableRef(val qnameString: String)
 
   lazy val theQName: GlobalQName = {
     val refQ = resolveRef(qnameString)
-    val global = QName.createGlobal(refQ.local, refQ.namespace)
+    val global = QName.createGlobal(refQ.local, refQ.namespace, namespaces)
     global
   }
 

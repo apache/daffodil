@@ -48,18 +48,22 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
         units match {
           case LengthUnits.Bits => lengthState(elt).lengthInBits
           case LengthUnits.Bytes => lengthState(elt).lengthInBytes
-          case LengthUnits.Characters =>
+          case LengthUnits.Characters => {
+            //
             // TODO: We could warn about taking lengthInCharacters of something
-            // that isn't all text, but it's not required that it be purely 
-            // text. DFDL lets you mix text and binary and then search it for 
+            // that isn't all text, but it's not required that it be purely
+            // text. DFDL lets you mix text and binary and then search it for
             // delimiters or run regex patterns to parse it. You have to know what
-            // you are doing. 
+            // you are doing.
             // Furthermore, in fixed-width encodings, this length can be computed
             // from the length-in-bits by just dividing by a codepoint width
             // code point width.
             //
-            throw new IllegalArgumentException("dfdl:%sLength's second argument of 'characters' is not yet supported.".format(kind))
-            //lengthState(elt).lengthInCharacters
+            val nyi = new IllegalArgumentException(
+              "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(kind))
+            elt.erd.SDE(nyi)
+            // lengthState(elt).lengthInCharacters
+          }
         }
       }
     len
@@ -83,14 +87,14 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
 }
 
 case class DFDLContentLength(recipes: List[CompiledDPath])
-    extends DFDLLengthFunctionBase("content", recipes) {
+  extends DFDLLengthFunctionBase("content", recipes) {
 
   override protected def lengthState(elt: DIElement) = elt.contentLength
 
 }
 
 case class DFDLValueLength(recipes: List[CompiledDPath])
-    extends DFDLLengthFunctionBase("value", recipes) {
+  extends DFDLLengthFunctionBase("value", recipes) {
 
   override protected def lengthState(elt: DIElement) =
     elt.valueLength

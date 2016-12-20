@@ -33,10 +33,11 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+
 import edu.illinois.ncsa.daffodil.dsom.IIUtils.IIMap
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
 
 /**
  * A schema document corresponds to one file usually named with an ".xsd" extension.

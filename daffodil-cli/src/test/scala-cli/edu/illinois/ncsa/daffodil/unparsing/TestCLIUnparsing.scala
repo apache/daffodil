@@ -346,16 +346,16 @@ class TestCLIunparsing {
       val cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate on """, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
-      shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+      shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
       cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate """, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
       shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
-      shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+      shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
       cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate limited """, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+      shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
       cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate off """, Util.binPath, testSchemaFile)
       shell.sendLine(cmd)

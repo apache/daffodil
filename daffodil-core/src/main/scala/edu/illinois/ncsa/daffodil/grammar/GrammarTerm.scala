@@ -74,9 +74,9 @@ abstract class Gram(contextArg: SchemaComponent)
 
   private[grammar] def deref = this // override in Prod
 
-  def name: String = prettyName
+  def name: String = diagnosticDebugName
 
-  override lazy val path = context.path + "%" + prettyName
+  override lazy val path = context.path + "%" + diagnosticDebugName
 
   def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
 

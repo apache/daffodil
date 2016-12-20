@@ -49,7 +49,7 @@ class TestByteBufferDataInputStream2 {
   @Test def testMark1 {
     val dis = ByteBufferDataInputStream(ten)
     var bb = ByteBuffer.allocate(10)
-    val m1 = dis.mark
+    val m1 = dis.mark("testMark1")
     var n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
     assertEquals(10, n.get)
@@ -84,12 +84,12 @@ class TestByteBufferDataInputStream2 {
       val n = dis.fillByteBuffer(bb)
       assertTrue(n.isDefined)
       assertEquals(5, n.get)
-      m1 = dis.mark
+      m1 = dis.mark("testMark2")
       assertFalse(dis.asIteratorChar.hasNext)
     }
     dis.setBitLimit0b(MaybeULong(10 * 8))
     var n = dis.fillByteBuffer(bb)
-    dis.mark
+    dis.mark("testMark2b")
     assertEquals(MaybeInt(5), n)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
@@ -123,11 +123,11 @@ class TestByteBufferDataInputStream2 {
     var n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
     assertEquals(5, n.get)
-    val m1 = dis.mark
+    val m1 = dis.mark("testMark3")
     assertFalse(dis.asIteratorChar.hasNext)
     dis.resetBitLimit0b(MaybeULong(10 * 8))
     n = dis.fillByteBuffer(bb)
-    val m2 = dis.mark
+    val m2 = dis.mark("testMark3b")
     assertEquals(MaybeInt(5), n)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }

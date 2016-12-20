@@ -4617,7 +4617,7 @@ c]]></value>
     <tdml:document>p455w0rd</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Expression evaluation failed</tdml:error>
+        <tdml:error>expression evaluation error</tdml:error>
         <tdml:error>Value 1 is out of range</tdml:error>
         <tdml:error>with length 0</tdml:error>
       </tdml:errors>
@@ -4636,7 +4636,7 @@ c]]></value>
     <tdml:document>p455w0rd</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Expression evaluation failed</tdml:error>
+        <tdml:error>expression evaluation error</tdml:error>
         <tdml:error>Value -1 is out of range</tdml:error>
         <tdml:error>with length 0</tdml:error>
       </tdml:errors>
@@ -5387,7 +5387,7 @@ c]]></value>
     <tdml:document>a|b|c;0</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>expression evaluation error</tdml:error>
       <tdml:error>Value 0</tdml:error>
       <tdml:error>arr</tdml:error>
       <tdml:error>length 3</tdml:error>
@@ -5405,7 +5405,7 @@ c]]></value>
     <tdml:document>a|b|c;4</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>expression evaluation error</tdml:error>
       <tdml:error>Value 4</tdml:error>
       <tdml:error>arr</tdml:error>
       <tdml:error>length 3</tdml:error>
@@ -5423,7 +5423,7 @@ c]]></value>
     <tdml:document>a|b|c;-1</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>expression evaluation error</tdml:error>
       <tdml:error>Value -1</tdml:error>
       <tdml:error>arr</tdml:error>
       <tdml:error>length 3</tdml:error>

@@ -78,12 +78,12 @@ class TestInfosetDefaultingInUnparser {
     val compiler = Compiler()
     val pf = compiler.compileNode(sch)
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
 

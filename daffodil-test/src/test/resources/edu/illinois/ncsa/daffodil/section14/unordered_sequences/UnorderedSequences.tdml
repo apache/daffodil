@@ -328,7 +328,7 @@
 			<tdml:error>Expression</tdml:error>
 			<tdml:error>../e3</tdml:error>
 			<tdml:error>navigates to another branch</tdml:error>
-			<tdml:error>element.e3</tdml:error>
+			<tdml:error>e3</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -718,7 +718,7 @@
 			<tdml:error>to</tdml:error>
 			<tdml:error>another</tdml:error>
 			<tdml:error>branch</tdml:error>
-			<tdml:error>element.uoMember1</tdml:error>
+			<tdml:error>uoMember1</tdml:error>
 			<tdml:error>of</tdml:error>
 			<tdml:error>same</tdml:error>
 			<tdml:error>choice</tdml:error>
@@ -738,7 +738,7 @@
 			<tdml:error>branch</tdml:error>
 			<tdml:error>another</tdml:error>
 			<tdml:error>choice</tdml:error>
-			<tdml:error>element.USG_03::LocalComplexTypeDef::sequence::element.choiceElement::LocalComplexTypeDef::choice</tdml:error>
+			<tdml:error>USG_03::LocalComplexTypeDef::sequence::element.choiceElement::LocalComplexTypeDef::choice</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -755,7 +755,7 @@
 			<tdml:error>branch</tdml:error>
 			<tdml:error>another</tdml:error>
 			<tdml:error>choice</tdml:error>
-			<tdml:error>element.USG_04::LocalComplexTypeDef::sequence::element.choice::LocalComplexTypeDef::choice</tdml:error>
+			<tdml:error>USG_04::LocalComplexTypeDef::sequence::element.choice::LocalComplexTypeDef::choice</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -865,7 +865,7 @@
 		<tdml:errors>
 			<tdml:error>Members of an unordered sequence (element.SDE_02::LocalComplexTypeDef::sequence)</tdml:error>
 			<tdml:error>that are optional or array elements must have dfdl:occursCountKind='parsed'.</tdml:error>
-			<tdml:error>The offending members: element.ruh-oh.</tdml:error>
+			<tdml:error>The offending members: ruh-oh.</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 

@@ -191,11 +191,11 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
 
       if (isUnbounded && occurrence < minO)
         start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
+          "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
           occurrence, minO)
       else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
         start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
+          "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
           occurrence, minO, maxO)
       else {
         //ok

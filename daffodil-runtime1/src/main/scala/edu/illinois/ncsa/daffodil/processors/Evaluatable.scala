@@ -506,7 +506,7 @@ abstract class EvaluatableExpression[ExprType <: AnyRef](
 
   override lazy val runtimeDependencies = Nil
 
-  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + rd.prettyName + "' expr=" + expr.toBriefXML() + " />"
+  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + rd.diagnosticDebugName + "' expr=" + expr.toBriefXML() + " />"
 
   override protected def compute(state: ParseOrUnparseState): ExprType = eval(expr, state)
 

@@ -60,11 +60,15 @@ trait ThinThrowableWithCause extends ThinThrowable { self: Throwable =>
 
   // The cause for this exception. Override this rather than passing the cause
   // as an argument to the Throwable constructor.
-  val throwableCause: Throwable
+  def throwableCause: Throwable
 
-  override lazy val getMessage: String = throwableCause.getMessage
+  private lazy val message_ = throwableCause.getMessage()
 
-  override lazy val getCause: Throwable = throwableCause
+  override def getMessage(): String = message_
+
+  private lazy val cause_ = throwableCause
+
+  override def getCause(): Throwable = cause_
 }
 
 abstract class UnsuppressableException(m: String) extends Exception(m) {

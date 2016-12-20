@@ -181,7 +181,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
             SDE("UPA violation. Multiple choice branches begin with %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
               "The offending choice branches are:\n%s",
-              event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
+              event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
           } else {
             val eventType = event match {
               case _: ChoiceBranchEndEvent => "end"
@@ -192,7 +192,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
               "The offending choice branches are:\n%s\n" +
               "The first branch will be used during unparsing when an infoset ambiguity exists.",
-              eventType, event.qname, trds.map { trd => "%s at %s".format(trd.prettyName, trd.locationDescription) }.mkString("\n"))
+              eventType, event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
           }
         }
         (event, trds(0).runtimeData)
@@ -208,7 +208,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
       schemaFileLocation,
       dpathCompileInfo,
-      prettyName,
+      diagnosticDebugName,
       path,
       namespaces,
       defaultBitOrder,

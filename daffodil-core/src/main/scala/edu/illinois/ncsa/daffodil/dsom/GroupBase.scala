@@ -50,7 +50,7 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     }.getOrElse("")
   }
 
-  override lazy val prettyName = prettyBaseName + prettyIndex
+  override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
   protected def prettyBaseName: String
 
   final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }

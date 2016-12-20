@@ -199,7 +199,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     ev
   }
 
-  final def initiatorLoc = (this.prettyName, this.path)
+  final def initiatorLoc = (this.diagnosticDebugName, this.path)
 
   final protected lazy val terminatorExpr = LV('terminator) {
     val qn = this.qNameForProperty("terminator")
@@ -208,7 +208,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, terminatorRaw)
   }.value
 
-  final def terminatorLoc = (this.prettyName, this.path)
+  final def terminatorLoc = (this.diagnosticDebugName, this.path)
 
   lazy val terminatorParseEv = {
     val ev = new TerminatorParseEv(terminatorExpr, isLengthKindDelimited, decl.termRuntimeData)
@@ -527,7 +527,7 @@ trait SequenceRuntimeValuedPropertiesMixin
     ev
   }
 
-  final def separatorLoc = (this.prettyName, this.path)
+  final def separatorLoc = (this.diagnosticDebugName, this.path)
 
   private lazy val myPropertyContentReferencedElementInfos =
     super.propertyContentReferencedElementInfos ++

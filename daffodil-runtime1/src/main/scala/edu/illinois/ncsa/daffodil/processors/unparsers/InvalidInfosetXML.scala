@@ -54,7 +54,7 @@ object InvalidInfosetXML {
     err(info, "An error occurred: %s.\n Last event occured on line %s", DiagnosticUtils.getSomeMessage(xse).get, xev.getLocation.getLineNumber)
 
   def missingInfosetContent(info: ElementRuntimeData): Nothing =
-    err(info, "No infoset XML found. Expected %s.", info.prettyName)
+    err(info, "No infoset XML found. Expected %s.", info.diagnosticDebugName)
 
   def illegalContentWhereTagExpected(info: ElementRuntimeData, xev: XMLEvent): Nothing =
     err(info, "Illegal content where element tag expected on line %s", xev.getLocation.getLineNumber)

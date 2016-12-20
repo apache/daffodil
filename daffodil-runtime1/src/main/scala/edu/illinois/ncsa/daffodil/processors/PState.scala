@@ -63,6 +63,13 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.processors.charset.EncoderDecoderMixin
+import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Poolable
 
 object MPState {
 
@@ -198,8 +205,12 @@ abstract class ParseOrUnparseState protected (
 
   final def setFailed(failureDiagnostic: Diagnostic) {
     // threadCheck()
-    status_ = new Failure(failureDiagnostic)
-    diagnostics = failureDiagnostic :: diagnostics
+    if (!diagnostics.contains(failureDiagnostic)) {
+      status_ = new Failure(failureDiagnostic)
+      diagnostics = failureDiagnostic :: diagnostics
+    } else {
+      Assert.invariant(status ne Success)
+    }
   }
 
   /**
@@ -268,6 +279,13 @@ abstract class ParseOrUnparseState protected (
 
   def hasInfoset: Boolean
   def infoset: InfosetItem
+
+  def maybeERD = {
+    if (hasInfoset)
+      Maybe(getContext())
+    else
+      Nope
+  }
 
   def thisElement: InfosetElement
 
@@ -358,12 +376,12 @@ final class PState private (
   var infoset: DIElement,
   var dataInputStream: DataInputStream,
   vmap: VariableMap,
-  status: ProcessorResult,
+  statusArg: ProcessorResult,
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), status) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), statusArg) {
 
   override def currentNode = Maybe(infoset)
 
@@ -392,10 +410,10 @@ final class PState private (
 
   private val markPool = new PState.MarkPool
 
-  def mark: PState.Mark = {
+  def mark(requestorID: String): PState.Mark = {
     // threadCheck()
-    val m = markPool.getFromPool
-    m.captureFrom(this)
+    val m = markPool.getFromPool(requestorID)
+    m.captureFrom(this, requestorID)
     m
   }
 
@@ -467,12 +485,12 @@ final class PState private (
 
   def reportValidationError(msg: String, args: Any*) {
     val ctxt = getContext()
-    val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
+    val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
     diagnostics = vde :: diagnostics
   }
 
-  def reportValidationErrorNoContext(msg: String, args: Any*) {
-    val vde = new ValidationError(None, this, msg, args: _*)
+  def reportValidationErrorNoContext(cause: Throwable): Unit = {
+    val vde = new ValidationError(this, cause)
     diagnostics = vde :: diagnostics
   }
 
@@ -505,7 +523,7 @@ object PState {
    * things a PState contains that have their own mark/reset protocol,
    * and is a copy of everything else in PState.
    */
-  class Mark {
+  class Mark extends Poolable {
 
     def bitPos0b = disMark.bitPos0b
 
@@ -530,13 +548,13 @@ object PState {
       mpStateMark.clear()
     }
 
-    def captureFrom(ps: PState) {
+    def captureFrom(ps: PState, requestorID: String) {
       val e = ps.thisElement
       if (e.isSimple)
         simpleElementState.captureFrom(e)
       else
         complexElementState.captureFrom(e)
-      this.disMark = ps.dataInputStream.mark
+      this.disMark = ps.dataInputStream.mark(requestorID)
       this.variableMap = ps.variableMap
       this.status = ps.status
       this.diagnostics = ps.diagnostics

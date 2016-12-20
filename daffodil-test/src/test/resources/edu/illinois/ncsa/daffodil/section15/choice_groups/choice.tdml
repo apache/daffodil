@@ -1505,7 +1505,7 @@ it sure is/
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Branch of choice element</tdml:error>
+      <tdml:error>Branch of choice</tdml:error>
       <tdml:error>must be non-optional</tdml:error>
     </tdml:errors>
 
@@ -1541,7 +1541,7 @@ it sure is/
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Branch of choice element</tdml:error>
+      <tdml:error>Branch of choice</tdml:error>
       <tdml:error>cannot have the dfdl:inputValueCalc property</tdml:error>
     </tdml:errors>
 

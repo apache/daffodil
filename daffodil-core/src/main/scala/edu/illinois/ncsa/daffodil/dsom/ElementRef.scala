@@ -79,7 +79,15 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   final lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
     val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
-      case None => SDE("Referenced element not found: %s.", this.ref)
+      case None => {
+        //
+        // this element ref refers to something not found.
+        //
+        // That might be because the QName namespace prefix is no good, or
+        // because there is no element with that global name.
+        //
+        SDE("Referenced element not found: %s.", this.ref)
+      }
       case Some(x) => x.forElementRef(this)
     }
     res
@@ -101,32 +109,11 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   def isDefaultable: Boolean = referencedElement.isDefaultable
   def defaultValueAsString = referencedElement.defaultValueAsString
 
-  override lazy val namespace = namedQName.namespace
+  override lazy val namespace = refQName.namespace
 
-  override lazy val prettyName = "element." + name
+  override lazy val diagnosticDebugName = "element reference " + name
 
-  /**
-   * valueOrElse....not just .value because when trying to get a diagnostic message out about
-   * something, but then you get another failure just trying to get the
-   * name of the thing that was causing the original diagnostic, so you
-   * end up getting a completely inscrutable situation.
-   *
-   * So I made key things that are part of diagnostic messages have this
-   * "always creates some value" behavior.
-   *
-   * Historic note:
-   * I am hoping this problem will be less now. Some of it was because
-   * we were failing validation, but then still running the rest of
-   * the compiler which would then have errors it was not designed
-   * to cope with like xs:element with no name or ref attribute.
-   * Which would cause the above situation where just trying to get
-   * the name was failing.
-   */
-  override lazy val name = nameFromRef
-  private def nameFromRef = nameFromRef_.valueOrElse("?name?")
-  private def nameFromRef_ = LV('nameFromRef) {
-    namedQName.local
-  }
+  override lazy val name = this.ref
 
   // TODO: perhaps many members of ElementRef are unused.
   // Consider removing some. Although consider that

@@ -43,8 +43,25 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
 
   private lazy val xsdRef = getAttributeRequired("ref")
+
+  /**
+   * This is the only "safe" thing to use as the name of this
+   * object for diagnostic/debug purposes.
+   *
+   * The problem is that the ref might not actually dereference to anything.
+   * The namespace prefix could be invalid, or there may not be any object
+   * that is the target of the reference.
+   *
+   * We need to be able to issue diagnostics even if those failures are there,
+   * so use this to provide name/info. Not something that could fail
+   * on resolving.
+   */
   lazy val ref = xsdRef
 
+  /**
+   * This just resolves the namespace prefix. But even that might fail
+   *  if there is no namespace definition for it.
+   */
   lazy val refQName = resolveQName(ref)
 }
 

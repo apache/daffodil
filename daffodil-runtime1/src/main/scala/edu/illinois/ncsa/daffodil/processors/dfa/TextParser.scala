@@ -53,7 +53,7 @@ class TextParser(
     delimIter.reset()
     while (delimIter.hasNext()) {
       val d = delimIter.next()
-      val reg = TLRegistersPool.getFromPool()
+      val reg = TLRegistersPool.getFromPool("TextParser1")
       reg.reset(input, delimIter, m)
       m = input.markPos
       d.run(reg)

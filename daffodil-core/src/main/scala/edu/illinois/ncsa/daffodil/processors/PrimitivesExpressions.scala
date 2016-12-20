@@ -266,7 +266,7 @@ case class InputValueCalc(e: ElementBase,
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
   extends Terminal(decl, true) {
 
-  lazy val eName = decl.prettyName
+  lazy val eName = decl.diagnosticDebugName
   lazy val testPattern = {
     PatternChecker.checkPattern(stmt.testTxt, decl)
     stmt.testTxt

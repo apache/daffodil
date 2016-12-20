@@ -63,7 +63,21 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
   @inline final def toList: List[T] = if (isEmpty) List() else new ::(get, Nil)
   @inline final def toSeq: Seq[T] = toList
   @inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
-  @inline final def orNull[U >: T](implicit ev: Null <:< U): U = get
+
+  /**
+   * This is the back convert
+   * {{{
+   * val thing: T = ......something that returns null
+   * val maybeThing: Maybe[T] = Maybe(thing)
+   * assert (maybeThing eq Maybe.Nope) // null becomes Nope (unlike scala Option types where Some(null) is possible. That's not possible with Maybe
+   *
+   * // to call an API that uses the object or null conventions....
+   *
+   * val thingy : T = maybeThing.orNull
+   * assert (thingy eq null) // back to an object of type T or null if not present.
+   * }}}
+   */
+  @inline final def orNull: T = if (isEmpty) null.asInstanceOf[T] else value
   //  @inline final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
   //  @inline final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
   //  @inline final def withFilter(f: T => Boolean): Maybe[T] = filter(f)

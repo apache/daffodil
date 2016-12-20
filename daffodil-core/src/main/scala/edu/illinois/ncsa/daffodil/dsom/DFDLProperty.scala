@@ -34,12 +34,16 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq
+import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
   with NamedMixin {
 
-  override lazy val path = formatAnnotation.path + "::" + prettyName
+  override lazy val namedQName = QName.createGlobal(name, XMLUtils.DFDL_NAMESPACE, xml.scope)
+
+  override lazy val path = formatAnnotation.path + "::" + diagnosticDebugName
 
   override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC
 

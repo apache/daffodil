@@ -50,7 +50,7 @@ class TextPaddingParser(val padChar: Char,
 
   def parse(input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
 
-    val paddingReg: Registers = TLRegistersPool.getFromPool()
+    val paddingReg: Registers = TLRegistersPool.getFromPool("TextPaddingParser1")
 
     paddingReg.reset(input, delimIter)
 

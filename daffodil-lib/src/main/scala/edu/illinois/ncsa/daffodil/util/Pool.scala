@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.util
 
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import scala.collection.mutable
 
 /**
  * A pool is a collection of objects that are manually recycled usually via
@@ -46,26 +47,53 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  * Either a pool becomes part of a state block that is separate per thread,
  * or it must be made using a ThreadLocal to get one per thread automatically.
  */
-trait Pool[T <: AnyRef] {
+
+/**
+ *  Derive from this for debug purposes if you want to pool things.
+ */
+trait Poolable {
+  /**
+   * The debug label is used to report diagnostics about pool management errors.
+   * It helps to pinpoint the problematic place where pooled items are being
+   * mismanaged. You end up passing say, Misc.getNameFromClass() to this.
+   */
+  private var poolDebugLabel_ : String = null
+  final def setPoolDebugLabel(debugLabel: String): Unit = { poolDebugLabel_ = debugLabel }
+  final def poolDebugLabel: String = poolDebugLabel_
+}
+
+trait Pool[T <: Poolable] {
 
   private val pool = new MStackOf[T]
+
+  /**
+   * Keeps track of pool objects that have not been freed for debug
+   * purposes.
+   */
+  private val inUse = new mutable.HashSet[T]
 
   private var numOutstanding: Int = 0
 
   protected def allocate: T
 
-  final def getFromPool: T = {
+  final def getFromPool(debugLabel: String): T = {
     numOutstanding += 1
-    if (pool.isEmpty) {
-      allocate
-    } else {
-      pool.pop.asInstanceOf[T]
-    }
+    val instance =
+      if (pool.isEmpty) {
+        allocate
+      } else {
+        pool.pop.asInstanceOf[T]
+      }
+    instance.setPoolDebugLabel(debugLabel)
+    inUse += instance
+    instance
   }
 
   final def returnToPool(thing: T) {
     numOutstanding -= 1
     pool.push(thing)
+    inUse -= thing
+    thing.setPoolDebugLabel(null)
   }
 
   /**
@@ -77,7 +105,8 @@ trait Pool[T <: AnyRef] {
    */
   final def finalCheck {
     if (!(numOutstanding =#= 0)) {
-      val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)."
+      val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
+        "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")
       Assert.invariantFailed(msg)
     }
   }

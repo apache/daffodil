@@ -116,9 +116,9 @@ trait ElementBaseGrammarMixin
         (maybeUnparseTargetLengthInBitsEv.isDefined &&
           (justificationPad ne TextJustificationType.None)) // None if not text.
     //    if (res)
-    //      println("%s should add padding.".format(this.prettyName))
+    //      println("%s should add padding.".format(this.diagnosticDebugName))
     //    else
-    //      println("%s NOT adding padding.".format(this.prettyName))
+    //      println("%s NOT adding padding.".format(this.diagnosticDebugName))
     res
   }
 
@@ -139,9 +139,9 @@ trait ElementBaseGrammarMixin
           couldBeVariableLengthInfoset &&
           (lengthUnits ne LengthUnits.Characters))
     //    if (res)
-    //      println("%s should add fill.".format(this.prettyName))
+    //      println("%s should add fill.".format(this.diagnosticDebugName))
     //    else
-    //      println("%s NOT adding fill.".format(this.prettyName))
+    //      println("%s NOT adding fill.".format(this.diagnosticDebugName))
     res
   }
 
@@ -309,9 +309,9 @@ trait ElementBaseGrammarMixin
         !isTruncatable &&
         isSpecifiedLengthForUnparsing
     //    if (res)
-    //      println("%s should check excess length.".format(this.prettyName))
+    //      println("%s should check excess length.".format(this.diagnosticDebugName))
     //    else
-    //      println("%s NOT checking excess length.".format(this.prettyName))
+    //      println("%s NOT checking excess length.".format(this.diagnosticDebugName))
     res
   }
 

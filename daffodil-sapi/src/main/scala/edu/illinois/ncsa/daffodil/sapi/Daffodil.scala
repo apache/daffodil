@@ -330,7 +330,7 @@ class Diagnostic private[sapi] (d: SDiagnostic) {
    *
    * @return diagnostic message in string form
    */
-  def getMessage(): String = d.getMessage
+  def getMessage(): String = d.getMessage()
 
   override def toString() = d.toString
 

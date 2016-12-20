@@ -89,7 +89,7 @@ final class StringDataInputStreamForUnparse
   override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
   override def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
     dis.lookingAt(matcher, initialRegexMatchLimitInChars)
-  override def mark: DataInputStream.Mark = dis.mark
+  override def mark(requestorID: String): DataInputStream.Mark = dis.mark(requestorID)
   override def markPos = dis.markPos
   override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)

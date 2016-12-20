@@ -32,9 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.util.Misc
 
 object DiagnosticUtils {
@@ -66,7 +63,7 @@ object DiagnosticUtils {
     }
     Some(res)
   }
-
+    
   def getSomeCause(th: Throwable): Some[Throwable] = {
     val c = th.getCause()
     val res = c match {
@@ -77,11 +74,3 @@ object DiagnosticUtils {
   }
 }
 
-trait DiagnosticImplMixin
-  extends Diagnostic {
-  def getSomeCause = DiagnosticUtils.getSomeCause(this)
-  def getSomeMessage = DiagnosticUtils.getSomeMessage(this)
-  def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = Nil
-  def getDataLocations: Seq[DataLocation] = Nil
-  def isError = true
-}

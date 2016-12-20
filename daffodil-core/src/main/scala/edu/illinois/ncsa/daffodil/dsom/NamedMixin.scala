@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
-import edu.illinois.ncsa.daffodil.util.Misc
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -44,13 +43,12 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
  */
 trait NamedMixin
   extends GetAttributesMixin { self: SchemaComponentBase =>
-  override lazy val prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
 
   requiredEvaluations(name)
 
   lazy val name = getAttributeOption("name").getOrElse("??name??")
 
-  def xml: Node
+  override def xml: Node
   def schemaDocument: SchemaDocument
 
   lazy val namespace = schemaDocument.targetNamespace // can be "" meaning no namespace
@@ -60,7 +58,10 @@ trait NamedMixin
     prefix
   }
 
-  def namedQName: NamedQName = Assert.usageError("Should not be called")
+
+  def namedQName: NamedQName
+
+  override lazy val diagnosticDebugName = namedQName.diagnosticDebugName
 
 }
 
@@ -88,7 +89,8 @@ trait GlobalComponentMixin
     referringComponent
   }
 
-  override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace)
+  override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace, xml.scope)
+
 }
 
 /**

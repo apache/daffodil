@@ -41,6 +41,7 @@ import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Poolable
 
 /*
  * TODO:
@@ -144,7 +145,7 @@ object DataInputStream {
    * Use of mark/reset should eliminate any need for random-access setters of
    * the bit position.
    */
-  trait Mark {
+  trait Mark extends Poolable {
     def bitPos0b: Long
   }
 
@@ -256,6 +257,10 @@ trait DataInputStream
    * <p>
    * Multiple calls to mark will create distinct mark values.
    * <p>
+   * The requestorID argument is a string for debugging pool-management bugs. It
+   * identifies the code that is requesting the mark/reset. If resets are not done
+   * then at end of execution the non-reset requestorIDs are issued in an abort.
+   * <p>
    * Implementation Note: A mark is probably just an integer offset into an array
    * that is treated like a stack (top of stack at higher index value locations of
    * the array). So marking and resetting does not need to imply allocating
@@ -263,7 +268,7 @@ trait DataInputStream
    * <p>
    * In other words marking and resetting do not imply allocation of objects.
    */
-  def mark: Mark
+  def mark(requestorID: String): Mark
 
   /**
    * Resets the current state of the input stream to the position it had

@@ -100,16 +100,16 @@ class NullOutputStream extends OutputStream {
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
   def warning(exception: SAXParseException) = {
-    log(LogLevel.Warning, "loading schema: " + exception.getMessage)
+    log(LogLevel.Warning, "loading schema: " + exception.getMessage())
   }
 
   def error(exception: SAXParseException) = {
-    log(LogLevel.Error, "loading schema: " + exception.getMessage)
+    log(LogLevel.Error, "loading schema: " + exception.getMessage())
     System.exit(1)
   }
 
   def fatalError(exception: SAXParseException) = {
-    log(LogLevel.Error, "loading schema: " + exception.getMessage)
+    log(LogLevel.Error, "loading schema: " + exception.getMessage())
     System.exit(1)
   }
 }
@@ -1062,7 +1062,7 @@ object Main extends Logging {
                     fail += 1
                     if (testOpts.info() > 0) {
                       println("  Failure Information:")
-                      println(indent(e.getMessage, 4))
+                      println(indent(e.getMessage(), 4))
                       if (testOpts.info() > 1) {
                         println("  Logs:")
                         if (TDMLLogWriter.logs.size > 0) {
@@ -1135,7 +1135,7 @@ object Main extends Logging {
                           |
                           |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
                           |
-                          |""".format(e.getMessage).stripMargin)
+                          |""".format(e.getMessage()).stripMargin)
     1
   }
 
@@ -1145,26 +1145,26 @@ object Main extends Logging {
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
-        log(LogLevel.Error, "%s", e.getMessage)
+        log(LogLevel.Error, "%s", e.getMessage())
         1
       }
       case e: DaffodilTunableParameters.TunableLimitExceededError => {
-        log(LogLevel.Error, "%s", e.getMessage)
+        log(LogLevel.Error, "%s", e.getMessage())
         1
       }
       case e: InvalidParserException => {
-        log(LogLevel.Error, "%s", e.getMessage)
+        log(LogLevel.Error, "%s", e.getMessage())
         1
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
       }
       case e: TDMLException => {
-        log(LogLevel.Error, "%s", e.getMessage)
+        log(LogLevel.Error, "%s", e.getMessage())
         1
       }
       case e: InvalidJavaVersionException => {
-        log(LogLevel.Error, "%s", e.getMessage)
+        log(LogLevel.Error, "%s", e.getMessage())
         1
       }
       case e: Exception => {

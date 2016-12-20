@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -222,10 +221,13 @@ object OOLAG extends Logging {
     /**
      * For trace/debug output & diagnostic messages.
      */
-    lazy val prettyName = Misc.getNameFromClass(this)
+    lazy val diagnosticDebugName: String = {
+      val cn = Misc.getNameFromClass(this)
+      cn
+    }
 
     lazy val path: String = {
-      if (isOOLAGRoot) prettyName else oolagParent.path + ":" + prettyName
+      if (isOOLAGRoot) diagnosticDebugName else oolagParent.path + ":" + diagnosticDebugName
     }
 
     /**
@@ -674,9 +676,3 @@ final case class CircularDefinition(val lv: OOLAG.OOLAGValueBase, list: Seq[OOLA
   }
 }
 
-/**
- * this is for unit testing only
- */
-private[oolag] trait OOLAGDiagnosticMixin extends DiagnosticImplMixin {
-  override def isError = true
-}

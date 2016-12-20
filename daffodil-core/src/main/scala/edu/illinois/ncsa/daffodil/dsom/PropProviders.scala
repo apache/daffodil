@@ -71,7 +71,7 @@ trait LeafPropProvider
   // are any property bindings. if not, this should get removed
   // from any Seq[LeafPropProvider] it is put into.
 
-  def prettyName: String
+  def diagnosticDebugName: String
 
   /**
    * properties for just this object, but they can be
@@ -80,7 +80,7 @@ trait LeafPropProvider
   def justThisOneProperties: PropMap
 
   final def leafFindProperty(pname: String): PropertyLookupResult = {
-    log(LogLevel.Debug, "%s leafFindProperty %s on %s", prettyName, pname, this)
+    log(LogLevel.Debug, "%s leafFindProperty %s on %s", diagnosticDebugName, pname, this)
     val mine = justThisOneProperties.get(pname)
     val res = mine match {
       case Some((value, loc)) => {
@@ -99,7 +99,7 @@ trait LeafPropProvider
       }
       case None => NotFound(List(this), Nil, pname)
     }
-    log(LogLevel.Debug, "%s leafFindProperty %s ", prettyName, res)
+    log(LogLevel.Debug, "%s leafFindProperty %s ", diagnosticDebugName, res)
     res
   }
 
@@ -122,10 +122,10 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
 
   final lazy val leafProviders = leafProvidersArg
 
-  final lazy val prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
+  final lazy val diagnosticDebugName: String = "ChainPropProvider(" + forAnnotation + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
-    log(LogLevel.Debug, "%s chainFindProperty %s.", prettyName, pname)
+    log(LogLevel.Debug, "%s chainFindProperty %s.", diagnosticDebugName, pname)
     lookupPropertyInSources(leafProviders, pname)
   }
 

@@ -39,6 +39,6 @@ trait SimpleTypeBase
   with TypeChecks {
   // def context: SchemaComponent
   def primitiveType: PrimType
-  
+
   override def kind = primitiveType
 }

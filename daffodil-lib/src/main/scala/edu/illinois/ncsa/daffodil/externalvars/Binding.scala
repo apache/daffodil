@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.externalvars
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
 
-class Binding(val varQName: RefQName, val varValue: String) {
+class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
 
   override def toString() = {
     "<binding name='" + varQName + "'>" + varValue + "</binding>"
@@ -52,7 +52,11 @@ class Binding(val varQName: RefQName, val varValue: String) {
     }
   }
 
-  def globalQName = QName.createGlobal(varQName.local, varQName.namespace)
+  def globalQName =
+    if (scope ne null)
+      QName.createGlobal(varQName.local, varQName.namespace, scope)
+    else
+      GlobalQName(varQName.prefix, varQName.local, varQName.namespace)
 }
 
 /**
@@ -66,14 +70,14 @@ object Binding {
    */
   def apply(extSyntax: String, value: String): Binding = {
     val tryRefQName = QName.refQNameFromExtendedSyntax(extSyntax)
-    new Binding(tryRefQName.get, value)
+    new Binding(tryRefQName.get, value, null)
   }
 
   def apply(node: Node): Binding = {
     val name = (node \ "@name").head.text
     val refQName = QName.resolveRef(name, node.scope)
     val value = node.text
-    new Binding(refQName.get, value)
+    new Binding(refQName.get, value, node.scope)
   }
 
   def apply(name: String, namespace: Option[NS], value: String): Binding = {

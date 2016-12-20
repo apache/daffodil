@@ -251,7 +251,7 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
 
   override val isReadOnly = true
 
-  override def toString = "target length for " + rd.prettyName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv.toBriefXML()
+  override def toString = "target length for " + rd.diagnosticDebugName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv.toBriefXML()
 
   /**
    * This override indicates that this operation itself doesn't correspond
@@ -381,10 +381,10 @@ class ElementUnusedUnparserSuspendableOperation(
     }
     if (skipInBits == 0) {
       log(LogLevel.Debug, "%s no fill for %s DOS %s.",
-        Misc.getNameFromClass(this), rd.prettyName, ustate.dataOutputStream)
+        Misc.getNameFromClass(this), rd.diagnosticDebugName, ustate.dataOutputStream)
     } else {
       log(LogLevel.Debug, "%s filled %s bits for %s DOS %s.",
-        Misc.getNameFromClass(this), skipInBits, rd.prettyName, ustate.dataOutputStream)
+        Misc.getNameFromClass(this), skipInBits, rd.diagnosticDebugName, ustate.dataOutputStream)
     }
   }
 

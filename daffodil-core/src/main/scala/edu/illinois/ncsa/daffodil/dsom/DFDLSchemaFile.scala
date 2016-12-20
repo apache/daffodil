@@ -75,7 +75,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     res
   }
 
-  override lazy val prettyName = schemaSource.uriForLoading.toString
+  override lazy val diagnosticDebugName = schemaSource.uriForLoading.toString
 
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
 
@@ -133,7 +133,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
       SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
     }
     val node = try {
-      log(LogLevel.Resolver, "Loading %s.", prettyName)
+      log(LogLevel.Resolver, "Loading %s.", diagnosticDebugName)
       val node = loader.load(schemaSource)
       schemaDefinitionUnless(node != null, "No XML Node could be loaded from %s.", schemaSource)
       node
@@ -166,7 +166,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
       }
       case _ => {
         val ns = NS(node.namespace)
-        schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s %s.", prettyName, node.label, ns.explainForMsg)
+        schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s %s.", diagnosticDebugName, node.label, ns.explainForMsg)
       }
     }
     sd

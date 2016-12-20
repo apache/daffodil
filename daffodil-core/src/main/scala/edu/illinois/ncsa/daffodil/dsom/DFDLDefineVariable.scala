@@ -76,9 +76,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   final def newVariableInstance = variableRuntimeData.newVariableInstance
 
-  // So that we can display the namespace information associated with
-  // the variable when toString is called.
-  final override lazy val prettyName = this.namedQName.toPrettyString
+  final override lazy val diagnosticDebugName = this.namedQName.diagnosticDebugName
 
   final override lazy val runtimeData = variableRuntimeData
 
@@ -94,7 +92,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   final lazy val variableRuntimeData = new VariableRuntimeData(
     this.schemaFileLocation,
-    this.prettyName,
+    this.diagnosticDebugName,
     this.path,
     this.namespaces,
     this.external,

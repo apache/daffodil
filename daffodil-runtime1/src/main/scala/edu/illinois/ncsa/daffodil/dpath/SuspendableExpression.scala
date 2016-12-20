@@ -45,27 +45,27 @@ trait SuspendableExpression
 
   protected def expr: CompiledExpression[AnyRef]
 
-  override def toString = "SuspendableExpression(" + rd.prettyName + ", expr=" + expr.prettyExpr + ")"
+  override def toString = "SuspendableExpression(" + rd.diagnosticDebugName + ", expr=" + expr.prettyExpr + ")"
 
   protected def processExpressionResult(ustate: UState, v: AnyRef): Unit
 
   override protected final def doTask(ustate: UState) {
     var v: Maybe[AnyRef] = Nope
     if (!isBlocked) {
-      log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+      log(LogLevel.Debug, "Starting suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
     } else {
       this.setUnblocked()
-      log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+      log(LogLevel.Debug, "Retrying suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
     }
     while (v.isEmpty && !this.isBlocked) {
       v = expr.evaluateForwardReferencing(ustate, this)
       if (v.isEmpty) {
         Assert.invariant(this.isBlocked)
-        log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+        log(LogLevel.Debug, "UnparserBlocking suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
       } else {
         Assert.invariant(this.isDone)
         Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-        log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.prettyName, expr.prettyExpr)
+        log(LogLevel.Debug, "Completed suspendable expression for %s, expr=%s", rd.diagnosticDebugName, expr.prettyExpr)
         processExpressionResult(ustate, v.get)
       }
     }

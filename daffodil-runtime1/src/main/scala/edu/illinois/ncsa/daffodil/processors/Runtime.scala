@@ -45,8 +45,6 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.util.Validator
 import org.xml.sax.SAXParseException
-import org.xml.sax.SAXException
-import edu.illinois.ncsa.daffodil.util.ValidationException
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import java.io.File
@@ -71,6 +69,7 @@ import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
+import org.xml.sax.SAXException
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -203,7 +202,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       doParse(ssrd.parser, state)
       val pr = new ParseResult(this, state)
       if (!pr.isError) {
-        pr.validateResult(state)
+        pr.validateResult()
       }
       val s = state
       val dp = s.dataProc
@@ -325,11 +324,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.unparseResult
       }
       case se: org.xml.sax.SAXException => {
-        unparserState.setFailed(new UnparseError(None, None, se.getMessage))
+        unparserState.setFailed(new UnparseError(None, None, se))
         unparserState.unparseResult
       }
       case e: scala.xml.parsing.FatalError => {
-        unparserState.setFailed(new UnparseError(None, None, e.getMessage))
+        unparserState.setFailed(new UnparseError(None, None, e))
         unparserState.unparseResult
       }
       case th: Throwable => throw th
@@ -377,45 +376,38 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   }
 
   /**
-   * Xerces validation.
-   */
-  private def validateWithXerces(state: PState): Unit = {
-    if (state.status eq Success) {
-      val schemaURIStrings = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
-      Validator.validateXMLSources(schemaURIStrings, result, this)
-    } else {
-      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
-    }
-  }
-
-  /**
    * To be successful here, we need to capture xerces parse/validation
    * errors and add them to the Diagnostics list in the PState.
    *
    * @param state the initial parse state.
    */
-  def validateResult(state: PState) {
+  def validateResult(): Unit = {
+    Assert.usage(resultState.status eq Success)
     if (dp.getValidationMode == ValidationMode.Full) {
+      val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
       try {
-        validateWithXerces(state)
+        Validator.validateXMLSources(schemaURIStrings, result, this)
       } catch {
-        case (se: SAXException) =>
-          state.reportValidationErrorNoContext(se.getMessage)
-
-        case (ve: ValidationException) =>
-          state.reportValidationErrorNoContext(ve.getMessage)
+        //
+        // Some SAX Parse errors are thrown even if you specify an error handler to the
+        // validator.
+        //
+        // So we also need this catch
+        //
+        case e: SAXException =>
+          resultState.reportValidationErrorNoContext(e)
       }
     }
   }
 
   override def warning(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe.getMessage)
+    resultState.reportValidationErrorNoContext(spe)
   }
   override def error(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe.getMessage)
+    resultState.reportValidationErrorNoContext(spe)
   }
   override def fatalError(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe.getMessage)
+    resultState.reportValidationErrorNoContext(spe)
   }
 
   lazy val isValidationSuccess = {

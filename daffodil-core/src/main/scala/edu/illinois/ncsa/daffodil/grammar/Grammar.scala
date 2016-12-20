@@ -198,7 +198,7 @@ abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
   override def isEmpty = !guard
 
   private lazy val realSC = context.asInstanceOf[SchemaComponent]
-  final override lazy val path = realSC.path + "@@" + prettyName
+  final override lazy val path = realSC.path + "@@" + diagnosticDebugName
 
   override def toString = path // dangerous. What if realSC.path fails?
 

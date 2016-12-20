@@ -65,7 +65,7 @@ class StringDelimitedParser(
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")
@@ -120,7 +120,7 @@ class LiteralNilDelimitedEndOfDataParser(
         "(one of) '" + rawNilValuesForParse.mkString(" ") + "'."
       else
         "'" + rawNilValuesForParse.head + "'"
-    this.PE(state, "%s - %s - Parse failed. Does not contain a nil literal matching %s", this.toString(), erd.prettyName, nilValuesDescription)
+    this.PE(state, "%s - %s - Parse failed. Does not contain a nil literal matching %s", this.toString(), erd.diagnosticDebugName, nilValuesDescription)
   }
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
@@ -172,7 +172,7 @@ class HexBinaryDelimitedParser(
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
     Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")

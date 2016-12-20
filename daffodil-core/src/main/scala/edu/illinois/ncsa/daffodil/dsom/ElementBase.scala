@@ -465,7 +465,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,
-      prettyName,
+      diagnosticDebugName,
       path,
       namespaces,
       minimizedScope,

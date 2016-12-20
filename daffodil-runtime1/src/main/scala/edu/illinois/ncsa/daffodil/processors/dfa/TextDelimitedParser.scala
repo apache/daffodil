@@ -58,7 +58,7 @@ abstract class TextDelimitedParserBase(
 
     val lmt = new LongestMatchTracker()
 
-    val fieldReg: Registers = TLRegistersPool.getFromPool()
+    val fieldReg: Registers = TLRegistersPool.getFromPool("TextDelimitedParserBase1")
 
     fieldReg.reset(input, delimIter) // Initialization
 
@@ -80,7 +80,7 @@ abstract class TextDelimitedParserBase(
             val d = delimIter.next()
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
-            val delimReg: Registers = TLRegistersPool.getFromPool()
+            val delimReg: Registers = TLRegistersPool.getFromPool("TextDelimitedParserBase2")
             delimReg.reset(input, delimIter)
             d.run(delimReg)
             if (delimReg.status == StateKind.Succeeded) {
@@ -202,7 +202,7 @@ class TextDelimitedParserWithEscapeBlock(
   protected def removeLeftPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => {
-        val leftPaddingRegister = TLRegistersPool.getFromPool()
+        val leftPaddingRegister = TLRegistersPool.getFromPool("removeLeftPadding")
         leftPaddingRegister.reset(input, delimIter)
         leftPadding.run(leftPaddingRegister)
         TLRegistersPool.returnToPool(leftPaddingRegister)
@@ -214,7 +214,7 @@ class TextDelimitedParserWithEscapeBlock(
   protected def removeRightPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => {
-        val rightPaddingRegister = TLRegistersPool.getFromPool()
+        val rightPaddingRegister = TLRegistersPool.getFromPool("removeRightPadding")
         rightPaddingRegister.reset(input, delimIter)
         rightPadding.run(rightPaddingRegister)
         TLRegistersPool.returnToPool(rightPaddingRegister)
@@ -224,7 +224,7 @@ class TextDelimitedParserWithEscapeBlock(
   }
 
   protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delimIter: DelimiterIterator): Boolean = {
-    val startBlockRegister = TLRegistersPool.getFromPool()
+    val startBlockRegister = TLRegistersPool.getFromPool("parseStartBlock")
     startBlockRegister.reset(input, delimIter)
 
     startBlock.run(startBlockRegister) // find the block start, fail otherwise
@@ -247,7 +247,7 @@ class TextDelimitedParserWithEscapeBlock(
 
     val lmt = new LongestMatchTracker()
 
-    val fieldRegister = TLRegistersPool.getFromPool()
+    val fieldRegister = TLRegistersPool.getFromPool("parseRemainder")
     fieldRegister.reset(input, delimIter)
 
     var stillSearching: Boolean = true
@@ -267,7 +267,7 @@ class TextDelimitedParserWithEscapeBlock(
         case StateKind.Paused => {
           // Pick up where field left off, we are looking for
           // the blockEnd.
-          val endBlockRegister = TLRegistersPool.getFromPool()
+          val endBlockRegister = TLRegistersPool.getFromPool("parseRemainder2")
           endBlockRegister.reset(input, delimIter) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
 
           endBlock.run(endBlockRegister)
@@ -285,7 +285,7 @@ class TextDelimitedParserWithEscapeBlock(
               while (delimIter.hasNext()) {
                 // Finally, we can look for the delimiter.
                 val d = delimIter.next() // Pick up where end of block/padding left off
-                val delimRegister = TLRegistersPool.getFromPool()
+                val delimRegister = TLRegistersPool.getFromPool("parseRemainder3")
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
                 delimRegister.reset(input, delimIter)

@@ -49,9 +49,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowableWithCause
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
@@ -66,6 +64,7 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -111,18 +110,22 @@ sealed trait DINode {
  */
 trait RetryableException
 
-trait InfosetException extends DiagnosticImplMixin with ThinThrowable
+trait InfosetException {
+  self: Diagnostic =>
+  def asDiagnostic = self
+}
 
 trait InfosetNodeNotFinalException extends InfosetException with RetryableException {
+  self: Diagnostic =>
   def node: DINode
 }
 
 case class InfosetArrayNotFinalException(override val node: DIArray)
-  extends ProcessingError("Error", Nope, Nope, "Array is not finalized.", node)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Array is not finalized.", node)
   with InfosetNodeNotFinalException
 
 case class InfosetComplexElementNotFinalException(override val node: DIComplex)
-  extends ProcessingError("Error", Nope, Nope, "ComplexType element is not finalized.", node)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "ComplexType element is not finalized.", node)
   with InfosetNodeNotFinalException
 
 /**
@@ -140,7 +143,7 @@ case class InfosetComplexElementNotFinalException(override val node: DIComplex)
  * the constructor args for equality.
  */
 case class InfosetWrongNodeType(expectedType: String, val node: DINode)
-  extends ProcessingError("Error", Nope, Nope, "Expression expected %s to be a %s node.", node.namedQName, expectedType)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Expression expected %s to be a %s node.", node.namedQName, expectedType)
   with InfosetException
 
 /**
@@ -149,11 +152,11 @@ case class InfosetWrongNodeType(expectedType: String, val node: DINode)
  * sibling that has not yet been parsed.
  */
 case class InfosetNoSuchChildElementException(val diComplex: DIComplex, val info: DPathElementCompileInfo)
-  extends ProcessingError("Error", Nope, Nope, "Child element %s does not exist.", info.namedQName)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Child element %s does not exist.", info.namedQName)
   with InfosetException with RetryableException
 
 case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
-  extends ProcessingError("Error", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "There is no infoset%s", (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)))
   with InfosetException with RetryableException
 
 /**
@@ -162,30 +165,30 @@ case class InfosetNoInfosetException(val rd: Maybe[RuntimeData])
  * For complex types indicates has not been setNilled.
  */
 case class InfosetNoDataException(val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Error", One(erd.schemaFileLocation), Nope, "Element %s does not have a value.", erd.namedQName)
+  extends ProcessingError("Expression Evaluation", One(erd.schemaFileLocation), Nope, "Element %s does not have a value.", erd.namedQName)
   with InfosetException with RetryableException
 
 case class InfosetArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
-  extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
   with InfosetException with RetryableException
 
 /**
  * Don't catch this one. It's not restartable.
  */
 case class InfosetFatalArrayIndexOutOfBoundsException(val diArray: DIArray, val index: Long, val length: Long)
-  extends ProcessingError("Error", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "Value %d is out of range for the '%s' array with length %d", index, diArray.erd.namedQName, length)
   with InfosetException
 
 case class InfosetNoRootException(val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Error", Nope, Nope, "No root element reachable from element %s.", erd.namedQName)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "No root element reachable from element %s.", erd.namedQName)
   with InfosetException with RetryableException
 
 case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Error", Nope, Nope, "No parent element for element %s.", erd.namedQName)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "No parent element for element %s.", erd.namedQName)
   with InfosetException
 
 sealed abstract class InfosetLengthUnknownException(lengthState: LengthState, kind: String, val diElement: DIElement, val erd: ElementRuntimeData)
-  extends ProcessingError("Error", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
+  extends ProcessingError("Expression Evaluation", Nope, Nope, "%s length unknown for element %s.", kind, erd.namedQName)
   with InfosetException with RetryableException {
 
   lazy val blockingDOS = lengthState.diagnoseNoLength()
@@ -1067,7 +1070,7 @@ final class DIArray(
  * evaluation of the OVC expression.
  */
 case class OutputValueCalcEvaluationException(override val throwableCause: Exception)
-  extends Exception() with ThinThrowableWithCause with DiagnosticImplMixin
+  extends Exception() with ThinThrowableWithCause
 
 sealed class DISimple(override val erd: ElementRuntimeData)
   extends DIElement

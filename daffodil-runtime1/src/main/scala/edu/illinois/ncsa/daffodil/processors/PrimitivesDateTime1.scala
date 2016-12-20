@@ -163,7 +163,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {
-        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage)
+        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage())
         return
       }
     }

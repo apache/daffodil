@@ -101,7 +101,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     // We need to recognize the blockEnd in addition to the other pieces of
     // text we should escape
     //
-    val fieldReg: Registers = TLRegistersPool.getFromPool()
+    val fieldReg: Registers = TLRegistersPool.getFromPool("escapeBlock1")
 
     val fieldEscapesIter = {
       val ab = ArrayBuffer((blockEnd +: delims): _*)
@@ -143,7 +143,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           // We check for a blockEnd first, if it exists then we MUST
           // generate an escape block
           //
-          val blockEndReg: Registers = TLRegistersPool.getFromPool()
+          val blockEndReg: Registers = TLRegistersPool.getFromPool("escapeBlock2")
           blockEndReg.reset(input, blockEndDelimIter)
           blockEnd.run(blockEndReg)
           val blockEndStatus = blockEndReg.status
@@ -184,7 +184,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               delimIter.reset()
               while (delimIter.hasNext()) {
                 val d = delimIter.next()
-                val delimReg: Registers = TLRegistersPool.getFromPool()
+                val delimReg: Registers = TLRegistersPool.getFromPool("escapeBlock3")
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
                 delimReg.reset(input, delimIter)
@@ -260,7 +260,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     Assert.invariant(field != null)
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
-    val fieldReg: Registers = TLRegistersPool.getFromPool()
+    val fieldReg: Registers = TLRegistersPool.getFromPool("escapeCharacter1")
 
     val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
 
@@ -295,7 +295,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           delimIter.reset()
           while (delimIter.hasNext()) {
             val d = delimIter.next()
-            val delimReg: Registers = TLRegistersPool.getFromPool()
+            val delimReg: Registers = TLRegistersPool.getFromPool("escapeCharacter2")
             delimReg.reset(input, delimIter)
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos

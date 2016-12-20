@@ -361,7 +361,7 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Insufficient</tdml:error>
-      <tdml:error>element.sca</tdml:error>
+      <tdml:error>sca</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

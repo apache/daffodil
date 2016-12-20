@@ -137,12 +137,14 @@ object QName {
     val res =
       try {
         extSyntax match {
-          case QNameRegex.ExtQName("", local) =>
+          case QNameRegex.ExtQName(null, "", local) =>
             RefQName(None, local, NoNamespace)
-          case QNameRegex.ExtQName(null, local) =>
+          case QNameRegex.ExtQName(null, null, local) =>
             RefQName(None, local, UnspecifiedNamespace)
-          case QNameRegex.ExtQName(uriString, local) if QNameRegex.isURISyntax(uriString) =>
-            RefQName(None, local, NS(uriString))
+          case QNameRegex.ExtQName(prefix, uriString, local) if QNameRegex.isURISyntax(uriString) => {
+            val optPrefix = if (prefix eq null) None else Some(prefix)
+            RefQName(optPrefix, local, NS(uriString))
+          }
           case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
         }
       } catch {
@@ -169,8 +171,15 @@ object QName {
     LocalDeclQName(None, name, ns)
   }
 
-  def createGlobal(name: String, targetNamespace: NS) = {
-    GlobalQName(None, name, targetNamespace)
+  def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
+    val prefix =
+      if (scope eq null) None
+      else {
+        val p = scope.getPrefix(targetNamespace)
+        if (p eq null) None
+        else Some(p)
+      }
+    GlobalQName(prefix, name, targetNamespace)
   }
 }
 
@@ -224,6 +233,13 @@ trait QNameBase {
     res
   }
 
+  /**
+   * Provides name with namespace information. Uses prefix if that is
+   * appropriate, otherwise puts out the namespace in braces. Empty braces are
+   * the no-namespace indicator.
+   *
+   * Incorrectly defined names are not tolerated.
+   */
   def toPrettyString: String = {
     (prefix, local, namespace) match {
       case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
@@ -232,6 +248,37 @@ trait QNameBase {
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => "{" + ns + "}" + local
+      case (Some(pre), local, ns) => pre + ":" + local
+    }
+  }
+
+  /**
+   * displays all components that are available.
+   */
+  def toExtendedSyntax: String = {
+    (prefix, local, namespace) match {
+      case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
+      case (Some(pre), local, UnspecifiedNamespace) => Assert.invariantFailed("QName has prefix, but unspecified namespace")
+
+      case (None, local, NoNamespace) => "{}" + local
+      case (None, local, UnspecifiedNamespace) => local
+      case (None, local, ns) => "{" + ns + "}" + local
+      case (Some(pre), local, ns) => pre + ":{" + ns + "}" + local
+    }
+  }
+
+  /**
+   * Never displays the namespace. Never complains about inconsistencies.
+   * Provides back what the schema author ought to think of as the name
+   * of the thing.
+   */
+  def diagnosticDebugName: String = {
+    (prefix, local, namespace) match {
+      case (Some(pre), local, NoNamespace) => pre + ":" + local
+      case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
+      case (None, local, NoNamespace) => local
+      case (None, local, UnspecifiedNamespace) => local
+      case (None, local, ns) => local
       case (Some(pre), local, ns) => pre + ":" + local
     }
   }
@@ -339,7 +386,7 @@ final case class RefQName(prefix: Option[String], local: String, namespace: NS)
     }
   }
 
-  def toGlobalQName = QName.createGlobal(this.local, this.namespace)
+  def toGlobalQName = GlobalQName(prefix, local, namespace)
 }
 
 /**
@@ -456,8 +503,13 @@ object QNameRegex {
   lazy val NCName = NCNameRegexString.r
   lazy val QName = QNameRegexString.r
 
+  //
+  // extended syntax now supports a prefix and a namespace
+  // E.g., ex:{http://example.com}foo
+  //
   private val URIPartRegexString = """(?:\{(.*)\})"""
-  private val ExtQNameRegexString = URIPartRegexString + "?" + NCNameRegexString
+  private val PrefixPartRegexString = """(?:""" + NCNameRegexString + """\:)"""
+  private val ExtQNameRegexString = PrefixPartRegexString + "?" + URIPartRegexString + "?" + NCNameRegexString
   lazy val ExtQName = ExtQNameRegexString.r
 
   def isURISyntax(s: String): Boolean = {

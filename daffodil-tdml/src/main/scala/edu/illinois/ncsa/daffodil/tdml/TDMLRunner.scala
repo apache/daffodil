@@ -677,7 +677,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Means there was an error, not just warnings.
         val diagObjs = actual.getDiagnostics
         if (diagObjs.length == 1) throw new TDMLException(diagObjs(0))
-        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+        val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
         throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }
 
@@ -871,7 +871,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Means there was an error, not just warnings.
         val diagObjs = parseActual.getDiagnostics
         if (diagObjs.length == 1) throw diagObjs(0)
-        val diags = parseActual.getDiagnostics.map(_.getMessage).mkString("\n")
+        val diags = parseActual.getDiagnostics.map(_.getMessage()).mkString("\n")
         throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }
       val loc: DataLocation = parseActual.resultState.currentLocation

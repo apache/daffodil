@@ -59,31 +59,31 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
           if (es.hasPrefixSep) {
             if (e.hasPriorRequiredSiblings) {
               val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.prettyName + " and before " + eName
+              "after " + prior.diagnosticDebugName + " and before " + eName
             } else "before " + eName
           } else if (es.hasInfixSep)
             if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
               val prior: Term = es.groupMembers(pos - 1)
 
-              "after " + prior.prettyName + " and before " + eName
+              "after " + prior.diagnosticDebugName + " and before " + eName
             } else if (e.hasPriorRequiredSiblings) {
               val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.prettyName + " and before " + eName
+              "after " + prior.diagnosticDebugName + " and before " + eName
             } else if (e.hasLaterRequiredSiblings) {
               val later: Term = es.groupMembers(pos + 1)
-              "before " + later.prettyName
+              "before " + later.diagnosticDebugName
             } else { "" }
           else if (es.hasPostfixSep)
             if (e.hasPriorRequiredSiblings && e.hasLaterRequiredSiblings) {
               val later: Term = es.groupMembers(pos + 1)
 
-              "after " + eName + " and before " + later.prettyName
+              "after " + eName + " and before " + later.diagnosticDebugName
             } else if (e.hasPriorRequiredSiblings) {
               val prior: Term = es.groupMembers(pos - 1)
-              "after " + prior.prettyName + " and before " + eName
+              "after " + prior.diagnosticDebugName + " and before " + eName
             } else if (e.hasLaterRequiredSiblings) {
               val later: Term = es.groupMembers(pos + 1)
-              "before " + later.prettyName
+              "before " + later.diagnosticDebugName
             } else { "" }
           else
             ""

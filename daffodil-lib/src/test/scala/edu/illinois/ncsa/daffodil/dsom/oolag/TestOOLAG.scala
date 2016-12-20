@@ -38,10 +38,15 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.Abort
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class MyException(msg: String)
-  extends Exception(msg)
-  with OOLAGDiagnosticMixin
+  extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
+  override def isError = true
+  override def modeName = "Parse"
+}
 
 abstract class MyBase(parentArg: MyBase)
   extends OOLAGHost(parentArg) {
@@ -59,7 +64,7 @@ abstract class MyBase(parentArg: MyBase)
     // println("evaluating a2")
     val msg = "a2 failed with an exception"
     // println(msg)
-    val e = new MyException(msg) with OOLAGDiagnosticMixin
+    val e = new MyException(msg)
     // e.printStackTrace()
     throw e
     // "a2 value"
@@ -126,7 +131,7 @@ class MyHost extends MyBase(null) {
   def warnTest = warnTest_.value
   def warnTest_ = LV('warnTest) {
     if (x < 1) {
-      val diag = new Exception("warnTest") with OOLAGDiagnosticMixin
+      val diag = new MyException("warnTest")
       warn(diag)
     }
     x
@@ -138,7 +143,7 @@ class TestOOLAG {
 
   @Test def testPrettyName() {
     val h = new MyHost
-    assertEquals("MyHost", h.prettyName)
+    assertEquals("MyHost", h.diagnosticDebugName)
   }
 
   @Test def testSuccessLazyVal() {
@@ -256,7 +261,7 @@ class TestOOLAG {
         h.divZero
       }
     }
-    // println("Message: " + e.getMessage)
+    // println("Message: " + e.getMessage())
     // assertTrue(h.isError)
     assertTrue(h.divZero_.isError)
 

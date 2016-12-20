@@ -81,7 +81,7 @@ trait ElementDeclMixin
     seq
   }.value
 
-  override lazy val prettyName = "element." + name
+  override lazy val diagnosticDebugName = namedQName.diagnosticDebugName
 
   final def immediateType = LV('immediateType) {
     val st = xml \ "simpleType"
@@ -140,7 +140,8 @@ trait ElementDeclMixin
       case (None, Some(ty)) => ty
       // Note: Schema validation should find this for us, but referential integrity checks like this
       // might not be done, so we check explicitly for this.
-      case _ => SDE("Must have one of an immediate type or a named type but not both")
+      case (Some(ity), Some(nty)) => SDE("Must have one of an immediate type or a named type (%s) but not both", namedTypeQName.get.toPrettyString)
+      case (None, None) => SDE("Must have an immediate type, or a named type, but neither was found.")
     }
   }.value
 

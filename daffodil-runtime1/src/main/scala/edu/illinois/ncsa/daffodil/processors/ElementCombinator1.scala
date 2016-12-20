@@ -100,7 +100,7 @@ abstract class ElementParserBase(
   def parse(pstate: PState): Unit = {
 
     if (patDiscrimParser.isDefined) {
-      val startingBitPos = pstate.dataInputStream.mark
+      val startingBitPos = pstate.dataInputStream.mark("ElementParserBase1")
       patDiscrimParser.get.parse1(pstate)
       // Pattern fails at the start of the Element
       if (pstate.status ne Success) {
@@ -110,7 +110,7 @@ abstract class ElementParserBase(
         pstate.dataInputStream.reset(startingBitPos)
       }
     } else if (patAssertParser.length > 0) {
-      val startingBitPos = pstate.dataInputStream.mark
+      val startingBitPos = pstate.dataInputStream.mark("ElementParserBase2")
       var i: Int = 0
       val size = patAssertParser.size
       while (i < size) {

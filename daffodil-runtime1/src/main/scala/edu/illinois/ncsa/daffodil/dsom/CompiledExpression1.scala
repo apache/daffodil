@@ -48,6 +48,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 
 trait ContentValueReferencedElementInfoMixin {
 

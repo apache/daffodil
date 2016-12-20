@@ -53,12 +53,7 @@ abstract class ExpressionEvaluationParser(
    * Modifies the PState
    */
   protected def eval(start: PState): AnyRef = {
-    try {
-      expr.evaluate(start)
-    } catch {
-      case i: InfosetException => rd.SDE("Expression evaluation failed: %s", i)
-      case v: VariableException => rd.SDE("Expression evaluation failed: %s", v)
-    }
+    expr.evaluate(start)
   }
 }
 

@@ -36,13 +36,14 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
+import edu.illinois.ncsa.daffodil.util.Poolable
 
 private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
   override def initialValue = new RegistersPool()
 
   def pool() = this.get
 
-  def getFromPool() = pool.getFromPool
+  def getFromPool(requestorID: String) = pool.getFromPool(requestorID)
 
   def returnToPool(r: Registers) = pool.returnToPool(r)
 }
@@ -53,7 +54,7 @@ private[dfa] class RegistersPool() extends Pool[Registers] {
 
 // This is the block of mutable things
 // including the source of characters.
-class Registers() extends Serializable {
+class Registers() extends Poolable with Serializable {
 
   var dataInputStream: DataInputStream = null
   var numCharsRead: Int = 0

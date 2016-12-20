@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Accessor
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args: _*)
+class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
 
 object InfosetCursor {
 

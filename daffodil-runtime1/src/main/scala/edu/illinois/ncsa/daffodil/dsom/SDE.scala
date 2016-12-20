@@ -33,20 +33,24 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.CompileState
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
-  kind: String,
+  fmtString: String,
   args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
+  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, Nope, Maybe(fmtString), args: _*) {
 
   def this(sc: SchemaFileLocation, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
-  val diagnosticKind = "Error"
+
+  def isError = true
+  def modeName = "Schema Definition"
 
 }
 
@@ -59,16 +63,22 @@ class RelativePathPastRootError(kind: String)
 
 class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
   runtimeContext: ParseOrUnparseState,
-  kind: String,
+  causedBy: Maybe[Throwable],
+  fmtString: Maybe[String],
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
-    Some(schemaContext),
+    Maybe(schemaContext),
     (runtimeContext match { // TODO: this is ugly.
-      case cs: CompileState => None
-      case _ => Some(runtimeContext)
+      case cs: CompileState => Nope
+      case _ => Maybe(runtimeContext)
     }),
-    None, kind, args: _*) {
-  val diagnosticKind = "Error"
+    None, causedBy, fmtString, args: _*) {
+
+  override def isError = true
+  override def modeName = "Runtime Schema Definition"
+
+  def this(schemaContext: SchemaFileLocation, runtimeContext: ParseOrUnparseState, fmtString: String, args: Any*) =
+    this(schemaContext, runtimeContext, Nope, Maybe(fmtString), args: _*)
 }
 
 class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocation,
@@ -76,159 +86,85 @@ class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocation,
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
-    Some(schemaContext), Some(runtimeContext), None, kind, args: _*) {
+    Some(schemaContext), Some(runtimeContext), None, Nope, Maybe(kind), args: _*) {
 
   override def isError = false
-  val diagnosticKind = "Warning"
+  override def modeName = "Runtime Schema Definition"
+
 }
 
 class SchemaDefinitionWarning(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
   kind: String,
   args: Any*)
-  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
+  extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, Nope, Maybe(kind), args: _*) {
 
   def this(sc: SchemaFileLocation, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
 
   override def isError = false
-  val diagnosticKind = "Warning"
+  def modeName = "Schema Definition"
 }
 
-class ValidationError(schemaContext: Option[SchemaFileLocation],
+class ValidationError(schemaContext: Maybe[SchemaFileLocation],
   runtimeContext: ParseOrUnparseState,
-  kind: String,
+  maybeCause: Maybe[Throwable],
+  maybeFormatString: Maybe[String],
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
-    schemaContext, Some(runtimeContext), None, kind, args: _*) {
+    (if (schemaContext.isDefined) schemaContext else {
+      val mERD = runtimeContext.maybeERD
+      if (mERD.isDefined) Maybe(mERD.get.schemaFileLocation)
+      else Nope
+    }),
+    Maybe(runtimeContext), None, maybeCause, maybeFormatString, args: _*) {
 
-  override def isError = false
-  val diagnosticKind = "Error"
+  def this(runtimeContext: ParseOrUnparseState, formatString: String, args: Any*) =
+    this(Nope, runtimeContext, Nope, Maybe(formatString), args: _*)
 
-  override def contextInfo(msg: String,
-    diagnosticKind: String,
-    schContextLocDescription: String,
-    annContextLocDescription: String,
-    schemaContext: Option[SchemaFileLocation]): String = {
-    val dataLocDescription = currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
-    val res = "Validation " + diagnosticKind + ": " + msg +
-      "\nSchema context: " + Some(schemaContext).getOrElse("top level") + "." +
-      // TODO: should be one or the other, never(?) both
-      schContextLocDescription +
-      annContextLocDescription + dataLocDescription
+  def this(scheamContext: Maybe[SchemaFileLocation],
+    runtimeContext: ParseOrUnparseState, formatString: String, args: Any*) =
+    this(Nope, runtimeContext, Nope, Maybe(formatString), args: _*)
 
-    res
-  }
+  def this(runtimeContext: ParseOrUnparseState, cause: Throwable) =
+    this(Nope, runtimeContext, Maybe(cause), Nope)
+
+  override def isError = true
+  val modeName = "Validation"
 
 }
 
 abstract class SchemaDefinitionDiagnosticBase(
-  val schemaContext: Option[SchemaFileLocation],
-  runtimeContext: Option[ParseOrUnparseState],
-  val annotationContext: Option[SchemaFileLocation],
-  val kind: String,
-  val args: Any*) extends Exception with DiagnosticImplMixin {
+  sc: Maybe[SchemaFileLocation],
+  runtimeContext: Maybe[ParseOrUnparseState],
+  private val annotationContext: Option[SchemaFileLocation],
+  mc: Maybe[Throwable],
+  mfmt: Maybe[String],
+  args: Any*)
+  extends Diagnostic(sc,
+    if (runtimeContext.isDefined) Maybe(runtimeContext.get.currentLocation) else Nope,
+    mc, mfmt, args: _*) {
 
-  protected val currentLocation = runtimeContext.map { _.currentLocation }
-
-  /**
-   * These are put into a collection to remove duplicates so equals and hash
-   * matter or we'll get duplicates we don't want.
-   */
-  override def equals(b: Any): Boolean = {
-    b match {
-      case other: SchemaDefinitionDiagnosticBase => {
-        val isSCSame = schemaContext == other.schemaContext
-        val isACSame = annotationContext == other.annotationContext
-        val isKindSame = kind == other.kind
-        val isArgsSame = args == other.args
-        val isDiagnosticKindSame = diagnosticKind == other.diagnosticKind
-        val isCLSame = currentLocation == other.currentLocation
-
-        val res = isSCSame && isACSame && isKindSame &&
-          isArgsSame && isDiagnosticKindSame && isCLSame
-        res
+  override def equals(other: Any) = {
+    super.equals(other) && {
+      other match {
+        case sddb: SchemaDefinitionDiagnosticBase => {
+          annotationContext == sddb.annotationContext
+        }
+        case _ => false
       }
-      case _ => false
     }
   }
 
   override def hashCode = {
-    schemaContext.hashCode +
-      currentLocation.hashCode +
-      annotationContext.hashCode +
-      kind.hashCode +
-      args.hashCode +
-      diagnosticKind.hashCode
+    super.hashCode() +
+      annotationContext.hashCode()
   }
 
-  def diagnosticKind: String
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toList
+  override protected def schemaContextString =
+    super.schemaContextString + annotationContextString
 
-  def contextInfo(msg: String,
-    diagnosticKind: String,
-    schContextLocDescription: String,
-    annContextLocDescription: String,
-    schemaContext: Option[SchemaFileLocation]): String = {
-    val runtime = if (currentLocation.isDefined) "Runtime " else ""
-    val dataLocDescription =
-      currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
-    val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
-      "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
-      // TODO: should be one or the other, never(?) both
-      schContextLocDescription +
-      annContextLocDescription + dataLocDescription
-    res
-  }
-
-  // TODO: Alternate constructor that allows data locations.
-  // Because some SDEs are caught only once Processing starts.
-  // They're still SDE but they will have data location information.
-
-  override def toString = {
-    //
-    // It is important that this routine is robust. It is used to print error messages
-    // so if something goes wrong in this, you run around in circles. I believe the
-    // stack-overaflow problems will be caught so long as one is running through lazy val aka
-    // OOLAG 'attributes' framework.
-    //
-    val res = {
-      //
-      // Right here is where we would lookup the symbolic error kind id, and
-      // choose a locale-based message string.
-      //
-      // For now, we'll just do an automatic English message.
-      //
-      val msg = if (args.size > 0)
-        try {
-          kind.format(args: _*)
-        } catch {
-          case th: Throwable => {
-            val exc = th
-            Assert.abort("Throw during toString of SDE object. kind='" + kind + "', args=" + args + " thrown type was: " + exc.getClass())
-          }
-        }
-      else kind
-
-      // this is where it gets kind of hairy. We're depending on fairly rich
-      // attribute calculations in order to generate the context information
-      // in these diagnostic messages. Break any of that stuff, and suddenly
-      // you will get circularity errors from OOLAG.
-      // beats a stack-overflow at least.
-      val schContextLocDescription =
-        schemaContext.map { " " + _.locationDescription + "." }.getOrElse("")
-
-      val annContextLocDescription =
-        annotationContext.map { " " + _.locationDescription + "." }.getOrElse("")
-
-      val res = contextInfo(msg, diagnosticKind, schContextLocDescription,
-        annContextLocDescription, schemaContext)
-
-      res
-    }
-    res
-  }
-
-  override def getMessage = toString
+  private def annotationContextString =
+    annotationContext.map { " " + _.locationDescription + "." }.getOrElse("")
 }
 
 trait ImplementsThrowsSDE

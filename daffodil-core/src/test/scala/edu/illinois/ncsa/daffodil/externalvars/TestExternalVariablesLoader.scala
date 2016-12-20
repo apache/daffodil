@@ -135,7 +135,7 @@ class TestExternalVariablesLoader extends Logging {
       ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, new VariableMap())
     }
     val err = e.getMessage()
-    assertTrue(err.contains("unknown variable {http://example.com}v_no_default"))
+    assertTrue(err.contains("unknown variable ex:v_no_default"))
   }
 
 }

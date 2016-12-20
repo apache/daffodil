@@ -138,7 +138,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     new NonTermRuntimeData(
       variableMap,
       schemaFileLocation,
-      prettyName,
+      diagnosticDebugName,
       path,
       namespaces,
       enclosingElement.map { _.erd },
@@ -217,7 +217,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * very dependable.
    */
   override lazy val path = {
-    val p = scPath.map { _.prettyName }.mkString("::")
+    val p = scPath.map { _.diagnosticDebugName }.mkString("::")
     p
   }
 
@@ -225,7 +225,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * Elements only e.g., /foo/ex:bar
    */
   final lazy val slashPath: String = {
-    val thisOne = "/" + prettyName
+    val thisOne = "/" + diagnosticDebugName
     val encElem = enclosingElement
     if (encElem.isDefined)
       encElem.get.slashPath + thisOne
@@ -233,7 +233,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       thisOne
   }
 
-  override def toString = prettyName
+  override def toString = diagnosticDebugName
 
   /**
    * Includes instances. Ie., a global element will appear inside an element ref.

@@ -85,7 +85,7 @@ class TestEntityReplacer {
       assertEquals("TextATextB", { er.replaceAll("Text%#65;Text%#000000000066;") }) // Works multiple w/ padding
 
       val f1 = intercept[Exception] { { er.replaceAll("Text%#65;Text%#66") } }
-      assertTrue(f1.getMessage.contains("Invalid DFDL Entity (%#66) found in \"Text%#65;Text%#66\"")) // Works one proper, one improper
+      assertTrue(f1.getMessage().contains("Invalid DFDL Entity (%#66) found in \"Text%#65;Text%#66\"")) // Works one proper, one improper
     }
   }
 

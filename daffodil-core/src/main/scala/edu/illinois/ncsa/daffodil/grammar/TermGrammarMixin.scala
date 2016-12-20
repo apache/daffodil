@@ -203,9 +203,9 @@ trait TermGrammarMixin
   protected lazy val delimMTA = prod("delimMTA",
     {
       //      if (!hasDelimiters) {
-      //        println("Removing MTA for delimiters of " + this.prettyName)
+      //        println("Removing MTA for delimiters of " + this.diagnosticDebugName)
       //      } else {
-      //        println("MTA region inserted for " + this.prettyName)
+      //        println("MTA region inserted for " + this.diagnosticDebugName)
       //      }
       hasDelimiters
     }) {

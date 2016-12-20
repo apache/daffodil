@@ -111,7 +111,7 @@ object TestUtils {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val u1 = pf.onPath("/").asInstanceOf[DataProcessor]
@@ -132,7 +132,7 @@ object TestUtils {
         compiler_.reload(input).asInstanceOf[DataProcessor]
       } else u1
     if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val outputStream = new java.io.ByteArrayOutputStream()
@@ -143,7 +143,7 @@ object TestUtils {
     }
     val actual = u.unparse(out, infosetXML)
     if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val unparsed = outputStream.toString
@@ -162,7 +162,7 @@ object TestUtils {
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val actual = u.unparse(out, infoset)
     if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val unparsed = outputStream.toByteArray()
@@ -181,7 +181,7 @@ object TestUtils {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     val isError = pf.isError
-    val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
 
     if (isError) {
       throw new Exception(msgs)
@@ -189,7 +189,7 @@ object TestUtils {
     val p = pf.onPath("/").asInstanceOf[DataProcessor]
     val pIsError = p.isError
     if (pIsError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val d = data
@@ -199,7 +199,7 @@ object TestUtils {
     }
     val actual = p.parse(d)
     if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     actual

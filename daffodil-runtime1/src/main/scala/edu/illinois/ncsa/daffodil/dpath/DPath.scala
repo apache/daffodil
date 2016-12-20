@@ -48,11 +48,13 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import AsIntConverters._
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
-  extends ProcessingError("Expression Error",
+  extends ProcessingError("Expression Evaluation",
     One(s.schemaFileLocation),
     Nope,
-    "Expression evaluation failed: %s",
-    DiagnosticUtils.getSomeMessage(e).get)
+    Maybe(e),
+    Nope)
+// "Expression evaluation failed: %s",
+// DiagnosticUtils.getSomeMessage(e).get
 
 final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,
@@ -79,16 +81,16 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
 
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
 
-  private def UE(msg: String, maybeCL: Maybe[DataLocation]) = UnparseError(One(ci.schemaFileLocation), maybeCL, msg)
+  private def UE(e: Throwable, maybeCL: Maybe[DataLocation]) =
+    new UnparseError(One(ci.schemaFileLocation), maybeCL, e)
 
   private def doPE(e: Throwable, state: ParseOrUnparseState): Null = {
-    val msg = "Expression evaluation failed due to: %s.".format(DiagnosticUtils.getSomeMessage(e).get)
     state match {
       case null => Assert.usageError("state cannot be null")
-      case ustate: UState => UE(msg, One(ustate.currentLocation))
+      case ustate: UState => UE(e, One(ustate.currentLocation))
       case pstate: PState => {
         val pe = new ExpressionEvaluationException(e, state) // One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
-        pstate.setFailed(pe)
+        pstate.setFailed(pe.toParseError)
       }
       case compState: CompileState => {
         val d = e match {
@@ -216,7 +218,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
       maybeRes.value
     } else {
       Assert.invariant(state.status ne Success)
-      throw state.status.asInstanceOf[Failure].cause
+      val cause = state.status.asInstanceOf[Failure].cause
+      throw cause
     }
   }
 
@@ -267,8 +270,14 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
       // there is an arithmetic error in daffodil code, this catch can't distinguish
       // that error (which should be an abort, from an arithmetic exception
       // due to an expression dividing by zero say.
-      case e: InfosetException => handleCompileState(e, state)
+      case e: InfosetException => handleCompileState(e.asDiagnostic, state)
       case e: VariableException => handleCompileState(e, state)
+      case e: ExpressionEvaluationException => {
+        state match {
+          case cs: CompileState => handleCompileState(e, state)
+          case _ => doPE(e, state)
+        }
+      }
       case e: IllegalStateException => doPE(e, state)
       case e: NumberFormatException => doPE(e, state)
       case e: IllegalArgumentException => doPE(e, state)

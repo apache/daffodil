@@ -32,14 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.section07.assertions
 
-//import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class TestAssertionsNew {
+object TestAssertionsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
-  val tdml = testDir + "assert.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
-
-  //@Test def test1() {}
+  val tdml = "assert.tdml"
+  lazy val runner = Runner(testDir, tdml, validateTDMLFile = false)
+}
+class TestAssertionsNew {
+  import TestAssertionsNew._
+  // JIRA DFDL-1672
+  @Test def testNumberFormatErrorInExprRuntime() { runner.runOneTest("testNumberFormatErrorInExprRuntime") }
+  @Test def testNumberFormatErrorInExprCompileTime() { runner.runOneTest("testNumberFormatErrorInExprCompileTime") }
 }

@@ -44,10 +44,10 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
  * Base class for annotations that carry format properties
  */
 abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-    extends DFDLAnnotation(nodeArg, annotatedSCArg)
-    //  with RawCommonRuntimeValuedPropertiesMixin
-    //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
-    with LeafPropProvider {
+  extends DFDLAnnotation(nodeArg, annotatedSCArg)
+  //  with RawCommonRuntimeValuedPropertiesMixin
+  //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
+  with LeafPropProvider {
 
   requiredEvaluations(hasConflictingPropertyError)
 
@@ -121,7 +121,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
             (adjustedQN, locationDescription),
             seen.map { case (qn, fmtAnn) => (qn, fmtAnn.locationDescription) }.mkString("\n"))
           val defFmt = schemaSet.getDefineFormat(adjustedQN).getOrElse {
-            schemaDefinitionError("defineFormat with name '%s', was not found.", adjustedQN.toString)
+            annotatedSC.schemaDefinitionError("defineFormat with name '%s', was not found.", adjustedQN.toString)
           }
           log(LogLevel.Debug, "found defineFormat named: %s", adjustedQN)
           val fmt = defFmt.formatAnnotation
@@ -146,7 +146,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   final def getFormatChain(): ChainPropProvider = {
     val formatAnnotations = formatRefMap.map { case (_, fa) => fa }.toSeq
     val withMe = (this +: formatAnnotations).distinct
-    val res = new ChainPropProvider(withMe, this.prettyName)
+    val res = new ChainPropProvider(withMe, this.diagnosticDebugName)
     res
   }
 
@@ -156,7 +156,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    */
   //  private lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
   //    val fmts = formatRefMap.map { case (_, fmt) => fmt }
-  //    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
+  //    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.diagnosticDebugName, diagnosticDebugName, fmts)
   //    val seq = Seq(this) ++ fmts
   //    seq
   //  }
@@ -250,7 +250,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    */
   final override def justThisOneProperties: PropMap = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
-    log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res)
+    log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.diagnosticDebugName, diagnosticDebugName, res)
     res
   }.value
 

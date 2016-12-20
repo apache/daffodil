@@ -103,7 +103,7 @@ class TestDsomCompiler extends Logging {
     val sset = compiler.compileNode(sch).sset
     assertTrue(sset.isError)
     val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
-    val msgs = diagnostics.map { _.getMessage }
+    val msgs = diagnostics.map { _.getMessage() }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)

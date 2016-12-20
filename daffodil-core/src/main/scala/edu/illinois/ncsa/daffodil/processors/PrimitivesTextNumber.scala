@@ -81,7 +81,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       try {
         new DecimalFormat(p)
       } catch {
-        case ex: IllegalArgumentException => e.SDE("Invalid textNumberPattern: " + ex.getMessage)
+        case ex: IllegalArgumentException => e.SDE("Invalid textNumberPattern: " + ex.getMessage())
       }
 
       (p, patternNoQuoted)

@@ -614,7 +614,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dummy</tdml:error>
       <tdml:error>not found</tdml:error>
-      <tdml:error>element.aa::DFDLElement</tdml:error>
+      <tdml:error>aa</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
   
@@ -660,7 +660,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>dummy</tdml:error>
       <tdml:error>not found</tdml:error>
-      <tdml:error>sequence::element.aa::DFDLElement</tdml:error>
+      <tdml:error>aa</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
   

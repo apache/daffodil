@@ -35,17 +35,19 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
 
-final class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
+final class LocalElementDecl(xmlArg: Node, override val parent: ModelGroup, override val position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementFormDefaultMixin
   with ElementDeclMixin {
 
-  lazy val elementRef = None
+  override lazy val elementRef = None
 
   requiredEvaluations(minOccurs, maxOccurs)
 
-  final override lazy val namedQName = {
-    val isQualified = elementFormDefault == "qualified"
+  val isQualified = elementFormDefault == "qualified"
+  
+  final override lazy val namedQName = {  
     QName.createLocal(name, targetNamespace, isQualified, namespaces)
   }
+
 }

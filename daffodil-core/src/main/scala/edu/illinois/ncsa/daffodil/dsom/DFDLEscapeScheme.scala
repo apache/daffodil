@@ -165,6 +165,6 @@ final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse:
   }
 
   override def toString(): String = {
-    "DFDLDefineEscapeScheme." + name
+    "dfdl:defineEscapeScheme " + name
   }
 }

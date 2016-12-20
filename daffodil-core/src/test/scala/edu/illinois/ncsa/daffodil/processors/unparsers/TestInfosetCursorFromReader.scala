@@ -58,12 +58,12 @@ class TestInfosetCursorFromReader {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
+      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
