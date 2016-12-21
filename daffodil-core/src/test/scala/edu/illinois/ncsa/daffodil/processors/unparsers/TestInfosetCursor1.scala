@@ -52,7 +52,8 @@ class TestInfosetCursor1 {
       ic.advance
     }
     val msg = DiagnosticUtils.getSomeMessage(exc).get
-    assertTrue(msg.contains("pretends")) // malformed attribute.
+
+    assertTrue(msg.contains("Unexpected character")) // expects an equal sign for an attribute
   }
 
   @Test def testInfosetCursorOnBadData3() {
@@ -66,6 +67,6 @@ class TestInfosetCursor1 {
       ic.advance
     }
     val msg = DiagnosticUtils.getSomeMessage(exc).get
-    assertTrue(msg.contains("prolog")) // content not allowed in prolog.
+    assertTrue(msg.contains("Illegal character")) // content not allowed in prolog.
   }
 }

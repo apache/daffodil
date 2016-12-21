@@ -188,8 +188,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Illegal content</tdml:error>
-      <tdml:error>simple</tdml:error>
-      <tdml:error>foo</tdml:error>
+      <tdml:error>simple element</tdml:error>
+      <tdml:error>one</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -222,9 +222,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Illegal content</tdml:error>
-      <tdml:error>simple</tdml:error>
+      <tdml:error>simple element</tdml:error>
       <tdml:error>one</tdml:error>
-      <tdml:error>two</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

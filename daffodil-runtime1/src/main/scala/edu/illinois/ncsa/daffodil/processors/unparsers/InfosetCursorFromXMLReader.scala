@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.DISimple
@@ -80,15 +79,9 @@ import javax.xml.stream.XMLStreamException
  * call must construct its own instance of this object for the thread running that
  * unparse method call.
  */
-private[unparsers] final class InfosetCursorFromXMLReader(
-  rdr: java.io.Reader,
-  rootElementInfo: ElementRuntimeData)
-  extends InfosetCursor
-  with CursorImplMixin[InfosetAccessor] {
-
-  private lazy val fact = {
-    val fact = XMLInputFactory.newFactory()
-
+object InfosetCursorFromXMLReader {
+  lazy val xmlInputFactory = {
+    val fact = new com.ctc.wstx.stax.WstxInputFactory()
     // JIRA DFDL-1659 - make sure not accessing things remotely and protect from denial-of-service
     // using XML trickery.
     // fact.setProperty("http://javax.xml.XMLConstants/property/accessExternalDTD", false)
@@ -98,10 +91,18 @@ private[unparsers] final class InfosetCursorFromXMLReader(
     // fact.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true) // Seems to be the default setting anyway
 
     fact.setProperty(XMLInputFactory.IS_COALESCING, true)
-    fact.setEventAllocator(new com.sun.xml.internal.stream.events.XMLEventAllocatorImpl())
+    fact.setEventAllocator(com.ctc.wstx.evt.DefaultEventAllocator.getDefaultInstance)
 
     fact
   }
+
+}
+
+private[unparsers] final class InfosetCursorFromXMLReader(
+  rdr: java.io.Reader,
+  rootElementInfo: ElementRuntimeData)
+  extends InfosetCursor
+  with CursorImplMixin[InfosetAccessor] {
 
   override def fini {
     xsr.close()
@@ -113,12 +114,12 @@ private[unparsers] final class InfosetCursorFromXMLReader(
    * as it allocates an object, and we're trying to avoid that.
    */
   private lazy val (xsr: XMLStreamReader, evAlloc: XMLEventAllocator) = {
-    val xsr = fact.createXMLStreamReader(rdr)
+    val xsr = InfosetCursorFromXMLReader.xmlInputFactory.createXMLStreamReader(rdr)
     //
     // This gets the event allocator corresponding to the xmlStreamReader just created.
     // Strange API. They should let you get this from the xmlStreamReader itself.
     //
-    val evAlloc = fact.getEventAllocator
+    val evAlloc = InfosetCursorFromXMLReader.xmlInputFactory.getEventAllocator
     Assert.invariant(
       // no need for UnparseError here. If the XML syntax is bad, parser catches it before we get here.
       xsr.hasNext())
@@ -367,7 +368,6 @@ private[unparsers] final class InfosetCursorFromXMLReader(
           }
         Assert.invariant(xsr.getEventType() == END_ELEMENT)
         if (!isNilled(elem) && s.erd.outputValueCalcExpr.isEmpty) {
-          Assert.invariant(verifyName(s.erd))
           val primType = s.erd.optPrimType.get
           val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(txt)
           val obj = primType.fromXMLString(remapped)
@@ -383,7 +383,6 @@ private[unparsers] final class InfosetCursorFromXMLReader(
     top match {
       case c: DIComplex => {
         end(c)
-        Assert.invariant(verifyName(c.erd))
         nodeStack.pop
         nextElementResolver = c.erd.nextElementResolver
       }
@@ -391,7 +390,6 @@ private[unparsers] final class InfosetCursorFromXMLReader(
         end(a)
         nodeStack.pop
         val parent = nodeStack.top.asInstanceOf[DIComplex]
-        Assert.invariant(verifyName(parent.erd))
         queueAnotherEvent(EndKind, parent)
         nodeStack.pop
         nextElementResolver = parent.erd.nextElementResolver
@@ -474,17 +472,6 @@ private[unparsers] final class InfosetCursorFromXMLReader(
       newNode.setNilled()
     }
     newNode
-  }
-
-  private def verifyName(erd: ElementRuntimeData): Boolean = {
-    val nqn = erd.namedQName
-    val erdNS = nqn.namespace.toStringOrNullIfNoNS
-    val erdLocal = nqn.local
-    val ns = NS(xsr.getNamespaceURI).toStringOrNullIfNoNS
-    val local = xsr.getLocalName
-    val res = (erdNS =:= ns) &&
-      (erdLocal =:= local)
-    res
   }
 
 }

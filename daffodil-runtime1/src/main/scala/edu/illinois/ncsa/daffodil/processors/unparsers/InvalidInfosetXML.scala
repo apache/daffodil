@@ -51,16 +51,15 @@ object InvalidInfosetXML {
   }
 
   def errorWhenTagExpected(info: ElementRuntimeData, xse: XMLStreamException, xev: XMLEvent): Nothing =
-    err(info, "An error occurred: %s.\nLast event was %s.", DiagnosticUtils.getSomeMessage(xse).get, xev.toString)
+    err(info, "An error occurred: %s.\n Last event occured on line %s", DiagnosticUtils.getSomeMessage(xse).get, xev.getLocation.getLineNumber)
 
   def missingInfosetContent(info: ElementRuntimeData): Nothing =
     err(info, "No infoset XML found. Expected %s.", info.prettyName)
 
   def illegalContentWhereTagExpected(info: ElementRuntimeData, xev: XMLEvent): Nothing =
-    err(info, "Illegal content where element tag expected: %s", xev.toString())
+    err(info, "Illegal content where element tag expected on line %s", xev.getLocation.getLineNumber)
 
-  def nonTextFoundInSimpleContent(parent: ElementRuntimeData,
-    event: XMLEvent): Nothing = {
-    err(parent, "Illegal content for simple element %s.\nContent was %s.", parent.namedQName.toPrettyString, event.toString())
+  def nonTextFoundInSimpleContent(parent: ElementRuntimeData, event: XMLEvent): Nothing = {
+    err(parent, "Illegal content for simple element %s on line %s.", parent.namedQName.toPrettyString, event.getLocation().getLineNumber())
   }
 }
