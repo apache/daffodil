@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import scala.util.Success
 import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.ExtendedQNameSyntaxException
 import scala.util.Failure
 import java.net.URISyntaxException

@@ -552,7 +552,7 @@ trait ExistsKind {
           case _ => throw th
         }
       }
-      case ParserNonBlocking => {
+      case _: ParserMode => {
         false
       }
     }
@@ -573,7 +573,7 @@ trait ExistsKind {
           case _ => throw th
         }
       }
-      case ParserNonBlocking => // ok
+      case _: ParserMode => // ok
     }
     //
     // If we fall through to here, then we might suppress the error

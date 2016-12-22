@@ -274,6 +274,12 @@ trait QNameBase {
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => "{" + ns + "}" + local
+      //
+      // This is a hack to avoid printing out tns prefixes just becasue a
+      // schema author has chosen to use the tns prefix for the same uri as
+      // the target namespace. Really we only want to print out a prefix
+      // if it's a meaningful prefix that will distinguish something.
+      //
       case (Some("tns"), local, ns) => "{" + ns + "}" + local // ignore the "tns" prefix.
       case (Some(pre), local, ns) => pre + ":{" + ns + "}" + local
     }
@@ -286,11 +292,14 @@ trait QNameBase {
    */
   def diagnosticDebugName: String = {
     (prefix, local, namespace) match {
-      case (Some(pre), local, NoNamespace) => pre + ":" + local
+      case (Some(pre), local, NoNamespace) => pre + ":" + local // generally this is an error. Shouldn't have a prefix.
       case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
       case (None, local, NoNamespace) => local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => local
+      //
+      // See comment above about tns hack
+      //
       case (Some("tns"), local, ns) => local
       case (Some(pre), local, ns) => pre + ":" + local
     }

@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
 import Maybe._
 import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 
 object Processor {
   /**
@@ -253,7 +254,14 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
       i += 1
       log(LogLevel.Debug, "Trying choice alternative: %s", parser)
       pBefore = pstate.mark("AltCompParser1")
-      parser.parse1(pstate)
+      try {
+        parser.parse1(pstate)
+      } catch {
+        case d: SchemaDefinitionDiagnosticBase => {
+          pstate.discard(pBefore)
+          throw d
+        }
+      }
       if (pstate.status eq Success) {
         log(LogLevel.Debug, "Choice alternative success: %s", parser)
         pstate.discard(pBefore)

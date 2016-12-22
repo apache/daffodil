@@ -55,7 +55,7 @@ case object DAFError extends RecipeOp {
     dstate.mode match {
       case UnparserNonBlocking | UnparserBlocking =>
         UnparseError(maybeSFL, dstate.contextLocation, "The error function was called.")
-      case ParserNonBlocking => {
+      case _ : ParserMode => {
         val pe = new ParseError(maybeSFL, dstate.contextLocation, "The error function was called.")
         throw pe
       }

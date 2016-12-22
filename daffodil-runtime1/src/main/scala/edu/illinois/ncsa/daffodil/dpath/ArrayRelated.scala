@@ -50,7 +50,7 @@ case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
           // so we have to know if the array is closed or not.
           dstate.setCurrentValue(dstate.finalArrayLength)
         }
-        case ParserNonBlocking => {
+        case _: ParserMode => {
           dstate.setCurrentValue(dstate.arrayLength)
         }
       }

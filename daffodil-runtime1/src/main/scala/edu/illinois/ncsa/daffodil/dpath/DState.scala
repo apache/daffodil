@@ -47,7 +47,7 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 sealed trait EvalMode
 
 /**
- * Parsing always uses this mode, for everything.
+ * Parsing always uses this mode, for everything except discriminators.
  *
  * Unparsing never uses this mode for anything.
  *
@@ -55,8 +55,20 @@ sealed trait EvalMode
  * but is needed to be traversed, an exception is thrown. If a value doesn't exist
  * an exception is thrown. fn:exists and fn:count return the answers
  * immediately based on the current state of the infoset object.
+ *
+ * In this mode, if an infoset node or value that is needed for evaluation is not found,
+ * then it is a Runtime Schema Definition Error, i.e., a fatal error.
  */
-case object ParserNonBlocking extends EvalMode
+sealed trait ParserMode extends EvalMode
+case object ParserNonBlocking extends ParserMode
+
+/**
+ * Used when evaluating discriminators, which only occurs during parsing.
+ *
+ * In this mode, if a failure occurs in that an infoset node or value is not found
+ * then it is a Processing error.
+ */
+case object ParserDiscriminatorNonBlocking extends ParserMode
 
 /**
  * Unparsing uses this mode for outputValueCalc, variables,
@@ -363,7 +375,7 @@ object DState {
   // @inline
   final def withRetryIfBlocking[T](ds: DState)(body: => T): T = { // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
     ds.mode match {
-      case ParserNonBlocking => body
+      case _: ParserMode => body
       case UnparserNonBlocking => body
       case UnparserBlocking => {
         var isDone = false

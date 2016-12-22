@@ -62,7 +62,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   isEvaluatedAbove: Boolean,
   override val contentReferencedElementInfos: Set[DPathElementCompileInfo],
   override val valueReferencedElementInfos: Set[DPathElementCompileInfo])
-  extends CompiledExpression[T](qn, dpathText) {
+  extends CompiledExpression[T](qn, dpathText) with DoSDEMixin {
 
   override def targetType = tt
 
@@ -104,20 +104,54 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     null
   }
 
-  private def handleCompileState(e: Diagnostic, state: ParseOrUnparseState) = {
+  private def handleCompileState(e: Diagnostic, state: ParseOrUnparseState): Null = {
     state match {
+      //
+      // Something went wrong when evaluting an expression at compilation time
+      // so we suppress it and just indicate the failure.
       case cs: CompileState => {
         state.setFailed(e)
         null
       }
       /**
        * Almost anything that can go wrong in an expression maps to a SDE.
+       * Except when we're evaluating a discriminator.
        *
        * E.g., node doesn't exist? Your expression is supposed to test for that
        * using fn:exists(...) rather than just use the location and expect backtracking
        * if it doesn't exist. An SDE isn't backtracked, so enforces this provision.
+       *
+       * But when in a discriminator, a node doesn't exist is a PE, not an SDE.
        */
-      case _ => throw e
+      case ps: PState => ps.dState.mode match {
+        case ParserDiscriminatorNonBlocking => {
+          e match {
+            //
+            // In discriminators, these specific infoset exceptions are
+            // processing errors, not RSDE
+            //
+            case nc: InfosetNoSuchChildElementException => doPE(e, ps)
+
+            case ni: InfosetNoInfosetException => doPE(e, ps)
+
+            case nd: InfosetNoDataException => doPE(e, ps)
+
+            case ai: InfosetArrayIndexOutOfBoundsException => doPE(e, ps)
+
+            // TBD: what about InfosetLengthUnknownException ?? That' more for
+            // getting unparsing to block until the length information becomes
+            // known. When parsing, this can only happen if..... you ask about the
+            // content length of an IVC element ??
+
+            //
+            // outside discriminators they're all RSDE.
+            //
+            case _ => doSDE(e, ps)
+          }
+        }
+        case _ => doSDE(e, ps)
+      }
+      case us: UState => throw e
     }
   }
 

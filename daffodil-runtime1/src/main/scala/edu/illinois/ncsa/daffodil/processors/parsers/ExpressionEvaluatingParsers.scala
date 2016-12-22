@@ -37,6 +37,9 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dpath.ParserDiscriminatorNonBlocking
+import edu.illinois.ncsa.daffodil.dpath.ParserNonBlocking
+
 // import java.lang.{ Boolean => JBoolean }
 
 /**
@@ -125,7 +128,14 @@ class AssertExpressionEvaluationParser(
         // This now informs us of the success/failure of the expression
         // evaluation via side-effect on the start state passed here.
         //
-        val res = eval(start)
+        val res =
+          try {
+            if (discrim)
+              start.dState.setMode(ParserDiscriminatorNonBlocking)
+            eval(start)
+          } finally {
+            start.dState.setMode(ParserNonBlocking)
+          }
         //
         // a PE during evaluation of an assertion is a PE
         //
