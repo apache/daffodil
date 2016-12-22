@@ -137,18 +137,30 @@ object QName {
     val res =
       try {
         extSyntax match {
-          case QNameRegex.ExtQName(null, "", local) =>
-            RefQName(None, local, NoNamespace)
-          case QNameRegex.ExtQName(null, null, local) =>
-            RefQName(None, local, UnspecifiedNamespace)
-          case QNameRegex.ExtQName(prefix, uriString, local) if QNameRegex.isURISyntax(uriString) => {
-            val optPrefix = if (prefix eq null) None else Some(prefix)
-            RefQName(optPrefix, local, NS(uriString))
+          case QNameRegex.ExtQName(prefix, uriString, local) => {
+            val pre = if (prefix eq null) None else Some(prefix)
+            val ns = (pre, uriString) match {
+              case (Some(pre), "") => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
+              case (Some(pre), null) => UnspecifiedNamespace
+              case (Some(pre), s) => NS(s)
+              case (None, "") => NoNamespace
+              case (None, null) => UnspecifiedNamespace
+              case (None, s) => NS(s)
+            }
+            val rqn = RefQName(pre, local, ns)
+            rqn
           }
           case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
         }
       } catch {
-        case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(None, Some(ex))
+        case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
+        case ia: IllegalArgumentException => {
+          val ex = ia.getCause()
+          if (ex ne null)
+            throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
+          else
+            throw ia
+        }
       }
     res
   }
@@ -243,8 +255,7 @@ trait QNameBase {
   def toPrettyString: String = {
     (prefix, local, namespace) match {
       case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
-      case (Some(pre), local, UnspecifiedNamespace) => Assert.invariantFailed("QName has prefix, but unspecified namespace")
-
+      case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => "{" + ns + "}" + local
@@ -263,6 +274,7 @@ trait QNameBase {
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => "{" + ns + "}" + local
+      case (Some("tns"), local, ns) => "{" + ns + "}" + local // ignore the "tns" prefix.
       case (Some(pre), local, ns) => pre + ":{" + ns + "}" + local
     }
   }
@@ -279,6 +291,7 @@ trait QNameBase {
       case (None, local, NoNamespace) => local
       case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => local
+      case (Some("tns"), local, ns) => local
       case (Some(pre), local, ns) => pre + ":" + local
     }
   }
@@ -293,6 +306,14 @@ trait QNameBase {
       case (None, local, ns) => Assert.invariantFailed("QName has namespace, but no prefix defined.")
       case _ => toPrettyString
     }
+  }
+
+  /**
+   * Just turns into a prefix (optionally) then the local name e.g, foo:bar
+   * or if there is no prefix, just bar.
+   */
+  def toQNameString: String = {
+    if (prefix.isDefined) prefix.get + ":" + local else local
   }
 
   def matches[Q <: QNameBase](other: Q): Boolean
@@ -386,6 +407,7 @@ final case class RefQName(prefix: Option[String], local: String, namespace: NS)
     }
   }
 
+  def toStepQName = StepQName(prefix, local, namespace)
   def toGlobalQName = GlobalQName(prefix, local, namespace)
 }
 

@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import java.io.File
 import jline.console.completer.Completer
@@ -365,8 +366,61 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       DebuggerConfig.breakpoints
         .filter(_.enabled)
         .filter { bp =>
-          bp.breakpoint == processor.context.diagnosticDebugName ||
+
+          //
+          // Two syntaxes for breakpoints are accepted.
+          // one is extended QNames e.g., foo, or pre:foo, or {uri}foo
+          // the other is schema component paths like foo::bar::baz
+          //
+          val tryBPQName = QName.refQNameFromExtendedSyntax(bp.breakpoint)
+          if (tryBPQName.isFailure) {
+            //
+            // Breakpoint specified by path syntax
+            //
             bp.breakpoint == processor.context.path
+          } else {
+            //
+            // must be the extended QName case.
+            //
+            processor.context match {
+              case erd: ElementRuntimeData => {
+                val elemQName = erd.namedQName
+                val bpqnx = tryBPQName.get
+                //
+                // If the user provided the {uri}foo style syntax
+                // we just need the namespace and name to match.
+                //
+                if (bpqnx.local == elemQName.local &&
+                  bpqnx.namespace == elemQName.namespace) {
+                  true
+                } else {
+                  //
+                  // usage must have been just a QName e.g., foo:bar
+                  // for the breakpoint, or mostlikely, just a local name bar.
+                  //
+                  val bpQNameString = bpqnx.toQNameString
+                  val bpqn = processor.context.resolveQName(bpQNameString)
+                  val isMatch = bpqn.toStepQName.matches(elemQName)
+                  if (isMatch)
+                    true
+                  else {
+                    //
+                    // finally, if the bp was just specified as a local name
+                    // then ok so long as the local name part matches.
+                    //
+                    // TODO: it would be good to know if this bp name is ambiguous
+                    // In this case it will match ANY element having that local
+                    // name. But if you want to be more selective of just the
+                    // specific element in a specific namespace then you can use
+                    // the extended QName syntax, or just a prefix on it.
+                    val isLocalMatch = bpqnx.local == elemQName.local
+                    isLocalMatch
+                  }
+                }
+              }
+              case _ => false
+            }
+          }
         }
         .find { bp =>
           bp.condition match {
