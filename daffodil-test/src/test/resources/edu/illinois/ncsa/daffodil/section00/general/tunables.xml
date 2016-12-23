@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<daf:dfdlConfig
+	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+		xmlns:xs="http://www.w3.org/2001/XMLSchema" >
+		<daf:unqualifiedPathStepPolicy>defaultNamespace</daf:unqualifiedPathStepPolicy>
+	</daf:tunables>
+</daf:dfdlConfig>

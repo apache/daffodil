@@ -234,6 +234,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
+  val defaultConfig = {
+    val str = (ts \ "@defaultConfig").text
+    str
+  }
   val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
   val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
 
@@ -474,6 +478,28 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
     bindings
   }
+  
+   private def retrieveTunables(cfg: DefinedConfig): Map[String,String] = {
+    val configFileTunables: Map[String, String] = cfg.tunables match {
+      case None => Map.empty
+      case Some(tunableNode) => {
+        tunableNode.child.map { n => (n.label, n.text) }.toMap
+      }
+    }
+
+    configFileTunables
+  }
+  
+  // Provide ability to override existing (default) tunables
+  private def retrieveTunablesCombined(existingTunables: Map[String, String], cfg: DefinedConfig) = {
+    val configFileTunables: Map[String, String] = retrieveTunables(cfg)
+
+    // Note, ++ on Maps replaces any key/value pair from the left with that on the
+    // right, so key/value pairs defined in tunables overrule those defiend in
+    // the config file
+    val combined = existingTunables ++ configFileTunables
+    combined
+  }
 
   def getSuppliedSchema(schemaArg: Option[Node]): DaffodilSchemaSource = {
     val embeddedSchema = parent.findEmbeddedSchema(model)
@@ -508,6 +534,22 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
    */
   def run(schemaArg: Option[Node] = None): Long = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
+    
+    val defaultCfg: Option[DefinedConfig] = parent.defaultConfig match {
+      case "" => None
+      case configName => {
+        val cfgFileName = parent.findConfigFileName(configName)
+        cfgFileName match {
+          case None => None
+          case Some(uri) => {
+            // Read file, convert to definedConfig
+            val node = ConfigurationLoader.getConfiguration(uri)
+            val definedConfig = DefinedConfig(node, parent)
+            Some(definedConfig)
+          }
+        }
+      }
+    }
 
     val cfg: Option[DefinedConfig] = config match {
       case "" => None
@@ -532,10 +574,19 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case None => Seq.empty
       case Some(definedConfig) => retrieveBindings(definedConfig)
     }
+    val defaultTunables: Map[String,String] = defaultCfg match {
+      case None => Map.empty
+      case Some(definedConfig) => retrieveTunables(definedConfig)
+    }
+    val tunables: Map[String,String] = cfg match {
+      case None => defaultTunables
+      case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
+    }
 
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
+    compiler.setTunables(tunables)
 
     val optInputOrExpectedData = document.map { _.data }
     val nBits: Option[Long] = document.map { _.nBits }
@@ -1176,6 +1227,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
   val name = (xml \ "@name").text.toString
   val externalVariableBindings = (xml \ "externalVariableBindings").headOption
+  val tunables = (scala.xml.Utility.trim(xml) \ "tunables").headOption /* had to add trim here to get rid of #PCDATA */
 
   // Add additional compiler tunable variables here
 
