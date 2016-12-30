@@ -117,13 +117,28 @@ private[tdml] object DFDLTestSuite {
  * taken from this value if it is not specified on the testSuite itself.
  */
 
-class DFDLTestSuite(aNodeFileOrURL: Any,
-  validateTDMLFile: Boolean = true,
-  val validateDFDLSchemas: Boolean = true,
-  val compileAllTopLevel: Boolean = false,
-  val defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
-  val defaultValidationDefault: String = Runner.defaultValidationDefaultDefault)
+class DFDLTestSuite private[tdml] (
+  val __nl: Null, // this extra arg allows us to make this primary constructor package private so we can deprecate the one generally used.
+  aNodeFileOrURL: Any,
+  validateTDMLFile: Boolean,
+  val validateDFDLSchemas: Boolean,
+  val compileAllTopLevel: Boolean,
+  val defaultRoundTripDefault: Boolean,
+  val defaultValidationDefault: String)
   extends Logging with HasSetDebugger {
+
+  // Uncomment to force conversion of all test suites to use Runner(...) instead.
+  // That avoids creating the test suites repeatedly, but also leaks memory unless
+  // you have an @AfterClass shutdown method in the object that calls runner.reset() at end.
+  //
+  // @deprecated("2016-12-30", "Use Runner(...) instead.")
+  def this(aNodeFileOrURL: Any,
+    validateTDMLFile: Boolean = true,
+    validateDFDLSchemas: Boolean = true,
+    compileAllTopLevel: Boolean = false,
+    defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
+    defaultValidationDefault: String = Runner.defaultValidationDefaultDefault) =
+    this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel, defaultRoundTripDefault, defaultValidationDefault)
 
   if (!aNodeFileOrURL.isInstanceOf[scala.xml.Node])
     System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
@@ -478,8 +493,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
     bindings
   }
-  
-   private def retrieveTunables(cfg: DefinedConfig): Map[String,String] = {
+
+  private def retrieveTunables(cfg: DefinedConfig): Map[String, String] = {
     val configFileTunables: Map[String, String] = cfg.tunables match {
       case None => Map.empty
       case Some(tunableNode) => {
@@ -489,7 +504,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
     configFileTunables
   }
-  
+
   // Provide ability to override existing (default) tunables
   private def retrieveTunablesCombined(existingTunables: Map[String, String], cfg: DefinedConfig) = {
     val configFileTunables: Map[String, String] = retrieveTunables(cfg)
@@ -534,7 +549,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
    */
   def run(schemaArg: Option[Node] = None): Long = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
-    
+
     val defaultCfg: Option[DefinedConfig] = parent.defaultConfig match {
       case "" => None
       case configName => {
@@ -574,11 +589,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case None => Seq.empty
       case Some(definedConfig) => retrieveBindings(definedConfig)
     }
-    val defaultTunables: Map[String,String] = defaultCfg match {
+    val defaultTunables: Map[String, String] = defaultCfg match {
       case None => Map.empty
       case Some(definedConfig) => retrieveTunables(definedConfig)
     }
-    val tunables: Map[String,String] = cfg match {
+    val tunables: Map[String, String] = cfg match {
       case None => defaultTunables
       case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
     }

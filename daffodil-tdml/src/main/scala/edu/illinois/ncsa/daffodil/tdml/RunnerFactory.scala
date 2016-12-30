@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.tdml
 
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory
@@ -42,6 +43,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
  *
  * Provides a reset method to be called from @AfterClass to drop
  * the test suite object (and avoid memory leak).
+ *
+ * Note: I have verified that this does get called after each test suite has been run.
  *
  * defaultRoundTripDefault if true the round trip default for the test suite will be
  * this value, if the test suite does not specify defaultRoundTrip attribute.
@@ -55,8 +58,11 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault): Runner =
-    new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+    new Runner(null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault, defaultValidationDefault)
+
+  def apply(elem: scala.xml.Elem): Runner =
+    new Runner(elem, null, null)
 
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:
@@ -75,21 +81,35 @@ object Runner {
  *
  * Note however, that each thread will get its own copy of the DFDLTestSuite
  */
-class Runner private (dir: String, file: String,
-  validateTDMLFile: Boolean,
-  validateDFDLSchemas: Boolean,
-  compileAllTopLevel: Boolean,
-  defaultRoundTripDefault: Boolean,
-  defaultValidationDefault: String) {
+class Runner private (elem: scala.xml.Elem, dir: String, file: String,
+  validateTDMLFile: Boolean = true,
+  validateDFDLSchemas: Boolean = true,
+  compileAllTopLevel: Boolean = false,
+  defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
+  defaultValidationDefault: String = Runner.defaultValidationDefaultDefault) {
+
+  if (elem ne null)
+    Assert.usage((dir eq null) && (file eq null))
+  else
+    Assert.usage((dir ne null) && (file ne null))
+
+  private lazy val resource = {
+    // This is ok to be a hard-wired "/" because these are resource identifiers, which
+    // are not file-system paths that have to be made platform-specific.
+    // In other words, we don't need to use "\\" for windows here. "/" works there as well.
+    val d = if (dir.endsWith("/")) dir else dir + "/"
+    Misc.getRequiredResource(d + file)
+  }
 
   private def getTS = {
     if (ts == null) {
-      // This is ok to be a hard-wired "/" because these are resource identifiers, which
-      // are not file-system paths that have to be made platform-specific.
-      // In other words, we don't need to use "\\" for windows here. "/" works there as well.
-      val d = if (dir.endsWith("/")) dir else dir + "/"
-      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-        defaultRoundTripDefault, defaultValidationDefault))
+      if (elem eq null) {
+        tl_ts.set(new DFDLTestSuite(resource, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+          defaultRoundTripDefault, defaultValidationDefault))
+      } else {
+        tl_ts.set(new DFDLTestSuite(elem, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
+          defaultRoundTripDefault, defaultValidationDefault))
+      }
     }
     ts
   }
@@ -106,7 +126,15 @@ class Runner private (dir: String, file: String,
    *  to drop any state (like the test suite object) so we don't leak
    */
   def reset {
-    tl_ts.set(null)
+    try {
+      if (file ne null)
+        System.err.println("Reset runner for " + resource)
+      else
+        System.err.println("Resetting runner")
+      tl_ts.set(null)
+    } catch {
+      case io: java.io.FileNotFoundException => //ok
+    }
   }
 
   def trace = {

@@ -306,7 +306,7 @@
           <xs:element name="separatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
           <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
             <xs:complexType>
-              <xs:sequence dfdl:separator="{ daf:trace(xs:string(/ex:e2/ex:separatorArray[daf:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }">
+              <xs:sequence dfdl:separator="{ xs:string(/ex:e2/ex:separatorArray[xs:int(dfdl:occursIndex())]) }">
                 <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
               </xs:sequence>
             </xs:complexType>
@@ -396,7 +396,7 @@
           <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
           <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
             <xs:complexType>
-              <xs:sequence dfdl:initiator="{ daf:trace(xs:string(/ex:e5/ex:initiatorArray[daf:trace(xs:int(dfdl:occursIndex()), 'index')]), 'initiator') }" dfdl:separator=",">
+              <xs:sequence dfdl:initiator="{ xs:string(/ex:e5/ex:initiatorArray[xs:int(dfdl:occursIndex())]) }" dfdl:separator=",">
                 <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
               </xs:sequence>
             </xs:complexType>

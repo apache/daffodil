@@ -36,10 +36,14 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-class TestRegularExpressionsNew {
+object TestRegularExpressionsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section24/regular_expressions/"
   val tdml = testDir + "RegularExpressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+}
+
+class TestRegularExpressionsNew {
+  import TestRegularExpressionsNew._
 
   // testDFDL-922
   @Test def test_testRegEx_08() { runner.runOneTest("testDFDL-922") }

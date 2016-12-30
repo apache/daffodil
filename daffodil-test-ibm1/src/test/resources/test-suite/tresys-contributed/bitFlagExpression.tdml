@@ -38,11 +38,11 @@
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator><![CDATA[{
-            if (daf:trace((daf:trace(../../ex:presenceBit,"presenceBit") eq 0),"pbIsZero")) then fn:false()
+            if (../../ex:presenceBit eq 0) then fn:false()
             else if
-            (daf:trace(daf:trace(dfdl:occursIndex(),"occursIndex") eq 1,"indexIsOne")) then fn:true()
+            (dfdl:occursIndex() eq 1) then fn:true()
             else if
-            (daf:trace(daf:trace(xs:int(../../ex:A1[daf:trace(dfdl:occursIndex()-1,"indexMinusOne")]/ex:repeatBit),"priorRepeatBit") eq 0,"priorRepeatBitIsZero")) then fn:false()
+            (xs:int(../../ex:A1[dfdl:occursIndex()-1]/ex:repeatBit) eq 0) then fn:false()
             else fn:true() 
             }]]></dfdl:discriminator>
           <dfdl:element

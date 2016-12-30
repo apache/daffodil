@@ -58,9 +58,9 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (daf:trace(daf:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          if (xs:unsignedByte(../ex:bom) eq 10) then 'bigEndian' 
           else (
-                 if (daf:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
+                 if (xs:unsignedByte(../ex:bom) eq 20) then 'littleEndian'
                  else daf:error()
                )
       }]]></dfdl:property>
@@ -81,9 +81,9 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          if (xs:unsignedByte(../ex:bom) eq 10) then 'bigEndian' 
           else (
-                 if (fn:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
+                 if (xs:unsignedByte(fn:trace(../ex:bom,'bom')) eq 20) then 'littleEndian'
                  else daf:error()
                )
       }]]></dfdl:property>
@@ -104,8 +104,8 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (daf:trace(daf:trace(xs:unsignedShort(../ex:bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
-          else if (daf:trace(xs:unsignedShort(../ex:bom) eq 65534, 'pred2')) then 'littleEndian'
+          if (xs:unsignedShort(../ex:bom) eq 65279) then 'bigEndian' 
+          else if (xs:unsignedShort(../ex:bom) eq 65534) then 'littleEndian'
           else daf:error()
       }]]></dfdl:property>
                 </dfdl:element>
@@ -126,8 +126,8 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- hoist calculation so we do it only once -->
                 <dfdl:setVariable ref="ex:bom"><![CDATA[{
-          if (daf:trace(daf:trace(xs:unsignedShort(.), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
-          else if (daf:trace(xs:unsignedShort(.) eq 65534, 'pred2')) then 'littleEndian'
+          if (xs:unsignedShort(.) eq 65279) then 'bigEndian' 
+          else if (xs:unsignedShort(.) eq 65534) then 'littleEndian'
           else daf:error()
       }]]></dfdl:setVariable>
               </xs:appinfo>

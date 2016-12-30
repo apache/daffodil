@@ -37,13 +37,17 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import org.junit.Test
 
-class IBMTestsThatPass {
+object IBMTestsThatPass {
 
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+}
+
+class IBMTestsThatPass {
+  import IBMTestsThatPass._
 
   @Test def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }
 

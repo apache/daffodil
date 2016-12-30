@@ -33,14 +33,18 @@
 package edu.illinois.ncsa.daffodil.csv
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestCSV {
+  lazy val runner = Runner("/edu/illinois/ncsa/daffodil/csv/", "csv.tdml")
+
+  @AfterClass def shutdown: Unit = { runner.reset }
+
+}
 
 class TestCSV {
-  val testDir = "/edu/illinois/ncsa/daffodil/csv/"
-  val aa = testDir + "csv.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  import TestCSV._
 
   @Test def test_csv_test() { runner.runOneTest("csv_test") }
   @Test def test_csv_test_2() { runner.runOneTest("csv_test_2") }

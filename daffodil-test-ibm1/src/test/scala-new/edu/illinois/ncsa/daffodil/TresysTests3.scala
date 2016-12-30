@@ -36,25 +36,36 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 
-class TresysTests3 {
+object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
   lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"),
     compileAllTopLevel = true)
 
-  @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
-  @Test def test_testOne() { runnerBF.runOneTest("testOne") }
-  @Test def test_testMany() { runnerBF.runOneTest("testMany") }
-
   val ab = testDir + "ABLargeData.tdml.dat"
   lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab),
     compileAllTopLevel = true)
-  // Runs, but it is too slow to use in regression tests
-  @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
   val ah = testDir + "AH.tdml"
   lazy val runnerAH = new DFDLTestSuite(Misc.getRequiredResource(ah),
     compileAllTopLevel = true)
+
+  val am = testDir + "AM.tdml"
+  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
+    compileAllTopLevel = true)
+
+}
+
+class TresysTests3 {
+  import TresysTests3._
+
+  @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
+  @Test def test_testOne() { runnerBF.runOneTest("testOne") }
+  @Test def test_testMany() { runnerBF.runOneTest("testMany") }
+
+  // Runs, but it is too slow to use in regression tests
+  //@Test def test_AB006() { runnerAB.runOneTest("AB006") }
+
   @Test def test_AH000() { runnerAH.runOneTest("AH000") }
   @Test def test_AH001() { runnerAH.runOneTest("AH001") }
   @Test def test_AH002() { runnerAH.runOneTest("AH002") }
@@ -71,9 +82,7 @@ class TresysTests3 {
   // group. Because everything inside a hidden group must be either default or
   // OVC, and arrays can't have either, they cannot be in hidden groups. It is
   // not worth fixing this test to work at the moment.
-  val am = testDir + "AM.tdml"
-  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
+
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }

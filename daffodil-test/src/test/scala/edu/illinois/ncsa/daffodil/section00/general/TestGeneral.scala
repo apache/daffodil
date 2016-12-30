@@ -43,16 +43,16 @@ import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestGeneral {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val runner = Runner(testDir, "general.tdml")
+  lazy val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  lazy val runner = Runner(testDir, "general.tdml")
 
-  val runner1 = Runner(testDir, "largeInput.tdml")
+  lazy val runner1 = Runner(testDir, "largeInput.tdml")
 
-  val testDir2 = "/test space/"
-  val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
+  lazy val testDir2 = "/test space/"
+  lazy val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
 
-  val testDir3 = "/test space/test 1/"
-  val runner_ns = Runner(testDir3, "namespaces.tdml")
+  lazy val testDir3 = "/test space/test 1/"
+  lazy val runner_ns = Runner(testDir3, "namespaces.tdml")
 
   @AfterClass def shutDown() {
     runner.reset
@@ -83,14 +83,18 @@ class TestGeneral {
   @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
 
   @Test def test_dir_and_file_with_spaces() {
-    val e = intercept[Exception] {
-      runnerA_B.runOneTest("AB006")
+    try {
+      val e = intercept[Exception] {
+        runnerA_B.runOneTest("AB006")
+      }
+      val m = e.getMessage()
+      assertTrue(m.toLowerCase.contains("required resource"))
+      assertTrue(m.contains("/test%20space/A%20BTinyData.tdml.dat"))
+      assertTrue(m.toLowerCase.contains("not found"))
+    } catch {
+      case fnf: java.io.FileNotFoundException =>
+        println("FUBAR")
     }
-    val m = e.getMessage()
-    assertTrue(m.toLowerCase.contains("required resource"))
-    assertTrue(m.contains("/test%20space/A%20BTinyData.tdml.dat"))
-    assertTrue(m.toLowerCase.contains("not found"))
-
   }
 
   @Test def test_no_namespace_02() {

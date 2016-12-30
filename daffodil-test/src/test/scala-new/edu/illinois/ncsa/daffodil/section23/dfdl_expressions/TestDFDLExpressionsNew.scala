@@ -36,7 +36,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-class TestDFDLExpressionsNew {
+object TestDFDLExpressionsNew {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
 
@@ -60,6 +60,10 @@ class TestDFDLExpressionsNew {
 
   val tdml5 = testDir4 + "expressions2.tdml"
   lazy val runner5 = new DFDLTestSuite(Misc.getRequiredResource(tdml5))
+}
+
+class TestDFDLExpressionsNew {
+  import TestDFDLExpressionsNew._
 
   //DFDL-1076
   @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }

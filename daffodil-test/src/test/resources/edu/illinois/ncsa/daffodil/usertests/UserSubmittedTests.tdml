@@ -25,7 +25,7 @@
 
 		<xsd:element name="Root">
 			<xsd:annotation>
-				<xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<xsd:appinfo source="http://www.ogf.org/dfdl/">
 					<!-- use asserts to make sure each header appears the correct number 
 						of times -->
 					<dfdl:assert message="Date must appear 1 time."
