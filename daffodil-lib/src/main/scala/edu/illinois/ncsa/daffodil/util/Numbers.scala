@@ -1,36 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
- *
- * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal with
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimers.
- *
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimers in the
- *     documentation and/or other materials provided with the distribution.
- *
- *  3. Neither the names of Tresys Technology, nor the names of its contributors
- *     may be used to endorse or promote products derived from this Software
- *     without specific prior written permission.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
- * SOFTWARE.
- */
-
-package edu.illinois.ncsa.daffodil.dpath
+package edu.illinois.ncsa.daffodil.util
 
 import java.lang.{ Boolean => JBoolean }
 import java.lang.{ Byte => JByte }
@@ -42,18 +10,69 @@ import java.lang.{ Number => JNumber }
 import java.lang.{ Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
 
-object AsIntConverters {
+object Numbers {
+
+  def isValidInt(n: Number): Boolean = {
+    val res = n match {
+      case j: JInt => true
+      case j: JShort => true
+      case j: JByte => true
+      case j: JLong if (j.longValue == j.intValue()) => true
+      case _ => {
+        val bd = asBigDecimal(n)
+        try {
+          bd.intValueExact()
+          true
+        } catch {
+          case e: java.lang.ArithmeticException => false
+        }
+      }
+    }
+    res
+  }
+
+  def isValidLong(n: Number): Boolean = {
+    val res = n match {
+      case j: JLong => true
+      case j: JInt => true
+      case j: JShort => true
+      case j: JByte => true
+      case _ => {
+        val bd = asBigDecimal(n)
+        try {
+          bd.longValueExact()
+          true
+        } catch {
+          case e: java.lang.ArithmeticException => false
+        }
+      }
+    }
+    res
+  }
 
   /**
-   * Parsers don't always insert the smallest numeric type into the infoset.
-   * Sometimes we get a BigInt when an Int would have sufficed, but the
-   * parsers don't always do that. This is a workaround. Really the parsers
-   * should be inserting the *right thing* into the infoset.
+   * This is true only if converting to a double and back results
+   * in an equal JBigDecimal.
+   *
+   * The scale matters. E.g., if you do:
+   * {{{
+   * val foo = new JBigDecimal("0.2")
+   * val bar = new JBigDecimal("0.200000000000")
+   * isDecimalDouble(foo) // true
+   * isDecimalDouble(bar) // false
+   * }}}
    */
+  def isDecimalDouble(bd: JBigDecimal): Boolean = {
+    val df = bd.doubleValue()
+    if (df.isInfinity) false
+    else {
+      val d = JBigDecimal.valueOf(df)
+      d.equals(bd)
+    }
+  }
+
   def asInt(n: AnyRef): JInt = {
     val value = n match {
       case b: JByte => b.toInt
@@ -126,7 +145,7 @@ object AsIntConverters {
    * */
   def asBigInt(n: AnyRef): JBigInt = {
     val value: JBigInt = n match {
-      case b: JBigInt => b//BigInt(b)
+      case b: JBigInt => b //BigInt(b)
       case bd: JBigDecimal => bd.toBigInteger()
       case d: JDouble => new JBigDecimal(d).toBigInteger()
       case f: JFloat => new JBigDecimal(f.toDouble).toBigInteger()

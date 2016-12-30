@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Evaluation",
@@ -82,7 +82,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
 
   private def UE(e: Throwable, maybeCL: Maybe[DataLocation]) =
-    new UnparseError(One(ci.schemaFileLocation), maybeCL, e)
+    throw new UnparseError(One(ci.schemaFileLocation), maybeCL, e)
 
   private def doPE(e: Throwable, state: ParseOrUnparseState): Null = {
     state match {

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import AsIntConverters.asInt
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import edu.illinois.ncsa.daffodil.calendar.DFDLTime
 

@@ -32,62 +32,106 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.RoundingMode
 
 case object PlusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).add( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).add(asBigDecimal(v2)) }
 }
 case object MinusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).subtract( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).subtract(asBigDecimal(v2)) }
 }
 case object TimesDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).multiply( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).multiply(asBigDecimal(v2)) }
 }
+
+/**
+ * Division with rounding for decimals
+ *
+ *  About the rounding.
+ *
+ *  Without rounding specified here, you can get an java arithmetic exception
+ *  Specifically:
+ *  {{{
+ *  java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable decimal result.
+ *  }}}
+ *
+ * What's questionable here, is to what number of fraction digits it will round.
+ * That can be specified also as an argument to divide(), but we have no
+ * information here (or anywhere really) about what precision is desired.
+ * So we're omitting that and just saying "round it".
+ *
+ * Really, there's no rounding scale/precision until we're ready to represent
+ * the number in a string. In this case we're not. We're in the middle of an
+ * expression, just happen to have two BigDecimal operands, and we're dividing
+ * them, which should produce a BigDecimal result.
+ *
+ * DFDL expressions are supposed to be consistent with XPath, so we look there
+ * for suggestions. The XPath spec
+ * [[https://www.w3.org/TR/xpath-functions-3/#op.numeric]] says it is implementation
+ * defined.
+ *
+ *     For xs:decimal values, let N be the number of digits of precision
+ *     supported by the implementation, and let M (M <= N) be the minimum
+ *     limit on the number of digits required for conformance (18 digits
+ *     for XSD 1.0, 16 digits for XSD 1.1). Then for addition, subtraction,
+ *     and multiplication operations, the returned result should be accurate
+ *     to N digits of precision, and for division and modulus operations,
+ *     the returned result should be accurate to at least M digits of precision.
+ *     The actual precision is ·implementation-defined·. If the number of digits
+ *     in the mathematical result exceeds the number of digits that the
+ *     implementation retains for that operation, the result is truncated
+ *     or rounded in an ·implementation-defined· manner
+ *
+ *  In our case, the implementation does what the JVM and java libraries do when
+ *  divide() is called with two arguments the second of which specifies
+ *  to round half-up.
+ */
 case object DivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide(asBigDecimal(v2), RoundingMode.HALF_EVEN) }
 }
 case object IDivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide(asBigDecimal(v2), RoundingMode.HALF_EVEN) }
 }
 case object ModDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).remainder( asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).remainder(asBigDecimal(v2)) }
 }
 
 case object PlusInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add(asBigInt(v2)) }
 }
 case object MinusInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract(asBigInt(v2)) }
 }
 case object TimesInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object IDivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object ModInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2))}
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
 }
 
 case object PlusNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add(asBigInt(v2)) }
 }
 case object MinusNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract(asBigInt(v2)) }
 }
 case object TimesNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object IDivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object ModNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
@@ -97,16 +141,16 @@ case object PlusUnsignedLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).add(asBigInt(v2)) }
 }
 case object MinusUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).subtract(asBigInt(v2)) }
 }
 case object TimesUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object IDivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide( asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
 }
 case object ModUnsignedLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }

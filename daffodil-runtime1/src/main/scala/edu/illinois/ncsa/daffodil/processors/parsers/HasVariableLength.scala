@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.util.Numbers
 import java.lang.{ Long => JLong }
 
 trait HasVariableLength { self: PrimParser =>
@@ -43,7 +43,7 @@ trait HasVariableLength { self: PrimParser =>
 
   def getLength(pstate: PState): Long = {
     val lengthAsJLong = lengthEv.evaluate(pstate)
-    val l = AsIntConverters.asLong(lengthAsJLong)
+    val l = Numbers.asLong(lengthAsJLong)
     l
   }
 }

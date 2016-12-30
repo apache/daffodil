@@ -110,7 +110,7 @@ case object UnparserNonBlocking extends EvalMode
  * becomes available.
  */
 case class DState() {
-  import AsIntConverters._
+  import edu.illinois.ncsa.daffodil.util.Numbers._
 
   var isCompile = false
 

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 

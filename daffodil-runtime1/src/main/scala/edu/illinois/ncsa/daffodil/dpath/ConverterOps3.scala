@@ -32,11 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-
-import AsIntConverters.asBigInt
-import AsIntConverters.asLong
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.util.Misc
-import AsIntConverters._
 import java.math.{ BigInteger => JBigInt }
 
 case object NumericToString extends ToString

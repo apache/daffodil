@@ -36,7 +36,7 @@ import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.util.Numbers
 import java.lang.{ Long => JLong }
 
 trait HasKnownLengthInBits {
@@ -61,7 +61,7 @@ trait HasRuntimeExplicitLength {
 
   def getBitLength(s: ParseOrUnparseState): Int = {
     val nBytesAsJLong = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asInt(nBytesAsJLong)
+    val nBytes = Numbers.asInt(nBytesAsJLong)
     nBytes * toBits
   }
 }

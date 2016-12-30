@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -300,7 +300,7 @@ class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: Elemen
 
   def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
     val oc = occursCountEv.evaluate(pstate)
-    val ocLong = AsIntConverters.asLong(oc)
+    val ocLong = Numbers.asLong(oc)
     if (ocLong < 0 ||
       ocLong > DaffodilTunableParameters.maxOccursBounds) {
       PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCountEv, ocLong)

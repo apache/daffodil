@@ -112,14 +112,18 @@ object NodeInfoUtils {
    * from the operation on them.
    */
   def generalizeArgAndResultTypesForNumericOp(op: String,
-    inherent1: Numeric.Kind,
-    inherent2: Numeric.Kind): (Numeric.Kind, Numeric.Kind) = {
+    leftArgType: Numeric.Kind,
+    rightArgType: Numeric.Kind): ( //
+    Numeric.Kind, // first result is generalized arg type
+    Numeric.Kind // second result is generalized result type
+    ) = {
     /*
      * Adjust for the Decimal result type when div is used on any integer types.
      */
     def divResult(t: NodeInfo.Numeric.Kind) =
       if (op == "div") Decimal else t
-    val (argType: Numeric.Kind, resultType: Numeric.Kind) = (inherent1, inherent2) match {
+
+    val (argType: Numeric.Kind, resultType: Numeric.Kind) = (leftArgType, rightArgType) match {
       case (_, Decimal) => (Decimal, Decimal)
       case (Decimal, _) => (Decimal, Decimal)
       case (_, Double) => (Double, Double)
@@ -149,7 +153,7 @@ object NodeInfoUtils {
       case (_, Byte) => (Byte, divResult(Int))
       case (Byte, _) => (Byte, divResult(Int))
       case _ => Assert.usageError(
-        "Unsupported types for numeric op '%s' were %s and %s.".format(op, inherent1, inherent2))
+        "Unsupported types for numeric op '%s' were %s and %s.".format(op, leftArgType, rightArgType))
     }
     (argType, resultType)
   }

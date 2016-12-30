@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode
 import com.ibm.icu.util.TimeZone
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.calendar.DFDLTime

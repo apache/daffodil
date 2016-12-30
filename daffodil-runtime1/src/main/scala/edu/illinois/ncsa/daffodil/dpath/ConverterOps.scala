@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
@@ -76,7 +76,7 @@ case object DecimalToInteger extends Converter {
 case object DecimalToLong extends Converter {
   val MAX_VALUE = JBigDecimal.valueOf(Long.MaxValue)
   val MIN_VALUE = JBigDecimal.valueOf(Long.MinValue)
-  
+
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
     val res = asBigDecimal(a)
     if (res.compareTo(MIN_VALUE) == -1 || res.compareTo(MAX_VALUE) == 1) throw new NumberFormatException("Value %s out of range for Long type.".format(res))

@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 
 abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
   extends PrimUnparserObject(e) {

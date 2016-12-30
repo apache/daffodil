@@ -56,7 +56,7 @@ class TestDiscriminators2 {
   @Test def test_assertSDENotPE1() { runner2.runOneTest("assertSDENotPE1") }
   @Test def test_occursCountSDENotPE1() { runner2.runOneTest("occursCountSDENotPE1") }
 
-  @Test def test_discrimPEvalueLength1() { runner2.trace.runOneTest("discrimPEvalueLength1") }
-  @Test def test_discrimPEvalueLengthEnclosingParent1() { runner2.trace.runOneTest("discrimPEvalueLengthEnclosingParent1") }
+  @Test def test_discrimPEvalueLength1() { runner2.runOneTest("discrimPEvalueLength1") }
+  @Test def test_discrimPEvalueLengthEnclosingParent1() { runner2.runOneTest("discrimPEvalueLengthEnclosingParent1") }
 
 }

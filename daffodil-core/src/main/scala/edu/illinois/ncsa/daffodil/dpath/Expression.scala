@@ -43,6 +43,7 @@ import scala.util.{ Success, Failure }
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.equality._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import edu.illinois.ncsa.daffodil.util.Numbers
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1142,33 +1143,6 @@ abstract class LiteralExpressionBase(value: Any)
 
   override def toString = text
 
-  def isValidInt(n: Number): Boolean = {
-    val bd = new JBigDecimal(n.toString())
-    val res = try {
-      bd.intValueExact()
-      true
-    } catch {
-      case e: java.lang.ArithmeticException => false
-    }
-    res
-  }
-
-  def isValidLong(n: Number): Boolean = {
-    val bd = new JBigDecimal(n.toString())
-    val res = try {
-      bd.longValueExact()
-      true
-    } catch {
-      case e: java.lang.ArithmeticException => false
-    }
-    res
-  }
-
-  def isDecimalDouble(bd: JBigDecimal): Boolean = {
-    val d = bd.doubleValue()
-    !d.isInfinity && equals(bd)
-  }
-
   /**
    * Convert to regular types from the pessimistic BigInt
    * and BigDecimal that come in from the parser.
@@ -1180,16 +1154,24 @@ abstract class LiteralExpressionBase(value: Any)
       Assert.usageError("Expected java.math.BigInteger but received BigInt.")
     }
     case i: JBigInt => {
-      if (isValidInt(i)) i.intValue()
-      else if (isValidLong(i)) i.longValue()
+      if (Numbers.isValidInt(i)) i.intValue()
+      else if (Numbers.isValidLong(i)) i.longValue()
       else i
     }
     case bd: BigDecimal => {
       Assert.usageError("Expected java.math.BigDecimal but received scala BigDecimal.")
     }
     case bd: JBigDecimal => {
-      if (isValidLong(bd)) bd.longValue()
-      else if (isDecimalDouble(bd)) bd.doubleValue()
+      // since we got a JBigDecimal, we know it at least wasn't parsed
+      // into a JBigInteger, so it has a fraction component, even if it is ".0"
+      // We want a double if it fits in one exactly. Otherwise keep a decimal.
+      //
+      // So consider 0.2. That's going to become a double float since it can be
+      // converted to/from without loss of information.
+      //
+      // But 0.20000000000 is going to stay a BigDecimal.
+      //
+      if (Numbers.isDecimalDouble(bd)) bd.doubleValue()
       else bd
     }
     case f: Float => f.toDouble

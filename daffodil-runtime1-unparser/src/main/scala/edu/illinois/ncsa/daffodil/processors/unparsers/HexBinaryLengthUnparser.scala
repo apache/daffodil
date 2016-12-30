@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.processors.RetryableException
@@ -91,7 +91,7 @@ final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val length
   override def getLength(state: UState): Long = {
     val l: Long = try {
       val lengthAsAnyRef = lengthEv.evaluate(state)
-      AsIntConverters.asLong(lengthAsAnyRef)
+      Numbers.asLong(lengthAsAnyRef)
     } catch {
       case e: RetryableException => {
         val bytes = state.currentInfosetNode.asSimple.dataValue.asInstanceOf[Array[Byte]]

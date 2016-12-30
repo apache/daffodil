@@ -53,7 +53,7 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowableWithCause
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters._
+import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
@@ -823,8 +823,20 @@ sealed trait DIElement
   override def toString = {
     val cl = Misc.getNameFromClass(this)
     val n = trd.name
-    cl + "(name='" + n + "' " + contentLength.toString() + " " + valueLength.toString() + ")"
+    val clStr = if (_contentLength eq null) "" else " " + contentLength.toString()
+    val vlStr = if (_valueLength eq null) "" else " " + valueLength.toString()
+    val validStr =
+      if (_validity.isEmpty) ""
+      else if (_validity.get) " valid"
+      else " not valid"
+    val valStr = {
+      val vsfd = valueStringForDebug
+      if (vsfd == "") "" else " " + vsfd
+    }
+    cl + "(name='" + n + "'" + valStr + clStr + vlStr + validStr + ")"
   }
+
+  def valueStringForDebug: String
 
   def isRoot = parent match {
     case doc: DIDocument => !doc.isCompileExprFalseRoot
@@ -1191,6 +1203,19 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _value = null
   }
 
+  /**
+   * This has to produce a useful string regardless of the
+   * state of the node.
+   */
+  override def valueStringForDebug: String = {
+    val res =
+      if (_isNilled) "nil"
+      else if (_value ne null) _value.toString()
+      else if (_stringRep ne null) "stringRep(" + _stringRep + ")"
+      else ""
+    res
+  }
+
   def hasValue: Boolean = !_isNilled && _value != null
   /**
    * Obtain the data value. Implements default
@@ -1372,6 +1397,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   override def requireFinal {
     if (!isFinal) throw nfe
   }
+
+  override def valueStringForDebug: String = ""
 
   final override def isEmpty: Boolean = false
 

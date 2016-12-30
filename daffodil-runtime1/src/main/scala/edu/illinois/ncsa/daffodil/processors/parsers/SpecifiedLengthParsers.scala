@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -136,7 +136,7 @@ class SpecifiedLengthExplicitParser(
 
   final override def getBitLength(s: PState): Long = {
     val nBytesAsAny = lengthEv.evaluate(s)
-    val nBytes = AsIntConverters.asLong(nBytesAsAny)
+    val nBytes = Numbers.asLong(nBytesAsAny)
     nBytes * toBits
   }
 }
