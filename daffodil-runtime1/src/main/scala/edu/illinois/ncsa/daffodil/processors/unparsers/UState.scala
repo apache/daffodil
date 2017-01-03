@@ -95,7 +95,7 @@ abstract class UState(
     val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
-  
+
   var dataOutputStream: DataOutputStream = dos
 
   def prior: UStateForSuspension
@@ -107,12 +107,12 @@ abstract class UState(
   def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
   def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
   def withByteArrayOutputStream: LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
-  
+
   def allTerminatingMarkup: List[DFADelimiter]
   def localDelimiters: DelimiterStackUnparseNode
   def pushDelimiters(node: DelimiterStackUnparseNode): Unit
   def popDelimiters(): Unit
-  
+
   def currentInfosetNodeStack: MStackOfMaybe[DINode]
   def arrayIndexStack: MStackOfLong
   def childIndexStack: MStackOfLong
@@ -120,7 +120,7 @@ abstract class UState(
   def moveOverOneArrayIndexOnly(): Unit
   def moveOverOneGroupIndexOnly(): Unit
   def moveOverOneElementChildOnly(): Unit
-  
+
   def inspectOrError: InfosetAccessor
   def advanceOrError: InfosetAccessor
   def isInspectArrayEnd: Boolean
@@ -178,7 +178,6 @@ abstract class UState(
     dataOutputStream.setDebugging(flag)
   }
 
-
   def addUnparseError(ue: UnparseError) {
     diagnostics = ue :: diagnostics
     status_ = new Failure(ue)
@@ -199,7 +198,7 @@ abstract class UState(
  * information isn't used and there's no need to copy it/take up valuable
  * memory.
  */
-class UStateForSuspension (
+class UStateForSuspension(
   val mainUState: UStateMain,
   dos: DataOutputStream,
   vbox: VariableBox,
@@ -243,11 +242,11 @@ class UStateForSuspension (
 
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die
-  override def groupPos = die
+  override def groupPos = 0 // was die, but this is called when copying state during debugging
 
   override def childIndexStack = die
   override def moveOverOneElementChildOnly() = die
-  override def childPos = die
+  override def childPos = 0 // was die, but this is called when copying state during debugging.
 
   override def occursBoundsStack = die
 
@@ -259,7 +258,7 @@ class UStateForSuspension (
       (dnode.separator.toList ++ dnode.terminator.toList)
     }.toList
   }
-  
+
   override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = escapeSchemeEVCacheMaybe.get
 
   override def setVariables(newVariableMap: VariableMap) = die
@@ -322,8 +321,7 @@ class UStateMain private (
       arrayIndexStack.top, // only need the to of the stack, not the whole thing
       es,
       ds,
-      prior
-      )
+      prior)
 
     this._prior = clone
     clone
