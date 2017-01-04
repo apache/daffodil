@@ -114,7 +114,12 @@ trait TermRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val charsetEv = maybeCharsetEv.get
+  final lazy val charsetEv =
+    if (maybeCharsetEv.isDefined) maybeCharsetEv.get
+    else {
+      findProperty("encoding")
+      Assert.invariantFailed("the findProperty above is supposed to cause SDE.")
+    }
 
   final lazy val maybeCharsetEv =
     if (optionEncodingRaw.isDefined) {
