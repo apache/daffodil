@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -834,5 +834,70 @@
 		</tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s1">
+
+    <dfdl:defineFormat name="bits">
+    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bits" alignmentUnits="bits" 
+      alignment="1" representation="binary" encoding="ascii"
+      lengthKind="explicit" occursCountKind="parsed" 
+      bitOrder="leastSignificantBitFirst" 
+      byteOrder="littleEndian"/>
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="bits" />
+
+    <xs:element name="r1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="75">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="b" type="xs:int" dfdl:length="32" />
+                <xs:element name="c" type="xs:int" dfdl:length="32" />
+                <xs:element name="d" type="xs:int" dfdl:length="11" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="z" type="xs:int" dfdl:length="10"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+<!--
+     Test Name: denseBit_lengthKind_explicit
+        Schema: s1
+          Root: r1
+       Purpose: This test demonstrates using lengthKind='explicit' for dense bit packed format - related to DFDL-1674
+-->
+
+  <tdml:parserTestCase name="denseBit_lengthKind_explicit" root="r1" model="s1" 
+    description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+      00 00 00 00 00 00 00 00 00 00
+      00 00 00 00 00 00 00 00 00 00
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r1>
+          <a>
+            <b>0</b>
+            <c>0</c>
+            <d>0</d>
+          </a>
+          <a>
+            <b>0</b>
+            <c>0</c>
+            <d>0</d>
+          </a>
+          <z>0</z>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

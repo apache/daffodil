@@ -75,4 +75,8 @@ class TestLengthKindExplicit {
   @Test def test_explicitBytes_int_01() = { runner.runOneTest("explicitBytes_int_01") }
   @Test def test_explicitBytes_int_02() = { runner.runOneTest("explicitBytes_int_02") }
 
+  // Added for issue related to DFDL-1674
+  @Test def test_denseBit_lengthKind_explicit() { runner.runOneTest("denseBit_lengthKind_explicit") }
+
+
 }

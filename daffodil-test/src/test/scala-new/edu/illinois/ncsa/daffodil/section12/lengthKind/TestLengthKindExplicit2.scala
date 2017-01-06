@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section12.lengthKind
 
-import org.junit.Test
+/*import org.junit.Test */
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -48,8 +48,6 @@ object TestLengthKindExplicit2 {
 
 class TestLengthKindExplicit2 {
 
-  import TestLengthKindExplicit2._
-
-  @Test def test_1674_explicit1() { runner.runOneTest("test_1674_explicit1") }
+/*  import TestLengthKindExplicit2._ */
 
 }
