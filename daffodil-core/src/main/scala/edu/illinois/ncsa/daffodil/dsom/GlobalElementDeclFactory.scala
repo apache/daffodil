@@ -51,7 +51,9 @@ class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   def forRoot() = asRoot // cache. Not a new one every time.
   lazy val asRoot = new GlobalElementDecl(xml, schemaDocument, None)
 
-  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
+  def forElementRef(eRef: ElementRef) = {
+    new GlobalElementDecl(xml, schemaDocument, Some(eRef))
+  }
 
   override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 

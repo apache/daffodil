@@ -92,6 +92,12 @@ class AltParseFailed(rd: SchemaFileLocation, state: PState,
   }
 }
 
+class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: String)
+  extends ParseError(One(rd), One(state.currentLocation), "Choice dispatch key (%s) failed to match any of the branch keys.", key)
+
+class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
+  extends ParseError(One(rd), One(state.currentLocation), "Choice dispatch branch failed: %s", errors)
+
 class GeneralParseFailure(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
   Assert.usage(msg != null && msg != "")
   override def isError = true

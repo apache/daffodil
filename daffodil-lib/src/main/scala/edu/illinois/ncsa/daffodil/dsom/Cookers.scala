@@ -91,3 +91,7 @@ object TextBooleanTrueRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEn
 object TextBooleanFalseRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object EncodingCooker extends UpperCaseToken()
+
+object ChoiceDispatchKeyCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object ChoiceBranchKeyCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()

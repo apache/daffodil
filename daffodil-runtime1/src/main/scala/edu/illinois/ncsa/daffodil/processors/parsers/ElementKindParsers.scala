@@ -41,6 +41,11 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
+import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
+import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchNoMatch
+import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchFailed
+import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
@@ -162,6 +167,45 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 
   def parse(start: PState): Unit = {
     bodyParser.parse1(start)
+  }
+}
+
+class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
+  extends ParserObject(rd)
+  with WithParseErrorThrowing {
+  override def nom = "ChoiceDispatch"
+
+  override lazy val childProcessors = dispatchBranchKeyMap.values.toSeq
+
+  def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
+    val key = dispatchKeyEv.evaluate(pstate)
+
+    val parserOpt = dispatchBranchKeyMap.get(key)
+    if (parserOpt.isEmpty) {
+      val diag = new ChoiceDispatchNoMatch(context.schemaFileLocation, pstate, key)
+      pstate.setFailed(diag)
+    } else {
+      val parser = parserOpt.get
+
+      // We don't actually care if the parser sets a discriminator since we
+      // always treat the result as if it did. However, we need to push
+      // something to the stack so that if it does set a discriminator, it has
+      // something to write to without clobbering previous discriminators.
+      pstate.pushDiscriminator
+
+      log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
+      parser.parse1(pstate)
+
+      if (pstate.status eq Success) {
+        log(LogLevel.Debug, "Choice dispatch success: %s", parser)
+      } else {
+        log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
+        val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+        pstate.setFailed(diag)
+      }
+
+      pstate.popDiscriminator
+    }
   }
 }
 

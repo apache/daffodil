@@ -35,6 +35,7 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns="http://example.com">
 
   <tdml:defineSchema name="basic">
@@ -1545,6 +1546,420 @@ it sure is/
       <tdml:error>cannot have the dfdl:inputValueCalc property</tdml:error>
     </tdml:errors>
 
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="direct_dispatch_1">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="dd1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element dfdl:choiceBranchKey="1" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element dfdl:choiceBranchKey="2" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice>
+            <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+              <xs:element dfdl:choiceBranchKey="1" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+              <xs:element dfdl:choiceBranchKey="2" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+            </xs:choice>
+            <xs:element name="defaulty" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd_missing_branch_key">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element dfdl:choiceBranchKey="1" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd_duplicate_branch_keys">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element dfdl:choiceBranchKey="foo" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element dfdl:choiceBranchKey="foo" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd_choice_branch_key_on_global_element">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element ref="ex:inty" />
+            <xs:element ref="ex:stringy" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element dfdl:choiceBranchKey="1" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+    <xs:element dfdl:choiceBranchKey="2" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+    
+    <xs:element name="dd_choice_branch_key_on_global_group_child">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:group ref="ex:intyGroup" />
+            <xs:group ref="ex:stringyGroup" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="intyGroup">
+      <xs:sequence dfdl:choiceBranchKey="1">
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="stringyGroup">
+      <xs:sequence dfdl:choiceBranchKey="2">
+        <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="dd_choice_dispatch_with_initiated_content">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }" dfdl:initiatedContent="yes">
+            <xs:element dfdl:choiceBranchKey="1" dfdl:initiator="int:" name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element dfdl:choiceBranchKey="2" dfdl:initiator="str:" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch1" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch1 }">
+            <xs:element dfdl:choiceBranchKey="1" name="inty1" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element dfdl:choiceBranchKey="2" name="stringy1" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+          <xs:element name="branch2" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch2 }">
+            <xs:element dfdl:choiceBranchKey="1" name="inty2" type="xs:int" dfdl:lengthKind="delimited" />
+            <xs:element dfdl:choiceBranchKey="2" name="stringy2" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element dfdl:choiceBranchKey="1" name="inty" type="xs:int" dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:discriminator>{ fn:false() }</dfdl:discriminator>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element dfdl:choiceBranchKey="2" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd5">
+      <xs:complexType>
+        <xs:choice>
+          <xs:sequence dfdl:separator=";">
+            <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+            <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+              <xs:sequence dfdl:choiceBranchKey="1">
+                <xs:element name="inty1" type="xs:int" dfdl:lengthKind="delimited">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="inty2" type="xs:int" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+              <xs:element dfdl:choiceBranchKey="2" name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
+            </xs:choice>
+          </xs:sequence>
+          <xs:element name="longstring" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="7" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dd6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:element ref="ex:inty1" dfdl:choiceBranchKey="1" />
+            <xs:element ref="ex:stringy1" dfdl:choiceBranchKey="2" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="inty1" type="xs:int" dfdl:lengthKind="delimited" />
+    <xs:element name="stringy1" type="xs:string" dfdl:lengthKind="delimited" />
+
+    <xs:element name="dd7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="branch" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:choice dfdl:choiceDispatchKey="{ ./ex:branch }">
+            <xs:group ref="ex:inty1g1" dfdl:choiceBranchKey="1" />
+            <xs:group ref="ex:stringy1g1" dfdl:choiceBranchKey="2" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="inty1g1">
+      <xs:sequence>
+        <xs:element name="inty1" type="xs:int" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="stringy1g1">
+      <xs:sequence>
+        <xs:element name="stringy1" type="xs:string" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="direct_dispatch_01" root="dd1"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R.">
+    <tdml:document><![CDATA[1;5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd1>
+          <ex:branch>1</ex:branch>
+          <ex:inty>5</ex:inty>
+        </ex:dd1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_02" root="dd1"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R.">
+    <tdml:document><![CDATA[2;string]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd1>
+          <ex:branch>2</ex:branch>
+          <ex:stringy>string</ex:stringy>
+        </ex:dd1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_03" root="dd1"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. Chooses the correct branch, but the branch fails to parse">
+    <tdml:document><![CDATA[1;fail]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Choice dispatch branch failed</tdml:error>
+      <tdml:error>Convert</tdml:error>
+      <tdml:error>integer</tdml:error>
+      <tdml:error>fail</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_04" root="dd1"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. Dispatch key does not match of the branch keys">
+    <tdml:document><![CDATA[badkey;fail]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Choice dispatch key</tdml:error>
+      <tdml:error>badkey</tdml:error>
+      <tdml:error>failed to match</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_05" root="dd1"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. Dispatch key returns empty string">
+    <tdml:document><![CDATA[;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>String value may not be empty</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_06" root="dd2"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. Dispatch key does not match, so backtrack.">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd2>
+          <ex:branch>10</ex:branch>
+          <ex:defaulty>default</ex:defaulty>
+        </ex:dd2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_07" root="dd_missing_branch_key"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, require choiceBranchKey when choiceDispatchKey is defined.">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>choiceBranchKey</tdml:error>
+      <tdml:error>not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_08" root="dd_duplicate_branch_keys"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, non-unique choiceBranchKeys">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>choiceBranchKey</tdml:error>
+      <tdml:error>not unique</tdml:error>
+      <tdml:error>foo</tdml:error>
+      <tdml:error>inty</tdml:error>
+      <tdml:error>stringy</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_09" root="dd_choice_branch_key_on_global_element"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, choiceBranchKey defined on global element">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>choiceBranchKey</tdml:error>
+      <tdml:error>global element</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_10" root="dd_choice_branch_key_on_global_group_child"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, choiceBranchKey defined the child seq/choice of a global group declaration">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>global group definition</tdml:error>
+      <tdml:error>choice</tdml:error>
+      <tdml:error>sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_11" root="dd_choice_dispatch_with_initiated_content"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, choiceDispatchKey is defined with initiatedContent='yes'">
+    <tdml:document><![CDATA[10;default]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>choiceDispatchKey</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_12" root="dd3"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. SDE, multiple dispatch choices in the same sequence">
+    <tdml:document><![CDATA[1;5;2;five]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd3>
+          <ex:branch1>1</ex:branch1>
+          <ex:inty1>5</ex:inty1>
+          <ex:branch2>2</ex:branch2>
+          <ex:stringy2>five</ex:stringy2>
+        </ex:dd3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_13" root="dd4"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. discriminator in dispatched branch fails, causing parse error">
+    <tdml:document><![CDATA[1;5]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Choice dispatch branch failed</tdml:error>
+      <tdml:error>Assertion Failed</tdml:error>
+      <tdml:error>fn:false()</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- This test shows that if there is a discriminator inside a dispatch
+       choice, then that discriminator does not apply to an outer point of
+       uncertainty. If it did apply to the outer POU, then this test would
+       result in a parse error rather than consuming the rest of the data -->
+  <tdml:parserTestCase name="direct_dispatch_14" root="dd5"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. discriminator in dispatched branch passes, but later element fails">
+    <tdml:document><![CDATA[1;5;foo]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd5>
+          <ex:longstring>1;5;foo</ex:longstring>
+        </ex:dd5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_15" root="dd6"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. choice branch key on element ref">
+    <tdml:document><![CDATA[1;5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd6>
+          <ex:branch>1</ex:branch>
+          <ex:inty1>5</ex:inty1>
+        </ex:dd6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="direct_dispatch_16" root="dd7"
+    model="direct_dispatch_1"
+    description="simple case of direct dispatch - DFDL-15-001R. choice branch key on group ref">
+    <tdml:document><![CDATA[2;5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:dd7>
+          <ex:branch>2</ex:branch>
+          <ex:stringy1>5</ex:stringy1>
+        </ex:dd7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

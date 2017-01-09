@@ -142,6 +142,18 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     fixup
   }
 
+  /**
+   * Use this when you want to know if a property is defined exactly on a
+   * component. This ignores any default properties or properties defined on
+   * element references. For example, if you want to know if a property was
+   * defined on a global element decl rather than an element reference to that
+   * decl.
+   * */
+  def findPropertyOptionThisComponentOnly(pname:String): PropertyLookupResult = {
+    val result = findDefaultOrNonDefaultProperty(pname, Seq(nonDefaultFormatChain))
+    result
+  }
+
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode
     // first try in regular properties

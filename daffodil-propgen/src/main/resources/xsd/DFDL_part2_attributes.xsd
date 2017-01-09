@@ -46,6 +46,7 @@
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
+  <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
   
   <!-- Added to DFDL -->
   <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
@@ -62,6 +63,7 @@
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
     <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
+    <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->
@@ -392,10 +394,12 @@
   <!-- 15 Choices -->
   <xsd:attribute name="choiceLengthKind" type="dfdl:ChoiceLengthKindEnum" />
   <xsd:attribute name="choiceLength" type="dfdl:DFDLNonNegativeInteger" />
+  <xsd:attribute name="choiceDispatchKey" type="dfdl:DFDLExpression" />
 
   <xsd:attributeGroup name="ChoiceAG">
     <xsd:attribute name="choiceLengthKind" type="dfdl:ChoiceLengthKindEnum" />
     <xsd:attribute name="choiceLength" type="dfdl:DFDLNonNegativeInteger" />
+    <xsd:attribute name="choiceDispatchKey" type="dfdl:DFDLExpression" />
   </xsd:attributeGroup>
 
   <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 
@@ -557,6 +561,8 @@
 
       <xsd:enumeration value="choiceLengthKind" />
       <xsd:enumeration value="choiceLength" />
+      <xsd:enumeration value="choiceDispatchKey" />
+      <xsd:enumeration value="choiceBranchKey" />
 
       <xsd:enumeration value="occursCountKind" />
       <xsd:enumeration value="occursCount" />
@@ -585,6 +591,8 @@
       type="dfdl:UTF16WidthEnum" />
     <xsd:attribute form="qualified" name="ignoreCase"
       type="dfdl:YesNoEnum" />
+    <xsd:attribute form="qualified" name="choiceBranchKey"
+      type="dfdl:ListOfDFDLStringLiteral" />
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->
@@ -896,6 +904,8 @@
       type="dfdl:ChoiceLengthKindEnum" />
     <xsd:attribute form="qualified" name="choiceLength"
       type="dfdl:DFDLNonNegativeInteger" />
+    <xsd:attribute form="qualified" name="choiceDispatchKey"
+      type="dfdl:DFDLExpression" />
   </xsd:attributeGroup>
 
   <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 

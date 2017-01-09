@@ -412,7 +412,8 @@ trait CurrencyMixin extends PropertyMixin {
       "textStandardInfinityRep", "textStandardNaNRep", "textStandardZeroRep",
       "nilValue",
       "textStringPadCharacter", "textNumberPadCharacter", "textBooleanPadCharacter", "textCalendarPadCharacter",
-      "calendarLanguage")
+      "calendarLanguage",
+      "choiceDispatchKey")
     val res = runtimeValuedProperties.contains(propName)
     res
   }

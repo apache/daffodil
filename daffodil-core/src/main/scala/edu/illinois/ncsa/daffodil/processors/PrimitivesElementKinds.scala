@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
+import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceDispatchCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
@@ -154,16 +155,44 @@ case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !b
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to
- * determine which branch to go down. In the parser case, we just rely on the
- * AltCompParser behavior to handle the backtracking. In the unparser case, we
- * know which element we got from the infoset, but we need to determine which
- * branch of the choice to take. This unparser uses a Map to make the
- * determination based on the element seen.
+ * determine which branch to go down. In the parser case, for non-direct
+ * dispatch, we just rely on the AltCompParser behavior to handle the
+ * backtracking. For direct dispatch, we create a disapatch-branch key map
+ * which is used to determine which branch to parse at runtime.
+ *
+ * In the unparser case, we know which element we got from the infoset, but we
+ * need to determine which branch of the choice to take at runtime. This
+ * unparser uses a Map to make the determination based on the element seen.
  */
 case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
   lazy val parser: DaffodilParser = {
-    val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
-    new ChoiceCombinatorParser(ch.runtimeData, folded.parser)
+    if (!ch.isDirectDispatch) {
+      val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
+      new ChoiceCombinatorParser(ch.runtimeData, folded.parser)
+    } else {
+      val dispatchBranchKeyValueTuples = alternatives.flatMap { alt =>
+        val keyTerm = alt.context.asInstanceOf[Term]
+        val cbk = keyTerm.choiceBranchKey
+        // Note that this behaves differently than the specification, since
+        // this accepts a space separated list of keys
+        val cbks = ChoiceBranchKeyCooker.convertConstant(cbk, keyTerm.runtimeData, forUnparse = false)
+        cbks.map { (_, alt) }
+      }
+
+      // check for duplicate dfdl:choiceBranchKeys
+      val groupedByKey = dispatchBranchKeyValueTuples.groupBy(_._1)
+      groupedByKey.foreach { case (k, kvs) =>
+        if (kvs.length > 1) {
+          SDE("dfdl:choiceBranchKey value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
+            k, kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
+        }
+      }
+
+      val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues(_.parser)
+      val serializableMap = dispatchBranchKeyMap.map(identity)
+
+      new ChoiceDispatchCombinatorParser(ch.runtimeData, ch.choiceDispatchKeyEv, serializableMap) 
+    }
   }
 
   override lazy val unparser: DaffodilUnparser = {

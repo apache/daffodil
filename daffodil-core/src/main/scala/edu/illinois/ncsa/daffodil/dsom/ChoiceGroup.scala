@@ -43,6 +43,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 
 /**
  * Choices are a bit complicated.
@@ -102,6 +105,32 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     hasInitiator || hasTerminator ||
       // or if all arms of the choice have statically required instances.
       groupMembers.forall { _.hasStaticallyRequiredInstances }
+  }
+
+  final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
+  final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
+
+  final lazy val isDirectDispatch = {
+    val isDD = optionChoiceDispatchKeyRaw.isDefined
+    if (isDD && initiatedContent == YesNo.Yes) {
+      SDE("dfdl:initiatedContent must not equal 'yes' when dfdl:choiceDispatchKey is defined")
+    }
+    isDD
+  }
+
+
+  final protected lazy val choiceDispatchKeyExpr = {
+    val qn = this.qNameForProperty("choiceDispatchKey")
+    val typeIfStaticallyKnown = NodeInfo.NonEmptyString
+    val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, choiceDispatchKeyRaw)
+  }
+
+  final lazy val choiceDispatchKeyEv = {
+    Assert.invariant(isDirectDispatch)
+    val ev = new ChoiceDispatchKeyEv(choiceDispatchKeyExpr, modelGroupRuntimeData)
+    ev.compile()
+    ev
   }
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {

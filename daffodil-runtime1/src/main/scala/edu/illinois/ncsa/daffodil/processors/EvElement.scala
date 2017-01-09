@@ -289,3 +289,12 @@ class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Nil
 }
+
+class ChoiceDispatchKeyEv(expr: CompiledExpression[String], rd: TermRuntimeData)
+  extends EvaluatableConvertedExpression[String, String](
+    expr,
+    ChoiceDispatchKeyCooker,
+    rd)
+  with InfosetCachedEvaluatable[String] {
+  override lazy val runtimeDependencies = Nil
+}

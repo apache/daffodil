@@ -123,4 +123,22 @@ class TestChoice {
   @Test def test_choices_basic_15_01() { runner.runOneTest("choices_basic_15_01") }
   @Test def test_choices_basic_15_02() { runner.runOneTest("choices_basic_15_02") }
   @Test def test_choices_basic_15_03() { runner.runOneTest("choices_basic_15_03") }
+
+  // DFDL-641
+  // @Test def test_direct_dispatch_01() { runnerCH.runOneTest("direct_dispatch_01") }
+  // @Test def test_direct_dispatch_02() { runnerCH.runOneTest("direct_dispatch_02") }
+  // @Test def test_direct_dispatch_03() { runnerCH.runOneTest("direct_dispatch_03") }
+  // @Test def test_direct_dispatch_04() { runnerCH.runOneTest("direct_dispatch_04") }
+  // @Test def test_direct_dispatch_05() { runnerCH.runOneTest("direct_dispatch_05") }
+  // @Test def test_direct_dispatch_06() { runnerCH.runOneTest("direct_dispatch_06") }
+  // @Test def test_direct_dispatch_07() { runnerCH.runOneTest("direct_dispatch_07") }
+  // @Test def test_direct_dispatch_08() { runnerCH.runOneTest("direct_dispatch_08") }
+  // @Test def test_direct_dispatch_09() { runnerCH.runOneTest("direct_dispatch_09") }
+  // @Test def test_direct_dispatch_10() { runnerCH.runOneTest("direct_dispatch_10") }
+  // @Test def test_direct_dispatch_11() { runnerCH.runOneTest("direct_dispatch_11") }
+  // @Test def test_direct_dispatch_12() { runnerCH.runOneTest("direct_dispatch_12") }
+  // @Test def test_direct_dispatch_13() { runnerCH.runOneTest("direct_dispatch_13") }
+  // @Test def test_direct_dispatch_14() { runnerCH.runOneTest("direct_dispatch_14") }
+  // @Test def test_direct_dispatch_15() { runnerCH.runOneTest("direct_dispatch_15") }
+  // @Test def test_direct_dispatch_16() { runnerCH.runOneTest("direct_dispatch_16") }
 }

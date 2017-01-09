@@ -54,6 +54,8 @@ final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, o
    */
   with RequiredOptionalMixin {
 
+  requiredEvaluations(validateChoiceBranchKey)
+
   override lazy val maxOccurs = elementRef match {
     case Some(er) => er.maxOccurs
     case None => 1
@@ -85,4 +87,16 @@ final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, o
   //
 
   lazy val rootParseUnparsePolicy = defaultParseUnparsePolicy
+
+  def validateChoiceBranchKey(): Unit = {
+    // Ensure that the global element decl does not have choiceBranchKey set.
+    // We must use findPropertyOptionThisComponentOnly rather than
+    // findPropertyOption, since the later will also inspect the element ref.
+    // The element ref is allowed to have the dfdl:choiceBranchKey option, so
+    // we must not inspect it.
+    val found = findPropertyOptionThisComponentOnly("choiceBranchKey")
+    if (found.isDefined) {
+      SDE("dfdl:choiceBranchKey cannot be specified on a global element declaration")
+    }
+  }
 }

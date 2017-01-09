@@ -67,6 +67,7 @@ sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocu
   with GlobalComponentMixin {
 
   requiredEvaluations(modelGroup)
+  requiredEvaluations(validateChoiceBranchKey)
 
   final lazy val referringComponent = {
     val res = Some(groupRef)
@@ -87,6 +88,13 @@ sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocu
   //
   final lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
 
+  def validateChoiceBranchKey(): Unit = {
+    // Ensure the model group of a global group def do not define choiceBranchKey.
+    val found = modelGroup.findPropertyOptionThisComponentOnly("choiceBranchKey")
+    if (found.isDefined) {
+      SDE("dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition")
+    }
+  }
 }
 
 final class GlobalSequenceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
