@@ -1,6 +1,6 @@
 <classpath>
         <!-- This file is updated by the UpdateEclipseClasspath app. -->
-        <classpathentry path="src/main/java" kind="src"/><classpathentry path="src/main/scala" kind="src"/><classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"/><classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/><classpathentry path="/daffodil-io" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-lib" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-runtime1" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-macro-lib" kind="src" combineaccessrules="false"/><classpathentry path="bin" kind="output"/><!--
+        <classpathentry kind="src" path="src/main/java"/><classpathentry kind="src" path="src/main/scala"/><classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/><classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/><classpathentry kind="output" path="bin"/><!--
 ***********
 *********** Entries below this comment are maintained using the UpdateEclipseClasspaths
 *********** Utility and should not be modified by hand or using the Eclipse
