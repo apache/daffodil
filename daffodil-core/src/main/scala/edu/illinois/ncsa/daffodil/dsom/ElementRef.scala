@@ -99,6 +99,7 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   override lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     referencedElement.elementRuntimeData
   }.value
+  override lazy val dpathElementCompileInfo = referencedElement.dpathElementCompileInfo
 
   // These will just delegate to the referenced element declaration
   def isNillable = referencedElement.isNillable

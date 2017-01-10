@@ -1707,11 +1707,24 @@ case class Infoset(i: NodeSeq, parent: TestCase) {
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
-  val children = di.child.filter { _.isInstanceOf[scala.xml.Elem] }
+
+  val infosetNodeSeq = {
+    (di \ "@type").toString match {
+      case "infoset" | "" => di.child.filter { _.isInstanceOf[scala.xml.Elem] }
+      case "file" => {
+        val path = di.text.trim()
+        val maybeURI = parent.parent.parent.findTDMLResource(path)
+        val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: infoset file '" + path + "' was not found"))
+        val elem = scala.xml.XML.load(uri.toURL)
+        elem
+      }
+      case value => Assert.abort("Uknown value for type attribute on dfdlInfoset: " + value)
+    }
+  }
 
   val rawContents = {
-    Assert.usage(children.size == 1, "dfdlInfoset element must contain a single root element")
-    val c = children(0)
+    Assert.usage(infosetNodeSeq.size == 1, "dfdlInfoset element must contain a single root element")
+    val c = infosetNodeSeq(0)
     c
   }
 

@@ -60,6 +60,9 @@ object TestDFDLExpressionsNew {
 
   val tdml5 = testDir4 + "expressions2.tdml"
   lazy val runner5 = new DFDLTestSuite(Misc.getRequiredResource(tdml5))
+
+  val tdml6 = testDir + "valueLength.tdml"
+  lazy val runner6 = new DFDLTestSuite(Misc.getRequiredResource(tdml6))
 }
 
 class TestDFDLExpressionsNew {
@@ -73,4 +76,7 @@ class TestDFDLExpressionsNew {
 
   // DFDL-1669
   @Test def test_dfdl_1669_unsignedLong_conversion() { runner5.runOneTest("test_dfdl_1669_unsignedLong_conversion") }
+
+  //DFDL-1657
+  @Test def test_valueLengthRef1 { runner6.runOneTest("valueLengthRef1") }
 }

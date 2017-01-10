@@ -119,6 +119,23 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="elemRef">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="str" type="xs:string" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../ex:elemRef, 'bytes') }" />
+          <xs:element ref="ex:elemRef" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="valueLengthPair1" root="e1"
@@ -191,4 +208,25 @@
 
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="valueLengthRef1" root="e5"
+    model="cl1" description="dfdl:valueLength of an element reference">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 06 31 32 33 34 35 41</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <len>6</len>
+          <ex:elemRef>
+            <str>12</str>
+            <str>34</str>
+            <str>5A</str>
+          </ex:elemRef>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
 </tdml:testSuite>
