@@ -95,7 +95,7 @@ trait LeafPropProvider
         // AND tend to be leading or trailing in the string value. So if anyone
         // does string.trim on that property value, they will be clobbering it.
         //
-        Found(value, loc, pname)
+        Found(value, loc, pname, false)
       }
       case None => NotFound(List(this), Nil, pname)
     }
@@ -137,7 +137,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
       for { source <- sources } yield {
         val res = source.leafFindProperty(pname)
         res match {
-          case Found(_, _, _) => return res //found it! return right now.
+          case _: Found => return res //found it! return right now.
           case nf @ NotFound(_, _, _) => nf
         }
       }
@@ -238,7 +238,7 @@ trait OverlapCheckMixin {
         case (propName, (_, aLoc)) =>
           b.chainFindProperty(propName) match {
             case _: NotFound => // ok
-            case Found(_, bLoc, _) => {
+            case Found(_, bLoc, _, _) => {
               schemaDefinitionErrorButContinue(
                 "Overlapping properties: %1$s overlaps between %2$s and %3$s. Overlap is not allowed.",
                 propName, aLoc, bLoc)

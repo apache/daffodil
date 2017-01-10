@@ -84,7 +84,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     val compilationTargetType = primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compile(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue"))
+      ExpressionCompilers.AnyRef.compile(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false))
     }
 
     Maybe.toMaybe(defaultValExpr)

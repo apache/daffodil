@@ -73,8 +73,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
         //
         nodeseq match {
-          case Nil => Found("", this, pname) // we want to hand back the empty string as a value.
-          case _ => Found(nodeseq.toString, this, pname)
+          case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
+          case _ => Found(nodeseq.toString, this, pname, false)
         }
       }
     }
@@ -91,8 +91,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   final def optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
     val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
-      case Found("", loc, _) => Nope
-      case found @ Found(v, loc, _) => {
+      case Found("", loc, _, _) => Nope
+      case found @ Found(v, loc, _, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
         val expr = ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found)
@@ -105,8 +105,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final def optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
     extraEscapedCharactersRaw match {
-      case Found("", _, _) => Nope
-      case Found(v, _, _) => One(v)
+      case Found("", _, _, _) => Nope
+      case Found(v, _, _, _) => One(v)
     }
   }.value
 

@@ -99,7 +99,7 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
     val seq = sources.map { _.chainFindProperty(pname) }
     val optFound = seq.collectFirst { case found: Found => found }
     val result = optFound match {
-      case Some(f @ Found(_, _, _)) => f
+      case Some(f: Found) => f
       case None => {
         // merge all the NotFound stuff.
         val nonDefaults = seq.flatMap {
@@ -131,7 +131,10 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   private def findDefaultProperty(pname: String): PropertyLookupResult = {
     val result = findDefaultOrNonDefaultProperty(pname, defaultPropertySources)
     val fixup = result match {
-      case f: Found => f
+      case Found(value, loc, pname, _) =>
+        // found as a default property.
+        // supply constructor's last arg is boolean indicating it's a default property
+        Found(value, loc, pname, true)
       case NotFound(nd, d, pn) =>
         Assert.invariant(d.isEmpty)
         NotFound(Seq(), nd, pn) // we want the places we searched shown as default locations searched

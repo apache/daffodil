@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * This file is classes and traits to implement
@@ -59,15 +60,23 @@ import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
  */
 sealed abstract class PropertyLookupResult(val pname: String) extends Serializable {
   def isDefined: Boolean
+  /**
+   * True if the property value was found by way of the default format, that is
+   * the lexically enclosing format properties specified by the dfdl:format annotation
+   * for the schema file.
+   */
+  def isFromDefaultFormat: Boolean
 }
 
-case class Found(value: String, location: LookupLocation, override val pname: String) extends PropertyLookupResult(pname) {
+case class Found(value: String, location: LookupLocation, override val pname: String,
+  override val isFromDefaultFormat: Boolean) extends PropertyLookupResult(pname) {
   override def isDefined = true
 }
 
 case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation], override val pname: String)
   extends PropertyLookupResult(pname) {
   override def isDefined = false
+  override def isFromDefaultFormat = Assert.usageError("Not meaningful for NotFound.")
 }
 
 /**
@@ -168,7 +177,7 @@ trait FindPropertyMixin extends PropTypes {
    * a QName that would have to be resolved.
    */
   final def getProperty(pname: String): String = {
-    val Found(res, _, _) = findProperty(pname)
+    val Found(res, _, _, _) = findProperty(pname)
     res
   }
 
@@ -189,7 +198,7 @@ trait FindPropertyMixin extends PropTypes {
   final def getPropertyOption(pname: String): Option[String] = {
     val lookupRes = findPropertyOption(pname)
     val res = lookupRes match {
-      case Found(v, _, _) => Some(v)
+      case Found(v, _, _, _) => Some(v)
       case _ => None
     }
     res
@@ -200,9 +209,9 @@ trait FindPropertyMixin extends PropTypes {
    */
   final def verifyPropValue(key: String, value: String): Boolean = {
     findPropertyOption(key) match {
-      case Found(`value`, _, _) => true
-      case Found(_, _, _) => false
-      case NotFound(_, _, _) => false
+      case Found(`value`, _, _, _) => true
+      case _: Found => false
+      case _: NotFound => false
     }
   }
 
@@ -233,7 +242,7 @@ trait FindPropertyMixin extends PropTypes {
   protected final def cacheGetPropertyOption(name: String): Option[String] = {
     val pOpt = cachePropertyOption(name)
     pOpt match {
-      case Found(v, l, _) => Some(v)
+      case Found(v, l, _, _) => Some(v)
       case _ => None
     }
   }

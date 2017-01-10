@@ -89,7 +89,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test"), stmt.message, discrim, assertKindName)
+  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.message, discrim, assertKindName)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,

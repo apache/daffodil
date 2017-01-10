@@ -62,7 +62,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")
     ic match {
-      case Found(value, location, _) => Some(YesNo(value, location))
+      case Found(value, location, _, _) => Some(YesNo(value, location))
       case _ => None
     }
   }

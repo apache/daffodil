@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
@@ -61,8 +60,8 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
         SDW("Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
         None
       }
-      case Found("", _, _) => None // empty string means no escape scheme
-      case Found(qName, loc, _) => {
+      case Found("", _, _, _) => None // empty string means no escape scheme
+      case Found(qName, loc, _, _) => {
         val qn = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
         val defESFactory = schemaSet.getDefineEscapeScheme(qn)
         //

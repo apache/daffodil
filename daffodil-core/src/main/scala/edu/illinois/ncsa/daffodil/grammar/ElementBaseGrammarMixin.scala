@@ -1050,10 +1050,20 @@ trait ElementBaseGrammarMixin
       }
     }
     if (lengthKind != LengthKind.Explicit
-      && optionLengthRaw.isDefined)
+      && optionLengthRaw.isDefined
+      && !optionLengthRaw.isFromDefaultFormat) {
+      //
+      // this warning only applies if the dfdl:length is specified on the element, and
+      // not inherited from a default format.
+      // The NACHA format uses dfdl:length="0" in its default format so that some
+      // global elements can compile.
+      //
+      // JIRA DFDL-1690
+      //
       SDW("dfdl:lengthKind '%s' is not consistent with dfdl:length specified (as %s). The dfdl:length will be ignored.",
         lengthKind,
         lengthExpr.prettyExpr)
+    }
     if ((lengthKind == LengthKind.Explicit || lengthKind == LengthKind.Implicit) &&
       impliedRepresentation == Representation.Binary &&
       lengthUnits == LengthUnits.Characters)
