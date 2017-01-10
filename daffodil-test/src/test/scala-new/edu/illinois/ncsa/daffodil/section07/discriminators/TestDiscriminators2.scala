@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section07.discriminators
 
-import org.junit.Test
+/*import org.junit.Test */
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -48,15 +48,6 @@ object TestDiscriminators2 {
 
 class TestDiscriminators2 {
 
-  import TestDiscriminators2._
 
-  @Test def test_discrimFailStopsFollowingAssert1() { runner2.runOneTest("discrimFailStopsFollowingAssert1") }
-
-  @Test def test_discrimPEnotSDE1() { runner2.runOneTest("discrimPEnotSDE1") }
-  @Test def test_assertSDENotPE1() { runner2.runOneTest("assertSDENotPE1") }
-  @Test def test_occursCountSDENotPE1() { runner2.runOneTest("occursCountSDENotPE1") }
-
-  @Test def test_discrimPEvalueLength1() { runner2.runOneTest("discrimPEvalueLength1") }
-  @Test def test_discrimPEvalueLengthEnclosingParent1() { runner2.runOneTest("discrimPEvalueLengthEnclosingParent1") }
 
 }

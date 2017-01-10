@@ -31,12 +31,17 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
     SOFTWARE.
 -->
-<tdml:testSuite suiteName="Discriminator" description="Section 7 - Discriminator"
+<tdml:testSuite 
+  suiteName="Discriminator" 
+  description="Section 7 - Discriminator"
   xmlns:ex="http://example.com" xmlns="http://example.com"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  defaultRoundTrip="true">
+  defaultRoundTrip="true" 
+  defaultValidation="on">
 
   <tdml:defineSchema name="s0">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -843,6 +848,199 @@
     <tdml:document><![CDATA[o_o]]></tdml:document>
     <tdml:errors>
       <tdml:error>Discriminator failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="iSetNotFound" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator testKind="pattern" testPattern="a.*" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="expression" test="{ fn:false() }" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+          <xs:element name="opt1" minOccurs="0" maxOccurs="1" 
+            dfdl:occursCountKind="implicit" type="xs:string" 
+            dfdl:lengthKind="delimited"
+            dfdl:terminator=";" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r0">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+            dfdl:lengthKind="explicit" minOccurs="0" 
+            dfdl:occursCountKind="implicit" />
+          <xs:choice>
+            <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:discriminator>{ 
+                    ../flag eq 1 }
+                  </dfdl:discriminator>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="noFlag" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+             dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
+          <xs:choice>
+            <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert>{ 
+                    ../flag eq 1 }
+                  </dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="noFlag" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="count" type="xs:int" dfdl:length="1" 
+            dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
+          <xs:element name="v" type="xs:string" 
+            dfdl:occursCountKind="expression" 
+            dfdl:occursCount="{ ../count }" 
+            dfdl:lengthKind="delimited"
+            maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+            dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
+          <xs:choice>
+            <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:discriminator>{ 
+                    dfdl:valueLength(../flag, 'bytes') ge 1 }
+                  </dfdl:discriminator>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="noFlag" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+            dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
+          <xs:choice>
+            <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:discriminator>{ 
+                    dfdl:valueLength(.., 'bytes') ge 1 }
+                  </dfdl:discriminator>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="noFlag" type="xs:string" dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discrimFailStopsFollowingAssert1" model="iSetNotFound" root="e1"
+    description="verifies that a failing discriminator stops a following assert from evaluating. Pattern case.">
+    <tdml:document>bbbbbb;</tdml:document>
+    <tdml:errors>
+      <tdml:error>failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPEnotSDE1" model="iSetNotFound" root="r0"
+    description="verifies that a missing node doesn't cause an RSDE from a discriinator, but a regular old PE.">
+    <tdml:document>bbbbb</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r0>
+          <noFlag>bbbbb</noFlag>
+        </ex:r0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="assertSDENotPE1" model="iSetNotFound" root="r1"
+    description="verifies that a missing node DOES cause an RSDE from an assert, not a regular old PE.">
+    <tdml:document>bbbbb</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>{}flag</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>hasFlag1</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="occursCountSDENotPE1" model="iSetNotFound" root="r2"
+    description="verifies that a missing node DOES cause an RSDE from occursCount, not a regular old PE.">
+    <tdml:document>bbbbb</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>{}count</tdml:error>
+      <tdml:error>ex:r2</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPEvalueLength1" model="iSetNotFound" root="r3"
+    description="verifies that a missing node inside a call to valueLength doesn't cause an RSDE from a discriinator, but a regular old PE.">
+    <tdml:document>bbbbb</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r3>
+          <noFlag>bbbbb</noFlag>
+        </ex:r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimPEvalueLengthEnclosingParent1" model="iSetNotFound" root="r4"
+    description="verifies that valueLength of enclosing parent is RSDE from a discriinator.">
+    <tdml:document>bbbbb</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Expression Evaluation Error</tdml:error>
+      <tdml:error>Value Length</tdml:error>
+      <tdml:error>ex:r4</tdml:error>
+      <tdml:error>hasFlag1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

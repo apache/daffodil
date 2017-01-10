@@ -81,4 +81,13 @@ class TestDiscriminators {
   @Test def test_discrimExpression_02() = { runner.runOneTest("discrimExpression_02") }
   @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }
   @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
+
+
+  @Test def test_discrimFailStopsFollowingAssert1() { runner.runOneTest("discrimFailStopsFollowingAssert1") }
+  @Test def test_discrimPEnotSDE1() { runner.runOneTest("discrimPEnotSDE1") }
+  @Test def test_assertSDENotPE1() { runner.runOneTest("assertSDENotPE1") }
+  @Test def test_occursCountSDENotPE1() { runner.runOneTest("occursCountSDENotPE1") }
+  @Test def test_discrimPEvalueLength1() { runner.runOneTest("discrimPEvalueLength1") }
+  @Test def test_discrimPEvalueLengthEnclosingParent1() { runner.runOneTest("discrimPEvalueLengthEnclosingParent1") }
+
 }
