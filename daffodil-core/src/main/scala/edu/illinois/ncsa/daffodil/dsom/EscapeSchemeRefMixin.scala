@@ -32,6 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
@@ -57,7 +59,8 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
     val er = findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
-        SDW("Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
+        SDW(DaffodilTunableParameters.WarnID.EscapeSchemeRefUndefined,
+          "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
         None
       }
       case Found("", _, _, _) => None // empty string means no escape scheme

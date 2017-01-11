@@ -48,8 +48,8 @@ abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaCompone
   protected def enclosingComponentDef =
     if (parent != null) Some(parent) else None
 
-  def enclosingComponent : Option[SchemaComponentBase]
- 
+  def enclosingComponent: Option[SchemaComponentBase]
+
   def isHidden = false
 
 }

@@ -36,6 +36,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.schema.annotation.props.{ Enum => PropsEnum }
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Size and length limit constants used by the code, some of which will be tunable
@@ -137,7 +140,41 @@ object DaffodilTunableParameters {
   var parseUnparsePolicy: Option[ParseUnparsePolicy] = None
 
   /**
-   * Specified how unqialied path steps are resolved.
+   * List of identifiers for warnings to be suppressed.
+   */
+  private var suppressSchemaDefinitionWarnings: List[WarnID] = Nil
+
+  /**
+   * records a warning to be suppressed, returns true if recognized, false
+   * if an unknown identifier.
+   */
+  def suppressSchemaDefinitionWarning(warnIDString: String): Boolean = {
+    val optWarnID = WarnID.find(warnIDString)
+    if (optWarnID.isDefined) {
+      suppressSchemaDefinitionWarnings = optWarnID.get :: suppressSchemaDefinitionWarnings
+      true
+    } else
+      false
+  }
+
+  sealed trait WarnID extends WarnID.Value
+
+  object WarnID extends PropsEnum[WarnID] {
+    case object All extends WarnID; forceConstruction(All)
+    case object MultipleChoiceBranches extends WarnID; forceConstruction(MultipleChoiceBranches)
+    case object EscapeSchemeRefUndefined extends WarnID; forceConstruction(EscapeSchemeRefUndefined)
+
+    def apply(name: String, context: ThrowsSDE) = Assert.usageError("not to be called. Call find(name) method instead.")
+
+    def find(name: String): Option[WarnID] = optionStringToEnum("warning identifier", name)
+  }
+
+  def notSuppressedWarning(warnID: WarnID) =
+    !suppressSchemaDefinitionWarnings.contains(warnID) &&
+      !suppressSchemaDefinitionWarnings.contains(WarnID.All)
+
+  /**
+   * Specified how unqualified path steps are resolved.
    *
    * NoNamespace:
    *  Unqualified path steps remain unqualified and will only match elements in

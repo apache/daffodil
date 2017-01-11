@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -87,6 +88,10 @@ class TestGeneratedProperties {
       System.err.println(new Exception(id.format(args: _*)))
     }
 
+    def SDW(warnID: DaffodilTunableParameters.WarnID, id: String, args: Any*): Unit = {
+      System.err.println(new Exception(id.format(args: _*)))
+    }
+
     /**
      * In this case, we're just going to lookup the attribute on the above
      * big piece of XML. In real use, this would look at some list built up
@@ -108,8 +113,8 @@ class TestGeneratedProperties {
           // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
           //
           nodeseq match {
-            case Nil => Found("", this, pname) // we want to hand back the empty string as a value.
-            case _ => Found(nodeseq.toString, this, pname)
+            case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
+            case _ => Found(nodeseq.toString, this, pname, false)
           }
         }
       }

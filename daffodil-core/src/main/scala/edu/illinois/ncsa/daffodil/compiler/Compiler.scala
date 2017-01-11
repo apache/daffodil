@@ -286,6 +286,15 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
         }
         DaffodilTunableParameters.unqualifiedPathStepPolicy = policy
       }
+      case "suppressschemadefinitionwarnings" => {
+        val ws = """\s+"""
+        // value is whitespace separated list of warning identifier strings
+        val warnIDs = value.split(ws).toSeq
+        warnIDs.foreach { s =>
+          if (!DaffodilTunableParameters.suppressSchemaDefinitionWarning(s))
+            log(LogLevel.Warning, "Ignoring unknown warning identifier: %s", s)
+        }
+      }
       case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
     }
   }

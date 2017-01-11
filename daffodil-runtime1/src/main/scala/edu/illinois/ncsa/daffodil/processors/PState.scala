@@ -70,6 +70,8 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Poolable
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 
 object MPState {
 
@@ -322,6 +324,15 @@ abstract class ParseOrUnparseState protected (
     val ctxt = getContext()
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
+  }
+
+  def SDW(warnID: WarnID, str: String, args: Any*) = {
+    // ExecutionMode.requireRuntimeMode
+    if (DaffodilTunableParameters.notSuppressedWarning(warnID)) {
+      val ctxt = getContext()
+      val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
+      diagnostics = rsdw :: diagnostics
+    }
   }
 
 }

@@ -36,7 +36,6 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.util.Fakes

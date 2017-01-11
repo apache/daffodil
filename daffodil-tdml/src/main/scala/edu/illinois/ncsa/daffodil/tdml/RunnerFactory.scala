@@ -127,10 +127,10 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
    */
   def reset {
     try {
-      if (file ne null)
-        System.err.println("Reset runner for " + resource)
-      else
-        System.err.println("Resetting runner")
+      //      if (file ne null)
+      //        System.err.println("Reset runner for " + resource)
+      //      else
+      //        System.err.println("Resetting runner")
       tl_ts.set(null)
     } catch {
       case io: java.io.FileNotFoundException => //ok

@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.util.Fakes
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType] // with ThrowsSDE
@@ -97,7 +98,7 @@ class TestPropertyRuntime {
     def schemaFileLocation: edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation = ???
 
     def findPropertyOption(pname: String) =
-      Found("left", this, pname)
+      Found("left", this, pname, false)
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 
@@ -135,6 +136,10 @@ trait TheExamplePropMixin
   }
   def SDEButContinue(id: String, args: Any*) = SDW(id, args: _*)
   def SDW(id: String, args: Any*): Unit = {
+    System.err.println(new Exception(id.toString + args))
+  }
+
+  def SDW(warnID: DaffodilTunableParameters.WarnID, id: String, args: Any*): Unit = {
     System.err.println(new Exception(id.toString + args))
   }
 

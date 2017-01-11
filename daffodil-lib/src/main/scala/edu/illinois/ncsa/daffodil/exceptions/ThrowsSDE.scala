@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.exceptions
 
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This
@@ -96,6 +97,10 @@ trait SavesErrorsAndWarnings {
 
   def SDE(id: String, args: Any*): Nothing
   def SDW(str: String, args: Any*): Unit
+  /**
+   * Use this form if you need to be able to suppress the warning
+   */
+  def SDW(warnID: WarnID, str: String, args: Any*): Unit
   def SDEButContinue(str: String, args: Any*): Unit
 
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
@@ -104,8 +109,22 @@ trait SavesErrorsAndWarnings {
     if (!testThatWillWarnIfFalse) SDW(str, args: _*)
   }
 
+  /**
+   * Use this form if you need to be able to suppress the warning
+   */
+  def schemaDefinitionWarningUnless(warnID: WarnID, testThatWillWarnIfFalse: Boolean, str: String, args: Any*) {
+    if (!testThatWillWarnIfFalse) SDW(warnID, str, args: _*)
+  }
+
   def schemaDefinitionWarningWhen(testThatWillWarnIfTrue: Boolean, str: String, args: Any*) {
     schemaDefinitionWarningUnless(!testThatWillWarnIfTrue, str, args: _*)
+  }
+
+  /**
+   * Use this form if you need to be able to suppress the warning
+   */
+  def schemaDefinitionWarningWhen(warnID: WarnID, testThatWillWarnIfTrue: Boolean, str: String, args: Any*) {
+    schemaDefinitionWarningUnless(warnID, !testThatWillWarnIfTrue, str, args: _*)
   }
 
   /**

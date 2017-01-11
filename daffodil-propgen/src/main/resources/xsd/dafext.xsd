@@ -100,6 +100,19 @@
             </xsd:restriction>
           </xsd:simpleType>
         </xsd:element>
+        <xsd:element name="suppressWarnings" minOccurs="0">
+           <xsd:simpleType>
+           <xsd:list>
+             <xsd:simpleType>
+               <xsd:restriction base="xsd:token">
+                 <xsd:enumeration value="all"/>
+                 <xsd:enumeration value="multipleChoiceBranches"/>
+                 <xsd:enumeration value="escapeSchemeRefUndefined"/>
+               </xsd:restriction>
+             </xsd:simpleType>
+           </xsd:list>
+           </xsd:simpleType>
+        </xsd:element>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

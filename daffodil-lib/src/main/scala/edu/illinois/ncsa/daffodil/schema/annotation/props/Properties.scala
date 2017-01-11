@@ -56,12 +56,12 @@ import scala.collection.mutable
  * @example {{{
  * ////////////////////////////////////////////////////////////////////////
  * // <xsd:simpleType name="BinaryNumberRepEnum" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
- * // 		<xsd:restriction base="xsd:string">
- * // 			<xsd:enumeration value="packed"></xsd:enumeration>
- * // 			<xsd:enumeration value="bcd"></xsd:enumeration>
- * // 			<xsd:enumeration value="binary"></xsd:enumeration>
- * // 		</xsd:restriction>
- * // 	</xsd:simpleType>
+ * //     <xsd:restriction base="xsd:string">
+ * //       <xsd:enumeration value="packed"></xsd:enumeration>
+ * //       <xsd:enumeration value="bcd"></xsd:enumeration>
+ * //       <xsd:enumeration value="binary"></xsd:enumeration>
+ * //     </xsd:restriction>
+ * //   </xsd:simpleType>
  *
  * sealed trait BinaryNumberRep extends BinaryNumberRep.Value
  * object BinaryNumberRep extends Enum[BinaryNumberRep] {
@@ -131,14 +131,22 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
    * match the strings for the enum values. So this has to be fast.
    */
   def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE): A = {
+    val opt = optionStringToEnum(enumTypeName, str)
+    if (opt.isDefined) opt.get
+    else {
+      context.SDE("Unknown value for %s property: %s", enumTypeName, str)
+    }
+  }
+
+  def optionStringToEnum(enumTypeName: String, str: String): Option[A] = {
     var i: Int = 0
     while (i < _values.size) {
       if (_values(i)._1.equals(str)) { // was equals ignore case - that's just going to allow errors if used at runtime
-        return _values(i)._2
+        return Some(_values(i)._2)
       }
       i += 1
     }
-    context.SDE("Unknown value for %s property: %s", enumTypeName, str)
+    None
   }
 
   /**

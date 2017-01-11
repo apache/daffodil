@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 
 /**
  * Choices are a bit complicated.
@@ -188,10 +189,11 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
               case _: ChoiceBranchStartEvent => "start"
             }
             // there are no element children in any of the branches.
-            SDW("Multiple choice branches are associated with the %s of element %s.\n" +
-              "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
-              "The offending choice branches are:\n%s\n" +
-              "The first branch will be used during unparsing when an infoset ambiguity exists.",
+            SDW(DaffodilTunableParameters.WarnID.MultipleChoiceBranches,
+              "Multiple choice branches are associated with the %s of element %s.\n" +
+                "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
+                "The offending choice branches are:\n%s\n" +
+                "The first branch will be used during unparsing when an infoset ambiguity exists.",
               eventType, event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
           }
         }
