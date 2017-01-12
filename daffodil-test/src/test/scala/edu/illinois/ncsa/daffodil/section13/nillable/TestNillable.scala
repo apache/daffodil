@@ -81,6 +81,8 @@ class TestNillable {
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
+
+  @Test def test_nillable_ovc_01() = { runnerLN.runOneTest("nillable_ovc_01") }
   
   /* These should demonstrate that:
    * 	DFDL Char Classes are not allowed for literalCharacter

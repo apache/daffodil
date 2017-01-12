@@ -379,4 +379,44 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="nillableOVC">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      nilValueDelimiterPolicy="none" nilValue="nil" nilKind="literalValue"
+      textNumberRep="standard" ignoreCase="no" />
+
+    <xs:element name="doc" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xsd:string" dfdl:lengthKind="delimited" />
+          <xs:element name="e2" nillable="true" type="xsd:string" dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ if (../ex:e3 eq '3') then 'nil' else '2' }"/>
+          <xs:element name="e3" nillable="true" type="xsd:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nillable_ovc_01" root="doc"
+    model="nillableOVC"
+    description="Nillable output value calc - DFDL-13-235R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0,nil,3;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+          <e3>3</e3>
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

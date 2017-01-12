@@ -849,8 +849,6 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
-    schemaDefinitionWhen(isNillable && isOutputValueCalc,
-      "An element cannot be nillable and have dfdl:outputValueCalc. Such an element could never be nilled.")
     nilOrEmptyOrValue
   }
 

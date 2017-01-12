@@ -32,11 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 
-case class SimpleNilOrEmptyOrValueUnparser(ctxt: RuntimeData,
+case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, emptyUnparser, valueUnparser)
@@ -44,13 +44,20 @@ case class SimpleNilOrEmptyOrValueUnparser(ctxt: RuntimeData,
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asSimple
-    if (inode.isNilled) nilUnparser.unparse(state)
+    // If this element has dfdl:outputValueCalc defined then the nilled value
+    // is always ignored and only the OVC value is used. Furthermore, if the
+    // element does not have xsi:nilled="true" in the infoset, that means
+    // _isNilledSet will be false until the OVC is evaluated. Thus, if the OVC
+    // suspends, this call to isNilled will throw a InfosetNoDataException
+    // because _isNilled has not been set yet. Rather than having to deal with
+    // suspending, only check isNilled for non-OVC elements.
+    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse(state)
     else if (inode.isEmpty) emptyUnparser.unparse(state)
     else valueUnparser.unparse(state)
   }
 }
 
-case class SimpleNilOrValueUnparser(ctxt: RuntimeData,
+case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
@@ -58,12 +65,13 @@ case class SimpleNilOrValueUnparser(ctxt: RuntimeData,
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asSimple
-    if (inode.isNilled) nilUnparser.unparse(state)
+    // see comment above for why this OVC check is necessary
+    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse(state)
     else valueUnparser.unparse(state)
   }
 }
 
-case class SimpleEmptyOrValueUnparser(ctxt: RuntimeData,
+case class SimpleEmptyOrValueUnparser(ctxt: ElementRuntimeData,
   emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(emptyUnparser, valueUnparser)
@@ -76,7 +84,7 @@ case class SimpleEmptyOrValueUnparser(ctxt: RuntimeData,
   }
 }
 
-case class ComplexNilOrContentUnparser(ctxt: RuntimeData,
+case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, contentUnparser: Unparser) extends UnparserObject(ctxt) {
 
   override lazy val childProcessors = Seq(nilUnparser, contentUnparser)
