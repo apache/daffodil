@@ -325,7 +325,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <LP_09>
-          <bitbool>1</bitbool>
+          <bitbool>true</bitbool>
         </LP_09>
       </tdml:dfdlInfoset>
     </tdml:infoset>

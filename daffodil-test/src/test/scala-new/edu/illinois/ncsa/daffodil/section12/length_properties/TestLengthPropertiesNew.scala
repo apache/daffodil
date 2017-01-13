@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -36,37 +36,21 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestLengthPropertiesDebug {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+object TestLengthPropertiesNew {
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/length_properties/"
 
-  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
   val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
 
   @AfterClass def shutDown {
-    runner_01.reset
     runner_02.reset
   }
 
 }
 
-class TestLengthPropertiesDebug {
+class TestLengthPropertiesNew {
 
-  import TestLengthPropertiesDebug._
+  import TestLengthPropertiesNew._
 
-  // uses lengthUnits bytes with lengthKind explicit and utf-8
-  @Test def test_length_explicit_12_01() { runner_01.runOneTest("length_explicit_12_01") }
-
-  // DFDL-931 Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
-  @Test def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }
-  @Test def test_LengthProp_charVsBytes() { runner_02.runOneTest("LengthProp_charVsBytes") }
-  @Test def test_LengthProp_charVsBytes2() { runner_02.runOneTest("LengthProp_charVsBytes2") }
-  @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
-
-  // should just skip the 2 excess bytes
-  @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
-
-  //DFDL-460
-  @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
+  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
 }
