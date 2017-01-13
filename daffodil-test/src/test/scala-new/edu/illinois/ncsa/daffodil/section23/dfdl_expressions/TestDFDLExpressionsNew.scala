@@ -79,4 +79,40 @@ class TestDFDLExpressionsNew {
 
   //DFDL-1657
   @Test def test_valueLengthRef1 { runner6.runOneTest("valueLengthRef1") }
+
+  //DFDL-1702
+  @Test def test_mathPow01 { runner2.runOneTest("mathPow01") }
+  @Test def test_mathPow02 { runner2.runOneTest("mathPow02") }
+  @Test def test_mathPow03 { runner2.runOneTest("mathPow03") }
+  @Test def test_mathPow04 { runner2.runOneTest("mathPow04") }
+  @Test def test_mathPow05 { runner2.runOneTest("mathPow05") }
+  @Test def test_mathPow06 { runner2.runOneTest("mathPow06") }
+  @Test def test_mathPow07 { runner2.runOneTest("mathPow07") }
+  @Test def test_mathPow08 { runner2.runOneTest("mathPow08") }
+  //@Test def test_mathPow09 { runner2.runOneTest("mathPow09") }
+  @Test def test_mathPow10 { runner2.runOneTest("mathPow10") }
+  @Test def test_mathPow11 { runner2.runOneTest("mathPow11") }
+  @Test def test_mathPow12 { runner2.runOneTest("mathPow12") }
+  @Test def test_mathPow13 { runner2.runOneTest("mathPow13") }
+  @Test def test_mathPow14 { runner2.runOneTest("mathPow14") }
+  @Test def test_mathPow15 { runner2.runOneTest("mathPow15") }
+  @Test def test_mathPow16 { runner2.runOneTest("mathPow16") }
+  @Test def test_mathPow17 { runner2.runOneTest("mathPow17") }
+  @Test def test_mathPow18 { runner2.runOneTest("mathPow18") }
+  @Test def test_mathPow19 { runner2.runOneTest("mathPow19") }
+  @Test def test_mathPow20 { runner2.runOneTest("mathPow20") }
+  @Test def test_mathPow21 { runner2.runOneTest("mathPow21") }
+  @Test def test_mathPow22 { runner2.runOneTest("mathPow22") }
+  @Test def test_mathPow23 { runner2.runOneTest("mathPow23") }
+  @Test def test_mathPow24 { runner2.runOneTest("mathPow24") }
+  @Test def test_mathPow25 { runner2.runOneTest("mathPow25") }
+  @Test def test_mathPow26 { runner2.runOneTest("mathPow26") }
+  @Test def test_mathPow27 { runner2.runOneTest("mathPow27") }
+  @Test def test_mathPow28 { runner2.runOneTest("mathPow28") }
+  @Test def test_mathPow29 { runner2.runOneTest("mathPow29") }
+  @Test def test_mathPow30 { runner2.runOneTest("mathPow30") }
+  @Test def test_mathPow31 { runner2.runOneTest("mathPow31") }
+  @Test def test_mathPow32 { runner2.runOneTest("mathPow32") }
+  @Test def test_mathPow33 { runner2.runOneTest("mathPow33") }
+  @Test def test_mathPow34 { runner2.runOneTest("mathPow34") }
 }

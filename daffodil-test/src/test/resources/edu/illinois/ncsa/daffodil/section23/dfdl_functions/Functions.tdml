@@ -35,6 +35,7 @@
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:math="http://www.w3.org/2005/xpath-functions/math"
   xmlns:ex="http://example.com"
   defaultRoundTrip="true">
     
@@ -13272,6 +13273,219 @@
         </e_timezonefromtime3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="XPathMathFunctions">
+    <dfdl:format ref="ex:daffodilTest1"/>
+
+    <!-- These pow test were taken from the math:pow examples at https://www.w3.org/TR/xpath-functions-31/#func-math-pow -->
+    <xs:element name="pow01" type="xs:double" dfdl:inputValueCalc="{ math:pow(2, 3) }" />
+    <xs:element name="pow02" type="xs:double" dfdl:inputValueCalc="{ math:pow(-2, 3) }" />
+    <xs:element name="pow03" type="xs:double" dfdl:inputValueCalc="{ math:pow(2, -3) }" />
+    <xs:element name="pow04" type="xs:double" dfdl:inputValueCalc="{ math:pow(-2, -3) }" />
+    <xs:element name="pow05" type="xs:double" dfdl:inputValueCalc="{ math:pow(2, 0) }" />
+    <xs:element name="pow06" type="xs:double" dfdl:inputValueCalc="{ math:pow(0, 0) }" />
+    <xs:element name="pow07" type="xs:double" dfdl:inputValueCalc="{ math:pow(xs:double('INF'), 0) }" />
+    <xs:element name="pow08" type="xs:double" dfdl:inputValueCalc="{ math:pow(xs:double('NaN'), 0) }" />
+    <!--<xs:element name="pow09" type="xs:double" dfdl:inputValueCalc="{ math:pow(-math:pi(), 0) }" />-->
+    <xs:element name="pow10" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 3) }" />
+    <xs:element name="pow11" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 4) }" />
+    <xs:element name="pow12" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, 3) }" />
+    <xs:element name="pow13" type="xs:double" dfdl:inputValueCalc="{ math:pow(0, 4) }" />
+    <xs:element name="pow14" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, -3) }" />
+    <xs:element name="pow15" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, -4) }" />
+    <xs:element name="pow16" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, -3) }" />
+    <xs:element name="pow17" type="xs:double" dfdl:inputValueCalc="{ math:pow(0, -4) }" />
+    <xs:element name="pow18" type="xs:double" dfdl:inputValueCalc="{ math:pow(16, 0.5e0) }" />
+    <xs:element name="pow19" type="xs:double" dfdl:inputValueCalc="{ math:pow(16, 0.25e0) }" />
+    <xs:element name="pow20" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, -3.0e0) }" />
+    <xs:element name="pow21" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, -3.0e0) }" />
+    <xs:element name="pow22" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, -3.1e0) }" />
+    <xs:element name="pow23" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, -3.1e0) }" />
+    <xs:element name="pow24" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 3.0e0) }" />
+    <xs:element name="pow25" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, 3.0e0) }" />
+    <xs:element name="pow26" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 3.1e0) }" />
+    <xs:element name="pow27" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, 3.1e0) }" />
+    <xs:element name="pow28" type="xs:double" dfdl:inputValueCalc="{ math:pow(-1, xs:double('INF')) }" />
+    <xs:element name="pow29" type="xs:double" dfdl:inputValueCalc="{ math:pow(-1, xs:double('-INF')) }" />
+    <xs:element name="pow30" type="xs:double" dfdl:inputValueCalc="{ math:pow(1, xs:double('INF')) }" />
+    <xs:element name="pow31" type="xs:double" dfdl:inputValueCalc="{ math:pow(1, xs:double('-INF')) }" />
+    <xs:element name="pow32" type="xs:double" dfdl:inputValueCalc="{ math:pow(1, xs:double('NaN')) }" />
+    <xs:element name="pow33" type="xs:double" dfdl:inputValueCalc="{ math:pow(-2.5e0, 2.0e0) }" />
+    <xs:element name="pow34" type="xs:double" dfdl:inputValueCalc="{ math:pow(-2.5e0, 2.00000001e0) }" />
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="mathPow01" root="pow01" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow01>8.0</pow01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow02" root="pow02" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow02>-8.0</pow02></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow03" root="pow03" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow03>0.125</pow03></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow04" root="pow04" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow04>-0.125</pow04></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow05" root="pow05" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow05>1.0</pow05></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow06" root="pow06" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow06>1.0</pow06></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow07" root="pow07" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow07>1.0</pow07></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow08" root="pow08" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow08>1.0</pow08></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+  Requires math:pi()
+  <tdml:parserTestCase name="mathPow09" root="pow09" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow09>1.0</pow09></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+-->
+
+  <tdml:parserTestCase name="mathPow10" root="pow10" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow10>0.0</pow10></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow11" root="pow11" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow11>0.0</pow11></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow12" root="pow12" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow12>-0.0</pow12></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow13" root="pow13" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow13>0.0</pow13></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow14" root="pow14" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow14>INF</pow14></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow15" root="pow15" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow15>INF</pow15></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow16" root="pow16" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow16>-INF</pow16></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow17" root="pow17" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow17>INF</pow17></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow18" root="pow18" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow18>4.0</pow18></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow19" root="pow19" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow19>2.0</pow19></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow20" root="pow20" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow20>INF</pow20></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow21" root="pow21" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow21>-INF</pow21></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow22" root="pow22" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow22>INF</pow22></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow23" root="pow23" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow23>INF</pow23></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow24" root="pow24" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow24>0.0</pow24></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow25" root="pow25" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow25>-0.0</pow25></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow26" root="pow26" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow26>0.0</pow26></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow27" root="pow27" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow27>0.0</pow27></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow28" root="pow28" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow28>1.0</pow28></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow29" root="pow29" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow29>1.0</pow29></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow30" root="pow30" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow30>1.0</pow30></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow31" root="pow31" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow31>1.0</pow31></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow32" root="pow32" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow32>1.0</pow32></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow33" root="pow33" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow33>6.25</pow33></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mathPow34" root="pow34" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><pow34>NaN</pow34></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

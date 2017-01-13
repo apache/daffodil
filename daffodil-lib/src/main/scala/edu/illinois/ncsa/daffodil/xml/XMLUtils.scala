@@ -323,6 +323,7 @@ object XMLUtils {
   val XSD_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema") // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
+  val XPATH_MATH_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions/math")
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
@@ -359,6 +360,7 @@ object XMLUtils {
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
   val fnURI = XPATH_FUNCTION_NAMESPACE
+  val mathURI = XPATH_MATH_NAMESPACE
   val dafintURI = DAFFODIL_INTERNAL_NAMESPACE
 
   val DFDL_SIMPLE_BUILT_IN_TYPES =

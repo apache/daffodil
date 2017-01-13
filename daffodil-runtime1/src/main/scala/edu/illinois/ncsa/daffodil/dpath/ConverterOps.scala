@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
 import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JLong(if (asBoolean(a) == true) 1L else 0L)
@@ -243,7 +244,15 @@ case object StringToDecimal extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JBigDecimal(a.asInstanceOf[String])
 }
 case object StringToDouble extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = asAnyRef(a.asInstanceOf[String].toDouble)
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+    val str = a.asInstanceOf[String]
+    val d =
+      if (str == XMLUtils.PositiveInfinityString) JDouble.POSITIVE_INFINITY
+      else if (str == XMLUtils.NegativeInfinityString) JDouble.NEGATIVE_INFINITY
+      else if (str == XMLUtils.NaNString) JDouble.NaN
+      else str.toDouble
+    asAnyRef(d)
+  }
 }
 case object StringToLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {

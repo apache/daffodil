@@ -98,7 +98,7 @@ object SchemaUtils {
       if (schemaScope != TopScope) schemaScope
       else {
         import XMLUtils._
-        <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:dafint={ dafintURI }/>.scope
+        <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:math={ mathURI } xmlns:dafint={ dafintURI }/>.scope
       }
     scope = XMLUtils.combineScopes("xs", XMLUtils.xsdURI, scope) // always need this one
     scope = XMLUtils.combineScopes(null, defaultNamespace, scope)

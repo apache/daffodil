@@ -1280,6 +1280,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
   lazy val functionObject: Expression = {
     val DFDL = XMLUtils.DFDL_NAMESPACE
     val FUNC = XMLUtils.XPATH_FUNCTION_NAMESPACE
+    val MATH = XMLUtils.XPATH_MATH_NAMESPACE
     val XSD = XMLUtils.XSD_NAMESPACE
     val DAF = XMLUtils.EXT_NS
     val funcObj = (functionQName, expressions) match {
@@ -1528,6 +1529,10 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "timeZoneFromTime", DFDL), args) => {
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.Time, DFDLTimeZoneFromDFDLCalendar(_, _))
+      }
+      case (RefQName(_, "pow", MATH), args) => {
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Double, NodeInfo.Double, NodeInfo.Numeric, MATHPow(_))
       }
 
       // conversion functions
