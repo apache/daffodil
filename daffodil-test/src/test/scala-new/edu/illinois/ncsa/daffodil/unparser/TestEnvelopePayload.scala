@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,27 +30,24 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package edu.illinois.ncsa.daffodil.unparser
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import org.junit.Test
+import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class BitOrderChangeParser(
-  val termRuntimeData: TermRuntimeData,
-  val bitOrder: BitOrder,
-  val checkByteAndBitOrder: CheckByteAndBitOrderEv,
-  val checkBitOrderAndCharset: CheckBitOrderAndCharsetEv)
-  extends PrimParser {
+object TestEnvelopePayload {
+  var runner = Runner("/edu/illinois/ncsa/daffodil/unparser/", "envelopePayload.tdml")
 
-  override def context = termRuntimeData
-
-  override lazy val runtimeDependencies = List(checkByteAndBitOrder, checkBitOrderAndCharset)
-
-  def parse(pstate: PState): Unit = {
-    checkByteAndBitOrder(pstate)
-    checkBitOrderAndCharset(pstate)
-   
-    termRuntimeData.schemaDefinitionUnless(pstate.bitPos1b % 8 == 1, "Can only change dfdl:bitOrder on a byte boundary")
-    pstate.dataInputStream.setBitOrder(bitOrder)
+  @AfterClass def tearDown() {
+    runner.reset
   }
+}
+
+class TestEnvelopePayload {
+  import TestEnvelopePayload._
+
+  @Test def test_ep1() { runner.runOneTest("ep1") }
+  @Test def test_ep2() { runner.runOneTest("ep2") }
 
 }

@@ -70,9 +70,7 @@ final class CharBufferDataOutputStream
   }
 
   override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = notToBeUsed
-  // override def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = notToBeUsed
   override def putBytes(ba: Array[Byte]) = notToBeUsed
-  override def putByteBuffer(bb: java.nio.ByteBuffer): Long = notToBeUsed
   override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def putBinaryFloat(float: Float): Boolean = notToBeUsed

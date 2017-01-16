@@ -70,6 +70,7 @@ import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
+import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -354,7 +355,12 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     // without having to create a new infoset event stream or outputstream.
     //
     Assert.invariant(!state.dataOutputStream.isFinished)
-    state.dataOutputStream.setFinished()
+    try {
+      state.dataOutputStream.setFinished()
+    } catch {
+      case boc: BitOrderChangeException =>
+        state.SDE(boc)
+    }
     log(LogLevel.Debug, "%s final stream for %s finished.", this, state)
 
     val ev = state.advanceMaybe

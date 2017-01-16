@@ -51,7 +51,7 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
 
   final lazy val defaultBitOrder = optDefaultBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
 
-  protected lazy val isKnownSameBitOrder: Boolean = {
+  final protected lazy val isKnownSameBitOrder: Boolean = {
     val res =
       if (enclosingTerm.isEmpty) false // root needs bit order
       else {
@@ -67,7 +67,10 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
     res
   }
 
-  protected lazy val hasUniformBitOrderThroughout: Boolean = termChildren.map { t => t.isKnownSameBitOrder && t.hasUniformBitOrderThroughout }.forall(x => x)
+  protected lazy val hasUniformBitOrderThroughout: Boolean = {
+    val res = termChildren.map { t => t.isKnownSameBitOrder && t.hasUniformBitOrderThroughout }.forall(x => x)
+    res
+  }
 
   protected final lazy val bitOrderChange = prod("bitOrderChange",
     optionBitOrder.isDefined &&

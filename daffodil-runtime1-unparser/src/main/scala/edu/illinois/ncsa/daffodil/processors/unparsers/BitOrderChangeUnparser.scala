@@ -48,7 +48,8 @@ class BitOrderChangeUnparserSuspendableOperation(
 
   override def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
-    dos.maybeAbsBitPos0b.isDefined
+    val res = dos.maybeAbsBitPos0b.isDefined
+    res
   }
 
   override def continuation(state: UState) {
@@ -60,7 +61,7 @@ class BitOrderChangeUnparserSuspendableOperation(
 }
 
 class BitOrderChangeUnparser(
-   val rd: TermRuntimeData,
+  val rd: TermRuntimeData,
   val bitOrder: BitOrder,
   val checkByteAndBitOrder: CheckByteAndBitOrderEv,
   val checkBitOrderAndCharset: CheckBitOrderAndCharsetEv)
@@ -70,6 +71,6 @@ class BitOrderChangeUnparser(
   override lazy val runtimeDependencies = Seq(checkByteAndBitOrder, checkBitOrderAndCharset)
 
   override def suspendableOperation = new BitOrderChangeUnparserSuspendableOperation(
-      rd, bitOrder, checkByteAndBitOrder, checkBitOrderAndCharset)
+    rd, bitOrder, checkByteAndBitOrder, checkBitOrderAndCharset)
 
 }

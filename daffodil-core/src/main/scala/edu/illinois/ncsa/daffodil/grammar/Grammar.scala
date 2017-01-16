@@ -162,7 +162,7 @@ object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
-  override lazy val parser = hasNoParser // new EmptyGramParser
+  override lazy val parser = new NadaParser(null)
   override lazy val unparser = // hasNoUnparser
     // we depend on this unparser being returned, even though it cannot be called to unparse anything.
     // As there are unit tests which test attributes where those attributes cause a DummyUnparser to be created.

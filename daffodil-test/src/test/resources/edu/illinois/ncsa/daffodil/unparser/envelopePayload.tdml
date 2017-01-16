@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+
+ Developed by: Tresys Technology, LLC
+ http://www.tresys.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a 
+ copy of
+ this software and associated documentation files (the "Software"), to deal 
+ with
+ the Software without restriction, including without limitation the rights 
+ to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished 
+ to do
+ so, subject to the following conditions:
+
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimers.
+
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimers in the
+ documentation and/or other materials provided with the distribution.
+
+ 3. Neither the names of Tresys Technology, nor the names of its contributors
+ may be used to endorse or promote products derived from this Software
+ without specific prior written permission.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+ THE
+ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ THE
+ SOFTWARE.
+-->
+<tdml:testSuite 
+  suiteName="envelopePayload" 
+  description="Tests scenarios involving outer envelope formats containing inner payload formats."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+  xmlns:ex="http://example.com">
+
+<!-- 
+These schemas and tests simulate some of the complexities we've seen when
+looking at DFDL schemas for some complex formats like STANAG 5516 with NACT wrappers.
+ -->
+ 
+  <tdml:defineSchema name="model1" elementFormDefault="unqualified">
+    <dfdl:format ref="be" />
+    <dfdl:defineFormat name="be">
+      <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+        encoding="ascii" lengthUnits="bits" alignmentUnits="bits"
+        alignment="1" fillByte="X" binaryNumberRep="binary" lengthKind="explicit" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="le">
+      <dfdl:format ref="be" byteOrder="littleEndian" bitOrder="leastSignificantBitFirst" />
+    </dfdl:defineFormat>
+      
+    <xs:element name="records" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="record" minOccurs="0" maxOccurs="unbounded" 
+            dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="hdr" dfdl:lengthKind="implicit">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="n" type="xs:int" dfdl:length="16" />
+                      <xs:element name="len" type="xs:int" dfdl:length="16" dfdl:outputValueCalc='{ dfdl:valueLength(../../payload, "bytes" ) }'>
+                      </xs:element>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <!--  -->
+                <!-- 
+                   The payload has a different byte order and bit order than the surrounding envelope and is not 
+                   a multiple of 8 bits long.
+                -->
+                <!--  -->
+                <xs:element name="payload" dfdl:lengthKind="explicit" dfdl:length="{ ../hdr/len }" dfdl:lengthUnits="bytes">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="iWord" dfdl:length="19">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element name="kind" type="xs:int" dfdl:length="3">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:discriminator>{ . eq 1 }</dfdl:discriminator>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                            <xs:element name="w" type="xs:int" dfdl:length="16" />
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                      <xs:element name="eWord" dfdl:length="19" dfdl:occursCountKind="parsed" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element name="kind" type="xs:int" dfdl:length="3">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:discriminator>{ . eq 2 }</dfdl:discriminator>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                            <xs:element name="w" type="xs:int" dfdl:length="16" />
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                      <xs:element name="cWord" dfdl:length="19" dfdl:occursCountKind="parsed" minOccurs="0" maxOccurs="unbounded">
+                        <xs:complexType>
+                          <xs:sequence>
+                            <xs:element name="kind" type="xs:int" dfdl:length="3">
+                              <xs:annotation>
+                                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                  <dfdl:discriminator>{ . eq 3 }</dfdl:discriminator>
+                                </xs:appinfo>
+                              </xs:annotation>
+                            </xs:element>
+                            <xs:element name="w" type="xs:int" dfdl:length="16" />
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</tdml:defineSchema>
+
+<tdml:parserTestCase name="ep1" root="records" model="model1"
+    description="Envelope format holds payload that is different byte order and bit order and not multiple of a byte long."
+    roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:records>
+          <record>
+            <hdr>
+              <n>255</n><!-- 00FF -->
+              <len>8</len><!-- 0008 -->
+            </hdr>
+            <payload>
+              <iWord>
+                <kind>1</kind>
+                <w>1</w>
+              </iWord>
+         <!-- 001 0000 0000 0000 0001 X -->
+         <!-- 0010 0000 0000 0000 001X -->
+              <eWord>
+                <kind>2</kind>
+                <w>2</w>
+              </eWord>
+         <!-- 010 0000 0000 0000 0010 X -->
+         <!--                        0 1000 0000 0000 0000 10XX -->
+              <cWord>
+                <kind>3</kind>
+                <w>3</w>
+              </cWord>
+         <!-- 011 0000 0000 0000 0011 -->
+         <!--                                                01 1000 0000 0000 0001 1XXX XXXX -->
+         <!-- 0010 0000 0000 0000 0010 1000 0000 0000 0000 1001 1000 0000 0000 0001 1101 1000 -->
+         <!-- 2    0    0    0    2    8    0    0    0    9    8    0    0    1    D    8 -->
+            </payload>
+          </record>
+          <record>
+            <hdr>
+              <n>-1</n>
+              <len>8</len>
+            </hdr>
+            <payload>
+              <iWord>
+                <kind>1</kind>
+                <w>1</w>
+              </iWord>
+              <eWord>
+                <kind>2</kind>
+                <w>2</w>
+              </eWord>
+              <cWord>
+                <kind>3</kind>
+                <w>3</w>
+              </cWord>
+            </payload>
+          </record>
+        </ex:records>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte">00FF 0008 20002 80009 8001 D8 FFFF 0008 20002 80009 8001 D8</tdml:documentPart>
+    </tdml:document>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="model2" elementFormDefault="unqualified">
+    <dfdl:format ref="be" />
+    <dfdl:defineFormat name="be">
+      <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+        encoding="ascii" lengthUnits="bits" alignmentUnits="bits"
+        alignment="1" fillByte="X" binaryNumberRep="binary" lengthKind="explicit" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="le">
+      <dfdl:format ref="be" byteOrder="littleEndian" bitOrder="leastSignificantBitFirst" />
+    </dfdl:defineFormat>
+
+  <xs:element name="records" dfdl:lengthKind="implicit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="record" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit"
+          dfdl:alignmentUnits="bytes" dfdl:alignment="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="n" type="xs:int" dfdl:length="16" />
+              <xs:element name="len" type="xs:int" dfdl:length="16"
+                dfdl:outputValueCalc='{ if (fn:exists(../payload)) then dfdl:valueLength(../payload, "bytes") else dfdl:valueLength(../invalidPayload, "bytes") }' />
+              <xs:choice>
+              <!--  -->
+              <!-- 
+                   The payload has a different byte order and bit order than the surrounding envelope and is not 
+                   a multiple of 8 bits long.
+                -->
+              <!--  -->
+                <xs:element name="payload" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:ref="le">
+                  <xs:complexType>
+                    <xs:choice dfdl:ref="le">
+                      <xs:element name="real" dfdl:lengthKind="implicit" dfdl:ref="le">
+                        <xs:complexType>
+                          <xs:sequence dfdl:ref="le">
+                            <xs:element name="iWord" dfdl:length="19" dfdl:ref="le">
+                              <xs:complexType>
+                                <xs:sequence dfdl:ref="le">
+                                  <xs:element name="kind" type="xs:int" dfdl:length="3" dfdl:ref="le">
+                                    <xs:annotation>
+                                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                        <dfdl:discriminator>{ . eq 1 }</dfdl:discriminator>
+                                      </xs:appinfo>
+                                    </xs:annotation>
+                                  </xs:element>
+                                  <xs:element name="w" type="xs:int" dfdl:length="16" dfdl:ref="le" />
+                                </xs:sequence>
+                              </xs:complexType>
+                            </xs:element>
+                            <xs:element name="eWord" dfdl:length="19" dfdl:occursCountKind="parsed" dfdl:ref="le" minOccurs="0"
+                              maxOccurs="unbounded">
+                              <xs:complexType>
+                                <xs:sequence dfdl:ref="le">
+                                  <xs:element name="kind" type="xs:int" dfdl:length="3" dfdl:ref="le">
+                                    <xs:annotation>
+                                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                        <dfdl:discriminator>{ . eq 2 }</dfdl:discriminator>
+                                      </xs:appinfo>
+                                    </xs:annotation>
+                                  </xs:element>
+                                  <xs:element name="w" type="xs:int" dfdl:length="16" dfdl:ref="le" />
+                                </xs:sequence>
+                              </xs:complexType>
+                            </xs:element>
+                            <xs:element name="cWord" dfdl:length="19" dfdl:occursCountKind="parsed" dfdl:ref="le" minOccurs="0"
+                              maxOccurs="unbounded">
+                              <xs:complexType>
+                                <xs:sequence dfdl:ref="le">
+                                  <xs:element name="kind" type="xs:int" dfdl:length="3" dfdl:ref="le">
+                                    <xs:annotation>
+                                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                        <dfdl:discriminator>{ . eq 3 }</dfdl:discriminator>
+                                      </xs:appinfo>
+                                    </xs:annotation>
+                                  </xs:element>
+                                  <xs:element name="w" type="xs:int" dfdl:length="16" dfdl:ref="le" />
+                                </xs:sequence>
+                              </xs:complexType>
+                            </xs:element>
+                          </xs:sequence>
+                        </xs:complexType>
+                      </xs:element>
+                      <xs:element name="unknown" dfdl:lengthKind="explicit" dfdl:length="19" dfdl:ref="le">
+                        <xs:complexType>
+                          <xs:sequence />
+                        </xs:complexType>
+                      </xs:element>
+                    </xs:choice>
+                  </xs:complexType>
+                      </xs:element>
+                <xs:element name="invalidPayload" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="{ ../len }"
+                  dfdl:lengthUnits="bytes" />
+              </xs:choice>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="ep2" root="records" model="model2"
+      description="Envelope/payload adds complexity of choice of payload or unknown, and record or invalidPayload."
+    roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:records>
+          <record>
+            <n>255</n><!-- 00FF -->
+            <len>8</len><!-- 0008 -->
+            <payload><real>                   
+              <iWord>
+                <kind>1</kind>
+                <w>1</w>
+              </iWord>
+         <!-- 0000 0000 0000 0001 001 -->
+              <eWord>
+                <kind>2</kind>
+                <w>2</w>
+              </eWord>
+         <!-- 0000 0000 0000 0010 010,  0000 0000 0000 0001 001-->
+              <cWord>
+                <kind>3</kind>
+                <w>3</w>
+              </cWord>
+         <!-- XXX X | XXX 0|  000 0 000 0|  000 0 011 , 0 | 11 00 00 00 | 00 00 00 00 | 10 01 0, 000|  0 000 0 000 | 0 000 1 001-->
+         <!-- B       0       0     0       0     6         C     0       0     0       9     0        0     0       0     9 -->
+         <!-- 101 1 | 000 IS THE FILL BYTE-->
+            </real></payload>
+         <!--  09 00 90 00 C0 06 00 B0-->
+          </record>
+          <record>
+            <n>-1</n>
+            <len>8</len>
+            <payload><real>
+              <iWord>
+                <kind>1</kind>
+                <w>1</w>
+              </iWord>
+              <eWord>
+                <kind>2</kind>
+                <w>2</w>
+              </eWord>
+              <cWord>
+                <kind>3</kind>
+                <w>3</w>
+              </cWord>
+            </real></payload>
+          </record>
+        </ex:records>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte">00FF 0008 09 00 90 00 C0 06 00 B0 FFFF 0008 09 00 90 00 C0 06 00 B0</tdml:documentPart>
+    </tdml:document>
+  </tdml:parserTestCase>
+
+ 
+
+</tdml:testSuite>
+

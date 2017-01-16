@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *  Some(null) != None // you get a Some object with null as its value.
  *  but
  *  Maybe(null) = Nope
- *  One(null) == Nope // can't construct a Maybe type containing null.
+ *  One(null) = throws an exception
  */
 final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable {
   @inline final def get: T = if (isDefined) value else noneGet
@@ -125,16 +125,43 @@ object Maybe {
     case Some(x) => One(x)
   }
 
+  /**
+   * Maybe(null) returns Nope
+   * Maybe(not-null) returns One(not-null)
+   */
   @inline
   final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
 
   val Nope = new Maybe[Nothing](NopeValue)
 
+  /**
+   * Because Scala doesn't allow derivation from value types, One[T] is not
+   * a value class that is a subtype of Maybe[T]. If that were allowed then
+   * One could use
+   * {{{
+   *    def foo(arg: One[String]) = { ...
+   *  }}}
+   *  As a way of insisting that the argument is, by type-correctness, non-null
+   *  and with no overhead. Alas we can't achieve that.
+   *
+   *  The best we can do is
+   *  {{{
+   *     def foo(arg: Maybe[String]) = { ...
+   *  }}}
+   *  This insures that when the argument being passed is constructed as a Maybe
+   *  object, that you will get a One or Nope. But it doesn't prevent Nope from
+   *  being the result.
+   */
   type One[T <: AnyRef] = Maybe[T]
 
   object One {
-    @inline
-    final def apply[T <: AnyRef](value: T) = Maybe(value)
+
+    /**
+     * One(null) throws an exception.
+     */
+    final def apply[T <: AnyRef](value: T) =
+      if (value eq null) throw new NoSuchElementException("Cannot create One(..) for null")
+      else new Maybe[T](value)
 
     // If the pattern matching is going to box an object then this is hardly
     // worth using.

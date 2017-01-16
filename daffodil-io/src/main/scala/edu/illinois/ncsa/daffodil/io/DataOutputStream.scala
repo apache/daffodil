@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.io
 
 import passera.unsigned.ULong
 import java.nio.charset.CharsetEncoder
-import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -99,7 +98,7 @@ trait DataOutputStream extends DataStreamCommon
 
   def relBitPos0b: ULong
 
-  def relBitPos1b: ULong = ULong(relBitPos0b + 1L)
+  final def relBitPos1b: ULong = ULong(relBitPos0b + 1L)
 
   def maybeAbsBitPos0b: MaybeULong
 
@@ -107,7 +106,7 @@ trait DataOutputStream extends DataStreamCommon
    * Besides setting the relBitPos, it also maintains the value of
    * the absolute bit pos, if it is known.
    */
-  def setRelBitPos0b(newRelBitPos0b: ULong): Unit
+  protected def setRelBitPos0b(newRelBitPos0b: ULong): Unit
 
   /**
    * Absolute bit limit zero based
@@ -126,7 +125,7 @@ trait DataOutputStream extends DataStreamCommon
   /**
    * sets, but also maintains the absolute bit limit, if that is defined.
    */
-  def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean
+  protected def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean
 
   def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
@@ -186,7 +185,7 @@ trait DataOutputStream extends DataStreamCommon
    * Returns number of bytes transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
-  def putByteBuffer(bb: ByteBuffer): Long
+  // def putByteBuffer(bb: ByteBuffer): Long
   def putBytes(ba: Array[Byte]): Long
 
   /**

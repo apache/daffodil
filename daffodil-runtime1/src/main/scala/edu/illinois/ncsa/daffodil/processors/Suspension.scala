@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 
 /**
  * The suspension object keeps track of the state of the task, i.e., whether it
@@ -87,7 +88,12 @@ trait Suspension
   final def runSuspension() {
     doTask(savedUstate)
     if (isDone && !isReadOnly) {
-      savedUstate.dataOutputStream.setFinished()
+      try {
+        savedUstate.dataOutputStream.setFinished()
+      } catch {
+        case boc: BitOrderChangeException =>
+          savedUstate.SDE(boc)
+      }
       log(LogLevel.Debug, "%s finished %s.", this, savedUstate)
     }
   }
@@ -243,7 +249,11 @@ trait Suspension
     //
     val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
     if (isReadOnly) {
-      original.setFinished()
+      try {
+        original.setFinished()
+      } catch {
+        case boc: BitOrderChangeException => ustate.SDE(boc)
+      }
     }
 
     savedUstate_ = cloneUState

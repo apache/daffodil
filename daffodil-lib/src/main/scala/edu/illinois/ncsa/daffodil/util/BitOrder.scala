@@ -43,7 +43,7 @@ object Bits {
    */
   def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
   def asUnsignedByte(b: Long): Int = (b & 0xFF).toInt
-  
+
   def asSignedByte(i: Long): Byte = {
     Assert.usage(i >= 0)
     val res = if (i > 127) i - 256 else i
@@ -145,7 +145,8 @@ object Bits {
       val rightBits = (leftBits >>> 8) & mask
       val b = asUnsignedByte(bb.get(i))
       leftBits = (b << n)
-      bb.put(i, asSignedByte((leftBits | rightBits) & 0xFF))
+      val shiftedByte = (leftBits | rightBits) & 0xFF
+      bb.put(i, asSignedByte(shiftedByte))
       i = i - 1
     }
   }

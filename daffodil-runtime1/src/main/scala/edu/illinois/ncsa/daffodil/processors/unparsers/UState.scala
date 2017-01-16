@@ -74,9 +74,7 @@ import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import passera.unsigned.ULong
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.Charset
@@ -338,8 +336,7 @@ class UStateMain private (
     pair => pair match {
       case (baos, dos) =>
         baos.reset()
-        dos.setMaybeRelBitLimit0b(MaybeULong.Nope)
-        dos.setRelBitPos0b(ULong(0L))
+        dos.resetAllBitPos()
     })
 
   override def advance: Boolean = infosetCursor.advance

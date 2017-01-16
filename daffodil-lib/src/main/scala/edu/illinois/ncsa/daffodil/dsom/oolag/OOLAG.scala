@@ -505,7 +505,7 @@ object OOLAG extends Logging {
 
     protected final def oolagAfterValue(res: AnyRef) {
       log(LogLevel.OOLAGDebug, " " * indent + "Evaluated %s", thisThing)
-      value_ = One(res)
+      value_ = Maybe(res)
     }
 
     protected final def oolagFinalize = {

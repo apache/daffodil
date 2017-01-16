@@ -41,8 +41,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -56,6 +56,15 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
     val content = toString("iso-8859-1")
     val s = Misc.remapControlsAndLineEndingsToVisibleGlyphs(content)
     s
+  }
+
+  override def reset(): Unit = {
+    var i: Int = 0 // Performance. This clearing isn't necessary. Just makes debug easier.
+    while (i < count) {
+      buf(i) = 0
+      i += 1
+    }
+    super.reset()
   }
 }
 
@@ -147,17 +156,6 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    * If reused, this must be reset.
    */
   private val bufferingJOS = new ByteArrayOutputStreamWithGetBuf()
-
-  /**
-   * Returns a byte buffer containing all the whole bytes that have been buffered.
-   *  Does not contain any bits of the fragment byte (if there is one).
-   */
-  def getByteBuffer = {
-    Assert.usage(isBuffering)
-    val bb = ByteBuffer.wrap(bufferingJOS.getBuf())
-    bb.limit(bufferingJOS.getCount)
-    bb
-  }
 
   /**
    * Switched to point a either the buffering or direct java output stream in order
@@ -675,10 +673,23 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
 /**
  * Throw to indicate that bitOrder changed, but not on a byte boundary.
  *
- * Must be caught at higher level and turned into a RuntimeSDE.
+ * Must be caught at higher level and turned into a RuntimeSDE where we have
+ * the context to do so.
+ *
+ * All calls to setFinished should, somewhere, be surrounded by a catch of this.
  */
 class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream,
-  bufDOS: DirectOrBufferedDataOutputStream) extends Exception with ThinThrowable
+  bufDOS: DirectOrBufferedDataOutputStream) extends Exception with ThinThrowable {
+
+  override def getMessage() = {
+    "Data output stream %s with bitOrder '%s'%scannot be populated from %s with bitOrder '%s'.".format(
+      directDOS,
+      directDOS.bitOrder,
+      (if (!directDOS.isEndOnByteBoundary) " not on a byte boundary, " else ""),
+      bufDOS,
+      bufDOS.bitOrder)
+  }
+}
 
 object DirectOrBufferedDataOutputStream {
 
@@ -712,13 +723,13 @@ object DirectOrBufferedDataOutputStream {
 
     {
       import edu.illinois.ncsa.daffodil.util.MaybeULong
-      import edu.illinois.ncsa.daffodil.io.DataOutputStream
 
-      val dStream: DataOutputStream = directDOS
+      val dStream = directDOS
       val newLengthLimit = bufferNBits.toLong
       val savedLengthLimit = dStream.maybeRelBitLimit0b
 
       if (dStream.setMaybeRelBitLimit0b(MaybeULong(dStream.relBitPos0b + newLengthLimit))) {
+
         try {
           if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
 
@@ -727,14 +738,27 @@ object DirectOrBufferedDataOutputStream {
             Assert.invariant(nBytesPut == nBytes)
 
           } else {
-            if (bufDOS.cst.fragmentLastByteLimit > 0) {
-              val bufDOSStream = bufDOS.getJavaOutputStream()
-              bufDOSStream.write(bufDOS.cst.fragmentLastByte.toByte)
+            val nFragBits = bufDOS.fragmentLastByteLimit
+            val byteCount = bufDOS.bufferingJOS.getCount()
+            val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount)
+            Assert.invariant(byteCount == wholeBytesWritten)
+            if (nFragBits > 0) {
+              val origfrag = bufDOS.fragmentLastByte
+              val fragNum =
+                if (bufDOS.bitOrder eq BitOrder.MostSignificantBitFirst)
+                  origfrag >> (8 - nFragBits)
+                else
+                  origfrag
+              Assert.invariant(directDOS.putLong(fragNum, nFragBits)) // FAILS when doing this for suspensions due to assertions about consistent bit/byte order.
             }
-
-            val nBitsPut = directDOS.putBitBuffer(bufDOS.getByteBuffer, bufferNBits.toLong)
-            Assert.invariant(nBitsPut == bufferNBits.toLong)
+            //
+            // bufDOS contents have now been output into directDOS
+            // but we don't need to change it or set it up for
+            // reuse as a buffered DOS, because whether it is in finished state
+            // or active state, we're about to morph it into being the direct DOS
+            //
           }
+
         } finally {
           dStream.resetMaybeRelBitLimit0b(savedLengthLimit)
         }

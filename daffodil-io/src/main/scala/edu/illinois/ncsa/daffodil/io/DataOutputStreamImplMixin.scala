@@ -88,6 +88,15 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   def setFillByte(newFillByte: Int) {
     Assert.usage(isWritable)
     Assert.usage(newFillByte <= 255 && newFillByte >= 0)
+    slamFillByte(newFillByte)
+  }
+
+  /**
+   * slamFillByte assigns the fill byte but doesn't do the invariant checking.
+   * It is for use from contexts where you need to set the fill byte, but the
+   * usual invariants aren't expected to hold.
+   */
+  def slamFillByte(newFillByte: Int): Unit = {
     fillByte_ = newFillByte
     fillLong_ = {
       if (fillByte_ == 0) 0L
@@ -193,7 +202,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     checkInvariants()
   }
 
-  def setRelBitPos0b(newRelBitPos0b: ULong) {
+  protected final def setRelBitPos0b(newRelBitPos0b: ULong) {
     Assert.usage(isWritable)
     checkInvariants()
     relBitPos0b_ = newRelBitPos0b
@@ -221,15 +230,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   private var maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong.Nope
 
-  //  def maybeAbsolutizedRelativeStartingBitPosInBits() =
-  //    maybeAbsolutizedRelativeStartingBitPosInBits_
-  //
-  //  def setMaybeAbsolutizedRelativeStartingBitPosInBits(pos0b: ULong) {
-  //    Assert.usage(this.maybeAbsolutizedRelativeStartingBitPosInBits.isEmpty)
-  //    System.err.println("setMaybeAbsolutizedRelativeStartingBitPosInBits " + pos0b)
-  //    maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong(pos0b.longValue)
-  //  }
-
   /**
    * Absolute bit limit zero based
    *
@@ -251,7 +251,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * Returns false if the set was unsuccessful, meaning one is setting a limit that
    * extends past a pre-existing limit.
    */
-  def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean = {
+  protected def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean = {
     Assert.invariant((maybeAbsBitLimit0b.isDefined && maybeRelBitLimit0b.isDefined) || maybeAbsBitLimit0b.isEmpty)
     if (newMaybeRelBitLimit0b.isEmpty) {
       maybeRelBitLimit0b_ = MaybeULong.Nope
@@ -321,18 +321,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(newFragmentByte >= 0 && newFragmentByte <= 255) // no bits above first byte are in use.
     if (nBitsInUse == 0) {
       Assert.usage(newFragmentByte == 0)
-    } else {
-      // nBitsInUse is 1..7
-      // based on the bitOrder, create a mask for the bits we are using.
-      val usedBitsMask = if (bitOrder eq BitOrder.MostSignificantBitFirst) {
-        128.toByte >> (nBitsInUse - 1)
-      } else {
-        // LeastSignificantBitFirst
-        (1 << nBitsInUse) - 1
-      }
-      // create mask for bits we're not using
-      val unusedBitsMask = ~usedBitsMask
-      Assert.usage((newFragmentByte & unusedBitsMask) == 0) // all unused bits must be zero.
     }
     fragmentLastByte_ = newFragmentByte
     fragmentLastByteLimit_ = nBitsInUse
@@ -649,7 +637,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  def putByteBuffer(bb: java.nio.ByteBuffer): Long = {
+  private def putByteBuffer(bb: java.nio.ByteBuffer): Long = {
     Assert.usage(isWritable)
     val nTransferred =
       if (bb.hasArray) {
@@ -762,7 +750,18 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     //
     val res =
       if (byteOrder eq ByteOrder.BigEndian) {
-        Assert.invariant(bitOrder eq BitOrder.MostSignificantBitFirst)
+        //
+        // You would think this invariant would hold
+        //
+        // Assert.invariant(bitOrder eq BitOrder.MostSignificantBitFirst)
+        //
+        // However, when collapsing DOS forward into each other as a part of
+        // evaluating suspensions, we encounter situations where the bitOrder
+        // in the DOS has LSBF, and that was just never modified though the
+        // byte order was modified. We could hammer the bitOrder to MSBF
+        // any time the byte order is set, but that would mask errors where the
+        // user really had the properties conflicting.
+        //
         putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
       } else {
         Assert.invariant(byteOrder eq ByteOrder.LittleEndian)
