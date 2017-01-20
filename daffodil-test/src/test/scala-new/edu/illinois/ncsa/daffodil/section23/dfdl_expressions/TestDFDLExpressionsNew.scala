@@ -80,6 +80,11 @@ class TestDFDLExpressionsNew {
   //DFDL-1657
   @Test def test_valueLengthRef1 { runner6.runOneTest("valueLengthRef1") }
 
+  //DFDL-1706
+  @Test def test_valueLengthDfdlLength { runner6.runOneTest("valueLengthDfdlLength") }
+  @Test def test_valueLengthDfdlOccursCount { runner6.runOneTest("valueLengthDfdlOccursCount") }
+  @Test def test_valueLengthDfdlEncoding { runner6.runOneTest("valueLengthDfdlEncoding") }
+
   //DFDL-1702
   @Test def test_mathPow01 { runner2.runOneTest("mathPow01") }
   @Test def test_mathPow02 { runner2.runOneTest("mathPow02") }

@@ -136,6 +136,54 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" type="xs:int" dfdl:length="{ dfdl:valueLength(../implicitLenComplex, 'bytes') }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" maxOccurs="unbounded" type="xs:int" dfdl:length="2" dfdl:occursCountKind="expression" dfdl:occursCount="{ dfdl:valueLength(../implicitLenComplex, 'bytes') }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:encoding="{ fn:concat('ISO-8859-', dfdl:valueLength(../implicitLenComplex, 'bytes') - 2) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="valueLengthPair1" root="e1"
@@ -229,4 +277,62 @@
     </tdml:infoset>
 
   </tdml:unparserTestCase>
+
+
+  <tdml:parserTestCase name="valueLengthDfdlLength" root="e6"
+    model="cl1" description="dfdl:valueLength inside dfdl:length">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 00 00 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>3</ex:foo>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDfdlOccursCount" root="e7"
+    model="cl1" description="dfdl:valueLength inside dfdl:occursCount">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 00 01 00 02 00 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>1</ex:foo>
+          <ex:foo>2</ex:foo>
+          <ex:foo>3</ex:foo>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDfdlEncoding" root="e8"
+    model="cl1" description="dfdl:valueLength inside dfdl:encoding">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 AB</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>«</ex:foo>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

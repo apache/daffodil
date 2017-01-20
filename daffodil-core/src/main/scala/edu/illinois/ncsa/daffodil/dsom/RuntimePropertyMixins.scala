@@ -485,7 +485,7 @@ trait ElementRuntimeValuedPropertiesMixin
         } else {
           ReferencedElementInfos.None
         }
-      )
+      ) ++
       propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
       (
         if (optionEscapeScheme.isDefined) {
