@@ -60,7 +60,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
+import edu.illinois.ncsa.daffodil.infoset.NextElementResolver
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 

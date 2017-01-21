@@ -38,8 +38,8 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.DINode
-import edu.illinois.ncsa.daffodil.processors.InfosetException
+import edu.illinois.ncsa.daffodil.infoset.DINode
+import edu.illinois.ncsa.daffodil.infoset.InfosetException
 import edu.illinois.ncsa.daffodil.processors.VariableException
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc

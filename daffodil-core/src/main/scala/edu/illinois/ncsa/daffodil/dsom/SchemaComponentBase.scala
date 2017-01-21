@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 
 abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaComponentBase)
   extends OOLAGHost(parent) {

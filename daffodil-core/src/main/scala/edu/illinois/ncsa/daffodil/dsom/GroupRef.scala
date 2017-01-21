@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
 import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
+import edu.illinois.ncsa.daffodil.xml.HasRefMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
 /**
  * A GroupRef (group reference) is a term, but most everything is delgated to the

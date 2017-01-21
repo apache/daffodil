@@ -44,6 +44,13 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
+import edu.illinois.ncsa.daffodil.xml.ResolvesQNames
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
 
 /**
  * The core root class of the DFDL Schema object model.

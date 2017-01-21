@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
 import scala.util.parsing.input.CharSequenceReader
-import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
+import edu.illinois.ncsa.daffodil.oolag.ErrorsNotYetRecorded
 import scala.util.parsing.combinator.RegexParsers
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 

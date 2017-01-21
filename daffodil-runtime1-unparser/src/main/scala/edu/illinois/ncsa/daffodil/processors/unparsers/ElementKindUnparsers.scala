@@ -31,7 +31,7 @@
  */
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters

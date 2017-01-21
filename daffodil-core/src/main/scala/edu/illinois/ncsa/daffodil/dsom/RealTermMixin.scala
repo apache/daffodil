@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
 trait PropertyReferencedElementInfosMixin {
   protected final type F = ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]

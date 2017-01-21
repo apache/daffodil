@@ -31,9 +31,9 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.Sequence
+import edu.illinois.ncsa.daffodil.grammar.primitives.SequenceCombinator
 
 trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
 
@@ -48,10 +48,10 @@ trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
     SequenceCombinator(this, terms)
   }
 
-//  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
-//    val uoseq = self.unorderedSeq.get
-//    UnorderedSequenceCombinator(this, uoseq.terms)
-//  }
+  //  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
+  //    val uoseq = self.unorderedSeq.get
+  //    UnorderedSequenceCombinator(this, uoseq.terms)
+  //  }
 
   protected lazy val terms = groupMembers.map { _.asTermInSequence }
 

@@ -32,14 +32,13 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class SkipRegionParser(
   skipInBits: Int,
   override val context: RuntimeData)
-    extends PrimParser {
+  extends PrimParser {
 
   override lazy val runtimeDependencies = Nil
 
@@ -52,7 +51,7 @@ class SkipRegionParser(
 class AlignmentFillParser(
   alignmentInBits: Int,
   override val context: RuntimeData)
-    extends PrimParser {
+  extends PrimParser {
 
   override lazy val runtimeDependencies = Nil
 
@@ -66,4 +65,4 @@ class AlignmentFillParser(
 class MandatoryTextAlignmentParser(
   alignmentInBits: Int,
   override val context: RuntimeData)
-    extends AlignmentFillParser(alignmentInBits, context)
+  extends AlignmentFillParser(alignmentInBits, context)

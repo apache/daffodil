@@ -35,11 +35,14 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import com.ibm.icu.impl.UnicodeRegex
 import java.util.regex.PatternSyntaxException
 import java.util.regex.Pattern
+import edu.illinois.ncsa.daffodil.grammar.primitives.DiscriminatorPatternPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.DiscriminatorBooleanPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.AssertPatternPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.AssertBooleanPrim
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
@@ -63,7 +66,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case s if (s.trim().length() == 0) => None
     case txt => Some(txt.trim())
   } // package visible for unit testing
-  
+
   private lazy val testPattern = {
     val optPattern = getAttributeOption("testPattern")
     if (optPattern.isDefined) {

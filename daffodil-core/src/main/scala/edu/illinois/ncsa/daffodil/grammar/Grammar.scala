@@ -36,13 +36,13 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.processors.unparsers.SeqCompUnparser
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.Nada
+import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
 import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.processors.NadaUnparser
-import edu.illinois.ncsa.daffodil.processors.NadaParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.NadaParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.EmptyGramUnparser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {

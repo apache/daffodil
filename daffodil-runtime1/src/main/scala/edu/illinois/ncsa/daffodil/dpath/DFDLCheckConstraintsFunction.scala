@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.Implicits._; object NoWarn { ImplicitsSuppress
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 object DFDLCheckConstraintsFunction {

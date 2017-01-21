@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.exceptions
 
 import java.net.URLDecoder
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 import edu.illinois.ncsa.daffodil.util.TransientParam
 
 trait HasSchemaFileLocation extends LookupLocation {

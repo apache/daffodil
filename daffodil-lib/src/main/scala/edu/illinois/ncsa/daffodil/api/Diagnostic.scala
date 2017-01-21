@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
@@ -128,8 +128,8 @@ abstract class Diagnostic(
    * Positively get these things. No returning 'null' and making caller figure out
    * whether to look for cause object.
    */
-  final def getSomeCause: Some[Throwable] = DiagnosticUtils.getSomeCause(this)
-  final def getSomeMessage: Some[String] = DiagnosticUtils.getSomeMessage(this)
+  final def getSomeCause: Some[Throwable] = Misc.getSomeCause(this)
+  final def getSomeMessage: Some[String] = Misc.getSomeMessage(this)
 
   private def init: Unit = {
     Assert.invariant(maybeCause.isDefined ^ maybeFormatString.isDefined)
@@ -180,7 +180,7 @@ abstract class Diagnostic(
     Assert.invariant(maybeCause.isDefined)
     maybeCause.get match {
       case d: Diagnostic => d.getSomeMessage.get
-      case th => DiagnosticUtils.getSomeMessage(th).get
+      case th => Misc.getSomeMessage(th).get
     }
   }
 

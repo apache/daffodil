@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
 
 abstract class ProcessingError protected (
   override val modeName: String,

@@ -68,7 +68,7 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 /**
@@ -79,7 +79,7 @@ sealed abstract class ProcessorResult;
 case object Success extends ProcessorResult
 
 case class Failure(cause: Diagnostic) extends ProcessorResult {
-  lazy val msg = DiagnosticUtils.getSomeMessage(cause).get
+  lazy val msg = Misc.getSomeMessage(cause).get
   override def toString = "Failure(" + msg + ")"
 }
 

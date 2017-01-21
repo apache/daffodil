@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.debugger
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
@@ -50,8 +50,8 @@ import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerClass
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
-import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.oolag.ErrorsNotYetRecorded
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
@@ -59,6 +59,10 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.infoset.InfosetItem
+import edu.illinois.ncsa.daffodil.infoset.InfosetElement
+import edu.illinois.ncsa.daffodil.infoset.InfosetDocument
+import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -78,7 +82,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
   }
 
   case class DebugException(str: String, cause: Throwable) extends java.lang.Exception(str, cause) {
-    override def toString = "Debugger error: " + DiagnosticUtils.getSomeMessage(this).get
+    override def toString = "Debugger error: " + Misc.getSomeMessage(this).get
     def this(str: String) = this(str, null)
   }
 
@@ -354,7 +358,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case e: Throwable => {
-        println("caught throwable " + Misc.getNameFromClass(e) + ": " + DiagnosticUtils.getSomeMessage(e).get)
+        println("caught throwable " + Misc.getNameFromClass(e) + ": " + Misc.getSomeMessage(e).get)
         state.setSuccess()
         false
       }
@@ -1068,7 +1072,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             }
             if (!newDiags.isEmpty) {
               val ex = new ErrorsNotYetRecorded(newDiags)
-              throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
+              throw new DebugException("expression evaluation failed: %s".format(Misc.getSomeMessage(ex).get))
             }
           }
           case s: scala.util.control.ControlThrowable => throw s
@@ -1077,7 +1081,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           //          case e: VariableException => println(e)
           case e: Throwable => {
             val ex = e // just so we can see it in the debugger.
-            throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
+            throw new DebugException("expression evaluation failed: %s".format(Misc.getSomeMessage(ex).get))
           }
         }
         DebugState.Pause

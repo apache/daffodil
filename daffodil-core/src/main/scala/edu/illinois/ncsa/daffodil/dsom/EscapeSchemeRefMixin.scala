@@ -33,6 +33,8 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**

@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.lang.{ Long => JLong }

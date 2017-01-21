@@ -32,10 +32,13 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.grammar.primitives.OptionalInfixSep
+import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
+import edu.illinois.ncsa.daffodil.grammar.primitives.MandatoryTextAlignment
+import edu.illinois.ncsa.daffodil.grammar.primitives.Separator
 
 /////////////////////////////////////////////////////////////////
 // Groups System

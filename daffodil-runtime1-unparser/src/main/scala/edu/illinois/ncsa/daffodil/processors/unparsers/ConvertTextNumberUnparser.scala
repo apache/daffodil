@@ -35,18 +35,20 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryBase
+import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
 
 case class ConvertTextCombinatorUnparser(
   rd: RuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
-    extends UnparserObject(rd) {
+  extends UnparserObject(rd) {
 
   override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
 
-  def unparse(state: UState): Unit = {
+  override def unparse(state: UState): Unit = {
     converterUnparser.unparse1(state, rd)
 
     if (state.status ne Success) return
@@ -59,8 +61,8 @@ case class ConvertTextNumberUnparser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
   erd: ElementRuntimeData)
-    extends TermUnparser(erd)
-    with ToBriefXMLImpl {
+  extends TermUnparser(erd)
+  with ToBriefXMLImpl {
 
   override def toString = "to(xs:" + helper.xsdType + ")"
   override lazy val childProcessors = Nil
@@ -69,7 +71,7 @@ case class ConvertTextNumberUnparser[S](
     EntityReplacer { _.replaceForUnparse(zr) }
   }
 
-  def unparse(state: UState): Unit = {
+  override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue

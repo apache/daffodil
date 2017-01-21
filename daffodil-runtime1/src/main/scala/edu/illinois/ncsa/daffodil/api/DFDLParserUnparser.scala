@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.Failure
 
 /**

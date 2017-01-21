@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode

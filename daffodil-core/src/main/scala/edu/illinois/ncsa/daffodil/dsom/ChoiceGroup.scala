@@ -38,9 +38,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationM
 import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ChoiceRuntimeData
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
@@ -117,7 +117,6 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
     isDD
   }
-
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")

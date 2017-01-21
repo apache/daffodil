@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 
@@ -53,8 +52,8 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + eName + " nilValue='" + cookedNilValuesForParse + "'/>"
   }
-  
-  def isFieldNilLit(field: String): Boolean 
+
+  def isFieldNilLit(field: String): Boolean
 
   override def parse(start: PState) {
 
@@ -90,7 +89,7 @@ final class LiteralValueNilOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   erd: ElementRuntimeData)
-  extends LiteralNilOfSpecifiedLengthParserBase(erd){
+  extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
   private val eName = erd.name
 

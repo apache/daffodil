@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.infoset.Infoset
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppre
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
-import edu.illinois.ncsa.daffodil.processors.DIDocument
+import edu.illinois.ncsa.daffodil.infoset.DIDocument
 
 class TestDFDLExpressionEvaluation extends Parsers {
 

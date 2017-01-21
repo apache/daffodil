@@ -35,10 +35,10 @@ package edu.illinois.ncsa.daffodil.xml
 import java.io.File
 import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.dsom._
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.io.IOUtils
 import scala.xml.NamespaceBinding
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 
 /**
  * Utilities for handling XML

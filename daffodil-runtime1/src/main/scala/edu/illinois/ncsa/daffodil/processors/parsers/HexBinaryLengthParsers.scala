@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PrimParserObject
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.lang.{ Long => JLong }
 

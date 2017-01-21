@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 
 class TestEntityReplacer {
 

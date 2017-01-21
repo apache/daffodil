@@ -42,6 +42,10 @@ import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.grammar.primitives.SetVariable
+import edu.illinois.ncsa.daffodil.grammar.primitives.NewVariableInstanceStart
+import edu.illinois.ncsa.daffodil.grammar.primitives.NewVariableInstanceEnd
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {

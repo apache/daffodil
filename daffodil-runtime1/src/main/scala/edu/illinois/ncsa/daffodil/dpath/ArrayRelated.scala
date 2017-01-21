@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.InfosetNoInfosetException
+import edu.illinois.ncsa.daffodil.infoset.InfosetNoInfosetException
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 
 case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)

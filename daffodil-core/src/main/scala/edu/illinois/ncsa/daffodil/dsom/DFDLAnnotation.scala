@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
 /**
  * Base class for any DFDL annotation

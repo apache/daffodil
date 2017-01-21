@@ -38,7 +38,7 @@ import com.ibm.icu.util.TimeZone;
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.mutable.ArraySeq
-import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
+import edu.illinois.ncsa.daffodil.processors.parsers.TextCalendarConstants
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value

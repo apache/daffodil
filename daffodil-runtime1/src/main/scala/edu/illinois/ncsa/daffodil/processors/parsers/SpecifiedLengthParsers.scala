@@ -34,9 +34,7 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.{ ParserObject, Parser }
-import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Success

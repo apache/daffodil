@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySu
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Numbers._
+import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Evaluation",
@@ -54,7 +55,7 @@ class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
     Maybe(e),
     Nope)
 // "Expression evaluation failed: %s",
-// DiagnosticUtils.getSomeMessage(e).get
+// Misc.getSomeMessage(e).get
 
 final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,

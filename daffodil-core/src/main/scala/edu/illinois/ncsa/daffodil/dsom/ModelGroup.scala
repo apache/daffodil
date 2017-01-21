@@ -42,9 +42,9 @@ import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.equality._
 
 /**

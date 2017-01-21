@@ -40,9 +40,9 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.CalendarEv
 import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
-import edu.illinois.ncsa.daffodil.processors.ConvertTextCalendarProcessorBase
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
 
 case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   xsdType: String,

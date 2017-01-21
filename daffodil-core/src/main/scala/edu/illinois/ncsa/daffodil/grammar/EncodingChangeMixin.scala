@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.grammar.primitives.EncodingChange
 
 trait EncodingChangeMixin extends GrammarMixin { self: Term =>
 

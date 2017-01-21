@@ -35,13 +35,13 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DISimple
-import edu.illinois.ncsa.daffodil.processors.DIComplex
+import edu.illinois.ncsa.daffodil.infoset.DISimple
+import edu.illinois.ncsa.daffodil.infoset.DIComplex
 import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
-import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.infoset.RetryableException
 
 /**
  * Elements that, when unparsing, have no length specified.

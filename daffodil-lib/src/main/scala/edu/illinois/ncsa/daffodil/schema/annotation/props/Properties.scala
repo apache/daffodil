@@ -38,8 +38,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Misc._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
-import edu.illinois.ncsa.daffodil.dsom.Converter
+import edu.illinois.ncsa.daffodil.cookers.Converter
 import scala.collection.mutable
 
 /**

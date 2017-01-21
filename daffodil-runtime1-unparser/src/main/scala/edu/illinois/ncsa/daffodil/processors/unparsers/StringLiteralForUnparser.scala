@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.OutputNewLineEv
@@ -41,10 +40,11 @@ import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 
-class NilStringLiteralForUnparserEv(trd: TermRuntimeData, 
-    maybeOutputNewLineEv: Maybe[OutputNewLineEv],
-    stringLiteralRaw: String)
+class NilStringLiteralForUnparserEv(trd: TermRuntimeData,
+  maybeOutputNewLineEv: Maybe[OutputNewLineEv],
+  stringLiteralRaw: String)
   extends Evaluatable[String](trd)
   with InfosetCachedEvaluatable[String] {
 

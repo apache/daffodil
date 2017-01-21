@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.dpath.EvalMode
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.cookers.OutputNewLineCooker
+import edu.illinois.ncsa.daffodil.cookers.ChoiceDispatchKeyCooker
 
 sealed trait LengthEv extends Evaluatable[JLong]
 

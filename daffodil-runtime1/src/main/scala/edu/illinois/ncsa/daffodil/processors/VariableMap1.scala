@@ -77,6 +77,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.infoset.RetryableException
+import edu.illinois.ncsa.daffodil.processors.parsers.WithParseErrorThrowing
 
 sealed abstract class VariableState extends Serializable
 

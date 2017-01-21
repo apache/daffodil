@@ -40,15 +40,17 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
+import edu.illinois.ncsa.daffodil.grammar.primitives.VariableMapFactory
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import java.io.File
 import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
 import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -127,7 +129,7 @@ final class SchemaSet(
         try {
           loader.validateSchema(f)
         } catch {
-          case e: DFDLSchemaValidationException => SDE(DiagnosticUtils.getSomeMessage(e).get)
+          case e: DFDLSchemaValidationException => SDE(Misc.getSomeMessage(e).get)
         })
     }
   }.value

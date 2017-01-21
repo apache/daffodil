@@ -30,10 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package edu.illinois.ncsa.daffodil.processors.parsers
+
+import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
+import edu.illinois.ncsa.daffodil.processors.ParserObject
+import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.Parser
 
 class UnorderedSequenceParser(
-  context: ModelGroupRuntimeData,
+  override val context: ModelGroupRuntimeData,
   sortOrder: Seq[(String, org.jdom2.Namespace)],
   scalarMembers: Seq[(String, String, org.jdom2.Namespace)],
   uoSeqParser: Parser)
@@ -162,7 +167,7 @@ class UnorderedSequenceParser(
   //    })
   //  }
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  override def parse(start: PState): Unit = withParseErrorThrowing(start) {
     ???
     //    val end = uoSeqParser.parse1(start)
     //    val currentElemAfter = end.parentElement.jdomElt.get

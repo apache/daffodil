@@ -1,9 +1,9 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DIComplex
-import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.processors.DISimple
+import edu.illinois.ncsa.daffodil.infoset.DIComplex
+import edu.illinois.ncsa.daffodil.infoset.DIElement
+import edu.illinois.ncsa.daffodil.infoset.DISimple
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation

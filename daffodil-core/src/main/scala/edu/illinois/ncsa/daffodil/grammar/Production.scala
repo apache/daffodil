@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
-import edu.illinois.ncsa.daffodil.processors.NadaParser
-import edu.illinois.ncsa.daffodil.processors.NadaUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.NadaParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.util.LogLevel

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding

@@ -36,6 +36,7 @@ import scala.xml.Node
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 
 final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)

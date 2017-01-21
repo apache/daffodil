@@ -47,6 +47,9 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeCharEv
 import edu.illinois.ncsa.daffodil.processors.EscapeEscapeCharEv
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)

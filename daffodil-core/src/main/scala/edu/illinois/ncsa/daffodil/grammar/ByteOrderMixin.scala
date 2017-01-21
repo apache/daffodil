@@ -32,10 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.processors.ByteOrderChange
+import edu.illinois.ncsa.daffodil.grammar.primitives.ByteOrderChange
+import edu.illinois.ncsa.daffodil.grammar.primitives.ByteOrderChange
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
 

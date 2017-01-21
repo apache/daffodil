@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
+import edu.illinois.ncsa.daffodil.cookers.Converter
 
 
 object LocaleConverter extends Converter[String, ULocale] {

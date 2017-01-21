@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors.UnicodeByteOrderMark
+import edu.illinois.ncsa.daffodil.grammar.primitives.UnicodeByteOrderMark
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 
 trait GlobalElementDeclGrammarMixin

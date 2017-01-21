@@ -39,9 +39,10 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.oolag.OOLAG
 import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * represents one schema document file
@@ -130,7 +131,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
 
   private def loadedNode = LV('loadedNode) {
     def die(e: Throwable) = {
-      SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
+      SDE("Error loading schema due to %s.", Misc.getSomeMessage(e).getOrElse("an unknown error."))
     }
     val node = try {
       log(LogLevel.Resolver, "Loading %s.", diagnosticDebugName)

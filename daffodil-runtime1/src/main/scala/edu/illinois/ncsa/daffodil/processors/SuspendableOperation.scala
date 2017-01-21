@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.infoset.RetryableException
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't

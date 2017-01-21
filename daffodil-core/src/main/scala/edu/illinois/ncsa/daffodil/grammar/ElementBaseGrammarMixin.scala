@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
@@ -46,7 +45,103 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.dsom.NotFound
+import edu.illinois.ncsa.daffodil.grammar.primitives.InputValueCalc
+import edu.illinois.ncsa.daffodil.grammar.primitives.ZonedTextIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.PaddingInfoMixin
+import edu.illinois.ncsa.daffodil.grammar.primitives.StringOfSpecifiedLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.StringDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.PrefixLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralNilDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryVariableLengthInBytes
+import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryFixedLengthInBytes
+import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryEndOfBitLimit
+import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.LeadingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.AlignmentFill
+import edu.illinois.ncsa.daffodil.grammar.primitives.LogicalNilValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralCharacterNilOfSpecifiedLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryBoolean
+import edu.illinois.ncsa.daffodil.grammar.primitives.SpecifiedLengthPattern
+import edu.illinois.ncsa.daffodil.grammar.primitives.SpecifiedLengthImplicitCharacters
+import edu.illinois.ncsa.daffodil.grammar.primitives.SpecifiedLengthImplicit
+import edu.illinois.ncsa.daffodil.grammar.primitives.SpecifiedLengthExplicitCharacters
+import edu.illinois.ncsa.daffodil.grammar.primitives.SpecifiedLengthExplicit
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedShortPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedLongPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedBytePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextShortPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextNonNegativeIntegerPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextLongPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextIntegerPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextFloatPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDoublePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDecimalPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextCombinator
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextBytePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextBooleanPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextTimePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDateTimePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDatePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.Terminator
+import edu.illinois.ncsa.daffodil.grammar.primitives.Initiator
+import edu.illinois.ncsa.daffodil.grammar.primitives.RightFill
+import edu.illinois.ncsa.daffodil.grammar.primitives.RightCenteredPadding
+import edu.illinois.ncsa.daffodil.grammar.primitives.OnlyPadding
+import edu.illinois.ncsa.daffodil.grammar.primitives.OVCRetry
+import edu.illinois.ncsa.daffodil.grammar.primitives.NilLiteralCharacter
+import edu.illinois.ncsa.daffodil.grammar.primitives.LeftCenteredPadding
+import edu.illinois.ncsa.daffodil.grammar.primitives.ElementUnused
+import edu.illinois.ncsa.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.ElementCombinator
+import edu.illinois.ncsa.daffodil.grammar.primitives.CaptureValueLengthStart
+import edu.illinois.ncsa.daffodil.grammar.primitives.CaptureValueLengthEnd
+import edu.illinois.ncsa.daffodil.grammar.primitives.CaptureContentLengthStart
+import edu.illinois.ncsa.daffodil.grammar.primitives.CaptureContentLengthEnd
+import edu.illinois.ncsa.daffodil.grammar.primitives.SimpleNilOrValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.ComplexNilOrContent
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryIntegerRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryIntegerKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryFloat
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDouble
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDecimalRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDecimalKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.DynamicEscapeSchemeCombinatorElement
+import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorElement
+import edu.illinois.ncsa.daffodil.grammar.primitives.LogicalNilValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDatePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ZonedTextIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextShortPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.DynamicEscapeSchemeCombinatorElement
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDecimalPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextBooleanPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextBytePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.AlignmentFill
+import edu.illinois.ncsa.daffodil.grammar.primitives.ComplexNilOrContent
+import edu.illinois.ncsa.daffodil.grammar.primitives.LeadingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextFloatPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedBytePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedLongPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextIntPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextLongPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextNonNegativeIntegerPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextUnsignedShortPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextIntegerPrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDoublePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralCharacterNilOfSpecifiedLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextTimePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorElement
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextCombinator
+import edu.illinois.ncsa.daffodil.grammar.primitives.SimpleNilOrValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.ConvertTextDateTimePrim
+import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -395,13 +490,13 @@ trait ElementBaseGrammarMixin
   }
 
   private def explicitBinaryLengthInBits() = {
-      val lengthFromProp: JLong = lengthEv.optConstant.get
-      val nbits = lengthUnits match {
-        case LengthUnits.Bits => lengthFromProp.longValue()
-        case LengthUnits.Bytes => lengthFromProp.longValue() * 8
-        case LengthUnits.Characters => SDE("The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.", primType.name)
-      }
-      nbits
+    val lengthFromProp: JLong = lengthEv.optConstant.get
+    val nbits = lengthUnits match {
+      case LengthUnits.Bits => lengthFromProp.longValue()
+      case LengthUnits.Bytes => lengthFromProp.longValue() * 8
+      case LengthUnits.Characters => SDE("The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.", primType.name)
+    }
+    nbits
   }
 
   private lazy val fixedLengthHexBinary = prod("fixedLengthHexBinary", isFixedLength) {

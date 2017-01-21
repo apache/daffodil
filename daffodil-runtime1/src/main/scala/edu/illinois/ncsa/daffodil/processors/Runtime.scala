@@ -60,10 +60,10 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
+import edu.illinois.ncsa.daffodil.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
@@ -71,6 +71,8 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
+import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
 
 /**
  * Implementation mixin - provides simple helper methods

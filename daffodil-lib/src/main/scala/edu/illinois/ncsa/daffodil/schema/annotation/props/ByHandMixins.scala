@@ -36,14 +36,23 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.dsom
-import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
-
+import edu.illinois.ncsa.daffodil.cookers.TextStringPadCharacterCooker
+import edu.illinois.ncsa.daffodil.cookers.TextStandardZeroRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextStandardNaNRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextStandardInfinityRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextCalendarPadCharacterCooker
+import edu.illinois.ncsa.daffodil.cookers.TextBooleanPadCharacterCooker
+import edu.illinois.ncsa.daffodil.cookers.NilValueRawListCooker
+import edu.illinois.ncsa.daffodil.cookers.NilValueLogicalValueCooker
+import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralValueTextCooker
+import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralValueBinaryCooker
+import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralCharacterCooker
+import edu.illinois.ncsa.daffodil.cookers.TextNumberPadCharacterCooker
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -205,7 +214,7 @@ trait NumberTextMixin extends PropertyMixin
 
   lazy val textNumberPadCharacter = {
     val raw = textNumberPadCharacterRaw
-    val cooked = dsom.TextNumberPadCharacterCooker.convertConstant(raw, this, forUnparse = false)
+    val cooked = TextNumberPadCharacterCooker.convertConstant(raw, this, forUnparse = false)
 
     this.lengthUnits match {
       case LengthUnits.Bytes => {
@@ -330,8 +339,8 @@ object BinaryBooleanTrueRepType {
         } catch {
           case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanTrueRep', value must be an empty string or a non-negative integer. Found: %s", str)
         }
-  
-      if(i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d", i)
+
+      if (i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d", i)
       MaybeULong(i)
     }
   }
@@ -347,7 +356,7 @@ object BinaryBooleanFalseRepType {
         case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an integer. Found: %s", str)
       }
 
-    if(i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d", i)
+    if (i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d", i)
     ULong(i)
   }
 }

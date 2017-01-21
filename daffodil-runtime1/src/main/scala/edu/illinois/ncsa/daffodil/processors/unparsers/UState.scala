@@ -33,6 +33,9 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.CharsetEncoder
 
 import scala.Left
 import scala.collection.mutable
@@ -47,25 +50,26 @@ import edu.illinois.ncsa.daffodil.equality.EqualitySuppressUnusedImportWarning
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.infoset.DIArray
+import edu.illinois.ncsa.daffodil.infoset.DIElement
+import edu.illinois.ncsa.daffodil.infoset.DINode
+import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
-import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.DataLoc
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.Suspension
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.processors.VariableBox
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.Cursor
 import edu.illinois.ncsa.daffodil.util.LocalStack
 import edu.illinois.ncsa.daffodil.util.MStackOf
@@ -74,10 +78,9 @@ import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.Charset
+import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
+import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
+import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 

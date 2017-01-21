@@ -275,7 +275,7 @@ object Misc {
         if (i >= 48 && i <= 57) i - 48 // number 0-9
         else if (i >= 65 && i <= 70) (i - 65) + 10 // capital A-F
         else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
-        else throw new java.lang.IllegalArgumentException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'" )
+        else throw new java.lang.IllegalArgumentException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'")
       v
     }
 
@@ -597,5 +597,43 @@ object Misc {
         sb.mkString
       }
     }
+  }
+
+  /**
+   * Java throwable/exception objects may or may not have a message. They are supposed to have a cause if they
+   * don't have a message of their own, but might have neither, or might have both.
+   *
+   * This is too painful to deal with in code when you want to be generic about converting throws/exceptions
+   * into diagnostic information.
+   *
+   * So we have a more uniform behavior. Never returns null. Always gets a message.
+   * If the argument has none, but has a cause object, then it
+   * gets the message from that, if that has no message, it chases further.
+   * Ultimately, if there's no message, it just uses the innermost cause object's class name.
+   */
+
+  def getSomeMessage(th: Throwable): Some[String] = {
+    val m = th.getMessage()
+    val c = th.getCause()
+    val res = (m, c) match {
+      case (null, null) => Misc.getNameFromClass(th)
+      case ("", null) => Misc.getNameFromClass(th)
+      case (m, null) => m
+      case (null, c) => getSomeMessage(c).get
+      case (m, c) => {
+        val Some(cmsg) = getSomeMessage(c)
+        cmsg + " (within " + m + ")"
+      }
+    }
+    Some(res)
+  }
+
+  def getSomeCause(th: Throwable): Some[Throwable] = {
+    val c = th.getCause()
+    val res = c match {
+      case null => th
+      case _ => getSomeCause(c).get
+    }
+    Some(res)
   }
 }

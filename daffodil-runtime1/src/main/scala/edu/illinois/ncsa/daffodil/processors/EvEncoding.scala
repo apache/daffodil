@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.cookers.FillByteCooker
+import edu.illinois.ncsa.daffodil.cookers.EncodingCooker
 
 /*
  * The way encoding works, is if a EncodingChangeParser or Unparser is
@@ -128,16 +130,16 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
         dfdlCharset.charset match {
           case _: NonByteSizeCharset => {
             state.SDE("The fillByte property cannot be specified as a" +
-            " character ('%s') when the dfdl:encoding property is '%s' because that" +
-            " encoding is not a single-byte character set.", fillByteRaw, dfdlCharset.charsetName)
+              " character ('%s') when the dfdl:encoding property is '%s' because that" +
+              " encoding is not a single-byte character set.", fillByteRaw, dfdlCharset.charsetName)
           }
           case cs => {
             val bytes = cookedFillByte.getBytes(cs)
             Assert.invariant(bytes.length > 0)
             if (bytes.length > 1) {
               state.SDE("The fillByte property must be a single-byte" +
-              " character, but for encoding '%s' the specified character '%s'" +
-              " occupies %d bytes", dfdlCharset.charsetName, cookedFillByte, bytes.length)
+                " character, but for encoding '%s' the specified character '%s'" +
+                " occupies %d bytes", dfdlCharset.charsetName, cookedFillByte, bytes.length)
             }
             bytes(0).toInt
           }

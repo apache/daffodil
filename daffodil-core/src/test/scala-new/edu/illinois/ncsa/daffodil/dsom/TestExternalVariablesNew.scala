@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -146,7 +147,7 @@ class TestExternalVariablesNew {
     import scala.util.{ Success, Failure }
     val tri = QName.refQNameFromExtendedSyntax(keyToFind).map { _.toGlobalQName }.map { qn => vmap.find(qn) }
     tri match {
-      case Failure(th) => fail("The syntax '" + keyToFind + "' did not parse. Got " + DiagnosticUtils.getSomeMessage(th).get)
+      case Failure(th) => fail("The syntax '" + keyToFind + "' did not parse. Got " + Misc.getSomeMessage(th).get)
       case Success(None) => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Success(Some(variab)) => {
         // Found var1 but is the value correct?

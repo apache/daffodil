@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.util.Numbers._
+import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {

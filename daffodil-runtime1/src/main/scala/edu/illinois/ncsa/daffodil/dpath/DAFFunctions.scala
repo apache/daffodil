@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors.ParseError
+import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
 import edu.illinois.ncsa.daffodil.util.Maybe
 import Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError

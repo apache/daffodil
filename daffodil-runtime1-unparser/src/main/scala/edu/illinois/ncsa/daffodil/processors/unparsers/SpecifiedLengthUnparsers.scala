@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.CharsetEv
-import edu.illinois.ncsa.daffodil.processors.RetryableException
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
@@ -46,6 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInCharactersEv
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.infoset.RetryableException
 
 /**
  * Restricts the bits available for unparsing to just those within

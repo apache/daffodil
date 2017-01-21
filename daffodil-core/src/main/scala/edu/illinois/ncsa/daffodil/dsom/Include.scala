@@ -36,7 +36,7 @@ import scala.xml.Node
 
 import edu.illinois.ncsa.daffodil.util._
 import IIUtils._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.oolag.OOLAG
 
 /**
  * enclosingGoalNS is None if this include

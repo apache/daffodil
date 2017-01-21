@@ -485,12 +485,12 @@ class TestDsomCompilerNew extends Logging {
   /**
    * Here because 'two', 'three', and 'four' are optional...
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three, four
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one    two, three, four
+   * two    three, four
+   * three  four
+   * four   -empty-
    */
   @Test def test_could_be_next_method_05() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -592,12 +592,12 @@ class TestDsomCompilerNew extends Logging {
   /**
    * Here because 'two', and 'three' are optional...
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three, four
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one   two, three, four
+   * two   three, four
+   * three four
+   * four  -empty-
    */
   @Test def test_could_be_next_method_06() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -699,15 +699,15 @@ class TestDsomCompilerNew extends Logging {
   /**
    * Here because 'two', and 'three' are optional...
    *
-   * name	possibleNextTerms
+   * name   possibleNextTerms
    * =======================
-   * one	two, three, four
-   * a		b
-   * b		c
-   * c		two, three, four
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one    two, three, four
+   * a      b
+   * b      c
+   * c      two, three, four
+   * two    three, four
+   * three  four
+   * four   -empty-
    */
   @Test def test_could_be_next_method_07() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -833,15 +833,15 @@ class TestDsomCompilerNew extends Logging {
    *
    * The innermost sequence is in the last position.
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three, four
-   * a		b, c, s-1, s-2, s-3
-   * b		c, s-1, s-2, s-3
-   * c		s-1, s-2, s-3
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one  two, three, four
+   * a    b, c, s-1, s-2, s-3
+   * b    c, s-1, s-2, s-3
+   * c    s-1, s-2, s-3
+   * two  three, four
+   * three  four
+   * four  -empty-
    */
   @Test def test_could_be_next_method_08() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -983,15 +983,15 @@ class TestDsomCompilerNew extends Logging {
    *
    * The inner most sequence is in the middle.
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three, four
-   * a		b, s-1, s-2, s-3
-   * b		s-1, s-2, s-3
-   * c		two, three, four
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one  two, three, four
+   * a    b, s-1, s-2, s-3
+   * b    s-1, s-2, s-3
+   * c    two, three, four
+   * two  three, four
+   * three  four
+   * four  -empty-
    */
   @Test def test_could_be_next_method_09() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -1131,15 +1131,15 @@ class TestDsomCompilerNew extends Logging {
    *
    * The inner most sequence is in the beginning.
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three, four
-   * a		b
-   * b		c
-   * c		two, three, four
-   * two	three, four
-   * three	four
-   * four	-empty-
+   * one  two, three, four
+   * a    b
+   * b    c
+   * c    two, three, four
+   * two  three, four
+   * three  four
+   * four  -empty-
    */
   @Test def test_could_be_next_method_10() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -1446,14 +1446,14 @@ class TestDsomCompilerNew extends Logging {
    *
    * Here because 'two', and 'three' are optional...
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three
-   * a		b, c
-   * b		a, c
-   * c		a, b, one, two, three
-   * two	one, three
-   * three	one, two
+   * one   two, three
+   * a     b, c
+   * b     a, c
+   * c     a, b, one, two, three
+   * two   one, three
+   * three  one, two
    */
   @Test def test_could_be_next_method_13() {
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -1573,14 +1573,14 @@ class TestDsomCompilerNew extends Logging {
    *
    * Here because 'two', and 'three' are optional...
    *
-   * name	possibleNextTerms
+   * name  possibleNextTerms
    * =======================
-   * one	two, three
-   * a		b
-   * b		c
-   * c		one, two, three
-   * two	one, three
-   * three	one, two
+   * one   two, three
+   * a     b
+   * b     c
+   * c     one, two, three
+   * two   one, three
+   * three one, two
    */
   @Test def test_could_be_next_method_13_1() {
     val testSchema = SchemaUtils.dfdlTestSchema(

@@ -32,18 +32,22 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.ModelGroup
 import edu.illinois.ncsa.daffodil.dsom.Sequence
 import edu.illinois.ncsa.daffodil.dsom.Choice
+import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.LeadingSkipRegion
+import edu.illinois.ncsa.daffodil.grammar.primitives.AlignmentFill
+import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
+import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
 
 trait ModelGroupGrammarMixin
-    extends InitiatedTerminatedMixin
-    with AlignedMixin
-    with HasStatementsGrammarMixin
-    with GroupCommonAGMixin { self: ModelGroup =>
+  extends InitiatedTerminatedMixin
+  with AlignedMixin
+  with HasStatementsGrammarMixin
+  with GroupCommonAGMixin { self: ModelGroup =>
 
   private lazy val groupLeftFraming = prod("groupLeftFraming") {
     termIOPropertiesChange ~ LeadingSkipRegion(this) ~ AlignmentFill(this)
@@ -63,12 +67,12 @@ trait ModelGroupGrammarMixin
     val finalContent =
       if (hasDelimiters ||
         enclosingTerm.map(_.hasDelimiters).getOrElse(false) //
-        // The above refernce to the delimiters of the enclosing term, 
-        // has to do with the way our delim stack works. 
-        // Even if this model group doesn't have delimiters, 
-        // if the enclosing term did have delimiters, then we still need to 
-        // add a delimiter stack parser for this term so that it will modify 
-        // the stack to signify that existing delimiters are now remote and 
+        // The above refernce to the delimiters of the enclosing term,
+        // has to do with the way our delim stack works.
+        // Even if this model group doesn't have delimiters,
+        // if the enclosing term did have delimiters, then we still need to
+        // add a delimiter stack parser for this term so that it will modify
+        // the stack to signify that existing delimiters are now remote and
         // there are no local delimiters.
         //
         ) {

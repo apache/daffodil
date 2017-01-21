@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
 /**
  * Note ElementRef isn't a first class citizen with the other schema components.

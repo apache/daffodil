@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.RefQName
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 
 /**
  * Base class for annotations that carry format properties

@@ -33,9 +33,10 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.processors.{ DIElement, LengthState }
+import edu.illinois.ncsa.daffodil.infoset.LengthState
 import java.lang.{ Long => JLong }
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.infoset._
 
 sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[CompiledDPath]) extends FNTwoArgsNodeAndValue(recipes) {
 

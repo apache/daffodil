@@ -37,8 +37,8 @@ import edu.illinois.ncsa.daffodil.processors._
 import java.lang.Boolean.{ TRUE => JTrue, FALSE => JFalse }
 
 case class ConvertTextBooleanUnparser(erd: ElementRuntimeData,
-    textBooleanTrueRepEv: TextBooleanTrueRepEv,
-    textBooleanFalseRepEv: TextBooleanFalseRepEv)
+  textBooleanTrueRepEv: TextBooleanTrueRepEv,
+  textBooleanFalseRepEv: TextBooleanFalseRepEv)
   extends PrimUnparser {
 
   override def context = erd

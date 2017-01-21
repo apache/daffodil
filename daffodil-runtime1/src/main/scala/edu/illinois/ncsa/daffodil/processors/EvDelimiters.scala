@@ -38,6 +38,11 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import edu.illinois.ncsa.daffodil.cookers.TerminatorCookerNoES
+import edu.illinois.ncsa.daffodil.cookers.SeparatorCooker
+import edu.illinois.ncsa.daffodil.cookers.InitiatorCooker
+import edu.illinois.ncsa.daffodil.cookers.TerminatorCooker
+import edu.illinois.ncsa.daffodil.cookers.Converter
 
 trait DelimiterEvMixin[+T <: AnyRef]
   extends ExprEvalMixin[String] { self: Evaluatable[T] =>

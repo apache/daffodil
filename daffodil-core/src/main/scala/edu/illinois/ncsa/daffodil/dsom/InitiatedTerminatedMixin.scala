@@ -33,9 +33,11 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
+import edu.illinois.ncsa.daffodil.grammar.primitives.InitiatedContent
+import edu.illinois.ncsa.daffodil.grammar.primitives.Terminator
+import edu.illinois.ncsa.daffodil.grammar.primitives.Initiator
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin

@@ -44,19 +44,20 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
-import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
-import edu.illinois.ncsa.daffodil.processors.unparsers.SeveralPossibilitiesForNextElement
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.processors.unparsers.NoNextElement
-import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyOnePossibilityForNextElement
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChildResolver
-import edu.illinois.ncsa.daffodil.processors.unparsers.SiblingResolver
-import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
+
 import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.infoset.SiblingResolver
+import edu.illinois.ncsa.daffodil.infoset.ResolverType
+import edu.illinois.ncsa.daffodil.infoset.SeveralPossibilitiesForNextElement
+import edu.illinois.ncsa.daffodil.infoset.NoNextElement
+import edu.illinois.ncsa.daffodil.infoset.OnlyOnePossibilityForNextElement
+import edu.illinois.ncsa.daffodil.infoset.NextElementResolver
+import edu.illinois.ncsa.daffodil.infoset.ChildResolver
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.

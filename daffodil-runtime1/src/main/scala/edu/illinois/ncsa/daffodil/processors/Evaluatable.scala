@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.Converter
+import edu.illinois.ncsa.daffodil.cookers.Converter
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -51,6 +51,8 @@ import edu.illinois.ncsa.daffodil.dpath.EvalMode
 import edu.illinois.ncsa.daffodil.dpath.UnparserNonBlocking
 import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 import edu.illinois.ncsa.daffodil.dsom.ContentValueReferencedElementInfoMixin
+import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
 
 /**
  * Generates unique int for use as key into EvalCache

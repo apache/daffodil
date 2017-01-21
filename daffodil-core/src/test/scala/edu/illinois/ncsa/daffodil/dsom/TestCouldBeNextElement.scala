@@ -37,8 +37,8 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
 
 class TestCouldBeNextElement {
 

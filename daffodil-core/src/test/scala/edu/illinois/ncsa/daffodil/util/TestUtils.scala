@@ -42,15 +42,15 @@ import java.nio.channels.ReadableByteChannel
 import org.junit.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.grammar.primitives.VariableMapFactory
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.debugger._
 import java.nio.channels.Channels
+import edu.illinois.ncsa.daffodil.processors.VariableMap
 
 /*
  * This is not a file of tests.

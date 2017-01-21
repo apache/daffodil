@@ -51,13 +51,11 @@ import edu.illinois.ncsa.daffodil.api.EmbeddedSchemaSource
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
+import edu.illinois.ncsa.daffodil.processors.parsers.GeneralParseFailure
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -83,6 +81,9 @@ import edu.illinois.ncsa.daffodil.equality._
 import org.apache.commons.io.IOUtils
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
+import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
+import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"

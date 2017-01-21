@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.util.LogLevel

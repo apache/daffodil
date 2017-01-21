@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import java.lang.{ Long => JLong }
-import edu.illinois.ncsa.daffodil.processors.RetryableException
+import edu.illinois.ncsa.daffodil.infoset.RetryableException
 
 abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillByteEv)
   extends PrimUnparserObject(erd) {

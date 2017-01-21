@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
@@ -46,13 +45,12 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 
 class BinaryBooleanParser(val e: ElementRuntimeData,
-    binaryBooleanTrueRep: MaybeULong,
-    binaryBooleanFalseRep: ULong,
-    val lengthEv: Evaluatable[JLong],
-    val lUnits: LengthUnits,
-    val lengthKind: LengthKind)
-  extends PrimParser() 
-{
+  binaryBooleanTrueRep: MaybeULong,
+  binaryBooleanFalseRep: ULong,
+  val lengthEv: Evaluatable[JLong],
+  val lUnits: LengthUnits,
+  val lengthKind: LengthKind)
+  extends PrimParser() {
 
   lazy val toBits = lUnits match {
     case LengthUnits.Bits => 1
@@ -68,7 +66,7 @@ class BinaryBooleanParser(val e: ElementRuntimeData,
       case _ => nBytes * toBits
     }
   }
-  
+
   override def context = e
   override lazy val runtimeDependencies = List(lengthEv)
 

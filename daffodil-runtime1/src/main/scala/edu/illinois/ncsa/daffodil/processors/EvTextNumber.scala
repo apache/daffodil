@@ -33,6 +33,11 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.cookers.TextStandardGroupingSeparatorCooker
+import edu.illinois.ncsa.daffodil.cookers.TextBooleanFalseRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextStandardExponentRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextBooleanTrueRepCooker
+import edu.illinois.ncsa.daffodil.cookers.TextStandardDecimalSeparatorCooker
 
 class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, List[String]](
@@ -79,8 +84,8 @@ class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBo
       val trueLength = textBooleanTrueReps(0).length
       val falseLength = textBooleanFalseReps(0).length
       if (trueLength != falseLength ||
-          textBooleanTrueReps.exists( x => x.length != trueLength ) ||
-          textBooleanFalseReps.exists( x => x.length != falseLength )) {
+        textBooleanTrueReps.exists(x => x.length != trueLength) ||
+        textBooleanFalseReps.exists(x => x.length != falseLength)) {
         trd.schemaDefinitionError("If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.")
       }
       textBooleanTrueReps

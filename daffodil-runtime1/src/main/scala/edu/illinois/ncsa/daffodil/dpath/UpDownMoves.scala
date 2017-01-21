@@ -34,9 +34,9 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DIArray
-import edu.illinois.ncsa.daffodil.processors.DIElement
-import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
+import edu.illinois.ncsa.daffodil.infoset.DIArray
+import edu.illinois.ncsa.daffodil.infoset.DIElement
+import edu.illinois.ncsa.daffodil.infoset.InfosetNoSuchChildElementException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 /**

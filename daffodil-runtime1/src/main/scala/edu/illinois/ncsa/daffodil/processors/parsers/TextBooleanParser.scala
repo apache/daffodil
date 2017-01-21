@@ -30,19 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.lang.{ Boolean => JBoolean }
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.TextBooleanTrueRepEv
+import edu.illinois.ncsa.daffodil.processors.TextBooleanFalseRepEv
+import edu.illinois.ncsa.daffodil.processors.PState
 
 case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
-    textBooleanTrueRepEv: TextBooleanTrueRepEv,
-    textBooleanFalseRepEv: TextBooleanFalseRepEv)
+  textBooleanTrueRepEv: TextBooleanTrueRepEv,
+  textBooleanFalseRepEv: TextBooleanFalseRepEv)
   extends PrimParser {
 
   override lazy val runtimeDependencies = List(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
-  def parse(start: PState): Unit = {
+  override def parse(start: PState): Unit = {
     val node = start.simpleElement
     val str = node.dataValueAsString
 
@@ -54,7 +58,8 @@ case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
     Assert.invariant(textBooleanTrueReps.length >= 1)
     Assert.invariant(textBooleanFalseReps.length >= 1)
 
-    val newBool: JBoolean = if (textBooleanTrueReps.contains(str)) true
+    val newBool: JBoolean =
+      if (textBooleanTrueReps.contains(str)) true
       else if (textBooleanFalseReps.contains(str)) false
       else {
         PE(start, "Convert to xs:boolean: Cannot parse boolean from '%s'", str)

@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
-import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 import edu.illinois.ncsa.daffodil.processors.LocalTypedDelimiterIterator
 import edu.illinois.ncsa.daffodil.processors.RemoteTypedDelimiterIterator
@@ -62,7 +61,7 @@ class DelimiterTextParser(
   textParser: TextParser,
   positionalInfo: String,
   delimiterType: DelimiterTextType.Type)
-  extends PrimParser 
+  extends PrimParser
   with TextParserRuntimeMixin {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -129,7 +128,7 @@ class DelimiterTextParser(
         //
         // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
         // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
-        // 
+        //
         // TODO: PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of
         // these things at run time.
         //

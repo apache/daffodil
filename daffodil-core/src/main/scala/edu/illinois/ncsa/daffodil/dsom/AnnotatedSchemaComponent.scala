@@ -38,6 +38,9 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 /**
  * Shared characteristics of any annotated schema component.
@@ -148,8 +151,8 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
    * element references. For example, if you want to know if a property was
    * defined on a global element decl rather than an element reference to that
    * decl.
-   * */
-  def findPropertyOptionThisComponentOnly(pname:String): PropertyLookupResult = {
+   */
+  def findPropertyOptionThisComponentOnly(pname: String): PropertyLookupResult = {
     val result = findDefaultOrNonDefaultProperty(pname, Seq(nonDefaultFormatChain))
     result
   }

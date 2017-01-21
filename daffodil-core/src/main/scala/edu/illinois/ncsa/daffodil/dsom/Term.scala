@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 /////////////////////////////////////////////////////////////////
 // Groups System

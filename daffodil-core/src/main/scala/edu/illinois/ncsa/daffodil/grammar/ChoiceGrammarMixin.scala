@@ -32,8 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.Choice
+import edu.illinois.ncsa.daffodil.grammar.primitives.ChoiceCombinator
 
 trait ChoiceGrammarMixin extends GrammarMixin { self: Choice =>
 

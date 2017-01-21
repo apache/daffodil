@@ -35,11 +35,7 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.NotFound
-import edu.illinois.ncsa.daffodil.dsom.Found
-import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 

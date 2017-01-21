@@ -36,7 +36,7 @@ import scala.xml.Node
 
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
-import edu.illinois.ncsa.daffodil.processors.AssertBase
+import edu.illinois.ncsa.daffodil.grammar.primitives.AssertBase
 
 /**
  * The other kind of DFDL annotations are DFDL 'statements'.

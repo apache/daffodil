@@ -32,8 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.exceptions
 
-import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 
 /**
@@ -57,7 +57,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 trait ThrowsSDE {
 
   def SDE(id: String, args: Any*): Nothing
-  final def SDE(th: Throwable): Nothing = SDE(DiagnosticUtils.getSomeMessage(th).get)
+  final def SDE(th: Throwable): Nothing = SDE(Misc.getSomeMessage(th).get)
 
   def ThrowSDE = PartialFunction[Throwable, Nothing] { case th: Throwable => SDE(th) }
 

@@ -31,11 +31,21 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.grammar.primitives.StopValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.NotStopValue
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepUnbounded
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyTotalOccursCount
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyTotalN
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyN
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepAtMostTotalN
+import edu.illinois.ncsa.daffodil.grammar.primitives.RepAtMostOccursCount
+import edu.illinois.ncsa.daffodil.grammar.primitives.OccursCountExpression
+import edu.illinois.ncsa.daffodil.grammar.primitives.OptionalCombinator
+import edu.illinois.ncsa.daffodil.grammar.primitives.ArrayCombinator
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 

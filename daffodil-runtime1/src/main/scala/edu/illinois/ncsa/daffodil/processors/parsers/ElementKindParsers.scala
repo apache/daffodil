@@ -42,9 +42,6 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
-import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchNoMatch
-import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchFailed
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
@@ -77,7 +74,7 @@ class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
   override lazy val runtimeDependencies = delimiters.toSeq
 
   def parse(start: PState): Unit = {
-    
+
     val newLocalIndex = start.mpstate.delimiters.length
     start.mpstate.delimitersLocalIndexStack.push(newLocalIndex)
 

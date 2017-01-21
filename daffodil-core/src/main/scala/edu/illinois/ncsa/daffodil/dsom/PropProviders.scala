@@ -34,6 +34,11 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.
