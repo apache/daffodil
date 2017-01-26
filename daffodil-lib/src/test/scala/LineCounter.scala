@@ -67,6 +67,7 @@ object LineCounter extends App {
           filesToExclude = List("GeneratedCode.scala",
             "DFDL_part3_model.xsd", "DFDL_part2_attributes.xsd", "DFDL_part1_simpletypes.xsd" // IBM supplied. Only minor tweeks by us.
             )),
+        new LineCounter("openDFDL", root, List("openDFDL"), List("src/main", "src/test")),
         new LineCounter("daffodil source sbt", root, List("daffodil"), List("project")))),
       new LineCounter("daffodil unit test", root + "daffodil", srcModulesToInclude, List("src/test")),
       new LineCounterCombiner("daffodil tests and examples", List(
@@ -89,29 +90,28 @@ object LineCounter extends App {
           filesToExclude = List("IBMTests",
             "AT.tdml")) // giant mostly data tdml file.
             )),
-      new LineCounterCombiner("DFDLSchemas", List(
+      new LineCounterCombiner("Public schemas", List(
         // NACHA is separate due to the 2013 subdir, which we don't have a way to deal with yet
-        new LineCounter("DFDLSchemas/NACHA", root + "DFDLSchemas/NACHA", List("2013"), List("src/test"),
-          filesToExclude = List("NACHA.tdml") // mostly contains test data
-          ), // only src/test as IBM wrote this schema. We just tweeked it.
-        new LineCounter("DFDLSchemas/others", root + "DFDLSchemas", List("mil-std-2045"), List("src/main", "src/test")) // Not PCAP since included in daffodil-examples
-        )),
-      new LineCounterCombiner("daffodil-fouo/data-formats", List(
-        new LineCounter("daffodil-fouo/data-formats", root + "daffodil-fouo/data-formats", Nil, List("src/main", "src/test"),
+        new LineCounter("DFDLSchemas/NACHA", root + "DFDLSchemas/NACHA", List("2013"), List("src/test")), // only src/test as IBM wrote this schema. We just tweeked it.
+        new LineCounter("DFDLSchemas/others", root + "DFDLSchemas", List("mil-std-2045"), List("src/main", "src/test")), // Not PCAP since included in daffodil-examples
+        new LineCounter("PNG", root, List("png", "jpeg"), List("src/main", "src/test")))),
+      new LineCounterCombiner("fouo-schemas", List(
+        new LineCounter("fouo-schemas", root + "fouo-schemas", Nil, List("src/main", "src/test"),
           filesToExclude = List(
             "army_drrs_lh.dfdl.tdml", // a giant tdml file that mostly just contains data
-            "sets.xsd", "fields.xsd", "messages.xsd", "composites.xsd" // usmtf generated schema
+            "sets.xsd", "fields.xsd", "messages.xsd", "composites.xsd", // usmtf generated schema
+            "Link16ed6-ded.xsd", "Link16ed6-msg-forward-reference.xsd" // link16 nato generated schema
             ) //
             ),
-        new LineCounter("vmf", root + "daffodil-fouo/data-formats/vmf", List("generator", "schema"), List("src/main", "src/test")),
-        new LineCounterOneDir("vmf other", root + "daffodil-fouo/data-formats/vmf", List("build.sbt", "README.md") //
+        new LineCounter("vmf", root + "fouo-schemas/vmf", List("generator", "schema"), List("src/main", "src/test")),
+        new LineCounterOneDir("vmf other", root + "fouo-schemas/vmf", List("build.sbt", "README.md") //
         ))), //
       new LineCounterCombiner("calabash", List(
         new LineCounter("calabash proper", root + "daffodil-calabash-extension", List("calabash-server"), List("src/main", "src/test"),
           fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xsd", ".xpl", ".sbt")),
         new LineCounter("calabash fouo", root + "daffodil-fouo", List("calabash-test"), List("src/main", "src/test"),
           fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xpl", ".sbt")))),
-      new LineCounter("all sbt files", root, List("daffodil", "daffodil-fouo", "DFDLSchemas", "daffodil-calabash-extension"), List(""), fileSuffixesToInclude = List(".sbt")))
+      new LineCounter("all sbt files", root, List("daffodil", "fouo-schemas", "DFDLSchemas", "daffodil-calabash-extension"), List(""), fileSuffixesToInclude = List(".sbt")))
     val allpairs = counters.flatMap { _.pairs }
     val nFiles = allpairs.length
     allpairs.foreach { case (fn, cnt) => println(fn.stripPrefix(root), cnt) }
@@ -233,7 +233,10 @@ class LineCounter(
   }
 
   private def perSourceDir(srcDir: String): List[(String, Int)] = {
-    val topDir = new File(root).listFiles.toList
+    val files1 = new File(root).listFiles
+    if (files1 eq null)
+      println(srcDir)
+    val topDir = if (files1 eq null) Nil else files1.toList
     val modules =
       if (modulesToInclude != Nil)
         topDir.filter { d: File => modulesToInclude.contains(d.getName()) }
