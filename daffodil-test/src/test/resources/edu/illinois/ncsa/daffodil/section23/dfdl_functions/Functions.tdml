@@ -13287,7 +13287,7 @@
     <xs:element name="pow06" type="xs:double" dfdl:inputValueCalc="{ math:pow(0, 0) }" />
     <xs:element name="pow07" type="xs:double" dfdl:inputValueCalc="{ math:pow(xs:double('INF'), 0) }" />
     <xs:element name="pow08" type="xs:double" dfdl:inputValueCalc="{ math:pow(xs:double('NaN'), 0) }" />
-    <!--<xs:element name="pow09" type="xs:double" dfdl:inputValueCalc="{ math:pow(-math:pi(), 0) }" />-->
+    <xs:element name="pow09" type="xs:double" dfdl:inputValueCalc="{ math:pow(-3.14159, 0) }" />
     <xs:element name="pow10" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 3) }" />
     <xs:element name="pow11" type="xs:double" dfdl:inputValueCalc="{ math:pow(0e0, 4) }" />
     <xs:element name="pow12" type="xs:double" dfdl:inputValueCalc="{ math:pow(-0e0, 3) }" />
@@ -13356,12 +13356,12 @@
   </tdml:parserTestCase>
 
 <!--
-  Requires math:pi()
+  Requires math:pi()  -->
   <tdml:parserTestCase name="mathPow09" root="pow09" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><pow09>1.0</pow09></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
--->
+<!-- -->
 
   <tdml:parserTestCase name="mathPow10" root="pow10" model="XPathMathFunctions" description="Section 23 - Functions - math:pow - DFDL-23-109R">
     <tdml:document></tdml:document>
