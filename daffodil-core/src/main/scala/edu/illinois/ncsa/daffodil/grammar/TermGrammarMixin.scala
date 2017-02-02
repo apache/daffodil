@@ -197,7 +197,7 @@ trait TermGrammarMixin
    * to be textual.
    */
   protected lazy val mtaBase = prod("mandatoryTextAlignment", hasEncoding) {
-    MandatoryTextAlignment(this, knownEncodingAlignmentInBits)
+    MandatoryTextAlignment(this, knownEncodingAlignmentInBits, false)
   }
 
   /**
@@ -205,14 +205,12 @@ trait TermGrammarMixin
    */
   protected lazy val delimMTA = prod("delimMTA",
     {
-      //      if (!hasDelimiters) {
-      //        println("Removing MTA for delimiters of " + this.diagnosticDebugName)
-      //      } else {
-      //        println("MTA region inserted for " + this.diagnosticDebugName)
-      //      }
       hasDelimiters
     }) {
-      mtaBase
+      // This is different from mtaBase because it passes in 'true' for the
+      // last parameter to signify that it is MTA for a delimiter. mtaBase
+      // passes in 'false'
+      MandatoryTextAlignment(this, knownEncodingAlignmentInBits, true)
     }
 
 }

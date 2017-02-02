@@ -313,7 +313,7 @@ trait ElementRuntimeValuedPropertiesMixin
    * runtime-valued using the Ev. The "right thing" happens if the information
    * is constant.
    */
-  private lazy val elementLengthInBitsEv: LengthInBitsEv = {
+  lazy val elementLengthInBitsEv: LengthInBitsEv = {
     Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
     import LengthKind._
     import Representation._

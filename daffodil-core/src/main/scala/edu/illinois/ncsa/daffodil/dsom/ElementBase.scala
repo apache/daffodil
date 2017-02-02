@@ -662,10 +662,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val alignmentValueInBits: JInt = {
     alignment match {
       case AlignmentType.Implicit => {
-        if (this.isComplexType) {
-          val ct = this.elementComplexType
-          ct.alignmentValueInBits
-        } else implicitAlignmentInBits
+        if (this.isComplexType) elementComplexType.modelGroup.group.alignmentValueInBits
+        else implicitAlignmentInBits
       }
       case align: JInt => {
         val alignInBits: JInt = this.alignmentUnits match {
