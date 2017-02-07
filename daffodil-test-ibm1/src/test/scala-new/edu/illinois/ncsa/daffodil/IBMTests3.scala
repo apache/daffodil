@@ -34,13 +34,22 @@ package edu.illinois.ncsa.daffodil
 
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
+import org.junit.Test
 
-class IBMTestsThatPass2 {
+object IBMTestsThatPass2 {
 
   val testDir = "/test-suite/ibm-contributed/"
   val tdml1 = testDir + "dpaext1.tdml"
   val tdml2 = testDir + "dpaext2.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+}
 
+class IBMTestsThatPass2 {
+  import IBMTestsThatPass2._
+
+  @Test def test_simple_type_properties_text_boolean_13_01() { runner2.runOneTest("simple_type_properties_text_boolean_13_01") } // DFDL-462 boolean type
+  @Test def test_simple_type_properties_text_boolean_13_02() { runner2.runOneTest("simple_type_properties_text_boolean_13_02") } // DFDL-462 boolean type
+
+  @Test def test_alignment_bytes_12_04() { runner1.runOneTest("alignment_bytes_12_04") } //DFDL-461 binary boolean
 }

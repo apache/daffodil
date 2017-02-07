@@ -66,7 +66,6 @@ class IBMTestsThatThrow {
   @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") } // DFDL-565 attributeFormDefault='qualified'
   @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") } // DFDL-565 attributeFormDefault='qualified'
 
-  @Test def test_alignment_bytes_12_04() { runner1.runOneTest("alignment_bytes_12_04") } //DFDL-461 binary boolean
   @Test def test_alignment_bytes_12_05() { runner1.runOneTest("alignment_bytes_12_05") } //DFDL-99 binary dateTime
   @Test def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") } //ignoreCase='yes'
 
@@ -78,8 +77,6 @@ class IBMTestsThatThrow {
   @Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") } // DFDL-452 textStandardBase (base 16)
   @Test def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") } // DFDL-629 binaryNumberRep="bcd"
 
-  @Test def test_simple_type_properties_text_boolean_13_01() { runner2.runOneTest("simple_type_properties_text_boolean_13_01") } // DFDL-462 boolean type
-  @Test def test_simple_type_properties_text_boolean_13_02() { runner2.runOneTest("simple_type_properties_text_boolean_13_02") } // DFDL-462 boolean type
   @Test def test_simple_type_properties_text_boolean_13_03() { runner2.runOneTest("simple_type_properties_text_boolean_13_03") } // DFDL-462 boolean type
   @Test def test_simple_type_properties_bin_boolean_13_01() { runner2.runOneTest("simple_type_properties_bin_boolean_13_01") } // DFDL-461 boolean type
   @Test def test_simple_type_properties_bin_calendar_13_01() { runner2.runOneTest("simple_type_properties_bin_calendar_13_01") } // DFDL-99 dateTime
