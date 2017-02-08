@@ -133,7 +133,7 @@
       <body id="main">
         <header>
           <a id="logo" href="http://www.tresys.com">
-            <img src="http://www.tresys.com/images/tresys.png"/>
+            <img src="tresys.png"/>
           </a>
           <div id="headerText">
             <hr/>
