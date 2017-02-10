@@ -103,6 +103,16 @@ case object DecimalToUnsignedLong extends Converter {
     else res
   }
 }
+case object DecimalToBoolean extends Converter {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+    val d = asBigDecimal(a)
+    val comp = d.compareTo(JBigDecimal.ZERO)
+    val b =
+      if (comp == 0) false
+      else true
+    asBoolean(b)
+  }
+}
 case object DoubleToDecimal extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = JBigDecimal.valueOf(asDouble(a))
 }
@@ -127,6 +137,16 @@ case object DoubleToUnsignedLong extends Converter {
     if (res.compareTo(JBigInt.ZERO) == -1) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
     if (res.compareTo(NodeInfo.UnsignedLong.Max) == 1) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
+  }
+}
+case object DoubleToBoolean extends Converter {
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = {
+    val d = asDouble(a).doubleValue()
+    val b =
+      if (d == 0.0) false
+      else if (d.isNaN()) false
+      else true
+    asBoolean(b)
   }
 }
 case object FloatToDouble extends Converter {

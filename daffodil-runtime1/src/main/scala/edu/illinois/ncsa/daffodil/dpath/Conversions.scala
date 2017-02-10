@@ -98,6 +98,13 @@ object Conversion {
       case (String, NonEmptyString) => List(StringToNonEmptyString)
       case (x, NonEmptyString) => conversionOps(st, String, context) :+ StringToNonEmptyString
       case (x, ArrayIndex) => conversionOps(st, Long, context) ++ List(LongToArrayIndex)
+
+      case (Integer, Boolean) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+      case (Decimal, Boolean) => List(DecimalToBoolean)
+      case (Double, Boolean) => List(DoubleToBoolean)
+      case (Float, Boolean) => FloatToDouble +: conversionOps(Double, tt, context)
+      case (n: Long.Kind, Boolean) => conversionOps(n, Long, context) ++ List(LongToBoolean)
+
       case (Boolean, Double) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Decimal) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Float) => BooleanToLong +: conversionOps(Long, tt, context)
@@ -113,7 +120,6 @@ object Conversion {
       case (Boolean, UnsignedByte) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, String) => List(BooleanToString)
       case (Date, DateTime) => List(DateToDateTime)
-      case (Double, Boolean) => DoubleToLong +: conversionOps(Long, tt, context)
       case (Double, Decimal) => List(DoubleToDecimal)
       case (Double, Float) => List(DoubleToFloat)
       case (Double, Integer) => DoubleToDecimal +: conversionOps(Decimal, tt, context)
@@ -124,9 +130,7 @@ object Conversion {
       case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: conversionOps(UnsignedLong, tt, context)
 
       case (Float, n: Numeric.Kind) => FloatToDouble +: conversionOps(Double, tt, context)
-      case (Float, Boolean) => FloatToDouble +: conversionOps(Double, tt, context)
 
-      case (Decimal, Boolean) => DecimalToLong +: conversionOps(Long, tt, context)
       case (Decimal, Integer) => List(DecimalToInteger)
       case (Decimal, NonNegativeInteger) => List(DecimalToNonNegativeInteger)
       case (Decimal, Double) => List(DecimalToDouble)
@@ -149,7 +153,6 @@ object Conversion {
       //case (DateTime, Date) => List(DateTimeToDate)
       //case (DateTime, Time) => List(DateTimeToTime)
       //case (Time, DateTime) => List(TimeToDateTime)
-      case (Integer, Boolean) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
       case (String, Double) => List(StringToDouble)
       case (String, Decimal) => List(StringToDecimal)
       case (String, Float) => List(StringToDouble, DoubleToFloat)
@@ -170,8 +173,6 @@ object Conversion {
       case (String, Boolean) => List(StringToBoolean)
       case (Byte, Long) => List(ByteToLong)
 
-      case (Long, Boolean) => List(LongToBoolean)
-      case (x: Long.Kind, Boolean) => conversionOps(st, Long, context) ++ conversionOps(Long, tt, context)
       case (Long, Integer) => List(LongToInteger)
       case (Long, NonNegativeInteger) => List(LongToNonNegativeInteger)
       case (Long, Decimal) => List(LongToDecimal)
