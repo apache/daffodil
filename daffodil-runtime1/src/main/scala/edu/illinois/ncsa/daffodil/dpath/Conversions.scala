@@ -103,7 +103,7 @@ object Conversion {
       case (Decimal, Boolean) => List(DecimalToBoolean)
       case (Double, Boolean) => List(DoubleToBoolean)
       case (Float, Boolean) => FloatToDouble +: conversionOps(Double, tt, context)
-      case (n: Long.Kind, Boolean) => conversionOps(n, Long, context) ++ List(LongToBoolean)
+      case (n: Numeric.Kind, Boolean) => conversionOps(n, Long, context) ++ List(LongToBoolean)
 
       case (Boolean, Double) => BooleanToLong +: conversionOps(Long, tt, context)
       case (Boolean, Decimal) => BooleanToLong +: conversionOps(Long, tt, context)
