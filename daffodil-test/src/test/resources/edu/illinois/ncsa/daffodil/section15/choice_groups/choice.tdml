@@ -1918,20 +1918,19 @@ it sure is/
   </tdml:parserTestCase>
 
   <!-- This test shows that if there is a discriminator inside a dispatch
-       choice, then that discriminator does not apply to an outer point of
-       uncertainty. If it did apply to the outer POU, then this test would
-       result in a parse error rather than consuming the rest of the data -->
+       choice, then that discriminator applies to an outer point of
+       uncertainty. If it did not apply to the outer POU (and thus was
+       ignored), then this test would result in
+       <longstring>1;5;foo</longstring> rather than causing a parse error -->
   <tdml:parserTestCase name="direct_dispatch_14" root="dd5"
     model="direct_dispatch_1"
     description="simple case of direct dispatch - DFDL-15-001R. discriminator in dispatched branch passes, but later element fails">
     <tdml:document><![CDATA[1;5;foo]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:dd5>
-          <ex:longstring>1;5;foo</ex:longstring>
-        </ex:dd5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>Choice dispatch branch failed</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="direct_dispatch_15" root="dd6"

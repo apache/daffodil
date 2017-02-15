@@ -184,11 +184,13 @@ class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispa
     } else {
       val parser = parserOpt.get
 
-      // We don't actually care if the parser sets a discriminator since we
-      // always treat the result as if it did. However, we need to push
-      // something to the stack so that if it does set a discriminator, it has
-      // something to write to without clobbering previous discriminators.
-      pstate.pushDiscriminator
+      // Note that we are intentionally not pushing/popping a new
+      // discriminator here, as is done in the ChoiceCombinatorParser and
+      // AltCompParser. This has the effect that if a branch of this direct
+      // dispatch choice specifies a discriminator, then it will discriminate a
+      // point of uncertainty outside of the choice. If we pushed a new
+      // discriminator here if would essentially ignore discriminators on a
+      // choice branch.
 
       log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
       parser.parse1(pstate)
@@ -200,8 +202,6 @@ class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispa
         val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
         pstate.setFailed(diag)
       }
-
-      pstate.popDiscriminator
     }
   }
 }
