@@ -127,7 +127,7 @@ object Conversion {
       case (Double, Long) => List(DoubleToLong)
       case (Double, UnsignedLong) => List(DoubleToUnsignedLong)
       case (Double, i: Int.Kind) => DoubleToLong +: conversionOps(Long, tt, context)
-      case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: conversionOps(UnsignedLong, tt, context)
+      case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: UnsignedLongToLong +: conversionOps(Long, tt, context)
 
       case (Float, n: Numeric.Kind) => FloatToDouble +: conversionOps(Double, tt, context)
 
@@ -303,7 +303,8 @@ object Conversion {
       case (_, AnyAtomic) => Nil // is this correct?
 
       case (_, Exists) => Nil
-      case (_, other) => context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
+      case (_, other) =>
+        context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
     }
     ops
   }

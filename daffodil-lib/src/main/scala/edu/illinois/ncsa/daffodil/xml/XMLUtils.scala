@@ -767,7 +767,8 @@ Differences were (path, expected, actual):
         val (a: Elem, b: Elem) = (a1, b1)
         val Elem(_, labelA, attribsA, _, childrenA @ _*) = a
         val Elem(_, labelB, attribsB, _, childrenB @ _*) = b
-        if (labelA != labelB) List((zPath, a.toString, b.toString))
+        if (labelA != labelB)
+          List((zPath, a.toString, b.toString))
         else if (attribsA != attribsB
           && !((attribsA == null && (attribsB == null || attribsB.length == 0))
             || (attribsB == null) && attribsA.length == 0)) {
