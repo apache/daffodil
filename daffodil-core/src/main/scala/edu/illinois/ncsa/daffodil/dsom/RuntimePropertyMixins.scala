@@ -300,7 +300,11 @@ trait ElementRuntimeValuedPropertiesMixin
     else None
   }
 
-  protected final lazy val optLengthConstant: Option[Long] = lengthEv.optConstant.map { _.longValue }
+  protected final lazy val optLengthConstant: Option[Long] = {
+    if (maybeLengthEv.isDefined) {
+      lengthEv.optConstant.map { _.longValue }
+    } else None
+  }
 
   /**
    * For specified-length elements, computes the Ev which determines
@@ -481,25 +485,24 @@ trait ElementRuntimeValuedPropertiesMixin
       (
         if (isSimpleType && primType =:= PrimType.Boolean) {
           propExprElts(optionTextBooleanTrueRepRaw, textBooleanTrueRepEv, f) ++
-          propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f)
+            propExprElts(optionTextBooleanFalseRepRaw, textBooleanFalseRepEv, f)
         } else {
           ReferencedElementInfos.None
-        }
-      ) ++
-      propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
-      (
-        if (optionEscapeScheme.isDefined) {
-          val es: DFDLEscapeScheme = optionEscapeScheme.get
-          val ee =
-            if (es.optionEscapeEscapeCharacterEv.isDefined)
-              f(es.optionEscapeEscapeCharacterEv.get)
-            else
-              ReferencedElementInfos.None
-          ee ++
-            propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
-        } else {
-          ReferencedElementInfos.None
-        })
+        }) ++
+        propExprElts(optionCalendarLanguageRaw, calendarLanguage, f) ++
+        (
+          if (optionEscapeScheme.isDefined) {
+            val es: DFDLEscapeScheme = optionEscapeScheme.get
+            val ee =
+              if (es.optionEscapeEscapeCharacterEv.isDefined)
+                f(es.optionEscapeEscapeCharacterEv.get)
+              else
+                ReferencedElementInfos.None
+            ee ++
+              propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
+          } else {
+            ReferencedElementInfos.None
+          })
   }
 
   private lazy val myPropertyContentReferencedElementInfos =
@@ -621,7 +624,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
 
   final lazy val textBooleanTrueRepEv = {
     val mustBeSameLength = (((this.lengthKind eq LengthKind.Explicit) || (this.lengthKind eq LengthKind.Implicit)) &&
-        ((this.textPadKind eq TextPadKind.None) || (this.textTrimKind eq TextTrimKind.None)))
+      ((this.textPadKind eq TextPadKind.None) || (this.textTrimKind eq TextTrimKind.None)))
     val ev = new TextBooleanTrueRepEv(textBooleanTrueRepExpr, textBooleanFalseRepEv, mustBeSameLength, erd)
     ev.compile()
     ev
