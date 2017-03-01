@@ -104,4 +104,7 @@ class TestAssertions {
   @Test def test_testPatternUregexUword() { runner.runOneTest("testPatternUregexUword") }
   @Test def test_testPatternWordChar() { runner.runOneTest("testPatternWordChar") }
 
+  // JIRA DFDL-1672
+  @Test def testNumberFormatErrorInExprRuntime() { runner.runOneTest("testNumberFormatErrorInExprRuntime") }
+  @Test def testNumberFormatErrorInExprCompileTime() { runner.runOneTest("testNumberFormatErrorInExprCompileTime") }
 }
