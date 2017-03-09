@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -33,27 +33,23 @@
 package edu.illinois.ncsa.daffodil.processors.charset
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
- *
+ * A 1-bit wide encoding so you can get down to the bits level
+ * but use anything you'd normally use with text, such as regular expressions
+ * initiators/terminators, etc.
  */
 
-object DFDL5BitPackedLSBFCharset
-  extends NBitsWidthCharset("X-DFDL-5-BIT-PACKED-LSBF",
-    "01234567ABCDEFGHJKLMNPQRSTUVWXYZ",
-    5, // width
+object X_DFDL_BITS_LSBF
+  extends NBitsWidthCharset("X-DFDL-BITS-LSBF",
+    "01",
+    1,
     BitOrder.LeastSignificantBitFirst,
-    0x1D) { // replacement
+    0)
 
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
-  }
-}
-
+object X_DFDL_BITS_MSBF
+  extends NBitsWidthCharset("X-DFDL-BITS-MSBF",
+    "01",
+    1,
+    BitOrder.MostSignificantBitFirst,
+    0)

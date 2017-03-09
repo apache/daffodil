@@ -32,16 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
-import java.nio.CharBuffer
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
-
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetDecoder
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /**
  * Some encodings are not byte-oriented.
@@ -51,63 +42,14 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
  *
  */
 
-trait USASCII6BitPackedCharsetMixin
-  extends NonByteSizeCharset {
-
-  val bitWidthOfACodeUnit = 6 // in units of bits
-  val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-}
-
 object USASCII6BitPackedCharset
-  extends java.nio.charset.Charset("X-DFDL-US-ASCII-6-BIT-PACKED", Array())
-  with USASCII6BitPackedCharsetMixin {
-
-  def contains(cs: Charset): Boolean = false
-
-  def newDecoder(): CharsetDecoder = new USASCII6BitPackedDecoder
-
-  def newEncoder(): CharsetEncoder = new USASCII6BitPackedEncoder
-
-  private[charset] def charsPerByte = 8.0F / 6.0F
-  private[charset] def bytesPerChar = 1.0F // can't use 6/8 here because CharsetEncoder base class requires it to be 1 or greater.
+  extends NBitsWidthCharset("X-DFDL-US-ASCII-6-BIT-PACKED",
+    """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?""",
+    6, // width
+    BitOrder.LeastSignificantBitFirst,
+    0x1F) { // replacement charCode for encoding of unmapped chars.
+  //
+  // Note: formula for computing string above is
+  // def decodeString = ((0 to 63).map { charCode => (if (charCode <= 31) charCode + 64 else charCode).toChar }).mkString
 }
 
-
-/**
- * You have to initialize one of these for a specific ByteBuffer because
- * the encoding is 6-bits wide, so we need additional state beyond just
- * the byte position and limit that a ByteBuffer provides in order to
- * properly sequence through the data.
- */
-class USASCII6BitPackedDecoder
-  extends java.nio.charset.CharsetDecoder(USASCII6BitPackedCharset,
-    USASCII6BitPackedCharset.charsPerByte, // average
-    USASCII6BitPackedCharset.charsPerByte) // maximum
-  with NonByteSizeCharsetDecoder
-  with USASCII6BitPackedCharsetMixin {
-
-  def output(charCode: Int, out: CharBuffer) {
-    val adjustedCharCode = if(charCode <= 31) charCode + 64 else charCode
-    val char = adjustedCharCode.toChar
-    out.put(char)
-  }
-
-}
-
-class USASCII6BitPackedEncoder
-  extends java.nio.charset.CharsetEncoder(USASCII6BitPackedCharset,
-    USASCII6BitPackedCharset.bytesPerChar, // average
-    USASCII6BitPackedCharset.bytesPerChar) // maximum
-  with NonByteSizeCharsetEncoder
-  with USASCII6BitPackedCharsetMixin {
-
-  val replacementChar = 0x1F
-
-  def charToCharCode(char: Char): MaybeInt = {
-    val charCode = char.toInt
-    if (charCode >= 64 && charCode <= 95) MaybeInt(charCode - 64)
-    else if (charCode <= 63 && charCode >= 32) MaybeInt(charCode)
-    else MaybeInt.Nope
-  }
-
-}

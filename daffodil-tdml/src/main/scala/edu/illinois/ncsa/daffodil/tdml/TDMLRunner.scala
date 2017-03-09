@@ -84,6 +84,8 @@ import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -1459,12 +1461,26 @@ case class Document(d: NodeSeq, parent: TestCase) {
 
 class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
 
+  private def err(encName: String, partBitOrd: BitOrderType) = {
+    Assert.usageError("encoding %s requires bitOrder='%s'".format(encName, partBitOrd))
+  }
+
   lazy val encoder = {
     val upperName = encodingName.toUpperCase
-    if (upperName == "US-ASCII-7-BIT-PACKED" || upperName == "X-DFDL-US-ASCII-7-BIT-PACKED" || upperName == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
-        upperName == "X-DFDL-US-ASCII-6-BIT-PACKED" || upperName == "X-DFDL-5-BIT-PACKED" || upperName == "X-DFDL-HEX-LSBF" || upperName == "X-DFDL-OCTAL-LSBF")
-      Assert.usage(partBitOrder == LSBFirst, "encoding " + upperName + " requires bitOrder='LSBFirst'")
-    CharsetUtils.getCharset(encodingName).newEncoder()
+    val cs = CharsetUtils.getCharset(upperName)
+    cs match {
+      case bitEnc: NonByteSizeCharset => {
+        (bitEnc.requiredBitOrder, partBitOrder) match {
+          case (BitOrder.LeastSignificantBitFirst, LSBFirst) => //ok
+          case (BitOrder.MostSignificantBitFirst, MSBFirst) => //ok
+          case (BitOrder.LeastSignificantBitFirst, _) => err(upperName, LSBFirst)
+          case _ => err(upperName, MSBFirst)
+        }
+      }
+      case _ => //ok
+    }
+    val enc = cs.newEncoder()
+    enc
   }
 
   lazy val textContentWithoutEntities = {
@@ -1526,20 +1542,12 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 
   lazy val dataBits = {
     val bytesAsStrings =
-      if (encoder.charset.name.toLowerCase == "utf-8")
-        encodeUtf8ToBits(textContentWithoutEntities)
-      else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-7-BIT-PACKED" ||
-        encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
-        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 7)
-      else if (encodingName.toUpperCase == "X-DFDL-US-ASCII-6-BIT-PACKED") {
-        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 6) }
-      else if (encodingName.toUpperCase == "X-DFDL-5-BIT-PACKED") {
-        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 5) }
-      else if (encodingName.toUpperCase == "X-DFDL-HEX-LSBF")
-        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 4)
-      else if (encodingName.toUpperCase == "X-DFDL-OCTAL-LSBF") {
-        encodeWithNonByteSizeEncoder(textContentWithoutEntities, 3) }
-      else encodeWith8BitEncoder(textContentWithoutEntities)
+      encoder.charset() match {
+        case nbs: NonByteSizeCharset =>
+          encodeWithNonByteSizeEncoder(textContentWithoutEntities, nbs.bitWidthOfACodeUnit)
+        case _ =>
+          encodeWith8BitEncoder(textContentWithoutEntities)
+      }
     bytesAsStrings
   }
 }

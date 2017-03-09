@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,28 +32,28 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /**
  * Some encodings are not byte-oriented.
  *
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
+ * X-DFDL-6-BIT-DFI-264-DUI-001
  *
  */
 
-object DFDL5BitPackedLSBFCharset
-  extends NBitsWidthCharset("X-DFDL-5-BIT-PACKED-LSBF",
-    "01234567ABCDEFGHJKLMNPQRSTUVWXYZ",
-    5, // width
+object X_DFDL_6_BIT_DFI_264_DUI_001
+  extends NBitsWidthCharset("X-DFDL-6-BIT-DFI-264-DUI-001",
+    " 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0",
+    6, // width
     BitOrder.LeastSignificantBitFirst,
-    0x1D) { // replacement
+    0) {
 
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
+  override def checks() = {
+    super.checks()
+    Assert.invariant(this.charToCode('0').get == 63)
+    Assert.invariant(this.charToCode('1').get == 1)
+    Assert.invariant(this.charToCode(' ').get == 0) // space
+    Assert.invariant(this.charToCode('a').isEmpty) // unmapped
   }
 }
-

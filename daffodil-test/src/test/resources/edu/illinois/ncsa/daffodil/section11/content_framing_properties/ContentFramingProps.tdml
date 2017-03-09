@@ -1238,7 +1238,7 @@
 
   <tdml:defineSchema name="packed5Bit">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-5-BIT-PACKED"
+    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-5-BIT-PACKED-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -1261,9 +1261,9 @@
   <!--
     Test name: packed5Bit1
     Schema: packed5Bit
-    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED-LSBF
     encoding, where the document represents
-    two X-DFDL-5-BIT-PACKED characters in binary.
+    two X-DFDL-5-BIT-PACKED-LSBF characters in binary.
   -->
 
   <tdml:parserTestCase name="packed5Bit1" root="e1"
@@ -1283,9 +1283,9 @@
   <!--
     Test name: packed5Bit2
     Schema: packed5Bit
-    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED-LSBF
     encoding, where the document represents
-    three X-DFDL-5-BIT-PACKED characters in binary.
+    three X-DFDL-5-BIT-PACKED-LSBF characters in binary.
   -->
 
   <tdml:parserTestCase name="packed5Bit2" root="e2"
@@ -1305,9 +1305,9 @@
   <!--
     Test name: packed5Bit3
     Schema: packed5Bit
-    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED-LSBF
     encoding, where the document represents
-    three X-DFDL-5-BIT-PACKED characters in binary.
+    three X-DFDL-5-BIT-PACKED-LSBF characters in binary.
   -->
 
   <tdml:parserTestCase name="packed5Bit3" root="e2"
@@ -1327,9 +1327,9 @@
   <!--
     Test name: packed5Bit4
     Schema: packed5Bit
-    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED-LSBF
     encoding, where the document represents
-    X-DFDL-5-BIT-PACKED characters in binary.
+    X-DFDL-5-BIT-PACKED-LSBF characters in binary.
   -->
 
   <tdml:parserTestCase name="packed5Bit4" root="e3"
@@ -1349,9 +1349,9 @@
   <!--
     Test name: packed5Bit5
     Schema: packed5Bit
-    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates the simple use of the X-DFDL-5-BIT-PACKED-LSBF
     encoding, where the document represents
-    three X-DFDL-5-BIT-PACKED characters in binary.
+    three X-DFDL-5-BIT-PACKED-LSBF characters in binary.
   -->
 
   <tdml:parserTestCase name="packed5Bit5" root="e2"
@@ -1371,7 +1371,7 @@
   <!--
     Test name: packed5Bit6
     Schema: packed5Bit
-    Purpose: This test demonstrates that X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates that X-DFDL-5-BIT-PACKED-LSBF
              encoding, requires bitOrder leastSignificantBitFirst
   -->
   <tdml:parserTestCase name="packed5Bit6" root="e4"
@@ -1389,8 +1389,8 @@
   <!--
     Test name: packed5Bit_unparse1
     Schema: packed5Bit
-    Purpose: This test demonstrates unparsing two X-DFDL-5-BIT-PACKED characters
-    in binary with X-DFDL-5-BIT-PACKED encoding.
+    Purpose: This test demonstrates unparsing two X-DFDL-5-BIT-PACKED-LSBF characters
+    in binary with X-DFDL-5-BIT-PACKED-LSBF encoding.
   -->
 
   <tdml:unparserTestCase name="packed5Bit_unparse1" root="e1"
@@ -1410,7 +1410,7 @@
   <!--
     Test name: packed5Bit_unparse2
     Schema: packed5Bit
-    Purpose: This test demonstrates use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates use of the X-DFDL-5-BIT-PACKED-LSBF
              encoding, with an invalid character with
              encodingErrorPolicy="replace". The pound sign is replaced with
              an 'X', and a pad character is added to make the string length 2
@@ -1432,7 +1432,7 @@
   <!--
     Test name: packed5Bit_unparse3
     Schema: packed5Bit
-    Purpose: This test demonstrates use of the X-DFDL-5-BIT-PACKED
+    Purpose: This test demonstrates use of the X-DFDL-5-BIT-PACKED-LSBF
              encoding
   -->
   <tdml:unparserTestCase name="packed5Bit_unparse3" root="e3"

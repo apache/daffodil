@@ -32,16 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.util.Misc
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedEncoder
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
-import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedDecoder
+
+import org.junit.Assert._
+import org.junit.Test
+
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Helper class for creating example data that is unaligned.
@@ -66,7 +67,7 @@ object Bitte {
   }
 
   def encode7(s: String): Seq[String] = {
-    val encoder = new USASCII7BitPackedEncoder
+    val encoder = USASCII7BitPackedCharset.newEncoder
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -129,7 +130,7 @@ class TestByteBufferDataInputStream7 {
    */
   @Test def testGetByteArrayLengthLimit1 {
     val dis = ByteBufferDataInputStream(Bitte.enc("abc"))
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(21))
     val arr = dis.getByteArray(21)
     assertEquals(21, dis.bitLimit0b.get)
@@ -145,7 +146,7 @@ class TestByteBufferDataInputStream7 {
    */
   @Test def testFillCharBufferOne7BitChar {
     val dis = ByteBufferDataInputStream(Bitte.enc("abcdefgh"))
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     val cb = CharBuffer.allocate(1)
     val ml = dis.fillCharBuffer(cb)
     cb.flip
@@ -157,7 +158,7 @@ class TestByteBufferDataInputStream7 {
 
   @Test def testFillCharBuffer7BitString {
     val dis = ByteBufferDataInputStream(Bitte.enc("abcdefgh"))
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     val cb = CharBuffer.allocate(8)
     val ml = dis.fillCharBuffer(cb)
     cb.flip
@@ -169,7 +170,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testFillCharBuffer7BitStringOffBy3 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
     val ml = dis.fillCharBuffer(cb)
@@ -183,7 +184,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testFillCharBufferDataEndsMidByte {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(25))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
@@ -207,7 +208,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testFillCharBufferDataEndsMidByte2 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(20))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
@@ -226,7 +227,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testFillCharBufferDataEndsMidByte3 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(16))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
@@ -248,7 +249,7 @@ class TestByteBufferDataInputStream7 {
 
   @Test def testCharIteratorWithInterruptingBitSkips1 {
     val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     dis.skip(7)
@@ -288,7 +289,7 @@ class TestByteBufferDataInputStream7 {
    */
   @Test def testCharIteratorWithInterruptingBitSkipsBetweenHasNextAndNext {
     val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
-    dis.setDecoder(new USASCII7BitPackedDecoder)
+    dis.setDecoder(USASCII7BitPackedCharset.newDecoder)
     dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     assertTrue(iter.hasNext)
@@ -310,7 +311,7 @@ class TestByteBufferDataInputStream7 {
   }
 
   @Test def testUSASCII7BitEncoderOverflowError {
-    val encoder = new USASCII7BitPackedEncoder
+    val encoder = USASCII7BitPackedCharset.newEncoder
     val bb = ByteBuffer.allocate(1) // only big enough for a single byte
     val cb = CharBuffer.wrap("ab") // two characters will cause overflow
     val coderResult = encoder.encode(cb, bb, true)
@@ -318,7 +319,7 @@ class TestByteBufferDataInputStream7 {
   }
 
   @Test def testUSASCII7BitEncoderMalformedError {
-    val encoder = new USASCII7BitPackedEncoder
+    val encoder = USASCII7BitPackedCharset.newEncoder
     val bb = ByteBuffer.allocate(3)
     val cb = CharBuffer.wrap("ab" + 128.toChar) // 128 is not encodable in 7 bits
     val coderResult = encoder.encode(cb, bb, true)

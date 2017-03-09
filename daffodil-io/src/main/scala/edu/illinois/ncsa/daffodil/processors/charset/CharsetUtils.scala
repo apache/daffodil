@@ -32,20 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import java.nio.charset.Charset
-import java.nio.charset.IllegalCharsetNameException
-import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+import java.nio.charset.Charset
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CoderResult
-import java.nio.charset.CharsetEncoder
 
 /*
  * These are needed because the ordinary java/scala Charset, Encoder, and Decoder objects
@@ -75,69 +72,18 @@ case class DFDLCharset(val charsetName: String) extends Serializable {
   }
 }
 
-///**
-// * Serializable Encoder
-// */
-//class DFDLEncoder(private val dfdlCharset: DFDLCharset) extends Serializable {
-//  @transient private lazy val encoder_ = dfdlCharset.charset.newEncoder()
-//
-//  def encoder = {
-//    encoder_.reset() // each time this is asked for it gets reset.
-//    encoder_
-//  }
-//}
-//
-///**
-// * Serializable Decoder
-// */
-//class DFDLDecoder(private val dfdlCharset: DFDLCharset) extends Serializable {
-//  @transient private lazy val decoder_ = dfdlCharset.charset.newDecoder()
-//
-//  def decoder = {
-//    decoder_.reset() // each time this is asked for it gets reset.
-//    decoder_
-//  }
-//}
-
 object CharsetUtils {
 
-  // keep in case we need to put this check back in temporarily
-  // private val noWSNoLowerCasePatern = """[^\sa-z]+""".r.pattern // one or more characters, not whitespace, not lower case.
-
-  def getCharset(charsetName: String): Charset = {
-    Assert.usage(charsetName != null);
-    //    {
-    //      // TODO: expensive check, remove if unnecessary
-    //      //
-    //      // However, encodingEv should guarantee that we already get an upper case token.
-    //      // So we shouldn't need to test this.
-    //      val m = noWSNoLowerCasePatern.matcher(charsetName)
-    //      Assert.usage(m.matches)
-    //    }
-    // There is no notion of a default charset in DFDL.
-    // So this can be val.
-    val csn: String = charsetName
-
-    val cs = try {
-      val cs =
-        if (csn == "US-ASCII-7-BIT-PACKED" || // deprecated name
-          csn == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name
-          USASCII7BitPackedCharset
-        else if (csn == "X-DFDL-US-ASCII-6-BIT-PACKED")
-          USASCII6BitPackedCharset
-        else if (csn == "X-DFDL-5-BIT-PACKED")
-          DFDL5BitPackedCharset
-        else if (csn == "X-DFDL-HEX-LSBF")
-          HexLSBF4BitCharset
-        else if (csn == "X-DFDL-OCTAL-LSBF")
-          OctalLSBF3BitCharset
-        else Charset.forName(csn)
-      One(cs)
-    } catch {
-      case e: IllegalCharsetNameException => Nope
-    }
-    if (cs.isEmpty) throw new UnsupportedEncodingException(csn)
-    cs.value
+  /**
+   * Call instead of Charset.forName to obtain Daffodil's less-than-byte-sized
+   * encodings as well as the standard ones.
+   */
+  def getCharset(name: String) = {
+    val dcs = DaffodilCharsetProvider.charsetForName(name)
+    val cs =
+      if (dcs ne null) dcs
+      else Charset.forName(name)
+    cs
   }
 
   /**
@@ -171,28 +117,23 @@ object CharsetUtils {
 
   val unicodeReplacementChar = '\uFFFD'
 
-  private lazy val UTF32 = CharsetUtils.getCharset("UTF-32")
-  private lazy val UTF32BE = CharsetUtils.getCharset("UTF-32BE")
-  private lazy val UTF32LE = CharsetUtils.getCharset("UTF-32LE")
-
   /**
    * Tells us the encoding's fixed width if it is fixed.
    * Nope if not fixed width
    */
   final def maybeEncodingFixedWidth(charset: Charset): MaybeInt = {
-    import java.nio.charset.StandardCharsets
     val res: Int = charset match {
       case nbs: NonByteSizeCharset => nbs.bitWidthOfACodeUnit
-      case StandardCharsets.US_ASCII => 8
-      case StandardCharsets.UTF_8 => return MaybeInt.Nope
-      case StandardCharsets.UTF_16 |
-        StandardCharsets.UTF_16BE |
-        StandardCharsets.UTF_16LE => 16 // Note dfdl:utf16Width='variable' not supported
-      case StandardCharsets.ISO_8859_1 => 8
-      case UTF32 | UTF32BE | UTF32LE => 32
-      case _ => Assert.usageError("unknown charset: " + charset.name)
+      case _ => {
+        val enc = charset.newEncoder()
+        val avg = enc.averageBytesPerChar()
+        val max = enc.maxBytesPerChar()
+        if (avg == max) avg.toInt * 8 // bits
+        else 0 // variable width
+      }
     }
-    MaybeInt(res)
+    if (res == 0) MaybeInt.Nope
+    else MaybeInt(res)
   }
 
 }

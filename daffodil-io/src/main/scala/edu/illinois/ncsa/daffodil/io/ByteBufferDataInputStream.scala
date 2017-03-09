@@ -1278,8 +1278,10 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     val m = dis.markPos
     next()
     val c2 =
-      if (!hasNext) -1.toChar
-      else next()
+      if (!hasNext)
+        -1.toChar
+      else
+        next()
     dis.resetPos(m)
     c2
   }

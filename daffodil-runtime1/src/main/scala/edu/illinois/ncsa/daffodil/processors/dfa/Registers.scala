@@ -43,7 +43,8 @@ private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
 
   def pool() = this.get
 
-  def getFromPool(requestorID: String) = pool.getFromPool(requestorID)
+  def getFromPool(requestorID: String) =
+    pool.getFromPool(requestorID)
 
   def returnToPool(r: Registers) = pool.returnToPool(r)
 }

@@ -32,12 +32,34 @@
 
 package edu.illinois.ncsa.daffodil.section10.representation_properties
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestRepProps2 {
+  val testDir = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
+  val runner = Runner(testDir, "encodings.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+}
 
 class TestRepProps2 {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
-  val tdml1 = testDir_01 + "RepProps.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  import TestRepProps2._
+
+  @Test def test_ebcdic1() = { runner.runOneTest("ebcdic1") }
+  @Test def test_bits1() = { runner.runOneTest("bits1") }
+  @Test def test_bits1a() = { runner.runOneTest("bits1a") }
+  @Test def test_bits2() = { runner.runOneTest("bits2") }
+  @Test def test_bits2a() = { runner.runOneTest("bits2a") }
+
+  @Test def test_bitsTerm1() = { runner.runOneTest("bitsTerm1") }
+
+  // fails Left-over data byte 1 limit(bytes) 2
+  @Test def test_bitsTerm2() = { runner.runOneTest("bitsTerm2") }
+  @Test def test_bitsTerm3() = { runner.runOneTest("bitsTerm3") }
+
+  @Test def test_sixBit1() = { runner.runOneTest("sixBit1") }
 
 }

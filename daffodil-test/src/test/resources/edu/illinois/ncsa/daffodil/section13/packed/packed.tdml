@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="packed"
+  description="Packed Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true">
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    lengthUnits="bytes"/>
+
+    <xs:element name="int01" type="xs:int" dfdl:length="2" dfdl:textNumberPattern="0000" />
+    <xs:element name="int02" type="xs:int" dfdl:length="2" dfdl:textNumberPattern="'C'000;'D'000" />
+
+     <xs:element name="flt01" type="xs:float" dfdl:length="2" dfdl:textNumberPattern="00V00"/>
+     
+     <xs:element name="cal01" type="xs:date" dfdl:length="3"
+       dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMddyy"/>
+      
+  </tdml:defineSchema>
+  
+  
+
+  <tdml:parserTestCase name="hexCharset01" root="int01" model="s1"
+    description="hex works as a charset encoding">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int01>1988</int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="hexCharset02" root="int02" model="s1"
+    description="hex works as a charset encoding, with C and D as sign characters">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">D123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int02>-123</int02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="hexCharset03" root="flt01" model="s1"
+    description="hex works as a charset encoding, P number pattern character">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <flt01>12.34</flt01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+    
+  <tdml:parserTestCase name="hexCharset04" root="cal01" model="s1"
+    description="hex works as a charset encoding for calendars">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">020161</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <cal01>1961-02-01+00:00</cal01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>  
+      
+</tdml:testSuite>

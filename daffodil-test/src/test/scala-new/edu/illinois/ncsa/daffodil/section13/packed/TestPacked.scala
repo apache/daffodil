@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,30 +30,28 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package edu.illinois.ncsa.daffodil.section13.packed
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+import org.junit.Test
 
-/**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
- *
- */
+object TestPacked {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/packed/"
+  lazy val runner = Runner(testDir, "packed.tdml")
 
-object DFDL5BitPackedLSBFCharset
-  extends NBitsWidthCharset("X-DFDL-5-BIT-PACKED-LSBF",
-    "01234567ABCDEFGHJKLMNPQRSTUVWXYZ",
-    5, // width
-    BitOrder.LeastSignificantBitFirst,
-    0x1D) { // replacement
-
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
+  @AfterClass def shutdown(): Unit = {
+    runner.reset
   }
+
 }
 
+class TestPacked {
+  import TestPacked._
+
+  @Test def testHexCharset01(): Unit = { runner.runOneTest("hexCharset01") }
+  @Test def testHexCharset02(): Unit = { runner.runOneTest("hexCharset02") }
+  // @Test def testHexCharset03(): Unit = { runner.runOneTest("hexCharset03") } // textNumberPattern V symbol
+  @Test def testHexCharset04(): Unit = { runner.runOneTest("hexCharset04") }
+
+}

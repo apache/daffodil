@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
@@ -73,16 +74,12 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
   override final lazy val knownEncodingAlignmentInBits = {
     if (isKnownEncoding) {
-      knownEncodingName match { // canonical form of encoding names is all upper case
-        case "US-ASCII-7-BIT-PACKED" => {
-          SDW("Character set encoding name US-ASCII-7-BIT-PACKED is deprecated. Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
-          1
-        }
-        case "X-DFDL-US-ASCII-7-BIT-PACKED" => 1 // new official name.
-        case "X-DFDL-US-ASCII-6-BIT-PACKED" => 1
-        case "X-DFDL-5-BIT-PACKED" => 1
-        case "X-DFDL-HEX-LSBF" => 1
-        case "X-DFDL-OCTAL-LSBF" => 1
+      schemaDefinitionWarningWhen(knownEncodingName == "US-ASCII-7-BIT-PACKED",
+        "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
+          "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
+      val cs = charsetEv.optConstant.get
+      cs.charset match {
+        case nbs: NonByteSizeCharset => 1
         case _ => 8
       }
     } else 8 // unknown encodings always assumed to be 8-bit aligned.

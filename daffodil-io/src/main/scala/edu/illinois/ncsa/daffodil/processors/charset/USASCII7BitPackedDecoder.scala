@@ -32,16 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
-import java.nio.CharBuffer
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
-
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetDecoder
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 /**
  * Some encodings are not byte-oriented.
@@ -54,60 +45,9 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
  * implement packed decimals of various sorts.)
  */
 
-trait USASCII7BitPackedCharsetMixin
-  extends NonByteSizeCharset {
-
-  val bitWidthOfACodeUnit = 7 // in units of bits
-  val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-}
-
 object USASCII7BitPackedCharset
-  extends java.nio.charset.Charset("X-DFDL-US-ASCII-7-BIT-PACKED", Array("US-ASCII-7-BIT-PACKED"))
-  with USASCII7BitPackedCharsetMixin {
-
-  def contains(cs: Charset): Boolean = false
-
-  def newDecoder(): CharsetDecoder = new USASCII7BitPackedDecoder
-
-  def newEncoder(): CharsetEncoder = new USASCII7BitPackedEncoder
-
-  private[charset] def charsPerByte = 8.0F / 7.0F
-  private[charset] def bytesPerChar = 1.0F // can't use 7/8 here because CharsetEncoder base class requires it to be 1 or greater.
-}
-
-/**
- * You have to initialize one of these for a specific ByteBuffer because
- * the encoding is 7-bits wide, so we need additional state beyond just
- * the byte position and limit that a ByteBuffer provides in order to
- * properly sequence through the data.
- */
-class USASCII7BitPackedDecoder
-  extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.charsPerByte, // average
-    USASCII7BitPackedCharset.charsPerByte) // maximum
-  with NonByteSizeCharsetDecoder
-  with USASCII7BitPackedCharsetMixin {
-
-  def output(charCode: Int, out: CharBuffer) {
-    val char = charCode.toChar
-    out.put(char)
-  }
-
-}
-
-class USASCII7BitPackedEncoder
-  extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset,
-    USASCII7BitPackedCharset.bytesPerChar, // average
-    USASCII7BitPackedCharset.bytesPerChar) // maximum
-  with NonByteSizeCharsetEncoder
-  with USASCII7BitPackedCharsetMixin {
-
-  val replacementChar = 0x3F
-
-  def charToCharCode(char: Char): MaybeInt = {
-    val charAsInt = char.toInt
-    if (charAsInt <= 127) MaybeInt(charAsInt)
-    else MaybeInt.Nope
-  }
-
-}
+  extends NBitsWidthCharset("X-DFDL-US-ASCII-7-BIT-PACKED",
+    (0 to 127).map { _.toChar }.mkString,
+    7,
+    BitOrder.LeastSignificantBitFirst,
+    0x3F)
