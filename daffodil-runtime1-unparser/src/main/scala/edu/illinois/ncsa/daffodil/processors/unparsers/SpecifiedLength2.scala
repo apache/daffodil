@@ -20,6 +20,8 @@ import edu.illinois.ncsa.daffodil.processors.CharsetEv
 import edu.illinois.ncsa.daffodil.processors.LengthEv
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.util.MaybeJULong
+import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import passera.unsigned.ULong
 
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
@@ -152,15 +154,11 @@ class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   extends SuspendableOperation {
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
-    if (this.maybeUnparserTargetLengthInBitsEv.isDefined) {
-      val ev = this.maybeUnparserTargetLengthInBitsEv.get
-      val mjul = ev.evaluate(ustate)
-      if (mjul.isEmpty)
-        MaybeULong.Nope
-      else
-        MaybeULong(mjul.get)
-    } else
-      MaybeULong.Nope
+    // Note that we cannot use a targetLengthInBitsEv to determine the
+    // knownLengthInBits. This is because even if an OVC element has fixed
+    // length, the result of the OVC might not actually write that many bits,
+    // relying on padding and/or right fill to fill in the remaining bits
+    MaybeULong.Nope
   }
 
   protected def test(state: UState) = {
@@ -200,12 +198,25 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
   }
 }
 
-class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData)
+class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData, maybeFixedLengthInBits: MaybeULong)
   extends PrimUnparserObject(context) {
 
   override def unparse(state: UState) {
-    val dos = state.dataOutputStream
+    val dos = state.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
+
+    if (elem.contentLength.isStartAbsolute && dos.maybeAbsBitPos0b.isEmpty && maybeFixedLengthInBits.isDefined) {
+      // If this element has an absolute starting bit position, but the current
+      // DOS bit position is only known relatively, that means there was some
+      // suspension related to this element that had an unknown length.
+      // However, if this is a fixed length element, we can calculate the
+      // absolute position of this DOS based on its absolute starting position
+      // position, its length, and the relative position of the current DOS
+      val startAbsBitPos0b: ULong = elem.contentLength.maybeStartPos0bInBits.getULong
+      val currentAbsPos0b = startAbsBitPos0b + maybeFixedLengthInBits.getULong
+      dos.setAbsStartingBitPos0b(currentAbsPos0b - dos.relBitPos0b)
+    }
+
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.contentLength.setAbsEndPos0bInBits(dos.maybeAbsBitPos0b.getULong)
     } else {

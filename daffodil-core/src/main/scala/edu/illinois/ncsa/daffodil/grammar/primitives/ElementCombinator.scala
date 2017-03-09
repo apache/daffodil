@@ -258,7 +258,17 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    if (ctxt.isReferencedByContentLengthUnparserExpressions)
+    // TODO: This content length start is added when maybeFixedLengthInBits is
+    // defined because it allows us to set absolute start bit positions of the
+    // DOS, even when there are things like padding and OVC that can cause
+    // suspensions that result in relative bit positions. However, we really
+    // only need this if there are going to be suspensions, not on all fixed
+    // length elements. Otherwise, we're capturing content length for no reason
+    // (unless it is referenced in a contentLength expression). We should
+    // improve this check so that this unparser can be optimized out if there
+    // will not be any suspensions.
+    if (ctxt.isReferencedByContentLengthUnparserExpressions ||
+        (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
       new CaptureStartOfContentLengthUnparser(ctxt.erd)
     else
       new NadaUnparser(ctxt.erd)
@@ -273,8 +283,18 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
       new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser =
-    if (ctxt.isReferencedByContentLengthUnparserExpressions)
-      new CaptureEndOfContentLengthUnparser(ctxt.erd)
+    // TODO: This content length start is added when maybeFixedLengthInBits is
+    // defined because it allows us to set absolute start bit positions of the
+    // DOS, even when there are things like padding and OVC that can cause
+    // suspensions that result in relative bit positions. However, we really
+    // only need this if there are going to be suspensions, not on all fixed
+    // length elements. Otherwise, we're capturing content length for no reason
+    // (unless it is referenced in a contentLength expression). We should
+    // improve this check so that this unparser can be optimized out if there
+    // will not be any suspensions.
+    if (ctxt.isReferencedByContentLengthUnparserExpressions ||
+        (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
+      new CaptureEndOfContentLengthUnparser(ctxt.erd, ctxt.maybeFixedLengthInBits)
     else
       new NadaUnparser(ctxt.erd)
 }

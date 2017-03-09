@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -458,6 +459,36 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       }
     }
     res
+  }
+
+  lazy val couldHaveSuspensions: Boolean = {
+    val commonCouldHaveSuspensions =
+      !isKnownToBeAligned || // AlignmentFillUnparser
+      (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) ||  // MandatoryTextAlignmentUnparser
+      needsBitOrderChange // BitOrderChangeUnparser
+
+    this match {
+      case eb: ElementBase => {
+        val elementCouldHaveSuspensions =
+          commonCouldHaveSuspensions ||
+          !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
+          (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // OVCRetryUnparser
+          eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
+          eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
+          eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser
+          (eb.maybeUnparseTargetLengthInBitsEv.isDefined && eb.isNillable && eb.nilKind == NilKind.LiteralCharacter) || // NilLiteralCharacterUnparser
+          (if (eb.isComplexType) eb.elementComplexType.group.couldHaveSuspensions else false)
+
+        elementCouldHaveSuspensions
+      }
+      case mg: ModelGroup => {
+        val modelGroupCouldHaveSuspensions =
+          commonCouldHaveSuspensions ||
+          mg.groupMembersNoRefs.exists { _.couldHaveSuspensions }
+
+        modelGroupCouldHaveSuspensions
+      }
+    }
   }
 
 }

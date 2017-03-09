@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.infoset.SiblingResolver
@@ -733,6 +734,23 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val fixedLength = {
     if (isFixedLength) lengthEv.optConstant.get.longValue() else -1L // shouldn't even be asking for this if not isFixedLength
+  }
+
+  final lazy val maybeFixedLengthInBits = {
+    if (isRepresented && isFixedLength) {
+      val bitsMultiplier = lengthUnits match {
+        case LengthUnits.Bits => 1
+        case LengthUnits.Bytes => 8
+        case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
+      }
+      if (bitsMultiplier > 0) {
+        MaybeULong(fixedLengthValue * bitsMultiplier)
+      } else {
+        MaybeULong.Nope
+      }
+    } else {
+      MaybeULong.Nope
+    }
   }
 
   /**

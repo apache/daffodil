@@ -34,10 +34,15 @@ package edu.illinois.ncsa.daffodil.section00.general
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
+import org.junit.Test
+
 class TestUnparserGeneralNew {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "testUnparserGeneral.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  @Test def test_alignmentPaddingOVC1() { runner.runOneTest("alignmentPaddingOVC1") }
+  @Test def test_alignmentPaddingOVC2() { runner.runOneTest("alignmentPaddingOVC2") }
+  @Test def test_alignmentPaddingOVC3() { runner.runOneTest("alignmentPaddingOVC3") }
 }

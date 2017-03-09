@@ -341,11 +341,11 @@ sealed abstract class LengthState(ie: DIElement)
     }
   }
 
-  private var maybeStartDataOutputStream: Maybe[DataOutputStream] = Nope
-  private var maybeStartPos0bInBits: MaybeULong = MaybeULong.Nope
-  private var maybeEndDataOutputStream: Maybe[DataOutputStream] = Nope
-  private var maybeEndPos0bInBits: MaybeULong = MaybeULong.Nope
-  private var maybeComputedLength: MaybeULong = MaybeULong.Nope
+  var maybeStartDataOutputStream: Maybe[DataOutputStream] = Nope
+  var maybeStartPos0bInBits: MaybeULong = MaybeULong.Nope
+  var maybeEndDataOutputStream: Maybe[DataOutputStream] = Nope
+  var maybeEndPos0bInBits: MaybeULong = MaybeULong.Nope
+  var maybeComputedLength: MaybeULong = MaybeULong.Nope
 
   def copyFrom(other: LengthState) {
     this.maybeStartDataOutputStream = other.maybeStartDataOutputStream
@@ -402,29 +402,29 @@ sealed abstract class LengthState(ie: DIElement)
     }
   }
 
-  private def isStartUndef = {
+  def isStartUndef = {
     val r = maybeStartPos0bInBits.isEmpty
     if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
     r
   }
 
-  private def isEndUndef = {
+  def isEndUndef = {
     val r = maybeEndPos0bInBits.isEmpty
     if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
     r
   }
 
-  private def isStartAbsolute = {
+  def isStartAbsolute = {
     maybeStartPos0bInBits.isDefined &&
       maybeStartDataOutputStream.isEmpty
   }
 
-  private def isEndAbsolute = {
+  def isEndAbsolute = {
     maybeEndPos0bInBits.isDefined &&
       maybeEndDataOutputStream.isEmpty
   }
 
-  private def isStartRelative = {
+  def isStartRelative = {
     val res = maybeStartDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
@@ -433,7 +433,7 @@ sealed abstract class LengthState(ie: DIElement)
     res
   }
 
-  private def isEndRelative = {
+  def isEndRelative = {
     val res = maybeEndDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeEndPos0bInBits.isDefined)
