@@ -755,11 +755,7 @@ object Main extends Logging {
                       log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
                     else {
                       // less than 1 byte is available
-                      val bb = java.nio.ByteBuffer.allocate(1)
-                      val maybeN = dis.fillByteBuffer(bb) // if there are any bits, this will transfer 1 byte.
-                      val nBits = dis.bitPos0b % 8
-                      Assert.invariant(maybeN.isDefined && maybeN.get == 1)
-                      log(LogLevel.Error, "Left over data. %s bits available. Location: %s", nBits, loc)
+                      log(LogLevel.Error, "Left over data. Less than one byte available. Location: %s", loc)
                     }
                     true
                   } else false

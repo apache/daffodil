@@ -460,83 +460,138 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = {
+  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean): Boolean = {
     Assert.usage(isWritable)
+    Assert.usage(bitLengthFrom1 > 0)
+    Assert.usage(signed || (!signed && bigInt >= 0))
+
     if (bitLengthFrom1 <= 64) {
       // output as a long
       val longInt = bigInt.toLong
       putLong(longInt, bitLengthFrom1)
     } else {
-      ???
-      //
-      // TODO: DELETE THIS COMMENT ONCE THIS IS IMPLEMENTED
-      //
-      // The code below is "a good try", but far from correct.
-      // For now, just leaving it here with the ??? above.
-      //
-      // The API is actually wrong. We need to distinguish signed from unsigned here
-      // because BigInts are stored sign and magnitude, so there's really no way for us
-      // to acertain whether to add another bit for the sign bit, or not.
-      //
-      val numWholeBytes = bitLengthFrom1 / 8
-      val numBitsLastByte = bitLengthFrom1 % 8
+      // Note that we do not need to distinguish between signed and unsigned
+      // here. Checks should have been performend earlier to ensure that the
+      // bigInt value matches the signed/unsignedness. So we just need to
+      // convert this to a byte array, ensure that the number of bits in that
+      // bit array fit the bit length, and put the array.
+      val array = bigInt.toByteArray
+      val numWholeBytesNeeded = (bitLengthFrom1 + 7) / 8
 
-      val bytes = {
-        //
-        // We have to pad the bigInt out to the number of bytes required for bitLengthFrom1
-        // because a bigInt in principle extends infinitely to the left (most significant bits of 0, or extended sign 1 bits)
-        //
-        val byteCapacity = numWholeBytes + (if (numBitsLastByte > 0) 1 else 0)
-        val numBytes = bigInt.toByteArray
-        Assert.notYetImplemented(numBytes.length > byteCapacity)
-        val bytes = new Array[Byte](byteCapacity)
-        numBytes.copyToArray(bytes, byteCapacity - numBytes.length, numBytes.length)
-        bytes
-      }
-      //
-      // TODO: we have to truncate off bits if the bitLengthFrom1 does not take all the bits
-      //
-      if (byteOrder eq ByteOrder.LittleEndian) {
-        Bits.reverseBytes(bytes)
-        if (bitOrder eq BitOrder.LeastSignificantBitFirst) {
-          val nBits = putBits(bytes, 0, bitLengthFrom1)
-          Assert.invariant(nBits == bitLengthFrom1)
+      val maybeArrayToPut =
+        if (array.size > numWholeBytesNeeded) {
+          // This is the only case where we care about signedness. If the
+          // BigInt is a positive value and the most significant bit is a 1,
+          // then toByteArray will create one extra byte that is all zeros so
+          // that the two's complement isn't negative. In this case, the array
+          // size is 1 greater than numWholeBytesNeeded and the most
+          // significant byte is zero. For a signed type (e.g. xs:integer),
+          // having this extra byte, regardless of its value, means the BigInt
+          // value was too big to fit into bitLengthFrom1 bits. However, if
+          // this is a unsigned type (e.g. xs:nonNegativeInteger), this extra
+          // byte can be zero and still fit into bitLengthFrom1. So if this is
+          // the case, then just chop off that byte and write the array.
+          // Otherwise, this results in Nope which ends up returning false.
+          if (!signed && (array.size == numWholeBytesNeeded + 1) && array(0) == 0) {
+            One(array.tail)
+          } else {
+            Nope
+          }
+        } else if (array.size < numWholeBytesNeeded) {
+          // This bigInt value can definitely fit in the number of bits,
+          // however, we need to pad it up to numWholeBytesNeed. We may need to
+          // sign extend with the most significant bit of most significant byte
+          // of the array
+          val paddedArray = new Array[Byte](numWholeBytesNeeded)
+          val numPaddingBytes = numWholeBytesNeeded - array.size
+
+          array.copyToArray(paddedArray, numPaddingBytes)
+          val sign = 0x80 & array(0)
+          if (sign > 0) {
+            // The most significant bit of the most significant byte was 1. That
+            // means this was a negative number and these padding bytes must be
+            // sign extended
+            Assert.invariant(bigInt < 0)
+            var i = 0
+            while (i < numPaddingBytes) {
+              paddedArray(i) = 0xFF.toByte
+              i += 1
+            }
+          }
+          One(paddedArray)
         } else {
-          val lastByte = bytes(bytes.length - 1)
-          val numBitsLastByte = bitLengthFrom1 % 8
-          val lastByteShiftLeft = 8 - numBitsLastByte
-          val newLastByte = (lastByte << lastByteShiftLeft).toByte
-          bytes(bytes.length - 1) = newLastByte
-          val nBits = putBits(bytes, 0, bitLengthFrom1)
-          Assert.invariant(nBits == bitLengthFrom1)
+          // We got the right amount of bytes, however, it is possible that
+          // more significant bits were set that can fit in bitLengthFrom1.
+          // Determine if that is the case.
+          val fragBits = bitLengthFrom1 % 8
+          if (fragBits == 0) {
+            // no frag bits, so the most significant bit is fine and no sign
+            // extending is needed to be checked 
+            One(array)
+          } else {
+            val shifted = array(0) >> (fragBits - 1) // shift off the bits we don't care about (with sign extend shift)
+            val signBit = shifted & 0x1 // get the most significant bit
+            val signExtendedBits = shifted >> 1 // shift off the sign bit
+
+            // At this point, signExtendedBits should be all 1's (i.e. -1) if
+            // the sign bit was 1, or all zeros (i.e. 0) if the sign bit was 0.
+            // If this isn't the case, then there were non-signed extended bits
+            // above our most significant bit, and so this BigInt was too big
+            // for the number of bits. If this is the case, result in a Nope
+            // which ends up returning false.
+            if ((signBit == 1 && signExtendedBits != -1) || (signBit == 0 && signExtendedBits != 0)) {
+              // error
+              Nope
+            } else {
+              // The most significant byte is properly sign extended for the
+              // for the number of bits, so the array is good
+              One(array)
+            }
+          }
+        }
+
+      if (maybeArrayToPut.isDefined) {
+        // at this point, we have an array that is of the right size and properly
+        // sign extended. It is also BE MSBF, so we can put it just like we would
+        // put a hexBinary array
+        putByteArray(maybeArrayToPut.get, bitLengthFrom1)
+      } else {
+        false
+      }
+    }
+  }
+
+  def putByteArray(array: Array[Byte], bitLengthFrom1: Int): Boolean = {
+    // this is to be used for an array generated by getByteArray. Thus, this
+    // array is expected by to BigEndian MSBF. It must be transformed into an
+    // array that the other putBytes/Bits/etc functions can accept
+    Assert.usage(bitLengthFrom1 >= 1)
+    Assert.usage(isWritable)
+
+    if (maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)) {
+      false
+    } else {
+      if (bitOrder =:= BitOrder.MostSignificantBitFirst) {
+        val fragBits = bitLengthFrom1 % 8
+        if (byteOrder =:= ByteOrder.LittleEndian) {
+          // MSBF & LE
+          if (fragBits > 0) {
+            array(0) = Bits.asSignedByte((array(0) << (8 - fragBits)) & 0xFF)
+          }
+          Bits.reverseBytes(array)
+        } else {
+          // MSBF & BE
+          if (fragBits > 0) {
+            Bits.shiftLeft(array, 8 - fragBits)
+          }
         }
       } else {
-        // BigEndian case
-        Assert.invariant(bitOrder eq BitOrder.MostSignificantBitFirst)
-        val wholeNumShiftLeft = 8 - numBitsLastByte
-        val bigIntShifted = bigInt << wholeNumShiftLeft // this can be a byte bigger
-        val bytes = {
-          //
-          // We have to pad the bigInt out to the number of bytes required for bitLengthFrom1
-          // because a bigInt in principle extends infinitely to the left (most significant bits of 0, or extended sign 1 bits)
-          //
-          val numBytes = bigIntShifted.toByteArray
-          val byteCapacity = numWholeBytes + (if (numBitsLastByte > 0) 1 else 0)
-          Assert.notYetImplemented(numBytes.length > byteCapacity)
-          val bytes = new Array[Byte](byteCapacity)
-          numBytes.copyToArray(bytes, byteCapacity - numBytes.length, numBytes.length)
-          bytes
-        }
-        val nBits = putBits(bytes, 0, bitLengthFrom1)
-        Assert.invariant(nBits == bitLengthFrom1)
+        // LSBF & LE
+        Bits.reverseBytes(array)
       }
-      //
-      // TODO: PERFORMANCE: algorithm idea. To avoid heap allocated things, you could do this
-      // by recursively calling, putting each 64-bit chunk of the bigInt into
-      // a local val chunk: Long = ...least significant 64 bit chunk ...
-      // If little endian, then the chunk is output before we recurse (on the way down)
-      // If big endian, then the chunk is output after we recurse (on the way back up)
-      //
+
+      val bits = putBits(array, 0, bitLengthFrom1)
+      Assert.invariant(bits == bitLengthFrom1)
       true
     }
   }

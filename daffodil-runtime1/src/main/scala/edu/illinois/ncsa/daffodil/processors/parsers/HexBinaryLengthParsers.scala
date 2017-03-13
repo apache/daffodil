@@ -33,70 +33,48 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.lang.{ Long => JLong }
+import edu.illinois.ncsa.daffodil.processors.LengthInBitsEv
 
-sealed abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
-  extends PrimParserObject(erd) {
+sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
+  extends PrimParser {
 
-  protected def getLength(pstate: PState): Long
+  protected def getLengthInBits(pstate: PState): Long
 
   private val zeroLengthArray = new Array[Byte](0)
 
   override final def parse(start: PState): Unit = {
-
-    val nBytes = getLength(start)
-    if (nBytes == 0) {
-      val currentElement = start.simpleElement
+    val dis = start.dataInputStream
+    val currentElement = start.simpleElement
+    val nBits = getLengthInBits(start).toInt
+    if (nBits == 0) {
       currentElement.setDataValue(zeroLengthArray)
-      return
+    } else if (!dis.isDefinedForLength(nBits)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+    } else {
+      val array = start.dataInputStream.getByteArray(nBits)
+      currentElement.setDataValue(array)
     }
+  }
+}
 
-    start.withLocalByteBuffer { lbb =>
-      val bb = lbb.getBuf(nBytes)
-      val mLen = start.dataInputStream.fillByteBuffer(bb)
-      if (!mLen.isDefined) {
-        PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: wanted %s byte(s), but found only %s available.",
-          parserName, nBytes, 0)
-      } else {
-        val nBytesFound = mLen.get
-        if (nBytesFound < nBytes) {
-          PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: wanted %s byte(s), but found only %s available.",
-            parserName, nBytes, nBytesFound)
-        } else {
-          Assert.invariant(nBytesFound == nBytes)
-          val currentElement = start.simpleElement
-          val ba = new Array[Byte](nBytes.toInt)
-          bb.flip
-          bb.get(ba) // no exception should be thrown ever here.
-          currentElement.setDataValue(ba)
-        }
-      }
-    }
+final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: LengthInBitsEv)
+  extends HexBinaryLengthParser(erd) {
+  
+  override val runtimeDependencies = Seq(lengthEv)
+
+  override def getLengthInBits(pstate: PState): Long = {
+    lengthEv.evaluate(pstate).get
   }
 
 }
 
-final class HexBinaryFixedLengthInBytesParser(nBytes: Long, erd: ElementRuntimeData)
-  extends HexBinaryLengthInBytesParser(erd) {
-
-  def getLength(pstate: PState): Long = nBytes
-
-}
-
-final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, override val lengthEv: Evaluatable[JLong])
-  extends HexBinaryLengthInBytesParser(erd)
-  with HasVariableLength {
-}
-
 final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
-  extends HexBinaryLengthInBytesParser(erd) {
+  extends HexBinaryLengthParser(erd) {
 
-  def getLength(pstate: PState): Long = {
-    val bitLength = pstate.bitLimit0b.get - pstate.bitPos0b
-    Assert.invariant(bitLength % 8 == 0)
-    bitLength / 8
+  override val runtimeDependencies = Nil
+
+  def getLengthInBits(pstate: PState): Long = {
+    pstate.bitLimit0b.get - pstate.bitPos0b
   }
 }

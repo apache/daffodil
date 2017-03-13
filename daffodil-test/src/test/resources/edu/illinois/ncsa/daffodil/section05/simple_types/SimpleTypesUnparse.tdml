@@ -162,7 +162,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Data length 5</tdml:error>
+      <tdml:error>Data length 40 bits</tdml:error>
       </tdml:errors>
   </tdml:unparserTestCase>
 

@@ -32,46 +32,59 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.infoset.RetryableException
+import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillByteEv)
   extends PrimUnparserObject(erd) {
 
-  protected def getLength(state: UState): Long
+  protected def getLengthInBits(state: UState): Long
 
   override final def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
-    val minLengthInBytes =
-      if (erd.minLength.isEmpty) 0 else erd.minLength.get.intValue()
-    val lengthInBytes = getLength(state)
-    val lengthForFill = math.max(minLengthInBytes, lengthInBytes)
+    val lengthInBits = getLengthInBits(state)
 
-    if (value.length > lengthForFill) {
-      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Data length %d exceeds explicit length value: %d", value.length, lengthInBytes)
+    val lengthInBytes = (lengthInBits + 7) / 8
+    if (value.length > lengthInBytes) {
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Data length %d bits exceeds explicit length value: %d bits", value.length * 8, lengthInBits)
     }
+
+    val bitsFromValueToPut =
+      if (lengthInBytes > value.size) {
+        // the length to put is larger than the number of available bytes in the
+        // array. So put the whole array and we'll add fill bytes later
+        value.size * 8
+      } else {
+        // the length to put is either everything or some fragment of the last
+        // byte, so put the length in bits. putByte will deal with the fragment byte
+        Assert.invariant(lengthInBytes == value.size)
+        lengthInBits
+      }
 
     val dos = state.dataOutputStream
 
-    val ret = dos.putBytes(value)
-    if (ret != value.length) {
-      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Expected to write %d hexBinary bytes, but wrote %d.", value.length, ret)
+    // put the hex binary array
+    if (bitsFromValueToPut > 0) {
+      val ret = dos.putByteArray(value, bitsFromValueToPut.toInt)
+      if (!ret) {
+        UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
+      }
     }
 
-    val nFillBytes = lengthForFill - value.length
-    if (nFillBytes > 0) {
+    // calculate the skip bits
+    val nFillBits = lengthInBits - bitsFromValueToPut
+    if (nFillBits > 0) {
       val fillByte = fillByteEv.evaluate(state)
       dos.setFillByte(fillByte) // TODO: PEFORMANCE: this and many other settings should be set via a changeFillByte processor, so that it is always pre-set???
-      val ret = dos.skip(nFillBytes * 8)
+      val ret = dos.skip(nFillBits)
       if (!ret) {
-        UnparseError(Nope, One(state.currentLocation), "Failed to skip %d bytes.", nFillBytes)
+        UnparseError(Nope, One(state.currentLocation), "Failed to skip %d bits.", nFillBits)
       }
     }
   }
@@ -80,22 +93,23 @@ abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillBy
 final class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData, fillByteEv: FillByteEv)
   extends HexBinaryUnparserBase(erd, fillByteEv) {
 
-  override def getLength(state: UState): Long = {
-    state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length
+  override def getLengthInBits(state: UState): Long = {
+    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
+    val min = minLengthInBytes *  8
+    scala.math.max(len, min)
   }
 }
 
-final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: Evaluatable[JLong], fillByteEv: FillByteEv)
+final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: UnparseTargetLengthInBitsEv, fillByteEv: FillByteEv)
   extends HexBinaryUnparserBase(erd, fillByteEv) {
 
-  override def getLength(state: UState): Long = {
+  override def getLengthInBits(state: UState): Long = {
     val l: Long = try {
-      val lengthAsAnyRef = lengthEv.evaluate(state)
-      Numbers.asLong(lengthAsAnyRef)
+      lengthEv.evaluate(state).getULong.toLong
     } catch {
       case e: RetryableException => {
         val bytes = state.currentInfosetNode.asSimple.dataValue.asInstanceOf[Array[Byte]]
-        val len = bytes.length
+        val len = bytes.length * 8
         len
       }
     }

@@ -32,13 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.io
 
-import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CharsetDecoder
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.util.Maybe
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Poolable
@@ -304,27 +302,24 @@ trait DataInputStream
   def isDefinedForLength(nBits: Long): Boolean
 
   /**
-   * Returns Nope if no more data is possible (end of data), otherwise returns the number of
-   * bytes transferred.
+   * Returns a byte array containing the bits between the current bit position
+   * and that position plus bitLengthFrom1.
    * <p>
-   * Set the position and limit of the byte buffer if you want to obtain only a small amount
-   * of data. The maximum amount transferred will be the difference between the position() and
-   * the limit() of the byte buffer.
+   * The byte array result is constructed using the currently set bit order and
+   * byte order. The returned byte array is always in most significant bit
+   * first bit order and little endian byte ordr.
    * <p>
-   * Upon return, the byte buffer is not 'flipped' by this call. To read out the data
-   * that was just written to the byte buffer by this method using relative getter calls
-   * the caller must flip the byte buffer.
+   * If the data stream does not have bitLengthFrom1 remaining bits,
+   * NotEnoughDataException is thrown. Calls should be preceded by calls to isDefinedForLength
+   * to check if sufficient bits are available. Alternatively one can catch the exception,
+   * but that is likely less performant.
    * <p>
-   * If the data source ends in the middle of a byte (possible for bit-oriented data)
-   * then that partial final byte can be transferred. Bits past the end of the partial byte
-   * will be transferred along with the partial byte.
+   * Usage: The smallest value of bitLengthFrom1 is 1.
    * <p>
-   * The final bit position of the DataInputStream excludes any of these additional bits
-   * that are transferred as part of a partial final byte. Hence, if this method is
-   * called and end of data is encountered, then upon return if any bytes are transferred
-   * then bitPos0b == bitLimit0b (if defined)
+   * If the bitLengthFrom1 is not a multiple of 8, the final byte will be
+   * padded with zeros to make a full byte.
    */
-  def fillByteBuffer(bb: ByteBuffer): MaybeInt
+  def getByteArray(bitLengthFrom1: Int): Array[Byte]
 
   /**
    * Returns a long integer containing the bits between the current bit position

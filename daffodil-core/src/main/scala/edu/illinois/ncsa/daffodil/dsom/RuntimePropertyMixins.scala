@@ -317,14 +317,14 @@ trait ElementRuntimeValuedPropertiesMixin
    * runtime-valued using the Ev. The "right thing" happens if the information
    * is constant.
    */
-  private lazy val elementLengthInBitsEv: LengthInBitsEv = {
+  lazy val elementLengthInBitsEv: LengthInBitsEv = {
     Assert.usage((lengthKind eq LengthKind.Implicit) || (lengthKind eq LengthKind.Explicit))
     import LengthKind._
     import Representation._
     import NodeInfo._
     val (units: LengthUnits, lenEv: LengthEv) =
       (lengthKind, impliedRepresentation, typeDef.kind) match {
-        case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, explicitLengthEv)
+        case (Explicit, Binary, HexBinary) => (lengthUnits, explicitLengthEv)
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, implicitLengthEv)
         case (Explicit, Binary, _) => (lengthUnits, explicitLengthEv)
         case (Implicit, Binary, _) => (LengthUnits.Bits, implicitLengthEv)

@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import org.junit.Test
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.util.Misc
 
 class TestDataOutputStream4 {
 
@@ -79,8 +78,6 @@ class TestDataOutputStream4 {
 
   private def checkResults(baos: ByteArrayOutputStreamWithGetBuf): Unit = {
     val buf = baos.getBuf()
-
-    println(Misc.bytes2Hex(buf))
 
     assertEquals(0xB4.toByte, buf(0))
     assertEquals(0xB4.toByte, buf(1))

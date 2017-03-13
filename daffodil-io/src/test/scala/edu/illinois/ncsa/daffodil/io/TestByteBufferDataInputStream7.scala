@@ -125,23 +125,19 @@ class TestByteBufferDataInputStream7 {
    * In this case, the data consists of 3 7-bit characters, so 21 bits.
    * There are 3 bytes of data, but the last one has only 5 bits in it.
    *
-   * The `fillByteBuffer` call returns 3 bytes, but the bit position
-   * is advanced only by 21 bits, not 24.
+   * The `getByteArray` call returns 3 bytes, but one is a fragment byte
    */
-  @Test def testFillByteBufferLengthLimit1 {
+  @Test def testGetByteArrayLengthLimit1 {
     val dis = ByteBufferDataInputStream(Bitte.enc("abc"))
     dis.setDecoder(new USASCII7BitPackedDecoder)
     dis.setBitLimit0b(MaybeULong(21))
-    val bb = ByteBuffer.allocate(4)
-    val n = dis.fillByteBuffer(bb)
+    val arr = dis.getByteArray(21)
     assertEquals(21, dis.bitLimit0b.get)
     assertEquals(21, dis.bitPos0b)
-    assertTrue(n.isDefined)
-    assertEquals(3, n.get)
-    bb.flip()
-    assertEquals(0x61.toByte, bb.get())
-    assertEquals(0xF1.toByte, bb.get())
-    assertEquals(0x18.toByte, bb.get())
+    assertEquals(3, arr.size)
+    assertEquals(0x0C.toByte, arr(0))
+    assertEquals(0x3E.toByte, arr(1))
+    assertEquals(0x23.toByte, arr(2))
   }
 
   /*

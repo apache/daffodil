@@ -160,16 +160,36 @@ trait DataOutputStream extends DataStreamCommon
   def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean
 
   /**
-   * If bitLengthFrom1 bits are available to be written before bitLimit0b (if defined) is encountered,
-   * then this writes the bitLengthFrom1 least significant bits of the bigInt using the
-   * current bit order and byte order, and returns true.
+   * If bitLengthFrom1 bits are available to be written before bitLimit0b (if
+   * defined) is encountered, then this writes the bitLengthFrom1 least
+   * significant bits of the bigInt using the current bit order and byte order,
+   * and returns true. The signed flag determines whether or not the output
+   * should be output as a signed or unsigned type.
+   *
+   * If not enough bits are available or the big integer cannot fit into
+   * bitLengthFrom1 bits, this writes nothing and returns false.
+   *
+   * It is a usage error if signed is false and bigInt is a negative BigInteger.
+   *
+   * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
+   *
+   */
+  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean): Boolean
+
+  /**
+   * If bitLengthFrom1 bits are available to be written before bitLimit0b (if
+   * defined) is encountered, then this writes the bitLengthFrom1 bits of the
+   * ba using the current bit order and byte order, and returns true. The array
+   * is assumed to be have bigEndian byte order and most significant bit first
+   * bit order.
    *
    * If not enough bits are available, this writes nothing and returns false.
    *
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean
+  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int): Boolean
+
 
   /**
    * Float and Double
@@ -185,7 +205,6 @@ trait DataOutputStream extends DataStreamCommon
    * Returns number of bytes transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
-  // def putByteBuffer(bb: ByteBuffer): Long
   def putBytes(ba: Array[Byte]): Long
 
   /**

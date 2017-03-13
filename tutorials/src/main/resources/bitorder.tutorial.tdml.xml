@@ -1688,7 +1688,7 @@ The schema corresponding to this table is given below. This schema is derived fr
     </document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
-        <littleLeast>5A9200</littleLeast>
+        <littleLeast>00925A</littleLeast>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1705,7 +1705,7 @@ The schema corresponding to this table is given below. This schema is derived fr
     </document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns="http://example.com">
-        <littleLeast>00925A</littleLeast>
+        <littleLeast>5A9200</littleLeast>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

@@ -79,7 +79,7 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
 
   override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
     if (nBits > 64) {
-      dos.putBigInt(asBigInt(value), nBits)
+      dos.putBigInt(asBigInt(value), nBits, signed)
     } else {
       dos.putLong(asLong(value), nBits)
     }
@@ -148,7 +148,7 @@ abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, b
       if (binaryDecimalVirtualPoint != 0) bigDec.scaleByPowerOfTen(binaryDecimalVirtualPoint).toBigInteger()
       else bigDec.toBigInteger()
 
-    dos.putBigInt(bigInt, nBits)
+    dos.putBigInt(bigInt, nBits, signed == YesNo.Yes)
 
   }
 }

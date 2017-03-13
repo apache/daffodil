@@ -43,35 +43,37 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class TestByteBufferDataInputStream6 {
 
-  @Test def testUnalignedByteBufferMSBFirst() {
+  @Test def testUnalignedByteArrayMSBFirst() {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.BIG_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0x0102030405060708L
-    val expected = data << 1
+    val data = 0xF102030405060708L
     fb.put(data)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.BigEndian)
     dis.setBitOrder(BitOrder.MostSignificantBitFirst)
     dis.skip(1) // move over one bit
-    val resultBuf = ByteBuffer.allocate(8)
-    val mNBytes = dis.fillByteBuffer(resultBuf)
-    resultBuf.flip
-    assertEquals(8, mNBytes.get)
-    val actual = resultBuf.asLongBuffer().get()
-    assertEquals(expected, actual)
+    val arr = dis.getByteArray((8 * 8) - 1)
+    assertEquals(8, arr.size)
+    assertEquals(0x71.toByte, arr(0))
+    assertEquals(0x02.toByte, arr(1))
+    assertEquals(0x03.toByte, arr(2))
+    assertEquals(0x04.toByte, arr(3))
+    assertEquals(0x05.toByte, arr(4))
+    assertEquals(0x06.toByte, arr(5))
+    assertEquals(0x07.toByte, arr(6))
+    assertEquals(0x08.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testUnalignedByteBufferLittleEndianMSBFirst() {
+  @Test def testUnalignedByteArrayLittleEndianMSBFirst() {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0x0102030405060708L
-    val expected = 0x0807060504030201L << 1
+    val data = 0xF102030405060708L
     fb.put(data)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
@@ -79,34 +81,41 @@ class TestByteBufferDataInputStream6 {
     dis.setBitOrder(BitOrder.MostSignificantBitFirst)
     dis.skip(1)
     assertEquals(1, dis.bitPos0b)
-    val resultBuf = ByteBuffer.allocate(8)
-    val mNBytes = dis.fillByteBuffer(resultBuf)
-    resultBuf.flip
-    assertEquals(8, mNBytes.get)
-    val actual = resultBuf.asLongBuffer().get()
-    assertEquals(expected, actual)
+    val arr = dis.getByteArray((8 * 8) - 1)
+    assertEquals(8, arr.size)
+    assertEquals(0x71.toByte, arr(0))
+    assertEquals(0x05.toByte, arr(1))
+    assertEquals(0x06.toByte, arr(2))
+    assertEquals(0x08.toByte, arr(3))
+    assertEquals(0x0A.toByte, arr(4))
+    assertEquals(0x0C.toByte, arr(5))
+    assertEquals(0x0E.toByte, arr(6))
+    assertEquals(0x10.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
 
-  @Test def testUnalignedByteBufferLittleEndianLSBFirst() {
+  @Test def testUnalignedByteArrayLittleEndianLSBFirst() {
     val bb = ByteBuffer.allocate(8)
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0x0102030405060708L
-    val expected = 0x8403830282018100L
+    val data = 0x01020304050607F8L
     fb.put(data)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     dis.skip(1)
-    val resultBuf = ByteBuffer.allocate(8)
-    val mNBytes = dis.fillByteBuffer(resultBuf)
-    resultBuf.flip
-    assertEquals(8, mNBytes.get)
-    val actual = resultBuf.asLongBuffer().get()
-    assertEquals(expected, actual)
+    val arr = dis.getByteArray(((8 * 8) - 1))
+    assertEquals(8, arr.size)
+    assertEquals(0x00.toByte, arr(0))
+    assertEquals(0x81.toByte, arr(1))
+    assertEquals(0x01.toByte, arr(2))
+    assertEquals(0x82.toByte, arr(3))
+    assertEquals(0x02.toByte, arr(4))
+    assertEquals(0x83.toByte, arr(5))
+    assertEquals(0x03.toByte, arr(6))
+    assertEquals(0xFC.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
 

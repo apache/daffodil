@@ -69,7 +69,8 @@ final class CharBufferDataOutputStream
     numCharsTransferred
   }
 
-  override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = notToBeUsed
+  override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean): Boolean = notToBeUsed
+  override def putByteArray(ba: Array[Byte], bitLengthFrom1: Int): Boolean = notToBeUsed
   override def putBytes(ba: Array[Byte]) = notToBeUsed
   override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
   override def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed

@@ -52,8 +52,7 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.StringOfSpecifiedLength
 import edu.illinois.ncsa.daffodil.grammar.primitives.StringDelimitedEndOfData
 import edu.illinois.ncsa.daffodil.grammar.primitives.PrefixLength
 import edu.illinois.ncsa.daffodil.grammar.primitives.LiteralNilDelimitedEndOfData
-import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryVariableLengthInBytes
-import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryFixedLengthInBytes
+import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinarySpecifiedLength
 import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryEndOfBitLimit
 import edu.illinois.ncsa.daffodil.grammar.primitives.HexBinaryDelimitedEndOfData
 import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
@@ -499,27 +498,10 @@ trait ElementBaseGrammarMixin
     nbits
   }
 
-  private lazy val fixedLengthHexBinary = prod("fixedLengthHexBinary", isFixedLength) {
+  private lazy val specifiedLengthHexBinary = prod("specifiedLengthHexBinary") {
     lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
-      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    }
-  }
-
-  private lazy val implicitLengthHexBinary = prod("implicitLengthHexBinary", lengthKind eq LengthKind.Implicit) {
-    val maxLengthLong = maxLength.longValueExact
-    lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, maxLengthLong)
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
-      case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    }
-  }
-
-  private lazy val variableLengthHexBinary = prod("variableLengthHexBinary", !isFixedLength) {
-    lengthUnits match {
-      case LengthUnits.Bytes => new SpecifiedLengthExplicit(this, HexBinaryVariableLengthInBytes(this), 8)
-      case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
+      case LengthUnits.Bytes => HexBinarySpecifiedLength(this)
+      case LengthUnits.Bits => HexBinarySpecifiedLength(this)
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     }
   }
@@ -549,11 +531,10 @@ trait ElementBaseGrammarMixin
 
   private lazy val hexBinaryValue = prod("hexBinaryValue") {
     lengthKind match {
-      case LengthKind.Explicit if isFixedLength => fixedLengthHexBinary
-      case LengthKind.Explicit => variableLengthHexBinary
+      case LengthKind.Explicit => specifiedLengthHexBinary
+      case LengthKind.Implicit => specifiedLengthHexBinary
       case LengthKind.Delimited => hexBinaryDelimitedEndOfData
       case LengthKind.Pattern => hexBinaryLengthPattern
-      case LengthKind.Implicit => implicitLengthHexBinary
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     }
   }

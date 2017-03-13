@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolic
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.StandardCharsets
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
@@ -78,7 +77,6 @@ final class StringDataInputStreamForUnparse
   override def bitLimit0b = dis.bitLimit0b
   override def bitPos0b: Long = dis.bitPos0b
   override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
-  override def fillByteBuffer(bb: java.nio.ByteBuffer): MaybeInt = doNotUse
   override def fillCharBuffer(cb: java.nio.CharBuffer) = dis.fillCharBuffer(cb)
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def getBinaryDouble(): Double = doNotUse
@@ -87,6 +85,7 @@ final class StringDataInputStreamForUnparse
   override def getSignedLong(bitLengthFrom1To64: Int): Long = doNotUse
   override def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
   override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
+  override def getByteArray(bitLengthFrom1: Int): Array[Byte] = doNotUse
   override def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
     dis.lookingAt(matcher, initialRegexMatchLimitInChars)
   override def mark(requestorID: String): DataInputStream.Mark = dis.mark(requestorID)

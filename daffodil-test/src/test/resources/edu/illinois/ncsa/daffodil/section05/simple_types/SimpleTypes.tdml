@@ -1549,8 +1549,7 @@
 
   <tdml:parserTestCase name="integer_binary"
     root="integer02" model="SimpleTypes-binary"
-    description="Section 5 Schema types- integer - DFDL-5-011R"
-    roundTrip="false">
+    description="Section 5 Schema types- integer - DFDL-5-011R">
 
     <tdml:document>
       <tdml:documentPart type="byte">0000000000000000000000000000000000000000000000010000000000000000</tdml:documentPart>
@@ -1570,8 +1569,7 @@
 
   <tdml:parserTestCase name="integer_binary_02"
     root="integer02" model="SimpleTypes-binary"
-    description="Section 5 Schema types- integer - DFDL-5-011R"
-    roundTrip="false">
+    description="Section 5 Schema types- integer - DFDL-5-011R">
 
     <tdml:document>
       <tdml:documentPart type="byte">FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000</tdml:documentPart>
@@ -1701,8 +1699,8 @@
 -->
   
   <tdml:parserTestCase name="nonNegativeInteger_bin" root="nonNegIntBin"
-    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R"
-    roundTrip="false">
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+    
 
     <tdml:document><tdml:documentPart type="byte">00 00 00 00 00 00 00 00 19 99 99 99 99 99 99 99</tdml:documentPart></tdml:document>
     <!--
@@ -1817,7 +1815,7 @@
   
   <tdml:parserTestCase name="nonNegativeInteger_bin3" root="nonNegIntBin3"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R"
-    roundTrip="false">
+    roundTrip="true">
 
     <tdml:document><tdml:documentPart type="byte">ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff</tdml:documentPart></tdml:document>
     <tdml:infoset>
@@ -2083,8 +2081,7 @@
   </tdml:parserTestCase>
 
    <tdml:parserTestCase name="decimal_binary_06" root="dec_08"
-      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R"
-    roundTrip="false">
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
     <tdml:document>
       <tdml:documentPart type="byte">00 01 05 6E 0F 36 A6 44 3D E2 DF 79</tdml:documentPart>
     </tdml:document>
@@ -6046,6 +6043,32 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="hB_bits_le_lsbf">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="13" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="3" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="hB_bits_be_msbf">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="13" dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="3" dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="bigEndian"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="hB_bits_le_msbf">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb1" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="13" dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="littleEndian" />
+          <xs:element name="hb2" type="xs:hexBinary" dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="3" dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="littleEndian" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -6368,6 +6391,60 @@
       <tdml:error>dfdl:encoding="ISO-8859-1"</tdml:error>
       <tdml:error>US-ASCII</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: hB_bits_lsbf
+    Schema: HexBinary
+    Purpose: This document demonstrates hexBinary with non byte length is allowed
+  -->
+
+  <tdml:parserTestCase name="hexBinary_bits_le_lsbf"
+    root="hB_bits_le_lsbf" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="bits">00110101 10101010</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_le_lsbf>
+          <hb1>0A35</hb1>
+          <hb2>05</hb2>
+        </hB_bits_le_lsbf>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinary_bits_be_msbf"
+    root="hB_bits_be_msbf" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="bits">00110101 10101010</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_be_msbf>
+          <hb1>06B5</hb1>
+          <hb2>02</hb2>
+        </hB_bits_be_msbf>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinary_bits_le_msbf"
+    root="hB_bits_le_msbf" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="bits">00110101 10101010</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hB_bits_le_msbf>
+          <hb1>1535</hb1>
+          <hb2>02</hb2>
+        </hB_bits_le_msbf>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

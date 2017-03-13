@@ -82,12 +82,9 @@ class TestByteBufferDataInputStream {
 
   @Test def testBitAndBytePos1 {
     val dis = ByteBufferDataInputStream(ten)
-    val bb = ByteBuffer.allocate(1)
-    val n = dis.fillByteBuffer(bb)
-    assertTrue(n.isDefined)
-    assertEqualsTyped(1, n.get)
-    bb.flip()
-    assertEqualsTyped[Long](0x31.toByte, bb.get())
+    val arr = dis.getByteArray(8)
+    assertEqualsTyped[Long](1, arr.size)
+    assertEqualsTyped[Long](0x31.toByte, arr(0))
     assertEqualsTyped[Long](8, dis.bitPos0b)
     assertEqualsTyped[Long](80, dis.bitLimit0b.get)
     assertEqualsTyped[Long](9, dis.bitPos1b)
@@ -97,13 +94,9 @@ class TestByteBufferDataInputStream {
 
   @Test def testBitAndBytePos10 {
     val dis = ByteBufferDataInputStream(ten)
-    val bb = ByteBuffer.allocate(10)
-    val n = dis.fillByteBuffer(bb)
-    assertTrue(n.isDefined)
-    assertEqualsTyped[Long](10, n.get)
-    bb.flip()
-    1 to 9 foreach { _ => bb.get() }
-    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    val arr = dis.getByteArray(80)
+    assertEqualsTyped[Long](10, arr.size)
+    assertEqualsTyped[Long](0x30.toByte, arr(9))
     assertEqualsTyped[Long](80, dis.bitPos0b)
     assertEqualsTyped[Long](80, dis.bitLimit0b.get)
     assertEqualsTyped[Long](81, dis.bitPos1b)
@@ -113,46 +106,34 @@ class TestByteBufferDataInputStream {
 
   @Test def testBitAndBytePosNotEnoughData1 {
     val dis = ByteBufferDataInputStream(ten)
-    val bb = ByteBuffer.allocate(11)
-    val n = dis.fillByteBuffer(bb)
-    assertTrue(n.isDefined)
-    assertEqualsTyped[Long](10, n.get)
-    bb.flip()
-    1 to 9 foreach { _ => bb.get() }
-    assertEqualsTyped[Long](0x30.toByte, bb.get())
-    assertEqualsTyped[Long](80, dis.bitPos0b)
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getByteArray(81)
+    }
+    assertEqualsTyped[Long](0, dis.bitPos0b)
     assertEqualsTyped[Long](80, dis.bitLimit0b.get)
-    assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
   @Test def testBitAndBytePosMoreThanEnoughData1 {
     val dis = ByteBufferDataInputStream(twenty)
-    val bb = ByteBuffer.allocate(10)
-    val n = dis.fillByteBuffer(bb)
-    assertTrue(n.isDefined)
-    assertEqualsTyped[Long](10, n.get)
-    bb.flip()
-    1 to 9 foreach { _ => bb.get() }
-    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    val arr = dis.getByteArray(80)
+    assertEqualsTyped[Long](10, arr.size)
+    assertEqualsTyped[Long](0x30.toByte, arr(9))
     assertEqualsTyped[Long](80, dis.bitPos0b)
     assertEqualsTyped[Long](160, dis.bitLimit0b.get)
     assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
+  // TODO Fix this
   @Test def testBitLengthLimit1 {
     val dis = ByteBufferDataInputStream(twenty)
-    val bb = ByteBuffer.allocate(20)
     val isLimitOk = dis.withBitLengthLimit(80) {
-      val maybeNBytes = dis.fillByteBuffer(bb)
+      val arr = dis.getByteArray(80)
       assertEqualsTyped[Long](80, dis.bitLimit0b.get)
       assertEqualsTyped[Long](80, dis.bitPos0b)
-      assertTrue(maybeNBytes.isDefined)
-      assertEqualsTyped[Long](10, maybeNBytes.get)
+      assertEqualsTyped[Long](10, arr.size)
+      assertEqualsTyped[Long](0x30.toByte, arr(9))
     }
     assertTrue(isLimitOk)
-    bb.flip()
-    1 to 9 foreach { _ => bb.get() }
-    assertEqualsTyped[Long](0x30.toByte, bb.get())
     assertEqualsTyped[Long](80, dis.bitPos0b)
     assertEqualsTyped[Long](160, dis.bitLimit0b.get)
     assertEqualsTyped[Long](10, dis.bytePos0b)
@@ -183,8 +164,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testBinaryDouble4 {
     val dis = ByteBufferDataInputStream(twenty)
-    val bb = ByteBuffer.allocate(1)
-    dis.fillByteBuffer(bb)
+    dis.getByteArray(8)
     dis.setBitLimit1b(MaybeULong(71)) // not enough bits
     intercept[DataInputStream.NotEnoughDataException] {
       dis.getBinaryDouble()
@@ -217,8 +197,7 @@ class TestByteBufferDataInputStream {
 
   @Test def testBinaryFloat4 {
     val dis = ByteBufferDataInputStream(twenty)
-    val bb = ByteBuffer.allocate(1)
-    dis.fillByteBuffer(bb)
+    dis.getByteArray(8)
     dis.setBitLimit1b(MaybeULong(39)) // not enough bits
     assertFalse(dis.isDefinedForLength(32))
     intercept[DataInputStream.NotEnoughDataException] {

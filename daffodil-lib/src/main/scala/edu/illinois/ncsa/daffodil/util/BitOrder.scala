@@ -125,6 +125,30 @@ object Bits {
     }
   }
 
+  /* Shifts the bits in a byte array left by a specified number of bits. This
+   * assumes that the byte array is MSBF BE and that the number of bits to
+   * shift is less than 8. This will not increase the size of the array if bits
+   * are shifted off to the left. They will just be dropped. The purpose of
+   * this function is to shift an array to the left to remove any padding bits
+   * due to a fragment byte.
+   */
+  def shiftLeft(ba: Array[Byte], bitsToShift: Int): Unit = {
+    Assert.usage(bitsToShift < 8)
+    Assert.usage(ba.size > 0)
+
+    val curShift = bitsToShift
+    val nextShift = 8 - bitsToShift
+    var i = 0
+    var curByte = asUnsignedByte(ba(0))
+    while (i < ba.size - 1) {
+      val nextByte = asUnsignedByte(ba(i + 1))
+      ba(i) = asSignedByte(((curByte << curShift) & 0xFF) | (nextByte >>> nextShift))
+      curByte = nextByte
+      i += 1
+    }
+    ba(i) = asSignedByte((curByte << curShift) & 0xFF)
+  }
+
   /**
    * Treat a byte buffer like a logical shift register.
    * Assumes MostSignificantBitFirst, so bits move to lower-numbered
