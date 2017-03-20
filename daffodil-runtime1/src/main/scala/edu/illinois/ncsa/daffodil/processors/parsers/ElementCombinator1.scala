@@ -89,14 +89,14 @@ abstract class ElementParserBase(
     val resultState = {
       val ccfResult = DFDLCheckConstraintsFunction.validate(pstate)
       if (ccfResult.isOK) {
-        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML())
+        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.namedQName)
         currentElement.setValid(true)
         pstate // Success, do not mutate state.
       } else {
         val failureMessage = ccfResult.errMsg
         log(LogLevel.Debug,
-          "Validation failed for %s due to %s. The element value was %s.",
-          context.toString, failureMessage, currentElement.toXML())
+          "Validation failed for %s due to %s. The element was %s.",
+          context.toString, failureMessage, currentElement.namedQName)
         pstate.reportValidationError("%s failed facet checks due to: %s",
           context.toString, failureMessage)
         currentElement.setValid(false)

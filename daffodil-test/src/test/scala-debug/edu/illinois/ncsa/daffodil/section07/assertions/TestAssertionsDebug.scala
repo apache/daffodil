@@ -55,4 +55,7 @@ class TestAssertionsDebug {
 
   // DFDL-1043
   @Test def test_assertFailShowsValue2() { runner.runOneTest("assertFailShowsValue2") }
+  
+  //DFDL-1210: This test should be removed, an assert failing will no longer show the value
+  @Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
 }

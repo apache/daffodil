@@ -37,7 +37,6 @@ import org.junit.Assert._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.compiler.Compiler
@@ -202,7 +201,6 @@ class TestInfosetCursor {
     assertTrue(foo_s.dataValueAsString =:= "Hello")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "World")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplex3() {
@@ -264,7 +262,6 @@ class TestInfosetCursor {
     assertTrue(baz2_s.dataValue.isInstanceOf[String])
     assertTrue(baz2_s.dataValueAsString =:= "World")
     assertTrue(quux_s eq quux_e)
-    TestUtils.assertEqualsXMLElements(quux_s.toXML()(0), infosetXML)
   }
 
   @Test def testInfosetArray1() {
@@ -297,7 +294,6 @@ class TestInfosetCursor {
     assertTrue(foo_2_s eq foo_2_e)
     assertTrue(foo_2_s.dataValue.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray2() {
@@ -336,7 +332,6 @@ class TestInfosetCursor {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray3() {
@@ -376,7 +371,6 @@ class TestInfosetCursor {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray4() {
@@ -418,7 +412,6 @@ class TestInfosetCursor {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplexPeek1() {
@@ -453,7 +446,6 @@ class TestInfosetCursor {
     assertTrue(foo_s1 eq foo_e)
     assertTrue(foo_s1.dataValue.isInstanceOf[String])
     assertTrue(foo_s1.dataValueAsString =:= "Hello")
-    assertEquals(bar_s1.toXML(), infosetXML)
   }
 
   @Test def testInfosetArrayComplex1() {

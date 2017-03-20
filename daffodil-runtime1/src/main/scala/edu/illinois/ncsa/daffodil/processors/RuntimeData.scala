@@ -740,12 +740,6 @@ final class ElementRuntimeData(
 
   def isComplexType = !isSimpleType
 
-  // note: these nil xml things are constant chunks of XML.
-  val nilledXML: Maybe[scala.xml.Elem] = {
-    if (!isNillable) Nope
-    else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, minimizedScope, true))
-  }
-
   def prefixedName = {
     if (thisElementsNamespacePrefix != null) {
       thisElementsNamespacePrefix + ":" + name

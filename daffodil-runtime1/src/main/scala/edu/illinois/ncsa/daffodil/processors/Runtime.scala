@@ -73,6 +73,7 @@ import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -457,7 +458,9 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   lazy val resultAsScalaXMLElement =
     if (resultState.status eq Success) {
       val xmlClean = {
-        val nodeSeq = resultState.infoset.toXML()
+        val xmlNodeVisitor = new ScalaXMLInfosetOutputter()
+        resultState.infoset.visit(xmlNodeVisitor)
+        val nodeSeq = xmlNodeVisitor.getResult().get
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
         //        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden)
         //        eNoAttribs

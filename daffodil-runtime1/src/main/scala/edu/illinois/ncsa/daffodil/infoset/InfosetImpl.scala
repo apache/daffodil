@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
-import scala.xml.Null
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NamedQName
@@ -69,7 +68,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Numbers
 
 sealed trait DINode {
-  def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
 
   def asSimple: DISimple = {
     this match {
@@ -101,6 +99,8 @@ sealed trait DINode {
    */
   def filledSlots: IndexedSeq[DINode]
   final def numChildren = filledSlots.length
+
+  def visit(handler: InfosetOutputter, removeHidden: Boolean = true)
 
 }
 
@@ -212,7 +212,6 @@ case class InfosetValueLengthUnknownException(lengthState: LengthState, override
 final class FakeDINode extends DISimple(null) {
   private def die = throw new InfosetNoInfosetException(Nope)
 
-  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = die
   override def removeHiddenElements(): InfosetElement = die
 
   override def parent = die
@@ -260,36 +259,6 @@ sealed trait DITerm {
     pre
   }
 
-  /**
-   * String suitable for use in the text of a Processing Instruction.
-   *
-   * The text is a pseudo-XML string.
-   */
-  protected final def fmtInfo: Maybe[String] = {
-    // val mgXML = modelGroupsPseudoXML
-    val pecXML = parserEvalCache.toPseudoXML()
-    val uecXML = unparserEvalCache.toPseudoXML()
-    val puxml = {
-      // mgXML +
-      (if (pecXML =:= "") "" else "\n" + pecXML) +
-        (if (uecXML =:= "") "" else "\n" + uecXML)
-    }
-    Maybe(if (puxml =:= "") null else puxml)
-  }
-
-  protected final def addFmtInfo(elem: scala.xml.Elem, showFormatInfo: Boolean): scala.xml.Elem = {
-    if (!showFormatInfo) return elem
-    val maybeFI = fmtInfo
-    val res =
-      if (maybeFI.isEmpty) elem
-      else {
-        val fi = maybeFI.value
-        val pi = new scala.xml.ProcInstr("formatInfo", fi)
-        val res = elem.copy(child = elem.child :+ pi)
-        res
-      }
-    res
-  }
 }
 
 /**
@@ -1065,10 +1034,6 @@ final class DIArray(
 
   final def length: Long = _contents.length
 
-  final def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
-    _contents.flatMap { _.toXML(removeHidden, showFormatInfo) }
-  }
-
   final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
     _contents.foreach { _.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
   }
@@ -1077,6 +1042,12 @@ final class DIArray(
     var a: Long = 0
     _contents.foreach { c => a += c.totalElementCount }
     a
+  }
+
+  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true){
+    handler.startArray(this)
+    _contents.foreach { _.visit(handler, removeHidden) }
+    handler.endArray(this)
   }
 }
 
@@ -1335,38 +1306,10 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   private def remapped = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
 
-  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
-    if (isHidden && removeHidden) Nil
-    else {
-      val elem =
-        if (erd.nilledXML.isDefined && isNilled) {
-          erd.nilledXML.get
-        } else if (_value != null) {
-          val s = remapped
-          // At this point s contains only legal XML characters.
-          // However, since we're going to create actual XML documents here,
-          // we have to do escaping. There are two ways to do escaping.
-          // One is to convert &, <, >, and " to &amp; &lt; &gt; &quot;.
-          // The other is to wrap the contents in <![CDATA[ ...]]> brackets.
-          // For strings longer than a certain size, or with a large number of
-          // the characters requiring escaping,... CDATA is preferred.
-          //
-          // TODO: add some tunable option to control (a) PUA mapping or not
-          // (b) CDATA or escapify, or CDATA for things of some size, or we
-          // can put Daffodil specific annotations on the ERD e.g., daf:xmlEscapePolicy
-          // with options for single chars, CDATA, or and generate always or
-          // generate when needed. etc.
-          //
-          // Anyway... Constructing a Text node seems to automatically escapeify
-          // the supplied content.
-          val textNode = new scala.xml.Text(s)
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true, textNode)
-        } else {
-          // no value yet
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true)
-        }
-      val res = addFmtInfo(elem, showFormatInfo)
-      res
+  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+    if (!this.isHidden || !removeHidden) {
+      handler.startSimple(this)
+      handler.endSimple(this)
     }
   }
 
@@ -1580,34 +1523,12 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
-  /**
-   * Converts into XML as in a scala.xml.NodeSeq
-   *
-   * If there are items in the evalCache or modelGroups contained within, then
-   * those are included as an XML Processing Instruction which is appended as a final child of
-   * the Node making up the NodeSeq.
-   */
-  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq = {
-    if (isHidden && removeHidden) Nil
-    else {
-      val elem =
-        if (erd.nilledXML.isDefined && isNilled) {
-          erd.nilledXML.get
-        } else {
-          val nonHiddenChildren = children.flatMap { slot => slot.toXML(removeHidden) }
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.minimizedScope, true, nonHiddenChildren: _*)
-        }
-      val res = addFmtInfo(elem, showFormatInfo)
-      res
-    }
-  }
-
   override def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean = false, indentStep: Int, indentLevel: Int) {
     _slots.foreach { slot => if (slot ne null) slot.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
   }
 
   override def totalElementCount: Long = {
-    if (erd.nilledXML.isDefined && isNilled) return 1L
+    if (erd.isNillable && isNilled) return 1L
     var a: Long = 1
     var i = 0
     while (i < _slots.length) {
@@ -1616,6 +1537,14 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       if (slot ne null) a += slot.totalElementCount
     }
     a
+  }
+
+  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+    if (!this.isHidden || !removeHidden) {
+      handler.startComplex(this)
+      _slots.foreach { slot => if (slot ne null) slot.visit(handler, removeHidden) }
+      handler.endComplex(this)
+    }
   }
 }
 
@@ -1651,13 +1580,16 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
     root
   }
 
-  override def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false) =
-    if (root != null) root.toXML(removeHidden)
-    else <document/>
-
   override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
     if (root != null) root.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel)
     else writer.write("<document/>")
+  }
+
+  override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
+    assert(root != null)
+    handler.startDocument()
+    root.visit(handler, removeHidden)
+    handler.endDocument()
   }
 }
 

@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 
 trait InfosetCommon {
-  def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
+  def visit(handler: InfosetOutputter, removeHidden: Boolean = true): Unit
 }
 
 trait InfosetArray extends InfosetCommon {

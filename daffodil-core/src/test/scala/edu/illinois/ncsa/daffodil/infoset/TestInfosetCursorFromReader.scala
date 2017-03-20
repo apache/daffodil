@@ -87,7 +87,6 @@ class TestInfosetCursorFromReader {
     assertTrue(s eq e) // exact same object
     assertTrue(s.dataValue.isInstanceOf[String])
     assertTrue(s.dataValueAsString =:= "Hello")
-    assertEquals(s.toXML(), infosetXML)
   }
 
   @Test def testInfosetCursorNil1() {
@@ -99,7 +98,6 @@ class TestInfosetCursorFromReader {
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
     assertTrue(s.isNilled)
-    assertEquals(s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplex1() {
@@ -123,7 +121,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_s eq foo_e)
     assertTrue(foo_s.dataValue.isInstanceOf[String])
     assertTrue(foo_s.dataValueAsString =:= "Hello")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplex2() {
@@ -152,7 +149,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_s.dataValueAsString =:= "Hello")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "World")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplex3() {
@@ -213,7 +209,6 @@ class TestInfosetCursorFromReader {
     assertTrue(baz2_s.dataValue.isInstanceOf[String])
     assertTrue(baz2_s.dataValueAsString =:= "World")
     assertTrue(quux_s eq quux_e)
-    TestUtils.assertEqualsXMLElements(quux_s.toXML()(0), infosetXML)
   }
 
   @Test def testInfosetArray1() {
@@ -245,7 +240,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_2_s eq foo_2_e)
     assertTrue(foo_2_s.dataValue.isInstanceOf[String])
     assertTrue(foo_2_s.dataValueAsString =:= "World")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray2() {
@@ -283,7 +277,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray3() {
@@ -322,7 +315,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetArray4() {
@@ -363,7 +355,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_2_s.dataValueAsString =:= "World")
     assertTrue(baz_s.dataValue.isInstanceOf[String])
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
-    assertEquals(bar_s.toXML(), infosetXML)
   }
 
   @Test def testInfosetComplexPeek1() {
@@ -396,7 +387,6 @@ class TestInfosetCursorFromReader {
     assertTrue(foo_s1 eq foo_e)
     assertTrue(foo_s1.dataValue.isInstanceOf[String])
     assertTrue(foo_s1.dataValueAsString =:= "Hello")
-    assertEquals(bar_s1.toXML(), infosetXML)
   }
 
   @Test def testInfosetArrayComplex1() {

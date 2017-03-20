@@ -64,15 +64,10 @@ class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], ca
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state.currentLocation), "Assertion failed. %s", msg) {
   override def componentText: String = {
-    val currentElem = state.infoset
 
-    val parsedValue =
-      "\nParsed value was: " + currentElem.toXML().toString
+    if (details.isDefined) "\nDetails: " + details.get
+    else ""
 
-    val finalString =
-      if (details.isDefined) "\nDetails: " + details.get + parsedValue
-      else parsedValue
-    finalString
   }
 }
 
