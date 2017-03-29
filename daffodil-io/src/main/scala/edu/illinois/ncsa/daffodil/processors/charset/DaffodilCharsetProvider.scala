@@ -48,11 +48,11 @@ import java.nio.charset.spi.CharsetProvider
  */
 object DaffodilCharsetProvider extends CharsetProvider {
   import collection.JavaConverters._
+
   /**
    * Creates an iterator that iterates over the charsets supported by this
-   * provider.  This method is used in the implementation of the {@link
-   * java.nio.charset.Charset#availableCharsets Charset.availableCharsets}
-   * method.
+   * provider.  This method is used in the implementation of the
+   * java.nio.charset.Charset#availableCharsets() method.
    *
    * @return  The new iterator
    */
