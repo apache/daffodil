@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.util.Numbers._
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import java.math.RoundingMode
 
 case object PlusDecimal extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).add(asBigDecimal(v2)) }
@@ -90,10 +89,16 @@ case object TimesDecimal extends NumericOp {
  *  to round half-up.
  */
 case object DivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide(asBigDecimal(v2), RoundingMode.HALF_EVEN) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    val v2bd = asBigDecimal(v2)
+    if (v2bd.compareTo(JBigDecimal.ZERO) == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asBigDecimal(v1).divide(v2bd)
+  }
 }
 case object IDivDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).divide(asBigDecimal(v2), RoundingMode.HALF_EVEN) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivDecimal.operate(v1, v2)) }
 }
 case object ModDecimal extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).remainder(asBigDecimal(v2)) }
@@ -109,10 +114,16 @@ case object TimesInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    val v2bd = asBigDecimal(v2)
+    if (v2bd.compareTo(JBigDecimal.ZERO) == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asBigDecimal(v1).divide(v2bd)
+  }
 }
 case object IDivInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivInteger.operate(v1, v2)) }
 }
 case object ModInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
@@ -128,10 +139,16 @@ case object TimesNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    val v2bd = asBigDecimal(v2)
+    if (v2bd.compareTo(JBigDecimal.ZERO) == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asBigDecimal(v1).divide(v2bd)
+  }
 }
 case object IDivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivNonNegativeInteger.operate(v1, v2)) }
 }
 case object ModNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
@@ -147,10 +164,16 @@ case object TimesUnsignedLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).multiply(asBigInt(v2)) }
 }
 case object DivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    val v2bd = asBigDecimal(v2)
+    if (v2bd.compareTo(JBigDecimal.ZERO) == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asBigDecimal(v1).divide(v2bd)
+  }
 }
 case object IDivUnsignedLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).divide(asBigInt(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivUnsignedLong.operate(v1, v2)) }
 }
 case object ModUnsignedLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
@@ -166,10 +189,16 @@ case object TimesLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) * asLong(v2) }
 }
 case object DivLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) / asLong(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2l = asLong(v2)
+    if (v2l == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asDouble(v1) / v2l
+  }
 }
 case object IDivLong extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) / asLong(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(DivLong.operate(v1, v2)) }
 }
 case object ModLong extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) % asLong(v2) }
@@ -185,10 +214,16 @@ case object TimesUnsignedInt extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) * asLong(v2) }
 }
 case object DivUnsignedInt extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) / asLong(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2l = asLong(v2)
+    if (v2l == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asDouble(v1) / v2l
+  }
 }
 case object IDivUnsignedInt extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) / asLong(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(DivUnsignedInt.operate(v1, v2)) }
 }
 case object ModUnsignedInt extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asLong(v1) % asLong(v2) }
@@ -204,10 +239,16 @@ case object TimesInt extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) * asInt(v2) }
 }
 case object DivInt extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) / asInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2i = asInt(v2)
+    if (v2i == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asFloat(v1) / v2i
+  }
 }
 case object IDivInt extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) / asInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(DivInt.operate(v1, v2)) }
 }
 case object ModInt extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) % asInt(v2) }
@@ -223,10 +264,16 @@ case object TimesUnsignedShort extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) * asInt(v2) }
 }
 case object DivUnsignedShort extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) / asInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2i = asInt(v2)
+    if (v2i == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asFloat(v1) / v2i
+  }
 }
 case object IDivUnsignedShort extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) / asInt(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(DivUnsignedShort.operate(v1, v2)) }
 }
 case object ModUnsignedShort extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asInt(v1) % asInt(v2) }
@@ -242,10 +289,16 @@ case object TimesShort extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) * asShort(v2) }
 }
 case object DivShort extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) / asShort(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2i = asInt(v2)
+    if (v2i == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asFloat(v1) / v2i
+  }
 }
 case object IDivShort extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) / asShort(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(DivShort.operate(v1, v2)) }
 }
 case object ModShort extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) % asShort(v2) }
@@ -261,10 +314,16 @@ case object TimesUnsignedByte extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) * asShort(v2) }
 }
 case object DivUnsignedByte extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) / asShort(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2i = asInt(v2)
+    if (v2i == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asFloat(v1) / v2i
+  }
 }
 case object IDivUnsignedByte extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) / asShort(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(DivUnsignedByte.operate(v1, v2)) }
 }
 case object ModUnsignedByte extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asShort(v1) % asShort(v2) }
@@ -280,10 +339,16 @@ case object TimesByte extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asByte(v1) * asByte(v2) }
 }
 case object DivByte extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asByte(v1) / asByte(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v2i = asInt(v2)
+    if (v2i == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    asFloat(v1) / v2i
+  }
 }
 case object IDivByte extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asByte(v1) / asByte(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = { asByte(DivByte.operate(v1, v2)) }
 }
 case object ModByte extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asByte(v1) % asByte(v2) }
@@ -299,10 +364,21 @@ case object TimesFloat extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asFloat(v1) * asFloat(v2) }
 }
 case object DivFloat extends NumericOp {
+  // div float allows divide by zero to make infinity
   def operate(v1: JNumber, v2: JNumber): JNumber = { asFloat(v1) / asFloat(v2) }
 }
 case object IDivFloat extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asFloat(v1) / asFloat(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v1f = asFloat(v1)
+    val v2f = asFloat(v2)
+    if (v2f == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    if (v1f.isInfinite || v1f.isNaN || v2f.isNaN) {
+      throw new ArithmeticException("integer division with NaN or Infinity")
+    }
+    asInt(DivFloat.operate(v1, v2))
+  }
 }
 case object ModFloat extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asFloat(v1) % asFloat(v2) }
@@ -318,10 +394,20 @@ case object TimesDouble extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asDouble(v1) * asDouble(v2) }
 }
 case object DivDouble extends NumericOp {
+  // div double allows divide by zero to make infinity
   def operate(v1: JNumber, v2: JNumber): JNumber = { asDouble(v1) / asDouble(v2) }
 }
 case object IDivDouble extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JNumber = { asDouble(v1) / asDouble(v2) }
+  def operate(v1: JNumber, v2: JNumber): JNumber = {
+    val v1d = asDouble(v1)
+    val v2d = asDouble(v2)
+    if (v2d == 0) {
+      throw new ArithmeticException("/ by zero")
+    }
+    if (v1d.isInfinite || v1d.isNaN || v2d.isNaN) {
+      throw new ArithmeticException("integer division with NaN or Infinity")
+    }
+    asLong(DivDouble.operate(v1, v2)) }
 }
 case object ModDouble extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asDouble(v1) % asDouble(v2) }

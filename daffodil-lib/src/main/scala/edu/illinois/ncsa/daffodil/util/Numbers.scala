@@ -75,6 +75,8 @@ object Numbers {
 
   def asInt(n: AnyRef): JInt = {
     val value = n match {
+      case f: JFloat => f.toInt
+      case d: JDouble => d.toInt
       case b: JByte => b.toInt
       case s: JShort => s.toInt
       case i: JInt => return i
@@ -90,6 +92,8 @@ object Numbers {
   }
   def asByte(n: AnyRef): JByte = {
     val value = n match {
+      case f: JFloat => f.toByte
+      case d: JDouble => d.toByte
       case b: JByte => return b
       case s: JShort => s.toByte
       case i: JInt => i.toByte
@@ -105,6 +109,8 @@ object Numbers {
   }
   def asShort(n: AnyRef): JShort = {
     val value = n match {
+      case f: JFloat => f.toShort
+      case d: JDouble => d.toShort
       case b: JByte => b.toShort
       case s: JShort => return s
       case i: JInt => i.toShort

@@ -117,11 +117,31 @@ object NodeInfoUtils {
     Numeric.Kind, // first result is generalized arg type
     Numeric.Kind // second result is generalized result type
     ) = {
+
     /*
-     * Adjust for the Decimal result type when div is used on any integer types.
+     * Adjust for the Decimal result type when div/idiv is used
      */
-    def divResult(t: NodeInfo.Numeric.Kind) =
-      if (op == "div") Decimal else t
+    def divResult(resultType: NodeInfo.Numeric.Kind) = resultType match {
+      case Decimal => Decimal
+      case Integer => Decimal
+      case Double => Double
+      case Long => Double
+      case Float => Float
+      case Int => Float
+      case ArrayIndex => ArrayIndex
+      case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
+    }
+
+    def idivResult(resultType: NodeInfo.Numeric.Kind) = resultType match {
+      case Decimal => Integer
+      case Integer => Integer
+      case Double => Long
+      case Long => Long
+      case Float => Int
+      case Int => Int
+      case ArrayIndex => ArrayIndex
+      case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
+    }
 
     val (argType: Numeric.Kind, resultType: Numeric.Kind) = (leftArgType, rightArgType) match {
       case (_, Decimal) => (Decimal, Decimal)
@@ -130,31 +150,36 @@ object NodeInfoUtils {
       case (Double, _) => (Double, Double)
       case (_, Float) => (Double, Double)
       case (Float, _) => (Double, Double)
-      case (_, Integer) => (Integer, divResult(Integer))
-      case (Integer, _) => (Integer, divResult(Integer))
-      case (_, NonNegativeInteger) => (NonNegativeInteger, divResult(Integer))
-      case (NonNegativeInteger, _) => (NonNegativeInteger, divResult(Integer))
-      case (_, UnsignedLong) => (UnsignedLong, divResult(Integer))
-      case (UnsignedLong, _) => (UnsignedLong, divResult(Integer))
+      case (_, Integer) => (Integer, Integer)
+      case (Integer, _) => (Integer, Integer)
+      case (_, NonNegativeInteger) => (NonNegativeInteger, Integer)
+      case (NonNegativeInteger, _) => (NonNegativeInteger, Integer)
+      case (_, UnsignedLong) => (UnsignedLong, Integer)
+      case (UnsignedLong, _) => (UnsignedLong, Integer)
       case (_, ArrayIndex) => (ArrayIndex, ArrayIndex)
       case (ArrayIndex, _) => (ArrayIndex, ArrayIndex)
-      case (_, Long) => (Long, divResult(Long))
-      case (Long, _) => (Long, divResult(Long))
-      case (_, UnsignedInt) => (UnsignedInt, divResult(Long))
-      case (UnsignedInt, _) => (UnsignedInt, divResult(Long))
-      case (_, Int) => (Int, divResult(Int))
-      case (Int, _) => (Int, divResult(Int))
-      case (_, UnsignedShort) => (UnsignedShort, divResult(Int))
-      case (UnsignedShort, _) => (UnsignedShort, divResult(Int))
-      case (_, Short) => (Short, divResult(Int))
-      case (Short, _) => (Short, divResult(Int))
-      case (_, UnsignedByte) => (UnsignedByte, divResult(Int))
-      case (UnsignedByte, _) => (UnsignedByte, divResult(Int))
-      case (_, Byte) => (Byte, divResult(Int))
-      case (Byte, _) => (Byte, divResult(Int))
+      case (_, Long) => (Long, Long)
+      case (Long, _) => (Long, Long)
+      case (_, UnsignedInt) => (UnsignedInt, Long)
+      case (UnsignedInt, _) => (UnsignedInt, Long)
+      case (_, Int) => (Int, Int)
+      case (Int, _) => (Int, Int)
+      case (_, UnsignedShort) => (UnsignedShort, Int)
+      case (UnsignedShort, _) => (UnsignedShort, Int)
+      case (_, Short) => (Short, Int)
+      case (Short, _) => (Short, Int)
+      case (_, UnsignedByte) => (UnsignedByte, Int)
+      case (UnsignedByte, _) => (UnsignedByte, Int)
+      case (_, Byte) => (Byte, Int)
+      case (Byte, _) => (Byte, Int)
       case _ => Assert.usageError(
         "Unsupported types for numeric op '%s' were %s and %s.".format(op, leftArgType, rightArgType))
     }
-    (argType, resultType)
+    val res = op match {
+      case "div" => (argType, divResult(resultType))
+      case "idiv" => (argType, idivResult(resultType))
+      case _ => (argType, resultType)
+    }
+    res
   }
 }
