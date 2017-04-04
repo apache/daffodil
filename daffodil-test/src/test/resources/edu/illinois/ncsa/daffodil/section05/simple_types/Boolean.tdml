@@ -134,6 +134,22 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="textListIgnoreCase">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="x" type="xs:boolean" maxOccurs="unbounded"
+              dfdl:textBooleanTrueRep="yes Y 1" dfdl:textBooleanFalseRep="no N 0" dfdl:ignoreCase="yes" />
+          </xs:sequence>
+          <xs:sequence dfdl:separator="," dfdl:terminator=";">
+            <xs:element name="y" type="xs:boolean" maxOccurs="unbounded" dfdl:textTrimKind="padChar"
+              dfdl:textBooleanJustification="center"
+              dfdl:textBooleanTrueRep="{ 5-3 }" dfdl:textBooleanFalseRep="{'a b c'}" dfdl:ignoreCase="yes" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="textList2">
       <xs:complexType>
         <xs:sequence dfdl:separator="-">
@@ -397,6 +413,29 @@
     </tdml:infoset>
     <tdml:document><![CDATA[yes,yes,yes,no,no,no;2,a,2,a,2,a;]]></tdml:document>
   </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textBoolean_IgnoreCase" root="textListIgnoreCase" model="boolean"
+    description="Text boolean">
+    <tdml:document><![CDATA[1,y,YES,0,NO,n;2,A,2,B,2,C;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <textListIgnoreCase xmlns="http://www.example.org/example1">
+          <x>true</x>
+          <x>true</x>
+          <x>true</x>
+          <x>false</x>
+          <x>false</x>
+          <x>false</x>
+          <y>true</y>
+          <y>false</y>
+          <y>true</y>
+          <y>false</y>
+          <y>true</y>
+          <y>false</y>
+        </textListIgnoreCase>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="textBoolean_1" root="textList2" model="boolean"
     description="Text boolean textBooleanTrueRep and textBooleanFalseRep referencing another element">

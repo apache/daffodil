@@ -93,5 +93,7 @@ class IBMTestsThatPass {
   @Test def test_sequences_separated_14_02() { runner2.runOneTest("sequences_separated_14_02") }
   @Test def test_sequences_separated_14_07() { runner2.runOneTest("sequences_separated_14_07") }
   @Test def test_sequences_separated_14_08() { runner2.runOneTest("sequences_separated_14_08") }
+
+  @Test def test_delimiter_12_02() { runner1.runOneTest("delimiter_12_02") }
 }
 

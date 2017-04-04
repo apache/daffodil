@@ -79,9 +79,9 @@ class Delimiter {
 
   // Must call to create the necessary structures
   //
-  def compileDelimiter(pDelimiter: String): Unit = {
+  def compileDelimiter(pDelimiter: String, ignoreCase: Boolean): Unit = {
     delimiterStr = pDelimiter
-    delimBuf = buildDelimBuf(delimiterStr)
+    delimBuf = buildDelimBuf(delimiterStr, ignoreCase)
 
     delimRegExParseDelim = this.delimRegexParseDelim(delimBuf)
   }
@@ -318,7 +318,7 @@ class Delimiter {
   // representation of the characters within the delimiter
   // string.
   //
-  def buildDelimBuf(delimStr: String): Array[DelimBase] = {
+  def buildDelimBuf(delimStr: String, ignoreCase: Boolean): Array[DelimBase] = {
     val q: Queue[DelimBase] = new Queue[DelimBase]()
 
     var newIdx = 0 // index within delimBuf array
@@ -341,7 +341,7 @@ class Delimiter {
           // double percent. We want only a single one. And we
           // want it treated as a character delimiter, not the introduction of
           // a char class entity.
-          val obj = new CharDelim(c)
+          val obj = new CharDelim(c, ignoreCase)
           obj.index = newIdx // Index within delimBuf Array
           newIdx += 1
           q += obj
@@ -380,7 +380,7 @@ class Delimiter {
             // do as part of a large commit.
             //
             // throw new EntitySyntaxException("delimStr has '%' at index " + idx + " that is not escaped (not '%%') and doesn't introduce an allowed char class entity: " + delimStr)
-            val obj = new CharDelim(c)
+            val obj = new CharDelim(c, ignoreCase)
             obj.index = newIdx // Index within delimBuf Array
             newIdx += 1
             q += obj
@@ -390,7 +390,7 @@ class Delimiter {
       } else {
         // c was not a '%'
         // Treat as a CharDelim
-        val obj = new CharDelim(c)
+        val obj = new CharDelim(c, ignoreCase)
         obj.index = newIdx // Index within delimBuf Array
         newIdx += 1
         q += obj
@@ -435,11 +435,12 @@ trait Base {
   def checkMatch(charIn: Char): Boolean
 }
 
-class CharDelim(val char: Char) extends DelimBase {
+class CharDelim(val char: Char, ignoreCase: Boolean) extends DelimBase {
   lazy val allChars: Seq[Char] = Seq(char)
   def checkMatch(charIn: Char): Boolean = {
-    val matched = charIn == char
-    matched
+    if (charIn == char) true
+    else if (ignoreCase && (charIn.toUpper == char.toUpper || charIn.toLower == char.toLower)) true
+    else false
   }
 
   lazy val typeName = "CharDelim"

@@ -45,7 +45,8 @@ case class ConvertTextBooleanPrim(e: ElementBase)
   override lazy val parser = new ConvertTextBooleanParser(
     e.elementRuntimeData,
     e.textBooleanTrueRepEv,
-    e.textBooleanFalseRepEv)
+    e.textBooleanFalseRepEv,
+    e.ignoreCaseBool)
 
   override lazy val unparser = new ConvertTextBooleanUnparser(
     e.elementRuntimeData,

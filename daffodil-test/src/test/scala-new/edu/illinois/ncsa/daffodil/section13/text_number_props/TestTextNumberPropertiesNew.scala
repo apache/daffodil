@@ -35,9 +35,13 @@ package edu.illinois.ncsa.daffodil.section13.text_number_props
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-class TestTextNumberProperties {
+import org.junit.Test
+
+class TestTextNumberPropsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
   val aa = testDir + "TextNumberProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  // DFDL-861
+  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
 }

@@ -46,6 +46,7 @@ case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
 
   override lazy val parser = new LiteralValueNilOfSpecifiedLengthParser(e.cookedNilValuesForParse, parsingPadChar,
     justificationTrim,
+    e.ignoreCaseBool,
     e.elementRuntimeData)
 
   override lazy val unparser = new LiteralValueNilOfSpecifiedLengthUnparser(
@@ -60,6 +61,7 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
 
   override lazy val parser = new LiteralCharacterNilOfSpecifiedLengthParser(e.cookedNilValuesForParse, parsingPadChar,
     justificationTrim,
+    e.ignoreCaseBool,
     e.elementRuntimeData)
 
   override lazy val unparser = new NadaUnparser(e.runtimeData)

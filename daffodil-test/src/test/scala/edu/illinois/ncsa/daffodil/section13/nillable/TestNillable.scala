@@ -76,6 +76,7 @@ class TestNillable {
   //@Test def test_text_01() { runnerLN.runOneTest("text_01")}  This test is identical to litNil1.
   //@Test def test_text_02() { runnerLN.runOneTest("text_02")}  This test is identical to litNil2
   @Test def test_text_03() { runnerLN.runOneTest("text_03") }
+  @Test def test_text_03ic() { runnerLN.runOneTest("text_03ic") }
   @Test def test_text_04() { runnerLN.runOneTest("text_04") }
   @Test def test_text_05() { runnerLN.runOneTest("text_05") }
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
@@ -94,6 +95,7 @@ class TestNillable {
    *  and hex entities.
    * */
   @Test def test_text_lit_char_01() { runnerLC.runOneTest("text_01") }
+  @Test def test_text_lit_char_01ic() { runnerLC.runOneTest("text_01ic") }
   @Test def test_text_lit_char_02() { runnerLC.runOneTest("text_02") }
   @Test def test_text_lit_char_03() { runnerLC.runOneTest("text_03") }
   @Test def test_text_lit_char_04() { runnerLC.runOneTest("text_04") }

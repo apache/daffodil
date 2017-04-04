@@ -42,6 +42,8 @@ trait NilMatcherMixin {
 
   protected def cookedNilValuesForParse: List[String]
 
+  protected def ignoreCase: Boolean
+
   final lazy val isEmptyAllowed: Boolean =
     cookedNilValuesForParse.contains("%ES;")
 
@@ -52,7 +54,7 @@ trait NilMatcherMixin {
    * Constructs an Array of String which holds the Regex representations of the
    * delimList.
    */
-  private def buildDelims(delimList: Set[String]): Array[String] = {
+  private def buildDelims(delimList: Set[String], ignoreCase: Boolean): Array[String] = {
     val delimsRegex: Queue[String] = Queue.empty
 
     // We probably always want delims ordered:
@@ -60,7 +62,7 @@ trait NilMatcherMixin {
 
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
-      d.compileDelimiter(str)
+      d.compileDelimiter(str, ignoreCase)
       delimsRegex.enqueue(d.delimRegExParseDelim) // The regex representing the actual delimiter
     })
     delimsRegex.toArray
@@ -105,13 +107,17 @@ trait NilMatcherMixin {
   }
 
   private def getDfdlLiteralRegex(dfdlLiteralList: Set[String]): String = {
-    val regex = this.buildDelims(dfdlLiteralList)
+    val regex = this.buildDelims(dfdlLiteralList, ignoreCase)
     combineDelimitersRegex(regex, Array.empty[String])
+  }
+
+  private lazy val patternFlags: Int = {
+    if (ignoreCase) Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE else 0
   }
 
   private lazy val patternLiteralValue: Pattern = {
     val dfdlLiteralRegex = getDfdlLiteralRegex(cookedNilValuesForParse.toSet)
-    val p = Pattern.compile(dfdlLiteralRegex)
+    val p = Pattern.compile(dfdlLiteralRegex, patternFlags)
     p
   }
 
@@ -123,7 +129,7 @@ trait NilMatcherMixin {
     val dfdlLiteralRegex = getDfdlLiteralRegex(cookedNilValuesForParse.toSet)
     val sb = new StringBuilder(dfdlLiteralRegex)
     sb.append("+")
-    val p = Pattern.compile(sb.toString())
+    val p = Pattern.compile(sb.toString(), patternFlags)
     p
   }
 

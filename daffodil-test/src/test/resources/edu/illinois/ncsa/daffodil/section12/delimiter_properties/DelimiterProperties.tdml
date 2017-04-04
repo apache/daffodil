@@ -711,4 +711,59 @@
       </tdml:infoset>
     </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="ignoreCase">
+
+    <dfdl:format separatorPosition="infix" ref="ex:daffodilTest1" ignoreCase="yes" />
+
+    <xs:element name="e1" dfdl:initiator="II" dfdl:terminator="TT">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="SS" dfdl:initiator="XX" dfdl:terminator="YY">
+          <xs:element name="s1" type="xs:string"
+            dfdl:initiator="AA" dfdl:terminator="BB" dfdl:lengthKind="delimited"
+            dfdl:occursCountKind="parsed" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="e2" dfdl:initiator="II" dfdl:terminator="TT">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="SS" dfdl:initiator="XX" dfdl:terminator="YY" dfdl:ignoreCase="no">
+          <xs:element name="s1" type="xs:string"
+            dfdl:initiator="AA" dfdl:lengthKind="delimited"
+            dfdl:occursCountKind="parsed" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="delims_ignorecase_01" root="e1"
+    model="ignoreCase" description="delimiters with ignore case">
+    <tdml:document><![CDATA[iixxaa1bbssaa2bbssaa3bbyytt]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1> 
+          <s1>1</s1>
+          <s1>2</s1>
+          <s1>3</s1>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Tests the sequence delimitrs do not ignore case, while the other delimiters do -->
+  <tdml:parserTestCase name="delims_ignorecase_02" root="e2"
+    model="ignoreCase" description="delimiters with ignore case">
+    <tdml:document><![CDATA[iiXXaa1ssaa2SSaa3ssaa4YYtt]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2> 
+          <s1>1ssaa2</s1>
+          <s1>3ssaa4</s1>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

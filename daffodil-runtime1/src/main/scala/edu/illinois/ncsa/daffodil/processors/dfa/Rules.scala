@@ -555,14 +555,14 @@ abstract class DelimStateBase(states: => ArrayBuffer[State])
   }
 }
 
-class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, val stateNum: Int)
+class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, val stateNum: Int, ignoreCase: Boolean)
   extends DelimStateBase(states) {
 
   stateName = "CharState(" + char + ")"
   val rulesToThisState = ArrayBuffer(
     Rule { (r: Registers) =>
       {
-        r.data0 == char
+        checkMatch(r.data0)
       }
     } { (r: Registers) =>
       {
@@ -573,7 +573,7 @@ class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, v
     })
 
   val rules = ArrayBuffer(
-    Rule { (r: Registers) => { r.data0 == char } } { (r: Registers) =>
+    Rule { (r: Registers) => { checkMatch(r.data0) } } { (r: Registers) =>
       {
         r.appendToDelim(r.data0)
         r.advance
@@ -581,7 +581,20 @@ class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, v
       }
     })
 
-  def checkMatch(charIn: Char): Boolean = char == charIn
+  @inline
+  private def checkMatchIgnoreCase(charIn: Char): Boolean = {
+    // note that we must check both toUpper and toLower. This is based on
+    // String.java's equalsIgnoreCase method, which mentions that it is
+    // possible for toUpper to not match but toLower to match due to the
+    // behaviors of some alphabets (e.g. Gregorian)
+    char.toUpper == charIn.toUpper || char.toLower == charIn.toLower
+  }
+
+  def checkMatch(charIn: Char): Boolean = {
+    if (char == charIn) true
+    else if (ignoreCase && checkMatchIgnoreCase(charIn)) true
+    else false
+  }
 }
 
 abstract class WSPBase(states: => ArrayBuffer[State])

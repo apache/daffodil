@@ -41,10 +41,15 @@ import edu.illinois.ncsa.daffodil.processors.PState
 
 case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
-  textBooleanFalseRepEv: TextBooleanFalseRepEv)
+  textBooleanFalseRepEv: TextBooleanFalseRepEv,
+  ignoreCase: Boolean)
   extends PrimParser {
 
   override lazy val runtimeDependencies = List(textBooleanTrueRepEv, textBooleanFalseRepEv)
+
+  private def matches(str1: String, str2: String): Boolean = {
+    if (ignoreCase) str1.equalsIgnoreCase(str2) else str1 == str2
+  }
 
   override def parse(start: PState): Unit = {
     val node = start.simpleElement
@@ -59,8 +64,8 @@ case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
     Assert.invariant(textBooleanFalseReps.length >= 1)
 
     val newBool: JBoolean =
-      if (textBooleanTrueReps.contains(str)) true
-      else if (textBooleanFalseReps.contains(str)) false
+      if (textBooleanTrueReps.find(matches(_, str)).isDefined) true
+      else if (textBooleanFalseReps.find(matches(_, str)).isDefined) false
       else {
         PE(start, "Convert to xs:boolean: Cannot parse boolean from '%s'", str)
         return

@@ -71,7 +71,7 @@ object CreatePaddingDFA {
     allStates.insert(0, startState)
 
     val d = new Delimiter()
-    d.compileDelimiter(padChar.toString)
+    d.compileDelimiter(padChar.toString, false)
 
     val unparseValue = d.delimBuf.map { _.unparseValue("") }.mkString
 

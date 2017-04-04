@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnp
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
@@ -157,29 +156,11 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
-  /*
-   * Properties affected by ignoreCase
-   *
-   * initiator
-   * separator
-   * terminator
-   * nilValue
-   * textBooleanTrueRep
-   * textBooleanFalseRep
-   * textStandardExponentRep
-   * textStandardInfinityRep
-   * textStandardNaNRep
-   * textStandardZeroRep
-   */
-  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
-
   lazy val textParser = new TextParser(e.termRuntimeData)
 }
 
 abstract class DelimiterText(e: Term, eb: Term, guard: Boolean = true)
   extends Text(e, eb, guard) {
-
-  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
   lazy val textParser = new TextParser(e.termRuntimeData)
 

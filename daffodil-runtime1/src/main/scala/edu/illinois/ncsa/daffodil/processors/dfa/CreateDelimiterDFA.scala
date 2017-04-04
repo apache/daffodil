@@ -54,7 +54,7 @@ object CreateDelimiterDFA {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    buildTransitions(delimiter, allStates)
+    buildTransitions(delimiter, allStates, false)
 
     val unparseValue = delimiter.map { _.unparseValue(outputNewLine) }.mkString
     new DFADelimiterImplUnparse(delimType, allStates.reverse.toArray, delimiterStr, unparseValue, rd.schemaFileLocation)
@@ -64,11 +64,11 @@ object CreateDelimiterDFA {
    * Constructs an Array of states reflecting the delimiters only.
    * StateNum is offset by stateOffset
    */
-  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String): DFADelimiter = {
+  protected def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiter: Seq[DelimBase], delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    buildTransitions(delimiter, allStates)
+    buildTransitions(delimiter, allStates, ignoreCase)
 
     new DFADelimiterImpl(delimType, allStates.reverse.toArray, delimiterStr, rd.schemaFileLocation)
   }
@@ -77,11 +77,11 @@ object CreateDelimiterDFA {
    * Converts a String to a DFA representing
    * that string
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String): DFADelimiter = {
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, ignoreCase: Boolean): DFADelimiter = {
     val d = new Delimiter()
-    d.compileDelimiter(delimiterStr)
+    d.compileDelimiter(delimiterStr, ignoreCase)
     val db = d.delimBuf
-    apply(delimType, rd, db, delimiterStr)
+    apply(delimType, rd, db, delimiterStr, ignoreCase)
   }
 
   /**
@@ -90,7 +90,7 @@ object CreateDelimiterDFA {
    */
   def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiterStr: String, outputNewLine: String): DFADelimiter = {
     val d = new Delimiter()
-    d.compileDelimiter(delimiterStr)
+    d.compileDelimiter(delimiterStr, false)
     val db = d.delimBuf
     apply(delimType, rd, db, delimiterStr, outputNewLine)
   }
@@ -99,19 +99,19 @@ object CreateDelimiterDFA {
    * Converts a Seq of String to a Seq of
    * DFA's representing each String.
    */
-  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String]): Array[DFADelimiter] = {
-    delimiters.map(d => apply(delimType, rd, d)).toArray
+  def apply(delimType: DelimiterTextType.Type, rd: RuntimeData, delimiters: Seq[String], ignoreCase: Boolean): Array[DFADelimiter] = {
+    delimiters.map(d => apply(delimType, rd, d, ignoreCase)).toArray
   }
 
   /**
    * Returns a state representing the DelimBase object.
    */
   protected def getState(d: DelimBase, nextState: Int, stateNum: Int,
-    allStates: ArrayBuffer[State]): DelimStateBase = {
+    allStates: ArrayBuffer[State], ignoreCase: Boolean): DelimStateBase = {
 
     val theState = d match {
       case d: CharDelim => {
-        new CharState(allStates, d.char, nextState, stateNum)
+        new CharState(allStates, d.char, nextState, stateNum, ignoreCase)
       }
       case d: WSPDelim => {
         new WSPState(allStates, nextState, stateNum)
@@ -130,13 +130,13 @@ object CreateDelimiterDFA {
   }
 
   private def buildTransitions(delim: Seq[DelimBase],
-    allStates: ArrayBuffer[State]): State = {
+    allStates: ArrayBuffer[State], ignoreCase: Boolean): State = {
     assert(!delim.isEmpty)
-    buildTransitions(null, delim.reverse, allStates)
+    buildTransitions(null, delim.reverse, allStates, ignoreCase)
   }
 
   private def buildTransitions(nextState: DelimStateBase, delim: Seq[DelimBase],
-    allStates: ArrayBuffer[State]): State = {
+    allStates: ArrayBuffer[State], ignoreCase: Boolean): State = {
 
     if (delim.isEmpty && nextState != null) {
       // We are initial state
@@ -146,10 +146,10 @@ object CreateDelimiterDFA {
 
     val currentState = getState(delim(0),
       if (nextState == null) DFA.FinalState else nextState.stateNum,
-      delim.length - 1, allStates)
+      delim.length - 1, allStates, ignoreCase)
     val rest = delim.tail
 
     allStates += currentState
-    return buildTransitions(currentState, rest, allStates)
+    return buildTransitions(currentState, rest, allStates, ignoreCase)
   }
 }

@@ -68,6 +68,19 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="docIC" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+          <xs:element name="e1" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:ignoreCase="yes"/>
+          <xs:element name="e2" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:ignoreCase="yes"/>
+          <xs:element name="e3" nillable="true" type="xsd:int"
+            dfdl:lengthKind="delimited" dfdl:ignoreCase="yes"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="text_03" root="doc"
@@ -86,6 +99,26 @@
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
         </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="text_03ic" root="docIC"
+    model="text_03"
+    description="Text_03 nil values with ignore case - DFDL-13-235R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NIL,Nil,niL;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <docIC xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <e1 xsi:nil="true" />
+          <e2 xsi:nil="true" />
+          <e3 xsi:nil="true" />
+        </docIC>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

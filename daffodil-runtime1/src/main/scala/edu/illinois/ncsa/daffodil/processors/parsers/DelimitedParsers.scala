@@ -107,7 +107,8 @@ class LiteralNilDelimitedEndOfDataParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   override val cookedNilValuesForParse: List[String],
-  rawNilValuesForParse: List[String])
+  rawNilValuesForParse: List[String],
+  override val ignoreCase: Boolean)
   extends StringDelimitedParser(erd, justificationTrim, pad, textParser, fieldDFAEv, false)
   with NilMatcherMixin {
 

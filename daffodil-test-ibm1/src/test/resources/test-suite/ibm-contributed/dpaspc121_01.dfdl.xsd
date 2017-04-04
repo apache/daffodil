@@ -18,7 +18,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				initiatedContent="no" sequenceKind="ordered" 
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 				bitOrder="mostSignificantBitFirst" representation="binary"
-				textPadKind="none" textOutputMinLength="0" />
+				textPadKind="none" textOutputMinLength="0" ignoreCase="no" />
 		</xs:appinfo>
 
 	</xs:annotation>

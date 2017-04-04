@@ -88,6 +88,7 @@ final class LiteralValueNilOfSpecifiedLengthParser(
   override val cookedNilValuesForParse: List[String],
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
+  override val ignoreCase: Boolean,
   erd: ElementRuntimeData)
   extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
@@ -111,6 +112,7 @@ final class LiteralCharacterNilOfSpecifiedLengthParser(
   override val cookedNilValuesForParse: List[String],
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
+  override val ignoreCase: Boolean,
   erd: ElementRuntimeData)
   extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 

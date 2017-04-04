@@ -55,7 +55,7 @@ class TestDelimiterProperties {
   import TestDelimiterProperties._
 
   @Test def test_delimiter_12_01() { runner_01.runOneTest("delimiter_12_01") }
-  //@Test def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
+  @Test def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
   @Test def test_delimiter_12_03() { runner_01.runOneTest("delimiter_12_03") }
   @Test def test_delimiter_12_04() { runner_01.runOneTest("delimiter_12_04") }
 
@@ -93,4 +93,6 @@ class TestDelimiterProperties {
   @Test def test_OptionalWSPTermWithExplicitLength2() = {
     runner_02.runOneTest("OptionalWSPTermWithExplicitLength2")
   }
+
+  @Test def test_delims_ignorecase_01() = { runner_02.runOneTest("delims_ignorecase_01") }
 }

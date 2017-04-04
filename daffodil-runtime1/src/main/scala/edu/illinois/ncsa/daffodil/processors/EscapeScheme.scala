@@ -57,8 +57,8 @@ case class EscapeSchemeBlockParserHelper(val eec: MaybeChar,
   // the whether or not the delimiters are constant or not.
   // As a result, it cannot be generated here.
 
-  val blockStartDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockStart)
-  val blockEndDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockEnd)
+  val blockStartDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockStart, false)
+  val blockEndDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockEnd, false)
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
 
   override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") +
@@ -73,9 +73,9 @@ case class EscapeSchemeCharUnparserHelper(val ec: Char, val eec: MaybeChar, extr
 
   // We need to look for the escapeCharacter and the extraEscapedCharacters
   //
-  val escCharDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, ec.toString)
-  val escEscCharDFA: Maybe[DFADelimiter] = if (eec.isDefined) One(CreateDelimiterDFA(DelimiterTextType.Other, rd, eec.toString)) else Nope
-  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(DelimiterTextType.Other, rd, extraEscChar.map(_.toString))
+  val escCharDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, ec.toString, false)
+  val escEscCharDFA: Maybe[DFADelimiter] = if (eec.isDefined) One(CreateDelimiterDFA(DelimiterTextType.Other, rd, eec.toString, false)) else Nope
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(DelimiterTextType.Other, rd, extraEscChar.map(_.toString), false)
 
   override val lookingFor = {
     val res: Array[DFADelimiter] =
@@ -97,10 +97,10 @@ case class EscapeSchemeBlockUnparserHelper(val eec: MaybeChar,
 
   // We need to look for the blockEnd
   //
-  val blockEndDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockEnd)
-  val blockStartDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockStart)
+  val blockEndDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockEnd, false)
+  val blockStartDFA: DFADelimiter = CreateDelimiterDFA(DelimiterTextType.Other, rd, blockStart, false)
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
-  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(DelimiterTextType.Other, rd, extraEscChar.map(_.toString))
+  val extraEscCharsDFAs: Array[DFADelimiter] = CreateDelimiterDFA(DelimiterTextType.Other, rd, extraEscChar.map(_.toString), false)
 
   override val lookingFor = blockStartDFA +: extraEscCharsDFAs
 

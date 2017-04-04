@@ -211,7 +211,8 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       textDelimitedParser,
       fieldDFAParseEv,
       eb.cookedNilValuesForParse,
-      eb.rawNilValuesForParse)
+      eb.rawNilValuesForParse,
+      eb.ignoreCaseBool)
 
   override lazy val unparser: DaffodilUnparser =
     new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData,

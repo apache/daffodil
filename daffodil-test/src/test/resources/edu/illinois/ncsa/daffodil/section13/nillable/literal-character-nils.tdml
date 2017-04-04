@@ -53,7 +53,7 @@
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
-      nilValueDelimiterPolicy="none" nilValue="-" nilKind="literalCharacter"
+      nilValueDelimiterPolicy="none" nilValue="x" nilKind="literalCharacter"
       textNumberRep="standard" ignoreCase="no" />
 
     <xs:element name="doc" dfdl:lengthKind="implicit">
@@ -69,6 +69,19 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="docIC" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" type="xsd:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" dfdl:ignoreCase="yes" />
+          <xs:element name="e2" nillable="true" type="xsd:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" dfdl:ignoreCase="yes" />
+          <xs:element name="e3" nillable="true" type="xsd:int"
+            dfdl:lengthKind="explicit" dfdl:length="2" dfdl:ignoreCase="yes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="text_01" root="doc"
@@ -76,7 +89,7 @@
     description="Text_01 Two nilValues one length 1, other length 2">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[0---]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[0xxx]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
@@ -87,6 +100,26 @@
           <e2 xsi:nil="true" />
           <e3 xsi:nil="true" />
         </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="text_01ic" root="docIC"
+    model="text_01"
+    description="Text_01 Two nilValues one length 1, other length 2, with ignorecase">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[0XxX]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <docIC xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <e1>0</e1>
+          <e2 xsi:nil="true" />
+          <e3 xsi:nil="true" />
+        </docIC>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

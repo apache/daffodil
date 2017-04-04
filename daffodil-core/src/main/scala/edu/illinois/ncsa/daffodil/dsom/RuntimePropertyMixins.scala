@@ -77,6 +77,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeJULong
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 
 /*
  * These are the DFDL properties which can have their values come
@@ -175,6 +176,7 @@ trait TermRuntimeValuedPropertiesMixin
   override protected def propertyValueReferencedElementInfos =
     myPropertyValueReferencedElementInfos
 
+  lazy val ignoreCaseBool = ignoreCase == YesNo.Yes
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
@@ -196,7 +198,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   }
 
   lazy val initiatorParseEv = {
-    val ev = new InitiatorParseEv(initiatorExpr, decl.termRuntimeData)
+    val ev = new InitiatorParseEv(initiatorExpr, decl.ignoreCaseBool, decl.termRuntimeData)
     ev.compile()
     ev
   }
@@ -218,7 +220,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   final def terminatorLoc = (this.diagnosticDebugName, this.path)
 
   lazy val terminatorParseEv = {
-    val ev = new TerminatorParseEv(terminatorExpr, isLengthKindDelimited, decl.termRuntimeData)
+    val ev = new TerminatorParseEv(terminatorExpr, isLengthKindDelimited, decl.ignoreCaseBool, decl.termRuntimeData)
     ev.compile()
     ev
   }
@@ -533,7 +535,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   }
 
   lazy val separatorParseEv = {
-    val ev = new SeparatorParseEv(separatorExpr, decl.termRuntimeData)
+    val ev = new SeparatorParseEv(separatorExpr, decl.ignoreCaseBool, decl.termRuntimeData)
     ev.compile()
     ev
   }

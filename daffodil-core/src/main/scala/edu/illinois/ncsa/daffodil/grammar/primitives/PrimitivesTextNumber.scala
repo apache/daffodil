@@ -177,53 +177,53 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextIntegerParserUnparserHelper[JBigInt](e.textStandardZeroRep)
+  val helper = new ConvertTextIntegerParserUnparserHelper[JBigInt](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextDecimalPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigDecimal](e) {
-  val helper = new ConvertTextDecimalParserUnparserHelper[JBigDecimal](e.textStandardZeroRep)
+  val helper = new ConvertTextDecimalParserUnparserHelper[JBigDecimal](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[JBigDecimal](e.textStandardZeroRep)
+  val helper = new ConvertTextNonNegativeIntegerParserUnparserHelper[JBigDecimal](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextLongPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {
-  val helper = new ConvertTextLongParserUnparserHelper[Long](e.textStandardZeroRep)
+  val helper = new ConvertTextLongParserUnparserHelper[Long](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e) {
-  val helper = new ConvertTextIntParserUnparserHelper[Int](e.textStandardZeroRep)
+  val helper = new ConvertTextIntParserUnparserHelper[Int](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e) {
-  val helper = new ConvertTextShortParserUnparserHelper[Short](e.textStandardZeroRep)
+  val helper = new ConvertTextShortParserUnparserHelper[Short](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Byte](e) {
-  val helper = new ConvertTextByteParserUnparserHelper[Byte](e.textStandardZeroRep)
+  val helper = new ConvertTextByteParserUnparserHelper[Byte](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextUnsignedLongPrim(e: ElementBase) extends ConvertTextNumberPrim[JBigInt](e) {
-  val helper = new ConvertTextUnsignedLongParserUnparserHelper[JBigInt](e.textStandardZeroRep)
+  val helper = new ConvertTextUnsignedLongParserUnparserHelper[JBigInt](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextUnsignedIntPrim(e: ElementBase) extends ConvertTextNumberPrim[Long](e) {
-  val helper = ConvertTextUnsignedIntParserUnparserHelper[Long](e.textStandardZeroRep)
+  val helper = ConvertTextUnsignedIntParserUnparserHelper[Long](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextUnsignedShortPrim(e: ElementBase) extends ConvertTextNumberPrim[Int](e) {
-  val helper = new ConvertTextUnsignedShortParserUnparserHelper[Int](e.textStandardZeroRep)
+  val helper = new ConvertTextUnsignedShortParserUnparserHelper[Int](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextUnsignedBytePrim(e: ElementBase) extends ConvertTextNumberPrim[Short](e) {
-  val helper = new ConvertTextUnsignedByteParserUnparserHelper[Short](e.textStandardZeroRep)
+  val helper = new ConvertTextUnsignedByteParserUnparserHelper[Short](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextDoublePrim(e: ElementBase) extends ConvertTextNumberPrim[Double](e) {
-  val helper = new ConvertTextDoubleParserUnparserHelper[Double](e.textStandardZeroRep)
+  val helper = new ConvertTextDoubleParserUnparserHelper[Double](e.textStandardZeroRep, e.ignoreCaseBool)
 }
 
 case class ConvertTextFloatPrim(e: ElementBase) extends ConvertTextNumberPrim[Float](e) {
-  val helper = new ConvertTextFloatParserUnparserHelper[Float](e.textStandardZeroRep)
+  val helper = new ConvertTextFloatParserUnparserHelper[Float](e.textStandardZeroRep, e.ignoreCaseBool)
 }

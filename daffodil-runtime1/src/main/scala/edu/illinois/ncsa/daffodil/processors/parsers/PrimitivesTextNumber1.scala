@@ -166,7 +166,7 @@ case class ConvertTextNumberParser[S](
   }
 }
 
-abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) extends Serializable {
+abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String], ignoreCase: Boolean) extends Serializable {
   val xsdType: String
   val prettyType: String
 
@@ -179,16 +179,17 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
   val zeroRepListRaw = zeroRep.filter { _ != "" }
   val zeroRepList = zeroRepListRaw.map { zr =>
     val d = new Delimiter()
-    d.compileDelimiter(zr)
+    d.compileDelimiter(zr, ignoreCase)
     // add '^' and '$' to require the regular expression to match the entire
     // string as a zero rep instead of just part of it
-    val regex = ("^" + d.delimRegExParseDelim + "$").r
+    val ignoreCaseStr = if (ignoreCase) "(?i)" else ""
+    val regex= (ignoreCaseStr + "^" + d.delimRegExParseDelim + "$").r
     regex
   }
 }
 
-abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep) {
+abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep, ignoreCase) {
   override def isInt = true
 
   override def getStringFormat(n: S): String = n.toString()
@@ -225,8 +226,8 @@ abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[Str
   def max: Long
 }
 
-abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep) {
+abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep, ignoreCase) {
   override def isInt = false
   override def getStringFormat(n: S): String = {
 
@@ -248,8 +249,8 @@ abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: Li
 
 }
 
-case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
+case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "integer"
@@ -259,8 +260,8 @@ case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String])
   def max = -1 // ignored
 }
 
-case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
+case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "nonNegativeInteger"
@@ -275,8 +276,8 @@ case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[St
   def max = -1 // ignored
 }
 
-case class ConvertTextLongParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep) {
+case class ConvertTextLongParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.longValue
   override val xsdType = "long"
@@ -285,8 +286,8 @@ case class ConvertTextLongParserUnparserHelper[S](zeroRep: List[String])
   val max = Long.MaxValue
 }
 
-case class ConvertTextIntParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep) {
+case class ConvertTextIntParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.intValue
   override val xsdType = "int"
@@ -295,8 +296,8 @@ case class ConvertTextIntParserUnparserHelper[S](zeroRep: List[String])
   val max = Int.MaxValue.toLong
 }
 
-case class ConvertTextShortParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep) {
+case class ConvertTextShortParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.shortValue
   override val xsdType = "short"
@@ -305,8 +306,8 @@ case class ConvertTextShortParserUnparserHelper[S](zeroRep: List[String])
   val max = Short.MaxValue.toLong
 }
 
-case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Byte](zeroRep) {
+case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Byte](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.byteValue
   override val xsdType = "byte"
@@ -315,8 +316,8 @@ case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String])
   val max = Byte.MaxValue.toLong
 }
 
-case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep) {
+case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[JBigInt](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = new JBigInt(num.toString)
   override val xsdType = "unsignedLong"
@@ -336,8 +337,8 @@ case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
   val max = -1.toLong // unused.
 }
 
-case class ConvertTextUnsignedIntParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep) {
+case class ConvertTextUnsignedIntParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.longValue
   override val xsdType = "unsignedInt"
@@ -346,8 +347,8 @@ case class ConvertTextUnsignedIntParserUnparserHelper[S](zeroRep: List[String])
   val max = (1L << 32) - 1L
 }
 
-case class ConvertTextUnsignedShortParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep) {
+case class ConvertTextUnsignedShortParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.intValue
   override val xsdType = "unsignedShort"
@@ -356,8 +357,8 @@ case class ConvertTextUnsignedShortParserUnparserHelper[S](zeroRep: List[String]
   val max = (1L << 16) - 1L
 }
 
-case class ConvertTextUnsignedByteParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep) {
+case class ConvertTextUnsignedByteParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = num.shortValue
   override val xsdType = "unsignedByte"
@@ -366,8 +367,8 @@ case class ConvertTextUnsignedByteParserUnparserHelper[S](zeroRep: List[String])
   val max = (1L << 8) - 1L
 }
 
-case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextFloatingPointNumberParserUnparserHelper[JBigDecimal](zeroRep) {
+case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextFloatingPointNumberParserUnparserHelper[JBigDecimal](zeroRep, ignoreCase) {
 
   override def getNum(num: Number) = new JBigDecimal(num.toString)
   override val xsdType = "decimal"
@@ -379,8 +380,8 @@ case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String])
   }
 }
 
-case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextFloatingPointNumberParserUnparserHelper[Double](zeroRep) {
+case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextFloatingPointNumberParserUnparserHelper[Double](zeroRep, ignoreCase) {
 
   val MAX_VALUE = new JBigDecimal(Double.MaxValue)
   val MIN_VALUE = new JBigDecimal(Double.MinValue)
@@ -396,8 +397,8 @@ case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
   }
 }
 
-case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextFloatingPointNumberParserUnparserHelper[Float](zeroRep) {
+case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
+  extends ConvertTextFloatingPointNumberParserUnparserHelper[Float](zeroRep, ignoreCase) {
 
   val MAX_VALUE = new JBigDecimal(Float.MaxValue)
   val MIN_VALUE = new JBigDecimal(Float.MinValue)
