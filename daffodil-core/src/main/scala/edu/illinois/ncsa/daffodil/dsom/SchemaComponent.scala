@@ -38,10 +38,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
@@ -51,6 +49,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
 import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -58,14 +57,17 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
  * Every schema component has a schema document, and a schema, and a namespace.
  */
 abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
-  extends SchemaComponentBase(xmlArg, parent)
+  extends OOLAGHost(parent)
   with ImplementsThrowsOrSavesSDE
   with GetAttributesMixin
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
   with FindPropertyMixin
-  with SchemaFileLocatable
+  with SchemaFileLocatableImpl
   with PropTypes {
+
+  val xml = xmlArg
+  val aaa_xml = xml // for debugging, so we don't have to scroll down.
 
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
@@ -76,55 +78,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       schemaFileLocation)
 
   val context: SchemaComponent = parent
-
-  override protected def enclosingComponentDef =
-    super.enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
-
-  override final lazy val enclosingComponent = enclosingComponentDef
-
-  /**
-   * Annotations can contain expressions, so we need to be able to compile them.
-   *
-   * We need our own instance so that the expression compiler has this schema
-   * component as its context.
-   */
-
-  override lazy val lineAttribute: Option[String] = {
-    val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
-    if (attrText.isDefined) {
-      attrText
-    } else if (parent != null) parent.lineAttribute
-    else None
-  }
-
-  final override lazy val columnAttribute = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) map { _.text }
-
-  final override lazy val fileAttribute: Option[String] = {
-    val optAttrNode = schemaFile.map { _.node.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) }.flatten
-    val optAttrText = optAttrNode.map { _.text }
-    optAttrText
-  }
-
-  /**
-   * Namespace scope for resolving QNames.
-   *
-   * We insist that the prefix "xsi" is properly defined for use
-   * in xsi:nil attributes, which is how we represent nilled elements
-   * when we convert to XML.
-   */
-  final lazy val namespaces = {
-    val scope = xml.scope
-    val foundXsiURI = scope.getURI("xsi")
-    val xsiURI = XMLUtils.xsiURI.toString
-    val newScope =
-      (foundXsiURI, this) match {
-        case (null, e: ElementBase) => new NamespaceBinding("xsi", xsiURI, scope)
-        case (`xsiURI`, _) => scope
-        case (s: String, _) => schemaDefinitionError("Prefix 'xsi' must be bound to the namespace '%s', but was bound to the namespace '%s'.", xsiURI, s)
-        case (null, _) => scope
-      }
-    newScope
-  }
 
   /**
    * ALl non-terms get runtimeData from this definition. All Terms
@@ -172,20 +125,14 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   // schema components - they have a relationship to an annotated schema component
   // but clearly they carry properties.
 
-  lazy val schemaFile: Option[DFDLSchemaFile] = parent.schemaFile
-  lazy val schemaSet: SchemaSet = parent.schemaSet
-  lazy val schemaDocument: SchemaDocument = parent.schemaDocument
-  lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
-  lazy val schema: Schema = parent.schema
-  lazy val schemaComponent: LookupLocation = this
-  override lazy val uriString: String = parent.uriString
-
-  override def isHidden: Boolean = LV('isHidden) {
+  def isHidden: Boolean = LV('isHidden) {
     enclosingComponent match {
       case None => Assert.invariantFailed("Root global element should be overriding this.")
       case Some(ec) => ec.isHidden
     }
   }.value
+
+  lazy val schemaComponent: LookupLocation = this
 
   /**
    * All schema components except the root have an enclosing element.
@@ -203,9 +150,11 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   final lazy val rootElement: Option[GlobalElementDecl] = {
     enclosingElement match {
       case Some(e) => e.rootElement
-      case None => this match {
-        case eb: ElementBase => Some(eb.asInstanceOf[GlobalElementDecl])
-        case _ => None
+      case None => {
+        if (this.isInstanceOf[GlobalElementDecl])
+          Some(this.asInstanceOf[GlobalElementDecl])
+        else
+          None
       }
     }
   }
@@ -291,13 +240,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 }
 
 /**
- * Local components
- */
-trait LocalComponentMixin { self: SchemaComponent =>
-  // nothing currently - all components have a parent.
-}
-
-/**
  * A schema is all the schema documents sharing a single target namespace.
  *
  * That is, one can write several schema documents which all have the
@@ -329,7 +271,8 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
             thing match {
               case df: DFDLDefiningAnnotation => df.asAnnotation.locationDescription
               case sc: SchemaComponent => sc.locationDescription
-              case _ => Assert.invariantFailed("should only be a SchemaComponent or a DFDLDefiningAnnotation")
+              case sf: SchemaComponentFactory => sf.locationDescription
+              case _ => Assert.impossibleCase(thing)
             }
           }.mkString("\n"))
       }

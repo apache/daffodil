@@ -63,7 +63,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.elementComplexType
+    val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
     assertTrue(s1.hasStaticallyRequiredInstances)
@@ -92,7 +92,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.elementComplexType
+    val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
     assertFalse(s1.hasStaticallyRequiredInstances)
@@ -124,7 +124,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.elementComplexType
+    val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2, s3, s4, s5) = seq.groupMembers
     assertFalse(s1.hasStaticallyRequiredInstances)
@@ -165,7 +165,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.elementComplexType
+    val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(seqMem) = seq.groupMembers
     val cho = seqMem.asInstanceOf[Choice]
@@ -203,7 +203,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(_, e2f) = sd.globalElementDecls
     val e2 = e2f.forRoot()
-    val e2ct = e2.elementComplexType
+    val e2ct = e2.complexType
     val seq = e2ct.sequence
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
@@ -249,7 +249,7 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f, _) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.elementComplexType
+    val e1ct = e1.complexType
     val e1seq = e1ct.sequence
     val Seq(t1: Term) = e1seq.groupMembers
 
@@ -259,7 +259,7 @@ class TestMiddleEndAttributes {
     val Seq(t2: Term) = eMsgChoice.groupMembers
     val e2ref = t2.asInstanceOf[ElementRef]
     val e3 = e2ref.referencedElement
-    val e3ct = e3.elementComplexType
+    val e3ct = e3.complexType
     val e3seq = e3ct.sequence
     val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
     // Sequence inside an element doesn't have an immediately enclosing model group

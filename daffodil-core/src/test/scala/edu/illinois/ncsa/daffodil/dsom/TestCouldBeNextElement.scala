@@ -70,7 +70,7 @@ class TestCouldBeNextElement {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
 
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
     val rootSeq = rootCT.sequence
     val Seq(choice1: Choice, barOpt: LocalElementBase, bar2: LocalElementBase) = rootSeq.groupMembers
     val Seq(choice1seq1: Sequence, choice1seq2: Sequence, bar1: LocalElementBase) = choice1.groupMembers
@@ -137,10 +137,10 @@ class TestCouldBeNextElement {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
 
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
     val rootSeq = rootCT.sequence
     val Seq(array: LocalElementBase, after: LocalElementBase) = rootSeq.groupMembers
-    val arrayCT = array.elementComplexType
+    val arrayCT = array.complexType
     val choice = arrayCT.modelGroup.asInstanceOf[Choice]
     val Seq(ch1: LocalElementBase, ch2: LocalElementBase, array2: LocalElementBase, choiceSeq: Sequence) = choice.groupMembers
 
@@ -197,7 +197,7 @@ class TestCouldBeNextElement {
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
 
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
     val rootSeq = rootCT.sequence
     val Seq(e1: LocalElementBase, e2: LocalElementBase, e3: LocalElementBase) = rootSeq.groupMembers
 

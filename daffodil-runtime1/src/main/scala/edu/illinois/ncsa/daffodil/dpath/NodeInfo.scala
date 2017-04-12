@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dpath
 import scala.BigDecimal
 import scala.BigInt
 import edu.illinois.ncsa.daffodil.calendar._
-import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -86,7 +85,14 @@ sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
     list.size > 0
   }
 
-  lazy val globalQName: GlobalQName = QName.createGlobal(name, XMLUtils.XSD_NAMESPACE, scala.xml.TopScope)
+  private val xsScope = <xs:documentation xmlns:xs={ XMLUtils.XSD_NAMESPACE.uri.toString() }/>.scope
+
+  // FIXME: this scope has xs prefix bound, but what if that's not the binding
+  // the user has in their DFDL schema? What if they use "xsd" or just "x" or
+  // whatever? We really need to display the name of primitive types using the
+  // prefix the user defines for the XSD namespace.
+  //
+  lazy val globalQName: GlobalQName = QName.createGlobal(name.toLowerCase(), XMLUtils.XSD_NAMESPACE, xsScope)
 }
 
 /*
@@ -137,7 +143,9 @@ object NodeInfo extends Enum {
 
   // Primitives are not "global" because they don't appear in any schema document
   sealed trait PrimType
-    extends AnyAtomic.Kind with SimpleTypeBase {
+    extends AnyAtomic.Kind {
+
+    def globalQName: GlobalQName
 
     /**
      * When class name is isomorphic to the type name, compute automatically.
@@ -150,13 +158,14 @@ object NodeInfo extends Enum {
     }
 
     def isError: Boolean = false
-    def primitiveType = this
+    def primType = this
 
     def fromXMLString(s: String): AnyRef
   }
 
   private def getTypeNode(name: String) = {
-    allTypes.find(stn => stn.lcaseName == name.toLowerCase())
+    val namelc = name.toLowerCase()
+    allTypes.find(stn => stn.lcaseName == namelc)
   }
 
   def isXDerivedFromY(nameX: String, nameY: String): Boolean = {

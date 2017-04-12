@@ -50,8 +50,6 @@ object Facet extends Enum {
 }
 
 object FacetTypes {
-  // These were defined to make life simpler
-  // TODO: Should we modify these to also include the name of the simpleType?
   type Values = String
   type ValuesR = Regex
   type FacetValue = (Facet.Type, Values)

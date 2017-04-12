@@ -36,6 +36,8 @@ import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 
+import java.math.{ BigDecimal => JBigDecimal }
+
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.mutable.ArraySeq
 import edu.illinois.ncsa.daffodil.processors.parsers.TextCalendarConstants
@@ -67,7 +69,7 @@ trait OrderedCalendar { self: DFDLCalendar =>
    *       can be determined. That is:
    *
    *         1. For each i in {year, month, day, hour, minute, second}
-   *         		a. If P[i] and Q[i] are both not specified, continue
+   *             a. If P[i] and Q[i] are both not specified, continue
    *                 to the next i
    *              b. If P[i] is not specified and Q[i] is, or vice versa,
    *                 stop and return P <> Q
@@ -216,6 +218,7 @@ case class DFDLDate(calendar: Calendar, parsedTZ: Boolean)
     dateCal.clear(Calendar.SECOND)
     new DFDLDateTime(dateCal, parsedTZ)
   }
+
 }
 
 case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
@@ -430,6 +433,8 @@ abstract class DFDLCalendar(containsTZ: Boolean)
     //
     containsTZ
   }
+
+  final def toJBigDecimal: JBigDecimal = new JBigDecimal(calendar.getTimeInMillis())
 
   /**
    * Returns the TimeZone in the format of "+00:00"

@@ -42,9 +42,11 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   with TypeBase
   with ComplexTypeBaseGrammarMixin {
 
-  requiredEvaluations(modelGroup)
+  final override def optRestriction = None
+  final override def optUnion = None
+  final override def typeNode = NodeInfo.Complex
 
-  override def kind = NodeInfo.Complex
+  requiredEvaluations(modelGroup)
 
   def element: ElementBase
 
@@ -69,7 +71,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
     xmlChildren.flatMap {
       xmlChild =>
         {
-          val g = GroupFactory(xmlChild, this, 1) // discards unwanted text nodes also.
+          val g = ModelGroupFactory(xmlChild, this, 1) // discards unwanted text nodes also.
           g
         }
     }
@@ -103,7 +105,8 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 }
 
 final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
+  with GlobalNonElementComponentMixin {
 
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 
@@ -115,7 +118,8 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
  */
 final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
-  with GlobalComponentMixin {
+  with GlobalNonElementComponentMixin
+  with NestingTraversesToReferenceMixin {
 
   lazy val referringComponent = Option(element)
 
@@ -123,6 +127,7 @@ final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument
 
 final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, element)
-  with LocalComponentMixin {
-  //nothing
+  with LocalNonElementComponentMixin
+  with NestingLexicalMixin {
+  // nothing
 }

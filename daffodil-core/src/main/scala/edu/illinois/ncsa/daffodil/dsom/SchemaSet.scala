@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import edu.illinois.ncsa.daffodil.util.Memoize1
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -197,7 +198,7 @@ final class SchemaSet(
    * For checking uniqueness of global definitions in their namespaces
    */
 
-  private type UC = (NS, String, Symbol, SchemaComponent)
+  private type UC = (NS, String, Symbol, GlobalComponent)
 
   private def allTopLevels: Seq[UC] = LV('allTopLevels) {
     val res = schemas.flatMap { schema =>
@@ -414,11 +415,13 @@ final class SchemaSet(
   }
   def getDefineEscapeScheme(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getDefineEscapeScheme(refQName.local) }
 
-  def getPrimType(refQName: RefQName) = {
+  def getPrimitiveType(refQName: RefQName) = {
     if (refQName.namespace != XMLUtils.XSD_NAMESPACE) // must check namespace
       None
-    else
-      NodeInfo.PrimType.fromNameString(refQName.local)
+    else {
+      val optPrimNode = NodeInfo.PrimType.fromNameString(refQName.local)
+      optPrimNode.map { PrimitiveType(_) }
+    }
   }
 
   /**
@@ -526,6 +529,25 @@ final class SchemaSet(
     finalVMap
   }.value
 
+  object LocalSimpleTypeDefFactory {
+
+    private val f =
+      Memoize1((n: Node) =>
+        Memoize1((sd: SchemaDocument) =>
+          new LocalSimpleTypeDefFactory(n, sd)))
+
+    def apply(xml: Node, sd: SchemaDocument) = f(xml)(sd)
+  }
+
+  object LocalElementDeclFactory {
+
+    private val f =
+      Memoize1((xml: Node) =>
+        Memoize1((sd: SchemaDocument) =>
+          new LocalElementDeclFactory(xml, sd)))
+
+    def apply(xml: Node, sd: SchemaDocument) = f(xml)(sd)
+  }
 }
 
 class ValidateSchemasErrorHandler(sset: SchemaSet) extends org.xml.sax.ErrorHandler {

@@ -132,7 +132,8 @@ object OOLAG extends Logging {
    * to be determined by its calculation have been recorded.
    */
   abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
-    extends Logging with WithDiagnostics {
+    extends Logging with WithDiagnostics
+    with NamedMixinBase {
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
@@ -216,14 +217,6 @@ object OOLAG extends Logging {
     private def isOOLAGRoot = {
       val res = oolagContext == OOLAGRoot
       res
-    }
-
-    /**
-     * For trace/debug output & diagnostic messages.
-     */
-    lazy val diagnosticDebugName: String = {
-      val cn = Misc.getNameFromClass(this)
-      cn
     }
 
     lazy val path: String = {

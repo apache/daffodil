@@ -44,10 +44,7 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
     if (dstate.currentElement.valid.isDefined) {
       dstate.setCurrentValue(dstate.currentElement.valid.get)
     } else {
-      val res = DFDLCheckConstraintsFunction.executeCheck(dstate.currentSimple) match {
-        case Right(boolVal) => true
-        case Left(msg) => false
-      }
+      val res = DFDLCheckConstraintsFunction.executeCheck(dstate.currentSimple).isOK
       dstate.currentElement.setValid(res)
       dstate.setCurrentValue(res)
     }

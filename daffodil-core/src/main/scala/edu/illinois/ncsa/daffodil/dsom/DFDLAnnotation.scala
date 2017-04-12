@@ -56,7 +56,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
  * bit more tightly to the OOLAG library there.
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg) {
+  extends SchemaComponent(xmlArg, annotatedSCArg)
+  with NestingLexicalMixin {
 
   final override val context: AnnotatedSchemaComponent = annotatedSCArg
 

@@ -52,7 +52,8 @@ final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   with Group_AnnotationMixin
   with SeparatorSuppressionPolicyMixin
   with SequenceRuntimeValuedPropertiesMixin
-  with HasRefMixin {
+  with HasRefMixin
+  with NestingLexicalMixin {
 
   requiredEvaluations(groupDef)
 

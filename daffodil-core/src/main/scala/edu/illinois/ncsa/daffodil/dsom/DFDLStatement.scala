@@ -38,8 +38,10 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 /**
  * Base class for assertions, variable assignments, etc
  */
-abstract class DFDLStatement(node: Node, annotatedSC: AnnotatedSchemaComponent)
-  extends DFDLAnnotation(node, annotatedSC) {
+abstract class DFDLStatement(node: Node,
+  annotatedSCArg: AnnotatedSchemaComponent)
+  extends DFDLAnnotation(node, annotatedSCArg)
+  with NestingLexicalMixin {
 
   requiredEvaluations(gram)
 

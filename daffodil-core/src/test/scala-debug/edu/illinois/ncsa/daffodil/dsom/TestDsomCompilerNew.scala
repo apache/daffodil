@@ -179,7 +179,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -270,7 +270,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -361,7 +361,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -451,7 +451,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -546,7 +546,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -653,7 +653,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -763,7 +763,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -780,7 +780,7 @@ class TestDsomCompilerNew extends Logging {
 
     val Seq(four: LocalElementDecl) = seq.groupMembers
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
@@ -902,7 +902,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -919,7 +919,7 @@ class TestDsomCompilerNew extends Logging {
 
     val Seq(four: LocalElementDecl) = seq.groupMembers
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
@@ -1052,7 +1052,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1069,7 +1069,7 @@ class TestDsomCompilerNew extends Logging {
 
     val Seq(four: LocalElementDecl) = seq.groupMembers
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
@@ -1200,7 +1200,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1217,7 +1217,7 @@ class TestDsomCompilerNew extends Logging {
 
     val Seq(four: LocalElementDecl) = seq.groupMembers
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
@@ -1323,7 +1323,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1407,7 +1407,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1498,7 +1498,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1513,7 +1513,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
@@ -1625,7 +1625,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
-    val rootCT = root.elementComplexType
+    val rootCT = root.complexType
 
     // Verify that nothing follows the root, as it is the root.
     val elemsFollowingRoot = root.possibleNextTerms
@@ -1640,7 +1640,7 @@ class TestDsomCompilerNew extends Logging {
     val Seq(one: LocalElementDecl, two: LocalElementDecl, three: LocalElementDecl) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
-    val oneCT = one.elementComplexType
+    val oneCT = one.complexType
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 

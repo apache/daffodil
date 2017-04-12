@@ -32,7 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.infoset
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Boolean => JBoolean, Number => JNumber }
+import java.math.{ BigDecimal => JBigDecimal }
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
@@ -65,6 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.util.Numbers
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true, showFormatInfo: Boolean = false): scala.xml.NodeSeq
@@ -761,6 +763,8 @@ sealed trait DISimpleSharedMembersMixin {
   protected var _isDefaulted: Boolean = false
 
   protected var _value: AnyRef = null
+
+  protected var _unionMemberRuntimeData: Maybe[SimpleTypeRuntimeData] = Nope
 }
 
 sealed trait DISimpleSharedImplMixin
@@ -772,6 +776,7 @@ sealed trait DISimpleSharedImplMixin
     val s = e.asInstanceOf[DISimple]
     s._isDefaulted = this._isDefaulted
     s._value = this._value
+    s._unionMemberRuntimeData = this._unionMemberRuntimeData
   }
 
   abstract override def captureFrom(e: DIElement) {
@@ -779,12 +784,14 @@ sealed trait DISimpleSharedImplMixin
     val s = e.asInstanceOf[DISimple]
     this._isDefaulted = s._isDefaulted
     this._value = s._value
+    this._unionMemberRuntimeData = s._unionMemberRuntimeData
   }
 
   abstract override def clear() {
     super.clear()
     _isDefaulted = false
     _value = null
+    _unionMemberRuntimeData = Nope
   }
 }
 
@@ -1095,12 +1102,19 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   def filledSlots: IndexedSeq[DINode] = IndexedSeq.empty
 
   private var _stringRep: String = null
+  private var _bdRep: JBigDecimal = null
 
   override def children: Stream[DINode] = Stream.Empty
 
   def setDefaultedDataValue(defaultedValue: AnyRef) = {
     setDataValue(defaultedValue)
     _isDefaulted = true
+  }
+
+  def unionMemberRuntimeData = _unionMemberRuntimeData
+  def setUnionMemberRuntimeData(umrd: SimpleTypeRuntimeData): Unit = {
+    _unionMemberRuntimeData = Maybe(umrd)
+    this.setValid(true)
   }
 
   /**
@@ -1169,6 +1183,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         // logical value for debug or for XML output.
         //
         _stringRep = null
+        _bdRep = null
         _value = x match {
           case dc: DFDLCalendar => dc
           case arb: Array[Byte] => arb
@@ -1183,6 +1198,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _isNilledSet = true
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
+    _unionMemberRuntimeData = Nope
   }
 
   override def isNilled: Boolean = {
@@ -1199,7 +1215,9 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     _isNilledSet = false
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
+    _unionMemberRuntimeData = Nope
     _stringRep = null
+    _bdRep = null
     _value = null
   }
 
@@ -1256,6 +1274,18 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           else f.toString
         }
         case _ => dataValue.toString
+      }
+    }
+  }
+
+  def dataValueAsBigDecimal: JBigDecimal = {
+    if (_bdRep ne null) _bdRep
+    else {
+      dataValue match {
+        case n: JBigDecimal => n
+        case n: JNumber => Numbers.asJBigDecimal(n)
+        case dc: DFDLCalendar => dc.toJBigDecimal
+        case _ => Assert.usageError("value should not be converted to bigDecimal: " + dataValue)
       }
     }
   }

@@ -33,31 +33,118 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.processors.SimpleTypeRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
 
-abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
+trait TypeBase {
+  def optRestriction: Option[Restriction] = None
+  def optUnion: Option[Union] = None
+  def typeNode: NodeInfo.AnyType.Kind
+}
+
+sealed trait SimpleTypeBase extends TypeBase {
+  def primType: NodeInfo.PrimType = {
+    optRestriction.map { _.primType }.getOrElse {
+      optUnion.map { _.primType }.getOrElse {
+        Assert.invariantFailed("must be either a restriction or union")
+      }
+    }
+  }
+}
+
+/**
+ * PrimType nodes are part of the runtime. For compilation, we need a notion
+ * of primitive type that derives from the same base a SimpleTypeBase and
+ * ComplexTypeBase, and it needs to have methods that take and return
+ * compiler-only object types; hence we can't define a base in the runtime
+ * because it can't have those methods; hence, can't achieve the
+ * polymorphism over all sorts of types.
+ *
+ * So for the compiler, a PrimitiveType is just a wrapper around a PrimType object.
+ */
+class PrimitiveType private (tn: PrimType)
+  extends SimpleTypeBase {
+  override def optRestriction = None
+  override def optUnion = None
+  override def primType = tn
+  override def typeNode = tn
+}
+
+object PrimitiveType {
+
+  def apply(typeNode: PrimType) = {
+    typeNode match {
+      case PrimType.String => String
+      case PrimType.Int => Int
+      case PrimType.Byte => Byte
+      case PrimType.Short => Short
+      case PrimType.Long => Long
+      case PrimType.Integer => Integer
+      case PrimType.Decimal => Decimal
+      case PrimType.UnsignedInt => UnsignedInt
+      case PrimType.UnsignedByte => UnsignedByte
+      case PrimType.UnsignedShort => UnsignedShort
+      case PrimType.UnsignedLong => UnsignedLong
+      case PrimType.NonNegativeInteger => NonNegativeInteger
+      case PrimType.Double => Double
+      case PrimType.Float => Float
+      case PrimType.HexBinary => HexBinary
+      case PrimType.Boolean => Boolean
+      case PrimType.DateTime => DateTime
+      case PrimType.Date => Date
+      case PrimType.Time => Time
+      case _ => Assert.usageError("Not a primitive type node: " + typeNode)
+    }
+  }
+
+  val String = new PrimitiveType(PrimType.String)
+  val Int = new PrimitiveType(PrimType.Int)
+  val Byte = new PrimitiveType(PrimType.Byte)
+  val Short = new PrimitiveType(PrimType.Short)
+  val Long = new PrimitiveType(PrimType.Long)
+  val Integer = new PrimitiveType(PrimType.Integer)
+  val Decimal = new PrimitiveType(PrimType.Decimal)
+  val UnsignedInt = new PrimitiveType(PrimType.UnsignedInt)
+  val UnsignedByte = new PrimitiveType(PrimType.UnsignedByte)
+  val UnsignedShort = new PrimitiveType(PrimType.UnsignedShort)
+  val UnsignedLong = new PrimitiveType(PrimType.UnsignedLong)
+  val NonNegativeInteger = new PrimitiveType(PrimType.NonNegativeInteger)
+  val Double = new PrimitiveType(PrimType.Double)
+  val Float = new PrimitiveType(PrimType.Float)
+  val HexBinary = new PrimitiveType(PrimType.HexBinary)
+  val Boolean = new PrimitiveType(PrimType.Boolean)
+  val DateTime = new PrimitiveType(PrimType.DateTime)
+  val Date = new PrimitiveType(PrimType.Date)
+  val Time = new PrimitiveType(PrimType.Time)
+
+}
+
+abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaComponent)
   extends AnnotatedSchemaComponent(xmlArg, parent)
   with SimpleTypeBase
   with DFDLStatementMixin
-  with Facets
   with OverlapCheckMixin {
 
   def element: ElementBase
 
-  requiredEvaluations(myBaseTypeList)
+  override def typeNode = primType
+
+  final lazy val restrictions = {
+    val thisR = optRestriction.toSeq
+    val res = thisR ++
+      thisR.flatMap { _.derivationBaseRestrictions }
+    res
+  }
 
   final lazy val bases: Seq[SimpleTypeDefBase] =
-    myBaseDef match {
-      case None => Nil
-      case Some(st: SimpleTypeDefBase) => st +: st.bases
-      case _ => Nil
-    }
+    if (restrictions.isEmpty) Nil
+    else restrictions.tail.map { _.simpleType }
 
-  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.map { _.nonDefaultFormatChain }
-  private lazy val sTypeDefault: Seq[ChainPropProvider] = bases.map { _.defaultFormatChain }
+  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.reverse.map { _.nonDefaultFormatChain }
+  private lazy val sTypeDefault: Seq[ChainPropProvider] = bases.reverse.map { _.defaultFormatChain }
 
   // want a QueueSet i.e., fifo order if iterated, but duplicates
   // kept out of the set. Will simulate by calling distinct.
@@ -72,8 +159,6 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     seq
   }.value
 
-  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
-
   protected final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
@@ -85,145 +170,27 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     }
   }
 
-  // Returns name of base class in the form of QName
-  //
-  final lazy val restrictionBase: RefQName = {
-    val rsb = xml \\ "restriction" \ "@base"
-    if (rsb.length != 1) {
-      context.SDE("Restriction base was not found.")
-    }
-    val qnString = rsb.head.text
-    val res = resolveQName(qnString)
-    res
-  }
-
-  final lazy val optPrimType: Option[PrimType] = {
-    if (restrictionBase.namespace == XMLUtils.XSD_NAMESPACE) {
-      // XSD namespace
-      val prim = schemaDocument.schemaSet.getPrimType(restrictionBase)
-      schemaDefinitionUnless(prim != None,
-        "Type %s is not an XSD primitive type.", restrictionBase)
-      prim
-    } else None
-  }
-
-  private lazy val myBaseDef = myBaseType match {
-    case st: SimpleTypeDefBase => Some(st)
-    case _ => None
-  }
-
-  private lazy val myBaseTypeFactory = {
-    Assert.invariant(optPrimType == None)
-    val factory = schemaDocument.schemaSet.getGlobalSimpleTypeDef(restrictionBase)
-    factory
-  }
-
-  /**
-   * Follows all indirections to get you the ultimate primitive
-   * built-in simple type that must underlie all simple types
-   * eventually.
-   */
-  final lazy val primitiveType = {
-    myBaseType.primitiveType
-  }
-
-  lazy val myBaseType: SimpleTypeBase = {
-    optPrimType match {
-      case Some(pt) => pt
-      case None => {
-        val bt = myBaseTypeFactory.map { _.forDerivedType(this) }
-        bt match {
-          case None => schemaDefinitionError("No type found for base: " + restrictionBase)
-          case Some(bt) => bt
-        }
-      }
+  final override lazy val (optRestriction, optUnion) = {
+    val restrictionNodeSeq = xml \ "restriction"
+    if (restrictionNodeSeq.isEmpty) {
+      val unionNodeSeq = xml \ "union"
+      Assert.invariant(unionNodeSeq.length == 1)
+      (None, Some(new Union(unionNodeSeq(0), this)))
+    } else {
+      (Some(new Restriction(restrictionNodeSeq(0), this)), None)
     }
   }
-
-  private lazy val myBaseTypeList = List(myBaseType)
-
-  final lazy val localBaseFacets: ElemFacets = {
-    val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
-    if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
-    if (localMinLengthValue.length > 0) { myFacets.enqueue((Facet.minLength, localMinLengthValue)) }
-    if (localMaxLengthValue.length > 0) { myFacets.enqueue((Facet.maxLength, localMaxLengthValue)) }
-    if (localMinInclusiveValue.length > 0) { myFacets.enqueue((Facet.minInclusive, localMinInclusiveValue)) }
-    if (localMaxInclusiveValue.length > 0) { myFacets.enqueue((Facet.maxInclusive, localMaxInclusiveValue)) }
-    if (localMinExclusiveValue.length > 0) { myFacets.enqueue((Facet.minExclusive, localMinExclusiveValue)) }
-    if (localMaxExclusiveValue.length > 0) { myFacets.enqueue((Facet.maxExclusive, localMaxExclusiveValue)) }
-    if (localTotalDigitsValue.length > 0) { myFacets.enqueue((Facet.totalDigits, localTotalDigitsValue)) }
-    if (localFractionDigitsValue.length > 0) { myFacets.enqueue((Facet.fractionDigits, localFractionDigitsValue)) }
-    if (localEnumerationValue.length > 0) { myFacets.enqueue((Facet.enumeration, localEnumerationValue)) }
-
-    val res: ElemFacets = myFacets.toSeq
-    res
-  }
-
-  final lazy val combinedBaseFacets: Seq[FacetValue] = {
-    //    val localF = localBaseFacets
-    //    val remoteF = remoteBaseFacets
-
-    val combined: Queue[FacetValue] = Queue.empty
-
-    if (hasEnumeration) {
-      val enumVal = getCombinedValueEnum
-      combined.enqueue((Facet.enumeration, enumVal))
-    }
-    if (hasPattern) {
-      val lPattern = localBaseFacets.filter { case (f, v) => f == Facet.pattern }
-      val rPattern = remoteBaseFacets.filter { case (f, v) => f == Facet.pattern }
-      val cPattern = lPattern.union(rPattern)
-      cPattern.foreach(x => combined.enqueue(x))
-    }
-    if (hasMinLength) {
-      val cValue = getCombinedValue(Facet.minLength)
-      combined.enqueue((Facet.minLength, cValue.toString()))
-    }
-    if (hasMaxLength) {
-      val cValue = getCombinedValue(Facet.maxLength)
-      combined.enqueue((Facet.maxLength, cValue.toString()))
-    }
-    if (hasMaxInclusive) {
-      val cValue = getCombinedValue(Facet.maxInclusive)
-      combined.enqueue((Facet.maxInclusive, cValue.toString()))
-    }
-    if (hasMaxExclusive) {
-      val cValue = getCombinedValue(Facet.maxExclusive)
-      combined.enqueue((Facet.maxExclusive, cValue.toString()))
-    }
-    if (hasMinInclusive) {
-      val cValue = getCombinedValue(Facet.minInclusive)
-      combined.enqueue((Facet.minInclusive, cValue.toString()))
-    }
-    if (hasMinExclusive) {
-      val cValue = getCombinedValue(Facet.minExclusive)
-      combined.enqueue((Facet.minExclusive, cValue.toString()))
-    }
-    if (hasTotalDigits) {
-      val cValue = getCombinedValue(Facet.totalDigits)
-      combined.enqueue((Facet.totalDigits, cValue.toString()))
-    }
-    if (hasFractionDigits) {
-      val cValue = getCombinedValue(Facet.fractionDigits)
-      combined.enqueue((Facet.fractionDigits, cValue.toString()))
-    }
-    combined.toSeq
-  }
-
-  final def remoteBaseFacets = LV('remoteBaseFacets) {
-    myBaseType match {
-      case gstd: GlobalSimpleTypeDef => gstd.combinedBaseFacets
-      case prim: PrimType => Nil
-      case _ => Assert.impossible()
-    }
-  }.value
 
   /**
    * Combine our statements with those of our base def (if there is one)
    *
    * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
    */
-  final lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
+  final lazy val statements: Seq[DFDLStatement] =
+    bases.flatMap { _.statements } ++ localStatements
+
+  private lazy val optBaseDef = optRestriction.flatMap { _.optBaseDef }
+
   // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations
   // for a particular annotation point, checking that there is only one format annotation, that
   // asserts and discriminators are properly excluding each-other, etc.
@@ -232,31 +199,91 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   //
   // See JIRA issue DFDL-481
   final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
-    myBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++ localNewVariableInstanceStatements
+    optBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Seq.empty) ++ localNewVariableInstanceStatements
   final lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
-  private lazy val combinedAsserts: Seq[DFDLAssert] = myBaseDef.map { _.assertStatements }.getOrElse(Nil) ++ localAssertStatements
-  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = myBaseDef.map { _.discriminatorStatements }.getOrElse(Nil) ++ localDiscriminatorStatements
+  private lazy val combinedAsserts: Seq[DFDLAssert] = optBaseDef.map { _.assertStatements }.getOrElse(Nil) ++ localAssertStatements
+  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = optBaseDef.map { _.discriminatorStatements }.getOrElse(Nil) ++ localDiscriminatorStatements
 
   final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
-    val combinedSvs = myBaseDef.map { _.setVariableStatements }.getOrElse(Nil) ++ localSetVariableStatements
+    val combinedSvs = optBaseDef.map { _.setVariableStatements }.getOrElse(Nil) ++ localSetVariableStatements
     checkDistinctVariableNames(combinedSvs)
   }
+  def toOpt[R <: AnyRef](b: Boolean, v: => R) = Misc.boolToOpt(b, v)
+
+  lazy val simpleTypeRuntimeData: SimpleTypeRuntimeData = {
+    new SimpleTypeRuntimeData(
+      variableMap,
+      schemaFileLocation,
+      diagnosticDebugName,
+      path,
+      namespaces,
+      element.simpleType.primType,
+      noFacetChecks,
+      //
+      // TODO: Cleanup code: really these should all have been option types
+      // not these pairs of a boolean, and a value that can only be evaluated
+      // if the boolean is true. Options types are preferable for these as
+      // they can be manipulated more easily with flatmap/orElse, etc.
+      //
+      optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
+      optRestriction.flatMap { r => toOpt(r.hasEnumeration, r.enumerationValues.get) },
+      optRestriction.flatMap { r => toOpt(r.hasMinLength, r.minLengthValue) },
+      optRestriction.flatMap { r => toOpt(r.hasMaxLength, r.maxLengthValue) },
+      optRestriction.flatMap { r => toOpt(r.hasMinInclusive, r.minInclusiveValue) },
+      optRestriction.flatMap { r => toOpt(r.hasMaxInclusive, r.maxInclusiveValue) },
+      optRestriction.flatMap { r => toOpt(r.hasMinExclusive, r.minExclusiveValue) },
+      optRestriction.flatMap { r => toOpt(r.hasMaxExclusive, r.maxExclusiveValue) },
+      optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
+      optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
+      optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } })
+  }
+
+  private lazy val noFacetChecks =
+    optRestriction.map { r =>
+      if (r.hasPattern || r.hasEnumeration || r.hasMinLength || r.hasMaxLength ||
+        r.hasMinInclusive || r.hasMaxInclusive || r.hasMinExclusive || r.hasMaxExclusive ||
+        r.hasTotalDigits || r.hasFractionDigits) false
+      else true
+    }.getOrElse(true)
+}
+
+sealed abstract class SimpleTypeDefFactory(xml: Node, schemaDocumentArg: SchemaDocument)
+  extends SchemaComponentFactory(xml, schemaDocumentArg) {
 
 }
 
-final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
-  extends SimpleTypeDefBase(xmlArg, parent)
-  with LocalComponentMixin {
+final class LocalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
+  with LocalNonElementComponentMixin {
 
-  override def term = parent
-  override lazy val element = parent
+  def forElement(element: ElementBase) =
+    new LocalSimpleTypeDef(this, element)
 
-  lazy val baseName = (xml \ "restriction" \ "@base").text
-  lazy val baseType = {
-    val res = if (baseName == "") None
-    else notYetImplemented("local simpleType with base attribute.") // should go find the global simple type here
-    res
+}
+
+final class LocalSimpleTypeDef(
+  val factory: LocalSimpleTypeDefFactory,
+  elementArg: ElementBase)
+  extends SimpleTypeDefBase(factory.xml, elementArg)
+  with LocalNonElementComponentMixin
+  with NestingLexicalMixin {
+
+  override def term = element
+  override lazy val element = elementArg
+
+  /**
+   * For anonymous simple type def, uses the base name, or primitive type name
+   */
+  override lazy val diagnosticDebugName: String = {
+    //
+    // TODO: implement a daf:name property to give an alternate name. If present, use that.
+    //
+    val rName = optRestriction.flatMap { r =>
+      r.optBaseDef.map { _.namedQName }.orElse(Some(r.primType.globalQName))
+    }
+    rName.get.toQNameString
   }
+
 }
 
 /**
@@ -272,24 +299,27 @@ final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
  */
 
 final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
-  // def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
+  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
+  with GlobalNonElementComponentMixin {
 
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(None, xml, schemaDocument, Some(element))
-  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), xml, schemaDocument, None)
+  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(None, this, Some(element))
+  def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), this, None)
 
-  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
 /**
  * The instance type for global simple type definitions.
  */
 
-final class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val referringElement: Option[ElementBase])
-  extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
-  with GlobalComponentMixin {
+final class GlobalSimpleTypeDef(
+  derivedType: Option[SimpleTypeDefBase],
+  val factory: GlobalSimpleTypeDefFactory,
+  val referringElement: Option[ElementBase])
+  extends SimpleTypeDefBase(factory.xml, factory.schemaDocument)
+  with GlobalNonElementComponentMixin
+  with NestingTraversesToReferenceMixin {
 
   override def term = element
 
@@ -306,6 +336,5 @@ final class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: 
     case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 
-  override lazy val diagnosticDebugName = this.namedQName.diagnosticDebugName
-
 }
+

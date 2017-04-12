@@ -274,12 +274,12 @@ trait ElementRuntimeValuedPropertiesMixin
     import Representation._
     import NodeInfo._
     lazy val maxLengthLong = maxLength.longValueExact
-    val ev = (impliedRepresentation, typeDef.kind) match {
+    val ev = (impliedRepresentation, typeDef.typeNode) match {
       case (Text, String) => new ImplicitLengthEv(maxLengthLong, erd)
       case (Binary, HexBinary) => new ImplicitLengthEv(maxLengthLong, erd)
       case (Binary, _) => new ImplicitLengthEv(implicitBinaryLengthInBits, erd)
       case (Text, _) =>
-        SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.kind.name)
+        SDE("Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'", typeDef.typeNode.name)
     }
     ev.compile()
     ev
@@ -325,7 +325,7 @@ trait ElementRuntimeValuedPropertiesMixin
     import Representation._
     import NodeInfo._
     val (units: LengthUnits, lenEv: LengthEv) =
-      (lengthKind, impliedRepresentation, typeDef.kind) match {
+      (lengthKind, impliedRepresentation, typeDef.typeNode) match {
         case (Explicit, Binary, HexBinary) => (lengthUnits, explicitLengthEv)
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, implicitLengthEv)
         case (Explicit, Binary, _) => (lengthUnits, explicitLengthEv)
@@ -361,7 +361,7 @@ trait ElementRuntimeValuedPropertiesMixin
     lazy val maxLengthLong = maxLength.longValueExact
     lazy val minLengthLong = minLength.longValueExact
     val res: (LengthUnits, Long) =
-      (lengthKind, impliedRepresentation, typeDef.kind) match {
+      (lengthKind, impliedRepresentation, typeDef.typeNode) match {
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
         case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
         case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length

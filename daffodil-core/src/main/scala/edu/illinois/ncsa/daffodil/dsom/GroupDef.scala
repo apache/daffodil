@@ -37,7 +37,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.QName
 
 class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
+  with GlobalNonElementComponentMixin {
 
   private lazy val trimmedXml = scala.xml.Utility.trim(xmlArg)
 
@@ -64,7 +65,8 @@ class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
 
 sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val groupRef: GroupRef, position: Int)
   extends SchemaComponent(xmlArg, schemaDocumentArg)
-  with GlobalComponentMixin {
+  with GlobalNonElementComponentMixin 
+  with NestingTraversesToReferenceMixin {
 
   requiredEvaluations(modelGroup)
   requiredEvaluations(validateChoiceBranchKey)
@@ -74,7 +76,7 @@ sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocu
     res
   }
 
-  final override protected def enclosingComponentDef = groupRef.enclosingComponent
+  // final override protected def enclosingComponentDef = groupRef.enclosingComponent
 
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children
@@ -86,7 +88,7 @@ sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocu
   // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
-  final lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
+  final lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { ModelGroupFactory(_, this, position) }
 
   def validateChoiceBranchKey(): Unit = {
     // Ensure the model group of a global group def do not define choiceBranchKey.

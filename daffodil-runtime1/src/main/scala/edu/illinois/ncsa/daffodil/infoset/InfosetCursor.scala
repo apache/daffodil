@@ -64,7 +64,6 @@ object InfosetCursor {
 
 }
 
-// TODO: Rename to InfosetCursor (and rename file too)
 trait InfosetCursor extends Cursor[InfosetAccessor] {
 
   /**

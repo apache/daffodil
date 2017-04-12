@@ -81,15 +81,15 @@ trait ElementDeclMixin
     seq
   }.value
 
-  override lazy val diagnosticDebugName = namedQName.diagnosticDebugName
-
-  final def immediateType = LV('immediateType) {
+  final def immediateType: Option[TypeBase] = LV('immediateType) {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
     val nt = typeName
-    if (st.length == 1)
-      Some(new LocalSimpleTypeDef(st(0), self))
-    else if (ct.length == 1)
+    if (st.length == 1) {
+      val factory = schemaSet.LocalSimpleTypeDefFactory(st(0), schemaDocument)
+      val lstd = factory.forElement(self)
+      Some(lstd)
+    } else if (ct.length == 1)
       Some(new LocalComplexTypeDef(ct(0), self))
     else {
       Assert.invariant(nt != "")
@@ -107,15 +107,14 @@ trait ElementDeclMixin
     }
   }.value
 
-  private def namedTypeDef = LV('namedTypeDef) {
+  private def namedType: Option[TypeBase] = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
       case Some(qn) => {
 
         val ss = schemaSet
-        val prim = ss.getPrimType(qn)
-        //
-        if (prim != None) prim
+        val optPrimitiveType = ss.getPrimitiveType(qn)
+        if (optPrimitiveType.isDefined) optPrimitiveType
         else {
           val gstd = ss.getGlobalSimpleTypeDef(qn)
           val gctd = ss.getGlobalComplexTypeDef(qn)
@@ -134,8 +133,8 @@ trait ElementDeclMixin
     }
   }.value
 
-  final lazy val typeDef = LV('typeDef) {
-    (immediateType, namedTypeDef) match {
+  final lazy val typeDef: TypeBase = LV('typeDef) {
+    (immediateType, namedType) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
       // Note: Schema validation should find this for us, but referential integrity checks like this
@@ -172,21 +171,11 @@ trait ElementDeclMixin
 
   final lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  final lazy val elementComplexType = { // TODO: rename this to just complexType
-    Assert.usage(isComplexType)
-    typeDef.asInstanceOf[ComplexTypeBase]
-  }
-
   /**
    * Convenience methods for unit testing purposes.
    */
-  final def sequence = elementComplexType.sequence
-  final def choice = elementComplexType.choice
-
-  final lazy val elementSimpleType = { // TODO: rename this to just simpleType
-    Assert.usage(isSimpleType)
-    typeDef.asInstanceOf[SimpleTypeBase]
-  }
+  final def sequence = complexType.sequence
+  final def choice = complexType.choice
 
   /**
    * We require that there be a concept of empty if we're going to be able to default something

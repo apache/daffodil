@@ -37,8 +37,19 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
-trait Facets { self: SimpleTypeDefBase =>
+trait Facets { self: Restriction =>
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
+
+  requiredEvaluations(if (hasPattern) patternValues)
+  requiredEvaluations(if (hasEnumeration) enumerationValues)
+  requiredEvaluations(if (hasMinLength) minLengthValue)
+  requiredEvaluations(if (hasMaxLength) maxLengthValue)
+  requiredEvaluations(if (hasMinInclusive) minInclusiveValue)
+  requiredEvaluations(if (hasMaxInclusive) maxInclusiveValue)
+  requiredEvaluations(if (hasMinExclusive) minExclusiveValue)
+  requiredEvaluations(if (hasMaxExclusive) maxExclusiveValue)
+  requiredEvaluations(if (hasTotalDigits) totalDigitsValue)
+  requiredEvaluations(if (hasFractionDigits) fractionDigitsValue)
 
   private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
@@ -137,13 +148,13 @@ trait Facets { self: SimpleTypeDefBase =>
       res
     } else Seq.empty
   }
-  final lazy val enumerationValues: String = {
+  final lazy val enumerationValues: Option[String] = {
     // Should only ever have one set per SimpleType
     val values = combinedBaseFacets.filter { case (f, _) => f == Facet.enumeration }
     if (values.size > 0) {
       val (_, value) = values(0)
-      value
-    } else context.SDE("Enumeration was not found in this context.")
+      Some(value)
+    } else None // context.SDE("Enumeration was not found in this context.")
   }
   // TODO: Tidy up.  Can likely replace getFacetValue with a similar call to combinedBaseFacets
   // as combinedBaseFacets should contain the 'narrowed' values.
@@ -293,7 +304,7 @@ trait Facets { self: SimpleTypeDefBase =>
   }
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
-    self.primitiveType match {
+    self.primType match {
       case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
       case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
       case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
@@ -313,7 +324,7 @@ trait Facets { self: SimpleTypeDefBase =>
         Facet.minExclusive | Facet.minInclusive | Facet.enumeration => {
         // Here we're just doing range checking for the
         // specified primitive type
-        primitiveType match {
+        primType match {
           case PrimType.Int => {
             if (!isFacetInIntRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of Int range.",
@@ -394,7 +405,7 @@ trait Facets { self: SimpleTypeDefBase =>
           case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
           case PrimType.HexBinary => { /* Nothing to do here */ }
           case PrimType.String => { /* Nothing to do here */ }
-          case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primitiveType.name)
+          case _ => schemaDefinitionError("checkValueSpaceFacetRange - Unrecognized primitive type: %s", primType.name)
         }
       }
       case _ => { /* Nothing to do */ }

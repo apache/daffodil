@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar._
 
 /**
@@ -42,11 +41,14 @@ import edu.illinois.ncsa.daffodil.grammar._
  * like min/maxOccurs and such that aren't allowed on a GlobalElementDecl. The
  * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
  */
-final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementRef: Option[ElementRef])
-  extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
-  with GlobalComponentMixin
+final class GlobalElementDecl(
+  val factory: GlobalElementDeclFactory,
+  override val elementRef: Option[ElementRef])
+  extends LocalElementBase(factory.xml, factory.schemaDocument, 0)
+  with GlobalElementComponentMixin
   with ElementDeclMixin
   with GlobalElementDeclGrammarMixin
+  with NestingTraversesToReferenceMixin
   /*
    * global elements combined with element references referring to them can
    * be multiple occurring (aka arrays) hence, we have to have things
@@ -70,7 +72,7 @@ final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, o
 
   override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
 
-  final override protected def enclosingComponentDef = elementRef.flatMap { _.enclosingComponent }
+  // final override protected def enclosingComponentDef = elementRef.flatMap { _.enclosingComponent }
 
   override lazy val referringComponent: Option[SchemaComponent] = elementRef
 

@@ -86,17 +86,18 @@ abstract class ElementParserBase(
 
     if (currentElement.valid.isDefined) { return pstate }
 
-    val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
-      case Right(boolVal) => {
+    val resultState = {
+      val ccfResult = DFDLCheckConstraintsFunction.validate(pstate)
+      if (ccfResult.isOK) {
         log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML())
         currentElement.setValid(true)
         pstate // Success, do not mutate state.
-      }
-      case Left(failureMessage) => {
+      } else {
+        val failureMessage = ccfResult.errMsg
         log(LogLevel.Debug,
           "Validation failed for %s due to %s. The element value was %s.",
           context.toString, failureMessage, currentElement.toXML())
-        pstate.reportValidationError("%s failed dfdl:checkConstraints due to %s",
+        pstate.reportValidationError("%s failed facet checks due to: %s",
           context.toString, failureMessage)
         currentElement.setValid(false)
         pstate

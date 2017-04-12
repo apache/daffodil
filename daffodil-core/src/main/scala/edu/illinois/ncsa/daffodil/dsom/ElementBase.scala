@@ -114,8 +114,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def isNillable: Boolean
   def isSimpleType: Boolean
   def isComplexType: Boolean
-  def elementComplexType: ComplexTypeBase
-  def elementSimpleType: SimpleTypeBase
+
+  final def simpleType = typeDef.asInstanceOf[SimpleTypeBase]
+  final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
+
   def typeDef: TypeBase
 
   def isRequired = true // overridden in particle mixin.
@@ -184,11 +186,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     val alg = !this.isKnownToBeAligned // alignment fill uses the value length.
     val res = pad || fill || len || alg
     res
-  }
-
-  final lazy val simpleType = {
-    Assert.usage(isSimpleType)
-    typeDef.asInstanceOf[SimpleTypeBase]
   }
 
   final lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
@@ -456,6 +453,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     //
     lazy val childrenERDs: Seq[ElementRuntimeData] =
       elementChildren.map { _.elementRuntimeData }
+
     val newERD: ElementRuntimeData = new ElementRuntimeData(
       parent,
       parentTerm,
@@ -474,16 +472,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       optPrimType,
       targetNamespace,
       thisElementsNamespace,
-      Misc.boolToOpt(hasPattern, patternValues),
-      Misc.boolToOpt(hasEnumeration, enumerationValues),
-      Misc.boolToOpt(hasMinLength, minLength),
-      Misc.boolToOpt(hasMaxLength, maxLength),
-      Misc.boolToOpt(hasMinInclusive, minInclusive),
-      Misc.boolToOpt(hasMaxInclusive, maxInclusive),
-      Misc.boolToOpt(hasMinExclusive, minExclusive),
-      Misc.boolToOpt(hasMaxExclusive, maxExclusive),
-      Misc.boolToOpt(hasTotalDigits, totalDigits),
-      Misc.boolToOpt(hasFractionDigits, fractionDigits),
+      optSimpleTypeRuntimeData,
       optMinOccurs,
       optMaxOccurs,
       name,
@@ -518,7 +507,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // because of the way text numbers are unparsed, we don't know that
   // the string is for a text number. So we need this property for numbers and other text
   // simple types also.
-  //    if (isSimpleType && simpleType.primitiveType.isInstanceOf[NodeInfo.String.Kind]) {
+  //    if (isSimpleType && simpleType.primType.isInstanceOf[NodeInfo.String.Kind]) {
   //      Option(truncateSpecifiedLengthString =:= YesNo.Yes)
   //    } else None // don't need this property for non-strings
 
@@ -606,12 +595,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final override lazy val couldHaveText: Boolean = {
     hasDelimiters ||
       (isSimpleType && impliedRepresentation == Representation.Text) ||
-      (isComplexType && elementComplexType.group.couldHaveText)
+      (isComplexType && complexType.group.couldHaveText)
   }
 
   final override lazy val termChildren: Seq[Term] = {
     if (isSimpleType) Nil
-    else Seq(elementComplexType.group)
+    else Seq(complexType.group)
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
@@ -663,7 +652,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     alignment match {
       case AlignmentType.Implicit => {
         if (this.isComplexType) {
-          val ct = this.elementComplexType
+          val ct = this.complexType
           ct.alignmentValueInBits
         } else implicitAlignmentInBits
       }
@@ -785,7 +774,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       (isDefinedNilValue && (hasInitiator || hasTerminator)) ||
       // below is the case of string or hexbinary and nilKind logicalValue. A logical value of ES can
       // cause a nil value to be created.
-      (isDefinedNilValue && (isSimpleType && (simpleType.primitiveType =:= PrimType.String || simpleType.primitiveType =:= PrimType.HexBinary) && !hasESNilValue)))
+      (isDefinedNilValue && (isSimpleType && (simpleType.primType =:= PrimType.String || simpleType.primType =:= PrimType.HexBinary) && !hasESNilValue)))
 
   final lazy val hasEmptyValueInitiator = initTermTestExpression(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
   final lazy val hasEmptyValueTerminator = initTermTestExpression(terminatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
@@ -829,97 +818,34 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }.value
 
-  // 11/1/2012 - moved to base since needed by patternValue
-  final lazy val isPrimType = typeDef.isInstanceOf[PrimType]
-
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
-  private lazy val hasPattern: Boolean = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasPattern
-    } else { false }
-  }
-  private lazy val hasEnumeration: Boolean = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasEnumeration
-    } else { false }
-  }
-
-  protected lazy val hasMinLength = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMinLength
-    } else { false }
-  }
-
-  protected lazy val hasMaxLength = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMaxLength
-    } else { false }
-  }
-
-  private lazy val hasMinInclusive = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMinInclusive
-    } else { false }
-  }
-
-  private lazy val hasMaxInclusive = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMaxInclusive
-    } else { false }
-  }
-
-  private lazy val hasMinExclusive = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMinExclusive
-    } else { false }
-  }
-
-  private lazy val hasMaxExclusive = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasMaxExclusive
-    } else { false }
-  }
-
-  private lazy val hasTotalDigits = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasTotalDigits
-    } else { false }
-  }
-
-  private lazy val hasFractionDigits = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      st.hasFractionDigits
-    } else { false }
-  }
+  private lazy val hasPattern: Boolean = typeDef.optRestriction.map { _.hasPattern }.getOrElse(false)
+  private lazy val hasEnumeration: Boolean = typeDef.optRestriction.map { _.hasEnumeration }.getOrElse(false)
+  protected lazy val hasMinLength = typeDef.optRestriction.map { _.hasMinLength }.getOrElse(false)
+  protected lazy val hasMaxLength = typeDef.optRestriction.map { _.hasMaxLength }.getOrElse(false)
+  private lazy val hasMinInclusive = typeDef.optRestriction.map { _.hasMinInclusive }.getOrElse(false)
+  private lazy val hasMaxInclusive = typeDef.optRestriction.map { _.hasMaxInclusive }.getOrElse(false)
+  private lazy val hasMinExclusive = typeDef.optRestriction.map { _.hasMinExclusive }.getOrElse(false)
+  private lazy val hasMaxExclusive = typeDef.optRestriction.map { _.hasMaxExclusive }.getOrElse(false)
+  private lazy val hasTotalDigits = typeDef.optRestriction.map { _.hasTotalDigits }.getOrElse(false)
+  private lazy val hasFractionDigits = typeDef.optRestriction.map { _.hasFractionDigits }.getOrElse(false)
 
   final lazy val patternValues: Seq[FacetValueR] = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasPattern) {
-        val pt = st.primitiveType
-        if (pt != PrimType.String) SDE("Pattern is only allowed to be applied to string and types derived from string.")
-        st.patternValues
-      } else SDE("Pattern was not found in this context.")
-    } else SDE("Pattern was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+    Assert.invariant(hasPattern)
+    typeDef.optRestriction.map { r =>
+      schemaDefinitionUnless(r.primType == PrimType.String,
+        "Pattern is only allowed to be applied to string and types derived from string.")
+      r.patternValues
+    }.getOrElse(Nil)
   }
 
-  private lazy val enumerationValues: String = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasEnumeration) st.enumerationValues
-      else SDE("Enumeration was not found in this context.")
-    } else SDE("Enumeration was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+  private lazy val enumerationValues: Option[String] = {
+    Assert.invariant(hasEnumeration)
+    typeDef.optRestriction.flatMap { _.enumerationValues }
+    //    .getOrElse {
+    //      Assert.invariantFailed("must have an enumeration value")
+    //    }
   }
 
   /**
@@ -934,11 +860,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
     schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
-    elementSimpleType match {
-      case prim: PrimType => {
-        schemaDefinitionWhen((prim == PrimType.String || prim == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
+    typeDef match {
+      case prim: PrimitiveType => {
+        val pt = prim.primType
+        schemaDefinitionWhen((pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
           "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
-          prim.name)
+          pt.name)
         //
         // We handle text numbers by getting a stringValue first, then
         // we convert to the number type.
@@ -946,8 +873,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         // This means we cannot check and SDE here on incorrect simple type.
         return (zeroBD, unbBD)
       }
-      case st: SimpleTypeDefBase => {
-        val pt = st.primitiveType
+      case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
+        val r = st.optRestriction.get
+        val pt = st.primType
         val typeOK = pt == PrimType.String || pt == PrimType.HexBinary
         schemaDefinitionWhen(!typeOK && (hasMinLength || hasMaxLength),
           "Facets minLength and maxLength are not allowed on types derived from type %s.\nThey are allowed only on typed derived from string and hexBinary.",
@@ -955,28 +883,31 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         val res = (hasMinLength, hasMaxLength, lengthKind) match {
           case (true, true, LengthKind.Implicit) => {
             schemaDefinitionUnless(
-              st.minLengthValue.compareTo(st.maxLengthValue) == 0,
+              r.minLengthValue.compareTo(r.maxLengthValue) == 0,
               "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
-              pt.name, st.minLengthValue, st.maxLengthValue)
-            (st.minLengthValue, st.maxLengthValue)
+              pt.name, r.minLengthValue, r.maxLengthValue)
+            (r.minLengthValue, r.maxLengthValue)
           }
           case (true, true, _) => {
             schemaDefinitionWhen(
-              st.minLengthValue.compareTo(st.maxLengthValue) > 0,
+              r.minLengthValue.compareTo(r.maxLengthValue) > 0,
               // always true, so we don't bother to specify the type in the message.
               "The minLength facet value must be less than or equal to the maxLength facet value. Values were minLength of %s, maxLength of %s.",
-              st.minLengthValue, st.maxLengthValue)
-            (st.minLengthValue, st.maxLengthValue)
+              r.minLengthValue, r.maxLengthValue)
+            (r.minLengthValue, r.maxLengthValue)
           }
           case (_, _, LengthKind.Implicit) => SDE("When lengthKind='implicit', both minLength and maxLength facets must be specified.")
-          case (false, true, _) => (zeroBD, st.maxLengthValue)
+          case (false, true, _) => (zeroBD, r.maxLengthValue)
           case (false, false, _) => (zeroBD, unbBD)
-          case (true, false, _) => (st.minLengthValue, unbBD)
+          case (true, false, _) => (r.minLengthValue, unbBD)
           case _ => Assert.impossible()
         }
         res
       }
-      case _ => Assert.invariantFailed("should only be a PrimType or SimpleTypeDefBase")
+      case st: SimpleTypeDefBase => {
+        Assert.invariant(st.optRestriction.isEmpty)
+        (zeroBD, unbBD)
+      }
     }
   }
 
@@ -986,114 +917,108 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // Same thing applies to the other paired facets where there is lots of
   // common logic associated with checking.
   private lazy val minInclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
-      if (st.hasMinInclusive && st.hasMaxExclusive) {
-        val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", st.minInclusiveValue, st.maxExclusiveValue)
+    Assert.usage(hasMinInclusive)
+    typeDef.optRestriction.map { r =>
+      if (r.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (r.hasMaxExclusive) {
+        val res = r.minInclusiveValue.compareTo(r.maxExclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", r.minInclusiveValue, r.maxExclusiveValue)
       }
-      if (st.hasMinInclusive && st.hasMaxInclusive) {
-        val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", st.minInclusiveValue, st.maxInclusiveValue)
+      if (r.hasMaxInclusive) {
+        val res = r.minInclusiveValue.compareTo(r.maxInclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", r.minInclusiveValue, r.maxInclusiveValue)
       }
-      if (st.hasMinInclusive) st.minInclusiveValue
-      else SDE("MinInclusive was not found in this context.")
-    } else SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+      r.minInclusiveValue
+    }.get
   }
 
   private lazy val maxInclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMaxInclusive && st.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
-      if (st.hasMaxInclusive && st.hasMinExclusive) {
-        val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+    Assert.usage(hasMaxInclusive)
+    typeDef.optRestriction.map { r =>
+      if (r.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
+      if (r.hasMinExclusive) {
+        val res = r.minExclusiveValue.compareTo(r.maxInclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minExclusiveValue, r.maxInclusiveValue)
       }
-      if (st.hasMaxInclusive && st.hasMinInclusive) {
-        val res = st.minInclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minInclusiveValue, st.maxInclusiveValue)
+      if (r.hasMinInclusive) {
+        val res = r.minInclusiveValue.compareTo(r.maxInclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minInclusiveValue, r.maxInclusiveValue)
       }
-      if (st.hasMaxInclusive) st.maxInclusiveValue
-      else SDE("MaxInclusive was not found in this context.")
-    } else SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+      r.maxInclusiveValue
+    }.get
   }
 
   private lazy val minExclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
-      if (st.hasMaxInclusive && st.hasMinExclusive) {
-        val res = st.minExclusiveValue.compareTo(st.maxInclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", st.minExclusiveValue, st.maxInclusiveValue)
+    Assert.usage(hasMinExclusive)
+    typeDef.optRestriction.map { r =>
+      if (r.hasMinInclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (r.hasMaxInclusive) {
+        val res = r.minExclusiveValue.compareTo(r.maxInclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minExclusiveValue, r.maxInclusiveValue)
       }
-      if (st.hasMaxExclusive && st.hasMinExclusive) {
-        val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
+      if (r.hasMaxExclusive) {
+        val res = r.minExclusiveValue.compareTo(r.maxExclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minExclusiveValue, r.maxExclusiveValue)
       }
-      if (st.hasMinExclusive) st.minExclusiveValue
-      else SDE("MinExclusive was not found in this context.")
-    } else SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+      r.minExclusiveValue
+    }.get
   }
 
   private lazy val maxExclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasMaxExclusive && st.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
-      if (st.hasMaxExclusive && st.hasMinInclusive) {
-        val res = st.minInclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minInclusiveValue, st.maxExclusiveValue)
+    Assert.invariant(hasMaxExclusive)
+    typeDef.optRestriction.map { r =>
+      if (r.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
+      if (r.hasMinInclusive) {
+        val res = r.minInclusiveValue.compareTo(r.maxExclusiveValue)
+        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minInclusiveValue, r.maxExclusiveValue)
       }
-      if (st.hasMaxExclusive && st.hasMinExclusive) {
-        val res = st.minExclusiveValue.compareTo(st.maxExclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", st.minExclusiveValue, st.maxExclusiveValue)
+      if (r.hasMinExclusive) {
+        val res = r.minExclusiveValue.compareTo(r.maxExclusiveValue)
+        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minExclusiveValue, r.maxExclusiveValue)
       }
-      if (st.hasMaxExclusive) st.maxExclusiveValue
-      else SDE("MaxExclusive was not found in this context.")
-    } else SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+      r.maxExclusiveValue
+    }.get
   }
 
   private lazy val totalDigits: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasTotalDigits) {
-        // Can only be applied to decimal or any of the integer types, and
-        // types derived from them
-        val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primitiveType.name, "decimal")
-        val isDerivedFromInteger = NodeInfo.isXDerivedFromY(st.primitiveType.name, "integer")
-        if (isDerivedFromDecimal || isDerivedFromInteger) st.totalDigitsValue
-        else {
-          SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primitiveType.name)
-        }
-      } else SDE("TotalDigits was not found in this context.")
-    } else SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+    Assert.usage(hasTotalDigits)
+    val st = simpleType
+    typeDef.optRestriction.map { r =>
+      // Can only be applied to decimal or any of the integer types, and
+      // types derived from them
+      val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primType.name, "decimal")
+      val isDerivedFromInteger = NodeInfo.isXDerivedFromY(st.primType.name, "integer")
+      if (isDerivedFromDecimal || isDerivedFromInteger) r.totalDigitsValue
+      else {
+        SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primType.name)
+      }
+    }.get
   }
 
   private lazy val fractionDigits: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      if (st.hasFractionDigits) {
-        // Can only be applied to decimal
-        val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primitiveType.name, "decimal")
-        if (isDerivedFromDecimal) {
-          if (st.hasTotalDigits) {
-            val res = st.fractionDigitsValue.compareTo(st.totalDigitsValue)
-            if (res > 0) SDE("FractionDigits facet must not exceed TotalDigits.")
-          }
-          st.fractionDigitsValue
-        } else {
-          SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", st.primitiveType.name)
+    Assert.usage(hasFractionDigits)
+    typeDef.optRestriction.map { r =>
+      // Can only be applied to decimal
+      val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(r.primType.name, "decimal")
+      if (isDerivedFromDecimal) {
+        if (r.hasTotalDigits) {
+          val res = r.fractionDigitsValue.compareTo(r.totalDigitsValue)
+          if (res > 0) SDE("FractionDigits facet must not exceed TotalDigits.")
         }
-      } else SDE("FractionDigits was not found in this context.")
-    } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
+        r.fractionDigitsValue
+      } else {
+        SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", r.primType.name)
+      }
+    }.get
   }
 
-  //  private lazy val allFacets: Seq[FacetValue] = {
-  //    if (isSimpleType && !isPrimType) {
-  //      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-  //      st.combinedBaseFacets
-  //    } else scala.collection.mutable.Seq.empty
-  //  }
+  private lazy val optSimpleTypeRuntimeData: Option[SimpleTypeRuntimeData] =
+    typeDef match {
+      case _: PrimitiveType => None
+      case _: ComplexTypeBase => None
+      case s: SimpleTypeDefBase =>
+        Some(s.simpleTypeRuntimeData)
+    }
 
   /**
    * Does the element have a default value?

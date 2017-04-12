@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.equality._
 /**
  * A factory for model groups.
  */
-object GroupFactory {
+sealed abstract class ModelGroupFactory private () {
 
   /**
    * Because of the contexts where this is used, we return a list. That lets users
@@ -79,6 +79,8 @@ object GroupFactory {
 
 }
 
+object ModelGroupFactory extends ModelGroupFactory()
+
 /**
  * Base class for all model groups, which are term containers.
  */
@@ -87,7 +89,8 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   with DFDLStatementMixin
   with ModelGroupGrammarMixin
   with OverlapCheckMixin
-  with RealTermMixin {
+  with RealTermMixin
+  with NestingLexicalMixin {
 
   requiredEvaluations(groupMembers)
 
@@ -175,13 +178,13 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
         // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
         // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
         refProp match {
-          case None => List(new LocalElementDecl(child, parent, position))
+          case None => List(schemaSet.LocalElementDeclFactory(child, schemaDocument).forModelGroup(parent, position))
           case Some(_) => List(new ElementRef(child, parent, position))
         }
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
-      case _ => GroupFactory(child, parent, position)
+      case _ => ModelGroupFactory(child, parent, position)
     }
     childList
   }

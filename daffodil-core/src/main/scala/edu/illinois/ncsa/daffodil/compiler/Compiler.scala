@@ -39,7 +39,6 @@ import java.nio.channels.Channels
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -68,6 +67,7 @@ import edu.illinois.ncsa.daffodil.processors.NotParsableParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying
@@ -86,11 +86,11 @@ object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
 class ProcessorFactory(val sset: SchemaSet)
-  extends SchemaComponentBase(<pf/>, sset)
+  extends SchemaComponent(<pf/>, sset)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  final override def enclosingComponent: Option[SchemaComponentBase] = None
+  final override def enclosingComponentDef: Option[SchemaComponent] = None
 
   lazy val (generateParser, generateUnparser) = {
     val (context, policy) =

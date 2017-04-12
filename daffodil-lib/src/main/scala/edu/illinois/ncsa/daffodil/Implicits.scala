@@ -65,6 +65,9 @@ object Implicits {
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
     try { f(param) } finally { param.close() }
 
+  // TODO: move these to TestUtils object in daffodil-lib-unittest
+  // add test->test dependency on that
+
   /**
    * Based on JUnitSuite intercept
    */

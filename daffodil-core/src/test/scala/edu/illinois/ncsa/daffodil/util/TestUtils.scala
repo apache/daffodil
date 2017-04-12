@@ -114,23 +114,7 @@ object TestUtils {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    val u1 = pf.onPath("/").asInstanceOf[DataProcessor]
-    val u =
-      if (useSerializedProcessor) {
-        //
-        // We want to serialize/deserialize here, to avoid strange debug artifacts
-        // like where schema compilation is still happening at runtime (and
-        // therefore generating lots of Debug messages to the log)
-        //
-        val os = new java.io.ByteArrayOutputStream()
-        val output = Channels.newChannel(os)
-        u1.save(output)
-
-        val is = new java.io.ByteArrayInputStream(os.toByteArray)
-        val input = Channels.newChannel(is)
-        val compiler_ = Compiler()
-        compiler_.reload(input).asInstanceOf[DataProcessor]
-      } else u1
+    val u = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
     if (u.isError) {
       val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
@@ -177,6 +161,24 @@ object TestUtils {
 
   private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
+  private def saveAndReload(p: DataProcessor): DataProcessor = {
+    if (this.useSerializedProcessor) {
+      //
+      // We want to serialize/deserialize here, to avoid strange debug artifacts
+      // like where schema compilation is still happening at runtime (and
+      // therefore generating lots of Debug messages to the log)
+      //
+      val os = new java.io.ByteArrayOutputStream()
+      val output = Channels.newChannel(os)
+      p.save(output)
+
+      val is = new java.io.ByteArrayInputStream(os.toByteArray)
+      val input = Channels.newChannel(is)
+      val compiler_ = Compiler()
+      compiler_.reload(input).asInstanceOf[DataProcessor]
+    } else p
+  }
+
   def runSchemaOnData(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
@@ -186,7 +188,7 @@ object TestUtils {
     if (isError) {
       throw new Exception(msgs)
     }
-    val p = pf.onPath("/").asInstanceOf[DataProcessor]
+    val p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
     val pIsError = p.isError
     if (pIsError) {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
@@ -197,6 +199,8 @@ object TestUtils {
       p.setDebugger(builtInTracer)
       p.setDebugging(true)
     }
+    p.setValidationMode(ValidationMode.Limited)
+
     val actual = p.parse(d)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")

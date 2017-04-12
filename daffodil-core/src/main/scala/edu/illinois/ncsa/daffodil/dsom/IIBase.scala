@@ -138,7 +138,8 @@ object IIUtils {
  * Include/Import = "II" for short
  */
 abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMap)
-  extends SchemaComponent(xml, xsdArg) {
+  extends SchemaComponent(xml, xsdArg)
+  with NestingLexicalMixin {
 
   /**
    * An import/include requires only that we can access the

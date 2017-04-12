@@ -35,33 +35,66 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.util.NamedMixinBase
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Common Mixin for things that have a name attribute.
  */
 trait NamedMixin
-  extends GetAttributesMixin { self: SchemaComponentBase =>
+  extends GetAttributesMixin
+  with NamedMixinBase {
 
-  requiredEvaluations(name)
-
-  lazy val name = getAttributeOption("name").getOrElse("??name??")
+  lazy val name = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
 
   override def xml: Node
   def schemaDocument: SchemaDocument
 
-  lazy val namespace = schemaDocument.targetNamespace // can be "" meaning no namespace
-  lazy val prefix = {
-    val prefix = xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
-    // cannot be ""
-    prefix
-  }
+  def namespace: NS
 
+  def prefix: String
 
   def namedQName: NamedQName
 
   override lazy val diagnosticDebugName = namedQName.diagnosticDebugName
+
+}
+
+sealed trait PrefixAndNamespaceMixin {
+  def xml: Node
+  def schemaDocument: SchemaDocument
+
+  final lazy val prefix = xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
+
+  lazy val namespace: NS = schemaDocument.targetNamespace
+
+}
+
+sealed trait LocalComponentMixinBase
+  extends NamedMixin {
+  /**
+   * True for elements if elementFormDefault is 'qualified'
+   * False for any other named local component type
+   */
+  def isQualified: Boolean
+
+  override lazy val namedQName: NamedQName = QName.createLocal(name, namespace, isQualified, xml.scope)
+}
+
+trait LocalNonElementComponentMixin
+  extends LocalComponentMixinBase
+  with PrefixAndNamespaceMixin {
+
+  final override def isQualified = false // non elements never have qualfied names
+
+}
+
+trait LocalElementComponentMixin
+  extends LocalComponentMixinBase
+  with ElementFormDefaultMixin {
+
+  final override def isQualified = elementFormDefault == "qualified"
 
 }
 
@@ -71,27 +104,24 @@ trait NamedMixin
  * has to do with the elementFormDefault attribute of the xs:schema
  * element. Global things are always qualified
  */
-trait GlobalComponentMixin
-  extends NamedMixin { self: SchemaComponent =>
+sealed trait GlobalComponent
+  extends NamedMixin
+  with PrefixAndNamespaceMixin {
 
-  /**
-   * polymorphic way to get back to what is referring to this global
-   */
-  def referringComponent: Option[SchemaComponent]
+  override def namedQName: NamedQName = globalQName
 
-  /**
-   * Global components have a different way to find their enclosing component,
-   * which is to go back to their referring component (which will be None only for
-   * the root element.
-   */
-  override protected def enclosingComponentDef = {
-    Assert.invariant(context.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
-    referringComponent
-  }
-
-  override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace, xml.scope)
+  final lazy val globalQName =
+    QName.createGlobal(name, namespace, xml.scope)
 
 }
+
+trait GlobalNonElementComponentMixin
+  extends GlobalComponent {
+  // nothing for now
+}
+
+trait GlobalElementComponentMixin
+  extends GlobalComponent
 
 /**
  * elementFormDefault is an attribute of the xs:schema element.
@@ -145,20 +175,23 @@ trait GlobalComponentMixin
  * This trait is mixed into things that are affected by elementFormDefault.
  * Namely the local element declaration class.
  */
-trait ElementFormDefaultMixin
-  extends NamedMixin { self: SchemaComponent =>
+trait ElementFormDefaultMixin {
+
+  def xml: Node
+
+  def xmlSchemaDocument: XMLSchemaDocument
 
   lazy val elementFormDefault = xmlSchemaDocument.elementFormDefault
 
   /**
    * handle elementFormDefault to qualify
    */
-  override lazy val namespace =
+  final lazy val namespace =
     if (xmlSchemaDocument.elementFormDefault == "unqualified")
       NoNamespace // unqualified means no namespace
     else xmlSchemaDocument.targetNamespace
 
-  override lazy val prefix =
+  final lazy val prefix =
     if (xmlSchemaDocument.elementFormDefault == "unqualified")
       "" // unqualified means no prefix
     else {

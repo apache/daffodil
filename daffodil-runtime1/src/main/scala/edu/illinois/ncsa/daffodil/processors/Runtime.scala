@@ -383,6 +383,19 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
     writer.flush()
   }
 
+  def optInfoset = 
+    if (resultState.status eq Success) {
+      val i = resultState.infoset
+      val e =
+        i match {
+        case doc: DIDocument => doc.root
+        case _ => Assert.invariantFailed("not an InfosetDocument")
+      }
+    Some(e)
+    }
+  else
+    None
+
   /**
    * To be successful here, we need to capture xerces parse/validation
    * errors and add them to the Diagnostics list in the PState.

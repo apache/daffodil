@@ -54,7 +54,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   extends AnnotatedSchemaComponent(xmlArg, parentArg)
   with TermRuntimeValuedPropertiesMixin
-  with LocalComponentMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
@@ -308,7 +307,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final lazy val laterSiblingsWithinEnclosingElement: Seq[Term] = {
     enclosingElement.flatMap { ee =>
       enclosingTerm.map { et =>
-        val eeGroup = ee.elementComplexType.group
+        val eeGroup = ee.complexType.group
         val res =
           laterSiblings ++
             (if (et eq eeGroup) Nil
@@ -413,7 +412,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
           case _ => false
         }
         if (e.isComplexType) {
-          isSelfByteSizeEncoding && isSelfByteLength && e.elementComplexType.group.isAllKnownToBeByteAlignedAndByteLength
+          isSelfByteSizeEncoding && isSelfByteLength && e.complexType.group.isAllKnownToBeByteAlignedAndByteLength
         } else {
           isSelfByteSizeEncoding && isSelfByteLength
         }
@@ -451,7 +450,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         Nil
       }
       case e: ElementBase if e.isComplexType => {
-        e.elementComplexType.group.childrenInHiddenGroupNotDefaultableOrOVC
+        e.complexType.group.childrenInHiddenGroupNotDefaultableOrOVC
       }
       case e: ElementBase => {
         if (!e.canBeAbsentFromUnparseInfoset) {

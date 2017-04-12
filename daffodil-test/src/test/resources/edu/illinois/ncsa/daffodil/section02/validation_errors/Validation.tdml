@@ -620,7 +620,7 @@
     <tdml:validationErrors>
 
       <tdml:error>e2_2</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error> 
+      <tdml:error>failed facet checks</tdml:error> 
       <tdml:error>facet minLength</tdml:error>
 
 		</tdml:validationErrors>
@@ -665,9 +665,9 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_6_2</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet enumeration(s)</tdml:error>
-      <tdml:error>S,A,T,U,R,D,A,Y,|,S,U,N,D,A,Y</tdml:error>
+      <tdml:error>SATURDAY|SUNDAY</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -692,9 +692,9 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_6_2</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet enumeration(s)</tdml:error>
-      <tdml:error>S,A,T,U,R,D,A,Y,|,S,U,N,D,A,Y</tdml:error>
+      <tdml:error>SATURDAY|SUNDAY</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -721,7 +721,7 @@
     <tdml:validationErrors>
 
       <tdml:error>dateTimeImp</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxInclusive (1364096730000)</tdml:error>
 
 		</tdml:validationErrors>
@@ -765,7 +765,7 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_4_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet minExclusive (-5)</tdml:error>
 
     </tdml:validationErrors>
@@ -791,7 +791,7 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_4_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet minExclusive (-5)</tdml:error>
 
     </tdml:validationErrors>
@@ -836,8 +836,8 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_5_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
-      <tdml:error>due to facet maxInclusive (500)</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
+      <tdml:error>due to: facet maxInclusive (500)</tdml:error>
 
     </tdml:validationErrors>
   </tdml:parserTestCase>
@@ -862,8 +862,8 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_5_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
-      <tdml:error>due to facet maxInclusive (500)</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
+      <tdml:error>due to: facet maxInclusive (500)</tdml:error>
 
     </tdml:validationErrors>
   </tdml:parserTestCase>
@@ -887,8 +887,8 @@
     <tdml:validationErrors>
 
       <tdml:error>e3_2</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
-      <tdml:error>due to facet maxLength (1)</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
+      <tdml:error>due to: facet maxLength (1)</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -931,7 +931,7 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet totalDigits (5)</tdml:error>
 
 		</tdml:validationErrors>
@@ -956,7 +956,7 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_1</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet totalDigits (5)</tdml:error>
 
 		</tdml:validationErrors>
@@ -1034,7 +1034,7 @@
     <tdml:validationErrors>
 
       <tdml:error>intRestrict</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxInclusive (10)</tdml:error>
 
 		</tdml:validationErrors>
@@ -1061,7 +1061,7 @@
     <tdml:validationErrors>
 
       <tdml:error>intRestrict</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxInclusive (10)</tdml:error>
 
       <tdml:error>intRestrict</tdml:error>
@@ -1127,37 +1127,37 @@
     <tdml:validationErrors>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 14</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 11</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 9</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 7</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 5</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 3</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 1</tdml:error>
 
@@ -1192,37 +1192,37 @@
     <tdml:validationErrors>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 14</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 11</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 9</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 7</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 5</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 3</tdml:error>
 
       <tdml:error>e</tdml:error>
-      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>failed facet checks</tdml:error>
       <tdml:error>facet maxExclusive (3)</tdml:error>
       <tdml:error>byte 1</tdml:error>
 
@@ -1588,7 +1588,7 @@
       <tdml:error>number of total digits has been limited to 1.</tdml:error>
 
       <tdml:error>Validation Error</tdml:error>
-      <tdml:error>trigger failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>trigger failed facet checks</tdml:error>
       <tdml:error>facet totalDigits (1)</tdml:error>
 
 		</tdml:validationErrors>
@@ -1616,7 +1616,7 @@
 
       <tdml:error>Value '42' is not facet-valid with respect to minExclusive '42'</tdml:error>
       
-      <tdml:error>one failed dfdl:checkConstraints due to facet minExclusive (42)</tdml:error>
+      <tdml:error>one failed facet checks due to: facet minExclusive (42)</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1648,7 +1648,7 @@
     </tdml:infoset>
 
     <tdml:validationErrors>
-      <tdml:error>nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+      <tdml:error>nonNegA failed facet checks due to: facet minInclusive (30)</tdml:error>
     </tdml:validationErrors>
 
   </tdml:parserTestCase>
@@ -1680,7 +1680,7 @@
     </tdml:infoset>
 
     <tdml:validationErrors>
-      <tdml:error>nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+      <tdml:error>nonNegA failed facet checks due to: facet minInclusive (30)</tdml:error>
     </tdml:validationErrors>
 
   </tdml:parserTestCase>
@@ -1716,7 +1716,7 @@
         
       <!-- Validation error for branch1:e1  -->
       <tdml:error>Validation Error</tdml:error>
-      <tdml:error>nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+      <tdml:error>nonNegA failed facet checks due to: facet minInclusive (30)</tdml:error>
 
     </tdml:validationErrors>
 

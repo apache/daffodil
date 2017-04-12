@@ -284,7 +284,8 @@ class TestDsomCompiler extends Logging {
     //Explore LocalSimpleTypeDef
     val Seq(gr2c1, _, gr2c3) = gr2.forGroupRef(dummyGroupRef, 1).modelGroup.asInstanceOf[ModelGroup].groupMembers
     val ist = gr2c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
-    assertEquals("tns:aType", ist.baseName)
+    val istBase = ist.optRestriction.get.baseQName.toQNameString
+    assertEquals("tns:aType", istBase)
 
     //Explore LocalElementDecl
     val led = gr2c1.asInstanceOf[LocalElementDecl]
@@ -422,8 +423,10 @@ class TestDsomCompiler extends Logging {
 
     val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
 
-    assertEquals("ex", gs1.restrictionBase.prefix.get)
-    assertEquals("aaType", gs1.restrictionBase.local)
+    val baseQName = gs1.optRestriction.get.baseQName
+
+    assertEquals("ex", baseQName.prefix.get)
+    assertEquals("aaType", baseQName.local)
 
     assertTrue(gs1.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
 
@@ -462,7 +465,7 @@ class TestDsomCompiler extends Logging {
     // GroupRefTest
     val e4 = e4f.forRoot() // groupRefTest
 
-    val e4ct = e4.elementComplexType
+    val e4ct = e4.complexType
 
     val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef] // groupRefTests' local group decl
 
@@ -483,7 +486,7 @@ class TestDsomCompiler extends Logging {
 
     val e5 = e5f.forRoot() // groupRefTestOverlap
 
-    val e5ct = e5.elementComplexType
+    val e5ct = e5.complexType
 
     val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
 
@@ -518,7 +521,7 @@ class TestDsomCompiler extends Logging {
     assertFalse(f1.verifyPropValue("representation", "text"))
     assertTrue(f1.verifyPropValue("textNumberRep", "standard"))
 
-    val ct = ge1.elementComplexType
+    val ct = ge1.complexType
     val seq = ct.sequence
 
     val Seq(e1: ElementBase, _: ElementBase) = seq.groupMembers

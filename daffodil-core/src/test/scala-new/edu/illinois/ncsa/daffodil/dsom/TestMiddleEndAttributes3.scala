@@ -71,13 +71,13 @@ class TestMiddleEndAttributes3 {
     // Explore global element decl
     val Seq(ef) = sd.globalElementDecls
     val e = ef.forRoot()
-    val ect = e.elementComplexType
+    val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
     val Seq(ile: ElementBase, _: ElementBase) = mems
     val ile_nextSibling = ile.nextSibling
     assertNotNull(ile_nextSibling)
-    val ilct = ile.elementComplexType
+    val ilct = ile.complexType
     val ilseq = ilct.sequence
     val Seq(_: ElementBase, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
@@ -130,13 +130,13 @@ class TestMiddleEndAttributes3 {
     // Explore global element decl
     val Seq(ef) = sd.globalElementDecls
     val e = ef.forRoot()
-    val ect = e.elementComplexType
+    val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
     val Seq(ile: ElementBase, _: ElementBase, _: Choice) = mems
     val ile_nextSibling = ile.nextSibling
     assertNotNull(ile_nextSibling)
-    val ilct = ile.elementComplexType
+    val ilct = ile.complexType
     val ilseq = ilct.sequence
     val Seq(_: ElementBase, _: Sequence, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling

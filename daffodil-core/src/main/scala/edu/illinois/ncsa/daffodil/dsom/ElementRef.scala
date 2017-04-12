@@ -56,7 +56,8 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementReferenceGrammarMixin
   with HasRefMixin
-  with NamedMixin {
+  with NamedMixin
+  with NestingLexicalMixin {
 
   requiredEvaluations(referencedElement)
 
@@ -72,9 +73,17 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   override lazy val referredToComponent = referencedElement
 
-  override lazy val namedQName: NamedQName = LV('namedQName) {
+  /**
+   * Note: since the namedQName might not exist, we cannot use
+   * this in diagnostic messages. So any method/lazyval that
+   * invokes namedQName because it's a named thing, must be overridden
+   * and use refQName instead.
+   */
+  override def namedQName: NamedQName = LV('namedQName) {
     referencedElement.namedQName
   }.value
+
+  override lazy val prefix = referencedElement.prefix
 
   // Need to go get the Element we are referencing
   final lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
@@ -87,7 +96,10 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
         // That might be because the QName namespace prefix is no good, or
         // because there is no element with that global name.
         //
-        SDE("Referenced element not found: %s.", this.ref)
+        // Can't use namedQName because that's the resolved one
+        // must use the refQName
+        //
+        SDE("Referenced element not found: %s.", this.refQName)
       }
       case Some(x) => x.forElementRef(this)
     }
@@ -106,14 +118,13 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   def isNillable = referencedElement.isNillable
   def isSimpleType = referencedElement.isSimpleType
   def isComplexType = referencedElement.isComplexType
-  def elementComplexType = referencedElement.elementComplexType
-  def elementSimpleType = referencedElement.elementSimpleType
+
   def isDefaultable: Boolean = referencedElement.isDefaultable
   def defaultValueAsString = referencedElement.defaultValueAsString
 
   override lazy val namespace = refQName.namespace
 
-  override lazy val diagnosticDebugName = "element reference " + name
+  override lazy val diagnosticDebugName = "element reference " + refQName
 
   override lazy val name = this.ref
 

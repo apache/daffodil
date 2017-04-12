@@ -53,6 +53,9 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
   override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
   protected def prettyBaseName: String
 
+  /**
+   * This is only the immediately enclosing model group. It doesn't walk outward.
+   */
   final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
   final lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
   final lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }

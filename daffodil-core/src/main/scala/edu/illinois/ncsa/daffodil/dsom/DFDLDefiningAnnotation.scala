@@ -33,9 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.NamedQName
 
 /**
  * Unlike say GlobalElementDecl, Defining annotations don't have a factory, because they
@@ -44,15 +41,13 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
  */
 abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends DFDLAnnotation(xmlArg, annotatedSCArg)
-  with NamedMixin { self: DFDLAnnotation =>
+  with GlobalNonElementComponentMixin
+  with NestingLexicalMixin { self: DFDLAnnotation =>
 
   // The point of this, is so we can match-case on type DFDLDefiningAnnotation
   // but then still conveniently use methods/members defined in the
   // DFDLAnnotation class
   final lazy val asAnnotation = self
 
-  final def globalQName = namedQName.asInstanceOf[GlobalQName]
-
-  final override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace, xml.scope)
 }
 

@@ -35,10 +35,9 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.util.Fakes
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.dsom.NestingLexicalMixin
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType] // with ThrowsSDE
@@ -77,34 +76,6 @@ class TestPropertyRuntime {
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
-  class HasMixin extends {
-    override val xml = <foo/>
-  } with SchemaComponentBase(<dummy/>, null)
-    with TheExamplePropMixin
-    with LookupLocation {
-
-    final override def enclosingComponent: Option[SchemaComponentBase] = None
-
-    // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-    def columnDescription: String = ???
-    def fileDescription: String = ???
-    def lineDescription: String = ???
-    def locationDescription: String = ???
-    // Members declared in edu.illinois.ncsa.daffodil.dsom.ResolvesQNames
-    def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
-    // Members declared in edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-    def schemaFileLocation: edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation = ???
-
-    def findPropertyOption(pname: String) =
-      Found("left", this, pname, false)
-    lazy val fileName = "file:dummy"
-    lazy val properties: PropMap = Map.empty
-
-    def columnAttribute: Option[String] = ???
-    def fileAttribute: Option[String] = ???
-    def lineAttribute: Option[String] = ???
-  }
-
   @Test
   def testMixin() {
     val m = new HasMixin
@@ -117,6 +88,16 @@ class TestPropertyRuntime {
 
 }
 
+class HasMixin extends SchemaComponent(<foo/>, null)
+  with TheExamplePropMixin
+  with NestingLexicalMixin {
+
+  override def findPropertyOption(pname: String) =
+    Found("left", this, pname, false)
+  lazy val fileName = "file:dummy"
+  lazy val properties: PropMap = Map.empty
+}
+
 sealed trait TheExampleProp extends TheExampleProp.Value
 object TheExampleProp extends Enum[TheExampleProp] {
   case object Left extends TheExampleProp; forceConstruction(Left)
@@ -127,19 +108,7 @@ object TheExampleProp extends Enum[TheExampleProp] {
 }
 
 trait TheExamplePropMixin
-  extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
-
-  def SDE(id: String, args: Any*): Nothing = {
-    throw new Exception(id.toString + args)
-  }
-  def SDEButContinue(id: String, args: Any*) = SDW(id, args: _*)
-  def SDW(id: String, args: Any*): Unit = {
-    System.err.println(new Exception(id.toString + args))
-  }
-
-  def SDW(warnID: DaffodilTunableParameters.WarnID, id: String, args: Any*): Unit = {
-    System.err.println(new Exception(id.toString + args))
-  }
+  extends PropertyMixin { self: HasMixin =>
 
   /**
    * get property value, or fail trying. Use this if you need

@@ -285,7 +285,7 @@ trait RealTermMixin { self: Term =>
   private lazy val realChildren: Seq[RealTermMixin] = {
     this match {
       case mg: ModelGroup => mg.groupMembersNoRefs.asInstanceOf[Seq[RealTermMixin]]
-      case eb: ElementBase if (eb.isComplexType) => Seq(eb.elementComplexType.group)
+      case eb: ElementBase if (eb.isComplexType) => Seq(eb.complexType.group)
       case eb: ElementBase => Seq()
     }
   }

@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -192,6 +193,7 @@ object DFDL {
     def briefResult = XMLUtils.removeAttributes(result)
     def resultState: State
     def isValidationSuccess: Boolean
+    def optInfoset: Option[InfosetElement]
   }
 
   trait UnparseResult extends Result with WithDiagnostics {

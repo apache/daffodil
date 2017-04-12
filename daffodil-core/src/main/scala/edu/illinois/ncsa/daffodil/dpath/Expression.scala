@@ -1079,10 +1079,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     val stepElem = if (isFirstStep) {
       if (isAbsolutePath) {
         // has to be the root element, but we have to make sure the name matches.
-        rootElement.elementCompileInfo.map { r =>
-          if (!r.namedQName.matches(stepQName))
-            r.noMatchError(stepQName)
-        }.getOrElse(die)
+        rootElement.findRoot(stepQName)
         rootElement
       } else {
         // since we're first we start from the element, or nearest enclosing

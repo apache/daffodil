@@ -45,7 +45,6 @@ import java.math.{ BigInteger => JBigInt }
  */
 trait LocalElementMixin
   extends ParticleMixin
-  with LocalComponentMixin
   with LocalElementGrammarMixin { self: LocalElementBase =>
 
   final def hasSep = LV('hasSep) {
@@ -109,7 +108,7 @@ trait LocalElementMixin
           case _ => false // all other types require some syntax.
         }
       } else if (isComplexType) {
-        !elementComplexType.group.hasKnownRequiredSyntax
+        !complexType.group.hasKnownRequiredSyntax
       } else Assert.impossibleCase()
     res
   }.value

@@ -232,6 +232,8 @@ class TestDFDLExpressionTree extends Parsers {
       }
       val msg = exc.getMessage()
       assertTrue(msg.contains("thereIsNoElementWithThisName")) // the error
+      if (!msg.contains("bookstore"))
+        println(msg)
       assertTrue(msg.contains("bookstore")) // the possibilities
     }
   }

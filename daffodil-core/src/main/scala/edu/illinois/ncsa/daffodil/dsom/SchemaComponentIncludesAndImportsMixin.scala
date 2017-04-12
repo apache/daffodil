@@ -32,24 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml.NS
-
 /**
  * Mixin for all SchemaComponents
  */
 
-trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
-
-  /**
-   * This is the root, or basic target namespace. Every schema component
-   * gets its target namespace from its xmlSchemaDocument.
-   */
-  def targetNamespace: NS = LV('targetNamespace) {
-    val res = xmlSchemaDocument.targetNamespace
-    res
-  }.value
-
-  final lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
+trait SchemaComponentIncludesAndImportsMixin
+  extends CommonContextMixin { self: SchemaComponent =>
 
   protected final val orElseURL: String = "file:??"
 
@@ -57,7 +45,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
    * Used in diagnostic messages; hence, valueOrElse to avoid
    * problems when this can't get a value due to an error.
    */
-  def uriString: String = uriString_.valueOrElse(orElseURL)
+  override def uriString: String = uriString_.valueOrElse(orElseURL)
   private def uriString_ = LV('fileName) {
     xmlSchemaDocument.uriString
   }

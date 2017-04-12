@@ -55,7 +55,7 @@ trait HasNoUnparser {
  * because this one has to actually be operationalized.
  */
 abstract class Gram(contextArg: SchemaComponent)
-    extends OOLAGHost(contextArg) {
+  extends OOLAGHost(contextArg) {
 
   final def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
   final def SDW(str: String, args: Any*): Unit = context.SDW(str, args: _*)

@@ -517,7 +517,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Implicit => {
-        val pt = this.simpleType.primitiveType
+        val pt = this.simpleType.primType
         Assert.invariant(pt == PrimType.String)
         specifiedLength(StringOfSpecifiedLength(this))
       }
@@ -656,7 +656,7 @@ trait ElementBaseGrammarMixin
 
   // shorthand
   final lazy val primType = {
-    val res = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
+    val res = typeDef.asInstanceOf[SimpleTypeBase].primType
     res
   }
 
@@ -812,7 +812,7 @@ trait ElementBaseGrammarMixin
   //   */
   //  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty",
   //    isComplexType && lengthKind == LengthKind.Implicit) {
-  //      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
+  //      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ complexType.mainGrammar ~
   //        RestoreInputStream(this) ~ emptyElementTerminator
   //    }
 
@@ -828,7 +828,7 @@ trait ElementBaseGrammarMixin
   //  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { delimMTA ~ Terminator(this) }
 
   private lazy val complexContent = prod("complexContent", isComplexType) {
-    elementComplexType.mainGrammar
+    complexType.mainGrammar
   }
 
   private lazy val isNilLit = isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))
@@ -1159,7 +1159,7 @@ trait ElementBaseGrammarMixin
  * the type is a type that respects minLength and maxLength, and the constant length
  * is not in range.
  */
-    val isTypeUsingMinMaxLengthFacets = typeDef.kind match {
+    val isTypeUsingMinMaxLengthFacets = typeDef.typeNode match {
       case s: NodeInfo.String.Kind => true
       case s: NodeInfo.HexBinary.Kind => true
       case _ => false
@@ -1182,7 +1182,7 @@ trait ElementBaseGrammarMixin
  * is not greater than or equal to that value.
      */
 
-    val isTypeUsingTextOutputMinLength = typeDef.kind match {
+    val isTypeUsingTextOutputMinLength = typeDef.typeNode match {
       case s: NodeInfo.String.Kind => false
       case s: NodeInfo.HexBinary.Kind => false
       case s: NodeInfo.AnySimpleType.Kind if (impliedRepresentation eq Representation.Binary) &&

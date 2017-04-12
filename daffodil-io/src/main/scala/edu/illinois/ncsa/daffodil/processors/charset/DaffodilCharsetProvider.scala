@@ -52,7 +52,7 @@ object DaffodilCharsetProvider extends CharsetProvider {
   /**
    * Creates an iterator that iterates over the charsets supported by this
    * provider.  This method is used in the implementation of the
-   * java.nio.charset.Charset#availableCharsets() method.
+   * `java.nio.charset.Charset.availableCharsets()` method.
    *
    * @return  The new iterator
    */

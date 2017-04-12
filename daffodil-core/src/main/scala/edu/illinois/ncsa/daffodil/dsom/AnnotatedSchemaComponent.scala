@@ -193,10 +193,6 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
 trait AnnotatedMixin
   extends EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
-  def xml: Node
-  def diagnosticDebugName: String
-  def path: String
-
   /**
    * Anything annotated must be able to construct the
    * appropriate DFDLAnnotation object from the xml.

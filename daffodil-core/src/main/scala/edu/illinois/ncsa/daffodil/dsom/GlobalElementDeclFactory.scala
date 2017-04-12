@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml.QName
 
 /**
  * Factory to create an instance of a global element declaration
@@ -47,14 +46,14 @@ import edu.illinois.ncsa.daffodil.xml.QName
  * that is referencing this global element declaration.
  */
 class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
+  with GlobalElementComponentMixin {
+
   def forRoot() = asRoot // cache. Not a new one every time.
-  lazy val asRoot = new GlobalElementDecl(xml, schemaDocument, None)
+  lazy val asRoot = new GlobalElementDecl(this, None)
 
   def forElementRef(eRef: ElementRef) = {
-    new GlobalElementDecl(xml, schemaDocument, Some(eRef))
+    new GlobalElementDecl(this, Some(eRef))
   }
-
-  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 
 }

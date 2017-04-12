@@ -219,7 +219,7 @@ sealed abstract class ElementUnparserBase(
     //        log(LogLevel.Debug,
     //          "Validation failed for %s due to %s. The element value was %s.",
     //          context.toString, failureMessage, currentElement.toXML())
-    //        state.reportValidationError("%s failed dfdl:checkConstraints due to %s",
+    //        state.reportValidationError("%s failed facet checks due to: %s",
     //          context.toString, failureMessage)
     //        currentElement.setValid(false)
     //      }

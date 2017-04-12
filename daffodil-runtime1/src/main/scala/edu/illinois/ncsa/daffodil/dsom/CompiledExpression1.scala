@@ -345,8 +345,14 @@ class DPathElementCompileInfo(
    * Finds a child ERD that matches a StepQName. This is for matching up
    * path steps (for example) to their corresponding ERD.
    */
-  final def findNamedChild(step: StepQName): DPathElementCompileInfo = {
-    val optERD: Option[DPathElementCompileInfo] = step.findMatch(elementChildrenCompileInfo)
+  final def findNamedChild(step: StepQName): DPathElementCompileInfo =
+    findNamedMatch(step, elementChildrenCompileInfo)
+
+  final def findRoot(step: StepQName): DPathElementCompileInfo =
+    findNamedMatch(step, Seq(this))
+
+  private def findNamedMatch(step: StepQName, possibles: Seq[DPathElementCompileInfo]): DPathElementCompileInfo = {
+    val optERD: Option[DPathElementCompileInfo] = step.findMatch(possibles)
 
     val retryOptERD =
       if (optERD.isEmpty &&
@@ -361,14 +367,15 @@ class DPathElementCompileInfo(
         optERD
       }
 
-    retryOptERD.getOrElse { noMatchError(step) }
+    retryOptERD.getOrElse { noMatchError(step, possibles) }
   }
 
   /**
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.
    */
-  final def noMatchError(step: StepQName) = {
+  final def noMatchError(step: StepQName,
+    possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo) = {
     //
     // didn't find a exact match.
     // So all the rest of this is about providing a meaningful
@@ -379,7 +386,7 @@ class DPathElementCompileInfo(
     val localOnlyERDMatches = {
       val localName = step.local
       if (step.namespace == NoNamespace) Nil
-      else elementChildrenCompileInfo.map { _.namedQName }.collect {
+      else possibles.map { _.namedQName }.collect {
         case localMatch if localMatch.local == localName => localMatch
       }
     }
@@ -407,7 +414,7 @@ class DPathElementCompileInfo(
       //
       // There weren't even any local name matches.
       //
-      val interestingCandidates = elementChildrenCompileInfo.map { _.namedQName }.mkString(", ")
+      val interestingCandidates = possibles.map { _.namedQName }.mkString(", ")
       if (interestingCandidates != "")
         SDE("No element corresponding to step %s found. Possibilities for this step include: %s.",
           step.toPrettyString, interestingCandidates)
