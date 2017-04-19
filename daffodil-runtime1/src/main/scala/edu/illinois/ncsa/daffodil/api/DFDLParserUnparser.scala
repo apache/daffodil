@@ -34,13 +34,12 @@ package edu.illinois.ncsa.daffodil.api
 
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -173,7 +172,7 @@ object DFDL {
      * For testing purposes (mostly), you can restrict the number of bits to
      * fewer than the entire input.
      */
-    def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult
+    def parse(input: Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): ParseResult
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.
@@ -181,15 +180,12 @@ object DFDL {
      * Use this rather than passing a channel/stream because it enables some
      * I/O optimizations.
      */
-    def parse(file: File): ParseResult
+    def parse(file: File, output: InfosetOutputter): ParseResult
   }
 
   trait ParseResult extends Result with WithDiagnostics {
-    def result: scala.xml.Node
-    def briefResult = XMLUtils.removeAttributes(result)
     def resultState: State
     def isValidationSuccess: Boolean
-    def optInfoset: Option[InfosetElement]
   }
 
   trait UnparseResult extends Result with WithDiagnostics {

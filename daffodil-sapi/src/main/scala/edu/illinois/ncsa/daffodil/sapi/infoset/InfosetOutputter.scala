@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,40 +30,25 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package edu.illinois.ncsa.daffodil.sapi.infoset
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.Implicits._;
-import org.junit.Test
+import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
+import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
+import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
+import edu.illinois.ncsa.daffodil.sapi.packageprivate.InfosetOutputterWrapper
 
-object INoWarn8 { ImplicitsSuppressUnusedImportWarning() }
+abstract class InfosetOutputter extends SInfosetOutputter
 
-class TestInfoset2 {
-  val xsd = XMLUtils.XSD_NAMESPACE
-  val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE
-  val xsi = XMLUtils.XSI_NAMESPACE
-  val ex = XMLUtils.EXAMPLE_NAMESPACE
+class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
+  extends InfosetOutputterWrapper {
 
-  @Test def testXMLToInfoset1() {
-    val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="b">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="c" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="a" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../c }"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
+  override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
 
-    try {
-      // Debugger.setDebugging(true)
-      val (_, xml) = TestUtils.testString(testSchema, "2AB")
-      TestUtils.assertEqualsXMLElements(<b><c>2</c><a>A</a><a>B</a></b>, xml)
-    } finally {
-      // Debugger.setDebugging(false)
-    }
+  def getResult(): scala.xml.Node = infosetOutputter.getResult()
+}
 
-  }
+class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
+  extends InfosetOutputterWrapper {
+  
+  override val infosetOutputter = new SXMLTextInfosetOutputter(writer, pretty)
 }

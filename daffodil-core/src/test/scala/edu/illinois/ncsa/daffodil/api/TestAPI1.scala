@@ -44,7 +44,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
-    val actual = TestUtils.testString(sch, "5678").result
+    val (_, actual) = TestUtils.testString(sch, "5678")
     val expected: Node = <e1>5678</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -59,8 +59,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "5")
     val expected = <e1><s1>5</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -76,8 +75,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "56").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "56")
     val expected = <e1><s1>5</s1><s2>6</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -92,8 +90,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "567").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "567")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -108,8 +105,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5,6,7").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "5,6,7")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -125,7 +121,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "55,000").result
+    val (_, actual) = TestUtils.testString(sch, "55,000")
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
@@ -157,7 +153,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "55,000").result
+    val (_, actual) = TestUtils.testString(sch, "55,000")
     TestUtils.assertEqualsXMLElements(<e1><s1>5</s1><s2>5000</s2></e1>, actual)
   }
 
@@ -189,7 +185,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "55123").result
+    val (_, actual) = TestUtils.testString(sch, "55123")
     TestUtils.assertEqualsXMLElements(<e1><s1>55</s1><s2>123</s2></e1>, actual)
   }
 
@@ -206,7 +202,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "1-800-555-1212").result
+    val (_, actual) = TestUtils.testString(sch, "1-800-555-1212")
     TestUtils.assertEqualsXMLElements(<e1><country>1</country><area>-800</area><region>-555</region><number>-1212</number></e1>, actual)
   }
 
@@ -214,7 +210,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
-    val actual = TestUtils.testString(sch, "-127").result
+    val (_, actual) = TestUtils.testString(sch, "-127")
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
   }
 
@@ -222,7 +218,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="perfect" type="xs:byte" dfdl:textNumberPattern="+0" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
-    val actual = TestUtils.testString(sch, "+3").result
+    val (_, actual) = TestUtils.testString(sch, "+3")
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
 
@@ -293,8 +289,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]")
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -309,8 +304,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]")
     val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -320,7 +314,7 @@ class TestDFDLParser {
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
     val e = intercept[Exception] {
-      TestUtils.testString(sch, "A").result
+      TestUtils.testString(sch, "A")
     }
     assertTrue(e.getMessage().contains("xs:int"))
   }
@@ -336,7 +330,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5678A").result
+    val (_, actual) = TestUtils.testString(sch, "5678A")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -352,7 +346,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5;6;7;8;A").result
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8;A")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -369,7 +363,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "5;6;7;8;A.", areTracing).result
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8;A.", areTracing)
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1><s2>A</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -385,7 +379,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "5;6;7;8;.", areTracing).result
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.", areTracing)
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -401,7 +395,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "5;6;7;8;.", areTracing).result
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.", areTracing)
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
 
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -417,7 +411,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testBinary(sch, "FFFFFFFF").result
+    val (_, actual) = TestUtils.testBinary(sch, "FFFFFFFF")
     val expected = <e1><s1>-1</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -434,7 +428,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F", areTracing).result
+    val (_, actual) = TestUtils.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F", areTracing)
     val expected = <e1><s1>1</s1><s1>-1</s1><s1>134480385</s1><s1>0</s1><s2>2147483647</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -443,7 +437,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
-    val actual = TestUtils.testBinary(sch, "3FF0000000000000").result
+    val (_, actual) = TestUtils.testBinary(sch, "3FF0000000000000")
     val expected = <e1>1.0</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -452,7 +446,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
-    val actual = TestUtils.testBinary(sch, "BFF0000000000000").result
+    val (_, actual) = TestUtils.testBinary(sch, "BFF0000000000000")
     val expected = <e1>-1.0</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -461,7 +455,7 @@ class TestDFDLParser {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
-    val actual = TestUtils.testBinary(sch, "0000000000000001").result
+    val (_, actual) = TestUtils.testBinary(sch, "0000000000000001")
     val expected = <e1>4.9E-324</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -477,7 +471,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testBinary(sch, "3FF00000000000003bBFF00000000000003b08040201080402013b00000000000000003bFFFFFFFFFFFFFF7F").result
+    val (_, actual) = TestUtils.testBinary(sch, "3FF00000000000003bBFF00000000000003b08040201080402013b00000000000000003bFFFFFFFFFFFFFF7F")
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.7340609871421765E-270</s1><s1>0.0</s1><s2>NaN</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -494,7 +488,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;8.6E-2001,234.9").result
+    val (_, actual) = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;8.6E-2001,234.9")
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>8.6E-200</s2><s3>1234.9</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -510,7 +504,7 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testBinary(sch, "3F8000003bBF8000003b080402013b000000003b0000C07F").result
+    val (_, actual) = TestUtils.testBinary(sch, "3F8000003bBF8000003b080402013b000000003b0000C07F")
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>3.972466E-34</s1><s1>0.0</s1><s2>NaN</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -528,7 +522,7 @@ class TestDFDLParser {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9", areTracing).result
+    val (_, actual) = TestUtils.testString(sch, "01.0;-1.0;4.15;0.31;-7.1E81,234.9", areTracing)
     val expected = <e1><s1>1.0</s1><s1>-1.0</s1><s1>4.15</s1><s1>0.31</s1><s2>-7.1E8</s2><s3>1234.9</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

@@ -46,7 +46,7 @@ package edu.illinois.ncsa.daffodil.util
 final case class MaybeDouble private (__rep: Long) extends AnyVal {
   @inline final def value = get
   @inline final def get: Double = if (isDefined) java.lang.Double.longBitsToDouble(__rep) else noneGet
-  @inline final def getOrElse(alternate: Double): Double = if (isDefined) get else alternate
+  //@inline final def getOrElse(alternate: Double): Double = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeDouble.undefValue
   @inline final def isEmpty = !isDefined
@@ -76,7 +76,7 @@ object MaybeDouble {
  */
 final case class MaybeFloat private (__rep: Long) extends AnyVal {
   @inline final def get: Float = if (isDefined) java.lang.Float.intBitsToFloat(__rep.toInt) else noneGet
-  @inline final def getOrElse(alternate: Float): Float = if (isDefined) get else alternate
+  //@inline final def getOrElse(alternate: Float): Float = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeFloat.undefValue
   @inline final def isEmpty = !isDefined

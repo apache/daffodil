@@ -89,6 +89,9 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -304,6 +307,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                       -P <parser>)
               |                      [--validate [mode]]
               |                      [-D[{namespace}]<variable>=<value>...] [-o <output>]
+              |                      [-I <infoset_type>]
               |                      [-c <file>] [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
@@ -325,6 +329,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', or 'null'.", default = Some("xml"))
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -344,6 +349,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case _ => Right(Unit)
     }
 
+    validateOpt(infosetType) {
+      case (Some("xml")) => Right(Unit)
+      case (Some("scala-xml")) => Right(Unit)
+      case (Some("null")) => Right(Unit)
+      case (Some(t)) => Left("Unknown infoset type: " + t)
+      case _ => Assert.impossible() // not possible due to default value
+    }
+
   }
 
   // Performance Subcommand Options
@@ -355,6 +368,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                      [-N <number of files to process>]
               |                      [-t <threadcount>]
               |                      [-D[{namespace}]<variable>=<value>...]
+              |                      [-I <infoset_type>]
               |                      [-c <file>] <infile>
               |
               |Run a performance test (parse or unparse), using either a DFDL schema or a saved parser
@@ -378,6 +392,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', or 'null'.", default = Some("null"))
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
@@ -387,6 +402,13 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case _ => Right(Unit)
     }
 
+    validateOpt(infosetType) {
+      case (Some("xml")) => Right(Unit)
+      case (Some("scala-xml")) => Right(Unit)
+      case (Some("null")) => Right(Unit)
+      case (Some(t)) => Left("Unknown infoset type: " + t)
+      case _ => Assert.impossible() // not possible due to default value
+    }
   }
 
   // Unparse Subcommand Options
@@ -395,6 +417,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                         -P <parser>)
               |                        [--validate [mode]]
               |                        [-D[{namespace}]<variable>=<value>...] [-c <file>]
+              |                        [-I <infoset_type>]
               |                        [-o <output>] [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved parser
@@ -416,6 +439,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml' or 'scala-xml'.", default = Some("xml"))
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -438,6 +462,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         else Right(Unit)
       }
       case _ => Right(Unit)
+    }
+
+    validateOpt(infosetType) {
+      case (Some("xml")) => Right(Unit)
+      case (Some("scala-xml")) => Right(Unit)
+      //case (Some("null")) => Right(Unit) // null is not valid for unparsing
+      case (Some(t)) => Left("Unknown infoset type: " + t)
+      case _ => Assert.impossible() // not possible due to default value
     }
   }
 
@@ -666,6 +698,14 @@ object Main extends Logging {
     pf
   }
 
+  def getInfosetOutputter(infosetType: String, writer: java.io.Writer): InfosetOutputter = {
+    infosetType.toLowerCase match {
+      case "xml" => new XMLTextInfosetOutputter(writer)
+      case "scala-xml" => new ScalaXMLInfosetOutputter()
+      case "null" => new NullInfosetOutputter()
+    }
+  }
+
   def run(arguments: Array[String]): Int = {
     LoggingDefaults.setLogWriter(CLILogWriter)
 
@@ -719,20 +759,23 @@ object Main extends Logging {
             processor.setValidationMode(validate)
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
+            val output = parseOpts.output.get match {
+              case Some("-") | None => System.out
+              case Some(file) => new FileOutputStream(file)
+            }
+            val writer = new BufferedWriter(new OutputStreamWriter(output))
+            val outputter = getInfosetOutputter(parseOpts.infosetType.get.get, writer)
+
             val parseResult = Timer.getResult("parsing",
               optDataSize match {
-                case None => processor.parse(inChannel)
-                case Some(szInBytes) => processor.parse(inChannel, szInBytes * 8)
+                case None => processor.parse(inChannel, outputter)
+                case Some(szInBytes) => processor.parse(inChannel, outputter, szInBytes * 8)
               })
             val loc = parseResult.resultState.currentLocation
             displayDiagnostics(parseResult)
             if (parseResult.isError) {
               1
             } else {
-              val output = parseOpts.output.get match {
-                case Some("-") | None => System.out
-                case Some(file) => new FileOutputStream(file)
-              }
               // check for left over data (if we know the size up front, like for a file)
               val hasLeftOverData = optDataSize match {
                 case Some(sz) => {
@@ -762,13 +805,16 @@ object Main extends Logging {
                   } else false
                 }
               }
-              val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-              Timer.getResult("writing", {
-                val out = new XMLTextInfosetOutputter(writer)
-                parseResult.resultState.asInstanceOf[PState].infoset.visit(out)
-                writer.flush()
-              })
+              // only XMLTextInfosetOutputter writes directly to the writer.
+              // Other InfosetOutputters must manually be converted to a string
+              // and written to the output
+              outputter match {
+                case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
+                case _ => // do nothing
+              }
+
+              writer.flush()
 
               if (hasLeftOverData) 1 else 0
             }
@@ -854,6 +900,7 @@ object Main extends Logging {
             }
 
             val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
+
             //the following line allows output verification
             //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
 
@@ -865,7 +912,12 @@ object Main extends Logging {
                     val (_ /* path */ , inData, len) = c
                     val (time, result) = inData match {
                       case Left(rdr) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, rdr) })
-                      case Right(channel) => Timer.getTimeResult({ processor.parse(channel, len) })
+                      case Right(channel) => Timer.getTimeResult({
+                        val nullBufferedWriter = new BufferedWriter(new OutputStreamWriter(new NullOutputStream))
+                        val outputterForParse = getInfosetOutputter(performanceOpts.infosetType.get.get, nullBufferedWriter)
+                        nullBufferedWriter.flush
+                        processor.parse(channel, outputterForParse, len)
+                      })
                     }
 
                     (n, time, result.isError)

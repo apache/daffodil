@@ -51,6 +51,8 @@ import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.debugger._
 import java.nio.channels.Channels
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 
 /*
  * This is not a file of tests.
@@ -201,12 +203,13 @@ object TestUtils {
     }
     p.setValidationMode(ValidationMode.Limited)
 
-    val actual = p.parse(d)
+    val outputter = new ScalaXMLInfosetOutputter()
+    val actual = p.parse(d, outputter)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    actual
+    (actual, outputter.getResult)
   }
 }
 /**
@@ -257,8 +260,8 @@ class Fakes private () {
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
-    def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
-    def parse(file: File): DFDL.ParseResult = null
+    def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
+    def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = null
     def unparse(output: DFDL.Output, rdr: java.io.Reader): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
     def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = null

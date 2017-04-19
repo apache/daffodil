@@ -66,8 +66,7 @@ class TestMiddleEndAttributes2 {
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems
     t1.asInstanceOf[Sequence]
-    val actual = TestUtils.testString(testSchema, "/5").result
-    actual.toString
+    val (_, actual) = TestUtils.testString(testSchema, "/5")
     val expected = <e1><x>5</x></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

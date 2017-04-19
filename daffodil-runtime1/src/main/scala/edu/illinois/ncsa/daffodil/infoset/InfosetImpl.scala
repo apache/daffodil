@@ -42,7 +42,6 @@ import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
@@ -1605,40 +1604,5 @@ object Infoset {
   //    }
   //    res.asInstanceOf[AnyRef]
   //  }
-
-  /**
-   * Used to detect arrays
-   */
-  @tailrec
-  private[infoset] def groupRuns(c: Seq[scala.xml.Node], acc: Seq[Seq[scala.xml.Node]] = Seq.empty): Seq[Seq[scala.xml.Node]] = {
-    c match {
-      case Seq() => acc
-      case xs =>
-        val (same, rest) = xs.span { _.label == xs.head.label }
-        groupRuns(rest, acc :+ same)
-    }
-  }
-
-  /**
-   * Compute a Daffodil Infoset from a SchemaSet, and a scala XML element representing
-   * the infoset (as projected into XML).
-   *
-   * Insures the created infoset matches the schema (rooted at that element).
-   * Converts xsi:nil="true" to isNilled on the infoset
-   * Converts dafint:hidden='true' to isHidden on the infoset (Daffodil extension
-   * allowing testing and visualization of the Augmented Infoset)
-   *
-   * This is used for testing the Infoset code, but may also be useful in other places.
-   * Perhaps the interactive debugger?
-   */
-
-  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
-    val ic = InfosetCursor.fromXMLNode(xmlElem, erd)
-    val aacc = ic.advanceAccessor
-    Assert.invariant(ic.advance == true)
-    val infosetRootNode = aacc.node
-    while (ic.advance) {}
-    infosetRootNode.asInstanceOf[InfosetElement]
-  }
 
 }

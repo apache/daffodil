@@ -169,7 +169,7 @@ abstract class UState(
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
-  def bitPos0b = dataOutputStream.maybeAbsBitPos0b.getOrElse(0L)
+  def bitPos0b = if (dataOutputStream.maybeAbsBitPos0b.isDefined) dataOutputStream.maybeAbsBitPos0b.get else 0L
 
   def bitLimit0b = dataOutputStream.maybeRelBitLimit0b
 

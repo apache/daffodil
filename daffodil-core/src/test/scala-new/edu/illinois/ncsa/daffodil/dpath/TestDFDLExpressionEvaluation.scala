@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.infoset.Infoset
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
@@ -45,6 +44,8 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.infoset.DIDocument
+import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.TestInfoset
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
@@ -59,14 +60,15 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
-    val infosetRootElem = Infoset.elem2Infoset(erd, infosetAsXML)
+    val infosetRootElem = TestInfoset.elem2Infoset(erd, infosetAsXML)
     val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
     val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = infosetRootElem.parent.asInstanceOf[DIDocument]
 
     val dis = ByteBufferDataInputStream(java.nio.ByteBuffer.allocate(0), 0L) // fake. Zero bits available.
-    val pstate = PState.createInitialPState(doc, erd, dis, dp)
+    val outputter = new NullInfosetOutputter()
+    val pstate = PState.createInitialPState(doc, erd, dis, outputter, dp)
     val result = compiledExpr.evaluate(pstate)
     body(result)
   }

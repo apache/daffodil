@@ -107,19 +107,6 @@ class TestXMLUtils {
     assertFalse(JDOMUtils.isNil(d2))
   }
 
-  @Test def testIsHidden() {
-    val hid = <foo dafint:hidden="true" xmlns:dafint={ XMLUtils.INT_NS }/>
-    val nid = <foo/>
-    assertTrue(XMLUtils.isHidden(hid))
-    assertFalse(XMLUtils.isHidden(nid))
-  }
-
-  @Test def testRemoveHidden() {
-    val hid = <bar><baz/><foo dafint:hidden="true" xmlns:dafint={ XMLUtils.INT_NS }/></bar>
-    val rid = XMLUtils.removeHiddenElements(hid)
-    assertFalse(rid.toString.contains("hidden"))
-  }
-
   @Test def testRemapXMLIllegalCharToPUA() {
     val ec = XMLUtils.remapXMLIllegalCharToPUA(false)(0x0)
     assertEquals(0xE000, ec)

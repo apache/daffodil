@@ -46,8 +46,8 @@ import passera.unsigned.ULong
 final class MaybeULong private (val __rep: Long) extends AnyVal {
   @inline final def get: Long = if (isDefined) __rep else noneGet
   @inline final def getULong: ULong = ULong(__rep)
-  @inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
-  @inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
+  //@inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
+  //@inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeULong.undefValue
   @inline final def isEmpty = !isDefined
@@ -87,8 +87,8 @@ final class MaybeJULong(mi: MaybeULong)
     extends Serializable {
   @inline final def get: Long = mi.get
   @inline final def getULong = mi.getULong
-  @inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
-  @inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
+  //@inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
+  //@inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
   override def toString = mi.toString

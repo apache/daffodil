@@ -240,7 +240,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
               case LengthUnits.Characters => {
                 if (isKnownEncoding) {
                   val dfdlCharset = charsetEv.optConstant.get
-                  val fixedWidth = dfdlCharset.maybeFixedWidth.getOrElse(8)
+                  val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
                   LengthMultipleOf(fixedWidth)
                 } else {
                   // runtime encoding, which must be a byte-length encoding

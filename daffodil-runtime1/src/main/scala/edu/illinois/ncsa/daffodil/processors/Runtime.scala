@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.ExecutionMode
@@ -73,7 +72,6 @@ import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -168,7 +166,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
    * Here begins the parser runtime. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
    * runtime. Instead we deal with success and failure statuses.
    */
-  def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
+  def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
     val rootERD = ssrd.elementRuntimeData
@@ -176,21 +174,23 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val initialState =
       PState.createInitialPState(rootERD,
         input,
+        output,
         this,
         bitOffset = 0,
-        bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
+        bitLengthLimit = lengthLimitInBits)
     parse(initialState)
   }
 
-  def parse(file: File): DFDL.ParseResult = {
+  def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
     val initialState =
       PState.createInitialPState(ssrd.elementRuntimeData,
         FileChannel.open(file.toPath),
+        output,
         this,
         bitOffset = 0,
-        bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
+        bitLengthLimit = file.length * 8)
     parse(initialState)
   }
 
@@ -207,6 +207,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       val pr = new ParseResult(this, state)
       if (!pr.isError) {
         pr.validateResult()
+
+        // now that everything has succeeded, call the infoset outputter to
+        // output the infoset
+        //
+        // TODO: eventually, we want infoset outputting to happen while parsing
+        // so that we can start to throw away infoset nodes. When that happens
+        // we can remove this line.
+        state.infoset.visit(state.output)
       }
       val s = state
       val dp = s.dataProc
@@ -379,19 +387,6 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   with WithDiagnosticsImpl
   with ErrorHandler {
 
-  def optInfoset = 
-    if (resultState.status eq Success) {
-      val i = resultState.infoset
-      val e =
-        i match {
-        case doc: DIDocument => doc.root
-        case _ => Assert.invariantFailed("not an InfosetDocument")
-      }
-    Some(e)
-    }
-  else
-    None
-
   /**
    * To be successful here, we need to capture xerces parse/validation
    * errors and add them to the Diagnostics list in the PState.
@@ -403,7 +398,10 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
     if (dp.getValidationMode == ValidationMode.Full) {
       val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
       try {
-        Validator.validateXMLSources(schemaURIStrings, result, this)
+        val sw = new java.io.StringWriter()
+        val xml = new XMLTextInfosetOutputter(sw)
+        resultState.infoset.visit(xml)
+        Validator.validateXMLSources(schemaURIStrings, sw.toString, this)
       } catch {
         //
         // Some SAX Parse errors are thrown even if you specify an error handler to the
@@ -442,29 +440,6 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
     }
     res
   }
-
-  lazy val result =
-    if (resultState.status eq Success) {
-      resultAsScalaXMLElement
-    } else {
-      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
-    }
-
-  lazy val resultAsScalaXMLElement =
-    if (resultState.status eq Success) {
-      val xmlClean = {
-        val xmlNodeVisitor = new ScalaXMLInfosetOutputter()
-        resultState.infoset.visit(xmlNodeVisitor)
-        val nodeSeq = xmlNodeVisitor.getResult().get
-        val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
-        //        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden)
-        //        eNoAttribs
-        eNoHidden
-      }
-      xmlClean
-    } else {
-      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
-    }
 }
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
@@ -479,7 +454,7 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
     else
       Nope
 
-  private def encodingInfo = maybeEncodingInfo.getOrElse(dp.ssrd.elementRuntimeData.encodingInfo)
+  private def encodingInfo = if (maybeEncodingInfo.isDefined) maybeEncodingInfo.get else dp.ssrd.elementRuntimeData.encodingInfo
 
   def summaryEncoding = encodingInfo.summaryEncoding
 

@@ -67,7 +67,7 @@ package edu.illinois.ncsa.daffodil.util
  */
 final case class MaybeInt private (__v: Long) extends AnyVal {
   @inline final def get: Int = if (isDefined) __v.toInt else noneGet
-  @inline final def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
+  //@inline final def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeInt.undefValue
   @inline final def isEmpty = !isDefined
@@ -119,7 +119,7 @@ object MaybeInt {
  */
 final class MaybeJInt(mi: MaybeInt) {
   @inline final def get: Int = mi.get
-  @inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
+  //@inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
   override def toString = mi.toString
@@ -134,7 +134,7 @@ object MaybeJInt {
 
 final case class MaybeChar private (__v: Int) extends AnyVal {
   @inline final def get: Char = if (isDefined) __v.toChar else noneGet
-  @inline final def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
+  //@inline final def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeChar.undefValue
   @inline final def isEmpty = !isDefined
@@ -157,7 +157,7 @@ object MaybeChar {
 
 final case class MaybeBoolean private (__v: Int) extends AnyVal {
   @inline final def get: Boolean = if (isEmpty) noneGet else __v == 1
-  @inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
+  //@inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeBoolean.undefValue
   @inline final def isEmpty = !isDefined

@@ -87,8 +87,8 @@ class ParseResult(val field: Maybe[String],
 
   override def toString(): String = {
   
-    val fieldStr = field.getOrElse("NOT-FOUND")
-    val matchedDelimStr = matchedDelimiterValue.getOrElse("NOT-FOUND")
+    val fieldStr = if (field.isDefined) field.get else "NOT-FOUND"
+    val matchedDelimStr = if (matchedDelimiterValue.isDefined) matchedDelimiterValue.get else "NOT-FOUND"
     "<DFAParseResult field='%s' foundDelimiter='%s' />".format(fieldStr, matchedDelimStr)
   }
 }

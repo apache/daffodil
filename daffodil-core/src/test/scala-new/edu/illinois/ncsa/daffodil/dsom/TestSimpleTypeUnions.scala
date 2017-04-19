@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.infoset.DISimple
+import edu.illinois.ncsa.daffodil.infoset.DIDocument
+import edu.illinois.ncsa.daffodil.processors.PState
 
 class TestSimpleTypeUnions {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -98,30 +100,28 @@ class TestSimpleTypeUnions {
   }
 
   @Test def testUnionFirstUnionMemberOk {
-    val result = TestUtils.testString(testSchema1, "1")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema1, "1")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int1Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testUnionSecondUnionMemberOk {
-    val result = TestUtils.testString(testSchema1, "2")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema1, "2")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int2Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>2</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testUnionNoUnionMemberOK {
-    val result = TestUtils.testString(testSchema1, "3")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, _) = TestUtils.testString(testSchema1, "3")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -196,8 +196,8 @@ class TestSimpleTypeUnions {
     <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:eType"/>)
 
   @Test def testUnionNot3 {
-    val result = TestUtils.testString(testSchema2, "3")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, _) = TestUtils.testString(testSchema2, "3")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue)
     assertEquals(3, dv.intValue())
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -221,34 +221,31 @@ class TestSimpleTypeUnions {
   }
 
   @Test def testUnionNot3_01 {
-    val result = TestUtils.testString(testSchema2, "1")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema2, "1")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testUnionNot3_02 {
-    val result = TestUtils.testString(testSchema2, "2")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema2, "2")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>2</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testUnionNot3_03 {
-    val result = TestUtils.testString(testSchema2, "-1")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema2, "-1")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:negIntType", umstrd.diagnosticDebugName) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>-1</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -289,41 +286,38 @@ class TestSimpleTypeUnions {
     <xs:element name="e1" dfdl:lengthKind="delimited" type="ex:foo3bar"/>)
 
   @Test def testRestrictionOnUnion_01 {
-    val result = TestUtils.testString(testSchema3, "foo3bar")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>foo3bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testRestrictionOnUnion_02 {
-    val result = TestUtils.testString(testSchema3, "foo1bar")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema3, "foo1bar")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>foo1bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testRestrictionOnUnion_03 {
-    val result = TestUtils.testString(testSchema3, "foo2bar")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, actual) = TestUtils.testString(testSchema3, "foo2bar")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
-    val actual = result.result
     val expected = <e1>foo2bar</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testRestrictionOnUnionFail_01 {
-    val result = TestUtils.testString(testSchema3, "foo4bar")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, _) = TestUtils.testString(testSchema3, "foo4bar")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue)
     assertEquals("foo4bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)
@@ -351,8 +345,8 @@ class TestSimpleTypeUnions {
    * restriction on the union fails.
    */
   @Test def testRestrictionOnUnionFail_02 {
-    val result = TestUtils.testString(testSchema3, "notfoo1bar")
-    val Some(i: DISimple) = result.optInfoset
+    val (result, _) = TestUtils.testString(testSchema3, "notfoo1bar")
+    val i = result.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument].root.asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue)
     assertEquals("notfoo1bar", dv)
     assertTrue(i.unionMemberRuntimeData.isEmpty)

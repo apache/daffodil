@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.general
 
-import junit.framework.Assert._
 import scala.xml._
 
 import edu.illinois.ncsa.daffodil.util.TestUtils
@@ -49,11 +48,9 @@ class TestPrimitives {
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "abcdefgh", areTracing)
-    assertTrue(actual.canProceed)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>efgh</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testTerminator {
@@ -63,10 +60,9 @@ class TestPrimitives {
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "abcdefgh", areTracing)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>abcd</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testSeparator() {
@@ -82,10 +78,9 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "abcd,efgh", areTracing)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testLengthKindDelimited {
@@ -102,10 +97,9 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "abcd,efgh", areTracing)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testLengthKindDelimited2 {
@@ -121,10 +115,9 @@ class TestPrimitives {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "abcd  \\\n  efgh")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd  \\\n  efgh")
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testLengthKindDelimited3 {
@@ -148,10 +141,9 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testDelimiterInheritance {
@@ -184,14 +176,13 @@ class TestPrimitives {
         </xs:complexType>
       </xs:element>)
     val areTracing = false
-    val actual = TestUtils.testString(sch, "{a,b,c./d}//::", areTracing)
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "{a,b,c./d}//::", areTracing)
 
     // <root><e1></e1><e2></e2><e3><e3_1></e3_1><e3_2></e3_2></e3></root>
     // a,b,c./d//::
 
     val expected: Node = <root><e1>a</e1><e2>b</e2><e3><e3_1>c</e3_1><e3_2>d</e3_2></e3></root>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testEntityReplacementSeparator {
@@ -207,11 +198,10 @@ class TestPrimitives {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "abcd\u0000efgh")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd\u0000efgh")
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testEntityReplacementInitiator {
@@ -221,12 +211,9 @@ class TestPrimitives {
 
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
       </xs:element>)
-    val actual = TestUtils.testString(sch, "\u0000efgh")
-    assertTrue(actual.canProceed)
-    actual.result.toString
-
+    val (_, actual) = TestUtils.testString(sch, "\u0000efgh")
     val expected: Node = <e1>efgh</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   @Test def testEntityReplacementTerminator {
@@ -236,11 +223,10 @@ class TestPrimitives {
 
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
       </xs:element>)
-    val actual = TestUtils.testString(sch, "abcd\u0000")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(sch, "abcd\u0000")
 
     val expected: Node = <e1>abcd</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
 }

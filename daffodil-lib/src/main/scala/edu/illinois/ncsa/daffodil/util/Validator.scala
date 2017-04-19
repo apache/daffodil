@@ -43,7 +43,6 @@ import javax.xml.transform.stream.StreamSource
 import javax.xml.XMLConstants
 import javax.xml.validation.SchemaFactory
 import scala.xml.parsing.NoBindingFactoryAdapter
-import scala.xml._
 import java.io.StringReader
 import java.net.URI
 import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
@@ -65,7 +64,7 @@ object Validator extends NoBindingFactoryAdapter {
         new CacheType
     }
 
-  def validateXMLSources(schemaFileNames: Seq[String], document: Node, errHandler: ErrorHandler): Unit = {
+  def validateXMLSources(schemaFileNames: Seq[String], document: String, errHandler: ErrorHandler): Unit = {
     val cache = validationSchemaCache.get()
     val validator = {
       val optCachedValidator = cache.get(schemaFileNames)
@@ -109,9 +108,7 @@ object Validator extends NoBindingFactoryAdapter {
         }
       }
     }
-    val documentSource = new StreamSource(new StringReader(
-      document.toString() //
-      ))
+    val documentSource = new StreamSource(new StringReader(document))
     validator.validate(documentSource)
   }
 }

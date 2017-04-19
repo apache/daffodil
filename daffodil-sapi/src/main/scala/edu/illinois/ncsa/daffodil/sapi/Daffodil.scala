@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
 import edu.illinois.ncsa.daffodil.sapi.debugger._
 import edu.illinois.ncsa.daffodil.sapi.logger._
 import edu.illinois.ncsa.daffodil.sapi.packageprivate._
+import edu.illinois.ncsa.daffodil.sapi.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
@@ -481,14 +482,15 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * Parse input data with a specified length
    *
    * @param input data to be parsed
+   * @param output the InfosetOutputter that will be used to output the infoset
    * @param lengthLimitInBits the length of the input data in bits. This must
    *                          be the actual length in bits if you want the
    *                          location().isAtEnd() function to work. If value
    *                          is -1, the isAtEnd() function will always return true.
    * @return an object which contains the result, and/or diagnostic information.
    */
-  def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
-    val pr = dp.parse(input, lengthLimitInBits).asInstanceOf[SParseResult]
+  def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
+    val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
     new ParseResult(pr)
   }
 
@@ -501,9 +503,10 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * specify the length of the data.
    *
    * @param input data to be parsed
+   * @param output the InfosetOutputter that will be used to output the infoset
    * @return an object which contains the result, and/or diagnostic information.
    */
-  def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
+  def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
 
   /**
    * Unparse a scala.xml.Node infoset
@@ -520,23 +523,10 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
 
 /**
  * Result of calling [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, long)]], containing
- * the resulting infoset, any diagnostic information, and the final data
- * location
+ * any diagnostic information, and the final data location
  */
 class ParseResult private[sapi] (pr: SParseResult)
   extends WithDiagnostics(pr) {
-
-  /**
-   * Get the resulting infoset as a scala.xml.Node
-   *
-   * @throws [[IllegalStateException]] if you call this when isError is true
-   *         because in that case there is no result document.
-   *
-   * @return a scala xml Node representing the DFDL infoset for the parsed data
-   */
-  def result(): scala.xml.Node = {
-    pr.result
-  }
 
   /**
    * Get the [[DataLocation]] where the parse completed

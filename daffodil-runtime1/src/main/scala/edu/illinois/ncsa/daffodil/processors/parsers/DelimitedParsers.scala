@@ -67,7 +67,7 @@ class StringDelimitedParser(
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
       val result = parseResult.get
-      val field = result.field.getOrElse("")
+      val field = if (result.field.isDefined) result.field.get else ""
       state.simpleElement.setDataValue(field)
       captureValueLengthOfString(state, field)
       if (result.matchedDelimiterValue.isDefined)
@@ -128,7 +128,7 @@ class LiteralNilDelimitedEndOfDataParser(
     else {
       val result = parseResult.get
       // We have a field, is it empty?
-      val field = result.field.getOrElse("")
+      val field = if (result.field.isDefined) result.field.get else ""
       val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
       lazy val isNilLiteral = isFieldNilLiteralValue(field)
@@ -175,7 +175,7 @@ class HexBinaryDelimitedParser(
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
       val result = parseResult.get
-      val field = result.field.getOrElse("")
+      val field = if (result.field.isDefined) result.field.get else ""
       val fieldBytes = field.getBytes(StandardCharsets.ISO_8859_1)
       state.simpleElement.setDataValue(fieldBytes)
       captureValueLength(state, ULong(0), ULong(fieldBytes.length * 8))

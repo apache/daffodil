@@ -232,8 +232,11 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
 
     // Preserve the bit limit
     val mabl = oldDirectDOS.maybeAbsBitLimit0b
-    val absLargerLimit = math.max(mabl.getOrElse(0L),
-      maybeAbsBitLimit0b.getOrElse(0L))
+    val absLargerLimit =
+      math.max(
+        if (mabl.isDefined) mabl.get else 0L,
+        if (maybeAbsBitLimit0b.isDefined) maybeAbsBitLimit0b.get else 0L
+      )
     if (mabl.isDefined || maybeAbsBitLimit0b.isDefined) {
       val newRelLimit = absLargerLimit - this.maybeAbsStartingBitPos0b.get
       this.setMaybeRelBitLimit0b(MaybeULong(newRelLimit))

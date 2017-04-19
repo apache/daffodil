@@ -387,6 +387,7 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
 final class PState private (
   var infoset: DIElement,
   var dataInputStream: DataInputStream,
+  val output: InfosetOutputter,
   vmap: VariableMap,
   statusArg: ProcessorResult,
   diagnosticsArg: List[Diagnostic],
@@ -599,6 +600,7 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     dis: DataInputStream,
+    output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
@@ -606,7 +608,7 @@ object PState {
     val status = Success
     val diagnostics = Nil
     val mutablePState = MPState()
-    val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
+    val newState = new PState(doc, dis, output, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }
@@ -618,6 +620,7 @@ object PState {
     doc: InfosetDocument,
     root: ElementRuntimeData,
     dis: DataInputStream,
+    output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
     val variables = dataProc.getVariables
@@ -625,7 +628,7 @@ object PState {
     val diagnostics = Nil
     val mutablePState = MPState()
 
-    val newState = new PState(doc.asInstanceOf[DIElement], dis, variables, status, diagnostics, mutablePState,
+    val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }
@@ -636,10 +639,11 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     data: String,
+    output: InfosetOutputter,
     bitOffset: Long,
     dataProc: DFDL.DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
-    createInitialPState(root, in, dataProc, data.length, bitOffset)
+    createInitialPState(root, in, output, dataProc, data.length, bitOffset)
   }
 
   /**
@@ -648,12 +652,13 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     input: DFDL.Input,
+    output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
     val bitOrder = root.defaultBitOrder
     val dis =
       ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit, bitOrder)
-    createInitialPState(root, dis, dataProc)
+    createInitialPState(root, dis, output, dataProc)
   }
 }

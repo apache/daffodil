@@ -44,10 +44,9 @@ class TestInputValueCalc extends Logging {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="data" type="xs:string" dfdl:textNumberRep="standard" dfdl:representation="text" dfdl:terminator="" dfdl:emptyValueDelimiterPolicy="none" dfdl:inputValueCalc="{ 42 }" dfdl:initiator="" dfdl:lengthKind="explicit" dfdl:length="1"/>)
-    val actual = TestUtils.testString(testSchema, "")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(testSchema, "")
     val expected: Node = <data>42</data>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   // @Test
@@ -63,10 +62,9 @@ class TestInputValueCalc extends Logging {
         </xs:complexType>
       </xs:element>)
 
-    val actual = TestUtils.testString(testSchema, "A")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(testSchema, "A")
     val expected: Node = <data><e1>A</e1><e2>A</e2></data>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
   // @Test
@@ -82,9 +80,8 @@ class TestInputValueCalc extends Logging {
         </xs:complexType>
       </xs:element>)
 
-    val actual = TestUtils.testString(testSchema, "8")
-    actual.result.toString
+    val (_, actual) = TestUtils.testString(testSchema, "8")
     val expected: Node = <data><e1>8</e1><e2>8</e2></data>
-    TestUtils.assertEqualsXMLElements(expected, actual.result)
+    TestUtils.assertEqualsXMLElements(expected, actual)
   }
 }

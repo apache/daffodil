@@ -92,7 +92,7 @@ class BinaryBooleanUnparser(e: ElementRuntimeData,
 
     val res =
       if (value) {
-        val trueRep = binaryBooleanTrueRep.getULongOrElse(~binaryBooleanFalseRep)
+        val trueRep = if (binaryBooleanTrueRep.isDefined) binaryBooleanTrueRep.getULong else ~binaryBooleanFalseRep
         putNumber(dos, trueRep, nBits)
       } else {
         putNumber(dos, binaryBooleanFalseRep, nBits)

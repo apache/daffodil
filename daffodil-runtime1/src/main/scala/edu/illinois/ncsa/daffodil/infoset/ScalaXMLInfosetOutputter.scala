@@ -37,15 +37,16 @@ import scala.xml.Null
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.MStackOf
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputter
     with XMLInfosetOutputter {
 
   val stack = new MStackOf[ListBuffer[scala.xml.Node]]
-  var nodeSeq: Maybe[scala.xml.NodeSeq] = Maybe.Nope
+  var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
 
   def reset(): Unit = {// call to reuse these. When first constructed no reset call is necessary.
-    nodeSeq = Maybe.Nope
+    resultNode = Maybe.Nope
     stack.clear
   }
 
@@ -57,7 +58,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
   def endDocument(): Boolean = {
     val root = stack.pop
     assert(root.length == 1)
-    nodeSeq = Maybe.One(root(0))
+    resultNode = Maybe(root(0))
     true
   }
 
@@ -96,7 +97,6 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
 
     val elem = addFmtInfo(diSimple, e, showFormatInfo)
 
-    nodeSeq = Maybe.One(elem)
     stack.top.append(elem)
     //returning true/false will be used when recursion is removed
     true
@@ -126,7 +126,6 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
 
     val elem = addFmtInfo(diComplex, e, showFormatInfo)
 
-    nodeSeq = Maybe.One(elem)
     stack.top.append(elem)
     //returning true/false will be used when recursion is removed
     true
@@ -140,10 +139,8 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
     true
   }
 
-  def getResult(): Maybe[scala.xml.NodeSeq] = {
-    nodeSeq
+  def getResult(): scala.xml.Node = {
+    Assert.usage(resultNode.isDefined, "No result to get. Must check isError parse result before calling getResult")
+    resultNode.get
   }
-
-  
 }
-

@@ -31,7 +31,6 @@
  */
 package edu.illinois.ncsa.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Indentable
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
@@ -144,6 +143,4 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     // do nothing
     true
   }
-
-  override def getResult: Maybe[java.io.Writer] = Maybe.One(writer)
 }

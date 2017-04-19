@@ -32,14 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-
 
 trait InfosetOutputter {
 
   import Status._
 
-  def status : Status = Status.READY
+  def status: Status = READY
 
   def reset(): Unit // call to reuse these. When first constructed no reset call is necessary.
 
@@ -58,8 +56,6 @@ trait InfosetOutputter {
     // Done, Ready (Not started), Visiting (part way done - can retry to visit more)...
     status
   }
-  def getResult(): Maybe[AnyRef] // in Java this will be null or an object.
-
 }
 
 object Status extends Enumeration {

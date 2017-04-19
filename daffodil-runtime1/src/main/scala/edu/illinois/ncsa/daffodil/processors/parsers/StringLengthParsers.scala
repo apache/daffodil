@@ -102,7 +102,8 @@ trait StringOfSpecifiedLengthMixin
     val maxLen = dis.limits.maximumSimpleElementSizeInCharacters
     val startBitPos0b = dis.bitPos0b
 
-    val str = dis.getSomeString(maxLen).getOrElse("")
+    val strOpt = dis.getSomeString(maxLen)
+    val str = if (strOpt.isDefined) strOpt.get else ""
     // TODO: Performance - trimByJustification wants to operate on a StringBuilder
     // That means that dis.getSomeString wants to return a StringBuilder instead of
     // a string itself.

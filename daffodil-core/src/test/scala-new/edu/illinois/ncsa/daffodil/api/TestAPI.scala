@@ -49,7 +49,7 @@ class TestDFDLParser_New {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5;6;7;8;.").result
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

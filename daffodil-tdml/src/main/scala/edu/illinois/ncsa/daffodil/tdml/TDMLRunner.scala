@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.tdml
 
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.StringWriter
 import java.net.URI
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -86,6 +87,8 @@ import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -690,7 +693,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val diagnostics = {
       if (processor.isError) processor.getDiagnostics
       else {
-        val actual = processor.parse(dataToParse, lengthLimitInBits)
+        val sw = new StringWriter()
+        val out = new XMLTextInfosetOutputter(sw)
+        val actual = processor.parse(dataToParse, out, lengthLimitInBits)
         if (actual.isError) actual
         else {
           val loc: DataLocation = actual.resultState.currentLocation
@@ -701,7 +706,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           } else {
             // We did not get an error!!
             // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new TDMLException("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+            throw new TDMLException("Expected error. Didn't get one. Actual result was\n" + sw.toString) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
           }
         }
         processor.getDiagnostics ++ actual.getDiagnostics
@@ -740,7 +745,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val testInfoset = optExpectedInfoset.get
 
     while (stillTesting) {
-      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), testDataLength)
+      val out = new ScalaXMLInfosetOutputter()
+      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), out, testDataLength)
 
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
@@ -767,7 +773,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         Some(new TDMLException(leftOverMsg))
       } else None
 
-      VerifyTestCase.verifyParserTestData(actual, testInfoset)
+      val resultXmlNode = out.getResult
+      VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset)
 
       (shouldValidate, expectsValidationError) match {
         case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
@@ -791,9 +798,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (roundTrip && testPass < 2) {
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        val xmlNode = actual.result
 
-        val unparseResult = processor.unparse(output, xmlNode).asInstanceOf[UnparseResult]
+        val unparseResult = processor.unparse(output, resultXmlNode).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
           if (diagObjs.length == 1) throw diagObjs(0)
@@ -934,7 +940,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // verifyAllDiagnosticsFound(actual, warnings)
 
     if (roundTrip) {
-      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), testDataLength)
+      val out = new ScalaXMLInfosetOutputter()
+      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), out, testDataLength)
 
       if (!parseActual.canProceed) {
         // Means there was an error, not just warnings.
@@ -951,7 +958,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         Some(new TDMLException(leftOverMsg))
       } else None
 
-      VerifyTestCase.verifyParserTestData(parseActual, inputInfoset)
+      val xmlNode = out.getResult
+      VerifyTestCase.verifyParserTestData(xmlNode, inputInfoset)
 
       (shouldValidate, expectsValidationError) match {
         case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
@@ -1014,13 +1022,13 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 object VerifyTestCase {
-  def verifyParserTestData(actual: DFDL.ParseResult, infoset: Infoset) {
+  def verifyParserTestData(actual: Node, infoset: Infoset) {
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't
     // use attributes at all)
     //
-    val actualNoAttrs = XMLUtils.removeAttributes(actual.result)
+    val actualNoAttrs = XMLUtils.removeAttributes(actual)
     //
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
