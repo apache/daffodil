@@ -88,6 +88,7 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -763,7 +764,12 @@ object Main extends Logging {
               }
               val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-              Timer.getResult("writing", parseResult.toWriter(writer))
+              Timer.getResult("writing", {
+                val out = new XMLTextInfosetOutputter(writer)
+                parseResult.resultState.asInstanceOf[PState].infoset.visit(out)
+                writer.flush()
+              })
+
               if (hasLeftOverData) 1 else 0
             }
           }

@@ -379,11 +379,6 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
   with WithDiagnosticsImpl
   with ErrorHandler {
 
-  def toWriter(writer: java.io.Writer) = {
-    resultState.infoset.toWriter(writer)
-    writer.flush()
-  }
-
   def optInfoset = 
     if (resultState.status eq Success) {
       val i = resultState.infoset

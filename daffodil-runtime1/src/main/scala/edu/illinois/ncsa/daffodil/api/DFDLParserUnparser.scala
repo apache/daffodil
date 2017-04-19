@@ -185,10 +185,6 @@ object DFDL {
   }
 
   trait ParseResult extends Result with WithDiagnostics {
-    /**
-     * Writes XML version of result infoset to the writer
-     */
-    def toWriter(writer: java.io.Writer): Unit
     def result: scala.xml.Node
     def briefResult = XMLUtils.removeAttributes(result)
     def resultState: State

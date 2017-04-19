@@ -88,7 +88,6 @@ sealed trait DINode {
   }
 
   def children: Stream[DINode]
-  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0): Unit
   def totalElementCount: Long
   def namedQName: NamedQName
   def erd: ElementRuntimeData
@@ -211,8 +210,6 @@ case class InfosetValueLengthUnknownException(lengthState: LengthState, override
  */
 final class FakeDINode extends DISimple(null) {
   private def die = throw new InfosetNoInfosetException(Nope)
-
-  override def removeHiddenElements(): InfosetElement = die
 
   override def parent = die
   override def diParent = die
@@ -915,46 +912,6 @@ sealed trait DIElement
    */
   override def valid = _validity
   override def setValid(validity: Boolean) { _validity = MaybeBoolean(validity) }
-
-  private def uniqueScopeString: String = {
-    val nsbStart = erd.minimizedScope
-    val nsbEnd = if (isRoot) scala.xml.TopScope else diParent.erd.minimizedScope
-    if (nsbStart == nsbEnd) {
-      "" // nothing to add, return empty string
-    } else {
-      val str = XMLUtils.uniqueNamespaceBindingsToString(nsbStart, nsbEnd)
-      " " + str
-    }
-  }
-
-  private def pre = erd.thisElementsNamespacePrefix
-  private lazy val qn = if (pre == null | pre == "") erd.name else pre + ":" + erd.name
-  protected final lazy val nilledTag = "<" + qn + uniqueScopeString + " xsi:nil=\"true\" />"
-  protected final lazy val startTag = "<" + qn + uniqueScopeString + ">"
-  protected final lazy val endTag = "</" + qn + ">"
-
-  protected def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean = false, indentStep: Int, indentLevel: Int): Unit
-
-  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
-    if (isHidden && removeHidden) return
-    val indentString = " " * (indentStep * indentLevel)
-    writer.write(indentString)
-    if ((!allowUnsetValues || _isNilledSet) && isNilled) {
-      writer.write(nilledTag)
-    } else {
-      writer.write(startTag)
-      if (erd.isComplexType) {
-        writer.write("\n")
-      }
-      writeContents(writer, removeHidden, allowUnsetValues, indentStep, indentLevel + 1)
-      if (erd.isComplexType) {
-        writer.write(indentString)
-      }
-      writer.write(endTag)
-    }
-    writer.write("\n")
-  }
-
 }
 
 // This is not a mutable collection class on purpose.
@@ -1033,10 +990,6 @@ final class DIArray(
   }
 
   final def length: Long = _contents.length
-
-  final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
-    _contents.foreach { _.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
-  }
 
   final def totalElementCount: Long = {
     var a: Long = 0
@@ -1278,33 +1231,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     }
   }
 
-  override def removeHiddenElements(): InfosetElement = this
-
-  /**
-   * For future - if string is big enough or other criteria
-   * Then maybe escape it by wrapping with <![CDATA[...]]>
-   * but note that any internal appearance of ]]> must be
-   * followed by inserting <![CDATA[. (These cannot nest)
-   */
-  private def shouldEscapeWithCData(s: String): Maybe[String] = {
-    Nope
-  }
-
-  override final def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean, indentStep: Int, indentLevel: Int) {
-    if (!allowUnsetValues || hasValue) {
-      val escapeWithCData = shouldEscapeWithCData(remapped)
-      if (escapeWithCData.isDefined) {
-        writer.write(escapeWithCData.get)
-      } else {
-        val escaped = scala.xml.Utility.escape(remapped)
-        writer.write(escaped)
-      }
-    }
-  }
-
   override def totalElementCount = 1L
-
-  private def remapped = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
 
   final def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
     if (!this.isHidden || !removeHidden) {
@@ -1483,16 +1410,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     e.setParent(this)
   }
 
-  final override def removeHiddenElements(): InfosetElement = {
-    var i = 0
-    while (i < erd.nChildSlots) {
-      val isH = erd.childERDs(i).isHidden
-      if (isH) _slots(i) = null
-      i = i + 1
-    }
-    this
-  }
-
   final def captureInto(cs: DIComplexSharedImplMixin) {
     Assert.invariant(_arraySize == MaybeInt.Nope)
     Assert.invariant(cs._arraySize == MaybeInt.Nope)
@@ -1521,10 +1438,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (cs._arraySize.isDefined) {
       _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(cs._arraySize.get)
     }
-  }
-
-  override def writeContents(writer: java.io.Writer, removeHidden: Boolean, allowUnsetValues: Boolean = false, indentStep: Int, indentLevel: Int) {
-    _slots.foreach { slot => if (slot ne null) slot.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel) }
   }
 
   override def totalElementCount: Long = {
@@ -1578,11 +1491,6 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
 
   def getRootElement(): InfosetElement = {
     root
-  }
-
-  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true, allowUnsetValues: Boolean = false, indentStep: Int = 2, indentLevel: Int = 0) {
-    if (root != null) root.toWriter(writer, removeHidden, allowUnsetValues, indentStep, indentLevel)
-    else writer.write("<document/>")
   }
 
   override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {

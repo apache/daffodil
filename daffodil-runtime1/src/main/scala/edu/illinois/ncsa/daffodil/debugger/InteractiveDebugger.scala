@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.infoset.InfosetItem
 import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 import edu.illinois.ncsa.daffodil.infoset.InfosetDocument
+import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
 
 abstract class InteractiveDebuggerRunner {
@@ -457,7 +458,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
     val sw = new java.io.StringWriter()
-    ie.toWriter(sw, removeHidden = DebuggerConfig.removeHidden, allowUnsetValues = true)
+    val xml = new XMLTextInfosetOutputter(sw)
+    ie.visit(xml, DebuggerConfig.removeHidden)
     debugPrintln(sw.toString)
   }
 
@@ -1500,8 +1502,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           debugPrintln("%s:".format(name))
 
           val sw = new java.io.StringWriter()
+          val xml = new XMLTextInfosetOutputter(sw)
           val infoset = getInfoset(state.infoset)
-          infoset.toWriter(sw, removeHidden = DebuggerConfig.removeHidden, allowUnsetValues = true)
+          infoset.visit(xml, DebuggerConfig.removeHidden)
           val infosetString = sw.toString()
           val lines = infosetString.split("\n")
           val tailLines =
