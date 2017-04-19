@@ -997,9 +997,15 @@ final class DIArray(
   }
 
   final def visit(handler: InfosetOutputter, removeHidden: Boolean = true){
-    handler.startArray(this)
-    _contents.foreach { _.visit(handler, removeHidden) }
-    handler.endArray(this)
+    // Do not create an event if there's nothing in the array or if the array
+    // is hidden. Unfortunately, there is no way to tell if an array is hidden,
+    // only its elements. But if the first element is hidden, they are all
+    // hidden, so we check that to determine if the array is hidden.
+    if (length > 0 && (!_contents(0).isHidden || !removeHidden)) {
+      handler.startArray(this)
+      _contents.foreach { _.visit(handler, removeHidden) }
+      handler.endArray(this)
+    }
   }
 }
 

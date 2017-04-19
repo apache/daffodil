@@ -33,6 +33,7 @@ libraryDependencies in ThisBuild := Seq(
   "com.ibm.icu" % "icu4j" % "51.1", // new versions avail. 58.1 requires code changes
   "xerces" % "xercesImpl" % "2.10.0",
   "com.fasterxml.woodstox" % "woodstox-core" % "5.0.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.12.1", // newer versions avail. 3.0.0-M1 requires code changes
   "org.fusesource.jansi" % "jansi" % "1.14",
