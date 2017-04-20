@@ -41,7 +41,7 @@
   <tdml:defineSchema name="neededRepProp">
 	<dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
 		alignment='implicit' alignmentUnits='bytes' trailingSkip='0' encoding="utf-8"
-		sequenceKind="ordered" />
+		sequenceKind="ordered" initiator="" terminator="" separatorPosition="infix" ignoreCase="no" />
 	<xs:element name="root">
 		<xs:complexType>
 			<xs:sequence dfdl:separator=",">
@@ -55,7 +55,7 @@
   
   <tdml:defineSchema name="neededRepProp2">
     <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
-      initiator="" terminator="" separatorPosition="infix" textTrimKind="none"
+      initiator="" terminator="" separatorPosition="infix" textTrimKind="none" ignoreCase="no"
       encoding="utf-8" initiatedContent="no" alignment="implicit" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered"/>
     <xs:element name="root">
       <xs:complexType>

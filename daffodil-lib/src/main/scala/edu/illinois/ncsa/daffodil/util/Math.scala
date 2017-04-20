@@ -1,4 +1,4 @@
-/* Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -29,20 +29,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
-package edu.illinois.ncsa.daffodil.section00.general
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+package edu.illinois.ncsa.daffodil.util
 
-import org.junit.Test
-
-class TestUnparserGeneralNew {
-
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testUnparserGeneral.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  @Test def test_alignmentPaddingOVC1() { runner.runOneTest("alignmentPaddingOVC1") }
-  @Test def test_alignmentPaddingOVC2() { runner.runOneTest("alignmentPaddingOVC2") }
-  @Test def test_alignmentPaddingOVC3() { runner.runOneTest("alignmentPaddingOVC3") }
+object Math {
+  def gcd(a: Long, b: Long): Long = {
+    if (b == 0) a else gcd(b, a % b)
+  }
 }

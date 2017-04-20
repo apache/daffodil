@@ -39,12 +39,9 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import java.lang.{ Integer => JInt }
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -380,45 +377,45 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def hasStaticallyRequiredInstances: Boolean
   def isKnownRequiredElement = false
-  def isKnownToBePrecededByAllByteLengthItems: Boolean = false
   def hasKnownRequiredSyntax = false
 
-  def isAllKnownToBeByteAlignedAndByteLength: Boolean = {
-    // this will not eliminate alignment parsers when only some of the file is
-    // byte aligned (which isKnownToBePrecededByAllByteLengthItems would find
-    // if it worked). However, this is much easier to calculate and works for
-    // the common case. It is not very likely to mix byte and bit alignment.
-    // This is not intended to find all cases, but to easily find the most
-    // common cases where alignment is not actually needed.
-    val isByteAligned = alignmentValueInBits == 8
 
-    val isSkipRegionByteLength = alignmentUnits match {
-      case AlignmentUnits.Bytes => true
-      case AlignmentUnits.Bits => (leadingSkip % 8 == 0) && (trailingSkip % 8 == 0)
-    }
-
-    val isByteLength = this match {
-      case m: ModelGroup => m.groupMembersNoRefs.forall { _.isAllKnownToBeByteAlignedAndByteLength }
-      case e: ElementBase => {
-        val isSelfByteSizeEncoding = e.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
-        val isSelfByteLength = e.lengthKind match {
-          case LengthKind.Implicit => true
-          case LengthKind.Explicit =>
-            e.lengthUnits match {
-              case LengthUnits.Bytes => true
-              case LengthUnits.Bits => e.lengthEv.optConstant.map { _ % 8 == 0 }.getOrElse(false)
-              case LengthUnits.Characters => isSelfByteSizeEncoding
-            }
-          case _ => false
-        }
-        if (e.isComplexType) {
-          isSelfByteSizeEncoding && isSelfByteLength && e.complexType.group.isAllKnownToBeByteAlignedAndByteLength
+  // Returns a tuple, where the first item in the tuple is the list of sibling
+  // terms that could appear before this. The second item in the tuple is a
+  // One(parent) if all siblings are optional or this element has no prior siblings
+  lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = {
+    val (potentialPrior, parent) = enclosingTerm match {
+      case None => (Seq(), None)
+      case Some(eb: ElementBase) => (Seq(), Some(eb))
+      case Some(ch: Choice) => (Seq(), Some(ch))
+      case Some(sq: Sequence) if !sq.isOrdered => (sq.groupMembersNoRefs, Some(sq))
+      case Some(sq: Sequence) if sq.isOrdered => {
+        val previousTerms = sq.groupMembersNoRefs.takeWhile { _ != this }
+        if (previousTerms.isEmpty) {
+          // first child of seq, the seq is the only previous term
+          (Seq(), Some(sq))
         } else {
-          isSelfByteSizeEncoding && isSelfByteLength
+          val firstNonOptional = previousTerms.reverse.find { _ match {
+            case eb: ElementBase if !eb.isRequired || !eb.isRepresented => false
+            case _ => true
+          }}
+          if (firstNonOptional.isEmpty) {
+            // all previous siblings are optional, all or the seq could be previous
+            (previousTerms, Some(sq))
+          } else {
+            // drop all siblings up until the first non optional
+            (previousTerms.dropWhile { _ != firstNonOptional.get }, None)
+          }
         }
       }
     }
-    isByteAligned && isSkipRegionByteLength && isByteLength
+    val potentialPriorRepresented = potentialPrior.filter { term =>
+      term match {
+        case eb: ElementBase => eb.isRepresented
+        case _ => true
+      }
+    }
+    (potentialPriorRepresented, parent)
   }
 
   /*
@@ -461,6 +458,36 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       }
     }
     res
+  }
+
+  lazy val couldHaveSuspensions: Boolean = {
+    val commonCouldHaveSuspensions =
+      !isKnownToBeAligned || // AlignmentFillUnparser
+      (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) ||  // MandatoryTextAlignmentUnparser
+      needsBitOrderChange // BitOrderChangeUnparser
+
+    this match {
+      case eb: ElementBase => {
+        val elementCouldHaveSuspensions =
+          commonCouldHaveSuspensions ||
+          !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
+          (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // OVCRetryUnparser
+          eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
+          eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
+          eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser
+          (eb.maybeUnparseTargetLengthInBitsEv.isDefined && eb.isNillable && eb.nilKind == NilKind.LiteralCharacter) || // NilLiteralCharacterUnparser
+          (if (eb.isComplexType) eb.complexType.group.couldHaveSuspensions else false)
+
+        elementCouldHaveSuspensions
+      }
+      case mg: ModelGroup => {
+        val modelGroupCouldHaveSuspensions =
+          commonCouldHaveSuspensions ||
+          mg.groupMembersNoRefs.exists { _.couldHaveSuspensions }
+
+        modelGroupCouldHaveSuspensions
+      }
+    }
   }
 
 }

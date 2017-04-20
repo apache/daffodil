@@ -95,13 +95,6 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   //    }
   //  }
 
-  final lazy val alignmentValueInBits: Int = {
-    val children = modelGroup.group.groupMembers.sortBy(m => -m.alignmentValueInBits)
-    children.headOption match {
-      case Some(child) => child.alignmentValueInBits
-      case None => 0
-    }
-  }
 }
 
 final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)

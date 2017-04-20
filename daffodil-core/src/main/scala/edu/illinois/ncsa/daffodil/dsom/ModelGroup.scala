@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
-import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * A factory for model groups.
@@ -222,22 +221,39 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     case _ => None
   }
 
-  // FIXME:
-  // THis is wrong. Somewhere one must compute whether something is known to be of byte length
-  //  but this code never does.
-  final override lazy val isKnownToBePrecededByAllByteLengthItems: Boolean = {
-    val es = nearestEnclosingSequence
-    es match {
-      case None => true
-      case Some(s) => {
-        if (s.groupMembers.head _eq_ this) s.isKnownToBePrecededByAllByteLengthItems
-        else {
-          //pass for now
-          val index = s.groupMembers.indexOf(this)
-          s.groupMembers.slice(0, index).forall { _.isKnownToBePrecededByAllByteLengthItems }
+  // returns tuple, where the first is children that could be last, and the
+  // second is a boolean if all children could be optional, and thus this could
+  // be last
+  lazy val potentialLastChildren: (Seq[Term], Boolean) = {
+    val (potentialLast, allOptional) = this match {
+      case ch: Choice => (ch.groupMembersNoRefs, false)
+      case sq: Sequence if !sq.isOrdered => (sq.groupMembersNoRefs, true) // TBD: is true correct? Are all children optional in unordered sequence?
+      case sq: Sequence => {
+        val maybeLast = sq.groupMembersNoRefs.lastOption
+        if (maybeLast.isDefined) {
+          val last = maybeLast.get
+          val lastIsOptional = last match {
+            case mg: ModelGroup => false // model group is mandatory
+            case eb: ElementBase => !eb.isRequired || !eb.isRepresented
+          }
+          if (lastIsOptional) {
+            val (priorSibs, parent) = last.potentialPriorTerms
+            (last +: priorSibs, parent.isDefined)
+          } else {
+            (Seq(last), false)
+          }
+        } else {
+          (Seq(), true)
         }
       }
     }
+    val potentialLastRepresented = potentialLast.filter { term =>
+      term match {
+        case eb: ElementBase => eb.isRepresented
+        case _ => true
+      }
+    }
+    (potentialLastRepresented, allOptional)
   }
 
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =

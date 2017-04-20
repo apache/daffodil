@@ -74,21 +74,9 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     res
   }
 
-  private lazy val alignmentValueChildren: JInt = {
-    immediateGroup match {
-      case Some(m: ModelGroup) => {
-        m.groupMembers.sortBy(m => -m.alignmentValueInBits).headOption match {
-          case Some(child) => child.alignmentValueInBits
-          case None => 0
-        }
-      }
-      case None => 0
-    }
-  }
-
   final lazy val alignmentValueInBits: JInt = {
     this.alignment match {
-      case AlignmentType.Implicit => alignmentValueChildren
+      case AlignmentType.Implicit => 1
       case align: JInt => this.alignmentUnits match {
         case AlignmentUnits.Bits => align
         case AlignmentUnits.Bytes => 8 * align

@@ -44,16 +44,10 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.AlignmentFillUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.processors.Parser
 
-abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: String) extends Terminal(e, skipLengthInAlignmentUnits > 0) {
-
-  protected val skipLengthInBits = e.alignmentUnits match {
-    case AlignmentUnits.Bits => skipLengthInAlignmentUnits
-    case AlignmentUnits.Bytes => skipLengthInAlignmentUnits * 8
-  }
+abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 
   e.schemaDefinitionUnless(skipLengthInBits < DaffodilTunableParameters.maxSkipLengthInBytes * 8,
     "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, DaffodilTunableParameters.maxSkipLengthInBytes * 8)
@@ -62,9 +56,9 @@ abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: St
   final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.runtimeData, e.fillByteEv)
 }
 
-case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkip, "leadingSkip")
+case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkipInBits, "leadingSkip")
 
-case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkip, "trailingSkip") {
+case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkipInBits, "trailingSkip") {
 
   val lengthKindContext = e match {
     case eb: ElementBase => eb
@@ -85,8 +79,11 @@ case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
   lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData, e.fillByteEv)
 }
 
-case class MandatoryTextAlignment(e: Term, alignmentInBits: Int) extends Terminal(e,
-  !e.isKnownToBeTextAligned) {
+case class MandatoryTextAlignment(e: Term, alignmentInBits: Int, forDelimiter: Boolean) extends Terminal(e,
+  if (forDelimiter)
+    !e.isDelimiterKnownToBeTextAligned
+  else
+    !e.isKnownToBeTextAligned) {
   Assert.invariant(alignmentInBits > 0)
 
   lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.runtimeData)

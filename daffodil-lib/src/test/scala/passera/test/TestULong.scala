@@ -12,4 +12,5 @@ class TestULong {
     assertEquals(ULong.MaxValueAsBigInt, mm1.toBigInt)
     assertEquals(BigInt(Long.MinValue).abs.toString, mm1.toString)
   }
+  
 }
