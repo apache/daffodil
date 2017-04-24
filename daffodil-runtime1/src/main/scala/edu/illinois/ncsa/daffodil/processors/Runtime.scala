@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.oolag.ErrorAlreadyHandled
@@ -276,19 +276,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     state.dataInputStream.validateFinalStreamState
   }
 
-  def unparse(output: DFDL.Output, reader: java.io.Reader): DFDL.UnparseResult = {
-    val rootERD = ssrd.elementRuntimeData
-    val infosetCursor = InfosetCursor.fromXMLReader(reader, rootERD)
-    unparse(output, infosetCursor)
-  }
-
-  def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = {
-    val rootERD = ssrd.elementRuntimeData
-    val is = InfosetCursor.fromXMLNode(infosetXML, rootERD)
-    unparse(output, is)
-  }
-
-  def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = {
+  def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
@@ -297,15 +285,16 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       UState.createInitialUState(
         out,
         this,
-        infosetCursor) // TODO also want to pass here the externally set variables, other flags/settings.
+        inputter)
     val res = try {
       if (areDebugging) {
         Assert.invariant(optDebugger.isDefined)
         addEventHandler(debugger)
         unparserState.notifyDebugging(true)
       }
+      inputter.initialize(ssrd.elementRuntimeData)
       unparserState.dataProc.get.init(ssrd.unparser)
-      unparse(unparserState)
+      doUnparse(unparserState)
       unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
     } catch {
@@ -350,7 +339,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     res
   }
 
-  def unparse(state: UState): Unit = {
+  private def doUnparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     rootUnparser.unparse(state)

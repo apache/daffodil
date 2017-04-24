@@ -47,12 +47,12 @@ import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
  * All these tests were written for iterator style.
  * Now that we're doing Cursor style, need an adapter. otherwise we have to edit them all.
  */
-case class Adapter(isrc: InfosetCursor)
+case class Adapter(isrc: InfosetInputter)
   extends IteratorFromCursor[InfosetAccessor, InfosetAccessor](isrc, (ie: InfosetAccessor) => ie)
 
-class TestInfosetCursorFromReader {
+class TestInfosetInputterFromReader {
 
-  def infosetCursor(testSchema: scala.xml.Node, infosetXML: scala.xml.Node) = {
+  def infosetInputter(testSchema: scala.xml.Node, infosetXML: scala.xml.Node) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -65,7 +65,9 @@ class TestInfosetCursorFromReader {
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val is = Adapter(InfosetCursor.fromXMLNode(infosetXML, rootERD))
+    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    inputter.initialize(rootERD)
+    val is = Adapter(inputter)
     is
   }
 
@@ -77,24 +79,24 @@ class TestInfosetCursorFromReader {
     TestUtils.testUnparsing(sch, infosetXML, "Hello")
   }
 
-  @Test def testInfosetCursor1() {
+  @Test def testInfosetInputter1() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
-    val is = infosetCursor(sch, infosetXML).toStream.toList
+    val is = infosetInputter(sch, infosetXML).toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
     assertTrue(s.dataValue.isInstanceOf[String])
     assertTrue(s.dataValueAsString =:= "Hello")
   }
 
-  @Test def testInfosetCursorNil1() {
+  @Test def testInfosetInputterNil1() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
-    val is = infosetCursor(sch, infosetXML).toStream.toList
+    val is = infosetInputter(sch, infosetXML).toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
     assertTrue(s.isNilled)
@@ -111,7 +113,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(foo_s: DISimple) = is.next
     val End(foo_e: DISimple) = is.next
@@ -135,7 +137,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(foo_s: DISimple) = is.next
     val End(foo_e: DISimple) = is.next
@@ -180,7 +182,7 @@ class TestInfosetCursorFromReader {
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(quux_s: DIComplex) = is.next
     val Start(bar1_s: DIComplex) = is.next
     val Start(foo1_s: DISimple) = is.next
@@ -222,7 +224,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(foo_arr_s: DIArray) = is.next
     val Start(foo_1_s: DISimple) = is.next
@@ -254,7 +256,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(foo_arr_s: DIArray) = is.next
     val Start(foo_1_s: DISimple) = is.next
@@ -291,7 +293,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(baz_s: DISimple) = is.next
     val End(baz_e: DISimple) = is.next
@@ -329,7 +331,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Start(baz_arr_s: DIArray) = is.next
     val Start(baz_s: DISimple) = is.next
@@ -368,7 +370,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(bar_s1: DIComplex) = is.peek
     val Start(bar_s2: DIComplex) = is.peek
     val Start(bar_s3: DIComplex) = is.next
@@ -407,7 +409,7 @@ class TestInfosetCursorFromReader {
         </xs:complexType>
       </xs:element>)
     val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
-    val is = infosetCursor(sch, infosetXML)
+    val is = infosetInputter(sch, infosetXML)
     val Start(e: DIComplex) = is.next
     val Start(as: DIArray) = is.next
     val Start(s1: DIComplex) = is.next; assertNotNull(s1)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -39,55 +39,70 @@ package edu.illinois.ncsa.daffodil
  *
  * <h3>Overview</h3>
  *
- * The main class to use is [[Daffodil]] to
- * create a [[Compiler]]:
+ * The [[Daffodil]] object is a factory object to create a [[Compiler]]. The
+ * [[Compiler]] provides a method to compils a provided DFDL schema into a
+ * [[ProcessorFactory]], which creates a [[DataProcessor]]:
  *
  * {{{
  * val c = Daffodil.compiler()
- * }}}
- *
- * This can then be used to compiled a DFDL schema, and generate a
- * [[ProcessorFactory]]:
- *
- * {{{
  * val pf = c.compileFile(file)
- * }}}
- *
- * This can then be used to create a [[DataProcessor]]:
- *
- * {{{
  * val dp = pf.onPath("/")
  * }}}
  *
- * This can then be used to parse data, returning a [[ParseResult]], which contains the
- * DFDL infoset in either a jdom2 Document or a scala XML Node:
+ * The [[DataProcessor]] provides the necessary functions to parse and unparse
+ * data, returning a [[ParseResult]] or [[UnparseResult]], respectively. These
+ * contain information about the parse/unparse, such as whether or not the
+ * processing succeeded any diagnostic information.
+ *
+ * <h4>Parse</h4>
+ *
+ * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
+ * of a java.nio.channels.ReadableByteChannel and an [[infoset.InfosetOutputter]]
+ * to determine the output representation of the infoset (e.g. Scala XML Nodes,
+ * JDOM2 Documents, etc.):
  *
  * {{{
- * val pr = dp.parse(data)
- * val infoset = pr.result()
+ * val scalaOutputter = new ScalaXMLInfosetOutputter()
+ * val pr = dp.parse(data, scalaOutputter)
+ * val node = scalaOutputter.getResult
  * }}}
  *
- * The [[DataProcessor.parse(java.nio.channels.ReadableByteChannel)]]
- * method may be called multiple times without the need to create
- * another data processors. For example:
+ * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
+ * times without the need to create other data processors. However,
+ * [[infoset.InfosetOutputter]]'s are not thread safe, requiring a unique instance per
+ * thread. An [[infoset.InfosetOutputter]] should call [[infoset.InfosetOutputter#reset]] before
+ * reuse (or a new one should be allocated). For example:
  *
  * {{{
+ * val scalaOutputter = new ScalaXMLInfosetOutputter()
  * files.foreach { f => {
- *   val pr = dp.parse(f)
- *   val infoset = pr.result()
+ *   outputter.reset
+ *   val pr = dp.parse(f, scalaOutputter)
+ *   val node = scalaOutputter.getResult
  * }}
  * }}}
  *
- * <h3>Failures &amp; Diagnostics</h3>
+ * <h4>Unparse</h4>
+ *
+ * The same [[DataProcessor]] used for parse can be used to unparse an infoset
+ * via the [[DataProcessor#unparse(input*]] method. An [[infoset.InfosetInputter]]
+ * provides the infoset to unparse, with the unparsed data written to the
+ * provided java.nio.channels.WritableByteChannel. For example:
+ *
+ * {{{
+ * val inputter = new ScalaXMLInfosetInputter(node)
+ * val ur = dp.unparse(inputter, wbc)
+ * }}}
+ *
+ * <h3>Failures and Diagnostics</h3>
  *
  * It is possible that failures could occur during the creation of the
  * [[ProcessorFactory]], [[DataProcessor]], or [[ParseResult]]. However, rather than
  * throwing an exception on error (e.g. invalid DFDL schema, parse
  * error, etc), these classes extend [[WithDiagnostics]], which is used to
- * determine if an error occured, and any diagnostic information (see
- * [[Diagnostic]]) related to the
- * step. thus, before contining, one must check [[WithDiagnostics#isError]]. For
- * example:
+ * determine if an error occurred, and any diagnostic information (see
+ * [[Diagnostic]]) related to the step. Thus, before continuing, one must check
+ * [[WithDiagnostics#isError]]. For example:
  *
  * {{{
  * val pf = c.compile(file)
@@ -100,7 +115,7 @@ package edu.illinois.ncsa.daffodil
  * }
  * }}}
  *
- * <h3>Saving &amp; Reloading Parsers</h3>
+ * <h3>Saving and Reloading Parsers</h3>
  *
  * In some cases, it may be beneficial to save a parser and reload it.
  * For example, when starting up, it may be quicker to reload an
@@ -116,9 +131,10 @@ package edu.illinois.ncsa.daffodil
  *
  * {{{
  * val dp = Daffodil.reload(saveFile);
- * val pr = dp.parse(data);
+ * val pr = dp.parse(data, inputter);
  * }}}
  *
  */
 package object sapi
+
 

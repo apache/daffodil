@@ -487,7 +487,7 @@ and validation.""",
 
   lazy val GenJavaDoc = config("genjavadoc") extend Compile
   lazy val genJavaDocSettings = inConfig(GenJavaDoc)(Defaults.configSettings) ++ Seq(
-    libraryDependencies += compilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.9" cross CrossVersion.full),
+    libraryDependencies += compilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.10" cross CrossVersion.full),
     scalacOptions <+= target map (t => "-P:genjavadoc:out=" + (t / "java")),
     packageDoc in Compile <<= packageDoc in GenJavaDoc,
     sources in GenJavaDoc <<= (target, compile in Compile, sources in Compile) map ((t, c, s) => (t / "java" ** "*.java").get.filterNot(f => f.toString.contains('$') || f.toString.contains("packageprivate")) ++ s.filter(_.getName.endsWith(".java"))),

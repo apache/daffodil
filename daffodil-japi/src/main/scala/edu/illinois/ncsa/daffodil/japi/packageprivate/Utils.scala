@@ -42,17 +42,11 @@ package edu.illinois.ncsa.daffodil.japi.packageprivate
 import edu.illinois.ncsa.daffodil.japi._
 import edu.illinois.ncsa.daffodil.japi.logger._
 import edu.illinois.ncsa.daffodil.japi.debugger._
-import edu.illinois.ncsa.daffodil.japi.infoset._
 import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
 import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
-// TODO: Not sure about this DISimple stuff. Should API users have this deep access to our internal infoset?
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.infoset.DIComplex
-import edu.illinois.ncsa.daffodil.infoset.DIArray
 
 import scala.collection.JavaConversions._
 
@@ -133,24 +127,4 @@ private[japi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
   def getCommand: String = dr.getCommand
   def lineOutput(line: String): Unit = dr.lineOutput(line)
   def fini(): Unit = dr.fini
-}
-
-/* A wrapper for existing infoset outputters */
-private[japi] abstract class InfosetOutputterWrapper extends InfosetOutputter {
-
-  protected val infosetOutputter: SInfosetOutputter
-
-  def reset(): Unit = infosetOutputter.reset()
-
-  def startDocument(): Boolean = infosetOutputter.startDocument()
-  def endDocument(): Boolean = infosetOutputter.endDocument()
-
-  def startSimple(diSimple: DISimple): Boolean = infosetOutputter.startSimple(diSimple)
-  def endSimple(diSimple: DISimple): Boolean = infosetOutputter.endSimple(diSimple)
-
-  def startComplex(diComplex: DIComplex): Boolean = infosetOutputter.startComplex(diComplex)
-  def endComplex(diComplex: DIComplex): Boolean = infosetOutputter.endComplex(diComplex)
-
-  def startArray(diArray: DIArray): Boolean = infosetOutputter.startArray(diArray)
-  def endArray(diArray: DIArray): Boolean = infosetOutputter.endArray(diArray)
 }

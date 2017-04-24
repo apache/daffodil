@@ -155,8 +155,9 @@ trait RealTermMixin { self: Term =>
    */
   final def possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
     val firstChildren = possibleFirstChildTerms.flatMap {
+      case e: ElementBase if e.isHidden => Nil
       case e: ElementBase => Seq(e)
-      case s: Sequence if s.hiddenGroupRefOption.isDefined => Nil
+      case s: Sequence if s.isHidden || s.hiddenGroupRefOption.isDefined => Nil
       case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
     }
     firstChildren

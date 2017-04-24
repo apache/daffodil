@@ -30,25 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.infoset
+package edu.illinois.ncsa.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
-import edu.illinois.ncsa.daffodil.sapi.packageprivate.InfosetOutputterWrapper
+import scala.xml.Node
 
-abstract class InfosetOutputter extends SInfosetOutputter
+class ScalaXMLInfosetInputter(node: Node)
+  extends InfosetInputter {
 
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
-  extends InfosetOutputterWrapper {
+  // TODO: This is very inefficient and slow. This entire class should be
+  // rewritten, likely using the InfosetInputterCursor interface, similar to
+  // XML or Json, and use some sort of node pull cursor library
+  private val xmlInfosetInputter = {
+    val rdr = new java.io.StringReader(node.toString())
+    new XMLTextInfosetInputter(rdr)
+  }
 
-  override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
+  override def getEventType() = xmlInfosetInputter.getEventType()
+  override def getLocalName() = xmlInfosetInputter.getLocalName()
+  override def getNamespaceURI() = xmlInfosetInputter.getNamespaceURI()
+  override def getSimpleText() = xmlInfosetInputter.getSimpleText()
+  override def hasNext() = xmlInfosetInputter.hasNext()
+  override def isNilled() = xmlInfosetInputter.isNilled()
+  override def next() = xmlInfosetInputter.next()
+  override val supportsNamespaces = xmlInfosetInputter.supportsNamespaces
 
-  def getResult(): scala.xml.Node = infosetOutputter.getResult()
-}
-
-class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
-  extends InfosetOutputterWrapper {
-  
-  override val infosetOutputter = new SXMLTextInfosetOutputter(writer, pretty)
+  override def fini = xmlInfosetInputter.fini
 }

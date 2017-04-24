@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.processors.Failure
 
@@ -163,9 +163,7 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    def unparse(output: DFDL.Output, reader: java.io.Reader): UnparseResult
-    def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): UnparseResult
-    def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): UnparseResult
+    def unparse(input: InfosetInputter, output: DFDL.Output): UnparseResult
     /**
      * Returns an object which contains the result, and/or diagnostic information.
      *

@@ -61,6 +61,7 @@ import edu.illinois.ncsa.daffodil.japi.ValidationMode;
 import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
 import edu.illinois.ncsa.daffodil.japi.infoset.JDOMInfosetOutputter;
+import edu.illinois.ncsa.daffodil.japi.infoset.JDOMInfosetInputter;
 
 public class TestJavaAPI {
 
@@ -104,7 +105,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("42", bos.toString());
@@ -159,7 +161,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("42", bos.toString());
@@ -278,7 +281,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("9", bos.toString());
@@ -318,7 +322,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("9", bos.toString());
@@ -345,7 +350,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("data", bos.toString());
@@ -374,7 +380,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("data", bos.toString());
@@ -446,7 +453,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
@@ -488,7 +496,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+		UnparseResult res2 = dp.unparse(inputter, wbc);
 		err = res2.isError();
 		assertFalse(err);
 		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
@@ -529,7 +538,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
-		UnparseResult res2 = dp.unparse(wbc1, doc1);
+		JDOMInfosetInputter inputter1 = new JDOMInfosetInputter(doc1);
+		UnparseResult res2 = dp.unparse(inputter1, wbc1);
 		err = res2.isError();
 		assertFalse(err);
 		assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"));
@@ -538,7 +548,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
-		UnparseResult res3 = dp.unparse(wbc2, doc2);
+		JDOMInfosetInputter inputter2 = new JDOMInfosetInputter(doc2);
+		UnparseResult res3 = dp.unparse(inputter2, wbc2);
 		err = res3.isError();
 		assertFalse(err);
 		assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"));
@@ -766,7 +777,8 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res = dp.unparse(wbc, doc);
+		JDOMInfosetInputter inputter = new JDOMInfosetInputter(doc);
+		UnparseResult res = dp.unparse(inputter, wbc);
 		boolean err = res.isError();
 		assertTrue(err);
 

@@ -214,4 +214,39 @@ class TestCouldBeNextElement {
     assertEquals(0, e3.possibleNextChildElementsInInfoset.length)
   }
 
+  @Test def testCouldBeNextElement_4() {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="e1" type="xs:string" />
+            <xs:sequence dfdl:hiddenGroupRef="g1_hidden" />
+            <xs:element name="e2" type="xs:string" dfdl:occursCountKind="parsed" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:group name="g1_hidden">
+        <xs:sequence>
+          <xs:element name="e2_hidden" type="xs:string" dfdl:occursCountKind="parsed" />
+        </xs:sequence>
+      </xs:group>)
+
+    val compiler = Compiler()
+    val sset = compiler.compileNode(testSchema).sset
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val Seq(declf) = schemaDoc.globalElementDecls
+    val root = declf.forRoot()
+
+    assertEquals(0, root.possibleNextChildElementsInInfoset.length)
+    assertEquals(1, root.possibleFirstChildElementsInInfoset.length)
+
+    val e1 = root.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase]
+
+    assertEquals("e1", e1.name)
+    assertEquals(1, e1.possibleNextChildElementsInInfoset.length)
+    assertEquals("e2", e1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+  }
+
 }

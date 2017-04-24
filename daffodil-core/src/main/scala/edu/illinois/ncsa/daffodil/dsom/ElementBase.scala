@@ -392,7 +392,18 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     val resolver = eltMap.size match {
       case 0 => new NoNextElement(schemaFileLocation, resolverType)
       case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head, resolverType)
-      case _ => new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType)
+      case _ => {
+        val groupedByName = possibles.groupBy(_.namedQName.local)
+        var hasNamesDifferingOnlyByNS = false
+        groupedByName.foreach { case (_, sameNamesEB) =>
+          if (sameNamesEB.length > 1) {
+            SDW("Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
+              sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
+            hasNamesDifferingOnlyByNS = true
+          }
+        }
+        new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType, hasNamesDifferingOnlyByNS)
+      }
     }
     resolver
   }

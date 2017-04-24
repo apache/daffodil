@@ -36,15 +36,13 @@ import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
 import edu.illinois.ncsa.daffodil.sapi.debugger._
 import edu.illinois.ncsa.daffodil.sapi.logger._
 import edu.illinois.ncsa.daffodil.sapi.packageprivate._
-import edu.illinois.ncsa.daffodil.sapi.infoset.InfosetOutputter
+import edu.illinois.ncsa.daffodil.sapi.infoset._
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
-import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import edu.illinois.ncsa.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
@@ -64,6 +62,8 @@ import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidP
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 private class Daffodil private {
   // Having this empty but private companion class removes the constructor from
@@ -150,12 +150,12 @@ class Compiler private[sapi] () {
    * Reload a saved parser from a file
    *
    * To allow jar-file packaging, (where the savedParser might be part of a jar),
-   * it is recommended to use the other version of [[Compiler#reload(java.nio.channels.ReadableByteChannel)]] where the argument is
-   * a [[java.nio.channels.ReadableByteChannel]] for a saved parser.
+   * it is recommended to use the other version of [[Compiler#reload(savedParser:java\.nio\.channels\.ReadableByteChannel)*]] where the argument is
+   * a java.nio.channels.ReadableByteChannel for a saved parser.
    *
-   * @param savedParser file of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
+   * @param savedParser file of a saved parser, created with [[DataProcessor#save]]
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
-   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
+   * @throws InvalidParserException if the file is not a valid saved parser.
    */
   def reload(savedParser: File): DataProcessor = {
     try {
@@ -166,13 +166,13 @@ class Compiler private[sapi] () {
   }
 
   /**
-   * Reload a saved parser from a [[java.nio.channels.ReadableByteChannel]]
+   * Reload a saved parser from a java.nio.channels.ReadableByteChannel
    *
-   * @param savedParser [[java.nio.channels.ReadableByteChannel]] of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
+   * @param savedParser java.nio.channels.ReadableByteChannel of a saved parser, created with [[DataProcessor#save]]
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
-   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
+   * @throws InvalidParserException if the file is not a valid saved parser.
    */
-  def reload(savedParser: DFDL.Input): DataProcessor = {
+  def reload(savedParser: ReadableByteChannel): DataProcessor = {
     try {
       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
     } catch {
@@ -472,11 +472,41 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   /**
    * Save the DataProcessor
    *
-   * The resulting output can be reloaded by [[Compiler#reload(java.nio.channels.ReadableByteChannel)]].
-   *
+   * The resulting output can be reloaded by [[Compiler#reload(savedParser:java\.nio\.channels\.ReadableByteChannel)*]].
    * @param output the byte channel to write the [[DataProcessor]] to
    */
-  def save(output: DFDL.Output): Unit = dp.save(output)
+  def save(output: WritableByteChannel): Unit = dp.save(output)
+
+  /*
+   * Parse input data with a specified length
+   *
+   * @param input data to be parsed
+   * @param lengthLimitInBits the length of the input data in bits. This must
+   *                          be the actual length in bits if you want the
+   *                          location().isAtEnd() function to work. If value
+   *                          is -1, the isAtEnd() function will always return true.
+   * @return an object which contains the result, and/or diagnostic information.
+   */
+  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter, long) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
+    val output = new ScalaXMLInfosetOutputter()
+    val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
+    new ParseResult(pr, Maybe(output))
+  }
+
+  /*
+   * Parse input data without specifying a length
+   *
+   * @param input data to be parsed
+   * @param lengthLimitInBits the length of the input data in bits. This must
+   *                          be the actual length in bits if you want the
+   *                          location().isAtEnd() function to work. If value
+   *                          is -1, the isAtEnd() function will always return true.
+   * @return an object which contains the result, and/or diagnostic information.
+   */
+  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
+
 
   /**
    * Parse input data with a specified length
@@ -491,7 +521,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    */
   def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
     val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
-    new ParseResult(pr)
+    new ParseResult(pr, Nope)
   }
 
   /**
@@ -499,7 +529,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    *
    * Use this when you don't know how big the data is. Note that the isAtEnd()
    * does not work properly and will always return -1. If you need isAtEnd() to
-   * work, you must use [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, long)]] and
+   * work, you must use [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method that accepts a long and
    * specify the length of the data.
    *
    * @param input data to be parsed
@@ -509,24 +539,60 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
 
   /**
+   * Unparse an InfosetInputter
+   *
+   * @param input the infoset inputter to use for unparsing
+   * @param output the byte channel to write the data to
+   * @return an object with contains diagnostic information
+   */
+  def unparse(input: InfosetInputter, output: WritableByteChannel): UnparseResult = {
+    val ur = dp.unparse(input, output).asInstanceOf[SUnparseResult]
+    new UnparseResult(ur)
+  }
+
+  /**
    * Unparse a scala.xml.Node infoset
    *
    * @param output the byte channel to write the data to
    * @param infoset the infoset to unparse, as a scala xml Node
    * @return an object with contains the result and/or diagnostic information
    */
+  @deprecated("Use unparse(InfosetInputter, WritableByteChannel)", "2.0.0")
   def unparse(output: WritableByteChannel, infoset: scala.xml.Node): UnparseResult = {
-    val ur = dp.unparse(output, infoset).asInstanceOf[SUnparseResult]
-    new UnparseResult(ur)
+    val input = new ScalaXMLInfosetInputter(infoset)
+    unparse(input, output)
   }
 }
 
 /**
- * Result of calling [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, long)]], containing
+ * Result of calling [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]], containing
  * any diagnostic information, and the final data location
  */
-class ParseResult private[sapi] (pr: SParseResult)
+class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[ScalaXMLInfosetOutputter])
   extends WithDiagnostics(pr) {
+
+  /**
+   * Get the resulting infoset as a scala.xml.Node
+   *
+   * @throws InvalidUsageException if you call this when isError is true
+   *         because in that case there is no result document.
+   *
+   * @return a scala.xml.Node representing the DFDL infoset for the parsed data
+   */
+  @deprecated("ParseResult carrying the infoset representation is deprecated. Intead, use parse(ReadableByteChannel, InfosetInputter) to parse the data and get the infoset representation from the InfosetOutputter","2.0.0")
+  @throws(classOf[InvalidUsageException])
+  def result(): scala.xml.Node = {
+    // When this result function is removed due to deprecation, we should also
+    // remove the deprecatedOutput parameter to the ParseResult constructor
+    if (deprecatedOutput.isDefined) {
+      deprecatedOutput.get.getResult()
+    } else {
+      val ex = new edu.illinois.ncsa.daffodil.processors.InvalidUsageException(
+        "When passing an InfosetOutputter to parse(), you must get the infoset result from the InfosetOutputter instead of the ParseResult.")
+      throw new InvalidUsageException(ex)
+    }
+  }
+
 
   /**
    * Get the [[DataLocation]] where the parse completed
@@ -535,7 +601,7 @@ class ParseResult private[sapi] (pr: SParseResult)
 }
 
 /**
- * Result of calling [[DataProcessor#unparse(java.nio.channels.WritableByteChannel, scala.xml.Node)]],
+ * Result of calling [[DataProcessor#unparse(input*]],
  * containing diagnostic information
  */
 class UnparseResult private[sapi] (ur: SUnparseResult)
@@ -547,9 +613,9 @@ class UnparseResult private[sapi] (ur: SUnparseResult)
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-class InvalidParserException private[sapi] (cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidParserException(cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
-class InvalidUsageException private[sapi] (cause: edu.illinois.ncsa.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidUsageException(cause: edu.illinois.ncsa.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())

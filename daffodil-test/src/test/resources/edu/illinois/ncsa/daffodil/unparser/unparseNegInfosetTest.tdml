@@ -38,7 +38,7 @@
   xmlns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="model1">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" nilKind="literalValue" nilValue="%ES;" />
 
     <xs:element name="root1">
       <xs:complexType>
@@ -61,7 +61,31 @@
         </xs:choice>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="c1" type="xs:string" nillable="true" />
+          <xs:element name="c2" type="xs:string" nillable="true" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="complex" nillable="true">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="c1" type="xs:string" />
+                <xs:element name="c2" type="xs:string" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:unparserTestCase name="schemaElementRoot1Good" root="root1" model="model1">
@@ -224,6 +248,79 @@
       <tdml:error>Illegal content</tdml:error>
       <tdml:error>simple element</tdml:error>
       <tdml:error>one</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nilledTrueNonNillable" root="root2" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:root2>
+          <ex:c1 xsi:nil="true" />
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>defines nil property</tdml:error>
+      <tdml:error>is not nillable</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nilledFalseNonNillable" root="root2" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:root2>
+          <ex:c1 xsi:nil="false" />
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>defines nil property</tdml:error>
+      <tdml:error>is not nillable</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nilledSimpleWithContent" root="root3" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:root3>
+          <ex:c1 xsi:nil="true">content</ex:c1>
+        </ex:root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>nilled simple element</tdml:error>
+      <tdml:error>has content</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nilledComplexWithContent" root="root4" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:root4>
+          <ex:complex xsi:nil="true">
+            <ex:c1>c1</ex:c1>
+          </ex:complex>
+        </ex:root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>nilled complex element</tdml:error>
+      <tdml:error>has content</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="nilledBadValue" root="root3" model="model1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ex:root3>
+          <ex:c1 xsi:nil="notABoolean" />
+        </ex:root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>xsi:nil</tdml:error>
+      <tdml:error>notABoolean</tdml:error>
+      <tdml:error>not a valid boolean</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

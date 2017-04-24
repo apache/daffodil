@@ -80,7 +80,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
-import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
+import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
@@ -267,7 +267,7 @@ class UStateForSuspension(
 }
 
 class UStateMain private (
-  private val infosetCursor: InfosetCursor,
+  private val inputter: InfosetInputter,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
@@ -278,13 +278,13 @@ class UStateMain private (
   dState.setMode(UnparserBlocking)
 
   def this(
-    infosetCursor: InfosetCursor,
+    inputter: InfosetInputter,
     vmap: VariableMap,
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     dataOutputStream: DataOutputStream,
     initialSuspendedExpressions: mutable.Queue[Suspension]) =
-    this(infosetCursor, new VariableBox(vmap), diagnosticsArg, dataProcArg,
+    this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
       dataOutputStream, initialSuspendedExpressions)
 
   private var _prior: UStateForSuspension = null
@@ -343,11 +343,11 @@ class UStateMain private (
         dos.resetAllBitPos()
     })
 
-  override def advance: Boolean = infosetCursor.advance
-  override def advanceAccessor: InfosetAccessor = infosetCursor.advanceAccessor
-  override def inspect: Boolean = infosetCursor.inspect
-  override def inspectAccessor: InfosetAccessor = infosetCursor.inspectAccessor
-  override def fini: Unit = { infosetCursor.fini }
+  override def advance: Boolean = inputter.advance
+  override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
+  override def inspect: Boolean = inputter.inspect
+  override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
+  override def fini: Unit = { inputter.fini }
 
   /**
    * Use this so if there isn't an event we get a clean diagnostic message saying
@@ -482,11 +482,11 @@ object UState {
   def createInitialUState(
     out: DataOutputStream,
     dataProc: DFDL.DataProcessor,
-    docSource: InfosetCursor): UStateMain = {
+    inputter: InfosetInputter): UStateMain = {
 
     val variables = dataProc.getVariables
     val diagnostics = Nil
-    val newState = new UStateMain(docSource, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
+    val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
       new mutable.Queue[Suspension]) // null means no prior UState
     newState
   }

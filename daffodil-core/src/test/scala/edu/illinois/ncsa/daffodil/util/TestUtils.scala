@@ -46,13 +46,14 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.VariableMapFactory
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.debugger._
 import java.nio.channels.Channels
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 
 /*
  * This is not a file of tests.
@@ -127,7 +128,8 @@ object TestUtils {
       u.setDebugger(builtInTracer)
       u.setDebugging(true)
     }
-    val actual = u.unparse(out, infosetXML)
+    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    val actual = u.unparse(inputter, out)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
@@ -146,7 +148,8 @@ object TestUtils {
     val u = pf.onPath("/")
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
+    val inputter = new ScalaXMLInfosetInputter(infoset)
+    val actual = u.unparse(inputter, out)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
@@ -262,9 +265,7 @@ class Fakes private () {
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
     def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = null
-    def unparse(output: DFDL.Output, rdr: java.io.Reader): DFDL.UnparseResult = null
-    def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
-    def unparse(output: DFDL.Output, infosetCursor: InfosetCursor): DFDL.UnparseResult = null
+    def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError
     def isError: Boolean = false

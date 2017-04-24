@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,34 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.japi.infoset
+package edu.illinois.ncsa.daffodil.sapi
 
-import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
-import edu.illinois.ncsa.daffodil.japi.packageprivate.InfosetOutputterWrapper
+/**
+ * Defines various classes used control the representation of the infoset for parse and unparse. 
+ * Classes that extend [[InfosetOutputter]] are provided to the [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]
+ * method to deteremine how to output an infoset. These classes are not
+ * guaranteed to be thread-safe. Classes that extend [[InfosetInputter]] are
+ * provided to the [[DataProcessor#unparse(input*]] method to determine how to read in
+ * an infoset. A new InfosetOutputter is required for each call to unparse().
+ */
 
-abstract class InfosetOutputter extends SInfosetOutputter
-
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
-  extends InfosetOutputterWrapper {
-
-  override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
-
-  def getResult(): scala.xml.Node = infosetOutputter.getResult()
-}
-
-class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
-  extends InfosetOutputterWrapper {
-  
-  override val infosetOutputter = new SXMLTextInfosetOutputter(writer, pretty)
-}
-
-class JDOMInfosetOutputter()
-  extends InfosetOutputterWrapper {
-
-  override val infosetOutputter = new SJDOMInfosetOutputter()
-
-  def getResult(): org.jdom2.Document = infosetOutputter.getResult()
-}
+package object infoset

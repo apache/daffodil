@@ -1070,6 +1070,14 @@
     is then modified with a unique terminator.
     In this test, everything is set up correctly and the data should be parsed 
     without error.
+
+    Also note that this schema has two cElem elements that have different
+    namespaces. Since these two elements occur one after the other and are
+    optional (dfdl:occursCountKind="parsed"), unparsing requires the namespace
+    to know which element to unparse. Normally, this isn't a problem, except
+    that some infoset representations (like json) do not support namespaces. So
+    this test would fail to unparse with a json InfosetInputter. Because of
+    this, this test outputs a warning saying that unparsing json might fail.
   -->
 
   <tdml:parserTestCase name="combinations_04" root="baseSeq4"
@@ -1083,6 +1091,13 @@
         </baseSeq4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>namespaces</tdml:warning>
+      <tdml:warning>infoset</tdml:warning>
+      <tdml:warning>http://baseSchema.com</tdml:warning>
+      <tdml:warning>http://b06.com</tdml:warning>
+      <tdml:warning>cElem</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <!--

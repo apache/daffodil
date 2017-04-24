@@ -95,6 +95,11 @@ import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.JsonInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -345,7 +350,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -410,7 +415,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("null"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
@@ -420,13 +425,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case _ => Right(Unit)
     }
 
-    validateOpt(infosetType) {
-      case (Some("xml")) => Right(Unit)
-      case (Some("scala-xml")) => Right(Unit)
-      case (Some("json")) => Right(Unit)
-      case (Some("jdom")) => Right(Unit)
-      case (Some("null")) => Right(Unit)
-      case (Some(t)) => Left("Unknown infoset type: " + t)
+    validateOpt(infosetType, unparse) {
+      case (Some("xml"), _) => Right(Unit)
+      case (Some("scala-xml"), _) => Right(Unit)
+      case (Some("json"), _) => Right(Unit)
+      case (Some("jdom"), _) => Right(Unit)
+      case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
+      case (Some("null"), _) => Right(Unit)
+      case (Some(t), _) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
     }
   }
@@ -459,7 +465,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', or 'jdom'.", default = Some("xml"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', or 'jdom'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -721,12 +727,33 @@ object Main extends Logging {
   }
 
   def getInfosetOutputter(infosetType: String, writer: java.io.Writer): InfosetOutputter = {
-    infosetType.toLowerCase match {
+    infosetType match {
       case "xml" => new XMLTextInfosetOutputter(writer)
       case "scala-xml" => new ScalaXMLInfosetOutputter()
       case "json" => new JsonInfosetOutputter(writer)
       case "jdom" => new JDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
+    }
+  }
+
+  // converts the reader to whatever form the InfosetInputter will want, this
+  // should be called outside of a performance loop, with getInfosetInputter
+  // called inside the performance loop
+  def infosetReaderToAnyRef(infosetType: String, reader: java.io.Reader): AnyRef = {
+    infosetType match {
+      case "xml" => reader
+      case "scala-xml" => scala.xml.XML.load(reader)
+      case "json" => reader
+      case "jdom" => (new org.jdom2.input.SAXBuilder()).build(reader)
+    }
+  }
+
+  def getInfosetInputter(infosetType: String, anyRef: AnyRef): InfosetInputter = {
+    infosetType match {
+      case "xml" => new XMLTextInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
+      case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
+      case "json" => new JsonInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
+      case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
     }
   }
 
@@ -892,18 +919,21 @@ object Main extends Logging {
               (filePath, fileContent, dataSize * 8)
             }
 
+            val infosetType = performanceOpts.infosetType.get.get
+
             val inputs = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
               val (path, data, dataLen) = dataSeq(index)
-              val newArr: Array[Byte] = data.clone()
               val inData = performanceOpts.unparse() match {
                 case true => {
-                  val input = new java.io.ByteArrayInputStream(data)
-                  val rdr = new java.io.InputStreamReader(input)
-                  Left(rdr)
+                  val is = new java.io.ByteArrayInputStream(data)
+                  val isr = new java.io.InputStreamReader(is)
+                  val br = new java.io.BufferedReader(isr)
+                  val anyRef = infosetReaderToAnyRef(infosetType, br)
+                  Left(anyRef)
                 }
                 case false => {
-                  val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
+                  val bais = new ByteArrayInputStream(data)
                   val channel = java.nio.channels.Channels.newChannel(bais);
                   Right(channel)
                 }
@@ -926,7 +956,6 @@ object Main extends Logging {
 
             val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
             val nullWriterForParse = new NullWriter()
-            val infosetType = performanceOpts.infosetType.get.get
 
             //the following line allows output verification
             //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
@@ -938,7 +967,10 @@ object Main extends Logging {
                   val task: Future[(Int, Long, Boolean)] = Future {
                     val (_ /* path */ , inData, len) = c
                     val (time, result) = inData match {
-                      case Left(rdr) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, rdr) })
+                      case Left(anyRef) => Timer.getTimeResult({
+                        val inputterForUnparse = getInfosetInputter(infosetType, anyRef)
+                        processor.unparse(inputterForUnparse, nullChannelForUnparse)
+                      })
                       case Right(channel) => Timer.getTimeResult({
                         val outputterForParse = getInfosetOutputter(infosetType, nullWriterForParse)
                         processor.parse(channel, outputterForParse, len)
@@ -1019,11 +1051,14 @@ object Main extends Logging {
           case Some(fileName) => new java.io.FileReader(new File(fileName))
         }
 
+        val inputterData = infosetReaderToAnyRef(unparseOpts.infosetType.get.get, rdr)
+        val inputter = getInfosetInputter(unparseOpts.infosetType.get.get, inputterData)
+
         val rc = processor match {
           case None => 1
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
-            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, rdr))
+            val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
             output.close()
             displayDiagnostics(unparseResult)
             if (unparseResult.isError) 1 else 0

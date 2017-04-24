@@ -89,7 +89,9 @@ class TestInfosetDefaultingInUnparser {
 
     val rootERD = u.ssrd.elementRuntimeData
 
-    val is = Adapter(InfosetCursor.fromXMLNode(xml, rootERD))
+    val inputter = new ScalaXMLInfosetInputter(xml)
+    inputter.initialize(rootERD)
+    val is = Adapter(inputter)
 
     val Start(bar_s: DIComplex) = is.next
     assertNotNull(bar_s)

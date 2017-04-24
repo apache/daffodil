@@ -36,16 +36,15 @@ import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
 import edu.illinois.ncsa.daffodil.japi.debugger._
 import edu.illinois.ncsa.daffodil.japi.logger._
 import edu.illinois.ncsa.daffodil.japi.packageprivate._
+import edu.illinois.ncsa.daffodil.japi.infoset._
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import scala.collection.JavaConversions.seqAsJavaList
-import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import edu.illinois.ncsa.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
@@ -65,7 +64,8 @@ import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidP
 import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * API Suitable for Java programmers to use.
@@ -184,7 +184,7 @@ class Compiler private[japi] () {
    * @throws InvalidParserException if the file is not a valid saved parser.
    */
   @throws(classOf[InvalidParserException])
-  def reload(savedParser: DFDL.Input): DataProcessor = {
+  def reload(savedParser: ReadableByteChannel): DataProcessor = {
     try {
       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
     } catch {
@@ -500,7 +500,37 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *
    * @param output the byte channel to write the [[DataProcessor]] to
    */
-  def save(output: DFDL.Output): Unit = dp.save(output)
+  def save(output: WritableByteChannel): Unit = dp.save(output)
+
+  /*
+   * Parse input data with a specified length
+   *
+   * @param input data to be parsed
+   * @param lengthLimitInBits the length of the input data in bits. This must
+   *                          be the actual length in bits if you want the
+   *                          location().isAtEnd() function to work. If value
+   *                          is -1, the isAtEnd() function will always return true.
+   * @return an object which contains the result, and/or diagnostic information.
+   */
+  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter, long) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
+    val output = new JDOMInfosetOutputter()
+    val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
+    new ParseResult(pr, Maybe(output))
+  }
+
+  /*
+   * Parse input data without specifying a length
+   *
+   * @param input data to be parsed
+   * @param lengthLimitInBits the length of the input data in bits. This must
+   *                          be the actual length in bits if you want the
+   *                          location().isAtEnd() function to work. If value
+   *                          is -1, the isAtEnd() function will always return true.
+   * @return an object which contains the result, and/or diagnostic information.
+   */
+  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
 
   /**
    * Parse input data with a specified length
@@ -515,7 +545,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    */
   def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
     val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
-    new ParseResult(pr)
+    new ParseResult(pr, Nope)
   }
 
   /**
@@ -523,7 +553,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *
    * Use this when you don't know how big the data is. Note that the isAtEnd()
    * does not work properly and will always return -1. If you need isAtEnd() to
-   * work, you must use [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, long)]] and
+   * work, you must use [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, InfosetOutputter, long)]] and
    * specify the length of the data.
    *
    * @param input data to be parsed
@@ -533,30 +563,59 @@ class DataProcessor private[japi] (dp: SDataProcessor)
   def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
 
   /**
+   * Unparse an InfosetInputter
+   *
+   * @param input the infoset inputter to use for unparsing
+   * @param output the byte channel to write the data to
+   * @return an object with contains diagnostic information
+   */
+  def unparse(input: InfosetInputter, output: WritableByteChannel): UnparseResult = {
+    val ur = dp.unparse(input, output).asInstanceOf[SUnparseResult]
+    new UnparseResult(ur)
+  }
+
+  /**
    * Unparse a JDOM2 infoset
    *
    * @param output the byte channel to write the data to
    * @param infoset the infoset to unparse, as a jdom event cursor
    * @return an object with contains the result and/or diagnostic information
    */
+  @deprecated("Use unparse(InfosetInputter, WritableByteChannel)", "2.0.0")
   def unparse(output: WritableByteChannel, infoset: org.jdom2.Document): UnparseResult = {
-    // write the infoset to a string and create and XMLEventCursor
-    // TODO: add support for SAX input so we do not need to convert to a string (e.g. InfosetCursorFromSAX)
-    val rawFormat = org.jdom2.output.Format.getRawFormat()
-    val xmlOutputter = new org.jdom2.output.XMLOutputter(rawFormat)
-    val string = xmlOutputter.outputString(infoset)
-    val rdr = new java.io.StringReader(string)
-    val ur = dp.unparse(output, rdr).asInstanceOf[SUnparseResult]
-    new UnparseResult(ur)
+    val input = new JDOMInfosetInputter(infoset)
+    unparse(input, output)
   }
 }
 
 /**
- * Result of calling [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, long)]], containing
+ * Result of calling [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, InfosetOutputter, long)]], containing
  * the diagnostic information, and the final data location
  */
-class ParseResult private[japi] (pr: SParseResult)
+class ParseResult private[japi] (pr: SParseResult, deprecatedOutput: Maybe[JDOMInfosetOutputter])
   extends WithDiagnostics(pr) {
+
+  /**
+   * Get the resulting infoset as a jdom2 Document
+   *
+   * @throws InvalidUsageException if you call this when isError is true
+   *         because in that case there is no result document.
+   *
+   * @return a jdom2 Document representing the DFDL infoset for the parsed data
+   */
+  @deprecated("Use parse(ReadableByteChannel, InfosetInputter) to parse the data and get the infoset representation from the InfosetOutputter","2.0.0")
+  @throws(classOf[InvalidUsageException])
+  def result(): org.jdom2.Document = {
+    // When this result function is removed due to deprecation, we should also
+    // remove the deprecatedOutput parameter to the ParseResult constructor
+    if (deprecatedOutput.isDefined) {
+      deprecatedOutput.get.getResult()
+    } else {
+      val ex = new edu.illinois.ncsa.daffodil.processors.InvalidUsageException(
+        "When passing an InfosetOutputter to parse(), you must get the infoset result from the InfosetOutputter instead of the ParseResult.")
+      throw new InvalidUsageException(ex)
+    }
+  }
 
   /**
    * Get the [[DataLocation]] where the parse completed
@@ -567,7 +626,7 @@ class ParseResult private[japi] (pr: SParseResult)
 }
 
 /**
- * Result of calling [[DataProcessor#unparse(java.nio.channels.WritableByteChannel, org.jdom2.Document)]],
+ * Result of calling [[DataProcessor#unparse(InfosetInputter, java.nio.channels.WritableByteChannel)]],
  * containing diagnostic information
  */
 class UnparseResult private[japi] (ur: SUnparseResult)

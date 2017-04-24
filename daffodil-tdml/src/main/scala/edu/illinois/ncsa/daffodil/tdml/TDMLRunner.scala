@@ -89,6 +89,7 @@ import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -799,7 +800,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
 
-        val unparseResult = processor.unparse(output, resultXmlNode).asInstanceOf[UnparseResult]
+        val inputter = new ScalaXMLInfosetInputter(resultXmlNode)
+        val unparseResult = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
           if (diagObjs.length == 1) throw diagObjs(0)
@@ -911,7 +913,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val output = java.nio.channels.Channels.newChannel(outStream)
     val infosetXML = inputInfoset.dfdlInfoset.rawContents
 
-    val actual = processor.unparse(output, infosetXML).asInstanceOf[UnparseResult]
+    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    val actual = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
     output.close()
     if (actual.isError)
       throw new TDMLException(actual.getDiagnostics)
@@ -983,7 +986,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
         val infosetXML = inputInfoset.dfdlInfoset.rawContents
-        val actual = processor.unparse(output, infosetXML)
+        val inputter = new ScalaXMLInfosetInputter(infosetXML)
+        val actual = processor.unparse(inputter, output)
         output.close()
 
         // Verify that some partial output has shown up in the bytes.

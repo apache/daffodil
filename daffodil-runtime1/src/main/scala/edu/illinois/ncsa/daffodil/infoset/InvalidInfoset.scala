@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,35 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Misc
-import javax.xml.stream.XMLStreamException
-import javax.xml.stream.events.XMLEvent
+class InvalidInfosetException(message: String)
+  extends Exception(message)
 
-/**
- * various diagnostic situations associated with the incoming XML for creating and
- * infoset.
- *
- * Note: You cannot save the xmlEvent in a data structure, it is part of an accessor/cursor.
- */
-object InvalidInfosetXML {
+class NonTextFoundInSimpleContentException(details: String)
+  extends InvalidInfosetException("Illegal content for simple element:" + details)
 
-  private def err(info: ElementRuntimeData, str: String, args: Any*) = {
-    UnparseError(One(info.schemaFileLocation), Nope, str.format(args: _*))
-  }
-
-  def errorWhenTagExpected(info: ElementRuntimeData, xse: XMLStreamException, xev: XMLEvent): Nothing =
-    err(info, "An error occurred: %s.\n Last event occured on line %s", Misc.getSomeMessage(xse).get, xev.getLocation.getLineNumber)
-
-  def missingInfosetContent(info: ElementRuntimeData): Nothing =
-    err(info, "No infoset XML found. Expected %s.", info.diagnosticDebugName)
-
-  def illegalContentWhereTagExpected(info: ElementRuntimeData, xev: XMLEvent): Nothing =
-    err(info, "Illegal content where element tag expected on line %s", xev.getLocation.getLineNumber)
-
-  def nonTextFoundInSimpleContent(parent: ElementRuntimeData, event: XMLEvent): Nothing = {
-    err(parent, "Illegal content for simple element %s on line %s.", parent.namedQName.toPrettyString, event.getLocation().getLineNumber())
-  }
-}
+class IllegalContentWhereEventExpected(details: String)
+  extends InvalidInfosetException("Illegal content where start or end event expected: " + details)

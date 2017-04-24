@@ -39,19 +39,95 @@ trait InfosetOutputter {
 
   def status: Status = READY
 
+  /**
+   * Reset the internal state of this InfosetOutputter. This should be called
+   * inbetween calls to the parse method.
+   */
   def reset(): Unit // call to reuse these. When first constructed no reset call is necessary.
 
+  /**
+   * Called by Daffodil internals to signify the beginning of the infoset.
+   *
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def startDocument(): Boolean
+
+  /**
+   * Called by Daffodil internals to signify the end of the infoset.
+   *
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def endDocument(): Boolean
 
-  def startSimple(diSimple: DISimple): Boolean // return false to tell caller to stop visiting, true otherwise
+  /**
+   * Called by Daffodil internals to signify the beginning of a simple element.
+   *
+   * @param diSimple the simple element that is started. Various fields of
+   *                 DISimple can be accessed to determine things like the
+   *                 value, nil, name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
+
+  def startSimple(diSimple: DISimple): Boolean
+
+  /**
+   * Called by Daffodil internals to signify the end of a simple element.
+   *
+   * @param diSimple the simple element that is ended. Various fields of
+   *                 DISimple can be accessed to determine things like the
+   *                 value, nil, name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def endSimple(diSimple: DISimple): Boolean
 
+  /**
+   * Called by Daffodil internals to signify the beginning of a complex element.
+   *
+   * @param diComplex the complex element that is started. Various fields of
+   *                  DIComplex can be accessed to determine things like the
+   *                  nil, name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def startComplex(diComplex: DIComplex): Boolean
+
+  /**
+   * Called by Daffodil internals to signify the end of a complex element.
+   *
+   * @param diComplex the complex element that is ended. Various fields of
+   *                  DIComplex can be accessed to determine things like the
+   *                  nil, name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def endComplex(diComplex: DIComplex): Boolean
 
+  /**
+   * Called by Daffodil internals to signify the beginning of an array of elements.
+   *
+   * @param diComplex the array that is started. Various fields of
+   *                  DIArray can be accessed to determine things like the
+   *                  name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def startArray(diArray: DIArray): Boolean
+
+  /**
+   * Called by Daffodil internals to signify the end of an array of elements.
+   *
+   * @param diComplex the array that is ended. Various fields of
+   *                  DIArray can be accessed to determine things like the
+   *                  name, namespace, etc.
+   * @return true on sucess, false if there was an error and Daffodil should stop all
+   *         future calls to the InfosetOutputter
+   */
   def endArray(diArray: DIArray): Boolean
+
   def getStatus(): Status = {
     // Done, Ready (Not started), Visiting (part way done - can retry to visit more)...
     status

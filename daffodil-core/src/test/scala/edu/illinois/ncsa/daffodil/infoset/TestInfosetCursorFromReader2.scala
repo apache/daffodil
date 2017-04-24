@@ -44,7 +44,7 @@ import scala.collection.immutable.Stream.consWrapper
 
 object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 
-class TestInfosetCursorFromReader2 {
+class TestInfosetInputterFromReader2 {
 
   def infosetUnlimitedSource(size: Int) = {
     val sch = SchemaUtils.dfdlTestSchema(
@@ -77,7 +77,9 @@ class TestInfosetCursorFromReader2 {
     val rdr = new java.io.InputStreamReader(
       new StreamInputStream(strings))
 
-    val ic = Adapter(InfosetCursor.fromXMLReader(rdr, rootERD))
+    val inputter = new XMLTextInfosetInputter(rdr)
+    inputter.initialize(rootERD)
+    val ic = Adapter(inputter)
     ic
   }
 

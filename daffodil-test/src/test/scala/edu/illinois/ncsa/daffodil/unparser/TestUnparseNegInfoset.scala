@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 object TestUnparseNegInfoset {
   val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
   val aa = testDir + "unparseNegInfosetTest.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
   @AfterClass def tearDown() {
     runner = null
@@ -63,4 +63,10 @@ class TestUnparseNegInfoset {
   @Test def test_unexpectedChildSameAsSibling() { runner.runOneTest("unexpectedChildSameAsSibling") }
 
   @Test def test_unexpectedRootSingle() { runner.runOneTest("unexpectedRootSingle") }
+
+  @Test def test_nilledTrueNonNillable() { runner.runOneTest("nilledTrueNonNillable") }
+  @Test def test_nilledFalseNonNillable() { runner.runOneTest("nilledFalseNonNillable") }
+  @Test def test_nilledSimpleWithContent() { runner.runOneTest("nilledSimpleWithContent") }
+  @Test def test_nilledComplexWithContent() { runner.runOneTest("nilledComplexWithContent") }
+  @Test def test_nilledBadValue() { runner.runOneTest("nilledBadValue") }
 }

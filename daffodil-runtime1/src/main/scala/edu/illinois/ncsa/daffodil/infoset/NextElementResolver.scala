@@ -46,21 +46,26 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
 /**
  * The schema compiler computes this for each element.
  *
- * This is for use assembling the Daffodil Infoset from an XML representation.
- *
- * Note that there is a variation of this for augmenting an XML Infoset.
+ * This is for use assembling the Daffodil Infoset from an InfosetInputter.
+ * Note that not all InfosetInputter's have a concept of namespaces (json is a
+ * prime example of this). In order to support this, each nextElement method
+ * has a variable called hasNamespace, which is used to specify whether or not
+ * the InfosetInputter supports namespaces. If it does not support namespaces,
+ * then the namespace parameter should be ignored. This may affect how the next
+ * element is determined, and may result in an UnparseError in some cases.
  */
 
 trait NextElementResolver extends Serializable {
 
-  def nextElement(name: String, nameSpace: String): ElementRuntimeData
+  def nextElement(name: String, nameSpace: String, hasNamespace: Boolean): ElementRuntimeData
 
   // TODO: PERFORMANCE: We really should be interning all QNames so that comparison of QNames can be pointer equality
   // or nearly so. We're going to do tons of lookups in hash tables, which will compute the hash code, find it is equal,
   // compare the entire namespace string character by character, only to say yes, and yes will be by far the vast
   // bulk of the lookup results.  Pointer equality would be so much faster....
   //
-  def nextElement(nqn: NamedQName): ElementRuntimeData = nextElement(nqn.local, nqn.namespace.toStringOrNullIfNoNS)
+  def nextElement(nqn: NamedQName, hasNamespace: Boolean): ElementRuntimeData =
+    nextElement(nqn.local, if (hasNamespace) nqn.namespace.toStringOrNullIfNoNS else null, hasNamespace)
 }
 
 sealed abstract class ResolverType(val name: String) extends Serializable
@@ -70,7 +75,7 @@ case object RootResolver extends ResolverType("root")
 
 class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: ResolverType) extends NextElementResolver {
 
-  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
+  override def nextElement(local: String, namespace: String, hasNamespace: Boolean): ElementRuntimeData = {
     val sqn = StepQName(None, local, NS(namespace))
     UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but no element is expected.", resolverType.name, sqn)
   }
@@ -82,13 +87,25 @@ class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: Resolv
 class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)
   extends NextElementResolver {
 
-  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
+  override def nextElement(local: String, namespace: String, hasNamespace: Boolean): ElementRuntimeData = {
     val nqn = nextERD.namedQName
-    val sqn = StepQName(None, local, NS(namespace))
-    if (!sqn.matches(nqn)) {
+    val matches =
+      if (hasNamespace) {
+        val sqn = StepQName(None, local, NS(namespace))
+        sqn.matches(nqn)
+      } else {
+        // namespace is ignored since the InfosetInputter does not support
+        // them. Since there is only one possible match, the local name only
+        // has to match the nextERD local name to be a match.
+        local == nextERD.namedQName.local
+      }
+
+    if (!matches) {
+      val sqn = StepQName(None, local, NS(namespace))
       UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but expected %s.", resolverType.name,
         sqn.toExtendedSyntax, nqn.toExtendedSyntax)
     }
+
     nextERD
   }
 
@@ -99,7 +116,7 @@ class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, n
  * Schema compiler computes the map here, and then attaches this object to the
  * ERD of each element.
  */
-class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Map[QNameBase, ElementRuntimeData], resolverType: ResolverType)
+class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Map[QNameBase, ElementRuntimeData], resolverType: ResolverType, hasDuplicateLocalNames: Boolean)
   extends NextElementResolver {
   Assert.usage(nextERDMap.size > 1, "should be more than one mapping")
 
@@ -116,11 +133,44 @@ class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Ma
    *
    * So we need a cast upward to QNameBase
    */
-  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
-    val sqn = StepQName(None, local, NS(namespace)) // these will match in a hash table of NamedQNames.
-    val optNextERD = nextERDMap.get(sqn.asInstanceOf[QNameBase])
+  override def nextElement(local: String, namespace: String, hasNamespace: Boolean): ElementRuntimeData = {
+    val optNextERD =
+      if (hasNamespace) {
+        val sqn = StepQName(None, local, NS(namespace)) // these will match in a hash table of NamedQNames.
+        nextERDMap.get(sqn.asInstanceOf[QNameBase])
+      } else {
+        // The InfosetInputter does not support namespaces, so we must find an
+        // element in the nextERDMap with the same local name. The keys in the
+        // map are QNameBase's, so we must instead use a linear search to find
+        // the right key
+        if (!hasDuplicateLocalNames) {
+          // It was statically determined at compile time that this
+          // NextElementResolver does not have any possible NextERDs with the
+          // same local name. Because of this, just find the first thing that
+          // matches and return it it is was found.
+          nextERDMap.find(_._1.local == local).map(_._2)
+        } else {
+          // It was statically determined at compile time that some nextERDs
+          // have duplicate local names with differing namespaces. Since this
+          // InfosetInputter does not support namespaces, we might not be able
+          // to determine which is the right next ERD. So find all nextERDs
+          // with a matching local name, and error if we found more than one.
+          // If we only found one we found it. If we didn't find any, there was
+          // no match.
+          val localMatches = nextERDMap.filterKeys(_.local == local)
+          if (localMatches.size > 1) {
+            val sqn = StepQName(None, local, NS(namespace))
+            val keys = localMatches.keys.toSeq
+            UnparseError(One(loc), Nope, "Found multiple matches for %s element %s because infoset implementation ignores namespaces. Matches are %s",
+              resolverType.name, sqn.toExtendedSyntax, keys.mkString(", "))
+          }
+          localMatches.headOption.map(_._2)
+        }
+      }
+
     val res = optNextERD.getOrElse {
       val keys = nextERDMap.keys.toSeq
+      val sqn = StepQName(None, local, NS(namespace))
       UnparseError(One(loc), Nope, "Found %s element %s, but expected one of %s.",
         resolverType.name, sqn.toExtendedSyntax, keys.mkString(", "))
     }
