@@ -280,8 +280,9 @@ final class LocalSimpleTypeDef(
     //
     val rName = optRestriction.flatMap { r =>
       r.optBaseDef.map { _.namedQName }.orElse(Some(r.primType.globalQName))
-    }
-    rName.get.toQNameString
+    }.getOrElse(this.optUnion.map { u => u.primType.globalQName }.getOrElse(
+      Assert.invariantFailed("Simple type is neither a union nor a restriction: " + this)))
+    rName.toQNameString
   }
 
 }

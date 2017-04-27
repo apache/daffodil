@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2016 Tresys Technology, LLC. All rights reserved.
+
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite 
+  suiteName="unions" description="simple types - unions" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com" 
+  defaultRoundTrip="true"
+  defaultValidation="limited">
+
+  <tdml:defineSchema name="u1">
+    <dfdl:format ref="ex:daffodilTest1"
+    lengthKind="delimited" />
+
+<xs:element name="uOf1">
+  <xs:simpleType>
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="a" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+</xs:element>
+
+<xs:element name="uOf1b">
+  <xs:simpleType>
+    <xs:union memberTypes="ex:uOf1bST" />
+  </xs:simpleType>
+</xs:element>
+
+  <xs:simpleType name="uOf1bST">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="a" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:element name="ru" type="ex:restrictedUnionType"/>
+  <xs:simpleType name="restrictedUnionType">
+    <xs:restriction base="ex:unionType">
+      <xs:pattern value="a*|bbb+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="unionType">
+    <xs:union memberTypes="ex:aType ex:bbbType"/>
+  </xs:simpleType>
+  <xs:simpleType name="aType">
+    <xs:restriction base="ex:uuType"/>
+  </xs:simpleType>
+  <xs:simpleType name="bbbType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="bbb"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="uuType">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="1"/>
+          <xs:minLength value="1"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="6"/>
+          <xs:minLength value="2"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  
+  
+  <xs:element name="ru2" type="ex:restrictedUnionType2"/>
+  <xs:simpleType name="restrictedUnionType2">
+    <xs:restriction base="ex:unionType2">
+      <xs:pattern value="a{0,5}|bbb+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="unionType2">
+    <xs:union memberTypes="ex:aType2 ex:bbbType2"/>
+  </xs:simpleType>
+  <xs:simpleType name="aType2">
+    <xs:restriction base="ex:uuType2"/>
+  </xs:simpleType>
+  <xs:simpleType name="bbbType2">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="bbb"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="uuType2">
+    <xs:union>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="1"/>
+          <xs:minLength value="1"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="6"/>
+          <xs:minLength value="2"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:union>
+  </xs:simpleType>
+  
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="unionOf1" root="uOf1" model="u1" description="union having only one member">
+    <tdml:document>a</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <uOf1>a</uOf1> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="unionOf1b" root="uOf1b" model="u1" description="union having only one member">
+    <tdml:document>a</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <uOf1b>a</uOf1b> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="uu1" root="ru" model="u1" description="pattern restriction on a union">
+    <tdml:document>a</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <ru>a</ru> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="uu2" root="ru" model="u1" description="pattern restriction on a union">
+    <tdml:document>aa</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <ru>aa</ru> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="uu3" root="ru" model="u1" description="pattern restriction on a union">
+    <tdml:document>bbb</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <ru>bbb</ru> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="uu1neg" root="ru" model="u1" description="pattern restriction on a union">
+    <tdml:document>aaaaaaa</tdml:document>
+    <tdml:validationErrors>
+      <tdml:error>aaaaaaa</tdml:error>
+      <tdml:error>not one of the union members</tdml:error>
+      <tdml:error>ex:ru</tdml:error>
+    </tdml:validationErrors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <ru>aaaaaaa</ru> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="uu2neg" root="ru2" model="u1" description="pattern restriction on a union">
+    <tdml:document>aaaaaaa</tdml:document>
+    <tdml:validationErrors>
+      <tdml:error>failed facet checks due to: facet pattern</tdml:error>
+      <tdml:error>ex:ru2</tdml:error>
+    </tdml:validationErrors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://www.example.org/example1/">
+        <ru2>aaaaaaa</ru2> 
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

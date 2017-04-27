@@ -161,17 +161,21 @@ final class Union(xmlArg: Node, simpleType: SimpleTypeDefBase)
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
 
   lazy val primType: NodeInfo.PrimType = {
-    val allPrimitiveTypes = unionMemberTypes.map { _.primType }
-    Assert.invariant(allPrimitiveTypes.length > 1)
-    val firstMember = unionMemberTypes.head
-    val fmpt = firstMember.primType
-    val nonMatch = unionMemberTypes.tail.filter { _.primType ne fmpt }
-    schemaDefinitionWhen(nonMatch.length > 0,
-      "All types in a simple type union must have the same primitive type." +
-        "The first type's primitive type '%s' does not match: %s.",
-      fmpt.globalQName.toQNameString,
-      nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", "))
-    fmpt
+    if (unionMemberTypes.length == 1) {
+      // degenerate case of union of 1 thing IS ALLOWED by XSD
+      unionMemberTypes.head.primType
+    } else {
+      Assert.invariant(unionMemberTypes.length > 1)
+      val firstMember = unionMemberTypes.head
+      val fmpt = firstMember.primType
+      val nonMatch = unionMemberTypes.tail.filter { _.primType ne fmpt }
+      schemaDefinitionWhen(nonMatch.length > 0,
+        "All types in a simple type union must have the same primitive type." +
+          "The first type's primitive type '%s' does not match: %s.",
+        fmpt.globalQName.toQNameString,
+        nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", "))
+      fmpt
+    }
   }
 
   private lazy val immediateTypeXMLs = xml \ "simpleType"
