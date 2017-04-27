@@ -128,6 +128,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
   with DFDLStatementMixin
   with OverlapCheckMixin {
 
+  requiredEvaluations(if (element.isSimpleType) simpleTypeRuntimeData.preSerialization)
+
   def element: ElementBase
 
   override def typeNode = primType

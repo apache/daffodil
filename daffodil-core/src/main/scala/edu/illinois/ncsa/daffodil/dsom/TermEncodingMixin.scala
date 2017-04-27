@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
+  requiredEvaluations(encodingInfo.preSerialization)
+
   protected final lazy val defaultEncodingErrorPolicy = {
     if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
       encodingErrorPolicy

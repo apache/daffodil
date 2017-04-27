@@ -85,6 +85,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   requiredEvaluations(branchesAreNonOptional)
   requiredEvaluations(branchesAreNotIVCElements)
+  requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
   protected final override lazy val myPeers = choicePeers
 

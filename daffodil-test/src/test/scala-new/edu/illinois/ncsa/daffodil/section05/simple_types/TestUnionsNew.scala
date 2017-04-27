@@ -1,4 +1,4 @@
-/* Copyright (c) 2016 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com

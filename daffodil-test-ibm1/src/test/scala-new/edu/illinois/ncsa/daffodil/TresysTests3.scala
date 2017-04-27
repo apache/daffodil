@@ -39,7 +39,7 @@ object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
   lazy val runnerBF = Runner(testDir, "bitFlagExpression.tdml",
-    compileAllTopLevel = true)
+    compileAllTopLevel = false) // test has elements that have upward paths past root.
 
   lazy val runnerAB = Runner(testDir, "ABLargeData.tdml.dat",
     compileAllTopLevel = true)

@@ -107,6 +107,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   requiredEvaluations(if (hasMaxExclusive) maxExclusive)
   requiredEvaluations(if (hasTotalDigits) totalDigits)
   requiredEvaluations(if (hasFractionDigits) fractionDigits)
+  requiredEvaluations(erd.preSerialization)
 
   def name: String
 
@@ -116,7 +117,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def isSimpleType: Boolean
   def isComplexType: Boolean
 
-  final def simpleType = typeDef.asInstanceOf[SimpleTypeBase]
+  final def simpleType = typeDef match {
+    case st: SimpleTypeBase => st
+    case ct: ComplexTypeBase =>
+      Assert.invariantFailed("Must be simple type: " + ct.element.namedQName)
+  }
+
   final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
 
   def typeDef: TypeBase

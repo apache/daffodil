@@ -50,6 +50,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
 
+  requiredEvaluations(variableRuntimeData.preSerialization)
+
   final lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
 
   private lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")

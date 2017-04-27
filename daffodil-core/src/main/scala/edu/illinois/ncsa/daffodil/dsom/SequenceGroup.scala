@@ -57,6 +57,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
+  requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
   final override lazy val myPeers = sequencePeers
 
