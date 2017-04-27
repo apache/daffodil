@@ -122,5 +122,6 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.fasterxml.jackson.core/jackson-core/jackson-core-2.8.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
