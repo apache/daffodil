@@ -94,6 +94,7 @@ import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -344,7 +345,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', or 'null'.", default = Some("xml"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml"))
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -368,6 +369,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("xml")) => Right(Unit)
       case (Some("scala-xml")) => Right(Unit)
       case (Some("json")) => Right(Unit)
+      case (Some("jdom")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -408,7 +410,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', or 'null'.", default = Some("null"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("null"))
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
@@ -422,6 +424,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("xml")) => Right(Unit)
       case (Some("scala-xml")) => Right(Unit)
       case (Some("json")) => Right(Unit)
+      case (Some("jdom")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -456,7 +459,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', or 'json'.", default = Some("xml"))
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', or 'jdom'.", default = Some("xml"))
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -485,6 +488,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("xml")) => Right(Unit)
       case (Some("scala-xml")) => Right(Unit)
       case (Some("json")) => Right(Unit)
+      case (Some("jdom")) => Right(Unit)
       //case (Some("null")) => Right(Unit) // null is not valid for unparsing
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -721,6 +725,7 @@ object Main extends Logging {
       case "xml" => new XMLTextInfosetOutputter(writer)
       case "scala-xml" => new ScalaXMLInfosetOutputter()
       case "json" => new JsonInfosetOutputter(writer)
+      case "jdom" => new JDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
     }
   }
@@ -830,6 +835,7 @@ object Main extends Logging {
               // be converted to a string and written to the output
               outputter match {
                 case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
+                case jdom: JDOMInfosetOutputter => writer.write(jdom.getResult.toString)
                 case _ => // do nothing
               }
 

@@ -60,7 +60,7 @@ import edu.illinois.ncsa.daffodil.japi.UnparseResult;
 import edu.illinois.ncsa.daffodil.japi.ValidationMode;
 import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
-import edu.illinois.ncsa.daffodil.japi.infoset.ScalaXMLInfosetOutputter;
+import edu.illinois.ncsa.daffodil.japi.infoset.JDOMInfosetOutputter;
 
 public class TestJavaAPI {
 
@@ -71,15 +71,6 @@ public class TestJavaAPI {
 			return null;
 		}
 	}
-
-	// this whole thing should be removed and uses of ScalaXMLInfosetOutputter
-	// should be replaced with the JDOM version, when the JDOM version is done
-	private org.jdom2.Document scalaNodeToJdom(scala.xml.NodeSeq node) {
-		org.jdom2.Document doc = new org.jdom2.Document();
-		org.jdom2.Element rootElement = edu.illinois.ncsa.daffodil.xml.JDOMUtils.elem2Element(node.apply(0));
-		doc.setRootElement(rootElement);
-		return doc;
-	 }
 
 	@Test
 	public void testJavaAPI1() throws IOException {
@@ -99,7 +90,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -113,7 +104,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("42", bos.toString());
@@ -154,7 +145,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = parser.parse(rbc, outputter, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -168,7 +159,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("42", bos.toString());
@@ -233,7 +224,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myDataBroken.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 
 		// TODO: NEED a java friendly way to get the status of the outputter. Scala enums don't work well
@@ -277,7 +268,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData16.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 16 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -287,7 +278,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("9", bos.toString());
@@ -317,7 +308,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData16.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = parser.parse(rbc, outputter, 16 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -327,7 +318,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("9", bos.toString());
@@ -344,7 +335,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData2.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 64 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -354,7 +345,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("data", bos.toString());
@@ -373,7 +364,7 @@ public class TestJavaAPI {
 																	// bytes
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 4 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -383,7 +374,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertEquals("data", bos.toString());
@@ -447,7 +438,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -455,7 +446,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
@@ -489,7 +480,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -497,7 +488,7 @@ public class TestJavaAPI {
 
 		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-		UnparseResult res2 = dp.unparse(wbc, scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult()));
+		UnparseResult res2 = dp.unparse(wbc, outputter.getResult());
 		err = res2.isError();
 		assertFalse(err);
 		assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
@@ -509,7 +500,7 @@ public class TestJavaAPI {
 	}
 
 	/**
-	 * Verify that calling result() on the ParseResult mutiple times does not
+	 * Verify that calling result() on the ParseResult multiple times does not
 	 * error.
 	 */
 	@Test
@@ -528,13 +519,13 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 		boolean err = res.isError();
 		assertFalse(err);
 		assertTrue(res.location().isAtEnd());
 
-		org.jdom2.Document doc1 = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc1 = outputter.getResult();
 
 		java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
@@ -543,7 +534,7 @@ public class TestJavaAPI {
 		assertFalse(err);
 		assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"));
 
-		org.jdom2.Document doc2 = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc2 = outputter.getResult();
 
 		java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
 		java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
@@ -571,11 +562,11 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData4.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 		boolean err = res.isError();
 		assertFalse(err);
-		org.jdom2.Document doc = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc = outputter.getResult();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		org.jdom2.Element rootNode = doc.getRootElement();
@@ -598,11 +589,11 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData5.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter);
 		boolean err = res.isError();
 		assertFalse(err);
-		org.jdom2.Document doc = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc = outputter.getResult();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		// xo.output(doc, System.out);
@@ -644,7 +635,7 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
@@ -685,11 +676,11 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
-		org.jdom2.Document doc = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc = outputter.getResult();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		String docString = xo.outputString(doc);
@@ -726,11 +717,11 @@ public class TestJavaAPI {
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
-		ScalaXMLInfosetOutputter outputter = new ScalaXMLInfosetOutputter(false);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
 		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
 		boolean err = res.isError();
 		assertFalse(err);
-		org.jdom2.Document doc = scalaNodeToJdom((scala.xml.NodeSeq)outputter.getResult());
+		org.jdom2.Document doc = outputter.getResult();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		String docString = xo.outputString(doc);

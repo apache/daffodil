@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.japi.infoset
 import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
 import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
 import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
+import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
 import edu.illinois.ncsa.daffodil.japi.packageprivate.InfosetOutputterWrapper
 
 abstract class InfosetOutputter extends SInfosetOutputter
@@ -51,4 +52,12 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   extends InfosetOutputterWrapper {
   
   override val infosetOutputter = new SXMLTextInfosetOutputter(writer, pretty)
+}
+
+class JDOMInfosetOutputter()
+  extends InfosetOutputterWrapper {
+
+  override val infosetOutputter = new SJDOMInfosetOutputter()
+
+  def getResult(): org.jdom2.Document = infosetOutputter.getResult()
 }
