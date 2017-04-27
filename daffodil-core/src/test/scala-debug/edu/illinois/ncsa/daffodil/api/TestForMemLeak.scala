@@ -43,7 +43,7 @@ class TestForMemLeak {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
-    val actual = TestUtils.testString(sch, "5678").result
+    val (_, actual) = TestUtils.testString(sch, "5678")
     val expected: Node = <e1>5678</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
