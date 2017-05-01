@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._;
 import org.junit.Test
+import org.junit.Assert._
 
 object INoWarn8 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -60,6 +61,15 @@ class TestInfoset2 {
     try {
       // Debugger.setDebugging(true)
       val (_, xml) = TestUtils.testString(testSchema, "2AB")
+      val xmlStr = xml.toString
+      // element b is defined as being in the example.com namespace, but with
+      // no prefix defined. That means for be xmlns="example.com". But since
+      // the schema is unqualified, that means elements c and x do not have a
+      // namespace, so for those elements xmlns="". There was a bug where
+      // NoNamespace was displayed as xmlns="No_Namespace", so this checks to
+      // make sure that is resolved.
+      assertFalse(xmlStr.contains("No_Namespace"))
+      assertTrue(xmlStr.contains("xmlns=\"\""))
       TestUtils.assertEqualsXMLElements(<b><c>2</c><a>A</a><a>B</a></b>, xml)
     } finally {
       // Debugger.setDebugging(false)

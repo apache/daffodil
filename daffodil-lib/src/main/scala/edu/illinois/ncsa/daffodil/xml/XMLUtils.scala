@@ -401,28 +401,6 @@ object XMLUtils {
     }
   }
 
-  def uniqueNamespaceBindingsToString(nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding): String = {
-    val sb = new StringBuilder()
-    var nsb = nsbStart
-    while (nsb != nsbEnd) {
-      sb.append("xmlns")
-      if (nsb.prefix != null) {
-        sb.append(":")
-        sb.append(nsb.prefix)
-      }
-      sb.append("=\"")
-      if (nsb.uri != NoNamespace.toString) {
-        sb.append(nsb.uri)
-      }
-      sb.append("\"")
-      if (nsb.parent != nsbEnd) {
-        sb.append(" ")
-      }
-      nsb = nsb.parent
-    }
-    sb.toString
-  }
-
   /**
    * We don't want to be sensitive to which prefix people bind
    */
@@ -491,10 +469,11 @@ object XMLUtils {
   }
 
   def combineScopes(prefix: String, ns: NS, outer: NamespaceBinding): NamespaceBinding = {
-    if (ns == NoNamespace) {
+    if (ns.optURI.isEmpty) {
       outer
     } else {
-      val inner = NamespaceBinding(prefix, ns.uri.toString, TopScope)
+      val uri = ns.optURI.get.toString
+      val inner = NamespaceBinding(prefix, uri, TopScope)
       combineScopes(inner, outer)
     }
   }

@@ -324,7 +324,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       val (pre, ns) = pairs.head
       val t = pairs.tail
       val parentNSBinding = pairsToNSBinding(t, parentNS)
-      val res = NamespaceBinding(pre, ns.toString, parentNSBinding)
+      val uri = if (ns.optURI.isDefined) ns.optURI.get.toString else null
+      val res = NamespaceBinding(pre, uri, parentNSBinding)
       res
     }
   }

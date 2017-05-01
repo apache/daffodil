@@ -32,7 +32,6 @@
 package edu.illinois.ncsa.daffodil.infoset
 
 import edu.illinois.ncsa.daffodil.util.Indentable
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.
@@ -43,6 +42,8 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
  */
 class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   extends InfosetOutputter with Indentable with XMLInfosetOutputter {
+
+  private val sb = new StringBuilder()
 
   override def reset(): Unit = {
     resetIndentation()
@@ -61,9 +62,9 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     val nsbStart = elem.erd.minimizedScope
     val nsbEnd = if (elem.isRoot) scala.xml.TopScope else elem.diParent.erd.minimizedScope
     if (nsbStart != nsbEnd) {
-      val str = XMLUtils.uniqueNamespaceBindingsToString(nsbStart, nsbEnd)
-      writer.write(" ")
-      writer.write(str)
+      sb.setLength(0) // reset the stringbuilder
+      nsbStart.buildString(sb, nsbEnd)
+      writer.write(sb.toString)
     }
 
     if (elem.isNilled) {

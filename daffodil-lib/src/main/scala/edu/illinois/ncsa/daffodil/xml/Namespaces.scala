@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.xml
 import java.net.URI
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.UniquenessCache
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * Central factory for, and class to represent namespace URIs
@@ -92,6 +93,7 @@ object NoNamespace extends NS(null) {
   override def isUnspecified = false
   override def toString = "No_Namespace"
   override def uri = Assert.usageError("No-namespace has no URI.")
+  override def optURI = Nope
   override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
   override def explainForMsg = "in no namespace"
 }
@@ -105,6 +107,7 @@ object UnspecifiedNamespace extends NS(null) {
   override def isUnspecified = true
   override def toString = "Unspecified_Namespace"
   override def uri = Assert.usageError("UnspecifiedNamespace has no URI.")
+  override def optURI = Nope
   override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
   override def explainForMsg = "with unspecified namespace"
 }
@@ -112,6 +115,7 @@ object UnspecifiedNamespace extends NS(null) {
 sealed class NS protected (uriArg: URI) extends Serializable { // protected constructor. Must use factory.
   override def toString = uri.toString
   def uri = uriArg
+  def optURI = One(uriArg)
   def toStringOrNullIfNoNS = uri.toString
   def isNoNamespace = false
   def isUnspecified = false
