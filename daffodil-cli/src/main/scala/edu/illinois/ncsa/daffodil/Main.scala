@@ -36,6 +36,7 @@ import java.io.FileOutputStream
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 import java.io.OutputStream
+import java.io.Writer
 import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -100,6 +101,19 @@ class NullOutputStream extends OutputStream {
   override def write(b: Array[Byte]) {}
   override def write(b: Array[Byte], off: Int, len: Int) {}
   override def write(b: Int) {}
+}
+
+class NullWriter extends Writer {
+  override def append(c: Char): Writer = { this }
+  override def append(csq: CharSequence): Writer = { this }
+  override def append(csq: CharSequence, start: Int, end: Int): Writer = { this }
+  override def close(): Unit = {}
+  override def flush(): Unit = {}
+  override def write(chr: Array[Char]): Unit = {}
+  override def write(chr: Array[Char], st: Int, end: Int): Unit = {}
+  override def write(idx: Int): Unit = {}
+  override def write(str: String): Unit = {}
+  override def write(str: String, st: Int, end: Int): Unit = {}
 }
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
@@ -905,6 +919,8 @@ object Main extends Logging {
             }
 
             val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
+            val nullWriterForParse = new NullWriter()
+            val infosetType = performanceOpts.infosetType.get.get
 
             //the following line allows output verification
             //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
@@ -918,9 +934,7 @@ object Main extends Logging {
                     val (time, result) = inData match {
                       case Left(rdr) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, rdr) })
                       case Right(channel) => Timer.getTimeResult({
-                        val nullBufferedWriter = new BufferedWriter(new OutputStreamWriter(new NullOutputStream))
-                        val outputterForParse = getInfosetOutputter(performanceOpts.infosetType.get.get, nullBufferedWriter)
-                        nullBufferedWriter.flush
+                        val outputterForParse = getInfosetOutputter(infosetType, nullWriterForParse)
                         processor.parse(channel, outputterForParse, len)
                       })
                     }
