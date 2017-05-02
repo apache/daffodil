@@ -42,7 +42,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=''/>
     </xs:appinfo>
   </xs:annotation>
 

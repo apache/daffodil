@@ -361,8 +361,8 @@
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
-            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

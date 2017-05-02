@@ -45,7 +45,7 @@
       <dfdl:defineFormat name="untrimmed">
         <dfdl:format ref="daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=''/>
         </dfdl:defineFormat>
       <dfdl:format ref="untrimmed"/>
     </xs:appinfo>

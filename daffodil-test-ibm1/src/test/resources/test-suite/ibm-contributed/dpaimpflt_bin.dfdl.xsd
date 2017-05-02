@@ -18,13 +18,12 @@
    		encodingErrorPolicy="replace"  encoding="UTF-8"
    		byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 		alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
-		textPadKind="none" textOutputMinLength="0"/>
+		textPadKind="none" textOutputMinLength="0" escapeSchemeRef=''/>
 		
 		</xs:appinfo>
 	</xs:annotation>
 
 	<xs:element name="Implicit"  type="xs:float"
-	    dfdl:length="4"
         dfdl:lengthKind="implicit"
         dfdl:lengthUnits="bytes"
         dfdl:representation="binary"

@@ -406,7 +406,7 @@
               <xs:choice>
                 <xs:element name="a1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
                   dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
-                <xs:element name="a2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:length="5" dfdl:encoding="ascii" 
+                <xs:element name="a2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="ascii" 
                   dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:terminator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
               </xs:choice>
             </xs:complexType>
@@ -498,7 +498,7 @@
     <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="ascii" 
       lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary" textNumberPattern="###0.###;-###0.###"/>
 
-    <xs:element name="string" dfdl:lengthKind="implicit" dfdl:length="4" dfdl:encoding="ascii" 
+    <xs:element name="string" dfdl:lengthKind="implicit" dfdl:encoding="ascii" 
       dfdl:lengthUnits="characters" dfdl:alignment="implicit" dfdl:leadingSkip="4">
       <xs:simpleType>
         <xs:restriction base="xs:string">

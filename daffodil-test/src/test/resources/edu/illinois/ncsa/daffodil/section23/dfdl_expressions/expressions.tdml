@@ -1290,7 +1290,7 @@ c'    } ]]></dfdl:property>
             dfdl:lengthKind="delimited" />
           <xs:element name="value" type="xs:string">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl">
+		    <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="inputValueCalc"><![CDATA[{ 'a
 b
@@ -1332,7 +1332,7 @@ c' }"/>
         <xs:sequence dfdl:separator=",">
           <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl">
+		    <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="initiator"><![CDATA[{'               1 '}]]></dfdl:property>
                 </dfdl:element>
