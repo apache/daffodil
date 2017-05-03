@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.Implicits._
@@ -54,10 +54,12 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnp
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
+import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
+import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,

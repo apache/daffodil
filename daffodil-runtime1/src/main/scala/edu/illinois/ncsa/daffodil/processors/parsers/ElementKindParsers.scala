@@ -32,13 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.{ Parser, ParserObject }
 import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv

@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.dpath
 
 // TODO: replace these with our own Infoset implementation objects
 
-import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.infoset.DISimple
 import edu.illinois.ncsa.daffodil.util.OKOrError
 

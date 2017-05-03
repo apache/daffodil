@@ -41,9 +41,6 @@ import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Parser
-import edu.illinois.ncsa.daffodil.processors.ParserObject
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success

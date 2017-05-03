@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.grammar.primitives
 
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
@@ -59,8 +59,6 @@ import edu.illinois.ncsa.daffodil.equality._;
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.cookers.ChoiceBranchKeyCooker
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 
 object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 

@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.MandatoryTextAlignmentUnp
 import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 

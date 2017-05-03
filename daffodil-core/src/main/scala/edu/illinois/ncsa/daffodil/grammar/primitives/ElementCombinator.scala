@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceElementParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ElementParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ElementParserNoRep
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.parsers.CaptureEndOfContentLengthParser
 import edu.illinois.ncsa.daffodil.processors.parsers.CaptureEndOfValueLengthParser
 import edu.illinois.ncsa.daffodil.processors.parsers.CaptureStartOfContentLengthParser

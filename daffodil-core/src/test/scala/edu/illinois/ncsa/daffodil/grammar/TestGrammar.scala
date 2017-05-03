@@ -37,7 +37,7 @@ import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Fakes
 

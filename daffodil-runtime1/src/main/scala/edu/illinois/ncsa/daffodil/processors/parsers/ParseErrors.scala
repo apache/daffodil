@@ -47,7 +47,6 @@ import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 import edu.illinois.ncsa.daffodil.infoset.InfosetException
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.processors.Success

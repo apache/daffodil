@@ -37,6 +37,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.processors.parsers.TextParserUnparserRuntimeBase
+import edu.illinois.ncsa.daffodil.processors.PrimProcessor
+import edu.illinois.ncsa.daffodil.processors.ToBriefXMLImpl
+import edu.illinois.ncsa.daffodil.processors.Processor
 
 /**
  * This mixin for setting up all the characteristics of charset encoding

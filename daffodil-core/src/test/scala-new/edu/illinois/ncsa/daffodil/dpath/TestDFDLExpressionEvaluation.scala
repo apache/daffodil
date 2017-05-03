@@ -40,7 +40,7 @@ import scala.util.parsing.combinator.Parsers
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.infoset.DIDocument

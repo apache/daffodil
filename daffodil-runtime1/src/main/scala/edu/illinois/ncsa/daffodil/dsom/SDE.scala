@@ -42,6 +42,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.CompileState
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],

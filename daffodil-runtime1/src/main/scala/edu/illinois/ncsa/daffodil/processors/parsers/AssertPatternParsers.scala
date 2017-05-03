@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.util.OnStack

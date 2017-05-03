@@ -148,7 +148,7 @@ final class EncodingRuntimeData(
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int)
-    extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
+  extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
   lazy val termRuntimeData = termRuntimeDataArg
   lazy val charsetEv = charsetEvArg

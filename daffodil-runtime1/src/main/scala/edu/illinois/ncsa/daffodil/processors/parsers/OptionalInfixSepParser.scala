@@ -33,8 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Parser
-import edu.illinois.ncsa.daffodil.processors.PState
 
 class OptionalInfixSepParser(override val context: RuntimeData, sepParser: Parser)
   extends Parser {

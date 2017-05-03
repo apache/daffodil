@@ -72,6 +72,8 @@ import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 /**
  * Implementation mixin - provides simple helper methods

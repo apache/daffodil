@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
 import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class BitOrderChangeParser(

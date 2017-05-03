@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDat
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
@@ -63,9 +63,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.TextTruncationType
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 
 case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
 

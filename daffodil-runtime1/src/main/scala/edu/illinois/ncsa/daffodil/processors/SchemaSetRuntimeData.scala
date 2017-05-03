@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 final class SchemaSetRuntimeData(
   val parser: Parser,

@@ -53,6 +53,7 @@ import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 import edu.illinois.ncsa.daffodil.dsom.ContentValueReferencedElementInfoMixin
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 /**
  * Generates unique int for use as key into EvalCache

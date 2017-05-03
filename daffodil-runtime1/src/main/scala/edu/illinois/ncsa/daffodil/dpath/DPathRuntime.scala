@@ -48,6 +48,8 @@ import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 import java.lang.{ Number => JNumber }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 import edu.illinois.ncsa.daffodil.processors.CompileState
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.CompileState
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 

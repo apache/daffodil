@@ -32,8 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.events
 
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 

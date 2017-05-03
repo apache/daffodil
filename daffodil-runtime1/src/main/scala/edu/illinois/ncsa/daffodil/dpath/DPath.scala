@@ -35,7 +35,8 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -47,6 +48,7 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Evaluation",

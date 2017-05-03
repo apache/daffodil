@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.processors.BinaryParserUnparserRuntimeMixin
 import edu.illinois.ncsa.daffodil.processors.ByteOrderEv
 import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PState
 
 class ByteOrderChangeParser(val elementRuntimeData: ElementRuntimeData, byteOrdEv: ByteOrderEv, check: CheckByteAndBitOrderEv)
   extends PrimParser with BinaryParserUnparserRuntimeMixin {

@@ -33,9 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
 
 class EncodingChangeParser(val termRuntimeData: TermRuntimeData, checkBitOrderAndCharset: CheckBitOrderAndCharsetEv, checkEncoding: CheckEncodingEv)

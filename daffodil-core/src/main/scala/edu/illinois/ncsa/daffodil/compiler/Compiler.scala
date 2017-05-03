@@ -63,7 +63,7 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
 import edu.illinois.ncsa.daffodil.processors.Processor
-import edu.illinois.ncsa.daffodil.processors.NotParsableParser
+import edu.illinois.ncsa.daffodil.processors.parsers.NotParsableParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters

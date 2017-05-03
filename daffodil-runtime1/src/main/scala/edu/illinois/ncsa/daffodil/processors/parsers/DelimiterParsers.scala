@@ -33,12 +33,10 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 import edu.illinois.ncsa.daffodil.processors.LocalTypedDelimiterIterator
 import edu.illinois.ncsa.daffodil.processors.RemoteTypedDelimiterIterator

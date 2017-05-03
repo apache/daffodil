@@ -65,6 +65,8 @@ import java.util.concurrent.atomic.AtomicLong
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Numbers
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 sealed trait DINode {
 
@@ -996,7 +998,7 @@ final class DIArray(
     a
   }
 
-  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true){
+  final def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
     // Do not create an event if there's nothing in the array or if the array
     // is hidden. Unfortunately, there is no way to tell if an array is hidden,
     // only its elements. But if the first element is hidden, they are all

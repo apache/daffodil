@@ -85,7 +85,7 @@ import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
-import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters

@@ -44,7 +44,6 @@ import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 import edu.illinois.ncsa.daffodil.processors.CalendarEv
 import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Processor
 
 abstract class ConvertTextCalendarProcessorBase(

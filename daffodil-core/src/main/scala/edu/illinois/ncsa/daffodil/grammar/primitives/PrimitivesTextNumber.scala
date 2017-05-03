@@ -66,7 +66,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryStatic
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextUnsignedIntParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {

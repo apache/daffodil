@@ -37,7 +37,6 @@ import java.lang.{ Boolean => JBoolean }
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextBooleanTrueRepEv
 import edu.illinois.ncsa.daffodil.processors.TextBooleanFalseRepEv
-import edu.illinois.ncsa.daffodil.processors.PState
 
 case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,

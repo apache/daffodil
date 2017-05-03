@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.cookers.EscapeBlockStartCooker
 import edu.illinois.ncsa.daffodil.cookers.ExtraEscapedCharactersCooker
 import edu.illinois.ncsa.daffodil.cookers.EscapeEscapeCharacterCooker
 import edu.illinois.ncsa.daffodil.cookers.EscapeCharacterCooker
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 class EscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
   extends EvaluatableConvertedExpression[String, String](

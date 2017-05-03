@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 trait ContentValueReferencedElementInfoMixin {
 

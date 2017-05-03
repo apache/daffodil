@@ -33,9 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParserObject
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Parser
 
 class UnorderedSequenceParser(
   override val context: ModelGroupRuntimeData,

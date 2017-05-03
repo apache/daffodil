@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitIm
 import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {

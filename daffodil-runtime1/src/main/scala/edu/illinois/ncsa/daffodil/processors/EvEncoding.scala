@@ -158,7 +158,7 @@ class CheckEncodingEv(t: TermRuntimeData, alignmentInBits: Integer, charsetEv: C
 
   final protected def compute(state: ParseOrUnparseState): Ok = {
 
-    if(!charsetEv.isConstant) {
+    if (!charsetEv.isConstant) {
       val dfdlCS = charsetEv.evaluate(state)
       dfdlCS.charset match {
         case nbsc: NonByteSizeCharset =>

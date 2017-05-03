@@ -47,9 +47,10 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.io.DataDumper
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[DataOutputStream, DataInputStream],
-    val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
+  val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {

@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.cookers.SeparatorCooker
 import edu.illinois.ncsa.daffodil.cookers.InitiatorCooker
 import edu.illinois.ncsa.daffodil.cookers.TerminatorCooker
 import edu.illinois.ncsa.daffodil.cookers.Converter
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 trait DelimiterEvMixin[+T <: AnyRef]
   extends ExprEvalMixin[String] { self: Evaluatable[T] =>

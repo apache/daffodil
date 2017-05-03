@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -70,7 +69,7 @@ class BinaryBooleanParser(val e: ElementRuntimeData,
   override def context = e
   override lazy val runtimeDependencies = List(lengthEv)
 
-  def parse(start: PState): Unit = {
+  override def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits < 1 || nBits > 32) {
       PE(start, "Number of bits %d out of range, must be between 1 and 32 bits.", nBits)

@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.dsom.Sequence
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 object UnorderedSequence {
   def apply(context: Term, eGram: => Gram) = {

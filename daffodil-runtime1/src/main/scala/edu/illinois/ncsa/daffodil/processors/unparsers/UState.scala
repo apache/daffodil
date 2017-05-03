@@ -81,6 +81,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
 import edu.illinois.ncsa.daffodil.infoset.InfosetCursor
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 

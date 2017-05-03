@@ -39,7 +39,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.infoset.DISimple
 import edu.illinois.ncsa.daffodil.infoset.DIDocument
-import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
 
 class TestSimpleTypeUnions {
   val xsd = XMLUtils.XSD_NAMESPACE
