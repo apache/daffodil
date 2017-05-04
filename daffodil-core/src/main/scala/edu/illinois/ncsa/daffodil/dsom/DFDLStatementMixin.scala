@@ -140,7 +140,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
       }
       case nv: DFDLNewVariableInstance => {
         // nv.defaultValueExpr.contentReferencedElementInfos
-        ???
+        s.notYetImplemented("dfdl:newVariableInstance")
       }
       case _ => ReferencedElementInfos.None
     }
