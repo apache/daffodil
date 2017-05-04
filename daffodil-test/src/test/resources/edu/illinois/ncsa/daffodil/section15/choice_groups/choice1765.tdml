@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+
+<tdml:testSuite 
+  suiteName="choice1765" 
+  description="Tests for choice construct. Bug DFDL-1765." 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <tdml:defineSchema name="s" elementFormDefault="unqualified">
+
+    <dfdl:defineFormat name="base">
+      <dfdl:format ref="ex:daffodilTest1" 
+      representation="binary" 
+      lengthKind="explicit" 
+      occursCountKind="parsed" 
+      byteOrder="bigEndian"/>
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="complex">
+      <dfdl:format ref="ex:base" lengthKind="implicit" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="word">
+      <dfdl:format ref="ex:complex" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="ex:base" />
+    
+    <!-- <![CDATA[ Eclipse doesn't wrap XML comments if you do this!
+    
+    Models a situation in STANAG 5516 data that uncovered a bug. 
+    That spec is non-public, but this reproduces the nesting of choices and
+    arrays that create the backtracking behavior.
+    
+    This is a really bad schema design from some perspectives.
+    The discriminators are placed at the end of the structures they
+    discriminate, not close to where they could be decided.
+    A good schema would do this with choice-by-dispatch, and 
+    occursCountKind 'expression'.
+    
+    ]]>
+     -->
+
+    <xs:element name="msgA" dfdl:ref="ex:complex">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="E1Word" dfdl:ref="ex:word" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string" dfdl:length="2" />
+                <xs:element name="contents" type="xs:string" dfdl:length="1" />
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ ID eq "E1" }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="C3Word" dfdl:ref="ex:word" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string" dfdl:length="2" />
+                <xs:element name="contents" type="xs:string" dfdl:length="1" />
+                <xs:choice>
+                  <xs:element name="A" type="xs:string" dfdl:length="3">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:discriminator>{ ../../E1Word[1]/contents eq "a" }</dfdl:discriminator>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                  <xs:element name="B" type="xs:string" dfdl:length="3">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:discriminator>{ ../../E1Word[1]/contents eq "b" }</dfdl:discriminator>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:choice>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ ID eq "C3" }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="C4Word" dfdl:ref="ex:word" minOccurs="0" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="ID" type="xs:string" dfdl:length="2" />
+                <xs:element name="contents" type="xs:string" dfdl:length="4" />
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ ID eq "C4" }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="backtrack1" root="msgA" model="s" description="Illustrates bug DFDL-1765.">
+
+    <tdml:document><![CDATA[C4xyyy]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+          <!-- 
+            With the bug, you would get this element, which should have
+            been backtracked away when it fails to parse. In this test
+            it never even gets to where it checks if the ID is C3 or not.
+            
+          <C3Word>
+            <ID>C4</ID>
+            <contents>x</contents>
+          </C3Word>
+            -->
+          <C4Word>
+            <ID>C4</ID>
+            <contents>xyyy</contents>
+          </C4Word>
+        </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="backtrack2" root="msgA" model="s" description="Illustrates bug DFDL-1765.">
+
+    <tdml:document><![CDATA[E1xC4xyyy]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+          <E1Word>
+            <ID>E1</ID>
+            <contents>x</contents>
+          </E1Word>
+          <C4Word>
+            <ID>C4</ID>
+            <contents>xyyy</contents>
+          </C4Word>
+        </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="backtrack3" root="msgA" model="s" description="Illustrates bug DFDL-1765.">
+
+    <tdml:document><![CDATA[E1aC4xyyy]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+          <E1Word>
+            <ID>E1</ID>
+            <contents>a</contents>
+          </E1Word>
+          <C4Word>
+            <ID>C4</ID>
+            <contents>xyyy</contents>
+          </C4Word>
+        </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+ <tdml:parserTestCase name="backtrack4" root="msgA" model="s" description="Illustrates bug DFDL-1765.">
+
+    <tdml:document><![CDATA[E1aC3xaaaC4xyyy]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+          <E1Word>
+            <ID>E1</ID>
+            <contents>a</contents>
+          </E1Word>
+          <C3Word>
+            <ID>C3</ID>
+            <contents>x</contents>
+            <A>aaa</A>
+          </C3Word>
+          <C4Word>
+            <ID>C4</ID>
+            <contents>xyyy</contents>
+          </C4Word>
+        </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+
+</tdml:testSuite>

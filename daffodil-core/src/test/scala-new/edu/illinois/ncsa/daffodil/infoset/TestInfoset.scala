@@ -51,11 +51,10 @@ object TestInfoset {
    * Converts dafint:hidden='true' to isHidden on the infoset (Daffodil extension
    * allowing testing and visualization of the Augmented Infoset)
    *
-   * This is used for testing the Infoset code, but may also be useful in other places.
-   * Perhaps the interactive debugger?
+   * This is used for testing the Infoset code in several different TestInfosetN
+   * classes.
    */
 
-  // TODO: Is this used? Can we delete it? Seems specific to scala.xml.Node, which shouldn't be needed here
   def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
     val ic = InfosetCursor.fromXMLNode(xmlElem, erd)
     val aacc = ic.advanceAccessor

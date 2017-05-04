@@ -32,23 +32,27 @@
 
 package edu.illinois.ncsa.daffodil.section15.choice_groups
 
-//import org.junit.Test
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestChoiceNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
 
-  val runnerCH = Runner(testDir, "choice.tdml")
+  val runner = Runner(testDir, "choice1765.tdml")
 
   @AfterClass def shutDown {
-    runnerCH.reset
+    runner.reset
   }
 }
 
 class TestChoiceNew {
 
-//  import TestChoiceNew._
+  import TestChoiceNew._
 
-  // DFDL-641
+  // DFDL-1765
+  @Test def test_backtrack1(): Unit = { runner.runOneTest("backtrack1") }
+  @Test def test_backtrack2(): Unit = { runner.runOneTest("backtrack2") }
+  @Test def test_backtrack3(): Unit = { runner.runOneTest("backtrack2") }
+  @Test def test_backtrack4(): Unit = { runner.runOneTest("backtrack4") }
 }

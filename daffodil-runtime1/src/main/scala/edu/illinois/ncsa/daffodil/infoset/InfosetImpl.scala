@@ -1388,7 +1388,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   final def setChildArray(slot: Int, arr: DIArray) {
     Assert.invariant(_slots(slot) eq null)
     _slots(slot) = arr
-    _lastSlotAdded = slot
+    //
+    // Because arrays are created if not existing, an expression like ../A[1]
+    // can cause array A to come into existence (though empty) and A might be
+    // part of an expression that is reaching backward into earlier data (when
+    // parsing) so that we might be creating an array earlier in the slots
+    // of this element. Hence, the slot being passed here is not necessarily
+    // the last slot added. It might be before it.
+    //
+    _lastSlotAdded = math.max(slot, _lastSlotAdded)
   }
 
   /**
@@ -1441,6 +1449,16 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       i -= 1
     }
     _lastSlotAdded = cs._lastSlotAdded
+
+    // check invariant. All slots after last slot added
+    // should be null.
+    {
+      var i = _lastSlotAdded + 1
+      while (i < _slots.length) {
+        Assert.invariant(_slots(i) eq null)
+        i = i + 1
+      }
+    }
 
     if (cs._arraySize.isDefined) {
       _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(cs._arraySize.get)
