@@ -52,10 +52,6 @@ object DaffodilBuild extends Build {
 
   var cliOnlySettings = packageArchetype.java_application
 
-  // sbt uses reflection to find suprojects. we need to also add the projects
-  // in daffodil-extra, which can't be detected via reflection
-  override def projects: Seq[Project] = super.projects ++ extraProjects
-
   // daffodil projects
   lazy val root = {
     val r = Project(id = "daffodil", base = file("."), settings = s ++ nopub)
@@ -63,7 +59,6 @@ object DaffodilBuild extends Build {
                     .configs(NewTest)
                     .configs(CliTest)
                     .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, examples, japi, sapi, tutorials)
-    extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
   // Note: Removed nopub from macroLib - not sure why macrolib should be needed after scala compilation
@@ -151,17 +146,6 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
-
-  // any directories in daffodil-extra are treated as subprojects. this is
-  // useful for symlinking tests that should not be committed to the git repo
-  // but still be compiled/tested as part of daffodil
-  lazy val extrasDir = new File("daffodil-extra")
-  lazy val extraProjects = extrasDir.listFiles.filter { _.isDirectory }.map { dir =>
-    Project(id = dir.name, base = dir, settings = s ++ nopub)
-           .configs(DebugTest)
-           .configs(NewTest)
-           .dependsOn(tdml)
-  }
 
   //set up 'sbt stage' as a dependency
   lazy val cliTestTask = Keys.test in CliTest
