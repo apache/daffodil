@@ -42,8 +42,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputter
     with XMLInfosetOutputter {
 
-  val stack = new MStackOf[ListBuffer[scala.xml.Node]]
-  var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
+  protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
+  private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
 
   def reset(): Unit = {// call to reuse these. When first constructed no reset call is necessary.
     resultNode = Maybe.Nope

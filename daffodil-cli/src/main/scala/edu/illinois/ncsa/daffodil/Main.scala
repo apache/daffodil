@@ -96,6 +96,7 @@ import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
@@ -103,6 +104,9 @@ import edu.illinois.ncsa.daffodil.infoset.ScalaXMLSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -353,7 +357,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -379,6 +383,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
       case (Some("jdom-slow")) => Right(Unit)
+      case (Some("w3cdom")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -419,7 +424,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to parse/unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
@@ -437,6 +442,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
       case (Some("jdom-slow"), _) => Right(Unit)
+      case (Some("w3cdom"), Some(true)) => Left("infoset type w3cdom not valid with performance --unparse")
+      case (Some("w3cdom"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
       case (Some(t), _) => Left("Unknown infoset type: " + t)
@@ -742,6 +749,7 @@ object Main extends Logging {
       case "json" => new JsonInfosetOutputter(writer)
       case "jdom" => new JDOMInfosetOutputter()
       case "jdom-slow" => new JDOMSlowInfosetOutputter()
+      case "w3cdom" => new W3CDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
     }
   }
@@ -880,6 +888,13 @@ object Main extends Logging {
                 case jdom: JDOMInfosetOutputter => writer.write(
                     new org.jdom2.output.XMLOutputter().outputString(jdom.getResult)
                   )
+                case w3cdom: W3CDOMInfosetOutputter => {
+                  val tf = TransformerFactory.newInstance();
+                  val transformer = tf.newTransformer();
+                  val result  = new StreamResult(writer);
+                  val source  = new DOMSource(w3cdom.getResult);
+                  transformer.transform(source, result);
+                }
                 case _ => // do nothing
               }
 

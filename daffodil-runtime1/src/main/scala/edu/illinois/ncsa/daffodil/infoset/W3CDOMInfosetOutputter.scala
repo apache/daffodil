@@ -36,29 +36,37 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import javax.xml.parsers.DocumentBuilderFactory; 
 
-class JDOMInfosetOutputter extends InfosetOutputter
+class W3CDOMInfosetOutputter extends InfosetOutputter
     with XMLInfosetOutputter {
 
-  private val stack = new MStackOf[org.jdom2.Parent]
-  private var result: Maybe[org.jdom2.Document] = Maybe.Nope
-  private val xsiNS = org.jdom2.Namespace.getNamespace("xsi", XMLUtils.XSI_NAMESPACE.toString)
+  private var document: Document = null
+  private val stack = new MStackOf[Node]
+  private var result: Maybe[Document] = Maybe.Nope
 
   def reset(): Unit = {// call to reuse these. When first constructed no reset call is necessary.
     result = Maybe.Nope
+    document = null
     stack.clear
   }
 
   def startDocument(): Boolean = {
-    stack.push(new org.jdom2.Document)
+    val factory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+    factory.setNamespaceAware(true)
+    document = factory.newDocumentBuilder().newDocument()
+    stack.push(document)
     true
   }
 
   def endDocument(): Boolean = {
     val root = stack.pop
     assert(stack.isEmpty)
-    assert(root.isInstanceOf[org.jdom2.Document])
-    result = Maybe(root.asInstanceOf[org.jdom2.Document])
+    assert(root.isInstanceOf[Document])
+    result = Maybe(root.asInstanceOf[Document])
     true
   }
 
@@ -67,10 +75,10 @@ class JDOMInfosetOutputter extends InfosetOutputter
     val elem = createElement(diSimple)
 
     if (diSimple.hasValue) {
-      elem.addContent(remapped(diSimple.dataValueAsString))
+      elem.appendChild(document.createTextNode(diSimple.dataValueAsString))
     }
 
-    stack.top.addContent(elem)
+    stack.top.appendChild(elem)
 
     true
   }
@@ -82,8 +90,7 @@ class JDOMInfosetOutputter extends InfosetOutputter
   def startComplex(diComplex: DIComplex): Boolean = {
 
     val elem = createElement(diComplex)
-
-    stack.top.addContent(elem)
+    stack.top.appendChild(elem)
     stack.push(elem)
     true
   }
@@ -100,22 +107,26 @@ class JDOMInfosetOutputter extends InfosetOutputter
     true
   }
 
-  def getResult(): org.jdom2.Document = {
+  def getResult(): Document = {
     Assert.usage(result.isDefined, "No result to get. Must check isError parse result before calling getResult")
     result.get
   }
 
-  private def createElement(diElement: DIElement): org.jdom2.Element = {
-    val elem: org.jdom2.Element =
+  private def createElement(diElement: DIElement): Element = {
+
+    assert(document != null)
+
+    val elem: Element =
       if(diElement.erd.thisElementsNamespace.isNoNamespace)
-        new org.jdom2.Element(diElement.erd.name)
-      else
-        new org.jdom2.Element(diElement.erd.name, diElement.erd.thisElementsNamespacePrefix,
-          diElement.erd.thisElementsNamespace)
+        document.createElement(diElement.erd.name)
+      else {
+        document.createElementNS(diElement.erd.thisElementsNamespace, diElement.erd.prefixedName)
+      }
 
     if (diElement.isNilled && diElement.erd.isNillable) {
-      elem.setAttribute("nil", "true", xsiNS)
+      elem.setAttributeNS(XMLUtils.XSI_NAMESPACE.toString, "xsi:nil", "true")
     }
+
     elem
   }
 
