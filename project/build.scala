@@ -513,4 +513,41 @@ and validation.""",
     mappings
   }
 
+  def errorIfNoVersion(vers: String): Boolean = {
+    if (vers == "0.0.0-SNAPSHOT") {
+      sys.error("""
+Unable to determine Daffodil version. Try one of the following:
+
+1) Checkout a version branch:
+
+     $ git checkout 2.0.0
+
+2) Set your current branch to track a version branch:
+
+     $ git branch --set-upstream-to origin/2.0.0
+
+3) Create a new branch starting at a version branch and track it (recommended
+   whenever creating new feature branches in Daffodil):
+
+    $ git checkout -b branch_name --track origin/2.0.0
+
+4) Create a new branch starting at the current HEAD and track a version branch:
+
+    $ git checkout -b branch_name
+    $ git branch --set-upstream-to origin/2.0.0
+
+"""
+)
+      true
+    } else {
+      false
+    }
+  }
+
+  // fail to create any artifacts if we don't have a version number
+  lazy val requireVersionSettings = Seq(
+    packagedArtifacts <<= (packagedArtifacts, version).map { (p, v) => if (!p.isEmpty && !errorIfNoVersion(v)) p else Map.empty }
+  )
+  s ++= requireVersionSettings
+
 }
