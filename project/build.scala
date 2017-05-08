@@ -441,7 +441,7 @@ and validation.""",
             // out the tracking branch
             val trackingBranch = exec("git for-each-ref --format=%(upstream:short) " + branch)
             assert(trackingBranch.length == 1)
-            val TrackingBranchRegex = """^[^/]+/(\d+\.\d+\.\d+)$""".r
+            val TrackingBranchRegex = """^.*/(\d+\.\d+\.\d+)$""".r
             trackingBranch(0) match {
               case TrackingBranchRegex(trackingVersion) => {
                 trackingVersion + "-SNAPSHOT"
