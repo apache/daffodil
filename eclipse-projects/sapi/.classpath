@@ -125,5 +125,10 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.6-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+    <classpathentry kind="lib" path="lib_managed/bundles/com.fasterxml.jackson.core/jackson-core/jackson-core-2.8.8.jar" sourcepath="lib_managed/srcs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.8.8-sources.jar">
+      <attributes>
+        <attribute name="javadoc_location" value="jar:platform:/resource/daffodil-japi/lib_managed/docs/com.fasterxml.jackson.core/jackson-core/jackson-core-2.8.8-javadoc.jar!/"/>
+      </attributes>
+    </classpathentry>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>
