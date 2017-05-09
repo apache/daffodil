@@ -278,10 +278,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   data.position((initialBitPos0b / 8).toInt) // set data position based on the initialBitPos0b
 
-  private lazy val converter_BE_MSBFirst = new Converter_BE_MSBFirst
-  private lazy val converter_LE_MSBFirst = new Converter_LE_MSBFirst
-  private lazy val converter_LE_LSBFirst = new Converter_LE_LSBFirst
-
   override def toString = {
     val bp0b = bitPos0b
     val bl0b = bitLimit0b
@@ -420,33 +416,46 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   def getByteArray(bitLengthFrom1: Int): Array[Byte] = {
     // threadCheck()
     if (!isDefinedForLength(bitLengthFrom1)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
-    val res =
-      if (isAligned(8) && bitLengthFrom1 % 8 == 0)
-        getByteArrayAlignedNoFragment(bitLengthFrom1)
-      else
-        getByteArrayUnalignedOrFragment(bitLengthFrom1)
-    Assert.invariant(bitPos0b <= bitLimit0b.get)
-    res
+
+    val arraySize = (bitLengthFrom1 + 7) / 8
+    val array = new Array[Byte](arraySize)
+    fillByteArray(array, bitLengthFrom1)
+    array
   }
 
-  private def getByteArrayAlignedNoFragment(bitLengthFrom1: Int): Array[Byte] = {
+  // accepts a preallocated array and a bitLength. Reads the specified number
+  // of bits and stores them in the array in big endian byte order and most
+  // significant bit first bit order. The most significant byte is stored in
+  // the zero'th index in the array. This means that if the array is larger
+  // than the number of bytes needed for the specified number of bits, the
+  // trailing bytes will be untouched and should be ignored by the caller.
+  private def fillByteArray(array: Array[Byte], bitLengthFrom1: Int): Unit = {
+    if (isAligned(8) && bitLengthFrom1 % 8 == 0) {
+      fillByteArrayAlignedNoFragment(array, bitLengthFrom1)
+    } else {
+      fillByteArrayUnalignedOrFragment(array, bitLengthFrom1)
+    }
+    Assert.invariant(bitPos0b <= bitLimit0b.get)
+  }
+
+  private def fillByteArrayAlignedNoFragment(array: Array[Byte], bitLengthFrom1: Int): Unit = {
     // threadCheck()
     Assert.usage(isAligned(8))
     Assert.usage(bitLengthFrom1 % 8 == 0)
 
     val savedBitPos0b = bitPos0b
 
-    val arraySize = (bitLengthFrom1 / 8)
-    val array = new Array[Byte](arraySize)
+    val bytesToFill = bitLengthFrom1 / 8
+    Assert.invariant(array.size >= bytesToFill)
 
     if (byteOrder == ByteOrder.BigEndian && st.bitOrder == BitOrder.MostSignificantBitFirst) {
-      // bts & bytes are already in order, read them straight into the array
-      data.get(array, 0, arraySize)
+      // bits & bytes are already in order, read them straight into the array
+      data.get(array, 0, bytesToFill)
     } else {
       // we are either LittleEndian & MSBF or BigEndian & LSBF. In either case,
       // we just need to flip the bytes to make it BigEndian MSBF. The bits are
       // in the correct order.
-      var i = arraySize - 1
+      var i = bytesToFill - 1
       while (i >= 0) {
         array(i) = data.get()
         i -= 1
@@ -454,10 +463,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
 
     setBitPos0b(savedBitPos0b + bitLengthFrom1)
-    array
   }
 
-  private def getByteArrayUnalignedOrFragment(bitLengthFrom1: Int): Array[Byte] = {
+  private def fillByteArrayUnalignedOrFragment(array: Array[Byte], bitLengthFrom1: Int): Unit = {
     // threadCheck()
     Assert.usage(!isAligned(8) || bitLengthFrom1 % 8 != 0)
 
@@ -467,8 +475,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val savedBitPos0b = bitPos0b
     data.limit(data.position() + nBytesNeeded)
     
-    val arraySize = (bitLengthFrom1 + 7) / 8
-    val array = new Array[Byte](arraySize)
+    val bytesToFill = (bitLengthFrom1 + 7) / 8
+    Assert.invariant(array.size >= bytesToFill)
     val nFragmentBits = bitLengthFrom1 % 8
 
     var priorByte = Bits.asUnsignedByte(data.get())
@@ -492,7 +500,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           // all nFragmentBits can come from from the priror byte
           val composedByte = 
             st.bitOrder match {
-              case BitOrder.MostSignificantBitFirst => ((priorByte << st.bitPos0b) & 0xFF) >>> (8 - nFragmentBits)
+              case BitOrder.MostSignificantBitFirst => ((priorByte << st.bitOffset0b) & 0xFF) >>> (8 - nFragmentBits)
               case BitOrder.LeastSignificantBitFirst => ((priorByte << (bitsLeftInPriorByte - nFragmentBits)) & 0xFF) >>> (8 - nFragmentBits)
             }
           composedByte
@@ -509,7 +517,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
               }
               case BitOrder.LeastSignificantBitFirst => {
                 val priorContribution = (priorByte >>> st.bitOffset0b)
-                val curContribution = ((curByte << (8 - bitsToGetFromCur)) & 0xFF) >>> (8 - st.bitOffset0b - bitsToGetFromCur)
+                val curContribution = ((curByte << (8 - bitsToGetFromCur)) & 0xFF) >>> (8 - (bitsToGetFromCur + bitsLeftInPriorByte))
                 priorContribution | curContribution
               }
             }
@@ -517,7 +525,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           composedByte
         }
       if (byteOrder =:= ByteOrder.LittleEndian) {
-        array(arraySize - 1 - i) = Bits.asSignedByte(fragmentByte)
+        array(bytesToFill - 1 - i) = Bits.asSignedByte(fragmentByte)
       } else {
         array(i) = Bits.asSignedByte(fragmentByte)
       }
@@ -537,16 +545,16 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         case ByteOrder.BigEndian => {
           // we just parsed a bigEndian fragment byte and it put us back on a byte
           // boundary, so we just need to read the rest of the full aligned bytes
-          data.get(array, 1, arraySize - 1)
+          data.get(array, 1, bytesToFill - 1)
         } 
         case ByteOrder.LittleEndian => {
           // we're starting on a byte boundary, so lets just consume all the
           // whole bytes quickly, reversing positions in the array. We'll not
           // parse the last fragment byte and let that be done later
-          while (i < arraySize - 1) {
+          while (i < bytesToFill - 1) {
             // we already got the first byte as a prior Byte, so just set it as
             // the whole byte and get the next priorByte
-            array(arraySize - i - 1) = Bits.asSignedByte(priorByte)
+            array(bytesToFill - i - 1) = Bits.asSignedByte(priorByte)
             // this byte will now either be used in the next iteration of this
             // loop, or as the prior byte in the first iteration of consuming
             // the fragment byte below
@@ -565,7 +573,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // then we only want to fill the number of full bytes, and then we'll
       // consume that last fragment byte afterwards
       val stopBytePosition =
-        if (byteOrder =:= ByteOrder.BigEndian) arraySize
+        if (byteOrder =:= ByteOrder.BigEndian) bytesToFill
         else (bitLengthFrom1 / 8)
 
       // consume full bytes
@@ -577,7 +585,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
             case BitOrder.LeastSignificantBitFirst => ((priorByte >>> priorShift) & 0xFF) | ((curByte << curShift) & 0xFF)
           }
         if (byteOrder =:= ByteOrder.LittleEndian) {
-          array(arraySize - 1 - i) = Bits.asSignedByte(composedByte)
+          array(bytesToFill - 1 - i) = Bits.asSignedByte(composedByte)
         } else {
           array(i) = Bits.asSignedByte(composedByte)
         }
@@ -593,8 +601,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     data.limit(savedDataLimit) // restore data limit
 
     setBitPos0b(savedBitPos0b + bitLengthFrom1)
-
-    array
   }
 
   def getBinaryDouble(): Double = {
@@ -643,6 +649,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     l & mask
   }
 
+  // used by getSignedLong and getUnsignedLong to get up to 8 bytes of data,
+  // via fillByteArray, which is then converted to a long
+  private val longArray = new Array[Byte](8)
+
   /**
    * This is the thing we can do fast with one tap on the data
    *
@@ -652,30 +662,31 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // threadCheck()
     Assert.usage(bitLengthFrom1To64 >= 1)
     Assert.usage(bitLengthFrom1To64 <= 64)
-    val sl =
-      if (data.order() eq java.nio.ByteOrder.BIG_ENDIAN) {
-        Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
-        converter_BE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
-      } else {
-        Assert.invariant(data.order() eq java.nio.ByteOrder.LITTLE_ENDIAN)
-        if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
-          converter_LE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
-        } else {
-          Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
-          converter_LE_LSBFirst.getSignedLong(bitLengthFrom1To64, this)
-        }
-      }
-    Assert.invariant(bitPos0b <= bitLimit0b.get)
-    sl
+
+    val res = getUnsignedLong(bitLengthFrom1To64)
+    signExtend(res.longValue, bitLengthFrom1To64)
   }
 
   def getUnsignedLong(bitLengthFrom1To64: Int): ULong = {
-    val s = getSignedLong(bitLengthFrom1To64)
-    //
-    // we need to ignore sign (and sign extension) bits
-    //
-    val u = unSignExtend(s, bitLengthFrom1To64)
-    ULong(u)
+    Assert.usage(bitLengthFrom1To64 >= 1)
+    Assert.usage(bitLengthFrom1To64 <= 64)
+
+    if (!isDefinedForLength(bitLengthFrom1To64)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
+
+    val numBytes = (bitLengthFrom1To64 + 7) / 8 
+
+    // will result in the first numBytes the long array filled in
+    fillByteArray(longArray, bitLengthFrom1To64)
+
+    var res = Bits.asUnsignedByte(longArray(0)).toLong
+    var i = 1
+    while (i < numBytes) {
+      res = res << 8
+      res = res | Bits.asUnsignedByte(longArray(i))
+      i += 1
+    }
+    Assert.invariant(bitPos0b <= bitLimit0b.get)
+    ULong(res)
   }
 
   def getSignedBigInt(bitLengthFrom1: Int): BigInt = {
@@ -1323,250 +1334,5 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     dis.setBitPos0b(newBitPos0b)
     Assert.invariant(dis.bitPos0b <= dis.bitLimit0b.get)
     c
-  }
-}
-
-private sealed trait LongConverter {
-
-  def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long
-
-  /**
-   * Allows for 9 bytes. which we may need if there is a bit-offset such that the
-   * bits straddle 9 bytes. E.g., at offset 7, a 59 bit length will straddle 9 bytes, using
-   * 1 bit from the first byte, and 2 bits from the last byte.
-   */
-  protected val smallBuf = ByteBuffer.allocate(9)
-
-  protected final def wrapUp(bitLengthFrom1To64: Int, cooked: Long, dis: ByteBufferDataInputStream): Long = {
-    dis.setBitPos0b(dis.bitPos0b + bitLengthFrom1To64)
-    val cookedFor1Bit = if (bitLengthFrom1To64 == 1 && cooked == -1) 1 else cooked
-    cookedFor1Bit
-  }
-
-  protected final def populateSmallBuf(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): MaybeInt = {
-    if (!dis.isDefinedForLength(bitLengthFrom1To64)) return MaybeInt.Nope
-    val nBytesNeeded = dis.computeNBytesNeeded(bitLengthFrom1To64, dis.st.bitOffset0b)
-    val savedDataLimit = dis.data.limit()
-    dis.data.limit(dis.data.position() + nBytesNeeded)
-    val savedBytePos0b = dis.data.position()
-    smallBuf.clear()
-    smallBuf.put(dis.data).flip // puts until data runs out of bytes (hits limit) or smallBuf is full.
-    dis.data.position(savedBytePos0b)
-    dis.data.limit(savedDataLimit) // restore data limit
-    MaybeInt(nBytesNeeded)
-  }
-
-  protected final def bigEndianBytesToSignedLong(bb: ByteBuffer, lengthInBytes: Int,
-    startingByteOffset0b: Int, bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long = {
-    var accumulator = 0L
-    var i = 0
-    while (i < lengthInBytes) {
-      accumulator <<= 8
-      accumulator += Bits.asUnsignedByte(smallBuf.get(i + startingByteOffset0b))
-      i += 1
-    }
-    val value = dis.unSignExtend(accumulator, bitLengthFrom1To64) // ?? Redundant ??
-    val signed = dis.signExtend(value, bitLengthFrom1To64)
-    wrapUp(bitLengthFrom1To64, signed, dis)
-  }
-}
-
-private class Converter_BE_MSBFirst extends LongConverter {
-
-  final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long = {
-    val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
-    if (maybeNBytesNeeded.isEmpty) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
-    val nBytesNeeded = maybeNBytesNeeded.get
-    val result = {
-      //
-      // smallBuf now contains the bytes we need to create the value
-      // and at this point we know we will successfully create a value.
-      //
-      val numBitsInLastByte = (dis.bitPos0b + bitLengthFrom1To64) % 8
-      val lastByteShift = if (numBitsInLastByte == 0) 0 else 8 - numBitsInLastByte
-      Bits.shiftRight(smallBuf, lastByteShift.toInt)
-      val numBitsInFirstByte = math.max(8 - dis.st.bitOffset0b - lastByteShift, 0)
-      //
-      // The shift above, if done, may have shifted all the bits
-      // out of the left-most byte of the smallBuf. If so we
-      // don't want to include that byte in computing the value
-      //
-      val numBytesRemaining = if (numBitsInFirstByte > 0) nBytesNeeded else nBytesNeeded - 1
-      val offset = if (numBitsInFirstByte > 0) 0 else 1
-      //
-      // Now we just accumulate the bytes into the result value.
-      //
-      bigEndianBytesToSignedLong(smallBuf, numBytesRemaining, offset, bitLengthFrom1To64, dis)
-    }
-    result
-  }
-
-}
-
-private class Converter_LE_MSBFirst extends LongConverter {
-
-  final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long = {
-    val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
-    if (maybeNBytesNeeded.isEmpty) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
-    // val nBytesNeeded = maybeNBytesNeeded.get
-    val result = {
-      //
-      // smallBuf now contains the bytes we need to create the value
-      // and at this point we know we will successfully create a value.
-      //
-      if (smallBuf.limit() == 1) {
-        //
-        // only 1 byte holds the entire representation
-        //
-        // It is worth special case code for this, because many bit fields
-        // are just one or a small handful of bits, so many will live in
-        // just one byte.
-        //
-        val bitLimitOffset0b = (dis.bitPos0b + bitLengthFrom1To64) % 8
-        val numUnusedBits = if (bitLimitOffset0b == 0) 0 else 8 - bitLimitOffset0b
-        val theByte = Bits.asUnsignedByte(smallBuf.get(0))
-        val mask = -1.toByte >>> dis.st.bitOffset0b
-        val maskedByte = (theByte >>> numUnusedBits) & mask
-        val result = dis.signExtend(maskedByte, bitLengthFrom1To64)
-        wrapUp(bitLengthFrom1To64, result, dis)
-      } else {
-        //
-        // There are two or more bytes holding the representation.
-        //
-        // The bits of interest start somewhere in the first byte of smallBuf
-        // (bitOffset0b tells us exactly where)
-        // and end also in that byte or in some later byte at farthest in the 9th byte
-        // of smallBuf. (bitOffset0b + bitLengthFrom1To64) tell us exactly where
-        // it ends and how far away that is.
-        //
-        // The order of bytes in smallBuf is exactly as those bytes appeared in
-        // the data stream.
-        //
-        // Per the DFDL spec, the start position cannot affect the value. So
-        // we can shift left (because bit order is MSBFirst) until the first bit
-        // is the most significant bit of the first byte.
-        //
-        Bits.shiftLeft(smallBuf, dis.st.bitOffset0b)
-        //
-        // Now, there's a possibility that this shift shifted all bits of interest
-        // out of the last byte of smallBuf
-        //
-        val limitingBitPos0b = dis.bitPos0b + bitLengthFrom1To64 // last bit position + 1 is the 'limiting' bit.
-        val numBitsInLastByte = {
-          val m = limitingBitPos0b % 8
-          if (m == 0) 8 else m
-        }
-        if (dis.st.bitOffset0b >= numBitsInLastByte) {
-          // the shift left above will leave no bits in the final byte.
-          Assert.invariant(smallBuf.limit() > 1)
-          smallBuf.limit(smallBuf.limit - 1) // shorten it by 1 byte.
-        }
-        //
-        Bits.reverseBytes(smallBuf)
-        //
-        // now bytes of smallBuf are such that the most significant bits are in
-        // the first byte, and least significant are in the last byte.
-        //
-        // However, the most significant byte has the problem that the bits in it
-        // are now in the most-significant end of that byte. They need to be shifted right
-        // to occupy the least significant bit locations of that byte.
-        //
-        val numBitsInNewFirstByte =
-          if (dis.st.bitOffset0b >= numBitsInLastByte) {
-            8 - (dis.st.bitOffset0b - numBitsInLastByte)
-          } else {
-            numBitsInLastByte - dis.st.bitOffset0b
-          }
-
-        val firstByte = smallBuf.get(0)
-
-        if (numBitsInNewFirstByte < 8) {
-          // there are some unused bits
-          val bitsUnused = 8 - numBitsInNewFirstByte
-          val newFirstByte = firstByte >> bitsUnused
-          smallBuf.put(0, newFirstByte.toByte)
-        }
-        //
-        // Now the smallBuf bytes contain our big-endian value,
-        //
-        bigEndianBytesToSignedLong(smallBuf, smallBuf.remaining(), 0, bitLengthFrom1To64, dis)
-      }
-    }
-    result
-  }
-
-}
-
-private class Converter_LE_LSBFirst extends LongConverter {
-
-  final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Long = {
-    val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
-    if (maybeNBytesNeeded.isEmpty) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
-    val nBytesNeeded = maybeNBytesNeeded.get
-    val result = {
-      //
-      // smallBuf now contains the bytes we need to create the value
-      // and at this point we know we will successfully create a value.
-      //
-      // The bits of interest start somewhere in the first byte of smallBuf
-      // (bitOffset0b tells us exactly where, though because bit order is
-      // LSBFirst, those bits occupy the most-significant bits of that first byte
-      //
-      // and end also in that byte or in some later byte at farthest in the 9th byte
-      // of smallBuf. (bitOffset0b + bitLengthFrom1To64) tell us exactly where
-      // it ends and how far away that is, again bit order tells us that
-      // those bits in the last byte are in the least significant bits of that byte
-      //
-      // The order of bytes in smallBuf is exactly as those bytes appeared in
-      // the data stream.
-      //
-      // in order to be able to shift the bits around we must reverse the bits
-      // within the bytes
-      Bits.reverseBitsWithinBytes(smallBuf)
-      //
-      // The bit-string is now properly continuous across all the byte boundaries
-      // The bits of interest in the first byte are the least significant bits
-      // and the bits of interest in the last byte are the most significant bits
-      //
-      val numBitsInFirstByte = 8 - dis.st.bitOffset0b
-      val numUnusedBitsInFirstByte = 8 - numBitsInFirstByte
-      Bits.shiftLeft(smallBuf, numUnusedBitsInFirstByte)
-      //
-      // Did we shift away all bits in the last byte?
-      val numBitsInLastByteInitially = {
-        val m = (dis.bitPos0b + bitLengthFrom1To64) % 8
-        if (m == 0) 8 else m
-      }
-      val numUnusedBitsInLastByteInitially = 8 - numBitsInLastByteInitially
-      //
-      // The left shift above, if done, may have shifted all the bits
-      // out of the right-most byte of the smallBuf. If so we
-      // don't want to include that byte in computing the value
-      //
-      val numBitsRemainingInLastByte = math.max(8 - numUnusedBitsInLastByteInitially - numUnusedBitsInFirstByte, 0)
-      val numBytesRemaining =
-        if (numBitsRemainingInLastByte > 0) {
-          // we didn't shift every bit out of the last byte
-          nBytesNeeded
-        } else {
-          // we shifted every bit out of the last byte
-          nBytesNeeded - 1
-        }
-      Assert.invariant(numBytesRemaining == smallBuf.limit || numBytesRemaining == (smallBuf.limit - 1))
-      smallBuf.limit(numBytesRemaining)
-
-      // Now we can reverse the bits back to their original bit order
-      // and then reverse the bytes to reflect little-endian
-
-      Bits.reverseBytesAndReverseBits(smallBuf)
-      //
-      // We know now that any unused bits of the first byte are the most-significant
-      // bits and all other bytes are full (all 8 bits in use).
-      //
-      // So we have ordinary big-endian bytes now and can construct the result value
-      //
-      bigEndianBytesToSignedLong(smallBuf, numBytesRemaining, 0, bitLengthFrom1To64, dis)
-    }
-    result
   }
 }
