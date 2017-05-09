@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+
+<tdml:testSuite 
+  suiteName="choice1765" 
+  description="Tests for choice construct. Bug DFDL-1765." 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+<tdml:defineSchema name="s2" elementFormDefault="unqualified">
+
+  <dfdl:defineFormat name="base">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthKind="explicit" occursCountKind="parsed" byteOrder="bigEndian" />
+  </dfdl:defineFormat>
+
+  <dfdl:defineFormat name="complex">
+    <dfdl:format ref="ex:base" lengthKind="implicit" />
+  </dfdl:defineFormat>
+
+  <dfdl:defineFormat name="word">
+    <dfdl:format ref="ex:complex" />
+  </dfdl:defineFormat>
+
+  <dfdl:format ref="ex:base" />
+    
+    <!-- <![CDATA[ Eclipse doesn't wrap XML comments if you do this!
+    
+    Models a situation in STANAG 5516 data that uncovered a bug.
+    
+    ]]>
+     -->
+
+  <xs:element name="msgA" dfdl:ref="ex:complex">
+    <xs:complexType>
+      <xs:sequence>
+              <xs:choice>
+                <xs:sequence>
+                  <xs:element name="A" type="xs:string" dfdl:length="1" />
+                  <xs:element name="C" type="xs:string" dfdl:length="1">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl">
+                        <dfdl:discriminator>{ ../A eq "A" }</dfdl:discriminator>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:element name="B" type="xs:string" dfdl:length="1" />
+                  <xs:element name="C" type="xs:string" dfdl:length="1">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl">
+                        <dfdl:discriminator>{ ../B eq "B" }</dfdl:discriminator>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+              </xs:choice>
+              <xs:choice>
+                <xs:element name="C1" type="xs:string" dfdl:length="1">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ ../C eq "1" }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="C2" type="xs:string" dfdl:length="1">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator>{ ../C eq "2" }</dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceSlotAmbiguous1" root="msgA" model="s2" description="Choice branches with same element name inside.">
+
+    <tdml:document><![CDATA[A1Y]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+            <A>A</A>
+            <C>1</C>
+            <C1>Y</C1>
+         </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+
+ <tdml:parserTestCase name="choiceSlotAmbiguous2" root="msgA" model="s2" description="Choice branches with same element name inside.">
+
+    <tdml:document><![CDATA[B2X]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgA>
+            <B>B</B>
+            <C>2</C>
+            <C2>X</C2>
+         </ex:msgA>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+
+</tdml:testSuite>
