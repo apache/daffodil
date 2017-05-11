@@ -95,10 +95,13 @@ import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.ScalaXMLSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 
 class NullOutputStream extends OutputStream {
@@ -375,6 +378,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("scala-xml")) => Right(Unit)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
+      case (Some("jdom-slow")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -428,8 +432,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     validateOpt(infosetType, unparse) {
       case (Some("xml"), _) => Right(Unit)
       case (Some("scala-xml"), _) => Right(Unit)
+      case (Some("scala-slow"), Some(false)) => Left("infoset type scala-slow not valid with parse performance")
+      case (Some("scala-slow"), _) => Right(Unit)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
+      case (Some("jdom-slow"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
       case (Some(t), _) => Left("Unknown infoset type: " + t)
@@ -493,8 +500,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     validateOpt(infosetType) {
       case (Some("xml")) => Right(Unit)
       case (Some("scala-xml")) => Right(Unit)
+      case (Some("scala-slow")) => Right(Unit)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
+      case (Some("jdom-slow")) => Right(Unit)
       //case (Some("null")) => Right(Unit) // null is not valid for unparsing
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -732,6 +741,7 @@ object Main extends Logging {
       case "scala-xml" => new ScalaXMLInfosetOutputter()
       case "json" => new JsonInfosetOutputter(writer)
       case "jdom" => new JDOMInfosetOutputter()
+      case "jdom-slow" => new JDOMSlowInfosetOutputter()
       case "null" => new NullInfosetOutputter()
     }
   }
@@ -742,9 +752,9 @@ object Main extends Logging {
   def infosetReaderToAnyRef(infosetType: String, reader: java.io.Reader): AnyRef = {
     infosetType match {
       case "xml" => reader
-      case "scala-xml" => scala.xml.XML.load(reader)
+      case "scala-xml" | "scala-slow" => scala.xml.XML.load(reader)
       case "json" => reader
-      case "jdom" => (new org.jdom2.input.SAXBuilder()).build(reader)
+      case "jdom" | "jdom-slow" => (new org.jdom2.input.SAXBuilder()).build(reader)
     }
   }
 
@@ -752,8 +762,10 @@ object Main extends Logging {
     infosetType match {
       case "xml" => new XMLTextInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
       case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
+      case "scala-slow" => new ScalaXMLSlowInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
       case "json" => new JsonInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
       case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
+      case "jdom-slow" => new JDOMSlowInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
     }
   }
 
@@ -861,8 +873,13 @@ object Main extends Logging {
               // directly to the writer. Other InfosetOutputters must manually
               // be converted to a string and written to the output
               outputter match {
+                case jdomslow: JDOMSlowInfosetOutputter => writer.write(
+                    new org.jdom2.output.XMLOutputter().outputString(jdomslow.getJDOMResult)
+                  )
                 case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
-                case jdom: JDOMInfosetOutputter => writer.write(jdom.getResult.toString)
+                case jdom: JDOMInfosetOutputter => writer.write(
+                    new org.jdom2.output.XMLOutputter().outputString(jdom.getResult)
+                  )
                 case _ => // do nothing
               }
 
