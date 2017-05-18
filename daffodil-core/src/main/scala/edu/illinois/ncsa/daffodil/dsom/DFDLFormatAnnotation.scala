@@ -144,7 +144,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    */
   private lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
 
-  final def getFormatChain(): ChainPropProvider = {
+  lazy val formatChain: ChainPropProvider = {
     val formatAnnotations = formatRefMap.map { case (_, fa) => fa }.toSeq
     val withMe = (this +: formatAnnotations).distinct
     val res = new ChainPropProvider(withMe, this.diagnosticDebugName)

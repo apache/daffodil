@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
 import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
@@ -58,9 +57,6 @@ final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   requiredEvaluations(groupDef)
 
   override lazy val elementChildren = group.elementChildren
-
-  override def isOptional = Assert.usageError("not to be used on GroupRef")
-  override def isRequired = Assert.usageError("not to be used on GroupRef")
 
   // delegate to the model group object. It assembles properties from
   // the group ref and the group def

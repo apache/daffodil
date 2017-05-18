@@ -41,6 +41,11 @@ import java.lang.{ Integer => JInt }
 abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)
   extends Term(xmlArg, parentArg, position) {
 
+  final override def isScalar = true
+  final override def isOptional = false
+  final override def isRequired = true
+  final override def isArray = false
+
   private def prettyIndex = {
     myPeers.map { peers =>
       {

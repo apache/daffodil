@@ -92,8 +92,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    */
   lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase
 
-  lazy val isArray = false // overridden in local elements
-
   final def nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
       variableMap,

@@ -147,6 +147,16 @@ abstract class Expression extends OOLAGHost
     }
   }
 
+  final lazy val wholeExpression: Expression = {
+    parent match {
+      case w: WholeExpression => w
+      case null => this
+      case _ => parent.wholeExpression
+    }
+  }
+
+  final lazy val wholeExpressionText = wholeExpression.text
+
   lazy val compileInfo: DPathCompileInfo = // override in WholeExpression
     parent.compileInfo
 
@@ -790,7 +800,8 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   extends Expression {
 
   def relPathErr() = {
-    val err = new RelativePathPastRootError("Relative path .. past root element.")
+    val err = new RelativePathPastRootError(this.schemaFileLocation,
+      "Relative path '%s' past root element.", this.wholeExpressionText)
     toss(err)
   }
   requiredEvaluations(priorStep)

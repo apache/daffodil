@@ -99,9 +99,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case gb: GroupBase => gb.group.elementChildren
     }
 
-  final override def isOptional = false
-  final override def isRequired = true
-
   final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
@@ -383,7 +380,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   /*
    * Determines if this model group must have at least one required element, or
-   * if everything in the model group is is optional and thus, might not cause
+   * if everything in the model group is optional and thus, might not cause
    * any unparse events. This is used to determine next children/sibling
    * elements used during unparsing.
    */

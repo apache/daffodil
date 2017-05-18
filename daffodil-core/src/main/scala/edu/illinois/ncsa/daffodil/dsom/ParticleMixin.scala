@@ -41,28 +41,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
   def maxOccurs: Int
 
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
-  final lazy val isRecurring = !isScalar
 
-  /**
-   * Determines if the element is optional, as in has zero or one instance only.
-   *
-   * There are two senses of optional
-   * 1) Optional as in "might not be present" but for any reason.
-   * Consistent with this is Required meaning must occur (but for any
-   * reason. So all the occurrences of an array that has fixed number of
-   * occurrences are required, and some of the occurrances of an array
-   * that has a variable number of occurrences are optional.
-   *
-   * 2) Optional is in minOccurs="0" maxOccurs="1".
-   *
-   * Consistent with (2) is defining array as maxOccurs >= 2, and Required
-   * as minOccurs=maxOccurs=1, but there are also special cases for occursCountKind parsed and stopValue
-   * since they don't examine min/max occurs - they are only used for validation
-   * in those occursCountKinds.
-   *
-   * The DFDL spec is not entirely consistent here either I don't believe.
-   */
-  final lazy val isOptional = {
+  final override lazy val isOptional = {
     // minOccurs == 0
     (optMinOccurs, optMaxOccurs) match {
       case (Some(1), Some(1)) => false // scalars are not optional
@@ -86,10 +66,6 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  /**
-   * Something is required if it is not optional
-   * and not an array, unless that array has required elements.
-   */
   final override def isRequired: Boolean = LV('isRequired) {
     val res = {
       if (isScalar) true
@@ -102,10 +78,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
 
   final override lazy val isArray = {
     // maxOccurs > 1 || maxOccurs == -1
-    /**
-     * Determines if the element is an array, as in can have more than one
-     * instance.
-     */
+
     if (isOptional) false
     else {
       val UNBOUNDED = -1
@@ -187,7 +160,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
   }.value
 
   final lazy val hasStopValue = LV('hasStopValue) {
-    val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
+    val sv = !isScalar && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinitionUnless(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
     schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")

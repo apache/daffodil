@@ -62,8 +62,8 @@ class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
  * Specific class used for this specific error, because we need to pick this off
  * in the debugger for special handling.
  */
-class RelativePathPastRootError(kind: String)
-  extends SchemaDefinitionError(None, None, kind)
+class RelativePathPastRootError(schemaContext: SchemaFileLocation, kind: String, args: Any*)
+  extends SchemaDefinitionError(Some(schemaContext), None, kind, args: _*)
 
 class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
   runtimeContext: ParseOrUnparseState,

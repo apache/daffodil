@@ -125,22 +125,40 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
 
+  /**
+   * Irrespective of whether the type of this element is immediate or
+   * primitive, or reached via a type reference, this is the typeDef
+   * of the type.
+   */
   def typeDef: TypeBase
 
-  def isRequired = true // overridden in particle mixin.
+  override def isRequired = true // overridden in particle mixin.
+  override def isArray = false // overridden in local elements
 
+  /**
+   * The DPathElementInfo objects referenced within an IVC
+   * that calls dfdl:contentLength( thingy )
+   */
   override final protected def calcContentParserReferencedElementInfos =
     if (this.inputValueCalcOption.isDefined)
       ivcCompiledExpression.contentReferencedElementInfos
     else
       ReferencedElementInfos.None
 
+  /**
+   * The DPathElementInfo objects referenced within an OVC
+   * that calls dfdl:contentLength( thingy )
+   */
   override final protected def calcContentUnparserReferencedElementInfos =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.contentReferencedElementInfos
     else
       ReferencedElementInfos.None
 
+  /**
+   * The DPathElementInfo objects referenced within an IVC
+   * that calls dfdl:valueLength( thingy )
+   */
   override final protected def calcValueParserReferencedElementInfos =
     if (this.inputValueCalcOption.isDefined) {
       val ivcCE = ivcCompiledExpression
@@ -149,18 +167,34 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else
       ReferencedElementInfos.None
 
+  /**
+   * The DPathElementInfo objects referenced within an IVC
+   * that calls dfdl:valueLength( thingy )
+   */
   override final protected def calcValueUnparserReferencedElementInfos =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.valueReferencedElementInfos
     else
       ReferencedElementInfos.None
 
+  /**
+   *  Tells us if, for this element, we need to capture its content length
+   *  at parse runtime, or we can ignore that.
+   */
   final lazy val isReferencedByContentLengthParserExpressions: Boolean =
     rootElement.get.contentLengthParserReferencedElementInfos.contains(this.dpathElementCompileInfo)
 
+  /**
+   * Tells us if, for this element, we need to capture its content length
+   *  at unparse runtime, or we can ignore that.
+   */
   final lazy val isReferencedByContentLengthUnparserExpressions: Boolean =
     rootElement.get.contentLengthUnparserReferencedElementInfos.contains(this.dpathElementCompileInfo)
 
+  /**
+   * Tells us if, for this element, we need to capture its value length
+   *  at parse runtime, or we can ignore that.
+   */
   final lazy val isReferencedByValueLengthParserExpressions: Boolean = {
     val setElems = rootElement.get.valueLengthParserReferencedElementInfos
     //    if (this eq rootElement.get)
@@ -168,7 +202,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     val res = setElems.contains(this.dpathElementCompileInfo)
     res
   }
-
+  /**
+   * Tells us if, for this element, we need to capture its value length
+   *  at unparse runtime, or we can ignore that.
+   */
   final lazy val isReferencedByValueLengthUnparserExpressions: Boolean = {
     val setElems = rootElement.get.valueLengthUnparserReferencedElementInfos
     //    if (this eq rootElement.get)
@@ -195,9 +232,20 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
 
+  /**
+   * None for complex types, Some(primType) for simple types.
+   */
   final lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
 
+  /**
+   * scalar means minOccurs=1 and maxOccurs=1
+   */
   def isScalar: Boolean
+
+  /**
+   * An array element is required if its index is less than the minOccurs of the
+   * array. For an array with a fixed number of elements, all elements are requried.
+   */
   def isRequiredArrayElement: Boolean
 
   // override in Particle
@@ -395,12 +443,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       case _ => {
         val groupedByName = possibles.groupBy(_.namedQName.local)
         var hasNamesDifferingOnlyByNS = false
-        groupedByName.foreach { case (_, sameNamesEB) =>
-          if (sameNamesEB.length > 1) {
-            SDW("Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
-              sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
-            hasNamesDifferingOnlyByNS = true
-          }
+        groupedByName.foreach {
+          case (_, sameNamesEB) =>
+            if (sameNamesEB.length > 1) {
+              SDW("Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
+                sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
+              hasNamesDifferingOnlyByNS = true
+            }
         }
         new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType, hasNamesDifferingOnlyByNS)
       }

@@ -117,7 +117,7 @@ trait LeafPropProvider
  * Could be the nonDefault formats being chained together, or could
  * be the default formats being chained together.
  */
-class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
+final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
   extends Logging with PropTypes {
 
   /**

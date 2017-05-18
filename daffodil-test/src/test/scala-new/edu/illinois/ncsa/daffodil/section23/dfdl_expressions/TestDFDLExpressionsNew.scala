@@ -33,36 +33,40 @@
 package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestDFDLExpressionsNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-
-  val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  val testDir = "edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val runner = Runner(testDir, "expressions.tdml")
 
   val testDir3 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
-  val rp = testDir3 + "runtime-properties.tdml"
-  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(rp))
+  val runner3 = Runner(testDir3, "runtime-properties.tdml")
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aa = testDir2 + "Functions.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner2 = Runner(testDir2, "Functions.tdml")
 
-  val tdml2 = testDir + "functions.tdml"
-  lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  val runner_fun = Runner(testDir, "functions.tdml")
 
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-  val tdml4 = testDir4 + "expressions.tdml"
-  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
+  val runner4 = Runner(testDir4, "expressions.tdml")
 
-  val tdml5 = testDir4 + "expressions2.tdml"
-  lazy val runner5 = new DFDLTestSuite(Misc.getRequiredResource(tdml5))
+  val runner5 = Runner(testDir4, "expressions2.tdml")
 
-  val tdml6 = testDir + "valueLength.tdml"
-  lazy val runner6 = new DFDLTestSuite(Misc.getRequiredResource(tdml6))
+  val runner6 = Runner(testDir, "valueLength.tdml")
+
+  val runner7 = Runner(testDir4, "expressions2.tdml", compileAllTopLevel = true)
+
+  @AfterClass def shutdown = {
+    runner.reset
+    runner2.reset
+    runner4.reset
+    runner_fun.reset
+    runner5.reset
+    runner6.reset
+    runner7.reset
+  }
 }
 
 class TestDFDLExpressionsNew {
@@ -84,8 +88,8 @@ class TestDFDLExpressionsNew {
   @Test def test_valueLengthDfdlLength { runner6.runOneTest("valueLengthDfdlLength") }
   @Test def test_valueLengthDfdlOccursCount { runner6.runOneTest("valueLengthDfdlOccursCount") }
   @Test def test_valueLengthDfdlEncoding { runner6.runOneTest("valueLengthDfdlEncoding") }
- 
-  //DFDL-1691 
+
+  //DFDL-1691
   @Test def test_div01 { runner.runOneTest("div01") }
   @Test def test_div02 { runner.runOneTest("div02") }
   @Test def test_div03 { runner.runOneTest("div03") }
@@ -128,4 +132,6 @@ class TestDFDLExpressionsNew {
   @Test def test_idiv19 { runner.runOneTest("idiv19") }
   @Test def test_idiv20 { runner.runOneTest("idiv20") }
 
+  // DFDL-1771
+  @Test def test_expr_path_past_root1 { runner7.runOneTest("test_expr_path_past_root1") }
 }

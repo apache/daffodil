@@ -66,8 +66,50 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   override final def term = this
 
+  /**
+   * A scalar means has no dimension. Exactly one occurrence.
+   *
+   * Since terms include both model groups and elements, in DFDL v1.0,
+   * model groups are always scalar, as DFDL v1.0 doesn't allow min/max
+   * occurs on model groups.
+   */
+  def isScalar: Boolean
+
+  /**
+   * Determines if the element is optional, as in has zero or one instance only.
+   *
+   * There are two senses of optional
+   *
+   * 1) Optional as in "might not be present" but for any reason.
+   * Consistent with this is Required meaning must occur (but for any
+   * reason. So all the occurrences of an array that has fixed number of
+   * occurrences are required, and some of the occurrances of an array
+   * that has a variable number of occurrences are optional.
+   *
+   * 2) Optional is in minOccurs="0" maxOccurs="1".
+   *
+   * Consistent with (2) is defining array as maxOccurs >= 2, and Required
+   * as minOccurs=maxOccurs=1, but there are also special cases for occursCountKind parsed and stopValue
+   * since they don't examine min/max occurs - they are only used for validation
+   * in those occursCountKinds.
+   *
+   * The DFDL spec is not entirely consistent here either I don't believe.
+   */
   def isOptional: Boolean
+
+  /**
+   * Something is required if it is not optional
+   * and not an array, unless that array has required elements.
+   */
   def isRequired: Boolean
+
+  /**
+   * An array can have more than 1 occurrence.
+   *
+   * An optional element (minOccurs=0, maxOccurs=1) is an array only
+   * if occursCountKind is parsed, because then the max/min are ignored.
+   */
+  def isArray: Boolean
 
   def termRuntimeData: TermRuntimeData
 
@@ -126,8 +168,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   lazy val referredToComponent = this // override in ElementRef and GroupRef
 
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
-
-  def isScalar = true // override in local elements
 
   /**
    * nearestEnclosingSequence
@@ -379,7 +419,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def isKnownRequiredElement = false
   def hasKnownRequiredSyntax = false
 
-
   // Returns a tuple, where the first item in the tuple is the list of sibling
   // terms that could appear before this. The second item in the tuple is a
   // One(parent) if all siblings are optional or this element has no prior siblings
@@ -395,10 +434,12 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
           // first child of seq, the seq is the only previous term
           (Seq(), Some(sq))
         } else {
-          val firstNonOptional = previousTerms.reverse.find { _ match {
-            case eb: ElementBase if !eb.isRequired || !eb.isRepresented => false
-            case _ => true
-          }}
+          val firstNonOptional = previousTerms.reverse.find {
+            _ match {
+              case eb: ElementBase if !eb.isRequired || !eb.isRepresented => false
+              case _ => true
+            }
+          }
           if (firstNonOptional.isEmpty) {
             // all previous siblings are optional, all or the seq could be previous
             (previousTerms, Some(sq))
@@ -463,27 +504,27 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   lazy val couldHaveSuspensions: Boolean = {
     val commonCouldHaveSuspensions =
       !isKnownToBeAligned || // AlignmentFillUnparser
-      (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) ||  // MandatoryTextAlignmentUnparser
-      needsBitOrderChange // BitOrderChangeUnparser
+        (if (hasDelimiters) !isDelimiterKnownToBeTextAligned else false) || // MandatoryTextAlignmentUnparser
+        needsBitOrderChange // BitOrderChangeUnparser
 
     this match {
       case eb: ElementBase => {
         val elementCouldHaveSuspensions =
           commonCouldHaveSuspensions ||
-          !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
-          (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // OVCRetryUnparser
-          eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
-          eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
-          eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser
-          (eb.maybeUnparseTargetLengthInBitsEv.isDefined && eb.isNillable && eb.nilKind == NilKind.LiteralCharacter) || // NilLiteralCharacterUnparser
-          (if (eb.isComplexType) eb.complexType.group.couldHaveSuspensions else false)
+            !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
+            (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // OVCRetryUnparser
+            eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
+            eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
+            eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser
+            (eb.maybeUnparseTargetLengthInBitsEv.isDefined && eb.isNillable && eb.nilKind == NilKind.LiteralCharacter) || // NilLiteralCharacterUnparser
+            (if (eb.isComplexType) eb.complexType.group.couldHaveSuspensions else false)
 
         elementCouldHaveSuspensions
       }
       case mg: ModelGroup => {
         val modelGroupCouldHaveSuspensions =
           commonCouldHaveSuspensions ||
-          mg.groupMembersNoRefs.exists { _.couldHaveSuspensions }
+            mg.groupMembersNoRefs.exists { _.couldHaveSuspensions }
 
         modelGroupCouldHaveSuspensions
       }

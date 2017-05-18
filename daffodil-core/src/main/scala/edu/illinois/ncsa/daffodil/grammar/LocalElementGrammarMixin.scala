@@ -61,7 +61,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private lazy val notStopValue = prod("notStopValue", hasStopValue) { NotStopValue(this) }
 
   private lazy val separatedEmpty = prod("separatedEmpty",
-    emptyIsAnObservableConcept && isRecurring) {
+    emptyIsAnObservableConcept && !isScalar) {
       separatedForArrayPosition(empty)
     }
 
@@ -90,32 +90,32 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   /**
    * speculate parsing forward until we get an error
    */
-  private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", isRecurring) {
+  private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepUnbounded(self, separatedRecurringNonDefault) ~
       StopValue(this)
   }
 
-  private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", isRecurring) {
+  private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepAtMostTotalN(self, maxOccurs, separatedRecurringNonDefault) ~
       StopValue(this)
   }
 
-  private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", isRecurring) {
+  private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", !isScalar) {
     separatedContentWithMinUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
   }
 
-  private lazy val separatedContentWithMinAndMax = prod("separatedContentWithMinAndMax", isRecurring) {
+  private lazy val separatedContentWithMinAndMax = prod("separatedContentWithMinAndMax", !isScalar) {
     separatedContentWithMinAndMaxWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
   }
 
-  private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", isRecurring) {
+  private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", !isScalar) {
     RepUnbounded(self, separatedRecurringNonDefault) ~
       StopValue(this)
   }
 
-  private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", isRecurring) {
+  private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
       StopValue(this)
@@ -169,7 +169,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private val UNB = -1 // UNBOUNDED
   private val ZERO = 0 // ZERO
 
-  lazy val arrayContents = prod("arrayContents", isRecurring) {
+  lazy val arrayContents = prod("arrayContents", !isScalar) {
     arrayContentsNoSeparators || arrayContentsWithSeparators
   }
 
@@ -191,7 +191,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private val Fixed_____ = OccursCountKind.Fixed
   private val Expression = OccursCountKind.Expression
 
-  private lazy val arrayContentsNoSeparators = prod("arrayContentsNoSeparators", isRecurring && !hasSep) {
+  private lazy val arrayContentsNoSeparators = prod("arrayContentsNoSeparators", !isScalar && !hasSep) {
     val res = (occursCountKind, minOccurs, maxOccurs) match {
       case (Expression, ____, __2) => separatedContentExactlyNComputed
       case (Fixed_____, ____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
@@ -211,7 +211,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
    *
    * TODO: Update this table to match the final spec.
    */
-  private lazy val arrayContentsWithSeparators = prod("arrayContentsWithSeparators", isRecurring && hasSep) {
+  private lazy val arrayContentsWithSeparators = prod("arrayContentsWithSeparators", !isScalar && hasSep) {
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs, minOccurs)
     val res = triple match {
       case (___________, Expression, ___, __2) => separatedContentExactlyNComputed

@@ -72,9 +72,9 @@
     </xs:sequence>
    </xs:complexType>
   </xs:element>
-
- </tdml:defineSchema>
-
+  
+  </tdml:defineSchema>
+  
  <tdml:parserTestCase
   name="test_dfdl_1669_unsignedLong_conversion"
   root="e1"
@@ -82,7 +82,6 @@
   description="Show that unsignedLong element values get compared to literal integers properly."
   roundTrip="false"
  >
-
   <tdml:document>
   <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
   <tdml:infoset>
@@ -95,4 +94,37 @@
   </tdml:infoset>
  </tdml:parserTestCase>
 
+<tdml:defineSchema name="s2" elementFormDefault="unqualified">
+  
+  <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+   
+  <!-- This for reproducing the diagnostic about upward paths past root -->
+  
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ex:f1"/>
+        <xs:element ref="ex:f2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="f1" type="xs:int" dfdl:outputValueCalc="{../ex:f2 }"/>
+  <xs:element name="f2" type="xs:int" dfdl:inputValueCalc="{ ../ex:f1 }"/>
+
+ </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_expr_path_past_root1" root="root" model="s2"
+    description="Diagnostic for path past root says where the problem lies.">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Relative path</tdml:error>
+      <tdml:error>past root element</tdml:error>
+      <tdml:error>ex:f1</tdml:error>
+      <tdml:error>line</tdml:error>
+      <tdml:error>column</tdml:error>
+      <tdml:error>../ex:f2</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+ 
 </tdml:testSuite>

@@ -90,9 +90,9 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
 
   def defaultPropertySources: Seq[ChainPropProvider]
 
-  lazy val nonDefaultFormatChain: ChainPropProvider = formatAnnotation.getFormatChain()
+  lazy val nonDefaultFormatChain: ChainPropProvider = formatAnnotation.formatChain
   lazy val defaultFormatChain: ChainPropProvider = {
-    val res = schemaDocument.formatAnnotation.getFormatChain()
+    val res = schemaDocument.formatAnnotation.formatChain
     res
   }
 
