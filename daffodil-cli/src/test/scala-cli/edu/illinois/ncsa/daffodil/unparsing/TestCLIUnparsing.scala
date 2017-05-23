@@ -404,4 +404,25 @@ class TestCLIunparsing {
     }
   }
 
+  @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom() {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input18.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s unparse -I w3cdom -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Hello"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
 }

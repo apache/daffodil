@@ -103,10 +103,13 @@ import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import javax.xml.parsers.DocumentBuilderFactory
+import org.xml.sax.InputSource
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -442,7 +445,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
       case (Some("jdom-slow"), _) => Right(Unit)
-      case (Some("w3cdom"), Some(true)) => Left("infoset type w3cdom not valid with performance --unparse")
       case (Some("w3cdom"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
@@ -479,7 +481,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', or 'jdom'.", default = Some("xml")).map { _.toLowerCase }
+    val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'w3cdom'.", default = Some("xml")).map { _.toLowerCase }
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -511,6 +513,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
       case (Some("jdom-slow")) => Right(Unit)
+      case (Some("w3cdom")) => Right(Unit)
       //case (Some("null")) => Right(Unit) // null is not valid for unparsing
       case (Some(t)) => Left("Unknown infoset type: " + t)
       case _ => Assert.impossible() // not possible due to default value
@@ -763,6 +766,12 @@ object Main extends Logging {
       case "scala-xml" | "scala-slow" => scala.xml.XML.load(reader)
       case "json" => reader
       case "jdom" | "jdom-slow" => (new org.jdom2.input.SAXBuilder()).build(reader)
+      case "w3cdom" => {
+        val dbf = DocumentBuilderFactory.newInstance()
+        dbf.setNamespaceAware(true)
+        val db = dbf.newDocumentBuilder()
+        db.parse(new InputSource(reader))
+      }
     }
   }
 
@@ -774,6 +783,7 @@ object Main extends Logging {
       case "json" => new JsonInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
       case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
       case "jdom-slow" => new JDOMSlowInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
+      case "w3cdom" => new W3CDOMInfosetInputter(anyRef.asInstanceOf[org.w3c.dom.Document])
     }
   }
 
@@ -889,11 +899,11 @@ object Main extends Logging {
                     new org.jdom2.output.XMLOutputter().outputString(jdom.getResult)
                   )
                 case w3cdom: W3CDOMInfosetOutputter => {
-                  val tf = TransformerFactory.newInstance();
-                  val transformer = tf.newTransformer();
-                  val result  = new StreamResult(writer);
-                  val source  = new DOMSource(w3cdom.getResult);
-                  transformer.transform(source, result);
+                  val tf = TransformerFactory.newInstance()
+                  val transformer = tf.newTransformer()
+                  val result  = new StreamResult(writer)
+                  val source  = new DOMSource(w3cdom.getResult)
+                  transformer.transform(source, result)
                 }
                 case _ => // do nothing
               }
