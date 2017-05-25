@@ -55,6 +55,8 @@ object TestDFDLExpressions {
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")
 
+  val runner7 = Runner(testDir, "expressions2.tdml", compileAllTopLevel = true)
+
   @AfterClass def shutDown() {
     runner4.reset
     runner.reset
@@ -64,6 +66,7 @@ object TestDFDLExpressions {
     runner2b.reset
     runner3.reset
     runner5.reset
+    runner7.reset
   }
 }
 
