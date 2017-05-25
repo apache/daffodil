@@ -1004,4 +1004,6 @@ class TestDFDLExpressions {
   @Test def test_mathPow33 { runner2.runOneTest("mathPow33") }
   @Test def test_mathPow34 { runner2.runOneTest("mathPow34") }
 
+// DFDL-1771
+  @Test def test_expr_path_past_root1 { runner7.runOneTest("test_expr_path_past_root1") }
 }

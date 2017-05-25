@@ -132,6 +132,4 @@ class TestDFDLExpressionsNew {
   @Test def test_idiv19 { runner.runOneTest("idiv19") }
   @Test def test_idiv20 { runner.runOneTest("idiv20") }
 
-  // DFDL-1771
-  @Test def test_expr_path_past_root1 { runner7.runOneTest("test_expr_path_past_root1") }
 }
