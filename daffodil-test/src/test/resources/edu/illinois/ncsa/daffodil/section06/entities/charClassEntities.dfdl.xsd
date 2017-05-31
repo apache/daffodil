@@ -43,7 +43,7 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0"
-        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        trailingSkip="0" textBidi="no" floating="no" encoding="utf-8"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
         fillByte="f" occursCountKind="implicit"
         truncateSpecifiedLengthString="no" ignoreCase="no"
@@ -60,14 +60,12 @@
   <element name="matrixLimited" type="tns:matrixTypeLimited" dfdl:lengthKind="implicit" />
 
   <complexType name="matrixType">
-    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
-      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit"
-        dfdl:encoding="utf-8">
+    <sequence dfdl:separator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
-          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+          <sequence dfdl:separator=",">
             <element name="cell" type="xsd:int" maxOccurs="unbounded"
-              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
-              dfdl:encoding="utf-8" />
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
           </sequence>
         </complexType>
       </element>
@@ -75,14 +73,12 @@
   </complexType>
   
   <complexType name="matrixTypeString">
-    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
-      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit"
-        dfdl:encoding="utf-8">
+    <sequence dfdl:separator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
         <complexType>
-          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+          <sequence dfdl:separator=",">
             <element name="cell" type="xsd:string" maxOccurs="unbounded"
-              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
-              dfdl:encoding="utf-8" />
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
           </sequence>
         </complexType>
       </element>
@@ -90,14 +86,13 @@
   </complexType>
   
   <complexType name="matrixTypeLimited">
-    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
-      <element name="row" maxOccurs="2" dfdl:lengthKind="implicit"
-        dfdl:encoding="utf-8">
+    <sequence dfdl:separator="%NL;">
+      <element name="row" maxOccurs="2" dfdl:lengthKind="implicit">
         <complexType>
-          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+          <sequence dfdl:separator=",">
             <element name="cell" type="xsd:int" maxOccurs="5" minOccurs="3"
-              dfdl:textNumberRep="standard" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes"
-              dfdl:encoding="utf-8" />
+              dfdl:textNumberRep="standard" dfdl:lengthKind="explicit" 
+              dfdl:length="1" dfdl:lengthUnits="bytes"/>
           </sequence>
         </complexType>
       </element>
@@ -113,17 +108,17 @@
         <complexType>
           <sequence dfdl:separator=",">
             <element name="cell" type="xsd:int" maxOccurs="unbounded"
-              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
           </sequence>
         </complexType>
       </element>
     </sequence>
   </complexType>
 
-  <xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8"
+  <xsd:element name="hcp" type="xsd:string"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="characters" dfdl:length="1" />
     
-  <xsd:element name="hcp2" type="xsd:string" dfdl:encoding="utf-8"
+  <xsd:element name="hcp2" type="xsd:string"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="characters" dfdl:length="2" />
   
   <xsd:element name="file">

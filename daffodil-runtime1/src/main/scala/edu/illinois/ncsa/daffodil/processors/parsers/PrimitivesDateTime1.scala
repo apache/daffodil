@@ -124,7 +124,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   extends ConvertTextCalendarProcessorBase(erd,
     xsdType, prettyType, pattern, hasTZ, localeEv, calendarEv, infosetPattern, firstDay, calendarDaysInFirstWeek,
     calendarCheckPolicy, calendarTz, tz)
-  with PrimParser {
+  with TextPrimParser {
 
   override lazy val runtimeDependencies = List(localeEv, calendarEv)
 

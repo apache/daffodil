@@ -34,7 +34,9 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.PrimProcessor
+import edu.illinois.ncsa.daffodil.processors.TextProcessor
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 /**
  * A PrimParser is a parser that contains no child parsers.
@@ -46,11 +48,19 @@ trait PrimParser
   extends PrimProcessor
   with Parser
 
+trait TextPrimParser
+  extends PrimParser
+  with TextProcessor
+
 // Deprecated and to be phased out. Use the trait PrimParser instead.
 abstract class PrimParserObject(override val context: RuntimeData)
   extends PrimParser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
+
+abstract class TextPrimParserObject(ctxt: TermRuntimeData)
+  extends PrimParserObject(ctxt)
+  with TextProcessor
 
 class NadaParser(override val context: RuntimeData) extends PrimParserObject(context) {
   override def toString = "Nada"

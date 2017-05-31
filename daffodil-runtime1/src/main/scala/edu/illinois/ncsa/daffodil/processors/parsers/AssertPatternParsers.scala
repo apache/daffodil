@@ -64,7 +64,7 @@ abstract class AssertPatternParserBase(
     val dis = start.dataInputStream
     val mark = dis.markPos
     withMatcher { m =>
-      val isMatch = dis.lookingAt(m)
+      val isMatch = dis.lookingAt(m, start)
       afterParse(start, isMatch, m)
     }
     dis.resetPos(mark)

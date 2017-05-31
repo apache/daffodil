@@ -138,6 +138,16 @@ object CharsetUtils {
 
 }
 
+sealed abstract class CoderInfo(val encodingMandatoryAlignmentInBits: Int, val maybeCharWidthInBits: MaybeInt)
+
+case class DecoderInfo(coder: CharsetDecoder, replacingCoder: CharsetDecoder, reportingCoder: CharsetDecoder,
+  encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
+  extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
+
+case class EncoderInfo(coder: CharsetEncoder, replacingCoder: CharsetEncoder, reportingCoder: CharsetEncoder,
+  encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
+  extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
+
 trait EncoderDecoderMixin
   extends LocalBufferMixin {
   /**
@@ -150,27 +160,69 @@ trait EncoderDecoderMixin
    * might be allocated objects. Use of java hash maps insures this does not allocate
    * except when adding a new not-seen-before encoder or decoder.
    */
-  private lazy val decoderCache = new java.util.HashMap[Charset, CharsetDecoder]
-  private lazy val encoderCache = new java.util.HashMap[Charset, CharsetEncoder]
 
-  def getDecoder(charset: Charset): CharsetDecoder = {
-    // threadCheck()
-    var decoder = decoderCache.get(charset)
-    if (decoder eq null) {
-      decoder = charset.newDecoder()
-      decoderCache.put(charset, decoder)
+  private lazy val decoderCache = new java.util.HashMap[Charset, DecoderInfo]
+  private lazy val encoderCache = new java.util.HashMap[Charset, EncoderInfo]
+
+  private def derivations(charset: Charset) = {
+    val tuple = charset match {
+      case nbsc: NonByteSizeCharset => {
+        val encodingMandatoryAlignmentInBits = 1
+        val maybeCharWidthInBits = MaybeInt(nbsc.bitWidthOfACodeUnit)
+        (encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+      }
+      case _ => {
+        val encodingMandatoryAlignmentInBits = 8
+        val encoder = charset.newEncoder()
+        val maxBytes = encoder.maxBytesPerChar()
+        if (maxBytes == encoder.averageBytesPerChar()) {
+          val maybeCharWidthInBits = MaybeInt((maxBytes * 8).toInt)
+          (encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+        } else {
+          val maybeCharWidthInBits = MaybeInt.Nope
+          (encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+        }
+      }
     }
-    decoder
+    tuple
   }
 
-  def getEncoder(charset: Charset): CharsetEncoder = {
+  def getDecoder(charset: Charset) = getDecoderInfo(charset).coder
+  def getDecoderInfo(charset: Charset) = {
     // threadCheck()
-    var encoder = encoderCache.get(charset)
-    if (encoder eq null) {
-      encoder = charset.newEncoder()
-      encoderCache.put(charset, encoder)
+    var entry = decoderCache.get(charset)
+    if (entry eq null) {
+      val coder = charset.newDecoder()
+      val replacingCoder = charset.newDecoder()
+      val reportingCoder = charset.newDecoder()
+      replacingCoder.onMalformedInput(CodingErrorAction.REPLACE)
+      replacingCoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
+      reportingCoder.onMalformedInput(CodingErrorAction.REPORT)
+      reportingCoder.onUnmappableCharacter(CodingErrorAction.REPORT)
+      val (encodingMandatoryAlignmentInBits, maybeCharWidthInBits) = derivations(charset)
+      entry = DecoderInfo(coder, replacingCoder, reportingCoder, encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+      decoderCache.put(charset, entry)
     }
-    encoder
+    entry
+  }
+
+  def getEncoder(charset: Charset) = getEncoderInfo(charset).coder
+  def getEncoderInfo(charset: Charset) = {
+    // threadCheck()
+    var entry = encoderCache.get(charset)
+    if (entry eq null) {
+      val coder = charset.newEncoder()
+      val replacingCoder = charset.newEncoder()
+      val reportingCoder = charset.newEncoder()
+      replacingCoder.onMalformedInput(CodingErrorAction.REPLACE)
+      replacingCoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
+      reportingCoder.onMalformedInput(CodingErrorAction.REPORT)
+      reportingCoder.onUnmappableCharacter(CodingErrorAction.REPORT)
+      val (encodingMandatoryAlignmentInBits, maybeCharWidthInBits) = derivations(charset)
+      entry = EncoderInfo(coder, replacingCoder, reportingCoder, encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+      encoderCache.put(charset, entry)
+    }
+    entry
   }
 
   /**

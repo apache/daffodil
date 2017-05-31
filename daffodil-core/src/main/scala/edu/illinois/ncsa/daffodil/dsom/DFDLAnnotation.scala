@@ -50,11 +50,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
  * and Import objects which represent those statements in a schema,
  * the proxy DFDLSchemaFile object, etc.
  *
- * This change lets us share more easily, also hoist a base
- * SchemaComponentBase over into daffodil-lib, which lets some of this
- * shared code, specifcally stuff about errors and diagnostics,
- * migrate over to daffodil-lib as well where it can be tied a
- * bit more tightly to the OOLAG library there.
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends SchemaComponent

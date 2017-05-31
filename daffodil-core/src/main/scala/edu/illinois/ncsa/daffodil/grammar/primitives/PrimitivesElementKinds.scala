@@ -73,7 +73,7 @@ case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram) ex
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pSep.toList ++ pTerm.toList).toArray, sq.runtimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, uSep, uTerm, sq.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, uSep, uTerm, sq.termRuntimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram) extends Terminal(ch, !body.isEmpty) {
@@ -85,7 +85,7 @@ case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram) extend
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, ch.runtimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, ch.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, ch.termRuntimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -95,9 +95,9 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
   lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorUnparseEv) else Nope
   lazy val uTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorUnparseEv) else Nope
 
-  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, e.runtimeData, body.parser)
+  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, e.termRuntimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, e.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, e.termRuntimeData, body.unparser)
 }
 
 case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -108,9 +108,9 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) exte
   Assert.invariant(schemeParseOpt.isDefined && !schemeParseOpt.get.isConstant)
   Assert.invariant(schemeUnparseOpt.isDefined && !schemeUnparseOpt.get.isConstant)
 
-  lazy val parser: DaffodilParser = new DynamicEscapeSchemeParser(schemeParseOpt.get, e.runtimeData, body.parser)
+  lazy val parser: DaffodilParser = new DynamicEscapeSchemeParser(schemeParseOpt.get, e.termRuntimeData, body.parser)
 
-  override lazy val unparser: DaffodilUnparser = new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.runtimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.termRuntimeData, body.unparser)
 }
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.elementDecl, !body.isEmpty) {
@@ -182,7 +182,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram]) extends
   lazy val parser: DaffodilParser = {
     if (!ch.isDirectDispatch) {
       val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
-      new ChoiceCombinatorParser(ch.runtimeData, folded.parser)
+      new ChoiceCombinatorParser(ch.termRuntimeData, folded.parser)
     } else {
       val dispatchBranchKeyValueTuples = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
@@ -206,7 +206,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram]) extends
       val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues(_.parser)
       val serializableMap = dispatchBranchKeyMap.map(identity)
 
-      new ChoiceDispatchCombinatorParser(ch.runtimeData, ch.choiceDispatchKeyEv, serializableMap)
+      new ChoiceDispatchCombinatorParser(ch.termRuntimeData, ch.choiceDispatchKeyEv, serializableMap)
     }
   }
 

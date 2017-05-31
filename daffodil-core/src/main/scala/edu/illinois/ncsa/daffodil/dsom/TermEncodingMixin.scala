@@ -98,7 +98,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
+    new EncodingRuntimeData(termRuntimeData, charsetEv, checkEncodingEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
       summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
 
   /**
@@ -200,18 +200,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x, y) }
     res
   }
-
-  /**
-   * Returns true if this term either cannot conflict because it has no textual
-   * aspects, or if it couldHaveText then the encoding must be same.
-   */
-  //  private def hasCompatibleEncoding(t2: Term): Boolean = {
-  //    Assert.usage(isKnownEncoding)
-  //    Assert.usage(t2.isKnownEncoding)
-  //    if (!couldHaveText) true
-  //    else if (!t2.couldHaveText) true
-  //    else this.knownEncodingCharset == t2.knownEncodingCharset
-  //  }
 
   /**
    * no alignment properties that would explicitly create

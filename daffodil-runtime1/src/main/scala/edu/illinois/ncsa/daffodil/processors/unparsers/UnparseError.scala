@@ -39,7 +39,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
-class UnparseAlternativeFailed(rd: RuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
+class UnparseAlternativeFailed(rd: TermRuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
   extends UnparseError(One(rd.schemaFileLocation), One(loc), Maybe.Nope, Maybe("Alternative failed. Reason(s): %s"), errors)
 
 object UnparseError {

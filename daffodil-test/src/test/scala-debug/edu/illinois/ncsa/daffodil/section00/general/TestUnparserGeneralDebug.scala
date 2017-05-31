@@ -39,7 +39,6 @@ import org.junit.AfterClass
 object TestUnparserGeneralDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val runner = Runner(testDir, "testUnparserGeneral.tdml")
-  val runner2 = Runner(testDir, "testUnparserBitOrderOVC.tdml")
 
   @AfterClass def shutDown {
     runner.reset
@@ -56,6 +55,4 @@ class TestUnparserGeneralDebug {
   //DFDL-1395
   @Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
   @Test def test_puaInfosetChars_04() { runner.runOneTest("puaInfosetChars_04") }
-
-  @Test def test_bitOrderOVC1() = { runner2.runOneTest("bitOrderOVC1") }
 }

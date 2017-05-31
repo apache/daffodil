@@ -274,7 +274,10 @@ abstract class ChoiceTermBase( final override val xml: Node,
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      optIgnoreCase)
+      optIgnoreCase,
+      maybeFillByteEv,
+      maybeCheckByteAndBitOrderEv,
+      maybeCheckBitOrderAndCharset)
   }
 }
 

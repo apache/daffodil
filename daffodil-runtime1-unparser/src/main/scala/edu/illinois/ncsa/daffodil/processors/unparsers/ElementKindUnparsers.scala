@@ -31,7 +31,8 @@
  */
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.api.ValidationMode
@@ -52,7 +53,7 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
 
   def unparse(start: UState): Unit = {
     start.childIndexStack.push(1L) // one-based indexing
-    bodyUnparser.unparse1(start, rd)
+    bodyUnparser.unparse1(start)
     start.childIndexStack.pop()
   }
 }
@@ -120,7 +121,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
         }
       }
       if (doUnparser) {
-        childUnparser.unparse1(start, childRD)
+        childUnparser.unparse1(start)
       }
       index += 1
       //
@@ -163,7 +164,7 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
       UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation), "Encountered event %s. Expected one of %s.",
         key, eventUnparserMap.keys.mkString(", "))
     }
-    childUnparser.unparse1(state, mgrd)
+    childUnparser.unparse1(state)
   }
 }
 
@@ -181,14 +182,14 @@ class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser
   override lazy val childProcessors: Seq[Processor] = Seq(branchUnparser)
 
   def unparse(state: UState): Unit = {
-    branchUnparser.unparse1(state, mgrd)
+    branchUnparser.unparse1(state)
   }
 }
 
 class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
-  override val context: RuntimeData,
+  override val context: TermRuntimeData,
   bodyUnparser: Unparser)
   extends Unparser {
   override def nom = "DelimiterStack"
@@ -216,13 +217,13 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
 
     state.pushDelimiters(node)
 
-    bodyUnparser.unparse1(state, context)
+    bodyUnparser.unparse1(state)
 
     state.popDelimiters
   }
 }
 
-class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override val context: RuntimeData, bodyUnparser: Unparser)
+class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override val context: TermRuntimeData, bodyUnparser: Unparser)
   extends Unparser {
   override def nom = "EscapeSchemeStack"
 
@@ -239,7 +240,7 @@ class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override 
     escapeScheme.evaluate(state)
 
     // Unparse
-    bodyUnparser.unparse1(state, context)
+    bodyUnparser.unparse1(state)
 
     // invalidate the escape scheme cache
     escapeScheme.invalidateCache(state)
@@ -258,7 +259,7 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
     var event = state.advanceOrError
     Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
 
-    bodyUnparser.unparse1(state, erd)
+    bodyUnparser.unparse1(state)
 
     event = state.advanceOrError
     if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
@@ -303,7 +304,7 @@ class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser
     val event = state.inspectOrError
     Assert.invariant(event.isStart && !event.node.isInstanceOf[DIArray])
 
-    bodyUnparser.unparse1(state, erd)
+    bodyUnparser.unparse1(state)
 
     state.arrayIndexStack.pop()
     state.occursBoundsStack.pop()

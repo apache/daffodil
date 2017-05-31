@@ -65,7 +65,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   erd: ElementRuntimeData,
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
   maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv])
-  extends UnparserObject(erd) with TextUnparserRuntimeMixin {
+  extends UnparserObject(erd) {
 
   override lazy val childProcessors = Seq(eUnparser)
 
@@ -133,7 +133,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
         //
         diSimple.overwriteDataValue(newV)
       }
-      eUnparser.unparse1(state, erd)
+      eUnparser.unparse1(state)
     } else {
       // target length unknown
       // ignore constraining the output length. Just unparse it.
@@ -143,7 +143,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       // on this element.
       // This breaks the chicken-egg cycle.
       //
-      eUnparser.unparse1(state, erd)
+      eUnparser.unparse1(state)
     }
   }
 

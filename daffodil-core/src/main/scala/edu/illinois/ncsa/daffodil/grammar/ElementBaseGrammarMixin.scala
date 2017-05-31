@@ -147,7 +147,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 trait ElementBaseGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
-  with ByteOrderMixin
   with HasStatementsGrammarMixin
   with PaddingInfoMixin { self: ElementBase =>
 
@@ -1015,8 +1014,7 @@ trait ElementBaseGrammarMixin
     LeadingSkipRegion(this) ~ AlignmentFill(this) ~ PrefixLength(this)
   }
 
-  private lazy val elementIOPropertiesChange = byteOrderChange ~ termIOPropertiesChange
-  private lazy val elementLeftFraming = elementIOPropertiesChange ~ alignAndSkipFraming
+  private lazy val elementLeftFraming = alignAndSkipFraming
 
   private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 

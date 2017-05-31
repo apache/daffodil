@@ -109,9 +109,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     }
     val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
 
-    fieldReg.reset(input, fieldEscapesIter)
-
-    // val initialCharPos = 0
+    fieldReg.reset(state, input, fieldEscapesIter)
 
     var stillSearching: Boolean = true
     var numCharsInserted: Int = 0
@@ -146,7 +144,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           // We check for a blockEnd first, if it exists then we MUST
           // generate an escape block
           val blockEndReg: Registers = TLRegistersPool.getFromPool("escapeBlock2")
-          blockEndReg.reset(input, blockEndDelimIter)
+          blockEndReg.reset(state, input, blockEndDelimIter)
           blockEnd.run(blockEndReg)
           val blockEndStatus = blockEndReg.status
           blockEndStatus match {
@@ -191,7 +189,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 val delimReg: Registers = TLRegistersPool.getFromPool("escapeBlock3")
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
-                delimReg.reset(input, delimIter)
+                delimReg.reset(state, input, delimIter)
                 d.run(delimReg)
                 val delimStatus = delimReg.status
                 delimStatus match {
@@ -210,7 +208,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               }
               input.resetPos(beforeDelimiter)
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
-              fieldReg.resetChars
+              fieldReg.resetChars(state)
               if (successes.isEmpty) {
                 // did not match any delimiters, go to the next rule in the
                 // field DFA, effectively resuming the field parse. This is possible
@@ -270,7 +268,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
 
     val delimIter = new AllDelimiterIterator(ArrayBuffer(delims: _*))
 
-    fieldReg.reset(input, delimIter)
+    fieldReg.reset(state, input, delimIter)
 
     var stillSearching: Boolean = true
     fieldReg.state = 0 // initial state is 0
@@ -305,7 +303,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           while (delimIter.hasNext()) {
             val d = delimIter.next()
             val delimReg: Registers = TLRegistersPool.getFromPool("escapeCharacter2")
-            delimReg.reset(input, delimIter)
+            delimReg.reset(state, input, delimIter)
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
             d.run(delimReg)
@@ -350,8 +348,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             // delimiter
             //
             input.resetPos(beforeDelimiter)
-            Assert.invariant(input.skipChars(delim.length))
-            fieldReg.resetChars
+            Assert.invariant(input.skipChars(delim.length, state))
+            fieldReg.resetChars(state)
             successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
             successes.clear
             stillSearching = true

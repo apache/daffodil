@@ -54,7 +54,7 @@ class StringDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean)
-  extends PrimParserObject(erd)
+  extends TextPrimParserObject(erd)
   with CaptureParsingValueLength {
 
   override val runtimeDependencies = List(fieldDFAEv, erd.encInfo.charsetEv)
@@ -90,9 +90,9 @@ class StringDelimitedParser(
     val result = {
       if (textParser.isInstanceOf[TextDelimitedParserWithEscapeBlock]) {
         val s = fieldDFAEv.escapeSchemeEv.get.evaluate(start).asInstanceOf[EscapeSchemeBlockParserHelper]
-        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delimIter, isDelimRequired)
+        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start, start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delimIter, isDelimRequired)
       } else {
-        textParser.parse(start.dataInputStream, fieldDFA, delimIter, isDelimRequired)
+        textParser.parse(start, start.dataInputStream, fieldDFA, delimIter, isDelimRequired)
       }
     }
     processResult(result, start)

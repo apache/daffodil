@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 class BinaryBooleanUnparser(e: ElementRuntimeData,
     binaryBooleanTrueRep: MaybeULong,
@@ -73,8 +74,8 @@ class BinaryBooleanUnparser(e: ElementRuntimeData,
   override lazy val runtimeDependencies = List(lengthEv)
 
 
-  protected def putNumber(dos: DataOutputStream, value: ULong, nBits: Int): Boolean = {
-    dos.putULong(value, nBits)
+  protected def putNumber(dos: DataOutputStream, value: ULong, nBits: Int, finfo: FormatInfo): Boolean = {
+    dos.putULong(value, nBits, finfo)
   }
 
   def unparse(state: UState): Unit = {
@@ -93,9 +94,9 @@ class BinaryBooleanUnparser(e: ElementRuntimeData,
     val res =
       if (value) {
         val trueRep = if (binaryBooleanTrueRep.isDefined) binaryBooleanTrueRep.getULong else ~binaryBooleanFalseRep
-        putNumber(dos, trueRep, nBits)
+        putNumber(dos, trueRep, nBits, state)
       } else {
-        putNumber(dos, binaryBooleanFalseRep, nBits)
+        putNumber(dos, binaryBooleanFalseRep, nBits, state)
       }
 
     if (!res) {

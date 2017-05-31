@@ -32,36 +32,38 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TextProcessor
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class SkipRegionParser(
   skipInBits: Int,
-  override val context: RuntimeData)
+  override val context: TermRuntimeData)
   extends PrimParser {
 
   override lazy val runtimeDependencies = Nil
 
   override def parse(pstate: PState) = {
     val dis = pstate.dataInputStream
-    if (!dis.skip(skipInBits)) PE(pstate, "Unable to skip %s bits.", skipInBits)
+    if (!dis.skip(skipInBits, pstate)) PE(pstate, "Unable to skip %s bits.", skipInBits)
   }
 }
 
 class AlignmentFillParser(
   alignmentInBits: Int,
-  override val context: RuntimeData)
+  override val context: TermRuntimeData)
   extends PrimParser {
 
   override lazy val runtimeDependencies = Nil
 
   override def parse(pstate: PState): Unit = {
     val dis = pstate.dataInputStream
-    if (!dis.align(alignmentInBits))
+    if (!dis.align(alignmentInBits, pstate))
       PE(pstate, "Unable to align to %s(bits)", alignmentInBits)
   }
 }
 
 class MandatoryTextAlignmentParser(
   alignmentInBits: Int,
-  override val context: RuntimeData)
+  override val context: TermRuntimeData)
   extends AlignmentFillParser(alignmentInBits, context)
+  with TextProcessor

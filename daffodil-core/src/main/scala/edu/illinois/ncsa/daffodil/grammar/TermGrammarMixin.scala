@@ -46,8 +46,7 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.Separator
 
 trait TermGrammarMixin
   extends AlignedMixin
-  with BitOrderMixin
-  with EncodingChangeMixin { self: Term =>
+  with BitOrderMixin { self: Term =>
 
   override protected final def grammarContext = this
 
@@ -61,8 +60,6 @@ trait TermGrammarMixin
   private lazy val newVarEnds = newVars.map { _.endGram }
 
   protected lazy val hasEncoding = optionEncodingRaw.isDefined
-
-  protected lazy val termIOPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ encodingChange }
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
   protected final lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {

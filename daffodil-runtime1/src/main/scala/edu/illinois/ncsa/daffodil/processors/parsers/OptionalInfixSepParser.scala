@@ -32,16 +32,16 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
-class OptionalInfixSepParser(override val context: RuntimeData, sepParser: Parser)
+class OptionalInfixSepParser(override val context: TermRuntimeData, sepParser: Parser)
   extends Parser {
 
   override lazy val nom = "OptionalInfixSep"
   override lazy val childProcessors = Seq(sepParser)
   override lazy val runtimeDependencies = Nil
 
-  def parse(start: PState): Unit = {
+  override def parse(start: PState): Unit = {
     if (start.mpstate.arrayPos > 1) sepParser.parse1(start)
     else if (start.mpstate.groupPos > 1) sepParser.parse1(start)
     else {

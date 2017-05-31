@@ -254,7 +254,10 @@ abstract class SequenceTermBase(
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      optIgnoreCase)
+      optIgnoreCase,
+      maybeFillByteEv,
+      maybeCheckByteAndBitOrderEv,
+      maybeCheckBitOrderAndCharset)
   }
 
 }

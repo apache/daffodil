@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryDoubleUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryFloatUnparser
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
+
   override lazy val parser = new BinaryIntegerRuntimeLengthParser(e.elementRuntimeData, signed, e.lengthEv, e.lengthUnits)
 
   override lazy val unparser: Unparser = new BinaryIntegerRuntimeLengthUnparser(e.elementRuntimeData, signed, e.lengthEv, e.lengthUnits)
@@ -64,6 +65,7 @@ class BinaryIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits
 }
 
 class BinaryDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
+
   override lazy val parser = new BinaryDecimalRuntimeLengthParser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, e.lengthEv, e.lengthUnits)
 
   override lazy val unparser: Unparser = new BinaryDecimalRuntimeLengthUnparser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, e.lengthEv, e.lengthUnits)
@@ -71,18 +73,21 @@ class BinaryDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
 }
 
 class BinaryDecimalKnownLength(val e: ElementBase, lengthInBits: Long) extends Terminal(e, true) {
+
   override lazy val parser = new BinaryDecimalKnownLengthParser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, lengthInBits.toInt)
 
   override lazy val unparser: Unparser = new BinaryDecimalKnownLengthUnparser(e.elementRuntimeData, e.decimalSigned, e.binaryDecimalVirtualPoint, lengthInBits.toInt)
 }
 
 class BinaryFloat(val e: ElementBase) extends Terminal(e, true) {
+
   override lazy val parser = new BinaryFloatParser(e.elementRuntimeData)
 
   override lazy val unparser: Unparser = new BinaryFloatUnparser(e.elementRuntimeData)
 }
 
 class BinaryDouble(val e: ElementBase) extends Terminal(e, true) {
+
   override lazy val parser = new BinaryDoubleParser(e.elementRuntimeData)
 
   override lazy val unparser: Unparser = new BinaryDoubleUnparser(e.elementRuntimeData)

@@ -66,6 +66,12 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
     }
     super.reset()
   }
+
+  def hexDump = {
+    (0 to (count - 1)).map { i => "%2x".format(buf(i).toInt & 0xFF) }.mkString(".")
+  }
+
+  override def toString = hexDump
 }
 
 /**
@@ -94,6 +100,16 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
 final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream)
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
+
+  override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
+    val res = putLongChecked(unsignedLong.longValue, bitLengthFrom1To64, finfo)
+    res
+  }
+
+  override def putLong(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo) = {
+    val res = putLongChecked(signedLong.longValue, bitLengthFrom1To64, finfo)
+    res
+  }
 
   /**
    * Must be val, as split-from will get reset to null as streams
@@ -235,8 +251,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     val absLargerLimit =
       math.max(
         if (mabl.isDefined) mabl.get else 0L,
-        if (maybeAbsBitLimit0b.isDefined) maybeAbsBitLimit0b.get else 0L
-      )
+        if (maybeAbsBitLimit0b.isDefined) maybeAbsBitLimit0b.get else 0L)
     if (mabl.isDefined || maybeAbsBitLimit0b.isDefined) {
       val newRelLimit = absLargerLimit - this.maybeAbsStartingBitPos0b.get
       this.setMaybeRelBitLimit0b(MaybeULong(newRelLimit))
@@ -253,7 +268,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     Assert.invariant(isDirect)
   }
 
-  override def setFinished() {
+  override def setFinished(finfo: FormatInfo) {
     Assert.usage(!isFinished)
     // if we are direct, and there's a buffer following this one
     //
@@ -275,7 +290,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
           first.setAbsStartingBitPos0b(dabp)
         }
 
-        DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first) // from first, into direct stream's buffers
+        DirectOrBufferedDataOutputStream.deliverBufferContent(directStream, first, finfo) // from first, into direct stream's buffers
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
         //
         first.convertToDirect(directStream) // first is now the direct stream
@@ -302,7 +317,8 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
           if (directStream.cst.fragmentLastByteLimit > 0) {
             // must not omit the fragment byte on the end.
             directStream.getJavaOutputStream().write(directStream.cst.fragmentLastByte)
-            directStream.cst.setFragmentLastByte(0, 0) // zero out so we don't end up thinking it is still there.
+            // zero out so we don't end up thinking it is still there
+            directStream.cst.setFragmentLastByte(0, 0)
           }
           directStream.setDOSState(Uninitialized) // not just finished. We're dead now.
         } else {
@@ -393,6 +409,9 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     }
   }
 
+  /**
+   * Always writes out at least 1 bit.
+   */
   final override protected def putLong_BE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
     // Note: we don't have to check for bit limit. That check was already done.
     //
@@ -473,6 +492,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
   }
 
   final override protected def putLong_LE_MSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+
     // Note: we don't have to check for bit limit. That check was already done.
     //
     // LE_MSBF is most complicated of all.
@@ -520,9 +540,9 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
       val nFragBitsAfter = fragmentLastByteLimit + nBitsOfFragToBeFilled // this can be 8 if we're going to fill all of the frag.
 
       // Now get the bits that will go into the frag, from the least significant (first) byte.
-      val newFragBitsMask = 0x80.toByte >> (nBitsOfFragToBeFilled - 1)
+      val newFragBitsMask = (0x80.toByte >> (nBitsOfFragToBeFilled - 1)) & 0xFF
       val LSByte = unionByteBuffer.get(0)
-      val bitsToGoIntoFragInPosition = ((LSByte & newFragBitsMask) >>> fragmentLastByteLimit).toInt
+      val bitsToGoIntoFragInPosition = (((LSByte & newFragBitsMask) & 0xFF) >>> fragmentLastByteLimit).toInt
 
       val newFragByte = Bits.asUnsignedByte((fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
       Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
@@ -574,6 +594,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
   }
 
   final override protected def putLong_LE_LSBFirst(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+
     // Note: we don't have to check for bit limit. That check was already done.
     //
     // Interestingly, LE_LSBF is slightly simpler than BE_MSBF as we don't have to shift bytes to get the
@@ -681,16 +702,14 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
  *
  * All calls to setFinished should, somewhere, be surrounded by a catch of this.
  */
-class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream,
-  bufDOS: DirectOrBufferedDataOutputStream) extends Exception with ThinThrowable {
+class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo) extends Exception with ThinThrowable {
 
   override def getMessage() = {
-    "Data output stream %s with bitOrder '%s'%scannot be populated from %s with bitOrder '%s'.".format(
+    "Data output stream %s with bitOrder '%s' which is not on a byte boundary (%s bits past last byte boundary), cannot be populated with bitOrder '%s'.".format(
       directDOS,
-      directDOS.bitOrder,
-      (if (!directDOS.isEndOnByteBoundary) " not on a byte boundary, " else ""),
-      bufDOS,
-      bufDOS.bitOrder)
+      directDOS.priorBitOrder,
+      directDOS.fragmentLastByteLimit,
+      finfo.bitOrder)
   }
 }
 
@@ -703,20 +722,25 @@ object DirectOrBufferedDataOutputStream {
    * Delivers the bits of bufDOS into directDOS's output stream. Deals with the possibility that
    * the directDOS ends with a fragment byte, or the bufDOS does, or both.
    */
-  private def deliverBufferContent(directDOS: DirectOrBufferedDataOutputStream, bufDOS: DirectOrBufferedDataOutputStream) {
+  private def deliverBufferContent(directDOS: DirectOrBufferedDataOutputStream,
+    bufDOS: DirectOrBufferedDataOutputStream,
+    finfo: FormatInfo) {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 
     val ba = bufDOS.bufferingJOS.getBuf
     val bufferNBits = bufDOS.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
 
-    if (bufDOS.cst.bitOrder ne directDOS.cst.bitOrder) {
-      if (!directDOS.isEndOnByteBoundary) {
+    val finfoBitOrder = finfo.bitOrder // bit order we are supposed to write with
+    val priorBitOrder = directDOS.cst.priorBitOrder // bit order that the directDOS had at last successful unparse. (prior is set after each unparser)
+    if (finfoBitOrder ne priorBitOrder) {
+      if ((bufferNBits > ULong.Zero) &&
+        !directDOS.isEndOnByteBoundary) {
         //
         // If the bit order changes, it has to be on a byte boundary
         // It's simply not meaningful for it to change otherwise.
         //
-        throw new BitOrderChangeException(directDOS, bufDOS)
+        throw new BitOrderChangeException(directDOS, finfo)
       }
     }
 
@@ -737,22 +761,22 @@ object DirectOrBufferedDataOutputStream {
           if (directDOS.isEndOnByteBoundary && bufDOS.isEndOnByteBoundary) {
 
             val nBytes = (bufferNBits / 8).toInt
-            val nBytesPut = directDOS.putBytes(ba, 0, nBytes)
+            val nBytesPut = directDOS.putBytes(ba, 0, nBytes, finfo)
             Assert.invariant(nBytesPut == nBytes)
 
           } else {
             val nFragBits = bufDOS.fragmentLastByteLimit
             val byteCount = bufDOS.bufferingJOS.getCount()
-            val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount)
+            val wholeBytesWritten = directDOS.putBytes(ba, 0, byteCount, finfo)
             Assert.invariant(byteCount == wholeBytesWritten)
             if (nFragBits > 0) {
               val origfrag = bufDOS.fragmentLastByte
               val fragNum =
-                if (bufDOS.bitOrder eq BitOrder.MostSignificantBitFirst)
+                if (finfoBitOrder eq BitOrder.MostSignificantBitFirst)
                   origfrag >> (8 - nFragBits)
                 else
                   origfrag
-              Assert.invariant(directDOS.putLong(fragNum, nFragBits)) // FAILS when doing this for suspensions due to assertions about consistent bit/byte order.
+              Assert.invariant(directDOS.putLongUnchecked(fragNum, nFragBits, finfo))
             }
             //
             // bufDOS contents have now been output into directDOS

@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.infoset.DIComplex
 import edu.illinois.ncsa.daffodil.infoset.DIElement
 import edu.illinois.ncsa.daffodil.infoset.DISimple
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
@@ -190,6 +189,15 @@ class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
     // knownLengthInBits. This is because even if an OVC element has fixed
     // length, the result of the OVC might not actually write that many bits,
     // relying on padding and/or right fill to fill in the remaining bits
+    //
+    // TODO: The above is too pessimistic. Many formats have no notion of
+    // padding nor filling, so the length could be computed from the targetLengthInBitsEv
+    // just fine
+    //
+    // We could make it the responsibility of the caller of this to supply or not
+    // the maybeUnparserTargetLengthInBitsEv depending on whether it can be
+    // depended upon or not.
+    //
     MaybeULong.Nope
   }
 
@@ -198,7 +206,7 @@ class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   }
 
   protected def continuation(state: UState) {
-    vUnparser.unparse1(state, rd)
+    vUnparser.unparse1(state)
   }
 }
 
@@ -287,6 +295,12 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
 
 /**
  * Carries out computation of the target length for a specified-length element.
+ *
+ * This is not a SuspendableExpression because the dfdl:length property cannot
+ * be forward referencing. However, it can refer backward to elements that have
+ * dfdl:outputValueCalc or variables that have not yet been computed. So we have
+ * to retry this in order to get the target length used to compute the amount of
+ * padding or the amount of unused space.
  */
 class TargetLengthOperation(override val rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv)
@@ -303,6 +317,9 @@ class TargetLengthOperation(override val rd: ElementRuntimeData,
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
 
   override def test(ustate: UState): Boolean = {
+    //
+    // regular evaluation - can only look backwards
+    //
     targetLengthEv.evaluate(ustate) // can we successfully evaluate without blocking (blocking would throw)
     true
   }
@@ -397,8 +414,7 @@ class ElementUnusedUnparserSuspendableOperation(
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
-  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  fillByteEv: FillByteEv)
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv])
   extends SuspendableOperation
   with NeedValueAndTargetLengthMixin {
 
@@ -417,9 +433,7 @@ class ElementUnusedUnparserSuspendableOperation(
   protected final def skipTheBits(ustate: UState, skipInBits: Long) {
     if (skipInBits > 0) {
       val dos = ustate.dataOutputStream
-      val fb = fillByteEv.evaluate(ustate)
-      dos.setFillByte(fb)
-      if (!dos.skip(skipInBits))
+      if (!dos.skip(skipInBits, ustate))
         UE(ustate, "Unable to skip %s(bits).", skipInBits)
     }
     if (skipInBits == 0) {
@@ -438,16 +452,15 @@ class ElementUnusedUnparser(
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  fillByteEv: FillByteEv)
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv])
   extends PrimUnparserObject(rd)
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = List(targetLengthEv, fillByteEv)
+  override lazy val runtimeDependencies = List(targetLengthEv)
 
   override def suspendableOperation =
     new ElementUnusedUnparserSuspendableOperation(
-      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv)
 
 }
 
@@ -486,15 +499,12 @@ trait PaddingUnparserMixin
     val nChars = numPadChars(skipInBits, cs.padCharWidthInBits)
     if (nChars > 0) {
       val dos = state.dataOutputStream
-      // TODO: Performance - do we need to do this?
-      dos.setEncoder(state.getEncoder(cs.charset))
-      // TODO: Performance - do this better. No reason to be doing this one character at a time
       var i = 0
       val padChar = maybePadChar.get
       val padString = padChar.toString
       while (i < nChars) {
         try {
-          if (dos.putString(padString) != 1)
+          if (dos.putString(padString, state) != 1)
             UE(state, "Unable to output %s %s characters.", nChars, charsKind)
         } catch {
           case m: MalformedInputException => { UnparseError(One(self.rd.schemaFileLocation), One(state.currentLocation), "MalformedInputException: \n%s", m.getMessage()) }
@@ -525,7 +535,7 @@ class OnlyPaddingUnparser(
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   maybePadChar: MaybeChar)
-  extends PrimUnparserObject(rd)
+  extends TextPrimUnparserObject(rd)
   with SuspendableUnparser {
 
   override lazy val runtimeDependencies = List(targetLengthEv)
@@ -575,7 +585,7 @@ class NilLiteralCharacterUnparser(
   val maybeLengthEv: Maybe[LengthEv],
   val maybeCharsetEv: Maybe[CharsetEv],
   literalNilChar: Char)
-  extends PrimUnparserObject(rd)
+  extends TextPrimUnparserObject(rd)
   with SuspendableUnparser {
 
   override lazy val runtimeDependencies = List(targetLengthEv)
@@ -648,9 +658,8 @@ class RightFillUnparserSuspendableOperation(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  fillByteEv: FillByteEv,
   override val maybePadChar: MaybeChar)
-  extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv)
+  extends ElementUnusedUnparserSuspendableOperation(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv)
   with PaddingUnparserMixin {
 
   override def continuation(state: UState) {
@@ -679,13 +688,12 @@ class RightFillUnparser(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  fillByteEv: FillByteEv,
   val maybePadChar: MaybeChar)
-  extends ElementUnusedUnparser(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv) {
+  extends ElementUnusedUnparser(rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv) {
 
   override def suspendableOperation =
     new RightFillUnparserSuspendableOperation(
-      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, fillByteEv, maybePadChar)
+      rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 
 }
 

@@ -31,26 +31,31 @@
  */
 
 package edu.illinois.ncsa.daffodil.io
-
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import java.nio.charset.StandardCharsets
-import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.api.DataStreamLimits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 trait DataStreamCommonState {
 
-  var binaryFloatRep: BinaryFloatRep = BinaryFloatRep.Ieee
-  var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
-  var maybeCharWidthInBits: MaybeInt = MaybeInt.Nope
-  var encodingMandatoryAlignmentInBits: Int = 8
-  var maybeUTF16Width: Maybe[UTF16Width] = Maybe(UTF16Width.Fixed)
+  /**
+   * Keeps track of the bitOrder of the last operation on the
+   * data stream.
+   */
+  private var maybePriorBitOrder_ : Maybe[BitOrder] = Maybe.Nope
+
+  def setPriorBitOrder(pbo: BitOrder) {
+    maybePriorBitOrder_ = One(pbo)
+  }
+
+  def priorBitOrder: BitOrder = {
+    Assert.usage(maybePriorBitOrder_.isDefined)
+    maybePriorBitOrder_.value
+  }
+
   var debugging: Boolean = false
   var limits_ : DataStreamLimits = BBSLimits
   //
@@ -65,25 +70,17 @@ trait DataStreamCommonState {
   // aka a surrogate-pair.
   //
   var maybeTrailingSurrogateForUTF8: MaybeChar = MaybeChar.Nope
-  var priorEncoding: Charset = StandardCharsets.UTF_8
   var priorBitPos: Long = 0L
 
   def resetUTF8SurrogatePairCapture {
-    this.maybeTrailingSurrogateForUTF8 = MaybeChar.Nope
     this.priorBitPos = -1
   }
 
   def assignFrom(other: DataStreamCommonState): Unit = {
-    this.binaryFloatRep = other.binaryFloatRep
-    this.bitOrder = other.bitOrder
-    this.maybeCharWidthInBits = other.maybeCharWidthInBits
-    this.encodingMandatoryAlignmentInBits = other.encodingMandatoryAlignmentInBits
-    this.maybeUTF16Width = other.maybeUTF16Width
     this.debugging = other.debugging
     this.limits_ = other.limits_
-    this.maybeTrailingSurrogateForUTF8 = other.maybeTrailingSurrogateForUTF8
-    this.priorEncoding = other.priorEncoding
     this.priorBitPos = other.priorBitPos
+    this.maybePriorBitOrder_ = other.maybePriorBitOrder_
   }
 
 }
@@ -94,18 +91,6 @@ trait DataStreamCommonState {
 trait DataStreamCommonImplMixin extends DataStreamCommon with Logging {
 
   protected def cst: DataStreamCommonState
-
-  final override def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit = {
-    Assert.invariant(binaryFloatRep == BinaryFloatRep.Ieee)
-    cst.binaryFloatRep = binaryFloatRep
-  }
-
-  final override def setBitOrder(bitOrder: BitOrder): Unit = { cst.bitOrder = bitOrder }
-  //  final override def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit = { cst.maybeCharWidthInBits = charWidthInBits }
-  //  final override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = { cst.encodingMandatoryAlignmentInBits = bitAlignment }
-  final override def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = { cst.maybeUTF16Width = maybeUTF16Width }
-
-  final def isFixedWidthEncoding = cst.maybeCharWidthInBits.isDefined
 
   final override def limits: DataStreamLimits = cst.limits_
 

@@ -33,21 +33,21 @@
 package edu.illinois.ncsa.daffodil.io
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import org.junit.Test
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestDataOutputStream4 {
 
-  def setup(setAbs: Boolean = true) = {
+  val finfo = FormatInfoForUnitTest()
+  finfo.fillByte = 0.toByte
+
+  def setup(setAbs: Boolean = true, bitOrd: BitOrder = BitOrder.MostSignificantBitFirst) = {
     val baos = new ByteArrayOutputStreamWithGetBuf()
     val direct = DirectOrBufferedDataOutputStream(baos, null)
-    direct.setBitOrder(BitOrder.MostSignificantBitFirst)
-    direct.setByteOrder(ByteOrder.BigEndian)
-    direct.setFillByte(0)
+    direct.setPriorBitOrder(bitOrd)
 
-    direct.putLong(0x5a5a5, 19)
+    direct.putLong(0x5a5a5, 19, finfo)
 
     // X101 1010 0101 1010 0101
     // 1011 0100 1011 0100 101X  big endian, MSBF
@@ -59,11 +59,11 @@ class TestDataOutputStream4 {
     if (setAbs)
       out2.setAbsStartingBitPos0b(ULong(39))
 
-    out.putLong(0x5a5a5, 19)
+    out.putLong(0x5a5a5, 19, finfo)
     // 101 1010 0101 1010 0101
     // 1 0110 1001 0110 1001 01XX
 
-    out2.putLong(0x5a5a5, 19)
+    out2.putLong(0x5a5a5, 19, finfo)
     // 101 1010 0101 1010 0101
     // 10 1101 0010 1101 0010 1XXX
 
@@ -92,9 +92,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishInOrderAbs {
     val (baos, direct, out, out2) = setup()
 
-    direct.setFinished()
-    out.setFinished()
-    out2.setFinished()
+    direct.setFinished(finfo)
+    out.setFinished(finfo)
+    out2.setFinished(finfo)
 
     checkResults(baos)
 
@@ -103,9 +103,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder1Abs {
     val (baos, direct, out, out2) = setup()
 
-    out.setFinished()
-    direct.setFinished()
-    out2.setFinished()
+    out.setFinished(finfo)
+    direct.setFinished(finfo)
+    out2.setFinished(finfo)
 
     checkResults(baos)
 
@@ -114,9 +114,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder2Abs {
     val (baos, direct, out, out2) = setup()
 
-    out2.setFinished()
-    out.setFinished()
-    direct.setFinished()
+    out2.setFinished(finfo)
+    out.setFinished(finfo)
+    direct.setFinished(finfo)
 
     checkResults(baos)
 
@@ -125,9 +125,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder3Abs {
     val (baos, direct, out, out2) = setup()
 
-    out2.setFinished()
-    direct.setFinished()
-    out.setFinished()
+    out2.setFinished(finfo)
+    direct.setFinished(finfo)
+    out.setFinished(finfo)
 
     checkResults(baos)
 
@@ -136,9 +136,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishInOrder {
     val (baos, direct, out, out2) = setup(false)
 
-    direct.setFinished()
-    out.setFinished()
-    out2.setFinished()
+    direct.setFinished(finfo)
+    out.setFinished(finfo)
+    out2.setFinished(finfo)
 
     checkResults(baos)
 
@@ -147,9 +147,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder1 {
     val (baos, direct, out, out2) = setup(false)
 
-    out.setFinished()
-    direct.setFinished()
-    out2.setFinished()
+    out.setFinished(finfo)
+    direct.setFinished(finfo)
+    out2.setFinished(finfo)
 
     checkResults(baos)
 
@@ -158,9 +158,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder2 {
     val (baos, direct, out, out2) = setup(false)
 
-    out2.setFinished()
-    out.setFinished()
-    direct.setFinished()
+    out2.setFinished(finfo)
+    out.setFinished(finfo)
+    direct.setFinished(finfo)
 
     checkResults(baos)
 
@@ -169,9 +169,9 @@ class TestDataOutputStream4 {
   @Test def testPutLong19FinishOutOfOrder3 {
     val (baos, direct, out, out2) = setup(false)
 
-    out2.setFinished()
-    direct.setFinished()
-    out.setFinished()
+    out2.setFinished(finfo)
+    direct.setFinished(finfo)
+    out.setFinished(finfo)
 
     checkResults(baos)
 

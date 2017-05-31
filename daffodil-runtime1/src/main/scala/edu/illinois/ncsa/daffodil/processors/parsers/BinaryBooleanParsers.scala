@@ -86,7 +86,7 @@ class BinaryBooleanParser(val e: ElementRuntimeData,
       return
     }
 
-    val sl = dis.getUnsignedLong(nBits)
+    val sl = dis.getUnsignedLong(nBits, start)
 
     val bool: JBoolean =
       if (!binaryBooleanTrueRep.isDefined) {

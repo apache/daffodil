@@ -32,15 +32,15 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
-class OptionalInfixSepUnparser(contextArg: RuntimeData,
+class OptionalInfixSepUnparser(contextArg: TermRuntimeData,
   sepUnparser: Unparser)
   extends UnparserObject(contextArg) {
 
   override lazy val childProcessors = List(sepUnparser)
 
-  def unparse(state: UState): Unit = {
+  override def unparse(state: UState): Unit = {
     if (state.arrayPos > 1) sepUnparser.unparse1(state, contextArg)
     else if (state.groupPos > 1) sepUnparser.unparse1(state, contextArg)
   }

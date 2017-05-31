@@ -434,7 +434,7 @@ class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode) ext
   def namedQName = node.namedQName
   def erd: ElementRuntimeData = node match {
     case a: DIArray => a.parent.runtimeData
-    case e: DIElement => e.runtimeData
+    case e: DIElement => e.erd
   }
 
   override def toString = {

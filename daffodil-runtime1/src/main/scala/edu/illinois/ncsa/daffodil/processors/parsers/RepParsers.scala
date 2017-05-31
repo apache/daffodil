@@ -43,11 +43,11 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Numbers
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends ParserObject(context) {
@@ -90,7 +90,7 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
  * otherwise, we know N.
  */
 object Rep {
-  def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): Unit = {
+  def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: TermRuntimeData, iParser: Parser): Unit = {
     while (pstate.mpstate.arrayPos <= intN) {
       if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)

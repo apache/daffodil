@@ -159,8 +159,7 @@ case class ElementUnused(ctxt: ElementBase)
     ctxt.maybeUnparseTargetLengthInBitsEv.get,
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
-    ctxt.maybeLiteralNilEv,
-    ctxt.fillByteEv)
+    ctxt.maybeLiteralNilEv)
 }
 
 case class OnlyPadding(ctxt: ElementBase)
@@ -237,7 +236,6 @@ case class RightFill(ctxt: ElementBase)
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
     ctxt.maybeLiteralNilEv,
-    ctxt.fillByteEv,
     unparsingPadChar)
 }
 
@@ -268,7 +266,7 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
     // improve this check so that this unparser can be optimized out if there
     // will not be any suspensions.
     if (ctxt.isReferencedByContentLengthUnparserExpressions ||
-        (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
+      (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
       new CaptureStartOfContentLengthUnparser(ctxt.erd)
     else
       new NadaUnparser(ctxt.erd)
@@ -293,7 +291,7 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
     // improve this check so that this unparser can be optimized out if there
     // will not be any suspensions.
     if (ctxt.isReferencedByContentLengthUnparserExpressions ||
-        (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
+      (ctxt.maybeFixedLengthInBits.isDefined && ctxt.couldHaveSuspensions))
       new CaptureEndOfContentLengthUnparser(ctxt.erd, ctxt.maybeFixedLengthInBits)
     else
       new NadaUnparser(ctxt.erd)

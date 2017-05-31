@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.infoset.RetryableException
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -52,7 +53,7 @@ import edu.illinois.ncsa.daffodil.infoset.RetryableException
 trait SuspendableOperation
   extends Suspension {
 
-  override def rd: RuntimeData
+  override def rd: TermRuntimeData
 
   override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
 
@@ -105,7 +106,8 @@ trait SuspendableOperation
   }
 }
 
-trait SuspendableUnparser {
+trait SuspendableUnparser
+  extends Unparser {
 
   protected def suspendableOperation: SuspendableOperation
 
@@ -116,6 +118,6 @@ trait SuspendableUnparser {
 
 class SuspendableOperationException(m: String)
   extends Diagnostic(Nope, Nope, Nope, Maybe(m)) {
-  def isError = true
-  def modeName= "Unparse"
+  override def isError = true
+  override def modeName = "Unparse"
 }

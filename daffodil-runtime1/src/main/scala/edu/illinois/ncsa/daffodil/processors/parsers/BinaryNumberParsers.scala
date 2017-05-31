@@ -50,7 +50,7 @@ class BinaryFloatParser(e: ElementRuntimeData)
       return
     }
 
-    val f: JFloat = dis.getBinaryFloat()
+    val f: JFloat = dis.getBinaryFloat(start)
     start.simpleElement.overwriteDataValue(f)
   }
 }
@@ -66,7 +66,7 @@ class BinaryDoubleParser(e: ElementRuntimeData)
       return
     }
 
-    val d: JDouble = dis.getBinaryDouble()
+    val d: JDouble = dis.getBinaryDouble(start)
     start.simpleElement.overwriteDataValue(d)
   }
 }
@@ -89,15 +89,14 @@ abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, bin
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     val dis = start.dataInputStream
-
     if (!dis.isDefinedForLength(nBits)) {
       PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
       return
     }
 
     val bigInt: BigInt =
-      if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits) }
-      else { dis.getUnsignedBigInt(nBits) }
+      if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits, start) }
+      else { dis.getUnsignedBigInt(nBits, start) }
 
     val bigDec = BigDecimal(bigInt, binaryDecimalVirtualPoint)
     start.simpleElement.overwriteDataValue(bigDec)
@@ -123,7 +122,6 @@ abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
     val nBits = getBitLength(start)
     if (nBits == 0) return // zero length is used for outputValueCalc often.
     val dis = start.dataInputStream
-
     if (!dis.isDefinedForLength(nBits)) {
       PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
       return
@@ -131,11 +129,11 @@ abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
 
     val int: JNumber =
       if (signed) {
-        if (nBits > 64) { dis.getSignedBigInt(nBits) }
-        else { dis.getSignedLong(nBits) }
+        if (nBits > 64) { dis.getSignedBigInt(nBits, start) }
+        else { dis.getSignedLong(nBits, start) }
       } else {
-        if (nBits >= 64) { dis.getUnsignedBigInt(nBits) }
-        else { dis.getUnsignedLong(nBits).toLong }
+        if (nBits >= 64) { dis.getUnsignedBigInt(nBits, start) }
+        else { dis.getUnsignedLong(nBits, start).toLong }
       }
 
     start.simpleElement.overwriteDataValue(int)

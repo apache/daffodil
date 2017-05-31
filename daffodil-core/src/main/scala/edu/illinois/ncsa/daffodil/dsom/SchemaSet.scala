@@ -81,9 +81,12 @@ final class SchemaSet(
   val validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
   parent: SchemaComponent,
-  override val tunable: DaffodilTunables)
+  tunableArg: DaffodilTunables)
   extends SchemaComponentImpl(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
+
+  override def tunable =
+    tunableArg
 
   requiredEvaluations(isValid)
   if (checkAllTopLevel) {

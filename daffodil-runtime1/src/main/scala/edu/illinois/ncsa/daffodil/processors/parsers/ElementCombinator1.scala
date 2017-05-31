@@ -42,11 +42,11 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Processor
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 abstract class ElementParserBase(
-  rd: RuntimeData,
+  rd: TermRuntimeData,
   name: String,
   patDiscrimParser: Maybe[Parser],
   patAssertParser: Array[Parser],
@@ -136,6 +136,7 @@ abstract class ElementParserBase(
     }
 
     parseBegin(pstate)
+    ParserBitOrderChecks.checkParseBitOrder(pstate)
 
     try {
       // TODO: Performance/Maintainability - get rid of use of return statements.

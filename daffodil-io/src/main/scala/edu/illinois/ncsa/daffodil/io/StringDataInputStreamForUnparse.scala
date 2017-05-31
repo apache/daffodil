@@ -32,11 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
@@ -48,28 +45,20 @@ final class StringDataInputStreamForUnparse
   extends DataInputStreamImplMixin {
   import DataInputStream._
 
-  final protected val cst = new AnyRef with DataStreamCommonState
+  override final protected val cst = new AnyRef with DataStreamCommonState
 
   var str: String = null
   var dis: DataInputStream = null
 
-  private val utf8Decoder = StandardCharsets.UTF_8.newDecoder()
-
-  // TODO: Performance - we could keep a BBDIS around, and "reset" it by
-  // putting it onto a byte buffer that we fill from the string. That way
-  // we wouldn't have to allocate a BBDIS unless the string requires a bigger
-  // byte buffer.
-  //
-  def reset(str: String) {
+  def reset(str: String, finfo: FormatInfo) {
     this.str = str
-    val ba = str.getBytes(StandardCharsets.UTF_8)
+    val ba = str.getBytes(finfo.decoder.charset())
     dis = ByteBufferDataInputStream(ba)
-    dis.setDecoder(utf8Decoder)
   }
 
   private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
 
-  def asIteratorChar: DataInputStream.CharIterator = {
+  override def asIteratorChar: DataInputStream.CharIterator = {
     Assert.usage(dis != null, "Must call reset(str) before any other method.")
     dis.asIteratorChar
   }
@@ -77,34 +66,27 @@ final class StringDataInputStreamForUnparse
   override def bitLimit0b = dis.bitLimit0b
   override def bitPos0b: Long = dis.bitPos0b
   override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
-  override def fillCharBuffer(cb: java.nio.CharBuffer) = dis.fillCharBuffer(cb)
+  override def fillCharBuffer(cb: java.nio.CharBuffer, finfo: FormatInfo) = dis.fillCharBuffer(cb, finfo)
   override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
-  override def getBinaryDouble(): Double = doNotUse
-  override def getBinaryFloat(): Float = doNotUse
-  override def getSignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
-  override def getSignedLong(bitLengthFrom1To64: Int): Long = doNotUse
-  override def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = doNotUse
-  override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
-  override def getByteArray(bitLengthFrom1: Int): Array[Byte] = doNotUse
-  override def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
-    dis.lookingAt(matcher, initialRegexMatchLimitInChars)
+  override def getBinaryDouble(finfo: FormatInfo): Double = doNotUse
+  override def getBinaryFloat(finfo: FormatInfo): Float = doNotUse
+  override def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = doNotUse
+  override def getSignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): Long = doNotUse
+  override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = doNotUse
+  override def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): passera.unsigned.ULong = doNotUse
+  override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = doNotUse
+  override def lookingAt(matcher: java.util.regex.Matcher, finfo: FormatInfo, initialRegexMatchLimitInChars: Long): Boolean =
+    dis.lookingAt(matcher, finfo, initialRegexMatchLimitInChars)
   override def mark(requestorID: String): DataInputStream.Mark = dis.mark(requestorID)
   override def markPos = dis.markPos
   override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
   override def resetPos(m: MarkPos) = dis.resetPos(m)
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
-  override def setByteOrder(byteOrder: ByteOrder): Unit = doNotUse
-  override def byteOrder: ByteOrder = doNotUse
-  // override def setCharWidthInBits(charWidthInBits: MaybeInt): Unit = doNotUse
   override def setDebugging(setting: Boolean): Unit = doNotUse
-  override def getDecoder = doNotUse
-  override def setDecoder(decoder: java.nio.charset.CharsetDecoder): Unit = doNotUse
-  override def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = doNotUse
-  // override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = doNotUse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
-  override def skip(nBits: Long): Boolean = doNotUse
-  override def skipChars(nChars: Long): Boolean = getString(nChars).isDefined
+  override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
+  override def skipChars(nChars: Long, finfo: FormatInfo): Boolean = getString(nChars, finfo).isDefined
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
   override def validateFinalStreamState {} // does nothing
 }

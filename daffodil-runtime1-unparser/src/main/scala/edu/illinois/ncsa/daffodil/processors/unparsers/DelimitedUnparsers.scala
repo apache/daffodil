@@ -51,7 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
   isDelimRequired: Boolean)
-  extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {
+  extends TextPrimUnparserObject(erd) {
 
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(erd)
@@ -60,8 +60,6 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
     state.currentInfosetNode.asSimple.dataValueAsString
 
   def unparse(state: UState): Unit = {
-
-    setupEncoding(state, erd)
 
     val schemeOpt = if (escapeScheme.isDefined) One(escapeScheme.get.evaluate(state)) else Nope
 
@@ -73,7 +71,7 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
           state.withUnparserDataInputStream { dis =>
             val terminatingMarkup = state.allTerminatingMarkup
 
-            dis.reset(valueString)
+            dis.reset(valueString, state)
 
             val scheme = schemeOpt.get
 
@@ -112,7 +110,7 @@ sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
         } else valueString // No EscapeScheme
 
       val outStream = state.dataOutputStream
-      val nCharsWritten = outStream.putString(escapedValue)
+      val nCharsWritten = outStream.putString(escapedValue, state)
       if (nCharsWritten != escapedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
         nom, escapedValue.length)
       log(LogLevel.Debug, "Ended at bit position " + outStream.relBitPos0b)

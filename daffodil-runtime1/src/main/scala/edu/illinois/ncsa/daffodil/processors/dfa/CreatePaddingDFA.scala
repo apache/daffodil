@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.processors.Delimiter
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 object CreatePaddingDFA {
 
@@ -43,7 +43,7 @@ object CreatePaddingDFA {
    * Constructs a DFADelimiter object that specifically
    * looks for padChar.
    */
-  def apply(padChar: Char, rd: RuntimeData): DFADelimiter = {
+  def apply(padChar: Char, rd: TermRuntimeData): DFADelimiter = {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
@@ -60,7 +60,7 @@ object CreatePaddingDFA {
    * Constructs a DFADelimiter object that specifically
    * looks for padChar.
    */
-  def apply(padChar: Char, outputNewLine: String, rd: RuntimeData): DFADelimiter = {
+  def apply(padChar: Char, outputNewLine: String, rd: TermRuntimeData): DFADelimiter = {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 

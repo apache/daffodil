@@ -36,11 +36,30 @@ import scala.Right
 import scala.collection.mutable
 
 import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.infoset.DIComplex
+import edu.illinois.ncsa.daffodil.infoset.DIComplexState
+import edu.illinois.ncsa.daffodil.infoset.DIElement
+import edu.illinois.ncsa.daffodil.infoset.DISimple
+import edu.illinois.ncsa.daffodil.infoset.DISimpleState
+import edu.illinois.ncsa.daffodil.infoset.Infoset
+import edu.illinois.ncsa.daffodil.infoset.InfosetDocument
+import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.processors.DataLoc
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
+import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.ProcessorResult
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.util.MStack
@@ -54,22 +73,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Poolable
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.ProcessorResult
-import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 object MPState {
 
@@ -149,14 +153,14 @@ class MPState private () {
 
 final class PState private (
   var infoset: DIElement,
-  var dataInputStream: DataInputStream,
+  var dataInputStream: ByteBufferDataInputStream,
   val output: InfosetOutputter,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
-  tunable: DaffodilTunables) // Runtime tunables obtained from DataProcessor
+  tunable: DaffodilTunables) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
   override def currentNode = Maybe(infoset)
@@ -255,7 +259,7 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: RuntimeData, pstate: PState) {
+  def setVariable(vrd: VariableRuntimeData, newValue: Any, referringContext: VariableRuntimeData, pstate: PState) {
     this.setVariableMap(variableMap.setVariable(vrd, newValue, referringContext, pstate))
   }
 
@@ -355,10 +359,10 @@ object PState {
    */
   def createInitialPState(
     root: ElementRuntimeData,
-    dis: DataInputStream,
+    dis: ByteBufferDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
-    
+
     val tunables = dataProc.getTunables()
 
     val doc = Infoset.newDocument(root, tunables).asInstanceOf[DIElement]
@@ -376,7 +380,7 @@ object PState {
   def createInitialPState(
     doc: InfosetDocument,
     root: ElementRuntimeData,
-    dis: DataInputStream,
+    dis: ByteBufferDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
@@ -414,6 +418,57 @@ object PState {
     bitLengthLimit: Long = -1): PState = {
     val dis =
       ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit)
+    dis.cst.setPriorBitOrder(root.defaultBitOrder)
     createInitialPState(root, dis, output, dataProc)
+  }
+}
+
+object ParserBitOrderChecks {
+  /**
+   * Checks for bit order change. If the bit order is changing, checks if we're
+   * on a proper byte boundary.
+   */
+  final def checkParseBitOrder(pstate: PState) = {
+    //
+    // TODO: This looks like a lot of overhead for every single parse call.
+    //
+    // We need to check for bitOrder change. If it is changing, we
+    // need to know if it is on a proper byte boundary.
+    //
+    val dis = pstate.dataInputStream
+    val isChanging = isParseBitOrderChanging(dis, pstate)
+    if (isChanging) {
+      //
+      // the bit order is changing. Let's be sure
+      // that it's legal to do so w.r.t. other properties
+      // These checks will have been evaluated at compile time if
+      // all the properties are static, so this is really just
+      // in case the charset or byteOrder are runtime-valued.
+      //
+      pstate.processor.context match {
+        case trd: TermRuntimeData => {
+          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
+          val mcbbo = trd.maybeCheckByteAndBitOrderEv
+          if (mcboc.isDefined) mcboc.get.evaluate(pstate) // Expressions must be evaluated on the element, not before it is created.
+          if (mcbbo.isDefined) mcbbo.get.evaluate(pstate)
+        }
+        case _ => // ok
+      }
+
+      dis.st.setPriorBitOrder(pstate.bitOrder)
+      if (!dis.isAligned(8))
+        pstate.SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", dis.bitPos1b)
+    }
+  }
+
+  private def isParseBitOrderChanging(dis: ByteBufferDataInputStream, pstate: PState): Boolean = {
+    pstate.processor.context match {
+      case ntrd: NonTermRuntimeData => false
+      case _ => {
+        val priorBitOrder = dis.st.priorBitOrder
+        val newBitOrder = pstate.bitOrder
+        priorBitOrder ne newBitOrder
+      }
+    }
   }
 }

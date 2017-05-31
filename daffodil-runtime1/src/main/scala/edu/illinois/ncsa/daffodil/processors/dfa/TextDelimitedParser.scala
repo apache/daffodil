@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
@@ -53,14 +54,14 @@ abstract class TextDelimitedParserBase(
   private lazy val padCharInfo = if (parsingPadChar.isDefined) parsingPadChar.toString else "NONE"
   lazy val info: String = "justification='" + justificationTrim + "', padChar='" + padCharInfo + "'"
 
-  final def parse(input: DataInputStream, field: DFAField, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
+  final def parse(finfo: FormatInfo, input: DataInputStream, field: DFAField, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(field != null)
 
     val lmt = new LongestMatchTracker()
 
     val fieldReg: Registers = TLRegistersPool.getFromPool("TextDelimitedParserBase1")
 
-    fieldReg.reset(input, delimIter) // Initialization
+    fieldReg.reset(finfo, input, delimIter) // Initialization
 
     var stillSearching: Boolean = true
     var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
@@ -81,7 +82,7 @@ abstract class TextDelimitedParserBase(
             input.resetPos(beforeDelimiter)
             beforeDelimiter = input.markPos
             val delimReg: Registers = TLRegistersPool.getFromPool("TextDelimitedParserBase2")
-            delimReg.reset(input, delimIter)
+            delimReg.reset(finfo, input, delimIter)
             d.run(delimReg)
             if (delimReg.status == StateKind.Succeeded) {
               lmt.successfulMatch(delimReg.matchStartPos, delimReg.delimString, d, delimIter.currentIndex)
@@ -199,11 +200,11 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def removeLeftPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
+  protected def removeLeftPadding(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Right if parsingPadChar.isDefined => {
         val leftPaddingRegister = TLRegistersPool.getFromPool("removeLeftPadding")
-        leftPaddingRegister.reset(input, delimIter)
+        leftPaddingRegister.reset(finfo, input, delimIter)
         leftPadding.run(leftPaddingRegister)
         TLRegistersPool.returnToPool(leftPaddingRegister)
       }
@@ -211,11 +212,11 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def removeRightPadding(input: DataInputStream, delimIter: DelimiterIterator): Unit = {
+  protected def removeRightPadding(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Left if parsingPadChar.isDefined => {
         val rightPaddingRegister = TLRegistersPool.getFromPool("removeRightPadding")
-        rightPaddingRegister.reset(input, delimIter)
+        rightPaddingRegister.reset(finfo, input, delimIter)
         rightPadding.run(rightPaddingRegister)
         TLRegistersPool.returnToPool(rightPaddingRegister)
       }
@@ -223,9 +224,9 @@ class TextDelimitedParserWithEscapeBlock(
     }
   }
 
-  protected def parseStartBlock(input: DataInputStream, startBlock: DFADelimiter, delimIter: DelimiterIterator): Boolean = {
+  protected def parseStartBlock(finfo: FormatInfo, input: DataInputStream, startBlock: DFADelimiter, delimIter: DelimiterIterator): Boolean = {
     val startBlockRegister = TLRegistersPool.getFromPool("parseStartBlock")
-    startBlockRegister.reset(input, delimIter)
+    startBlockRegister.reset(finfo, input, delimIter)
 
     startBlock.run(startBlockRegister) // find the block start, fail otherwise
     val startStatus = startBlockRegister.status
@@ -240,7 +241,7 @@ class TextDelimitedParserWithEscapeBlock(
    * Called to parse the rest of the field until we reach a block end, but
    * beyond that, after we reach a block-end out until we reach the delimiter.
    */
-  protected def parseRemainder(input: DataInputStream,
+  protected def parseRemainder(finfo: FormatInfo, input: DataInputStream,
     fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
     delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
@@ -248,7 +249,7 @@ class TextDelimitedParserWithEscapeBlock(
     val lmt = new LongestMatchTracker()
 
     val fieldRegister = TLRegistersPool.getFromPool("parseRemainder")
-    fieldRegister.reset(input, delimIter)
+    fieldRegister.reset(finfo, input, delimIter)
 
     var stillSearching: Boolean = true
     var foundBlockEnd: Boolean = false
@@ -265,11 +266,9 @@ class TextDelimitedParserWithEscapeBlock(
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
         case StateKind.Paused => {
-          // Pick up where field left off, we are looking for
-          // the blockEnd.
+          // Pick up where field left off, we are looking for the blockEnd.
           val endBlockRegister = TLRegistersPool.getFromPool("parseRemainder2")
-          endBlockRegister.reset(input, delimIter) // copy(fieldRegister) // TODO: This should just be a reset of the registers. No need to copy.
-
+          endBlockRegister.reset(finfo, input, delimIter)
           endBlock.run(endBlockRegister)
           val endBlockStatus = endBlockRegister.status
           TLRegistersPool.returnToPool(endBlockRegister)
@@ -278,7 +277,7 @@ class TextDelimitedParserWithEscapeBlock(
             case StateKind.Succeeded => {
               // Found the unescaped block end, now we need to
               // find any padding.
-              this.removeRightPadding(input, delimIter)
+              this.removeRightPadding(finfo, input, delimIter)
               beforeDelimiter = input.markPos
 
               delimIter.reset()
@@ -288,7 +287,7 @@ class TextDelimitedParserWithEscapeBlock(
                 val delimRegister = TLRegistersPool.getFromPool("parseRemainder3")
                 input.resetPos(beforeDelimiter)
                 beforeDelimiter = input.markPos
-                delimRegister.reset(input, delimIter)
+                delimRegister.reset(finfo, input, delimIter)
 
                 d.run(delimRegister)
                 if (delimRegister.status == StateKind.Succeeded) {
@@ -312,7 +311,7 @@ class TextDelimitedParserWithEscapeBlock(
               //
               input.resetPos(beforeDelimiter)
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
-              fieldRegister.resetChars
+              fieldRegister.resetChars(finfo)
 
               // resume field parse
               //
@@ -364,7 +363,7 @@ class TextDelimitedParserWithEscapeBlock(
     result
   }
 
-  def parse(input: DataInputStream, field: DFAField, fieldEsc: DFAField,
+  def parse(finfo: FormatInfo, input: DataInputStream, field: DFAField, fieldEsc: DFAField,
     startBlock: DFADelimiter, endBlock: DFADelimiter,
     delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(fieldEsc != null)
@@ -372,12 +371,12 @@ class TextDelimitedParserWithEscapeBlock(
     Assert.invariant(startBlock != null)
     Assert.invariant(endBlock != null)
 
-    removeLeftPadding(input, delimIter)
-    val foundStartBlock = parseStartBlock(input, startBlock, delimIter)
+    removeLeftPadding(finfo, input, delimIter)
+    val foundStartBlock = parseStartBlock(finfo, input, startBlock, delimIter)
     val res = if (!foundStartBlock) {
-      super.parse(input, field, delimIter, isDelimRequired)
+      super.parse(finfo, input, field, delimIter, isDelimRequired)
     } else {
-      parseRemainder(input, fieldEsc, startBlock, endBlock, delimIter, isDelimRequired)
+      parseRemainder(finfo, input, fieldEsc, startBlock, endBlock, delimIter, isDelimRequired)
     }
     TLRegistersPool.pool.finalCheck
 

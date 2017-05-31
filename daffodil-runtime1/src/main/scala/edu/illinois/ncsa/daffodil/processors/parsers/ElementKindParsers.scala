@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
@@ -63,7 +64,7 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the internal/body parser has completed.
  */
 class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
-                           override val context: RuntimeData, bodyParser: Parser)
+  override val context: RuntimeData, bodyParser: Parser)
   extends Parser {
 
   override lazy val childProcessors = List(bodyParser)
@@ -109,7 +110,7 @@ class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
  * cached, so upon exiting scope the cache must be invalidated.
  */
 class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
-                                override val context: RuntimeData, bodyParser: Parser)
+  override val context: TermRuntimeData, bodyParser: Parser)
   extends Parser {
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -131,7 +132,7 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
+class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
   override def nom = "Sequence"
 
@@ -153,7 +154,7 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
  * AltCompParser. This is only here to maintain symmetry with the unparse side,
  * which has a more complicated unparser that differs from an AltCompUnparser.
  */
-class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
+class ChoiceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
   extends ParserObject(rd) {
   override def nom = "Choice"
 
@@ -164,7 +165,7 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   }
 }
 
-class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
+class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
   extends ParserObject(rd) {
   override def nom = "ChoiceDispatch"
 

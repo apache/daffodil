@@ -52,9 +52,6 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.infoset.DIArray
 import edu.illinois.ncsa.daffodil.infoset.DIElement
 import edu.illinois.ncsa.daffodil.infoset.DINode
-import edu.illinois.ncsa.daffodil.infoset.InfosetElement
-import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
 import edu.illinois.ncsa.daffodil.processors.DataLoc
@@ -80,11 +77,13 @@ import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 abstract class UState(
-  dos: DataOutputStream,
+  dos: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
@@ -92,12 +91,14 @@ abstract class UState(
   extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
+  // def unparse1(unparser: Unparser): Unit
+
   override def toString = {
     val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
 
-  var dataOutputStream: DataOutputStream = dos
+  var dataOutputStream: DirectOrBufferedDataOutputStream = dos
 
   def prior: UStateForSuspension
   def currentInfosetNode: DINode
@@ -105,7 +106,7 @@ abstract class UState(
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
   def setVariables(newVariableMap: VariableMap): Unit
 
-  def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
+  // def charBufferDataOutputStream: LocalStack[CharBufferDataOutputStream]
   def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
   def withByteArrayOutputStream: LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
 
@@ -142,7 +143,7 @@ abstract class UState(
     }
   }
 
-  override def thisElement: InfosetElement = {
+  override def thisElement: DIElement = {
     Assert.usage(Maybe.WithNulls.isDefined(currentInfosetNode))
     val curNode = currentInfosetNode
     curNode match {
@@ -195,7 +196,7 @@ abstract class UState(
  */
 class UStateForSuspension(
   val mainUState: UStateMain,
-  dos: DataOutputStream,
+  dos: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   override val currentInfosetNode: DINode,
   arrayIndex: Long,
@@ -216,7 +217,7 @@ class UStateForSuspension(
   override def getDecoder(cs: Charset): CharsetDecoder = mainUState.getDecoder(cs)
   override def getEncoder(cs: Charset): CharsetEncoder = mainUState.getEncoder(cs)
 
-  override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
+  // override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
   override def withByteArrayOutputStream = mainUState.withByteArrayOutputStream
 
@@ -260,12 +261,12 @@ class UStateForSuspension(
   override def setVariables(newVariableMap: VariableMap) = die
 }
 
-class UStateMain private (
+final class UStateMain private (
   private val inputter: InfosetInputter,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
-  dos: DataOutputStream,
+  dos: DirectOrBufferedDataOutputStream,
   initialSuspendedExpressions: mutable.Queue[Suspension],
   tunable: DaffodilTunables)
   extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable) {
@@ -277,7 +278,7 @@ class UStateMain private (
     vmap: VariableMap,
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
-    dataOutputStream: DataOutputStream,
+    dataOutputStream: DirectOrBufferedDataOutputStream,
     initialSuspendedExpressions: mutable.Queue[Suspension],
     tunable: DaffodilTunables) =
     this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
@@ -286,7 +287,7 @@ class UStateMain private (
   private var _prior: UStateForSuspension = null
   override def prior = _prior
 
-  def cloneForSuspension(suspendedDOS: DataOutputStream): UState = {
+  def cloneForSuspension(suspendedDOS: DirectOrBufferedDataOutputStream): UState = {
     val es =
       if (!escapeSchemeEVCache.isEmpty) {
         // If there are any escape schemes, then we need to clone the whole
@@ -322,11 +323,12 @@ class UStateMain private (
       prior,
       tunable)
 
+    clone.setProcessor(processor)
+
     this._prior = clone
     clone
   }
 
-  override lazy val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
   override lazy val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
   override lazy val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
     {
@@ -478,7 +480,7 @@ class SuspensionDeadlockException(suspExprs: Seq[Suspension])
 object UState {
 
   def createInitialUState(
-    out: DataOutputStream,
+    out: DirectOrBufferedDataOutputStream,
     dataProc: DFDL.DataProcessor,
     inputter: InfosetInputter): UStateMain = {
 
@@ -487,5 +489,89 @@ object UState {
     val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
       new mutable.Queue[Suspension], dataProc.getTunables()) // null means no prior UState
     newState
+  }
+}
+
+object UnparserBitOrderChecks {
+
+  final def checkUnparseBitOrder(ustate: UState) = {
+    //
+    // Check for bitOrder change. If yes, then unless we know we're byte aligned
+    // we must split the DOS until we find out. That way the new buffered DOS
+    // can be assumed to be byte aligned (which will be checked on combining),
+    // and the bytes in it will actually start out byte aligned.
+    //
+    val dos = ustate.dataOutputStream
+    val isChanging = isUnparseBitOrderChanging(dos, ustate)
+    if (isChanging) {
+      //
+      // the bit order is changing. Let's be sure
+      // that it's legal to do so w.r.t. other properties
+      // These checks will have been evaluated at compile time if
+      // all the properties are static, so this is really just
+      // in case the charset or byteOrder are runtime-valued.
+      //
+      ustate.processor.context match {
+        case trd: TermRuntimeData => {
+          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
+          val mcbbo = trd.maybeCheckByteAndBitOrderEv
+          if (mcboc.isDefined) mcboc.get.evaluate(ustate)
+          if (mcbbo.isDefined) mcbbo.get.evaluate(ustate)
+        }
+        case _ => // ok
+      }
+
+      dos.setPriorBitOrder(ustate.bitOrder)
+      splitOnUnalignedBitOrderChange(dos, ustate)
+    }
+  }
+
+  private def isUnparseBitOrderChanging(dos: DirectOrBufferedDataOutputStream, ustate: UState): Boolean = {
+    val ctxt = ustate.processor.context
+    ctxt match {
+      case ntrd: NonTermRuntimeData => false
+      case _ => {
+        val priorBitOrder = dos.priorBitOrder
+        val newBitOrder = ustate.bitOrder
+        priorBitOrder ne newBitOrder
+      }
+    }
+  }
+
+  private def splitOnUnalignedBitOrderChange(dos: DirectOrBufferedDataOutputStream, ustate: UState): Unit = {
+    val mabp = dos.maybeAbsBitPos0b
+    val mabpDefined = mabp.isDefined
+    val isSplitNeeded: Boolean = {
+      if (mabpDefined && dos.isAligned(8)) {
+        //
+        // Not only do we have to be logically aligned, we also have
+        // to be physically aligned in the buffered stream, otherwise we
+        // cannot switch bit orders, and we have to split off a new
+        // stream to start the accumulation of the new bit-order material.
+        //
+        // fragmentLastByteLimit == 0 means there is no fragment byte,
+        // which only happens if we're on a byte boundary in the implementation.
+        //
+        if (dos.fragmentLastByteLimit == 0) false
+        else true
+      } else if (!mabpDefined) true
+      else {
+        // mabp is defined, and we're not on a byte boundary
+        // and the bit order is changing.
+        // Error: bit order change on non-byte boundary
+        val bp1b = mabp.get + 1
+        ustate.SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", bp1b)
+      }
+    }
+    if (isSplitNeeded) {
+      val newDOS = dos.addBuffered
+      ustate.dataOutputStream = newDOS
+      //
+      // Just splitting to start a new bitOrder on a byte boundary in a new
+      // buffered DOS
+      // So the prior DOS can be finished. Nothing else will be added to it.
+      //
+      dos.setFinished(ustate)
+    }
   }
 }

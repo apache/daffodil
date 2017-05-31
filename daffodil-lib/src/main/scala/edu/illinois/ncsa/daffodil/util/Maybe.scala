@@ -50,7 +50,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable {
   @inline final def get: T = if (isDefined) value else noneGet
   @inline final def value: T = v.asInstanceOf[T]
-  final def noneGet = throw new NoSuchElementException("Nope.get")
+  final def noneGet =
+    throw new NoSuchElementException("Nope.get") // good place for a breakpoint
 
   @inline final def isEmpty: Boolean = NopeValue eq v
   @inline final def isDefined: Boolean = !isEmpty
