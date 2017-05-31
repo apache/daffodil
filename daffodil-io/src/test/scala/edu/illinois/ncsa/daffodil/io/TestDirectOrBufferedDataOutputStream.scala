@@ -38,6 +38,7 @@ import junit.framework.Assert._
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import org.apache.commons.io.IOUtils
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestDirectOrBufferedDataOutputStream {
 
@@ -49,33 +50,41 @@ class TestDirectOrBufferedDataOutputStream {
     res
   }
 
+  def newDirectOrBufferedDataOutputStream(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream,
+    bo: BitOrder = BitOrder.MostSignificantBitFirst) = {
+    val os = DirectOrBufferedDataOutputStream(jos, creator)
+    os.setPriorBitOrder(bo)
+    os
+  }
   /**
    * Tests that the toString method doesn't throw. Can't even use a debugger
    * if that happens.
    */
   @Test def testToStringDoesNotThrow {
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos, null)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
     assertFalse(layered.toString().isEmpty())
   }
+
+  val finfo = FormatInfoForUnitTest()
 
   @Test def testCollapsingBufferIntoDirect1 {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos, null)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
-    layered.putBytes(hwBytes)
+    layered.putBytes(hwBytes, finfo)
 
     assertEquals(hw, getString(baos))
 
     val buf1 = layered.addBuffered
 
-    buf1.putBytes("buf1".getBytes("ascii"))
+    buf1.putBytes("buf1".getBytes("ascii"), finfo)
 
-    layered.setFinished() // collapses layered into buf1.
+    layered.setFinished(finfo) // collapses layered into buf1.
 
     assertTrue(layered.isDead)
 
@@ -89,24 +98,24 @@ class TestDirectOrBufferedDataOutputStream {
   @Test def testCollapsingFinishedBufferIntoLayered {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos, null)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
-    layered.putBytes(hwBytes)
+    layered.putBytes(hwBytes, finfo)
 
     assertEquals(hw, getString(baos))
 
     val buf1 = layered.addBuffered
 
-    buf1.putBytes("buf1".getBytes("ascii"))
+    buf1.putBytes("buf1".getBytes("ascii"), finfo)
 
-    buf1.setFinished()
+    buf1.setFinished(finfo)
 
     assertTrue(buf1.isFinished)
 
-    layered.setFinished() // collapses layered into buf1.
+    layered.setFinished(finfo) // collapses layered into buf1.
 
     assertTrue(buf1.isDead) // because it was finished when layered was subsequently finished
     assertTrue(layered.isDead)
@@ -118,28 +127,28 @@ class TestDirectOrBufferedDataOutputStream {
   @Test def testCollapsingTwoBuffersIntoDirect {
 
     val baos = new ByteArrayOutputStreamWithGetBuf()
-    val layered = DirectOrBufferedDataOutputStream(baos, null)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
 
     val hw = "Hello World!"
     val hwBytes = hw.getBytes("ascii")
 
-    layered.putBytes(hwBytes)
+    layered.putBytes(hwBytes, finfo)
 
     assertEquals(hw, getString(baos))
 
     val buf1 = layered.addBuffered
     val buf2 = buf1.addBuffered
 
-    buf1.putBytes("buf1".getBytes("ascii"))
-    buf2.putBytes("buf2".getBytes("ascii"))
+    buf1.putBytes("buf1".getBytes("ascii"), finfo)
+    buf2.putBytes("buf2".getBytes("ascii"), finfo)
 
     assertTrue(buf2.isBuffering)
 
-    buf1.setFinished() // buf1 finished while layered (before it) is still unfinished.
+    buf1.setFinished(finfo) // buf1 finished while layered (before it) is still unfinished.
 
     assertTrue(buf1.isFinished)
 
-    layered.setFinished() // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
+    layered.setFinished(finfo) // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
     // and leaves the whole thing finished.
     // leaves layered dead/unusable.
 

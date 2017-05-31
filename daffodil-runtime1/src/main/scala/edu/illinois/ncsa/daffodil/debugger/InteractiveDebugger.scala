@@ -34,7 +34,8 @@ package edu.illinois.ncsa.daffodil.debugger
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
@@ -61,7 +62,6 @@ import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.infoset.InfosetItem
 import edu.illinois.ncsa.daffodil.infoset.InfosetElement
-import edu.illinois.ncsa.daffodil.infoset.InfosetDocument
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
 
@@ -1033,10 +1033,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           debugPrintln("eval: There is no infoset currently.")
           return DebugState.Pause
         }
-        val element = state.infoset match {
-          case e: InfosetElement => e
-          case d: InfosetDocument => d.getRootElement()
-        }
+        val element = state.infoset
         // this adjustment is so that automatic display of ".." doesn't fail
         // for the root element.
         val adjustedExpression =
@@ -1078,9 +1075,24 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             }
           }
           case s: scala.util.control.ControlThrowable => throw s
-          //          case e: ExpressionEvaluationException => println(e)
-          //          case e: InfosetException => println(e)
-          //          case e: VariableException => println(e)
+          //
+          // If we eval(.) on a node that has no value, we get a RSDE thrown.
+          //
+          // Users (such as tests in daffodil's cli module) can set up a 'display eval (.)' and then
+          // single steps until they start parsing an element which has no value.
+          // That will throw this RSDE. If we recognize this situation, we
+          // display the empty element.
+          //
+          case r: RuntimeSchemaDefinitionError if r.getCause() ne null => r.getCause() match {
+            case nd: InfosetNoDataException => {
+              //
+              // Displays the empty element since it has no value.
+              //
+              debugPrettyPrintXML(nd.diElement)
+              state.suppressDiagnosticAndSucceed(r)
+            }
+            case _ => throw r
+          }
           case e: Throwable => {
             val ex = e // just so we can see it in the debugger.
             throw new DebugException("expression evaluation failed: %s".format(Misc.getSomeMessage(ex).get))
@@ -1314,7 +1326,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           } else {
             if (state.hasInfoset) {
               state.infoset match {
-                case e: DIElement => Some(e.runtimeData.impliedRepresentation)
+                case e: DIElement => Some(e.erd.impliedRepresentation)
               }
             } else {
               None

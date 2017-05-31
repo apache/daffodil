@@ -248,6 +248,7 @@ sealed trait DITerm {
   }
 
   def trd: TermRuntimeData
+  final def termRuntimeData = trd
 
   protected final def dafPrefix = {
     val ee = trd.dpathCompileInfo.immediateEnclosingCompileInfo.getOrElse {

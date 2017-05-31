@@ -35,14 +35,26 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
   suiteName="unparser tests involving bitOrder and outputValueCalc interactions"
-  defaultRoundTrip="false">
-
+  defaultRoundTrip="false"
+  defaultConfig="cfg_noDefaultBitOrder">
+  
+  <tdml:defineConfig name="cfg_noDefaultBitOrder">
+    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
+    </daf:tunables>
+  </tdml:defineConfig>
+  
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
 
-    <dfdl:format ref="ex:daffodilTest1" textPadKind='none' lengthKind="explicit" lengthUnits="bits" alignmentUnits="bits" alignment="1"
-      fillByte="%#xFF;" representation="binary" binaryNumberRep="binary" />
+    <dfdl:format textPadKind='none' lengthKind="explicit" lengthUnits="bits" alignmentUnits="bits" alignment="1"
+      fillByte="%#rFF;" representation="binary" binaryNumberRep="binary"
+      leadingSkip="0" trailingSkip="0" initiator="" terminator="" separator="" 
+      ignoreCase="yes" sequenceKind="ordered" encoding="ascii" initiatedContent="no"
+      textOutputMinLength="0" truncateSpecifiedLengthString="no" textTrimKind="none"
+      escapeSchemeRef=""/>
 
     <dfdl:defineFormat name="be">
       <dfdl:format byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" />
@@ -54,15 +66,15 @@
 
     <xs:element name="envelope" dfdl:lengthKind="implicit" dfdl:ref="be">
       <xs:complexType>
-        <xs:sequence>
+        <xs:sequence dfdl:ref="be">
           <xs:element name="a" type="xs:unsignedByte" dfdl:length="8" dfdl:ref="be" />
           <xs:element name="payload" dfdl:ref="le" dfdl:lengthKind="implicit">
             <xs:complexType>
-              <xs:sequence>
-                <xs:element name="AA" type="xs:string" dfdl:ref="le" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-5-BIT-PACKED-LSBF"
-                  dfdl:lengthUnits="characters" dfdl:outputValueCalc='{ fn:substring(../value, 1, 2) }' />
-                <xs:element name="NNN" type="xs:string" dfdl:ref="le" dfdl:length="3" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-OCTAL-LSBF"
-                  dfdl:lengthUnits="characters" dfdl:outputValueCalc='{ fn:substring(../value, 3, 3) }' />
+              <xs:sequence dfdl:ref="le">
+                <xs:element name="AA" type="xs:string" dfdl:ref="le" dfdl:length="10" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-5-BIT-PACKED-LSBF"
+                  dfdl:lengthUnits="bits" dfdl:outputValueCalc='{ fn:substring(../value, 1, 2) }' />
+                <xs:element name="NNN" type="xs:string" dfdl:ref="le" dfdl:length="9" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-OCTAL-LSBF"
+                  dfdl:lengthUnits="bits" dfdl:outputValueCalc='{ fn:substring(../value, 3, 3) }' />
                 <xs:element name="value" type="xs:string" dfdl:ref="le" dfdl:inputValueCalc='{ fn:concat(../AA, ../NNN) }' />
                 <xs:element name="padBit" type="xs:unsignedByte" dfdl:ref="le" dfdl:length="1"/>
               </xs:sequence>
@@ -97,7 +109,7 @@
 
     <tdml:document bitOrder="MSBFirst">
       <tdml:documentPart type="bits" bitOrder="MSBFirst" byteOrder="LTR">11111111</tdml:documentPart>
-      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">1111 1 011 010 001 01001 01000 </tdml:documentPart>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">1111 1 011| 010 001 11|101 11101 </tdml:documentPart>
       <tdml:documentPart type="bits" bitOrder="MSBFirst" byteOrder="LTR">10100101</tdml:documentPart>
     </tdml:document>
 

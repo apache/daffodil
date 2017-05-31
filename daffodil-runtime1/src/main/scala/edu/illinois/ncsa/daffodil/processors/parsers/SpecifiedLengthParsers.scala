@@ -92,7 +92,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
     Assert.invariant(bitsToSkip >= 0) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
     if (bitsToSkip > 0) {
       // skip left over bits
-      dis.skip(bitsToSkip)
+      dis.skip(bitsToSkip, pState)
     }
   }
 
@@ -110,7 +110,7 @@ class SpecifiedLengthPatternParser(
     val dis = s.dataInputStream
     val mark = dis.markPos
     withMatcher { m =>
-      dis.lookingAt(m)
+      dis.lookingAt(m, s)
 
       // That matched or it didn't. We don't care. We care that
       // the lookingAt call advanced the bitPos to after the match
@@ -168,7 +168,7 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
     val mark = dis.markPos
-    val hasNChars = dis.skipChars(nChars) // will decode up to n characters.
+    val hasNChars = dis.skipChars(nChars, start) // will decode up to n characters.
     if (!hasNChars) {
       dis.resetPos(mark)
       MaybeULong.Nope

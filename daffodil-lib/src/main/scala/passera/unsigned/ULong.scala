@@ -216,6 +216,7 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
 
 object ULong {
   val MinValue = ULong(0L)
+  val Zero = MinValue
   val MaxValue = ULong(~0L)
 
   val MaxValueAsBigInt = BigInt(Long.MinValue).abs

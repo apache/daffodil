@@ -41,16 +41,16 @@ import edu.illinois.ncsa.daffodil.processors.CharsetEv
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
- *
- * This grabs a string as long as it can get, depending on the SpecifiedLength context
+ * override
+ * This grabs a string as long as it coverride an get, depending on the SpecifiedLength context
  * to constrain how much it can get.
  */
 final class StringOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   erd: ElementRuntimeData)
-  extends PrimParser
-  with StringOfSpecifiedLengthMixin with TextParserRuntimeMixin {
+  extends TextPrimParser
+  with StringOfSpecifiedLengthMixin {
 
   override lazy val runtimeDependencies = List(erd.encInfo.charsetEv)
 
@@ -100,7 +100,7 @@ trait StringOfSpecifiedLengthMixin
     val maxLen = dis.limits.maximumSimpleElementSizeInCharacters
     val startBitPos0b = dis.bitPos0b
 
-    val strOpt = dis.getSomeString(maxLen)
+    val strOpt = dis.getSomeString(maxLen, start)
     val str = if (strOpt.isDefined) strOpt.get else ""
     // TODO: Performance - trimByJustification wants to operate on a StringBuilder
     // That means that dis.getSomeString wants to return a StringBuilder instead of

@@ -59,8 +59,7 @@ class DelimiterTextParser(
   textParser: TextParser,
   positionalInfo: String,
   delimiterType: DelimiterTextType.Type)
-  extends PrimParser
-  with TextParserRuntimeMixin {
+  extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
   override def context = rd
@@ -112,9 +111,6 @@ class DelimiterTextParser(
   }
 
   override def parse(start: PState): Unit = {
-
-    setupEncoding(start, rd)
-
     val foundDelimiter =
       if (delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined) {
         //
@@ -142,7 +138,7 @@ class DelimiterTextParser(
         // group, which might be difficult to do.
         val delimIter = new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack)
 
-        val result = textParser.parse(start.dataInputStream, delimIter, true)
+        val result = textParser.parse(start, start.dataInputStream, delimIter, true)
         result
       } else {
         start.delimitedParseResult
@@ -157,7 +153,7 @@ class DelimiterTextParser(
 
       // Consume the found local delimiter
       val nChars = foundDelimiter.get.matchedDelimiterValue.get.length
-      val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
+      val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars, start)
       Assert.invariant(wasDelimiterTextSkipped)
       start.clearDelimitedParseResult()
     } else {

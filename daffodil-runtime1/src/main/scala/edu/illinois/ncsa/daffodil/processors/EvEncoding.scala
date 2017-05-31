@@ -110,10 +110,12 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
 
   private val maybeSingleRawByteValue: MaybeInt = {
     val RawByte = """\%\#r([0-9a-fA-F]{2})\;""".r
-    fillByteRaw match {
-      case RawByte(hex) => MaybeInt(Integer.parseInt(hex, 16))
+    val mfb = fillByteRaw match {
+      case RawByte(hex) =>
+        MaybeInt(Integer.parseInt(hex, 16))
       case _ => MaybeInt.Nope
     }
+    mfb
   }
 
   override protected def compute(state: ParseOrUnparseState): Integer = {

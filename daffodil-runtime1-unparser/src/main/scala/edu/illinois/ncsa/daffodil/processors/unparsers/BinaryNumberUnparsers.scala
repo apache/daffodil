@@ -44,13 +44,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.util.Numbers._
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
   extends PrimUnparserObject(e) {
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
-  protected def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int): Boolean
+  protected def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean
 
   def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
@@ -60,7 +61,7 @@ abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
 
     val res =
       if (nBits > 0) {
-        putNumber(dos, value, nBits)
+        putNumber(dos, value, nBits, state)
       } else {
         true
       }
@@ -77,11 +78,11 @@ abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
 abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
   extends BinaryNumberBaseUnparser(e) {
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
+  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
     if (nBits > 64) {
-      dos.putBigInt(asBigInt(value), nBits, signed)
+      dos.putBigInt(asBigInt(value), nBits, signed, finfo)
     } else {
-      dos.putLong(asLong(value), nBits)
+      dos.putLong(asLong(value), nBits, finfo)
     }
   }
 }
@@ -103,8 +104,8 @@ class BinaryFloatUnparser(e: ElementRuntimeData)
 
   override def getBitLength(s: ParseOrUnparseState) = 32
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
-    dos.putBinaryFloat(asFloat(value))
+  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo:FormatInfo): Boolean = {
+    dos.putBinaryFloat(asFloat(value), finfo)
   }
 
 }
@@ -114,8 +115,8 @@ class BinaryDoubleUnparser(e: ElementRuntimeData)
 
   override def getBitLength(s: ParseOrUnparseState) = 64
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
-    dos.putBinaryDouble(asDouble(value))
+  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+    dos.putBinaryDouble(asDouble(value), finfo)
   }
 }
 
@@ -134,7 +135,7 @@ class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesN
 abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
   extends BinaryNumberBaseUnparser(e) {
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int): Boolean = {
+  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
 
     // We want to scale the bigInt by binaryDecimalVirtualPoint so that it is a BigInt
     val bigDec = asBigDecimal(value)
@@ -148,7 +149,7 @@ abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, b
       if (binaryDecimalVirtualPoint != 0) bigDec.scaleByPowerOfTen(binaryDecimalVirtualPoint).toBigInteger()
       else bigDec.toBigInteger()
 
-    dos.putBigInt(bigInt, nBits, signed == YesNo.Yes)
+    dos.putBigInt(bigInt, nBits, signed == YesNo.Yes, finfo)
 
   }
 }

@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.io
 
 import passera.unsigned.ULong
-import java.nio.charset.CharsetEncoder
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -129,13 +128,16 @@ trait DataOutputStream extends DataStreamCommon
 
   def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
-  def encoder: CharsetEncoder
-  def setEncoder(encoder: CharsetEncoder): Unit
-
   /**
-   * Sets the fill byte. Only the least significant 8 bits of the argument are used.
+   * If bitLengthFrom1To64 bits are available to be written before bitLimit0b (if defined) is encountered,
+   * then this writes the bitLengthFrom1To64 least significant bits of the long using the
+   * current bit order and byte order, and returns true.
+   *
+   * If not enough bits are available, this writes nothing and returns false.
+   *
+   * It is a usage error if bitLengthFrom1To64 is not in the range 1 to 64 inclusive.
    */
-  def setFillByte(fillByte: Int): Unit
+  def putLong(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean
 
   /**
    * If bitLengthFrom1To64 bits are available to be written before bitLimit0b (if defined) is encountered,
@@ -146,18 +148,7 @@ trait DataOutputStream extends DataStreamCommon
    *
    * It is a usage error if bitLengthFrom1To64 is not in the range 1 to 64 inclusive.
    */
-  def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean
-
-  /**
-   * If bitLengthFrom1To64 bits are available to be written before bitLimit0b (if defined) is encountered,
-   * then this writes the bitLengthFrom1To64 least significant bits of the long using the
-   * current bit order and byte order, and returns true.
-   *
-   * If not enough bits are available, this writes nothing and returns false.
-   *
-   * It is a usage error if bitLengthFrom1To64 is not in the range 1 to 64 inclusive.
-   */
-  def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean
+  def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean
 
   /**
    * If bitLengthFrom1 bits are available to be written before bitLimit0b (if
@@ -174,7 +165,7 @@ trait DataOutputStream extends DataStreamCommon
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean): Boolean
+  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean
 
   /**
    * If bitLengthFrom1 bits are available to be written before bitLimit0b (if
@@ -188,8 +179,7 @@ trait DataOutputStream extends DataStreamCommon
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int): Boolean
-
+  def putByteArray(ba: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Boolean
 
   /**
    * Float and Double
@@ -198,38 +188,20 @@ trait DataOutputStream extends DataStreamCommon
    * <p>
    * Returns false if there are not 32 bits or 64 bits (respectively) available.
    */
-  def putBinaryFloat(v: Float): Boolean
-  def putBinaryDouble(v: Double): Boolean
-
-  /**
-   * Returns number of bytes transferred. Stops when the bitLimit is
-   * encountered if one is defined.
-   */
-  def putBytes(ba: Array[Byte]): Long
-
-  /**
-   * Returns number of bits transferred. The last byte of the byte buffer
-   * can be a fragment byte.
-   */
-  def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long): Long
-
-  /**
-   * Returns number of bits transferred. The last byte of the byte buffer
-   * can be a fragment byte.
-   */
-  def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long): Long
+  def putBinaryFloat(v: Float, finfo: FormatInfo): Boolean
+  def putBinaryDouble(v: Double, finfo: FormatInfo): Boolean
 
   /**
    * Returns number of characters transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
-  def putString(str: String): Long
-  def putCharBuffer(cb: CharBuffer): Long
+  def putString(str: String, finfo: FormatInfo): Long
+  def putCharBuffer(cb: CharBuffer, finfo: FormatInfo): Long
 
   /**
    * close-out this output stream. No more writing to this after.
    */
-  def setFinished(): Unit
+  def setFinished(finfo: FormatInfo): Unit
   def isFinished: Boolean
 
 }

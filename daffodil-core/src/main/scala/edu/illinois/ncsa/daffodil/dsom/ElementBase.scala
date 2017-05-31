@@ -559,7 +559,12 @@ trait ElementBase
       //
       false, // !isReferencedByExpressions, // assume it is always to be referenced by expressions
       optTruncateSpecifiedLengthString,
-      if (isOutputValueCalc) Some(ovcCompiledExpression) else None)
+      if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
+      maybeBinaryFloatRepEv,
+      maybeByteOrderEv,
+      maybeFillByteEv,
+      maybeCheckByteAndBitOrderEv,
+      maybeCheckBitOrderAndCharset)
     newERD
   }
 
@@ -620,6 +625,12 @@ trait ElementBase
       }
     } else {
       representation
+    }
+    rep match {
+      case Representation.Binary =>
+        byteOrderEv // ensure defined
+      case _ =>
+        charsetEv // ensure defined
     }
     rep
   }

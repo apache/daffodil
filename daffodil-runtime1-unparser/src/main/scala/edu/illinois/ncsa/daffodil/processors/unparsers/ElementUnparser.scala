@@ -160,7 +160,7 @@ sealed abstract class ElementUnparserBase(
     {
       var i = 0;
       while (i < setVarUnparsers.length) {
-        setVarUnparsers(i).unparse1(state, context)
+        setVarUnparsers(i).unparse1(state)
         i += 1
       }
     }
@@ -168,17 +168,17 @@ sealed abstract class ElementUnparserBase(
 
   protected def doBeforeContentUnparser(state: UState) {
     if (eBeforeUnparser.isDefined)
-      eBeforeUnparser.get.unparse1(state, context)
+      eBeforeUnparser.get.unparse1(state)
   }
 
   protected def doAfterContentUnparser(state: UState) {
     if (eAfterUnparser.isDefined)
-      eAfterUnparser.get.unparse1(state, context)
+      eAfterUnparser.get.unparse1(state)
   }
 
   protected def runContentUnparser(state: UState) {
     if (eUnparser.isDefined)
-      eUnparser.get.unparse1(state, context)
+      eUnparser.get.unparse1(state)
   }
 
   override def unparse(state: UState): Unit = {
@@ -186,6 +186,7 @@ sealed abstract class ElementUnparserBase(
     if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
 
     unparseBegin(state)
+    UnparserBitOrderChecks.checkUnparseBitOrder(state)
 
     captureRuntimeValuedExpressionValues(state)
 

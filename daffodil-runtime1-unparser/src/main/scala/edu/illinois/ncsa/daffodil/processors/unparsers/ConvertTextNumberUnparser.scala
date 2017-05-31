@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryBase
 import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
 
 case class ConvertTextCombinatorUnparser(
-  rd: RuntimeData,
+  rd: TermRuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
   extends UnparserObject(rd) {
@@ -49,11 +49,11 @@ case class ConvertTextCombinatorUnparser(
   override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
 
   override def unparse(state: UState): Unit = {
-    converterUnparser.unparse1(state, rd)
+    converterUnparser.unparse1(state)
 
     if (state.processorStatus ne Success) return
 
-    valueUnparser.unparse1(state, rd)
+    valueUnparser.unparse1(state)
   }
 }
 

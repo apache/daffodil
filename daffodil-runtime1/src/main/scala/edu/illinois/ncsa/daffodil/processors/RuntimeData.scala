@@ -127,7 +127,10 @@ sealed abstract class TermRuntimeData(
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
   @TransientParam defaultBitOrderArg: => BitOrder,
-  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  @TransientParam optIgnoreCaseArg: => Option[YesNo],
+  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends RuntimeData
   with Serializable
   with PreSerialization {
@@ -166,6 +169,9 @@ sealed abstract class TermRuntimeData(
   lazy val hasNoSkipRegions = hasNoSkipRegionsArg
   lazy val defaultBitOrder = defaultBitOrderArg
   lazy val optIgnoreCase = optIgnoreCaseArg
+  lazy val maybeFillByteEv = maybeFillByteEvArg
+  lazy val maybeCheckByteAndBitOrderEv = maybeCheckByteAndBitOrderEvArg
+  lazy val maybeCheckBitOrderAndCharsetEv = maybeCheckBitOrderAndCharsetEvArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -179,10 +185,14 @@ sealed abstract class TermRuntimeData(
     hasNoSkipRegions
     defaultBitOrder
     optIgnoreCase
+    maybeFillByteEv
     tunable
+    maybeCheckByteAndBitOrderEv
+    maybeCheckBitOrderAndCharsetEv
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+
 }
 
 sealed class NonTermRuntimeData(
@@ -444,7 +454,7 @@ final class SimpleTypeRuntimeData(
   }
 
   private def checkMinLength(diNode: DISimple, minValue: java.math.BigDecimal,
-                             e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
+    e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
     val minAsLong = minValue.longValueExact()
     primType match {
       case PrimType.String => {
@@ -467,7 +477,7 @@ final class SimpleTypeRuntimeData(
   }
 
   private def checkMaxLength(diNode: DISimple, maxValue: java.math.BigDecimal,
-                             e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
+    e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
     val maxAsLong = maxValue.longValueExact()
     primType match {
       case PrimType.String => {
@@ -634,13 +644,13 @@ final class ElementRuntimeData(
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
   @TransientParam isRequiredArg: => Boolean, // must have at least 1 occurrence
   /**
- * This is the properly qualified name for recognizing this
- * element.
- *
- * This takes into account xs:schema's elementFormDefault attribute.
- * If 'qualified' then there will be a namespace component.
- * If 'unqualified' the the namespace component will be No_Namespace.
- */
+   * This is the properly qualified name for recognizing this
+   * element.
+   *
+   * This takes into account xs:schema's elementFormDefault attribute.
+   * If 'qualified' then there will be a namespace component.
+   * If 'unqualified' the the namespace component will be No_Namespace.
+   */
   @TransientParam namedQNameArg: => NamedQName,
   @TransientParam isRepresentedArg: => Boolean,
   @TransientParam couldHaveTextArg: => Boolean,
@@ -653,15 +663,22 @@ final class ElementRuntimeData(
   // Unparser-specific arguments
   //
   /**
- * pass true for this if the corresponding infoset element is never
- * accessed by way of expressions. Enables the element to be dropped
- * from the infoset immediately after unparsing is complete.
- */
+   * pass true for this if the corresponding infoset element is never
+   * accessed by way of expressions. Enables the element to be dropped
+   * from the infoset immediately after unparsing is complete.
+   */
   @TransientParam notReferencedByExpressionsArg: => Boolean,
   @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
-  @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]])
+  @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
+  @TransientParam maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
+  @TransientParam maybeByteOrderEvArg: => Maybe[ByteOrderEv],
+  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(parentArg, parentTermArg, encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    defaultBitOrderArg, optIgnoreCaseArg){
+    defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    maybeCheckByteAndBitOrderEvArg,
+    maybeCheckBitOrderAndCharsetEvArg) {
 
   lazy val parent = parentArg
   lazy val parentTerm = parentTermArg
@@ -696,6 +713,8 @@ final class ElementRuntimeData(
   lazy val notReferencedByExpressions = notReferencedByExpressionsArg
   lazy val optTruncateSpecifiedLengthString = optTruncateSpecifiedLengthStringArg
   lazy val outputValueCalcExpr = outputValueCalcExprArg
+  lazy val maybeBinaryFloatRepEv = maybeBinaryFloatRepEvArg
+  lazy val maybeByteOrderEv = maybeByteOrderEvArg
 
   def isReferencedByExpressions = !notReferencedByExpressions
 
@@ -734,6 +753,8 @@ final class ElementRuntimeData(
     notReferencedByExpressions
     optTruncateSpecifiedLengthString
     outputValueCalcExpr
+    maybeBinaryFloatRepEv
+    maybeByteOrderEv
   }
 
   @throws(classOf[java.io.IOException])
@@ -782,11 +803,16 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  @TransientParam optIgnoreCaseArg: => Option[YesNo],
+  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(Some(erdArg),
     Maybe(trdArg),
     encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    defaultBitOrderArg, optIgnoreCaseArg) {
+    defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    maybeCheckByteAndBitOrderEvArg,
+    maybeCheckBitOrderAndCharsetEvArg) {
 
   lazy val variableMap = variableMapArg
   lazy val encInfo = encInfoArg
@@ -837,9 +863,15 @@ final class SequenceRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  @TransientParam optIgnoreCaseArg: => Option[YesNo],
+  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
+    maybeFillByteEvArg,
+    maybeCheckByteAndBitOrderEvArg,
+    maybeCheckBitOrderAndCharsetEvArg)
 
 final class ChoiceRuntimeData(
   /**
@@ -862,9 +894,14 @@ final class ChoiceRuntimeData(
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
   @TransientParam hasNoSkipRegionsArg: => Boolean,
-  @TransientParam optIgnoreCaseArg: => Option[YesNo])
+  @TransientParam optIgnoreCaseArg: => Option[YesNo],
+  @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
+  @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
+  @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg)
+    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    maybeCheckByteAndBitOrderEvArg,
+    maybeCheckBitOrderAndCharsetEvArg)
 
 final class VariableRuntimeData(
   @TransientParam schemaFileLocationArg: => SchemaFileLocation,

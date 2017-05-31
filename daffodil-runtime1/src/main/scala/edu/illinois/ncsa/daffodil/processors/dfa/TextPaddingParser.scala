@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import scala.collection.mutable.ArrayBuffer
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 class TextPaddingParser(val padChar: Char,
   override val context: TermRuntimeData)
@@ -48,11 +49,11 @@ class TextPaddingParser(val padChar: Char,
 
   val paddingDFA = CreatePaddingDFA(padChar, context)
 
-  def parse(input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
+  def parse(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
 
     val paddingReg: Registers = TLRegistersPool.getFromPool("TextPaddingParser1")
 
-    paddingReg.reset(input, delimIter)
+    paddingReg.reset(finfo, input, delimIter)
 
     paddingDFA.run(paddingReg) // Will always succeed.
 

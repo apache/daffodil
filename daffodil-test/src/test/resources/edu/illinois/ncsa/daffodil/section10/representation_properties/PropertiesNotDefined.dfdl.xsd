@@ -59,7 +59,8 @@
           calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
           calendarCheckPolicy='strict' calendarLanguage='en' textPadKind="none"
           fillByte="%SP;"
-          truncateSpecifiedLengthString="yes"/> 
+          truncateSpecifiedLengthString="yes"
+          bitOrder="mostSignificantBitFirst"/> 
       </appinfo>
     </annotation>
 

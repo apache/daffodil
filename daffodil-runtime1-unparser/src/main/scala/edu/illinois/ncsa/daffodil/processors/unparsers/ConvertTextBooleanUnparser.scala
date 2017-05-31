@@ -39,7 +39,7 @@ import java.lang.Boolean.{ TRUE => JTrue, FALSE => JFalse }
 case class ConvertTextBooleanUnparser(erd: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
   textBooleanFalseRepEv: TextBooleanFalseRepEv)
-  extends PrimUnparser {
+  extends TextPrimUnparser {
 
   override def context = erd
 

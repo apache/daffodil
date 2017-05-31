@@ -51,8 +51,8 @@ abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) exte
   e.schemaDefinitionUnless(skipLengthInBits < e.tunable.maxSkipLengthInBytes * 8,
     "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, e.tunable.maxSkipLengthInBytes * 8)
 
-  final lazy val parser: Parser = new SkipRegionParser(skipLengthInBits, e.runtimeData)
-  final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.runtimeData, e.fillByteEv)
+  final lazy val parser: Parser = new SkipRegionParser(skipLengthInBits, e.termRuntimeData)
+  final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.termRuntimeData)
 }
 
 case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkipInBits, "leadingSkip")
@@ -74,8 +74,8 @@ case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
 
   private val alignment = e.alignmentValueInBits
 
-  lazy val parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
-  lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData, e.fillByteEv)
+  lazy val parser: Parser = new AlignmentFillParser(alignment, e.termRuntimeData)
+  lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.termRuntimeData)
 }
 
 case class MandatoryTextAlignment(e: Term, alignmentInBits: Int, forDelimiter: Boolean) extends Terminal(e,
@@ -85,6 +85,6 @@ case class MandatoryTextAlignment(e: Term, alignmentInBits: Int, forDelimiter: B
     !e.isKnownToBeTextAligned) {
   Assert.invariant(alignmentInBits > 0)
 
-  lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.runtimeData)
-  lazy val unparser: Unparser = new MandatoryTextAlignmentUnparser(alignmentInBits, e.runtimeData, e.fillByteEv)
+  lazy val parser: Parser = new MandatoryTextAlignmentParser(alignmentInBits, e.termRuntimeData)
+  lazy val unparser: Unparser = new MandatoryTextAlignmentUnparser(alignmentInBits, e.termRuntimeData)
 }

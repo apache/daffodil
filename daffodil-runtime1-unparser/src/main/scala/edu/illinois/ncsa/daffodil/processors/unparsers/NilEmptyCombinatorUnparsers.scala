@@ -51,9 +51,9 @@ case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
     // suspends, this call to isNilled will throw a InfosetNoDataException
     // because _isNilled has not been set yet. Rather than having to deal with
     // suspending, only check isNilled for non-OVC elements.
-    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse(state)
-    else if (inode.isEmpty) emptyUnparser.unparse(state)
-    else valueUnparser.unparse(state)
+    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse1(state)
+    else if (inode.isEmpty) emptyUnparser.unparse1(state)
+    else valueUnparser.unparse1(state)
   }
 }
 
@@ -66,8 +66,8 @@ case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asSimple
     // see comment above for why this OVC check is necessary
-    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse(state)
-    else valueUnparser.unparse(state)
+    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse1(state)
+    else valueUnparser.unparse1(state)
   }
 }
 
@@ -79,8 +79,8 @@ case class SimpleEmptyOrValueUnparser(ctxt: ElementRuntimeData,
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asSimple
-    if (inode.isEmpty) emptyUnparser.unparse(state)
-    else valueUnparser.unparse(state)
+    if (inode.isEmpty) emptyUnparser.unparse1(state)
+    else valueUnparser.unparse1(state)
   }
 }
 
@@ -92,7 +92,7 @@ case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asComplex
-    if (inode.isNilled) nilUnparser.unparse(state)
-    else contentUnparser.unparse(state)
+    if (inode.isNilled) nilUnparser.unparse1(state)
+    else contentUnparser.unparse1(state)
   }
 }

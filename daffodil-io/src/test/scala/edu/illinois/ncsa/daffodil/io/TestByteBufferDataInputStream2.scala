@@ -43,11 +43,12 @@ class TestByteBufferDataInputStream2 {
   val ten = tenDigits.getBytes("utf-8")
   val twentyDigits = tenDigits * 2
   val twenty = twentyDigits.getBytes("utf-8")
+  val finfo = FormatInfoForUnitTest()
 
   @Test def testMark1 {
     val dis = ByteBufferDataInputStream(ten)
     val m1 = dis.mark("testMark1")
-    var arr = dis.getByteArray(80)
+    var arr = dis.getByteArray(80, finfo)
     assertEquals(10, arr.size)
     assertEquals(0x31.toByte, arr(0))
     assertEquals(80, dis.bitPos0b)
@@ -56,7 +57,7 @@ class TestByteBufferDataInputStream2 {
     assertEquals(81, dis.bitLimit1b.get)
     assertEquals(10, dis.bytePos0b)
     dis.reset(m1)
-    arr = dis.getByteArray(80)
+    arr = dis.getByteArray(80, finfo)
     assertEquals(10, arr.size)
     assertEquals(0x30.toByte, arr(9))
     assertEquals(80, dis.bitPos0b)
@@ -70,13 +71,15 @@ class TestByteBufferDataInputStream2 {
     val dis = ByteBufferDataInputStream(twenty)
     var m1: DataInputStream.Mark = null
     dis.withBitLengthLimit(5 * 8) {
-      val arr = dis.getByteArray(5 * 8)
+      val arr = dis.getByteArray(5 * 8, finfo)
       assertEquals(5, arr.size)
       m1 = dis.mark("testMark2")
-      assertFalse(dis.asIteratorChar.hasNext)
+      val iter = dis.asIteratorChar
+      iter.setFormatInfo(finfo)
+      assertFalse(iter.hasNext)
     }
     dis.setBitLimit0b(MaybeULong(10 * 8))
-    var arr = dis.getByteArray(5 * 8)
+    var arr = dis.getByteArray(5 * 8, finfo)
     dis.mark("testMark2b")
     assertEquals(5, arr.size)
     assertEquals(0x30.toByte, arr(4))
@@ -88,7 +91,7 @@ class TestByteBufferDataInputStream2 {
     dis.reset(m1)
     assertFalse(dis.isDefinedForLength(1))
     dis.asInstanceOf[ByteBufferDataInputStream].resetBitLimit0b(MaybeULong(10 * 8))
-    arr = dis.getByteArray(5 * 8)
+    arr = dis.getByteArray(5 * 8, finfo)
     assertEquals(5, arr.size)
     assertEquals(0x30.toByte, arr(4))
     assertEquals(80, dis.bitPos0b)
@@ -101,12 +104,14 @@ class TestByteBufferDataInputStream2 {
   @Test def testMark3 {
     val dis = ByteBufferDataInputStream(twenty).asInstanceOf[ByteBufferDataInputStream]
     dis.setBitLimit0b(MaybeULong(5 * 8))
-    var arr = dis.getByteArray(5 * 8)
+    var arr = dis.getByteArray(5 * 8, finfo)
     assertEquals(5, arr.size)
     val m1 = dis.mark("testMark3")
-    assertFalse(dis.asIteratorChar.hasNext)
+    val iter = dis.asIteratorChar
+    iter.setFormatInfo(finfo)
+    assertFalse(iter.hasNext)
     dis.resetBitLimit0b(MaybeULong(10 * 8))
-    arr = dis.getByteArray(5 * 8)
+    arr = dis.getByteArray(5 * 8, finfo)
     val m2 = dis.mark("testMark3b")
     assertEquals(5, arr.size)
     assertEquals(0x30.toByte, arr(4))

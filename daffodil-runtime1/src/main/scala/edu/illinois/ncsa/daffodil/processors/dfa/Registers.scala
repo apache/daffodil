@@ -32,11 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.processors.dfa
 
+import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
+import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.Poolable
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
   override def initialValue = new RegistersPool()
@@ -83,10 +84,11 @@ class Registers() extends Poolable with Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
+  def reset(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
-    if (m !=#= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
-    resetChars
+    if (m !=#= DataInputStream.MarkPos.NoMarkPos)
+      dataInputStream.resetPos(m)
+    resetChars(finfo)
     resultString.clear()
     delimString.clear()
     numCharsRead = 0
@@ -94,7 +96,6 @@ class Registers() extends Poolable with Serializable {
     numCharsDropped = 0
     Registers.this.matchStartPos = matchStartPos
     matchedAtLeastOnce = false
-    charIterator = dataInputStream.asIteratorChar
     actionNum = 0
     state = 0
     nextState = 0
@@ -102,8 +103,9 @@ class Registers() extends Poolable with Serializable {
     delimitersIter = delimIter
   }
 
-  def resetChars {
+  def resetChars(finfo: FormatInfo) {
     charIterator = dataInputStream.asIteratorChar
+    charIterator.setFormatInfo(finfo)
     data0 = charIterator.peek()
     data1 = charIterator.peek2()
   }

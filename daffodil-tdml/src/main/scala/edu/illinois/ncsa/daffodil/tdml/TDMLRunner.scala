@@ -553,52 +553,52 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
   protected val compiler = Compiler(parent.validateDFDLSchemas)
 
+  private def configFromName(cfgName: String, attrName: String): Option[DefinedConfig] = {
+    Assert.usage(cfgName != "")
+    Assert.usage(attrName != "")
+    val cfgNode = parent.findEmbeddedConfig(cfgName)
+    val cfgFileName = parent.findConfigFileName(cfgName)
+    val optDefinedConfig: Option[DefinedConfig] = (cfgName, cfgNode, cfgFileName) match {
+      case ("", None, None) => None
+      case (name, Some(x), None) if name != "" => Some(x)
+      case (name, None, Some(uri)) if name != "" => {
+        // Read file, convert to definedConfig
+        val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
+        val definedConfig = DefinedConfig(node, parent)
+        Some(definedConfig)
+      }
+      case (name, None, None) if name != "" =>
+        throw new TDMLException("The " + attrName + " '" + cfgName + "' was not found either as a embedded config, nor as a file.")
+      case (name, Some(_), Some(_)) if name != "" =>
+        throw new TDMLException("The " + attrName + " '" + cfgName + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
+    }
+    optDefinedConfig
+  }
+
   /**
    * Returns number of bytes processed.
    */
   def run(schemaArg: Option[Node] = None): Long = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
 
-    val defaultCfg: Option[DefinedConfig] = parent.defaultConfig match {
-      case "" => None
-      case configName => {
-        val cfgFileName = parent.findConfigFileName(configName)
-        cfgFileName match {
-          case None => None
-          case Some(uri) => {
-            // Read file, convert to definedConfig
-            val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
-            val definedConfig = DefinedConfig(node, parent)
-            Some(definedConfig)
-          }
+    val cfg: Option[DefinedConfig] = {
+      (config, parent.defaultConfig) match {
+        case ("", "") => None
+        case (configName, "") => configFromName(configName, "config")
+        case ("", defaultConfigName) => configFromName(defaultConfigName, "defaultConfig")
+        case (configName, defaultConfigName) => {
+          // check defaultConfigName for errors, but we'll use the configName
+          configFromName(defaultConfigName, "defaultConfig")
+          configFromName(configName, "config")
         }
       }
     }
 
-    val cfg: Option[DefinedConfig] = config match {
-      case "" => None
-      case configName => {
-        val cfgNode = parent.findEmbeddedConfig(configName)
-        val cfgFileName = parent.findConfigFileName(configName)
-        val optDefinedConfig = (cfgNode, cfgFileName) match {
-          case (None, None) => None
-          case (Some(_), Some(_)) => throw new TDMLException("Config '" + config + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
-          case (Some(definedConfig), None) => Some(definedConfig)
-          case (None, Some(uri)) => {
-            // Read file, convert to definedConfig
-            val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
-            val definedConfig = DefinedConfig(node, parent)
-            Some(definedConfig)
-          }
-        }
-        optDefinedConfig
-      }
-    }
-
-    val defaultTunables: Map[String, String] = defaultCfg match {
+    val defaultTunables: Map[String, String] = cfg match {
       case None => Map.empty
       case Some(definedConfig) => retrieveTunables(definedConfig)
     }
+
     val tunables: Map[String, String] = cfg match {
       case None => defaultTunables
       case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
@@ -1109,11 +1109,10 @@ object VerifyTestCase {
     if (expectedDiags.isDefined && actualDiags.length == 0) {
       throw new TDMLException(""""Diagnostic message(s) were expected but not found."""" +
         "\n" + """Expected: """ + expectedDiagMsgs.mkString("\n") +
-        ( if (actualDiagMsgs.length == 0)
+        (if (actualDiagMsgs.length == 0)
           "\n No diagnostic messages were issued."
         else
-          "\n The actual diagnostics messages were: " + actualDiagMsgs.mkString("\n")
-        ))
+          "\n The actual diagnostics messages were: " + actualDiagMsgs.mkString("\n")))
     }
 
     // must find each expected warning message within some actual warning message.
@@ -1941,7 +1940,6 @@ object UTF8Encoder {
 
 }
 
-
 class TDMLInfosetOutputter() extends InfosetOutputter {
   private val jsonWriter = new StringWriter()
   private val xmlWriter = new StringWriter()
@@ -2015,7 +2013,6 @@ class TDMLInfosetOutputter() extends InfosetOutputter {
     new TDMLInfosetInputter(scalaIn, Seq(jdomIn, w3cdomIn, jsonIn, xmlIn))
   }
 }
-
 
 class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Seq[InfosetInputter]) extends InfosetInputter {
 

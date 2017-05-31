@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.MaybeInt
-import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 
@@ -58,6 +57,15 @@ import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
 trait Suspension
   extends Serializable with Logging {
 
+  /**
+   * Specifies that this suspension does not write to the data output stream.
+   *
+   * Override in TargetLengthOperation,and in SuspendableExpression as they
+   * don't write to the DOS hence, if a DOS is created it can be setFinished
+   * immediately.
+   *
+   * TODO: Redundant with implementing maybeKnownLengthInBits as MaybeULong(0L)
+   */
   val isReadOnly = false
 
   def UE(ustate: UState, s: String, args: Any*) = {
@@ -89,7 +97,11 @@ trait Suspension
     doTask(savedUstate)
     if (isDone && !isReadOnly) {
       try {
-        savedUstate.dataOutputStream.setFinished()
+        //
+        // We are done, and we're not readOnly, so the
+        // DOS needs to be set finished now.
+        //
+        savedUstate.dataOutputStream.setFinished(savedUstate)
       } catch {
         case boc: BitOrderChangeException =>
           savedUstate.SDE(boc)
@@ -98,12 +110,103 @@ trait Suspension
     }
   }
 
+  /**
+   * Run the first time.
+   *
+   */
   final def run(ustate: UState) {
     doTask(ustate)
     if (!isDone) {
-      val mkl = maybeKnownLengthInBits(ustate)
-      setup(ustate, mkl)
+      prepareToSuspend(ustate)
     }
+  }
+
+  private def prepareToSuspend(ustate: UState) {
+    val mkl = maybeKnownLengthInBits(ustate)
+    //
+    // It seems like we have too many splits going on.
+    //
+    // As written, we have a bunch of suspensions that occur, but have
+    // specifically known length of zero bits. So nothing being written out.
+    // In that case, why do we need to split at all?
+    //
+    val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
+    if (mkl.isEmpty || (mkl.isDefined && mkl.get > 0)) {
+      //
+      // only split if the length is either unknown
+      // or known and greater than 0.
+      //
+      // If length known 0, then no need for another DOS
+      //
+      splitDOS(ustate, mkl, original)
+    }
+    suspend(ustate, original)
+  }
+
+  private def splitDOS(ustate: UState,
+    maybeKnownLengthInBits: MaybeULong,
+    original: DirectOrBufferedDataOutputStream) {
+    Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
+
+    val buffered = original.addBuffered
+
+    if (maybeKnownLengthInBits.isDefined) {
+      // since we know the length of the unparsed representation that we're skipping for now,
+      // that means we know the absolute position of the bits in the buffer we're creating
+      // and that means alignment operations don't have to suspend waiting for this knowledge
+      if (original.maybeAbsBitPos0b.isDefined) {
+        // direct streams always know this, but buffered streams may not.
+
+        val originalAbsBitPos0b = original.maybeAbsBitPos0b.getULong
+
+        // we are passed this length (in bits)
+        // and can use it to initialize the absolute bit pos of the buffered output stream.
+        //
+        // This allows us to deal with alignment regions, that is, we can determine
+        // their size since we know the absolute bit position.
+
+        val mkl = maybeKnownLengthInBits.getULong
+        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
+
+      }
+    } else {
+      log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
+        ustate.currentInfosetNode.erd.diagnosticDebugName, buffered)
+    }
+
+    // the main-thread will carry on using the original ustate but unparsing
+    // into this buffered stream.
+    ustate.dataOutputStream = buffered
+  }
+
+  private def suspend(ustate: UState, original: DirectOrBufferedDataOutputStream) {
+    //
+    // clone the ustate for use when evaluating the expression
+    //
+    // TODO: Performance - copying this whole state, just for OVC is painful.
+    // Some sort of copy-on-write scheme would be better.
+    //
+    val didSplit = (ustate.dataOutputStream ne original)
+    val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
+    if (isReadOnly && didSplit) {
+      Assert.invariantFailed("Shouldn't have split. read-only case")
+      //      try {
+      //        // We did a DOS split, but we know we'll not be writing to it
+      //        //
+      //        // So we set finished immediately
+      //        //
+      //        // TODO: Begs the question of why we needed the split to begin with in that
+      //        // case. Figure out why and document it!
+      //        //
+      //        original.setFinished(cloneUState)
+      //      } catch {
+      //        case boc: BitOrderChangeException => ustate.SDE(boc)
+      //      }
+    }
+
+    savedUstate_ = cloneUState
+
+    ustate.asInstanceOf[UStateMain].addSuspension(this)
   }
 
   final def explain() {
@@ -195,70 +298,5 @@ trait Suspension
     res
   }
 
-  final protected def setup(ustate: UState, maybeKnownLengthInBits: MaybeULong) {
-    Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
-
-    val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
-
-    //    // if we know the length will be 0, no need to allocate a buffered DOS
-    //    // but if we don't know the length or we know the length is non-zero
-    //    // then we do need a buffered DOS
-    //    //
-    //    if (maybeKnownLengthInBits.isEmpty ||
-    //      (maybeKnownLengthInBits.get != 0)) {
-
-    val buffered = original.addBuffered
-
-    if (maybeKnownLengthInBits.isDefined) {
-      // since we know the length of the unparsed representation that we're skipping for now,
-      // that means we know the absolute position of the bits in the buffer we're creating
-      // and that means alignment operations don't have to suspend waiting for this knowledge
-      if (original.maybeAbsBitPos0b.isDefined) {
-        // direct streams always know this, but buffered streams may not.
-
-        val originalAbsBitPos0b = original.maybeAbsBitPos0b.getULong
-
-        // we are passed this length (in bits)
-        // and can use it to initialize the absolute bit pos of the buffered output stream.
-        //
-        // This allows us to deal with alignment regions, that is, we can determine
-        // their size since we know the absolute bit position.
-
-        val mkl = maybeKnownLengthInBits.getULong
-        Assert.invariant(mkl >= ULong(0))
-        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
-
-      }
-    } else {
-      // log(LogLevel.Debug,
-      log(LogLevel.Debug, "Buffered DOS created for %s without knowning absolute start bit pos: %s\n",
-        ustate.currentInfosetNode.erd.diagnosticDebugName, buffered)
-    }
-
-    // the main-thread will carry on using the original ustate but unparsing
-    // into this buffered stream.
-    ustate.dataOutputStream = buffered
-
-    // }
-
-    //
-    // clone the ustate for use when evaluating the expression
-    //
-    // TODO: Performance - copying this whole state, just for OVC is painful.
-    // Some sort of copy-on-write scheme would be better.
-    //
-    val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
-    if (isReadOnly) {
-      try {
-        original.setFinished()
-      } catch {
-        case boc: BitOrderChangeException => ustate.SDE(boc)
-      }
-    }
-
-    savedUstate_ = cloneUState
-
-    ustate.asInstanceOf[UStateMain].addSuspension(this)
-  }
 }
 

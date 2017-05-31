@@ -71,9 +71,9 @@ import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
 
-  lazy val parser = new ConvertTextCombinatorParser(e.runtimeData, value.parser, converter.parser)
+  lazy val parser = new ConvertTextCombinatorParser(e.termRuntimeData, value.parser, converter.parser)
 
-  override lazy val unparser = new ConvertTextCombinatorUnparser(e.runtimeData, value.unparser, converter.unparser)
+  override lazy val unparser = new ConvertTextCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
 }
 
 abstract class ConvertTextNumberPrim[S](e: ElementBase)
@@ -144,7 +144,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       e.textStandardExponentRepEv.isConstant)
 
     val nff = if (isConstant) {
-      new NumberFormatFactoryStatic[S](e.runtimeData, h,
+      new NumberFormatFactoryStatic[S](e.termRuntimeData, h,
         decSep,
         groupSep,
         e.textStandardExponentRepEv,
@@ -156,7 +156,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         roundingMode,
         roundingIncrement)
     } else {
-      new NumberFormatFactoryDynamic[S](e.runtimeData, h,
+      new NumberFormatFactoryDynamic[S](e.termRuntimeData, h,
         decSep,
         groupSep,
         e.textStandardExponentRepEv,

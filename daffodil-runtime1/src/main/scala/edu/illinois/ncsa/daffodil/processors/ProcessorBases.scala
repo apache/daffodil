@@ -64,7 +64,7 @@ trait Processor
   with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
-  def childProcessors: Seq[Processor]
+  override def childProcessors: Seq[Processor]
   def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 
   var isInitialized: Boolean = false
@@ -74,16 +74,8 @@ trait PrimProcessor extends Processor {
   override def childProcessors: Seq[Processor] = Nil
 }
 
-trait BinaryParserUnparserRuntimeMixin {
-
-  final protected def setupByteOrder(state: ParseOrUnparseState, erd: ElementRuntimeData, byteOrdEv: ByteOrderEv) {
-    if (state.dataStream.isEmpty) return
-    val dis = state.dataStream.get
-    val byteOrd = byteOrdEv.evaluate(state)
-    dis.setByteOrder(byteOrd)
-    dis.setBitOrder(erd.defaultBitOrder)
-  }
-}
+/** must mixin to all processors that deal with text */
+trait TextProcessor
 
 /**
  * BriefXML is XML-style output, but intended for specific purposes. It is NOT

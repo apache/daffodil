@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.io
 
 import java.nio.CharBuffer
-import java.nio.charset.CharsetDecoder
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.util.Maybe
 import passera.unsigned.ULong
@@ -160,6 +159,10 @@ object DataInputStream {
    */
   trait CharIterator extends Iterator[Char] {
 
+    def reset(): Unit
+
+    def setFormatInfo(fi: FormatInfo): Unit
+
     /**
      * Looks ahead 1 into the data. Returns -1.toChar if there is no
      * character to peek to.
@@ -221,30 +224,6 @@ trait DataInputStream
     val newLimit = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
     setBitLimit0b(newLimit)
   }
-
-  /*
-   * Setters for all the text and binary characteristics.
-   * <p>
-   * These are set rather than passed to various operations because
-   * they will, most often, be very slow changing relative to the
-   * operations that actually perform data motion.
-   * <p>
-   * If any of these are not set as part of initialization,
-   * then IllegalStateException is
-   * thrown when any of the methods that access data are called, or
-   * any of the mark/reset/discard methods are called.
-   */
-
-  /**
-   * Sets the character set decoder.
-   * <p>
-   * If the `charWidthInBits` is less
-   * than 8, then the decoder must be an instance of
-   * `NonByteSizeCharsetEncoderDecoder` (a trait mixed into such decoders)
-   * so that an initial bit offset can be set if necessary.
-   */
-  def getDecoder: CharsetDecoder
-  def setDecoder(decoder: CharsetDecoder): Unit
 
   /**
    * Returns a mark value. It saves the current state of the input stream such
@@ -319,7 +298,7 @@ trait DataInputStream
    * If the bitLengthFrom1 is not a multiple of 8, the final byte will be
    * padded with zeros to make a full byte.
    */
-  def getByteArray(bitLengthFrom1: Int): Array[Byte]
+  def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte]
 
   /**
    * Returns a long integer containing the bits between the current bit position
@@ -339,7 +318,7 @@ trait DataInputStream
    * to check if sufficient bits are available. Alternatively one can catch the exception,
    * but that is likely less performant.
    */
-  def getUnsignedLong(bitLengthFrom1To64: Int): ULong
+  def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): ULong
 
   /**
    * Similar, but returns a negative value if the most-significant bit of the
@@ -360,7 +339,7 @@ trait DataInputStream
    * to check if sufficient bits are available. Alternatively one can catch the exception,
    * but that is likely less performant.
    */
-  def getSignedLong(bitLengthFrom1To64: Int): Long
+  def getSignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): Long
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
@@ -377,7 +356,7 @@ trait DataInputStream
    * It is recommended that getUnsignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getUnsignedBigInt(bitLengthFrom1: Int): BigInt
+  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
@@ -397,7 +376,7 @@ trait DataInputStream
    * It is recommended that getSignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
-  def getSignedBigInt(bitLengthFrom1: Int): BigInt
+  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt
 
   /**
    * Float and Double
@@ -408,8 +387,8 @@ trait DataInputStream
    * Consider first calling isDefinedForLength before calling this in order to avoid the
    * possibility of a throw.
    */
-  def getBinaryFloat(): Float
-  def getBinaryDouble(): Double
+  def getBinaryFloat(finfo: FormatInfo): Float
+  def getBinaryDouble(finfo: FormatInfo): Double
 
   /**
    * Fill a charBuffer with characters.
@@ -468,7 +447,7 @@ trait DataInputStream
    * Implementation Note: a specialized 4-bit encoding which maps 4 bits to
    * 0-9A-F can be used to treat packed decimal representations like text strings.
    */
-  def fillCharBuffer(cb: CharBuffer): MaybeULong
+  def fillCharBuffer(cb: CharBuffer, finfo: FormatInfo): MaybeULong
 
   /**
    * Returns One(string) if nChars are available, Nope otherwise.
@@ -476,7 +455,7 @@ trait DataInputStream
    * Throws a CharacterCodingException if the encoding error policy is 'error'
    * and a decode error is detected within nChars.
    */
-  def getString(nChars: Long): Maybe[String]
+  def getString(nChars: Long, finfo: FormatInfo): Maybe[String]
 
   /**
    * Returns One(string) if any (up to nChars) are available, Nope otherwise.
@@ -484,14 +463,14 @@ trait DataInputStream
    * Throws a CharacterCodingException if the encoding error policy is 'error'
    * and a decode error is detected within nChars.
    */
-  def getSomeString(nChars: Long): Maybe[String]
+  def getSomeString(nChars: Long, finfo: FormatInfo): Maybe[String]
 
   /**
    * Skips N characters and returns true, adjusting the bitPos0b based on
    * parsing them. Returns false if there is not enough data
    * to skip all N characters.
    */
-  def skipChars(nChars: Long): Boolean
+  def skipChars(nChars: Long, finfo: FormatInfo): Boolean
 
   /**
    * Matches a regex Matcher against a prefix of the data stream.
@@ -545,7 +524,7 @@ trait DataInputStream
    * strings by the underlying Matcher and regular expression API upon which this is
    * built.
    */
-  def lookingAt(matcher: Matcher, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean
+  def lookingAt(matcher: Matcher, finfo: FormatInfo, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean
 
   /**
    * As characters are iterated, the underlying bit position changes.

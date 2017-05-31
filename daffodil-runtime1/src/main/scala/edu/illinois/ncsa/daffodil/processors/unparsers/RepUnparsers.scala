@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData, baseName: String)
   extends UnparserObject(context) {
@@ -76,10 +76,10 @@ abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntime
  * otherwise, we know N.
  */
 object Rep {
-  def loopExactlyTotalN(intN: Int, rUnparser: Unparser, ustate: UState, context: RuntimeData, iParser: Unparser): Unit = {
+  def loopExactlyTotalN(intN: Int, rUnparser: Unparser, ustate: UState, context: TermRuntimeData, iParser: Unparser): Unit = {
     while (ustate.arrayPos <= intN && !ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, iParser)
-      rUnparser.unparse1(ustate, context)
+      rUnparser.unparse1(ustate)
       // Debugger.afterRepetition(ustate, iParser)
       ustate.moveOverOneArrayIndexOnly
     }
@@ -93,7 +93,7 @@ class RepExactlyNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeD
     1 to intN foreach { _ =>
       {
         // Debugger.beforeRepetition(pResult, this)
-        rUnparser.unparse1(ustate, context)
+        rUnparser.unparse1(ustate)
         // Debugger.afterRepetition(pResult, this)
         ustate.moveOverOneArrayIndexOnly
       }
@@ -107,7 +107,7 @@ class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeD
   def unparseAllRepeats(ustate: UState): Unit = {
     while (ustate.arrayPos <= intN && !ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
-      rUnparser.unparse1(ustate, context)
+      rUnparser.unparse1(ustate)
       if (ustate.isInspectArrayEnd) return
       // Debugger.afterRepetition(ustate, this)
       ustate.moveOverOneArrayIndexOnly
@@ -141,7 +141,7 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
     Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
     while (!ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
-      rUnparser.unparse1(ustate, erd)
+      rUnparser.unparse1(ustate)
       // Debugger.afterRepetition(ustate, this)
       ustate.moveOverOneArrayIndexOnly
     }

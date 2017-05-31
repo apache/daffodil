@@ -41,57 +41,14 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.util.Misc
-
-/**
- * This mixin for setting up all the characteristics of charset encoding
- */
-trait TextParserUnparserRuntimeBase {
-
-  final protected def setupEncoding(state: ParseOrUnparseState, erd: TermRuntimeData) {
-    if (state.dataStream.isEmpty) return
-    val encInfo = erd.encodingInfo
-    val dis = state.dataStream.get
-    dis.setMaybeUTF16Width(encInfo.optionUTF16Width)
-    dis.setEncodingErrorPolicy(encInfo.defaultEncodingErrorPolicy)
-  }
-
-}
-
-/**
- * This mixin for setting up all the characteristics of charset encoding
- */
-trait TextParserRuntimeMixin extends TextParserUnparserRuntimeBase {
-
-  def context: RuntimeData
-
-  /**
-   * This is here to get the reflective scanner to find that this parser is dependent
-   * on this decoderEv.
-   */
-  lazy val deps = Seq(context.asInstanceOf[TermRuntimeData].encodingInfo.charsetEv)
-  /**
-   * Override this in selected derived classes such as the hexBinary ones in order
-   * to force use of specific encodings.
-   */
-  protected def decoder(state: PState, trd: TermRuntimeData) = trd.encodingInfo.getDecoder(state)
-
-  final protected def setupDecoder(state: PState, erd: TermRuntimeData) {
-    setupEncoding(state, erd)
-    val dis = state.dataInputStream
-    dis.setEncodingErrorPolicy(erd.encodingInfo.defaultEncodingErrorPolicy)
-    dis.setDecoder(decoder(state, erd)) // must set after the above since this will compute other settings based on those.
-  }
-
-}
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -115,29 +72,36 @@ trait Parser
 
   protected def parse(pstate: PState): Unit
 
-  final def parse1(pstate: PState): Unit = {
+  final def parse1(pstate: PState) = {
     Assert.invariant(isInitialized)
+    val savedParser = pstate.maybeProcessor
+    pstate.setProcessor(this)
     if (pstate.dataProc.isDefined) pstate.dataProc.get.before(pstate, this)
     try {
+      pstate.processor.context match {
+        case mgrd: ModelGroupRuntimeData =>
+          ParserBitOrderChecks.checkParseBitOrder(pstate)
+        case _ => // ok. Elements are checked elsewhere.
+      }
       parse(pstate)
     } catch {
-      /* 
+      /*
        * We only catch ParseError here as we expect the majority of
        * exceptions to be handled internally. Parsers should call
        * state.setFailed(exception).
-       * 
+       *
        * When exceptions are necessary we expect them to be handled internally
        * in DPath.scala and DPathRuntime where they are either converted to
        * ParseError, SDE or rethrown (when necessary).
-       * 
+       *
        * In DPath.scala there's a method called handleThrow which catches:
        * InfosetException, VariableException, ExpressionEvaluationException,
        * IllegalSTateException, NumberFormatException, ArithmeticException
-       * and FNErrorException.  Upon which we call handleCompileState or 
+       * and FNErrorException.  Upon which we call handleCompileState or
        * doPE based upon the exception type. HandleCompileState further
        * decides whether to doSDE, doPE or just call state.setFailed(e). Any
        * other exception is simply rethrown.
-       * 
+       *
        * In DPathRuntime.runExpressionForConstant there's a catch for
        * InfosetException, VariableException, IllegalStateException,
        * IndexOutOfBoundsException, IllegalArgumentException and
@@ -148,11 +112,8 @@ trait Parser
       case pe: ParseError => pstate.setFailed(pe)
     }
     if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
+    pstate.setMaybeProcessor(savedParser)
   }
-
-  // TODO: other methods for things like asking for the ending position of something
-  // which would enable fixed-length formats to skip over data and not parse it at all.
-
 }
 
 // Deprecated and to be phased out. Use the trait Parser instead.
@@ -184,8 +145,8 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 
 }
 
-class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
-  extends ParserObject(context) {
+class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
+  extends ParserObject(ctxt) {
 
   override lazy val childProcessors = childParsers
 
@@ -298,7 +259,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
 
 }
 
-case class DummyParser(rd: RuntimeData) extends ParserObject(null) {
+case class DummyParser(rd: TermRuntimeData) extends ParserObject(null) {
   def parse(pstate: PState): Unit = pstate.SDE("Parser for " + rd + " is not yet implemented.")
 
   override def childProcessors = Nil

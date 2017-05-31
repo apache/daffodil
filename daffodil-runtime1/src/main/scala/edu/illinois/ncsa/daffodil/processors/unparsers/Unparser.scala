@@ -37,43 +37,9 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.processors.parsers.TextParserUnparserRuntimeBase
 import edu.illinois.ncsa.daffodil.processors.PrimProcessor
 import edu.illinois.ncsa.daffodil.processors.ToBriefXMLImpl
 import edu.illinois.ncsa.daffodil.processors.Processor
-
-/**
- * This mixin for setting up all the characteristics of charset encoding
- */
-trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
-
-  /**
-   * Override this in selected derived classes such as the hexBinary ones in order
-   * to force use of specific encodings.
-   */
-  protected def encoder(state: UState, trd: TermRuntimeData) = trd.encodingInfo.getEncoder(state)
-
-  // TODO: This is the wrong way to do these sorts of setting changes, as this incurs overhead
-  // for every Term instance parsed/unparsed.
-  //
-  // The right way to fix this is to have  DataOutputStreams indirect reference
-  // this from an Evaluatable so that it's cached on the node (if a runtime expression)
-  // or taken from the TermRuntimeData if it's static.
-  //
-  // The cache on the node is really only needed for elements with dfdl:outputValueCalc
-  // that forward reference to other things in the future. In those cases
-  // we do need to "freeze" the encoding so that this encoding is used for
-  // the element once the outputValueCalc has completed evaluation and can
-  // actually be unparsed.
-  //
-  final protected def setupEncoder(state: UState, trd: TermRuntimeData) {
-    val dis = state.dataOutputStream
-    setupEncoding(state, trd)
-    dis.setEncodingErrorPolicy(trd.encodingInfo.defaultEncodingErrorPolicy)
-    dis.setEncoder(encoder(state, trd)) // must set after the above since this will compute other settings based on those.
-  }
-
-}
 
 /**
  * Vast majority of unparsers are actually Term unparsers. (The ones that are not are expression related e.g., SetVar)
@@ -87,19 +53,30 @@ trait Unparser
 
   def context: RuntimeData
 
-  def unparse(ustate: UState): Unit
+  protected def unparse(ustate: UState): Unit
 
-  final def unparse1(ustate: UState, context: RuntimeData): Unit = {
+  final def unparse1(ustate: UState, ignore: AnyRef = null) = {
     Assert.invariant(isInitialized)
-    if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
+    val savedProc = ustate.maybeProcessor
+    ustate.setProcessor(this)
+
     //
     // Since the state is being overwritten (in most case) now,
-    // we must explicitly make a copy so we can compute a delta
+    // we must explicitly make a copy when debugging so we can compute a delta
     // after
     //
-    unparse(ustate)
+    // ?? TODO: Should this be after the split below ??
+    if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
 
+    ustate.processor.context match {
+      case mgrd: ModelGroupRuntimeData =>
+        UnparserBitOrderChecks.checkUnparseBitOrder(ustate)
+      case _ => // ok. Elements are checked elsewhere.
+    }
+
+    unparse(ustate)
     if (ustate.dataProc.isDefined) ustate.dataProc.get.after(ustate, this)
+    ustate.setMaybeProcessor(savedProc)
   }
 
   def UE(ustate: UState, s: String, args: Any*) = {
@@ -122,6 +99,10 @@ trait PrimUnparser
   extends Unparser
   with PrimProcessor
 
+trait TextPrimUnparser
+  extends PrimUnparser
+  with TextProcessor
+
 // Deprecated and to be phased out. Use the trait Unparser instead.
 abstract class UnparserObject(override val context: RuntimeData)
   extends Unparser {
@@ -131,15 +112,19 @@ abstract class UnparserObject(override val context: RuntimeData)
 }
 
 // Deprecated and to be phased out. Use the trait PrimUnparser instead.
-abstract class PrimUnparserObject(override val context: RuntimeData)
+abstract class PrimUnparserObject(override val context: TermRuntimeData)
   extends PrimUnparser {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 }
 
+abstract class TextPrimUnparserObject(ctxt: TermRuntimeData)
+  extends PrimUnparserObject(ctxt)
+  with TextProcessor
+
 // No-op, in case an optimization lets one of these sneak thru.
 // TODO: make this fail, and test optimizer sufficiently to know these
 // do NOT get through.
-class EmptyGramUnparser(context: RuntimeData = null) extends UnparserObject(context) {
+class EmptyGramUnparser(context: TermRuntimeData = null) extends UnparserObject(context) {
 
   def unparse(ustate: UState) {
     Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
@@ -153,7 +138,7 @@ class EmptyGramUnparser(context: RuntimeData = null) extends UnparserObject(cont
   override def toString = toBriefXML()
 }
 
-class ErrorUnparser(context: RuntimeData = null) extends UnparserObject(context) {
+class ErrorUnparser(context: TermRuntimeData = null) extends UnparserObject(context) {
   def unparse(ustate: UState) {
     Assert.abort("Error Unparser")
   }
@@ -176,7 +161,7 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
     while (i < childUnparsers.length) {
       val unparser = childUnparsers(i)
       i += 1
-      unparser.unparse1(ustate, context)
+      unparser.unparse1(ustate)
     }
   }
 

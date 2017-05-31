@@ -37,15 +37,16 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
 import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 class TextParser(
   override val context: TermRuntimeData)
   extends Parser {
 
-  lazy val name: String = "TextParser"
-  lazy val info: String = "" // Nothing additional to add here
+  override lazy val name: String = "TextParser"
+  override lazy val info: String = "" // Nothing additional to add here
 
-  def parse(input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()
 
@@ -54,7 +55,7 @@ class TextParser(
     while (delimIter.hasNext()) {
       val d = delimIter.next()
       val reg = TLRegistersPool.getFromPool("TextParser1")
-      reg.reset(input, delimIter, m)
+      reg.reset(finfo, input, delimIter, m)
       m = input.markPos
       d.run(reg)
       if (reg.status == StateKind.Succeeded) {
@@ -69,7 +70,7 @@ class TextParser(
         if (isDelimRequired) Nope
         else {
           val totalNumCharsRead = 0
-          input.getString(totalNumCharsRead)
+          input.getString(totalNumCharsRead, finfo)
           One(new ParseResult(Nope, Nope, lmt.longestMatches))
         }
       } else {

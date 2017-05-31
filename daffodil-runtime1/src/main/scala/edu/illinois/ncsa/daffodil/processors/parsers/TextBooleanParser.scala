@@ -42,7 +42,7 @@ case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
   textBooleanFalseRepEv: TextBooleanFalseRepEv,
   ignoreCase: Boolean)
-  extends PrimParser {
+  extends TextPrimParser {
 
   override lazy val runtimeDependencies = List(textBooleanTrueRepEv, textBooleanFalseRepEv)
 

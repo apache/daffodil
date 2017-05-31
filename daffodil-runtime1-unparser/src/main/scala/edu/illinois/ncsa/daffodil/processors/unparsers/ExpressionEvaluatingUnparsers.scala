@@ -55,6 +55,16 @@ final class SetVariableSuspendableExpression(
   override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
 }
 
+/**
+ * Used when unparsing to evaluate dfdl:setVariable statements.
+ * 
+ * TODO: Possible bug. This will allow expressions to forward reference, even
+ * when the variables are being referenced from expressions that are NOT
+ * allowed to forward reference - e.g., property value expressions such 
+ * as delimiters and byte order. 
+ * 
+ * This forward suspension is only supposed to be allowed for dfdl:outputValueCalc.
+ */
 final class SetVariableUnparser(
   val expr: CompiledExpression[AnyRef],
   val rd: VariableRuntimeData,

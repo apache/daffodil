@@ -51,7 +51,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
     } else if (!dis.isDefinedForLength(nBits)) {
       PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
     } else {
-      val array = start.dataInputStream.getByteArray(nBits)
+      val array = start.dataInputStream.getByteArray(nBits, start)
       currentElement.setDataValue(array)
     }
   }
@@ -59,7 +59,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
 
 final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: LengthInBitsEv)
   extends HexBinaryLengthParser(erd) {
-  
+
   override val runtimeDependencies = Seq(lengthEv)
 
   override def getLengthInBits(pstate: PState): Long = {
@@ -73,7 +73,7 @@ final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
 
   override val runtimeDependencies = Nil
 
-  def getLengthInBits(pstate: PState): Long = {
+  override def getLengthInBits(pstate: PState): Long = {
     pstate.bitLimit0b.get - pstate.bitPos0b
   }
 }

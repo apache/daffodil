@@ -50,7 +50,7 @@ trait ModelGroupGrammarMixin
   with GroupCommonAGMixin { self: ModelGroup =>
 
   private lazy val groupLeftFraming = prod("groupLeftFraming") {
-    termIOPropertiesChange ~ LeadingSkipRegion(this) ~ AlignmentFill(this)
+    LeadingSkipRegion(this) ~ AlignmentFill(this)
   }
 
   private lazy val groupRightFraming = prod("groupRightFraming") { TrailingSkipRegion(this) }

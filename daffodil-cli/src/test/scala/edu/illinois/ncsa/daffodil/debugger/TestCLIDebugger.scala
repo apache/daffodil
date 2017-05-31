@@ -237,7 +237,7 @@ class TestCLIdebugger {
       shell.expect(contains("debug"))
 
       shell.sendLine("info data")
-      shell.expect(contains("0,1,2,3,4,5,6"))
+      shell.expect(contains("0~,~1~,~2~,~3~,~4~,~5~,~6~"))
 
       //      shell.sendLine("set dataLength 5")
       //      shell.sendLine("info data")
@@ -245,7 +245,7 @@ class TestCLIdebugger {
 
       shell.sendLine("set dataLength -938")
       shell.sendLine("info data")
-      shell.expect(contains("0,1,2,3,4,5,6"))
+      shell.expect(contains("0~,~1~,~2~,~3~,~4~,~5~,~6~"))
 
       //      shell.sendLine("set wrapLength 2")
       //      shell.sendLine("info data")
@@ -285,6 +285,7 @@ class TestCLIdebugger {
 
     try {
       val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
 
@@ -302,7 +303,7 @@ class TestCLIdebugger {
       shell.sendLine("enable display 1")
 
       shell.sendLine("step")
-      shell.expect(contains("</tns:matrix>"))
+      shell.expect(contains("</tns:cell>"))
 
       shell.sendLine("delete display 1")
       shell.sendLine("step")
@@ -895,7 +896,7 @@ class TestCLIdebugger {
       shell.sendLine("display info data")
       shell.sendLine("step")
       shell.expect(contains("│")) //  (0 to 0)
-      shell.expect(contains("0,1,2,3,4,5,6"))
+      shell.expect(contains("0~,~1~,~2~,~3~,~4~,~5~,~6~"))
 
       shell.sendLine("break cell")
       shell.sendLine("condition 1 dfdl:occursIndex() eq 5")

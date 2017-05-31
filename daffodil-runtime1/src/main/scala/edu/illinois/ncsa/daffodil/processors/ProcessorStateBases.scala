@@ -58,6 +58,18 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors.charset.EncoderInfo
+import edu.illinois.ncsa.daffodil.processors.charset.DecoderInfo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.io.FormatInfo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.processors.charset.CoderInfo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import java.nio.charset.CharsetDecoder
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -83,6 +95,30 @@ case class TupleForDebugger(
   val bitLimit0b: MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
+trait SetProcessorMixin {
+  private var maybeProcessor_ : Maybe[Processor] = Nope
+
+  final def maybeProcessor = maybeProcessor_
+
+  final def processor = {
+    Assert.usage(maybeProcessor_.isDefined) // failure means setProcessor wasn't called.
+    maybeProcessor_.value
+  }
+
+  /**
+   * Must be called on the state before any
+   * call to the I/O layer, as that will call back to get property-related
+   * information and that has to be obtained via the runtime data for the
+   * term - whether element or model group. The
+   */
+  final def setProcessor(p: Processor) {
+    maybeProcessor_ = One(p)
+  }
+
+  final def setMaybeProcessor(mp: Maybe[Processor]) {
+    maybeProcessor_ = mp
+  }
+}
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -104,11 +140,118 @@ abstract class ParseOrUnparseState protected (
   with SavesErrorsAndWarnings
   with LocalBufferMixin
   with EncoderDecoderMixin
-  with Logging {
+  with Logging
+  with FormatInfo
+  with SetProcessorMixin {
 
   def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], tunable: DaffodilTunables) =
     this(new VariableBox(vmap), diags, dataProc, tunable)
 
+  def infoset: DIElement
+
+  private def simpleElement = infoset.asInstanceOf[DISimple]
+
+  /*
+   * Implement the FormatInfo trait needed by the I/O layer.
+   */
+  final def replacingDecoder: CharsetDecoder = decoderEntry.replacingCoder
+  final def reportingDecoder: CharsetDecoder = decoderEntry.reportingCoder
+  final def binaryFloatRep: BinaryFloatRep = simpleElement.erd.maybeBinaryFloatRepEv.get.evaluate(this)
+
+  private def runtimeData = processor.context
+  private def termRuntimeData = runtimeData.asInstanceOf[TermRuntimeData]
+
+  /**
+   * Returns bit order. If text, this is the bit order for the character set
+   * encoding. If binary, this is the bitOrder property value.
+   */
+  final def bitOrder: BitOrder = {
+    val res = processor match {
+      case txtProc: TextProcessor =>
+        encoder.charset() match {
+          case nbs: NonByteSizeCharset => nbs.requiredBitOrder
+          case _ => BitOrder.MostSignificantBitFirst
+        }
+      case _ => processor.context match {
+        case trd: TermRuntimeData => trd.defaultBitOrder
+        case ntrd: NonTermRuntimeData =>
+          Assert.usageError("Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd)
+      }
+    }
+    res
+  }
+
+  final def byteOrder: ByteOrder = {
+    runtimeData match {
+      case erd: ElementRuntimeData => erd.maybeByteOrderEv.get.evaluate(this)
+      case mgrd: ModelGroupRuntimeData => {
+        //
+        // Model Groups can't have byte order.
+        // However, I/O layer still requests it because alignment regions
+        // use skip, which ultimately uses getLong/putLong, which asks for
+        // byteOrder.
+        //
+        // A model group DOES care about bit order for its alignment regions,
+        // and for the charset encoding of say, initiators or prefix separators.
+        // A bitOrder change requires that we check the new bitOrder against the
+        // byte order to insure compatibility. (byteOrder can be an expression),
+        // so of necessity, we also need byte order. However, if byte order isn't defined
+        // we can assume littleEndian since that works with all bit orders.
+        // (Big endian only allows MSBF bit order)
+        //
+        ByteOrder.LittleEndian
+      }
+      case _ => Assert.usageError("byte order of non term: " + runtimeData)
+    }
+  }
+
+  final def maybeCharWidthInBits: MaybeInt = { coderCacheEntry_.maybeCharWidthInBits }
+  final def encodingMandatoryAlignmentInBits: Int = { decoder; coderCacheEntry_.encodingMandatoryAlignmentInBits }
+  final def maybeUTF16Width: Maybe[UTF16Width] = termRuntimeData.encodingInfo.maybeUTF16Width
+  final def fillByte: Byte = termRuntimeData.maybeFillByteEv.get.evaluate(this).toByte
+
+  final def decoder = {
+    val de = decoderEntry
+    if (encodingErrorPolicy eq EncodingErrorPolicy.Error)
+      de.reportingCoder
+    else
+      de.replacingCoder
+  }
+
+  final def encoder = {
+    val ee = encoderEntry
+    if (encodingErrorPolicy eq EncodingErrorPolicy.Error)
+      ee.reportingCoder
+    else
+      ee.replacingCoder
+  }
+
+  final def encodingErrorPolicy: EncodingErrorPolicy = {
+    val eep = termRuntimeData.encodingInfo.defaultEncodingErrorPolicy
+    eep
+  }
+
+  private def decoderEntry = {
+    val nextEntry = termRuntimeData.encodingInfo.getDecoderInfo(this)
+    if (coderCacheEntry_ == null || coderCacheEntry_ != nextEntry) {
+      coderCacheEntry_ = nextEntry
+    }
+    coderCacheEntry_.asInstanceOf[DecoderInfo]
+  }
+
+  private def encoderEntry = {
+    val nextEntry = termRuntimeData.encodingInfo.getEncoderInfo(this)
+    if (coderCacheEntry_ == null || coderCacheEntry_ != nextEntry) {
+      coderCacheEntry_ = nextEntry
+    }
+    coderCacheEntry_.asInstanceOf[EncoderInfo]
+  }
+
+  private var coderCacheEntry_ : CoderInfo = _
+
+  /**
+   * Variable map provides access to variable bindings.
+   */
   def variableMap = variableBox.vmap
   def setVariableMap(newMap: VariableMap) {
     variableBox.setVMap(newMap)
@@ -151,6 +294,16 @@ abstract class ParseOrUnparseState protected (
    */
   def setSuccess() {
     _processorStatus = Success
+  }
+  
+  /**
+   * Used when errors are caught by interactive debugger expression evaluation.
+   * We don't want to accumulate the diagnostics that we're suppressing.
+   */
+  final def suppressDiagnosticAndSucceed(d: Diagnostic) {
+    Assert.usage(diagnostics.contains(d))
+    diagnostics = diagnostics.filterNot{ _ eq d}
+    setSuccess()
   }
 
   def currentNode: Maybe[DINode]
@@ -208,7 +361,6 @@ abstract class ParseOrUnparseState protected (
   def occursBoundsStack: MStackOfLong
 
   def hasInfoset: Boolean
-  def infoset: InfosetItem
 
   def maybeERD = {
     if (hasInfoset)
@@ -270,19 +422,15 @@ abstract class ParseOrUnparseState protected (
  *  So they don't require a "real" state.
  *
  *  This serves two purposes. First it lets us obey the regular API for evaluation, so we don't need
- *  one way to evaluate and another very similar thing for analyzing expressions to see if they are constnat.
+ *  one way to evaluate and another very similar thing for analyzing expressions to see if they are constant.
  *
  *  Second, it serves as a detector of when an expression is non-constant by blowing up when things
  *  inconsistent with constant-value are attempted to be extracted from the state. By "blow up" it throws
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
-class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
+final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
   extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc, tunable = trd.tunable) {
-  /**
-   * As seen from class CompileState, the missing signatures are as follows.
-   *  *  For convenience, these are usable as stub implementations.
-   */
-  // Members declared in edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+
   def arrayPos: Long = 1L
   def bitLimit0b: MaybeULong = MaybeULong.Nope
   def bitPos0b: Long = 0L

@@ -42,6 +42,9 @@ trait RawCommonRuntimeValuedPropertiesMixin
   protected final lazy val encodingRaw = requireProperty(optionEncodingRaw)
   protected final lazy val optionOutputNewLineRaw = findPropertyOption("outputNewLine")
   protected final lazy val outputNewLineRaw = requireProperty(optionOutputNewLineRaw)
+
+  protected final lazy val optionFillByteRaw = findPropertyOption("fillByte")
+  protected final lazy val fillByteRaw = requireProperty(optionFillByteRaw)
 }
 
 trait RawDelimitedRuntimeValuedPropertiesMixin

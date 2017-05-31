@@ -39,6 +39,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestByteBufferDataInputStream5 {
+  val leFinfo = FormatInfoForUnitTest()
+  leFinfo.byteOrder = ByteOrder.LittleEndian
+  leFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
   @Test def testLittleEndianLSBFirstLong1() {
     val bb = ByteBuffer.allocate(8)
@@ -49,9 +52,7 @@ class TestByteBufferDataInputStream5 {
     fb.put(expected)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setByteOrder(ByteOrder.LittleEndian)
-    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
-    val md = dis.getSignedLong(64)
+    val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
@@ -65,9 +66,7 @@ class TestByteBufferDataInputStream5 {
     fb.put(expected)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setByteOrder(ByteOrder.LittleEndian)
-    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
-    val md = dis.getSignedLong(32)
+    val md = dis.getSignedLong(32, leFinfo)
     assertEquals(expected, md)
     assertEquals(32, dis.bitPos0b)
   }
@@ -81,9 +80,7 @@ class TestByteBufferDataInputStream5 {
     fb.put(expected)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setByteOrder(ByteOrder.LittleEndian)
-    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
-    val md = dis.getSignedLong(64)
+    val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
@@ -97,9 +94,7 @@ class TestByteBufferDataInputStream5 {
     fb.put(data)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setByteOrder(ByteOrder.LittleEndian)
-    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
-    val md = dis.getSignedLong(32)
+    val md = dis.getSignedLong(32, leFinfo)
     assertEquals(0x80706050.toInt, md)
     assertEquals(32, dis.bitPos0b)
   }
@@ -113,9 +108,8 @@ class TestByteBufferDataInputStream5 {
     fb.put(data)
     val bytes = bb.array()
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setByteOrder(ByteOrder.LittleEndian)
-    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
-    val md = dis.getSignedLong(1)
+
+    val md = dis.getSignedLong(1, leFinfo)
     assertEquals(1, md)
     assertEquals(1, dis.bitPos0b)
   }

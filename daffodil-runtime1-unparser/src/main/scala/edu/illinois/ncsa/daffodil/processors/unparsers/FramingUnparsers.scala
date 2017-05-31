@@ -32,30 +32,28 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
 import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.TextProcessor
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class SkipRegionUnparser(
   skipInBits: Int,
-  e: RuntimeData,
-  fillByteEv: FillByteEv)
+  e: TermRuntimeData)
   extends PrimUnparserObject(e) {
 
-  override def runtimeDependencies = List(fillByteEv)
+  override def runtimeDependencies = Nil
 
   override def unparse(state: UState) = {
     val dos = state.dataOutputStream
-    if (!dos.skip(skipInBits)) UE(state, "Unable to skip %s(bits).", skipInBits)
+    if (!dos.skip(skipInBits, state)) UE(state, "Unable to skip %s(bits).", skipInBits)
   }
 }
 
 class AlignmentFillUnparserSuspendableOperation(
   alignmentInBits: Int,
-  override val rd: RuntimeData,
-  fillByteEv: FillByteEv)
+  override val rd: TermRuntimeData)
   extends SuspendableOperation {
 
   override def test(ustate: UState) = {
@@ -68,10 +66,8 @@ class AlignmentFillUnparserSuspendableOperation(
 
   override def continuation(state: UState) {
     val dos = state.dataOutputStream
-    val fb = fillByteEv.evaluate(state)
-    dos.setFillByte(fb)
     val b4 = dos.relBitPos0b
-    if (!dos.align(alignmentInBits))
+    if (!dos.align(alignmentInBits, state))
       UE(state, "Unable to align to %s(bits).", alignmentInBits)
     val aft = dos.relBitPos0b
     val delta = aft - b4
@@ -84,20 +80,19 @@ class AlignmentFillUnparserSuspendableOperation(
 
 class AlignmentFillUnparser(
   alignmentInBits: Int,
-   val rd: RuntimeData,
-  fillByteEv: FillByteEv)
+  val rd: TermRuntimeData)
   extends PrimUnparserObject(rd)
   with SuspendableUnparser {
 
-  override def runtimeDependencies = List(fillByteEv)
+  override def runtimeDependencies = Nil
 
   override def suspendableOperation =
     new AlignmentFillUnparserSuspendableOperation(
-      alignmentInBits, rd, fillByteEv)
+      alignmentInBits, rd)
 }
 
 class MandatoryTextAlignmentUnparser(
   alignmentInBits: Int,
-  e: RuntimeData,
-  fillByteEv: FillByteEv)
-  extends AlignmentFillUnparser(alignmentInBits, e, fillByteEv)
+  e: TermRuntimeData)
+  extends AlignmentFillUnparser(alignmentInBits, e)
+  with TextProcessor

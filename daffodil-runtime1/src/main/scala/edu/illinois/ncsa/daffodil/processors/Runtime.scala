@@ -108,7 +108,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   extends DFDL.DataProcessor with Logging
   with HasSetDebugger with Serializable
   with MultipleEventHandler {
-  
+
   protected var tunablesObj = ssrd.tunable // Compiler-set tunables
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
@@ -161,7 +161,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   def setTunable(tunable: String, value: String): Unit = tunablesObj = tunablesObj.setTunable(tunable, value)
   def setTunables(tunables: Map[String, String]): Unit = tunablesObj = tunablesObj.setTunables(tunables)
   def resetTunables(): Unit = tunablesObj = ssrd.tunable // Compiler-set values
-  
+
   override def isError = false // really there is no compiling at all currently, so there can be no errors.
 
   override def getDiagnostics = ssrd.diagnostics
@@ -241,6 +241,16 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       this.startElement(state, p)
       p.parse1(state)
       this.endElement(state, p)
+      //
+      // After the end of all processing, we still call things that ask for the
+      // ERD, and expect to find it on the processor.context. If we don't set
+      // this, then the processor.context is Nope (because it is set on the
+      // way into a parser, and unset back when a parser unwinds). We
+      // want it to do this wind/unwind, but here at the ultimate top
+      // level we want to defeat that final unwind
+      // so that subsequent use of the state can generally work and have a context.
+      //
+      state.setMaybeProcessor(Maybe(p))
 
       /* Verify that all stacks are empty */
       Assert.invariant(state.mpstate.arrayIndexStack.length == 1)
@@ -278,7 +288,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         state.setFailed(e)
       }
       case us: UnsuppressableException => throw us
-      case x: Throwable => Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
+      case x: Throwable =>
+        Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
     }
 
     state.dataInputStream.validateFinalStreamState
@@ -288,7 +299,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.usage(!this.isError)
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
-
     val unparserState =
       UState.createInitialUState(
         out,
@@ -302,6 +312,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
       inputter.initialize(ssrd.elementRuntimeData, unparserState.tunable)
       unparserState.dataProc.get.init(ssrd.unparser)
+      out.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
       doUnparse(unparserState)
       unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.
       unparserState.unparseResult
@@ -350,7 +361,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   private def doUnparse(state: UState): Unit = {
     val rootUnparser = ssrd.unparser
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    rootUnparser.unparse(state)
+    rootUnparser.unparse1(state)
 
     /* Verify that all stacks are empty */
     Assert.invariant(state.arrayIndexStack.length == 1)
@@ -374,7 +385,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     //
     Assert.invariant(!state.dataOutputStream.isFinished)
     try {
-      state.dataOutputStream.setFinished()
+      state.dataOutputStream.setFinished(state)
     } catch {
       case boc: BitOrderChangeException =>
         state.SDE(boc)

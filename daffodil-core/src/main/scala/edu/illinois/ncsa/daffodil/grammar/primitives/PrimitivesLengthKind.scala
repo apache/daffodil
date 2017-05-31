@@ -69,7 +69,7 @@ case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinarySpecifiedLengthParser(e.elementRuntimeData, e.elementLengthInBitsEv)
 
-  override lazy val unparser: DaffodilUnparser = new HexBinarySpecifiedLengthUnparser(e.elementRuntimeData, e.unparseTargetLengthInBitsEv, e.fillByteEv)
+  override lazy val unparser: DaffodilUnparser = new HexBinarySpecifiedLengthUnparser(e.elementRuntimeData, e.unparseTargetLengthInBitsEv)
 }
 
 case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {
@@ -177,8 +177,7 @@ abstract class HexBinaryDelimited(e: ElementBase)
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
     e.minLength.longValue,
-    e.elementRuntimeData,
-    e.fillByteEv)
+    e.elementRuntimeData)
 }
 
 case class HexBinaryDelimitedEndOfData(e: ElementBase)
@@ -192,8 +191,7 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
     e.minLength.longValue,
-    e.elementRuntimeData,
-    e.fillByteEv)
+    e.elementRuntimeData)
 }
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
@@ -223,7 +221,7 @@ case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.leng
 
 class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
 
-  lazy val parser: DaffodilParser = new OptionalInfixSepParser(term.runtimeData, sep.parser)
+  lazy val parser: DaffodilParser = new OptionalInfixSepParser(term.termRuntimeData, sep.parser)
 
-  override lazy val unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.runtimeData, sep.unparser)
+  override lazy val unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.termRuntimeData, sep.unparser)
 }

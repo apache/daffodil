@@ -32,13 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.StandardCharsets
 import java.nio.charset.CodingErrorAction
@@ -57,6 +55,7 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.api.DataStreamLimits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 
 /**
  * Factory for creating this type of DataInputStream
@@ -75,18 +74,18 @@ object ByteBufferDataInputStream {
    * The initialBitPos0b is mostly there for testing purposes - to create small unit tests that
    * start with non-byte alignment and such.
    */
-  def apply(byteBuffer: ByteBuffer, initialBitPos0b: Long): DataInputStream =
+  def apply(byteBuffer: ByteBuffer, initialBitPos0b: Long): ByteBufferDataInputStream =
     new ByteBufferDataInputStream(byteBuffer, initialBitPos0b)
 
   /**
    * Mostly this is for unit testing
    */
-  def apply(byteArray: Array[Byte], initialBitPos0b: Long = 0): DataInputStream = apply(ByteBuffer.wrap(byteArray), initialBitPos0b)
+  def apply(byteArray: Array[Byte], initialBitPos0b: Long = 0): ByteBufferDataInputStream = apply(ByteBuffer.wrap(byteArray), initialBitPos0b)
 
   /**
    * File becomes a direct mapped byte buffer.
    */
-  def apply(file: java.io.File, initialBitPos0b: Long): DataInputStream = {
+  def apply(file: java.io.File, initialBitPos0b: Long): ByteBufferDataInputStream = {
     Assert.usage(file.length() < Int.MaxValue)
     val path = file.toPath()
     val channel = FileChannel.open(path)
@@ -97,7 +96,7 @@ object ByteBufferDataInputStream {
    * If it is a FileInputStream, get its channel so we can mmap it.
    * Otherwise copy into a byte array.
    */
-  def apply(in: InputStream, initialBitPos0b: Long): DataInputStream = {
+  def apply(in: InputStream, initialBitPos0b: Long): ByteBufferDataInputStream = {
     in match {
       case fis: java.io.FileInputStream => {
         val fc = fis.getChannel()
@@ -119,7 +118,7 @@ object ByteBufferDataInputStream {
   /**
    * If it's a file channel, mmap it. Otherwise treat like an InputStream
    */
-  def apply(channel: java.nio.channels.ReadableByteChannel, initialBitPos0b: Long): DataInputStream = {
+  def apply(channel: java.nio.channels.ReadableByteChannel, initialBitPos0b: Long): ByteBufferDataInputStream = {
     channel match {
       case fc: FileChannel => {
         val bbuf = fc.map(FileChannel.MapMode.READ_ONLY, 0L, fc.size())
@@ -184,7 +183,6 @@ private[io] class TLState {
  */
 final class MarkState(initialBitPos0b: Long)
   extends DataStreamCommonState with DataInputStream.Mark {
-
   def defaultCodingErrorAction = ByteBufferDataInputStream.defaultCodingErrorAction
 
   def bitPos0b: Long = (savedBytePosition0b << 3) + bitOffset0b
@@ -206,29 +204,19 @@ final class MarkState(initialBitPos0b: Long)
 
   var maybeBitLimitOffset0b: MaybeULong = MaybeULong(0)
 
-  var decoder: CharsetDecoder = {
-    val dec = StandardCharsets.UTF_8.newDecoder()
-    dec.onMalformedInput(defaultCodingErrorAction)
-    dec.onUnmappableCharacter(defaultCodingErrorAction)
-    dec
-  }
-  var codingErrorAction: CodingErrorAction = defaultCodingErrorAction
-
   var adaptedRegexMatchBufferLimit: Int = 0
 
   val charIteratorState = new CharIteratorState
+
   // any members added here must be added to assignFrom below.
 
   def assignFrom(other: MarkState): Unit = {
     super.assignFrom(other)
-    // this.dis = other.dis
     this.savedBytePosition0b = other.savedBytePosition0b
     this.savedByteLimit0b = other.savedByteLimit0b
     this.bitOffset0b = other.bitOffset0b
     this.savedByteOrder = other.savedByteOrder
     this.maybeBitLimitOffset0b = other.maybeBitLimitOffset0b
-    this.decoder = other.decoder
-    this.codingErrorAction = other.codingErrorAction
     this.adaptedRegexMatchBufferLimit = other.adaptedRegexMatchBufferLimit
     this.charIteratorState.assignFrom(other.charIteratorState)
   }
@@ -348,96 +336,34 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     bitLimit0b = MaybeULong(calcBitLimit0b)
   }
 
-  def setByteOrder(byteOrder: ByteOrder): Unit = {
-    // threadCheck()
-    byteOrder match {
-      case ByteOrder.BigEndian => data.order(java.nio.ByteOrder.BIG_ENDIAN)
-      case ByteOrder.LittleEndian => data.order(java.nio.ByteOrder.LITTLE_ENDIAN)
-    }
-    st.savedByteOrder = data.order()
-  }
-
-  def byteOrder: ByteOrder = {
-    data.order match {
-      case java.nio.ByteOrder.BIG_ENDIAN => ByteOrder.BigEndian
-      case java.nio.ByteOrder.LITTLE_ENDIAN => ByteOrder.LittleEndian
-    }
-  }
-
-  def getDecoder = st.decoder
-
-  def setDecoder(decoder: CharsetDecoder): Unit = {
-    // threadCheck()
-    if (st.decoder == decoder) return
-    st.decoder = decoder
-    st.priorEncoding = decoder.charset()
-    st.decoder.onMalformedInput(st.codingErrorAction)
-    st.decoder.onUnmappableCharacter(st.codingErrorAction)
-    val cs = decoder.charset()
-    if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE) {
-      st.encodingMandatoryAlignmentInBits = 8
-      if (st.maybeUTF16Width.isDefined && st.maybeUTF16Width.get == UTF16Width.Fixed) {
-        st.maybeCharWidthInBits = MaybeInt(16)
-      } else {
-        st.maybeCharWidthInBits = MaybeInt.Nope
-      }
-    } else {
-      cs match {
-        case decoderWithBits: NonByteSizeCharset => {
-          st.encodingMandatoryAlignmentInBits = 1
-          st.maybeCharWidthInBits = MaybeInt(decoderWithBits.bitWidthOfACodeUnit)
-        }
-        case _ => {
-          st.encodingMandatoryAlignmentInBits = 8
-          val encoder = cs.newEncoder()
-          val maxBytes = encoder.maxBytesPerChar()
-          if (maxBytes == encoder.averageBytesPerChar()) {
-            st.maybeCharWidthInBits = MaybeInt((maxBytes * 8).toInt)
-          } else {
-            st.maybeCharWidthInBits = MaybeInt.Nope
-          }
-        }
-      }
-    }
-  }
-
-  def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = {
-    // threadCheck()
-    st.codingErrorAction = eep match {
-      case EncodingErrorPolicy.Replace => CodingErrorAction.REPLACE
-      case EncodingErrorPolicy.Error => CodingErrorAction.REPORT
-    }
-    st.decoder.onMalformedInput(st.codingErrorAction)
-    st.decoder.onUnmappableCharacter(st.codingErrorAction)
-    ()
-  }
-
-  def getByteArray(bitLengthFrom1: Int): Array[Byte] = {
+  def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = {
     // threadCheck()
     if (!isDefinedForLength(bitLengthFrom1)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
 
     val arraySize = (bitLengthFrom1 + 7) / 8
     val array = new Array[Byte](arraySize)
-    fillByteArray(array, bitLengthFrom1)
+    fillByteArray(array, bitLengthFrom1, finfo)
     array
   }
 
-  // accepts a preallocated array and a bitLength. Reads the specified number
-  // of bits and stores them in the array in big endian byte order and most
-  // significant bit first bit order. The most significant byte is stored in
-  // the zero'th index in the array. This means that if the array is larger
-  // than the number of bytes needed for the specified number of bits, the
-  // trailing bytes will be untouched and should be ignored by the caller.
-  private def fillByteArray(array: Array[Byte], bitLengthFrom1: Int): Unit = {
+  /**
+   * Accepts a preallocated array and a bitLength. Reads the specified number
+   * of bits and stores them in the array in big endian byte order and most
+   * significant bit first bit order. The most significant byte is stored in
+   * the zero'th index in the array. This means that if the array is larger
+   * than the number of bytes needed for the specified number of bits, the
+   * trailing bytes will be untouched and should be ignored by the caller.
+   */
+  private def fillByteArray(array: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Unit = {
     if (isAligned(8) && bitLengthFrom1 % 8 == 0) {
-      fillByteArrayAlignedNoFragment(array, bitLengthFrom1)
+      fillByteArrayAlignedNoFragment(array, bitLengthFrom1, finfo)
     } else {
-      fillByteArrayUnalignedOrFragment(array, bitLengthFrom1)
+      fillByteArrayUnalignedOrFragment(array, bitLengthFrom1, finfo)
     }
     Assert.invariant(bitPos0b <= bitLimit0b.get)
   }
 
-  private def fillByteArrayAlignedNoFragment(array: Array[Byte], bitLengthFrom1: Int): Unit = {
+  private def fillByteArrayAlignedNoFragment(array: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Unit = {
     // threadCheck()
     Assert.usage(isAligned(8))
     Assert.usage(bitLengthFrom1 % 8 == 0)
@@ -447,7 +373,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val bytesToFill = bitLengthFrom1 / 8
     Assert.invariant(array.size >= bytesToFill)
 
-    if (byteOrder == ByteOrder.BigEndian && st.bitOrder == BitOrder.MostSignificantBitFirst) {
+    if (finfo.byteOrder == ByteOrder.BigEndian && finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
       // bits & bytes are already in order, read them straight into the array
       data.get(array, 0, bytesToFill)
     } else {
@@ -464,7 +390,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     setBitPos0b(savedBitPos0b + bitLengthFrom1)
   }
 
-  private def fillByteArrayUnalignedOrFragment(array: Array[Byte], bitLengthFrom1: Int): Unit = {
+  private def fillByteArrayUnalignedOrFragment(array: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Unit = {
     // threadCheck()
     Assert.usage(!isAligned(8) || bitLengthFrom1 % 8 != 0)
 
@@ -473,7 +399,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val savedDataLimit = data.limit()
     val savedBitPos0b = bitPos0b
     data.limit(data.position() + nBytesNeeded)
-    
+
     val bytesToFill = (bitLengthFrom1 + 7) / 8
     Assert.invariant(array.size >= bytesToFill)
     val nFragmentBits = bitLengthFrom1 % 8
@@ -497,8 +423,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       val fragmentByte =
         if (nFragmentBits <= bitsLeftInPriorByte) {
           // all nFragmentBits can come from from the priror byte
-          val composedByte = 
-            st.bitOrder match {
+          val composedByte =
+            finfo.bitOrder match {
               case BitOrder.MostSignificantBitFirst => ((priorByte << st.bitOffset0b) & 0xFF) >>> (8 - nFragmentBits)
               case BitOrder.LeastSignificantBitFirst => ((priorByte << (bitsLeftInPriorByte - nFragmentBits)) & 0xFF) >>> (8 - nFragmentBits)
             }
@@ -508,7 +434,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           val bitsToGetFromCur = nFragmentBits - bitsLeftInPriorByte
           val curByte = Bits.asUnsignedByte(data.get())
           val composedByte =
-            st.bitOrder match {
+            finfo.bitOrder match {
               case BitOrder.MostSignificantBitFirst => {
                 val priorContribution = ((priorByte << st.bitOffset0b) & 0xFF) >>> (st.bitOffset0b - bitsToGetFromCur)
                 val curContribution = curByte >>> (8 - bitsToGetFromCur)
@@ -523,7 +449,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           priorByte = curByte
           composedByte
         }
-      if (byteOrder =:= ByteOrder.LittleEndian) {
+      if (finfo.byteOrder =:= ByteOrder.LittleEndian) {
         array(bytesToFill - 1 - i) = Bits.asSignedByte(fragmentByte)
       } else {
         array(i) = Bits.asSignedByte(fragmentByte)
@@ -531,8 +457,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       i += 1
     }
 
-    val newByteOffset = 
-      if (byteOrder =:= ByteOrder.BigEndian && nFragmentBits > 0) {
+    val newByteOffset =
+      if (finfo.byteOrder =:= ByteOrder.BigEndian && nFragmentBits > 0) {
         addFragmentByte()
         (st.bitOffset0b + nFragmentBits) % 8
       } else {
@@ -540,12 +466,12 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       }
 
     if (newByteOffset == 0) {
-      byteOrder match {
+      finfo.byteOrder match {
         case ByteOrder.BigEndian => {
           // we just parsed a bigEndian fragment byte and it put us back on a byte
           // boundary, so we just need to read the rest of the full aligned bytes
           data.get(array, 1, bytesToFill - 1)
-        } 
+        }
         case ByteOrder.LittleEndian => {
           // we're starting on a byte boundary, so lets just consume all the
           // whole bytes quickly, reversing positions in the array. We'll not
@@ -572,18 +498,18 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // then we only want to fill the number of full bytes, and then we'll
       // consume that last fragment byte afterwards
       val stopBytePosition =
-        if (byteOrder =:= ByteOrder.BigEndian) bytesToFill
+        if (finfo.byteOrder =:= ByteOrder.BigEndian) bytesToFill
         else (bitLengthFrom1 / 8)
 
       // consume full bytes
       while (i < stopBytePosition) {
         val curByte = Bits.asUnsignedByte(data.get())
         val composedByte =
-          st.bitOrder match {
-            case BitOrder.MostSignificantBitFirst =>  ((priorByte << priorShift) & 0xFF) | ((curByte >>> curShift) & 0xFF)
+          finfo.bitOrder match {
+            case BitOrder.MostSignificantBitFirst => ((priorByte << priorShift) & 0xFF) | ((curByte >>> curShift) & 0xFF)
             case BitOrder.LeastSignificantBitFirst => ((priorByte >>> priorShift) & 0xFF) | ((curByte << curShift) & 0xFF)
           }
-        if (byteOrder =:= ByteOrder.LittleEndian) {
+        if (finfo.byteOrder =:= ByteOrder.LittleEndian) {
           array(bytesToFill - 1 - i) = Bits.asSignedByte(composedByte)
         } else {
           array(i) = Bits.asSignedByte(composedByte)
@@ -593,7 +519,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       }
     }
 
-    if (byteOrder =:= ByteOrder.LittleEndian && nFragmentBits > 0) {
+    if (finfo.byteOrder =:= ByteOrder.LittleEndian && nFragmentBits > 0) {
       addFragmentByte()
     }
 
@@ -602,8 +528,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     setBitPos0b(savedBitPos0b + bitLengthFrom1)
   }
 
-  def getBinaryDouble(): Double = {
+  def getBinaryDouble(finfo: FormatInfo): Double = {
     Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
+    data.order(finfo.jByteOrder)
     val db = data.asDoubleBuffer() // note: byte order is inherited from data
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(64)
     else {
@@ -613,9 +540,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
   }
 
-  def getBinaryFloat(): Float = {
+  def getBinaryFloat(finfo: FormatInfo): Float = {
     Assert.usage(isAligned(8)) // aligned, so bitOrder doesn't matter
-    val db = data.asFloatBuffer() // note: byte order is inherited from data's current
+    data.order(finfo.jByteOrder)
+    val db = data.asFloatBuffer()
     if (db.remaining() < 1) throw DataInputStream.NotEnoughDataException(32)
     else {
       val d = db.get()
@@ -657,25 +585,25 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
    *
    * No allocation of objects occurs when calling this.
    */
-  def getSignedLong(bitLengthFrom1To64: Int): Long = {
+  def getSignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): Long = {
     // threadCheck()
     Assert.usage(bitLengthFrom1To64 >= 1)
     Assert.usage(bitLengthFrom1To64 <= 64)
 
-    val res = getUnsignedLong(bitLengthFrom1To64)
+    val res = getUnsignedLong(bitLengthFrom1To64, finfo)
     signExtend(res.longValue, bitLengthFrom1To64)
   }
 
-  def getUnsignedLong(bitLengthFrom1To64: Int): ULong = {
+  def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): ULong = {
     Assert.usage(bitLengthFrom1To64 >= 1)
     Assert.usage(bitLengthFrom1To64 <= 64)
 
     if (!isDefinedForLength(bitLengthFrom1To64)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
 
-    val numBytes = (bitLengthFrom1To64 + 7) / 8 
+    val numBytes = (bitLengthFrom1To64 + 7) / 8
 
     // will result in the first numBytes the long array filled in
-    fillByteArray(longArray, bitLengthFrom1To64)
+    fillByteArray(longArray, bitLengthFrom1To64, finfo)
 
     var res = Bits.asUnsignedByte(longArray(0)).toLong
     var i = 1
@@ -688,14 +616,14 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     ULong(res)
   }
 
-  def getSignedBigInt(bitLengthFrom1: Int): BigInt = {
+  def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = {
     // threadCheck()
     Assert.usage(bitLengthFrom1 >= 1)
 
     if (bitLengthFrom1 <= 64) {
-      BigInt(getSignedLong(bitLengthFrom1))
+      BigInt(getSignedLong(bitLengthFrom1, finfo))
     } else {
-      val allBytes = getByteArray(bitLengthFrom1)
+      val allBytes = getByteArray(bitLengthFrom1, finfo)
       val fragmentLength = bitLengthFrom1 % 8
       if (fragmentLength > 0) {
         // if there is a fragment byte, we need to sign extend the rest of the
@@ -708,9 +636,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
   }
 
-  def getUnsignedBigInt(bitLengthFrom1: Int): BigInt = {
+  def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): BigInt = {
     Assert.usage(bitLengthFrom1 >= 1)
-    val bytes = getByteArray(bitLengthFrom1)
+    val bytes = getByteArray(bitLengthFrom1, finfo)
     BigInt(1, bytes)
   }
 
@@ -726,7 +654,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     else true
   }
 
-  def skip(nBits: Long): Boolean = {
+  def skip(nBits: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
     Assert.usage(nBits <= Int.MaxValue)
     if (!this.isDefinedForLength(nBits)) return false
@@ -765,7 +693,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     data.limit(st.savedByteLimit0b)
     data.order(st.savedByteOrder)
     markPool.returnToPool(current)
-    charIterator.reset() // this also resets the decoder.
     bitLimit0b = MaybeULong(calcBitLimit0b)
   }
 
@@ -785,12 +712,12 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     markPool.finalCheck
   }
 
-  private def stringLengthInbits(nBytesConsumed: Long, nCharsTransferred: Long): Long = {
+  private def stringLengthInbits(nBytesConsumed: Long, nCharsTransferred: Long, finfo: FormatInfo): Long = {
     // threadCheck()
     //
     // There are two ways length is determined.
     //
-    if (st.maybeCharWidthInBits.isEmpty) {
+    if (finfo.maybeCharWidthInBits.isEmpty) {
       // we don't have a character width in bits
       // that would be because the encoding is variable width
       // like utf-8 or utf-16BE/LE with dfdl:utf16Width='variable', or shift-JIS
@@ -802,7 +729,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       // number of bytes consumed.
       8 * nBytesConsumed
     } else {
-      val charWidthInBits = st.maybeCharWidthInBits.get
+      val charWidthInBits = finfo.maybeCharWidthInBits.get
       // we have a character width in bits, and it is fixed
       //
       // Hence, we can determine the number of bits consumed by way of
@@ -811,7 +738,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
   }
 
-  def decodeIt(decoder: CharsetDecoder, cb: java.nio.CharBuffer): CoderResult = {
+  def decodeIt(decoder: CharsetDecoder, cb: java.nio.CharBuffer, finfo: FormatInfo): CoderResult = {
     var cr: CoderResult = null
     var nCharsTransferred: Int = 0
     var nBytesConsumed: Int = 0
@@ -831,7 +758,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     //
     if (cbRemainingBefore == 1 && nCharsTransferred == 0 && nBytesConsumed == 0 && cr.isOverflow()) {
       Assert.invariant(bbRemainingBefore >= 4)
-      Assert.invariant(st.decoder.charset() == StandardCharsets.UTF_8)
+      Assert.invariant(finfo.decoder.charset() == StandardCharsets.UTF_8)
       val firstByte = data.get(data.position())
       Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
       //
@@ -891,17 +818,16 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     cr
   }
 
-  def fillCharBuffer(cb: java.nio.CharBuffer): MaybeULong = {
+  def fillCharBuffer(cb: java.nio.CharBuffer, finfo: FormatInfo): MaybeULong = {
     // threadCheck()
-    if (!align(st.encodingMandatoryAlignmentInBits)) return MaybeULong.Nope
+    if (!align(finfo.encodingMandatoryAlignmentInBits, finfo)) return MaybeULong.Nope
 
     //
     // Corner case stuff for utf-8 and surrogate pairs.
     //
-    if (st.decoder.charset() == StandardCharsets.UTF_8) {
+    if (finfo.decoder.charset() == StandardCharsets.UTF_8) {
       if (st.maybeTrailingSurrogateForUTF8.isDefined &&
-        st.priorBitPos == bitPos0b &&
-        st.priorEncoding == StandardCharsets.UTF_8) {
+        st.priorBitPos == bitPos0b) {
         // We're utf-8, the prior character was a leading surrogate,
         // we're at the same location we were when we produced the
         // leading surrogate. So produce the trailing.
@@ -916,23 +842,21 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // irrespective of whether the user wants REPLACE semantics
     // we need REPORT semantics here.
     //
-    st.decoder.onMalformedInput(CodingErrorAction.REPORT)
-    st.decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     var cr: CoderResult = null
     var nCharsTransferred: Int = 0
     var nBytesConsumed: Int = 0
-    st.decoder.reset()
-    val decoder = st.decoder match {
+    finfo.reportingDecoder.reset()
+    val decoder = finfo.reportingDecoder match {
       case decoderWithBits: NonByteSizeCharsetDecoder => {
         decoderWithBits.setInitialBitOffset(st.bitOffset0b)
         decoderWithBits.setFinalByteBitLimitOffset0b(st.maybeBitLimitOffset0b)
         decoderWithBits
       }
-      case _ => st.decoder
+      case x => x
     }
     val cbRemainingBefore = cb.remaining()
     val bbRemainingBefore = data.remaining()
-    cr = decodeIt(decoder, cb)
+    cr = decodeIt(decoder, cb, finfo)
     nCharsTransferred = cbRemainingBefore - cb.remaining()
     nBytesConsumed = bbRemainingBefore - data.remaining()
 
@@ -968,19 +892,17 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       //
       if (nCharsTransferred == 0) {
         // we got an error on the very first character
-        if (st.codingErrorAction == CodingErrorAction.REPORT)
+        if (finfo.encodingErrorPolicy eq EncodingErrorPolicy.Error)
           cr.throwException()
         else {
-          Assert.invariant(st.codingErrorAction == CodingErrorAction.REPLACE)
+          Assert.invariant(finfo.encodingErrorPolicy eq EncodingErrorPolicy.Replace)
           //
           // it's possible bytes were consumed. Rewind those.
           setBitPos0b(bitPos0bBefore)
-          st.decoder.onMalformedInput(CodingErrorAction.REPLACE)
-          st.decoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
 
           val cbRemainingBefore = cb.remaining()
           val bbRemainingBefore = data.remaining()
-          cr = decodeIt(decoder, cb)
+          cr = decodeIt(finfo.replacingDecoder, cb, finfo)
           nCharsTransferred = cbRemainingBefore - cb.remaining()
           nBytesConsumed = bbRemainingBefore - data.remaining()
         }
@@ -1000,13 +922,13 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       MaybeULong.Nope
     } else {
       Assert.invariant(nBytesConsumed == bbRemainingBefore - data.remaining())
-      val lengthInBits = stringLengthInbits(nBytesConsumed, nCharsTransferred)
+      val lengthInBits = stringLengthInbits(nBytesConsumed, nCharsTransferred, finfo)
       setBitPos0b(bitPos0bBefore + lengthInBits)
       MaybeULong(nCharsTransferred)
     }
   }
 
-  def skipChars(nChars: Long): Boolean = {
+  def skipChars(nChars: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
     Assert.usage(nChars <= skipCharBuf.capacity())
     skipCharBuf.clear
@@ -1014,7 +936,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     var maybeN: MaybeULong = MaybeULong(0L)
     var total = 0L
     while (maybeN.isDefined && total < nChars) {
-      maybeN = fillCharBuffer(skipCharBuf)
+      maybeN = fillCharBuffer(skipCharBuf, finfo)
       if (maybeN.isDefined) {
         total += maybeN.get.toLong
       }
@@ -1051,7 +973,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     isMatchDone
   }
 
-  def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean = {
+  def lookingAt(matcher: java.util.regex.Matcher, finfo: FormatInfo, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean = {
     // threadCheck()
     val initialBitPos0b = bitPos0b
     var isMatchDone = false
@@ -1077,7 +999,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       //
       regexMatchBuffer.position(positionAfterLastFill)
       regexMatchBuffer.limit(math.max(limitAfterLastFill, regexMatchBuffer.limit))
-      val ml = fillCharBuffer(regexMatchBuffer)
+      val ml = fillCharBuffer(regexMatchBuffer, finfo)
       val bufPosAfter = regexMatchBuffer.position()
       val limitAfter = regexMatchBuffer.limit()
       positionAfterLastFill = bufPosAfter
@@ -1132,13 +1054,13 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
         st.adaptedRegexMatchBufferLimit = newLimit // set the prior value as our adapted length
       }
       val nBitsConsumed: Long =
-        if (this.isFixedWidthEncoding) {
+        if (finfo.isFixedWidthEncoding) {
           // that means the characters are fixed width
-          Assert.notYetImplemented(if (st.maybeUTF16Width.isDefined) st.maybeUTF16Width.get == UTF16Width.Variable else false)
+          Assert.notYetImplemented(if (finfo.maybeUTF16Width.isDefined) finfo.maybeUTF16Width.get == UTF16Width.Variable else false)
           // TODO: utf16 width variable just changes the way we count chars slightly. Have to scan the string
           // for surrogate pairs, and subtract 1 from the length in chars for each pair found.
           // not bothering for now.
-          val bitsPerChar = st.maybeCharWidthInBits.get
+          val bitsPerChar = finfo.maybeCharWidthInBits.get
           nCharsInMatch * bitsPerChar
         } else {
           //
@@ -1171,7 +1093,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
           // In other words, if hitEnd is false after an attempted match, then we don't need to
           // keep pushing ahead decoding (and substituting for errors) into the data.
           //
-          val isFilled = fillCharBufferLoop(lengthDeterminationBuffer)
+          val isFilled = fillCharBufferLoop(lengthDeterminationBuffer, finfo)
           Assert.invariant(isFilled)
           val nbits = bitPos0b - initialBitPos0b
           nbits
@@ -1182,7 +1104,11 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   }
 
   private val charIterator = new BBDISCharIterator(st, this)
-  def asIteratorChar: DataInputStream.CharIterator = charIterator
+  def asIteratorChar: DataInputStream.CharIterator = {
+    val ci = charIterator
+    ci.reset()
+    ci
+  }
 
   def pastData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
@@ -1240,9 +1166,23 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
   extends DataInputStream.CharIterator
   with ThreadCheckMixin {
 
+  private var finfo_ : FormatInfo = _
+
+  def finfo = {
+    if (finfo_ eq null) Assert.usageError("must setFormatInfo before invoking interator.")
+    finfo_
+  }
+
+  def setFormatInfo(finfo: FormatInfo): Unit = {
+    finfo_ = finfo
+  }
+
   def reset() {
     st.charIteratorState.clear()
-    st.decoder.reset()
+    if (finfo_ ne null) {
+      finfo.decoder.reset()
+      finfo_ = null
+    }
   }
 
   /**
@@ -1255,12 +1195,12 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
     // threadCheck()
     val ist = st.charIteratorState
     val dataBitPosBefore0b = dis.bitPos0b
-    if (!dis.align(st.encodingMandatoryAlignmentInBits)) return false
+    if (!dis.align(finfo.encodingMandatoryAlignmentInBits, finfo)) return false
     ist.bitPos0bAtLastFetch = dis.bitPos0b // keep track of where we start trying to fetch a character
     ist.cb.clear()
     ist.cb.limit(1)
-    st.decoder.reset()
-    val maybeNumChars = dis.fillCharBuffer(ist.cb) // throws if a decode error and encodingErrorPolicy="error"
+    finfo.decoder.reset()
+    val maybeNumChars = dis.fillCharBuffer(ist.cb, finfo) // throws if a decode error and encodingErrorPolicy="error"
     if (maybeNumChars.isEmpty) {
       // Couldn't get one character
       ist.deltaBits = 0

@@ -43,7 +43,6 @@ import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
-import java.nio.charset.StandardCharsets
 import java.net.URI
 import scala.xml.SAXParseException
 import org.rogach.scallop
@@ -878,13 +877,12 @@ object Main extends Logging {
               outputter match {
                 case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
                 case jdom: JDOMInfosetOutputter => writer.write(
-                    new org.jdom2.output.XMLOutputter().outputString(jdom.getResult)
-                  )
+                  new org.jdom2.output.XMLOutputter().outputString(jdom.getResult))
                 case w3cdom: W3CDOMInfosetOutputter => {
                   val tf = TransformerFactory.newInstance()
                   val transformer = tf.newTransformer()
-                  val result  = new StreamResult(writer)
-                  val source  = new DOMSource(w3cdom.getResult)
+                  val result = new StreamResult(writer)
+                  val source = new DOMSource(w3cdom.getResult)
                   transformer.transform(source, result)
                 }
                 case _ => // do nothing
@@ -908,8 +906,7 @@ object Main extends Logging {
                   val dis = ps.dataInputStream
                   val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
                   if (hasMoreData) {
-                    dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
-                    val maybeString = dis.getSomeString(processor.getTunables.maxFieldContentLengthInBytes)
+                    val maybeString = dis.getSomeString(processor.getTunables.maxFieldContentLengthInBytes, ps)
                     val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
                     if (lengthInBytes > 0)
                       log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (lengthInBytes * 8))

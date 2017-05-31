@@ -40,8 +40,16 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Suspension
 import edu.illinois.ncsa.daffodil.util.LogLevel
 
+/**
+ * Base for unparse-time expression evaluation that can have forward reference.
+ * There are only two such cases, which is dfdl:outputValueCalc, and
+ * dfdl:setVariable expressions (which variables are in-turn used by
+ * dfdl:outputValueCalc.
+ */
 trait SuspendableExpression
   extends Suspension {
+
+  override val isReadOnly = true
 
   protected def expr: CompiledExpression[AnyRef]
 
@@ -70,30 +78,6 @@ trait SuspendableExpression
       }
     }
   }
-
-  //  def run(ustate: UState) {
-  //    val tst =
-  //      try {
-  //        Assert.invariant(ustate.dState.mode eq UnparserBlocking)
-  //        ustate.dState.setMode(UnparserNonBlocking) // temporarily set to just test for blocking
-  //        val result = Maybe(expr.evaluate(ustate))
-  //        if (result.isDefined) {
-  //          processExpressionResult(ustate, result.get)
-  //          true
-  //        } else false
-  //      } catch {
-  //        case _: RetryableException =>
-  //          false
-  //      } finally {
-  //        ustate.dState.setMode(UnparserBlocking) // restore invariant.
-  //      }
-  //    if (tst) {
-  //      // nothing. We're done. Don't need the task object.
-  //    } else {
-  //      val mkl = maybeKnownLengthInBits(ustate)
-  //      setup(ustate, mkl)
-  //    }
-  //  }
 
 }
 

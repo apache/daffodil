@@ -33,8 +33,11 @@
 package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.equality.TypeEqual
-import edu.illinois.ncsa.daffodil.grammar.primitives.BitOrderChange
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
+import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.dsom.{ Binary, NoText }
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 
@@ -50,6 +53,12 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
 
   final lazy val defaultBitOrder = optDefaultBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
 
+  /**
+   * Conservatively determines if this term is known to have
+   * the same bit order as the previous thing.
+   *
+   * If uncertain, returns false.
+   */
   final protected lazy val isKnownSameBitOrder: Boolean = {
     val res =
       if (enclosingTerm.isEmpty) false // root needs bit order
@@ -74,13 +83,41 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
   protected final lazy val needsBitOrderChange = {
     enclosingTerm.isEmpty || (
       optionBitOrder.isDefined &&
-        thereIsAByteOrderDefined && // if there is no byte order, then there's no need for bit order. The two go together. An all-textual format doesn't need either one.
-        (!isKnownSameBitOrder ||
-          (isArray && !hasUniformBitOrderThroughout)))
+      thereIsAByteOrderDefined && // if there is no byte order, then there's no need for bit order. The two go together. An all-textual format doesn't need either one.
+      (!isKnownSameBitOrder ||
+        (isArray && !hasUniformBitOrderThroughout)))
   }
 
-  protected final lazy val bitOrderChange = prod("bitOrderChange", needsBitOrderChange) {
-    BitOrderChange(this)
+  lazy val maybeCheckByteAndBitOrderEv = {
+    //
+    // TODO: Performance: could be improved, as there are situations where byteOrder
+    // is defined, but still we know it will not be used and this could
+    // be Nope in those cases also. An example would be a 100% text-only item.
+    //
+    if (!isRepresented || !optionByteOrderRaw.isDefined)
+      Maybe.Nope
+    else {
+      val checkByteAndBitOrder = {
+        val ev = new CheckByteAndBitOrderEv(termRuntimeData, defaultBitOrder)
+        ev.compile()
+        ev
+      }
+      Maybe(checkByteAndBitOrder)
+    }
+  }
+
+  lazy val maybeCheckBitOrderAndCharset = {
+    val se = summaryEncoding
+    if (!isRepresented || se == NoText || se == Binary)
+      Maybe.Nope
+    else {
+      val checkBitOrderAndCharset = {
+        val ev = new CheckBitOrderAndCharsetEv(termRuntimeData, defaultBitOrder, charsetEv)
+        ev.compile()
+        ev
+      }
+      Maybe(checkBitOrderAndCharset)
+    }
   }
 
 }

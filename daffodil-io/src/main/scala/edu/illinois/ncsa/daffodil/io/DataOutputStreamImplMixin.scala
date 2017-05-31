@@ -33,16 +33,10 @@
 package edu.illinois.ncsa.daffodil.io
 
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.StandardCharsets
-import java.nio.charset.CodingErrorAction
 import passera.unsigned.ULong
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -64,58 +58,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   with DataOutputStream
   with DataStreamCommonImplMixin
   with LocalBufferMixin {
-
-  def defaultCodingErrorAction: CodingErrorAction = CodingErrorAction.REPLACE
-
-  private val initialEncoder = {
-    val enc = StandardCharsets.UTF_8.newEncoder
-    enc.onMalformedInput(defaultCodingErrorAction)
-    enc.onUnmappableCharacter(defaultCodingErrorAction)
-    enc
-  }
-
-  private var fillByte_ : Int = 0
-  def fillByte = fillByte_
-
-  /**
-   * The fillLong is a long that has been pre-filled with the fill byte.
-   *
-   * If the fillByte changes, then the fillLong is updated to track it.
-   */
-  private var fillLong_ : Long = 0L
-  def fillLong = fillLong_
-
-  def setFillByte(newFillByte: Int) {
-    Assert.usage(isWritable)
-    Assert.usage(newFillByte <= 255 && newFillByte >= 0)
-    slamFillByte(newFillByte)
-  }
-
-  /**
-   * slamFillByte assigns the fill byte but doesn't do the invariant checking.
-   * It is for use from contexts where you need to set the fill byte, but the
-   * usual invariants aren't expected to hold.
-   */
-  def slamFillByte(newFillByte: Int): Unit = {
-    fillByte_ = newFillByte
-    fillLong_ = {
-      if (fillByte_ == 0) 0L
-      else {
-        var fl: Long = 0L
-        var i = 0
-        while (i < 8) {
-          fl = fl << 8
-          fl = fl | fillByte_
-          i += 1
-        }
-        fl
-      }
-    }
-  }
-
-  protected final var encoder_ : CharsetEncoder = initialEncoder
-
-  protected final var codingErrorAction: CodingErrorAction = defaultCodingErrorAction
 
   /**
    * Relative bit position zero based.
@@ -225,7 +167,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * doesn't change.
    *
    * This value allows stored relative offsets (stored as the start/ends
-   * of content and value lenght regions) to still be meaningful even though
+   * of content and value length regions) to still be meaningful even though
    * we have collapsed the stream into a direct one.
    */
   private var maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong.Nope
@@ -281,20 +223,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   var bitStartOffset0b: Int = 0
 
-  final def remainingBits: MaybeULong = {
+  final override def remainingBits: MaybeULong = {
     if (maybeRelBitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong)
-  }
-
-  private var byteOrder_ : ByteOrder = ByteOrder.BigEndian
-
-  def setByteOrder(byteOrder: ByteOrder): Unit = {
-    Assert.usage(isWritable)
-    byteOrder_ = byteOrder
-  }
-
-  def byteOrder: ByteOrder = {
-    Assert.usage(isReadable)
-    byteOrder_
   }
 
   var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
@@ -315,6 +245,15 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   private var fragmentLastByteLimit_ : Int = 0
   def fragmentLastByteLimit = fragmentLastByteLimit_
+
+  private var maybeFragmentBitOrder: Maybe[BitOrder] = Nope
+  def fragmentBitOrder = {
+    Assert.usage(maybeFragmentBitOrder.isDefined)
+    this.maybeFragmentBitOrder.value
+  }
+  def setFragmentBitOrder(bo: BitOrder) {
+    maybeFragmentBitOrder = One(bo)
+  }
 
   def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int) {
     Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
@@ -340,7 +279,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   @inline private[io] final def isDead = { _dosState =:= Uninitialized }
   @inline override final def isFinished = { _dosState =:= Finished }
-  @inline override def setFinished() { _dosState = Finished }
+  // @inline override def setFinished(finfo: FormatInfo) { _dosState = Finished }
   @inline private[io] final def isActive = { _dosState =:= Active }
   @inline private[io] final def isReadOnly = { isFinished && isBuffering }
   @inline private[io] final def isWritable = {
@@ -353,66 +292,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   }
   @inline private[io] final def isReadable = { !isDead }
 
-  final def encoder = {
-    Assert.usage(isReadable)
-    encoder_
-  }
-
-  final def setEncoder(encoder: CharsetEncoder): Unit = {
-    Assert.usage(isWritable)
-    if (this.encoder_ == encoder) return
-    encoder_ = encoder
-    encoder.onMalformedInput(codingErrorAction)
-    encoder.onUnmappableCharacter(codingErrorAction)
-    val cs = encoder.charset()
-
-    if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE) {
-      if (maybeUTF16Width.isDefined && maybeUTF16Width.get == UTF16Width.Fixed) {
-        maybeCharWidthInBits = MaybeInt(16)
-        encodingMandatoryAlignmentInBits = 8
-      } else {
-        maybeCharWidthInBits = MaybeInt.Nope
-        encodingMandatoryAlignmentInBits = 8
-      }
-    } else {
-      cs match {
-        case encoderWithBits: NonByteSizeCharset => {
-          maybeCharWidthInBits = MaybeInt(encoderWithBits.bitWidthOfACodeUnit)
-          encodingMandatoryAlignmentInBits = 1
-        }
-        case _ => {
-          val maxBytes = encoder.maxBytesPerChar()
-          if (maxBytes == encoder.averageBytesPerChar()) {
-            maybeCharWidthInBits = MaybeInt((maxBytes * 8).toInt)
-            encodingMandatoryAlignmentInBits = 8
-          } else {
-            maybeCharWidthInBits = MaybeInt.Nope
-            encodingMandatoryAlignmentInBits = 8
-          }
-        }
-      }
-    }
-  }
-
-  final def encodingErrorPolicy = {
-    Assert.usage(isReadable)
-    codingErrorAction match {
-      case CodingErrorAction.REPLACE => EncodingErrorPolicy.Replace
-      case CodingErrorAction.REPORT => EncodingErrorPolicy.Error
-    }
-  }
-
-  final def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = {
-    Assert.usage(isWritable)
-    codingErrorAction = eep match {
-      case EncodingErrorPolicy.Replace => CodingErrorAction.REPLACE
-      case EncodingErrorPolicy.Error => CodingErrorAction.REPORT
-    }
-    encoder.onMalformedInput(codingErrorAction)
-    encoder.onUnmappableCharacter(codingErrorAction)
-    ()
-  }
-
   protected def setJavaOutputStream(newOutputStream: java.io.OutputStream): Unit
 
   protected def getJavaOutputStream(): java.io.OutputStream
@@ -422,20 +301,12 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   protected def assignFrom(other: DataOutputStreamImplMixin) {
     Assert.usage(isWritable)
     super.assignFrom(other)
-    this.fillByte_ = other.fillByte_
-    this.fillLong_ = other.fillLong_
-    // DO NOT SET THIS IT IS SET IN THE CALLER ; this.encoder = other.encoder
-    // DO NOT SET THIS IT IS SET IN THE CALLER ; this.codingErrorAction = other.codingErrorAction
     this.maybeAbsStartingBitPos0b_ = other.maybeAbsStartingBitPos0b_
     this.maybeAbsolutizedRelativeStartingBitPosInBits_ = other.maybeAbsolutizedRelativeStartingBitPosInBits_
     this.relBitPos0b_ = other.relBitPos0b_
     this.maybeAbsBitLimit0b = other.maybeAbsBitLimit0b
     this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
-    this.byteOrder_ = other.byteOrder_
     this.debugOutputStream = other.debugOutputStream
-    //this.setFragmentLastByte(other.fragmentLastByte, other.fragmentLastByteLimit)
-    this.setEncoder(other.encoder)
-    this.setEncodingErrorPolicy(other.encodingErrorPolicy)
   }
 
   /**
@@ -460,140 +331,145 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean): Boolean = {
+  final override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean = {
     Assert.usage(isWritable)
     Assert.usage(bitLengthFrom1 > 0)
     Assert.usage(signed || (!signed && bigInt >= 0))
 
-    if (bitLengthFrom1 <= 64) {
-      // output as a long
-      val longInt = bigInt.toLong
-      putLong(longInt, bitLengthFrom1)
-    } else {
-      // Note that we do not need to distinguish between signed and unsigned
-      // here. Checks should have been performend earlier to ensure that the
-      // bigInt value matches the signed/unsignedness. So we just need to
-      // convert this to a byte array, ensure that the number of bits in that
-      // bit array fit the bit length, and put the array.
-      val array = bigInt.toByteArray
-      val numWholeBytesNeeded = (bitLengthFrom1 + 7) / 8
-
-      val maybeArrayToPut =
-        if (array.size > numWholeBytesNeeded) {
-          // This is the only case where we care about signedness. If the
-          // BigInt is a positive value and the most significant bit is a 1,
-          // then toByteArray will create one extra byte that is all zeros so
-          // that the two's complement isn't negative. In this case, the array
-          // size is 1 greater than numWholeBytesNeeded and the most
-          // significant byte is zero. For a signed type (e.g. xs:integer),
-          // having this extra byte, regardless of its value, means the BigInt
-          // value was too big to fit into bitLengthFrom1 bits. However, if
-          // this is a unsigned type (e.g. xs:nonNegativeInteger), this extra
-          // byte can be zero and still fit into bitLengthFrom1. So if this is
-          // the case, then just chop off that byte and write the array.
-          // Otherwise, this results in Nope which ends up returning false.
-          if (!signed && (array.size == numWholeBytesNeeded + 1) && array(0) == 0) {
-            One(array.tail)
-          } else {
-            Nope
-          }
-        } else if (array.size < numWholeBytesNeeded) {
-          // This bigInt value can definitely fit in the number of bits,
-          // however, we need to pad it up to numWholeBytesNeed. We may need to
-          // sign extend with the most significant bit of most significant byte
-          // of the array
-          val paddedArray = new Array[Byte](numWholeBytesNeeded)
-          val numPaddingBytes = numWholeBytesNeeded - array.size
-
-          array.copyToArray(paddedArray, numPaddingBytes)
-          val sign = 0x80 & array(0)
-          if (sign > 0) {
-            // The most significant bit of the most significant byte was 1. That
-            // means this was a negative number and these padding bytes must be
-            // sign extended
-            Assert.invariant(bigInt < 0)
-            var i = 0
-            while (i < numPaddingBytes) {
-              paddedArray(i) = 0xFF.toByte
-              i += 1
-            }
-          }
-          One(paddedArray)
-        } else {
-          // We got the right amount of bytes, however, it is possible that
-          // more significant bits were set that can fit in bitLengthFrom1.
-          // Determine if that is the case.
-          val fragBits = bitLengthFrom1 % 8
-          if (fragBits == 0) {
-            // no frag bits, so the most significant bit is fine and no sign
-            // extending is needed to be checked 
-            One(array)
-          } else {
-            val shifted = array(0) >> (fragBits - 1) // shift off the bits we don't care about (with sign extend shift)
-            val signBit = shifted & 0x1 // get the most significant bit
-            val signExtendedBits = shifted >> 1 // shift off the sign bit
-
-            // At this point, signExtendedBits should be all 1's (i.e. -1) if
-            // the sign bit was 1, or all zeros (i.e. 0) if the sign bit was 0.
-            // If this isn't the case, then there were non-signed extended bits
-            // above our most significant bit, and so this BigInt was too big
-            // for the number of bits. If this is the case, result in a Nope
-            // which ends up returning false.
-            if ((signBit == 1 && signExtendedBits != -1) || (signBit == 0 && signExtendedBits != 0)) {
-              // error
-              Nope
-            } else {
-              // The most significant byte is properly sign extended for the
-              // for the number of bits, so the array is good
-              One(array)
-            }
-          }
-        }
-
-      if (maybeArrayToPut.isDefined) {
-        // at this point, we have an array that is of the right size and properly
-        // sign extended. It is also BE MSBF, so we can put it just like we would
-        // put a hexBinary array
-        putByteArray(maybeArrayToPut.get, bitLengthFrom1)
+    val res = {
+      if (bitLengthFrom1 <= 64) {
+        // output as a long
+        val longInt = bigInt.toLong
+        putLongChecked(longInt, bitLengthFrom1, finfo)
       } else {
-        false
+        // Note that we do not need to distinguish between signed and unsigned
+        // here. Checks should have been performend earlier to ensure that the
+        // bigInt value matches the signed/unsignedness. So we just need to
+        // convert this to a byte array, ensure that the number of bits in that
+        // bit array fit the bit length, and put the array.
+        val array = bigInt.toByteArray
+        val numWholeBytesNeeded = (bitLengthFrom1 + 7) / 8
+
+        val maybeArrayToPut =
+          if (array.size > numWholeBytesNeeded) {
+            // This is the only case where we care about signedness. If the
+            // BigInt is a positive value and the most significant bit is a 1,
+            // then toByteArray will create one extra byte that is all zeros so
+            // that the two's complement isn't negative. In this case, the array
+            // size is 1 greater than numWholeBytesNeeded and the most
+            // significant byte is zero. For a signed type (e.g. xs:integer),
+            // having this extra byte, regardless of its value, means the BigInt
+            // value was too big to fit into bitLengthFrom1 bits. However, if
+            // this is a unsigned type (e.g. xs:nonNegativeInteger), this extra
+            // byte can be zero and still fit into bitLengthFrom1. So if this is
+            // the case, then just chop off that byte and write the array.
+            // Otherwise, this results in Nope which ends up returning false.
+            if (!signed && (array.size == numWholeBytesNeeded + 1) && array(0) == 0) {
+              One(array.tail)
+            } else {
+              Nope
+            }
+          } else if (array.size < numWholeBytesNeeded) {
+            // This bigInt value can definitely fit in the number of bits,
+            // however, we need to pad it up to numWholeBytesNeed. We may need to
+            // sign extend with the most significant bit of most significant byte
+            // of the array
+            val paddedArray = new Array[Byte](numWholeBytesNeeded)
+            val numPaddingBytes = numWholeBytesNeeded - array.size
+
+            array.copyToArray(paddedArray, numPaddingBytes)
+            val sign = 0x80 & array(0)
+            if (sign > 0) {
+              // The most significant bit of the most significant byte was 1. That
+              // means this was a negative number and these padding bytes must be
+              // sign extended
+              Assert.invariant(bigInt < 0)
+              var i = 0
+              while (i < numPaddingBytes) {
+                paddedArray(i) = 0xFF.toByte
+                i += 1
+              }
+            }
+            One(paddedArray)
+          } else {
+            // We got the right amount of bytes, however, it is possible that
+            // more significant bits were set that can fit in bitLengthFrom1.
+            // Determine if that is the case.
+            val fragBits = bitLengthFrom1 % 8
+            if (fragBits == 0) {
+              // no frag bits, so the most significant bit is fine and no sign
+              // extending is needed to be checked
+              One(array)
+            } else {
+              val shifted = array(0) >> (fragBits - 1) // shift off the bits we don't care about (with sign extend shift)
+              val signBit = shifted & 0x1 // get the most significant bit
+              val signExtendedBits = shifted >> 1 // shift off the sign bit
+
+              // At this point, signExtendedBits should be all 1's (i.e. -1) if
+              // the sign bit was 1, or all zeros (i.e. 0) if the sign bit was 0.
+              // If this isn't the case, then there were non-signed extended bits
+              // above our most significant bit, and so this BigInt was too big
+              // for the number of bits. If this is the case, result in a Nope
+              // which ends up returning false.
+              if ((signBit == 1 && signExtendedBits != -1) || (signBit == 0 && signExtendedBits != 0)) {
+                // error
+                Nope
+              } else {
+                // The most significant byte is properly sign extended for the
+                // for the number of bits, so the array is good
+                One(array)
+              }
+            }
+          }
+
+        if (maybeArrayToPut.isDefined) {
+          // at this point, we have an array that is of the right size and properly
+          // sign extended. It is also BE MSBF, so we can put it just like we would
+          // put a hexBinary array
+          putByteArray(maybeArrayToPut.get, bitLengthFrom1, finfo)
+        } else {
+          false
+        }
       }
     }
+    res
   }
 
-  def putByteArray(array: Array[Byte], bitLengthFrom1: Int): Boolean = {
+  final override def putByteArray(array: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Boolean = {
     // this is to be used for an array generated by getByteArray. Thus, this
     // array is expected by to BigEndian MSBF. It must be transformed into an
     // array that the other putBytes/Bits/etc functions can accept
     Assert.usage(bitLengthFrom1 >= 1)
     Assert.usage(isWritable)
 
-    if (maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)) {
-      false
-    } else {
-      if (bitOrder =:= BitOrder.MostSignificantBitFirst) {
-        val fragBits = bitLengthFrom1 % 8
-        if (byteOrder =:= ByteOrder.LittleEndian) {
-          // MSBF & LE
-          if (fragBits > 0) {
-            array(0) = Bits.asSignedByte((array(0) << (8 - fragBits)) & 0xFF)
-          }
-          Bits.reverseBytes(array)
-        } else {
-          // MSBF & BE
-          if (fragBits > 0) {
-            Bits.shiftLeft(array, 8 - fragBits)
-          }
-        }
+    val res =
+      if (maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)) {
+        false
       } else {
-        // LSBF & LE
-        Bits.reverseBytes(array)
-      }
+        if (finfo.bitOrder =:= BitOrder.MostSignificantBitFirst) {
+          val fragBits = bitLengthFrom1 % 8
+          if (finfo.byteOrder =:= ByteOrder.LittleEndian) {
+            // MSBF & LE
+            if (fragBits > 0) {
+              array(0) = Bits.asSignedByte((array(0) << (8 - fragBits)) & 0xFF)
+            }
+            Bits.reverseBytes(array)
+          } else {
+            // MSBF & BE
+            if (fragBits > 0) {
+              Bits.shiftLeft(array, 8 - fragBits)
+            }
+          }
+        } else {
+          // LSBF & LE
+          Bits.reverseBytes(array)
+        }
 
-      val bits = putBits(array, 0, bitLengthFrom1)
-      Assert.invariant(bits == bitLengthFrom1)
-      true
-    }
+        val bits = putBits(array, 0, bitLengthFrom1, finfo)
+        Assert.invariant(bits == bitLengthFrom1)
+        true
+      }
+    res
   }
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
@@ -603,11 +479,15 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     else false
   }
 
-  def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long): Long = {
+  /**
+   * Returns number of bits transferred. The last byte of the byte buffer
+   * can be a fragment byte.
+   */
+  private[io] def putBits(ba: Array[Byte], byteStartOffset0b: Int, lengthInBits: Long, finfo: FormatInfo): Long = {
     Assert.usage((ba.length - byteStartOffset0b) * 8 >= lengthInBits)
     val nWholeBytes = (lengthInBits / 8).toInt
     val nFragBits = (lengthInBits % 8).toInt
-    val nBytesWritten = putBytes(ba, byteStartOffset0b, nWholeBytes)
+    val nBytesWritten = putBytes(ba, byteStartOffset0b, nWholeBytes, finfo)
     val nBitsWritten = nBytesWritten * 8
     if (nBytesWritten < nWholeBytes) {
       nBytesWritten * 8
@@ -615,11 +495,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       val isFragWritten =
         if (nFragBits > 0) {
           var fragByte: Long = ba(byteStartOffset0b + nWholeBytes)
-          if (bitOrder == BitOrder.MostSignificantBitFirst) {
+          if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
             // we need to shift the bits. We want the most significant bits of the byte
             fragByte = fragByte >>> (8 - nFragBits)
           }
-          putLong(fragByte, nFragBits)
+          putLongChecked(fragByte, nFragBits, finfo)
         } else
           true
       if (isFragWritten) nBitsWritten + nFragBits
@@ -627,7 +507,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = {
+  /**
+   * Returns number of bytes transferred. Stops when the bitLimit is
+   * encountered if one is defined.
+   */
+  final def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
     if (isEndOnByteBoundary) {
       val nBytes =
@@ -645,21 +529,25 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // the data currently ends with some bits in the fragment byte.
       //
       // rather than duplicate all this shifting logic here, we're going to output
-      // each byte separately as an 8-bit chunk using putLong
+      // each byte separately as an 8-bit chunk using putLongUnchecked
       //
       var i = 0
       var continue = true
       while ((i < lengthInBytes) && continue) {
-        continue = putLong(Bits.asUnsignedByte(ba(i)), 8) // returns false if we hit the limit.
+        continue = putLongUnchecked(Bits.asUnsignedByte(ba(i)), 8, finfo) // returns false if we hit the limit.
         if (continue) i += 1
       }
       i
     }
   }
 
-  def putBytes(ba: Array[Byte]): Long = putBytes(ba, 0, ba.length)
+  /**
+   * Returns number of bytes transferred. Stops when the bitLimit is
+   * encountered if one is defined.
+   */
+  private[io] def putBytes(ba: Array[Byte], finfo: FormatInfo): Long = putBytes(ba, 0, ba.length, finfo)
 
-  def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long): Long = {
+  private[io] def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long, finfo: FormatInfo): Long = {
     Assert.usage(bb.remaining() * 8 >= lengthInBits)
     val nWholeBytes = (lengthInBits / 8).toInt
     val nFragBits = (lengthInBits % 8).toInt
@@ -671,7 +559,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(bb.remaining() == numBytesForLengthInBits)
 
     if (nFragBits > 0) bb.limit(bb.limit - 1) // last byte is the frag byte
-    val nBytesWritten = putByteBuffer(bb) // output all but the frag byte if there is one.
+    val nBytesWritten = putByteBuffer(bb, finfo) // output all but the frag byte if there is one.
     val nBitsWritten = nBytesWritten * 8
     if (nBytesWritten < nWholeBytes) {
       nBytesWritten * 8
@@ -680,11 +568,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         if (nFragBits > 0) {
           bb.limit(bb.limit + 1)
           var fragByte: Long = Bits.asUnsignedByte(bb.get(bb.limit - 1))
-          if (bitOrder == BitOrder.MostSignificantBitFirst) {
+          if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
             // we need to shift the bits. We want the most significant bits of the byte
             fragByte = fragByte >>> (8 - nFragBits)
           }
-          putLong(fragByte, nFragBits)
+          putLongChecked(fragByte, nFragBits, finfo)
         } else
           true
       if (isFragWritten) nBitsWritten + nFragBits
@@ -692,11 +580,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  private def putByteBuffer(bb: java.nio.ByteBuffer): Long = {
+  private def putByteBuffer(bb: java.nio.ByteBuffer, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
     val nTransferred =
       if (bb.hasArray) {
-        putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining())
+        putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining(), finfo)
       } else {
         if (isEndOnByteBoundary) {
           val lengthInBytes = bb.remaining
@@ -714,7 +602,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           var continue = true
           val limit = bb.remaining()
           while ((i < limit) && continue) {
-            continue = putLong(Bits.asUnsignedByte(bb.get(i)), 8) // returns false if we hit the limit.
+            continue = putLongChecked(Bits.asUnsignedByte(bb.get(i)), 8, finfo) // returns false if we hit the limit.
             if (continue) i += 1
           }
           i
@@ -723,7 +611,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     nTransferred
   }
 
-  final def putString(str: String): Long = {
+  final def putString(str: String, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
     // must respect bitLimit0b if defined
     // must not get encoding errors until a char is being written to the output
@@ -732,11 +620,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       val cb = lcb.getBuf(str.length)
       cb.append(str) // one copying hop
       cb.flip
-      putCharBuffer(cb)
+      putCharBuffer(cb, finfo)
     }
   }
 
-  def putCharBuffer(cb: java.nio.CharBuffer): Long = {
+  final def putCharBuffer(cb: java.nio.CharBuffer, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
 
     val debugCBString = if (areLogging(LogLevel.Debug)) cb.toString() else ""
@@ -761,7 +649,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // in cb to below 1/4 the max number of bytes in a bytebuffer, because the maxBytesPerChar
       // is 4, even though it is going to be on average much closer to 1 or 2.
       //
-      val nBytes = math.ceil(cb.remaining * encoder.maxBytesPerChar()).toLong
+      val nBytes = math.ceil(cb.remaining * finfo.encoder.maxBytesPerChar()).toLong
       val bb = lbb.getBuf(nBytes)
       // Note that encode reads the charbuffer and encodes the character into a
       // local byte buffer. The contents of the local byte buffer are then
@@ -769,7 +657,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // bitPosiition/bitLimit/fragment bytes. So because we encode to a
       // temporary output buffer, the encode loop does not need to be aware of
       // bit position/limit.
-      val cr = encoder.encode(cb, bb, true)
+      val cr = finfo.encoder.encode(cb, bb, true)
       cr match {
         case CoderResult.UNDERFLOW => //ok. Normal termination
         case CoderResult.OVERFLOW => Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
@@ -778,19 +666,17 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       }
       bb.flip
 
-      val bitsToWrite = encoder match {
+      val bitsToWrite = finfo.encoder match {
         case encoderWithBits: NonByteSizeCharsetEncoder => encoderWithBits.bitWidthOfACodeUnit * nToTransfer
         case _ => bb.remaining * 8
       }
-      if (putBitBuffer(bb, bitsToWrite) == 0) 0 else nToTransfer
+      if (putBitBuffer(bb, bitsToWrite, finfo) == 0) 0 else nToTransfer
     }
     log(LogLevel.Debug, "Wrote string '%s' to %s", debugCBString, this)
     res
   }
 
-  def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = putLong(unsignedLong.longValue, bitLengthFrom1To64)
-
-  def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = {
+  protected final def putLongChecked(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
     Assert.usage(bitLengthFrom1To64 >= 1 && bitLengthFrom1To64 <= 64)
     Assert.usage(isWritable)
     //
@@ -800,11 +686,22 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     if (maybeRelBitLimit0b.isDefined) {
       if (maybeRelBitLimit0b.get < relBitPos0b + bitLengthFrom1To64) return false
     }
+
+    putLongUnchecked(signedLong, bitLengthFrom1To64, finfo)
+  }
+
+  /**
+   * Use when calling from a put/write operation that has already checked the
+   * length limit.
+   *
+   * Assumed to be called from inner loops, so should be fast as possible.
+   */
+  protected final def putLongUnchecked(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
     //
     // based on bit and byte order, dispatch to specific code
     //
     val res =
-      if (byteOrder eq ByteOrder.BigEndian) {
+      if (finfo.byteOrder eq ByteOrder.BigEndian) {
         //
         // You would think this invariant would hold
         //
@@ -819,11 +716,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         //
         putLong_BE_MSBFirst(signedLong, bitLengthFrom1To64)
       } else {
-        Assert.invariant(byteOrder eq ByteOrder.LittleEndian)
-        if (bitOrder eq BitOrder.MostSignificantBitFirst) {
+        Assert.invariant(finfo.byteOrder eq ByteOrder.LittleEndian)
+        if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
           putLong_LE_MSBFirst(signedLong, bitLengthFrom1To64)
         } else {
-          Assert.invariant(bitOrder eq BitOrder.LeastSignificantBitFirst)
+          Assert.invariant(finfo.bitOrder eq BitOrder.LeastSignificantBitFirst)
           putLong_LE_LSBFirst(signedLong, bitLengthFrom1To64)
         }
       }
@@ -848,26 +745,47 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   private val unionIntBuffer = unionByteBuffer.asIntBuffer()
   protected val unionLongBuffer = unionByteBuffer.asLongBuffer()
 
-  def putBinaryFloat(v: Float): Boolean = {
+  final override def putBinaryFloat(v: Float, finfo: FormatInfo): Boolean = {
     unionFloatBuffer.put(0, v)
     val i = unionIntBuffer.get(0)
-    putLong(i, 32)
+    val res = putLongChecked(i, 32, finfo)
+    res
   }
 
-  def putBinaryDouble(v: Double): Boolean = {
+  final override def putBinaryDouble(v: Double, finfo: FormatInfo): Boolean = {
     unionDoubleBuffer.put(0, v)
     val l = unionLongBuffer.get(0)
-    putLong(l, 64)
+    val res = putLongChecked(l, 64, finfo)
+    res
   }
 
-  def skip(nBits: Long): Boolean = {
+  /**
+   * Used when we have to fill in things that are larger or smaller than a byte
+   */
+  private def fillLong(fillByte: Byte) = {
+    var fl: Long = 0L
+    val fb = fillByte.toInt & 0xFF
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl = (fl << 8) + fb
+    fl
+  }
+
+  final override def skip(nBits: Long, finfo: FormatInfo): Boolean = {
     Assert.usage(isWritable)
     if (maybeRelBitLimit0b.isDefined) {
       val lim = maybeRelBitLimit0b.getULong
       if (relBitPos0b + ULong(nBits) > lim) return false
     }
     if (nBits <= 64) {
-      putLong(fillLong, nBits.toInt)
+      val fb = finfo.fillByte
+      val lng = fillLong(fb)
+      putLongUnchecked(lng, nBits.toInt, finfo)
     } else {
       // more than 64 bits to skip
       //
@@ -887,7 +805,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       if (fragmentLastByteLimit > 0) {
         // there is a fragment byte.
         val numRemainingFragmentBits = 8 - fragmentLastByteLimit
-        val isInitialFragDone = putLong(fillByte, numRemainingFragmentBits)
+        val isInitialFragDone = putLongUnchecked(finfo.fillByte, numRemainingFragmentBits, finfo)
         Assert.invariant(isInitialFragDone)
         nBitsRemaining -= numRemainingFragmentBits
         Assert.invariant(fragmentLastByteLimit == 0) // no longer is a fragment byte on the end
@@ -899,7 +817,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       while (nBytes > 0) {
         nBytes -= 1
         setRelBitPos0b(relBitPos0b + ULong(8))
-        realStream.write(fillByte)
+        realStream.write(finfo.fillByte)
         nBitsRemaining -= 8
       }
       //
@@ -907,19 +825,19 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       //
       Assert.invariant(nBitsRemaining < 8)
       if (nBitsRemaining > 0) {
-        val isFinalFragDone = putLong(fillByte, nBitsRemaining.toInt)
+        val isFinalFragDone = putLongUnchecked(finfo.fillByte, nBitsRemaining.toInt, finfo)
         Assert.invariant(isFinalFragDone)
       }
       true
     }
   }
 
-  def futureData(nBytesRequested: Int): ByteBuffer = {
+  final override def futureData(nBytesRequested: Int): ByteBuffer = {
     Assert.usage(isReadable)
     ByteBuffer.allocate(0)
   }
 
-  def pastData(nBytesRequested: Int): ByteBuffer = {
+  final override def pastData(nBytesRequested: Int): ByteBuffer = {
     Assert.usage(isReadable)
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
@@ -940,7 +858,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     setMaybeRelBitLimit0b(savedBitLimit0b, true)
   }
 
-  def validateFinalStreamState {
+  final override def validateFinalStreamState {
     // nothing to validate
   }
 
@@ -955,11 +873,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  final override def align(bitAlignment1b: Int): Boolean = {
+  final override def align(bitAlignment1b: Int, finfo: FormatInfo): Boolean = {
     if (isAligned(bitAlignment1b)) true
     else {
       val deltaBits = bitAlignment1b - (maybeAbsBitPos0b.get % bitAlignment1b)
-      skip(deltaBits)
+      skip(deltaBits, finfo)
     }
   }
 

@@ -21,6 +21,7 @@
 					binaryNumberCheckPolicy="lax" 
 					binaryNumberRep="binary"
 					binaryPackedSignCodes="C D F C" 
+                    bitOrder = "mostSignificantBitFirst"
 					byteOrder="bigEndian" 
 					calendarCenturyStart="53"
 					calendarCheckPolicy="lax" 

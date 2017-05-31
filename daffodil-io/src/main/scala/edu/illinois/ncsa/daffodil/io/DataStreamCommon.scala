@@ -34,14 +34,8 @@ package edu.illinois.ncsa.daffodil.io
 
 import java.nio.ByteBuffer
 
-import edu.illinois.ncsa.daffodil.api.DataStreamLimits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.api.DataStreamLimits
 
 /**
  * This is an interface trait, and it defines methods shared by
@@ -66,37 +60,6 @@ trait DataStreamCommon {
    * of dynamic cache.
    */
   def setLimits(newLimits: DataStreamLimits): Unit
-
-  // def setEncodingMandatoryAlignment(bitAlignment: Int): Unit
-  def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit
-
-  /**
-   * Use Nope for variable-width encodings.
-   */
-  def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit
-  def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit
-
-  /*
-   * Note that when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
-   * then the bit order *is* used by the character decoding to determine which
-   * side of a byte is first.
-   */
-  def setBitOrder(bitOrder: BitOrder): Unit
-
-  /* Note that the byte order for UTF-16 and UTF-32 encodings is
-   * not taken from this setByteOrder call, but by use of the
-   * UTF-16BE, UTF-16LE, UTF-32BE and UTF-32LE encodings, or
-   * by use of the dfdl:unicodeByteOrderMark property.
-   * <p>
-   * Note that even when character encodings are not byte-centric (e.g., 7, 6, 5, or 4 bits)
-   * and a character can span a byte boundary, we STILL don't need byteOrder
-   * to decode characters. Just bitOrder.
-   *
-   * This is because bitOrder alone specifies which end of byte N is adjacent to which
-   * end of byte N+1.
-   */
-  def setByteOrder(byteOrder: ByteOrder): Unit
-  def byteOrder: ByteOrder
 
   /**
    * Returns number of bits remaining (if a limit is defined). Nope if not defined.
@@ -125,7 +88,7 @@ trait DataStreamCommon {
    * the alignment.
    */
 
-  def align(bitAlignment1b: Int): Boolean
+  def align(bitAlignment1b: Int, finfo: FormatInfo): Boolean
 
   /**
    * For assertion checking really. Optimizations should remove the need for most
@@ -145,7 +108,7 @@ trait DataStreamCommon {
    * Advances the bit position by nBits. If nBits aren't available this
    * returns false. Otherwise it returns true.
    */
-  def skip(nBits: Long): Boolean
+  def skip(nBits: Long, finfo: FormatInfo): Boolean
 
   /**
    * Debugging flag. If set then performance may be reduced, but

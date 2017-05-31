@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 abstract class LiteralNilOfSpecifiedLengthParserBase(
   erd: ElementRuntimeData)
-  extends PrimParserObject(erd)
+  extends TextPrimParserObject(erd)
   with StringOfSpecifiedLengthMixin
   with NilMatcherMixin {
 

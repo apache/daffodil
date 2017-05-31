@@ -64,7 +64,7 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
     e.ignoreCaseBool,
     e.elementRuntimeData)
 
-  override lazy val unparser = new NadaUnparser(e.runtimeData)
+  override lazy val unparser = new NadaUnparser(e.termRuntimeData)
 }
 
 case class LogicalNilValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isNillable)

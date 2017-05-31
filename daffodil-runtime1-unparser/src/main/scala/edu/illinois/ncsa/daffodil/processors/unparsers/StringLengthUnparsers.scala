@@ -46,7 +46,7 @@ import java.nio.charset.UnmappableCharacterException
 
 sealed abstract class StringSpecifiedLengthUnparserBase(
   val erd: ElementRuntimeData)
-  extends PrimUnparser {
+  extends TextPrimUnparser {
 
   override def context = erd
 
@@ -68,7 +68,7 @@ class StringNoTruncateUnparser(
     val dos = state.dataOutputStream
     val valueToWrite = contentString(state)
     val nCharsWritten = try {
-      dos.putString(valueToWrite)
+      dos.putString(valueToWrite, state)
     } catch {
       case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
       case u: UnmappableCharacterException => { UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
@@ -162,8 +162,7 @@ class StringMaybeTruncateBitsUnparser(
         //
         state.withByteArrayOutputStream {
           case (_, dos) =>
-            dos.setEncoder(state.dataOutputStream.encoder)
-            val nChars = dos.putString(str)
+            val nChars = dos.putString(str, state)
             val nBits = dos.relBitPos0b.toLong
             (nBits, nChars)
         }
@@ -221,7 +220,7 @@ class StringMaybeTruncateBitsUnparser(
       truncatedValue
     }
 
-    val nCharsWritten = dos.putString(valueToWrite)
+    val nCharsWritten = dos.putString(valueToWrite, state)
     Assert.invariant(nCharsWritten == valueToWrite.length) // assertion because we figured this out above based on available space.
     //
     // Filling of unused bits is done elsewhere now
@@ -275,7 +274,7 @@ class StringMaybeTruncateCharactersUnparser(
       }
     }
     //
-    val nCharsWritten = dos.putString(valueToWrite)
+    val nCharsWritten = dos.putString(valueToWrite, state)
     Assert.invariant(nCharsWritten == valueToWrite.length)
   }
 }

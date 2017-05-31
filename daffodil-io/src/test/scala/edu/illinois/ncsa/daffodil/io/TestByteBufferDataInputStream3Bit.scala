@@ -49,6 +49,8 @@ import edu.illinois.ncsa.daffodil.processors.charset.OctalLSBF3BitCharset
  */
 class TestByteBufferDataInputStream3Bit {
 
+  val finfo = FormatInfoForUnitTest()
+
   /**
    * Helper class for creating example data that is unaligned.
    */
@@ -124,9 +126,11 @@ class TestByteBufferDataInputStream3Bit {
    */
   @Test def testFillCharBufferOne3BitChar {
     val dis = ByteBufferDataInputStream(BitsBitte.enc("01234567"))
-    dis.setDecoder(OctalLSBF3BitCharset.newDecoder)
+    val cs = OctalLSBF3BitCharset
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     val cb = CharBuffer.allocate(1)
-    val ml = dis.fillCharBuffer(cb)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(1, ml.get)
@@ -138,9 +142,10 @@ class TestByteBufferDataInputStream3Bit {
     val dat = "01234567"
     val cs = OctalLSBF3BitCharset
     val dis = ByteBufferDataInputStream(BitsBitte.enc(dat))
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(8, ml.get)
@@ -153,10 +158,11 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("11"), BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     val cb = CharBuffer.allocate(8)
-    dis.skip(2)
-    val ml = dis.fillCharBuffer(cb)
+    dis.skip(2, finfo)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(8, ml.get)
@@ -169,11 +175,12 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("11"), BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(12))
     val cb = CharBuffer.allocate(8)
-    dis.skip(2)
-    val ml = dis.fillCharBuffer(cb)
+    dis.skip(2, finfo)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(3, ml.get)
@@ -195,11 +202,12 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("1"), BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(8))
     val cb = CharBuffer.allocate(8)
-    dis.skip(1)
-    val ml = dis.fillCharBuffer(cb)
+    dis.skip(1, finfo)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(2, ml.get)
@@ -217,10 +225,11 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(5))
     val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(1, ml.get)
@@ -233,10 +242,11 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(14))
     val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(4, ml.get)
@@ -249,11 +259,12 @@ class TestByteBufferDataInputStream3Bit {
     val cs = OctalLSBF3BitCharset
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("1"), BitsBitte.encode3(dat)))
     val dis = ByteBufferDataInputStream(bytes)
-    dis.setDecoder(cs.newDecoder)
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(6))
     val cb = CharBuffer.allocate(8)
-    dis.skip(1)
-    val ml = dis.fillCharBuffer(cb)
+    dis.skip(1, finfo)
+    val ml = dis.fillCharBuffer(cb, finfo)
     cb.flip
     assertTrue(ml.isDefined)
     assertEquals(1, ml.get)
@@ -275,25 +286,28 @@ class TestByteBufferDataInputStream3Bit {
 
   @Test def testCharIteratorWithInterruptingBitSkips1 {
     val dis = ByteBufferDataInputStream(BitsBitte.enc("01234567"))
-    dis.setDecoder(OctalLSBF3BitCharset.newDecoder)
+    val cs = OctalLSBF3BitCharset
+    val finfo = FormatInfoForUnitTest()
+    finfo.reset(cs)
     dis.setBitLimit0b(MaybeULong(24))
     val iter = dis.asIteratorChar
-    dis.skip(3)
+    iter.setFormatInfo(finfo)
+    dis.skip(3, finfo)
     assertTrue(iter.hasNext)
     assertEquals(3, dis.bitPos0b)
     assertEquals('1', iter.next)
     assertEquals(6, dis.bitPos0b)
-    dis.skip(3)
+    dis.skip(3, finfo)
     assertTrue(iter.hasNext)
     assertEquals(9, dis.bitPos0b)
     assertEquals('3', iter.next)
     assertEquals(12, dis.bitPos0b)
-    dis.skip(1)
-    dis.skip(2)
+    dis.skip(1, finfo)
+    dis.skip(2, finfo)
     assertTrue(iter.hasNext)
     assertEquals('5', iter.next)
     assertEquals(18, dis.bitPos0b)
-    assertTrue(dis.skip(3))
+    assertTrue(dis.skip(3, finfo))
     assertEquals('7', iter.next)
     assertFalse(iter.hasNext)
   }

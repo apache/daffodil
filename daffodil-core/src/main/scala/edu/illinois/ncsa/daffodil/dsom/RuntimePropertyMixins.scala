@@ -78,6 +78,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
 
 /*
  * These are the DFDL properties which can have their values come
@@ -117,12 +118,10 @@ trait TermRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val charsetEv =
-    if (maybeCharsetEv.isDefined) maybeCharsetEv.get
-    else {
-      findProperty("encoding")
-      Assert.invariantFailed("the findProperty above is supposed to cause SDE.")
-    }
+  final lazy val charsetEv = {
+    if (maybeCharsetEv.isEmpty) encodingRaw // required property
+    maybeCharsetEv.get
+  }
 
   final lazy val maybeCharsetEv =
     if (optionEncodingRaw.isDefined) {
@@ -132,10 +131,20 @@ trait TermRuntimeValuedPropertiesMixin
     } else
       Nope
 
-  final lazy val fillByteEv = {
-    val ev = new FillByteEv(fillByte, charsetEv, termRuntimeData)
+  final lazy val checkEncodingEv = {
+    val ev = new CheckEncodingEv(termRuntimeData, alignmentValueInBits, charsetEv)
     ev.compile()
     ev
+  }
+
+  final lazy val maybeFillByteEv = {
+    if (optionFillByteRaw.isDefined) {
+      val ev = new FillByteEv(fillByte, charsetEv, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
   }
 
   /*
@@ -252,11 +261,20 @@ trait ElementRuntimeValuedPropertiesMixin
     ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, byteOrderRaw)
   }.value
 
-  final lazy val byteOrderEv = LV('byteOrderEv) {
-    val ev = new ByteOrderEv(byteOrderExpr, elementRuntimeData)
-    ev.compile()
-    ev
-  }.value
+  final lazy val byteOrderEv = {
+    if (maybeByteOrderEv.isEmpty) byteOrderRaw // must be defined
+    maybeByteOrderEv.get
+  }
+
+  final lazy val maybeByteOrderEv = {
+    if (optionByteOrderRaw.isDefined) {
+      val ev = new ByteOrderEv(byteOrderExpr, elementRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
 
   protected final lazy val lengthExpr = {
     val qn = this.qNameForProperty("length")
@@ -610,9 +628,18 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   }.value
 
   final lazy val binaryFloatRepEv = {
-    val ev = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
-    ev.compile()
-    ev
+    if (maybeBinaryFloatRepEv.isEmpty) binaryFloatRepRaw // property is required
+    maybeBinaryFloatRepEv.get
+  }
+
+  final lazy val maybeBinaryFloatRepEv = {
+    if (optionBinaryFloatRepRaw.isDefined) {
+      val ev = new BinaryFloatRepEv(binaryFloatRepExpr, erd)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
   }
 
   private lazy val textBooleanTrueRepExpr = LV('textBooleanTrueRep) {

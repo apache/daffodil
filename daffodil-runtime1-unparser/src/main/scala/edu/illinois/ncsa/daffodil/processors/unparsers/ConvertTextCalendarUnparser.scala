@@ -60,7 +60,7 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   extends ConvertTextCalendarProcessorBase(erd,
     xsdType, prettyType, pattern, hasTZ, localeEv, calendarEv, infosetPattern, firstDay, calendarDaysInFirstWeek,
     calendarCheckPolicy, calendarTz, tz)
-  with PrimUnparser {
+  with TextPrimUnparser {
 
   /**
    * Primitive unparsers must override runtimeDependencies

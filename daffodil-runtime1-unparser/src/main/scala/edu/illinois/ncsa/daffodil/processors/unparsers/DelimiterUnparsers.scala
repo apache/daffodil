@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextType.Type)
-  extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {
+  extends TextPrimUnparserObject(erd) {
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"
@@ -56,7 +56,6 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextTy
   }
 
   def unparse(state: UState): Unit = {
-    setupEncoding(state, erd)
 
     log(LogLevel.Debug, "Unparsing starting at bit position: %s", state.dataOutputStream.maybeAbsBitPos0b)
 
@@ -76,7 +75,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextTy
       val valueString = delimDFA.unparseValue
 
       val outStream = state.dataOutputStream
-      val nCharsWritten = outStream.putString(valueString)
+      val nCharsWritten = outStream.putString(valueString, state)
       if (nCharsWritten != valueString.length)
         UE(state, "%s - Too many bits in delimiter: IndexOutOfBounds. Insufficient space to write delimiter '%s'.",
           nom, Misc.remapStringToVisibleGlyphs(valueString))

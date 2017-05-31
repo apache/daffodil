@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 class ZonedTextNumberParser(override val context: ElementRuntimeData)
-  extends PrimParser {
+  extends TextPrimParser {
 
   override lazy val runtimeDependencies = Nil
 
