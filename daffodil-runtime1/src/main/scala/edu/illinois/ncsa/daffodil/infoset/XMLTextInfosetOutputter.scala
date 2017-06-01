@@ -68,7 +68,7 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     }
 
     if (elem.isNilled) {
-      writer.write(" xsi:nil\"=true\"")
+      writer.write(" xsi:nil=\"true\"")
     }
 
     writer.write(">")
