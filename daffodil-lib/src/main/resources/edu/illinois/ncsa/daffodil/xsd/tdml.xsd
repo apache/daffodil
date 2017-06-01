@@ -167,7 +167,7 @@
     <sequence>
       <element ref="tns:documentPart" minOccurs="0" maxOccurs="unbounded"/>
     </sequence>
-    <attributeGroup ref="tns:bitOrderAG"/>
+    <attribute name="bitOrder" type="tns:bitOrderEnum" use="optional"/>
     <attribute ref="tns:tutorialInclude"/>
   </complexType>
 
