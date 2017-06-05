@@ -19,11 +19,11 @@
   xmlns:dafint="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafint.xsd
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafext.xsd">
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int edu/illinois/ncsa/daffodil/xsd/dafint.xsd
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int edu/illinois/ncsa/daffodil/xsd/dafext.xsd">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int" schemaLocation="xsd/dafint.xsd" />
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="xsd/dafext.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int" schemaLocation="edu/illinois/ncsa/daffodil/xsd/dafint.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="edu/illinois/ncsa/daffodil/xsd/dafext.xsd" />
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
 

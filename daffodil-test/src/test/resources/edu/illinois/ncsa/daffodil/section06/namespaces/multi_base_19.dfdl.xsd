@@ -33,7 +33,7 @@
 -->
 <ex:schema xmlns:ex="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://example.com/1" targetNamespace="http://example.com/1">
-  <ex:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <ex:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
       
   <ex:annotation>
     <ex:appinfo source="http://www.ogf.org/dfdl/">

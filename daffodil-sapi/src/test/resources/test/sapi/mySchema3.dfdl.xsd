@@ -10,7 +10,7 @@
     </appinfo>
   </annotation>
   
-  <include schemaLocation="xsd/built-in-formats.xsd"/>   
+  <include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
   
   <element name="e3" type="xsd:string" dfdl:lengthKind="explicit" dfdl:length="1"/>  
   <element name="e4" type="xsd:string" dfdl:lengthKind="explicit" dfdl:length="4"/>  

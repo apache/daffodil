@@ -50,7 +50,7 @@ class TestTDMLUnparseCases {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+                        <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
                         <dfdl:format ref="ex:daffodilTest1"/>
                         <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
                       </ts:defineSchema>

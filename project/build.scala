@@ -222,7 +222,7 @@ object DaffodilBuild extends Build {
   def copyResources(outdir: File, inRSrc: Set[File], log: Logger): Set[File] = {
     val dfdlSchemas = inRSrc.filter { f => f.isFile }
     val managed_resources = dfdlSchemas.map { in =>
-      val out = outdir / "xsd" / in.getName
+      val out = outdir / "edu" / "illinois" / "ncsa" / "daffodil" / "xsd" / in.getName
       IO.copyFile(in, out)
       log.info("Generated %s".format(out))
       out

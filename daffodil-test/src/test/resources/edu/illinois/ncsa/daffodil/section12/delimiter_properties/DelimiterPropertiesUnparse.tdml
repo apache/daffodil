@@ -38,7 +38,7 @@
   xmlns:ex="http://example.com">
   
   <tdml:defineSchema name="delimitedStrings">
-    <xs:include schemaLocation="xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
 
       <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;" initiatedContent="no" lengthKind="delimited"/>

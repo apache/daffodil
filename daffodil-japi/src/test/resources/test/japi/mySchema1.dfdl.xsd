@@ -10,7 +10,7 @@
     </appinfo>
   </annotation>
   
-  <include schemaLocation="xsd/built-in-formats.xsd"/>    
+  <include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
       
   <include schemaLocation="mySchema2.dfdl.xsd"/>
 

@@ -43,6 +43,6 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
   
 </xs:schema>

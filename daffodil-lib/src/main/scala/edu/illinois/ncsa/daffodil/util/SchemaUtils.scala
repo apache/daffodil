@@ -107,7 +107,7 @@ object SchemaUtils {
 
     val schemaNode =
       <xs:schema elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
-        <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+        <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
         <xs:annotation>
           <xs:appinfo source={ XMLUtils.dfdlAppinfoSource }>
             { topLevelAnnotations }

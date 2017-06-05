@@ -6,23 +6,23 @@
    not obeying the pattern.
     -->
   <uri name="http://www.ibm.com/xmlns/dfdl/testData"
-    uri="xsd/tdml.xsd" />
-  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/" uri="xsd/DFDL_part3_model.xsd" />
+	  uri="edu/illinois/ncsa/daffodil/xsd/tdml.xsd" />
+  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/" uri="edu/illinois/ncsa/daffodil/xsd/DFDL_part3_model.xsd" />
  <!-- <uri name="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
-    uri="xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" /> -->
+    uri="edu/illinois/ncsa/daffodil/xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" /> -->
   <uri name="http://www.w3.org/2001/XMLSchema"
-    uri="xsd/XMLSchema_for_DFDL.xsd" />
+	  uri="edu/illinois/ncsa/daffodil/xsd/XMLSchema_for_DFDL.xsd" />
   <uri name="http://www.w3.org/XML/1998/namespace"
-    uri="xsd/xml.xsd" />
+	  uri="edu/illinois/ncsa/daffodil/xsd/xml.xsd" />
  <!-- 
    Seems the format of catalogs doesn't allow spaces in the publicId.
    I don't know if one can replace them with escape %20 stuff or not.
  <public publicId="-//W3C//DTD XMLSCHEMA 200102//EN"
-    uri="xsd/XMLSchema.dtd" /> -->
+    uri="edu/illinois/ncsa/daffodil/xsd/XMLSchema.dtd" /> -->
   <public publicId="datatypes"
-    uri="xsd/datatypes.dtd" />
+	  uri="edu/illinois/ncsa/daffodil/xsd/datatypes.dtd" />
   <uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
-    uri="xsd/dafint.xsd"/>  
+	  uri="edu/illinois/ncsa/daffodil/xsd/dafint.xsd"/>
   <uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-    uri="xsd/dafext.xsd"/>
+	  uri="edu/illinois/ncsa/daffodil/xsd/dafext.xsd"/>
 </catalog>

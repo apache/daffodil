@@ -35,7 +35,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:what="http://example.com/3" xmlns:foo="http://example.com/2">
 
-  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>    
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
 
   <xs:import namespace="http://example.com/3"
     schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/qname3.dfdl.xsd" />

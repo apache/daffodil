@@ -35,7 +35,7 @@
   targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">

@@ -9,7 +9,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   elementFormDefault="unqualified">
 
-   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+   <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
    <xs:import namespace="urn:parseUnparseMode" schemaLocation="parseUnparseMode.dfdl.xsd"/>
    
    <xs:annotation>

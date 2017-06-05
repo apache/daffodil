@@ -37,7 +37,7 @@
   
   <xs:import namespace="http://first.com" schemaLocation="edu/illinois/ncsa/daffodil/section23/dfdl_functions/first_schema.dfdl.xsd"/>
 
-  <xs:include schemaLocation="xsd/built-in-formats.xsd"/> 
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
          
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/"> 

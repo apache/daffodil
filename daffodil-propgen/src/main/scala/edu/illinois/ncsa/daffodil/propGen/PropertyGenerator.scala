@@ -631,12 +631,12 @@ object Currency {
 
 object PropertyGenerator {
   val dfdlSchemasForDFDLAnnotations = List(
-    "/xsd/DFDL_part1_simpletypes.xsd",
-    "/xsd/DFDL_part2_attributes.xsd",
-    "/xsd/DFDL_part3_model.xsd",
-    "/xsd/dafext.xsd")
+    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part1_simpletypes.xsd",
+    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part2_attributes.xsd",
+    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part3_model.xsd",
+    "/edu/illinois/ncsa/daffodil/xsd/dafext.xsd")
 
-  val daffodilExtensionsXML = getSchemaAsNode("/xsd/dafext.xsd")
+  val daffodilExtensionsXML = getSchemaAsNode("/edu/illinois/ncsa/daffodil/xsd/dafext.xsd")
 
   def getSchemaAsNode(name: String): Node = {
     val is = getResourceOrFileStream(name)

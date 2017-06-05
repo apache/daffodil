@@ -34,7 +34,7 @@
 <shi:schema xmlns:shi="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="shi:shi" xmlns:shishi="shi:shi" xmlns:shishishi="shi:shi:shi">
   
-  <shi:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <shi:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
       
   <shi:annotation>
     <shi:appinfo source="http://www.ogf.org/dfdl/">

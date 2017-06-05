@@ -40,7 +40,7 @@ xmlns:b·="http://example.com"
 targetNamespace="http://example.com">
 
 
-  <имен:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <имен:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
       
   <имен:annotation>
     <имен:appinfo source="http://www.ogf.org/dfdl/">

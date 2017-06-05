@@ -37,7 +37,7 @@ SOFTWARE.
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
   targetNamespace="http://example.com" elementFormDefault="unqualified">
 
-  <xs:include schemaLocation="xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
