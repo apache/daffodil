@@ -135,10 +135,10 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
   def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean) = {
+    var compile: Boolean = true
     val expr = exprWithBracesMaybe
     //
-    // we want to standardize that the expression has braces, and if it was
-    // a literal string, that it has quotes around it.
+    // we want to standardize that the expression has braces
     //
     val exprForCompiling =
       if (DPathUtil.isExpression(expr)) expr.trim
@@ -150,23 +150,22 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           compileInfoWherePropertyWasLocated.SDE(msg, expr)
         }
         val expr1 = if (expr.startsWith("{{"))
-          expr.tail // everthing except the self-escaped leading brace
+          expr.tail // everything except the self-escaped leading brace
         else expr
         //
-        // Literal strings get surrounded with quotation marks
+        // Literal String: if the target type is String, do not compile.
         //
-        val withQuotes = {
-          nodeInfoKind match {
-            case _: NodeInfo.String.Kind if (expr1.contains("'")) => "\"" + expr1 + "\""
-            case _: NodeInfo.String.Kind => "'" + expr1 + "'"
-            case _ => expr1
-          }
+        nodeInfoKind match {
+          case _: NodeInfo.String.Kind => compile = false // Constant String
+          case _ => compile = true
         }
-        withQuotes
+        expr1
       }
     // If we get here then now it's something we can compile. It might be trivial
-    // to compile (e.g, '5' compiles to Literal(5)) but we uniformly compile
-    // everything.
+    // to compile (e.g, '5' compiles to Literal(5)) but we no longer uniformly
+    // compile everything.  Due to the performance optimization (DFDL-1775), 
+    // we will NOT compile constant strings (constant values whose target type 
+    // is String).
 
     /* Question: If something starts with {{, e.g.
      * separator="{{ not an expression", then we strip off the first brace,
@@ -182,8 +181,15 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
      * If we try to do this outside the expression compiler we'd be replicating
      * some of this type-infer/check logic.
      */
-    compileExpression(qn, nodeInfoKind, exprForCompiling, namespaces,
-      compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+    val res = if (compile) {
+      compileExpression(qn, nodeInfoKind, exprForCompiling, namespaces,
+        compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+    } else {
+      // Don't compile, meaning this is a constant string
+      val res = new ConstantExpression[T](qn, nodeInfoKind, exprForCompiling.asInstanceOf[T])
+      res
+    }
+    res
   }
 
   /**
