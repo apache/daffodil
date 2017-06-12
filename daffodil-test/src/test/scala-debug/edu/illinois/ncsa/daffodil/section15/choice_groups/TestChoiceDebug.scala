@@ -42,12 +42,10 @@ object TestChoiceDebug {
 
   val runnerCH = Runner(testDir, "choice.tdml")
   val runner = Runner(testDir1, "dpaext2.tdml")
-  val runner1773 = Runner(testDir, "choice1773.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runnerCH.reset
-    runner1773.reset
   }
 
 }
@@ -58,8 +56,4 @@ class TestChoiceDebug {
 
   @Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") }
   
-  // DFDL-1773
-  // First passes, second fails
-  @Test def test_choiceSlotAmbiguous1(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous1") }
-  @Test def test_choiceSlotAmbiguous2(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous2") }
 }

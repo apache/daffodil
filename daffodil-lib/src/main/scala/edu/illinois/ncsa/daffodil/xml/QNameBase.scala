@@ -455,14 +455,14 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
   }
 
   /**
-   * Finds a match in a list of things that have QNames.
+   * Finds the matches in a list of things that have QNames.
    * Used for finding if a named path step has corresponding element declaration.
    *
    * Handles local or global matches
    *
    */
-  def findMatch[T <: { def namedQName: NamedQName }](candidates: Seq[T]): Option[T] = {
-    val matched = candidates.find { x =>
+  def findMatches[T <: { def namedQName: NamedQName }](candidates: Seq[T]): Seq[T] = {
+    val matched = candidates.filter { x =>
       val other = x.namedQName
       val res = matches(other)
       res

@@ -132,4 +132,8 @@ class TestDFDLExpressionsNew {
   @Test def test_idiv19 { runner.runOneTest("idiv19") }
   @Test def test_idiv20 { runner.runOneTest("idiv20") }
 
+  // DFDL-1617
+  @Test def test_query_style_01 { runner4.runOneTest("query_style_01") }
+  @Test def test_query_style_02 { runner4.runOneTest("query_style_02") }
+
 }

@@ -353,22 +353,26 @@ class DPathElementCompileInfo(
     findNamedMatch(step, Seq(this))
 
   private def findNamedMatch(step: StepQName, possibles: Seq[DPathElementCompileInfo]): DPathElementCompileInfo = {
-    val optERD: Option[DPathElementCompileInfo] = step.findMatch(possibles)
+    val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
 
-    val retryOptERD =
-      if (optERD.isEmpty &&
+    val retryMatchesERD =
+      if (matchesERD.isEmpty &&
         DaffodilTunableParameters.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
         step.prefix.isEmpty && step.namespace != NoNamespace) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.
         val noNamespaceStep = step.copy(namespace = NoNamespace)
-        noNamespaceStep.findMatch(elementChildrenCompileInfo)
+        noNamespaceStep.findMatches(possibles)
       } else {
-        optERD
+        matchesERD
       }
 
-    retryOptERD.getOrElse { noMatchError(step, possibles) }
+    retryMatchesERD.length match {
+      case 0 => noMatchError(step, possibles)
+      case 1 => retryMatchesERD(0)
+      case _ => queryMatchError(step, matchesERD)
+    }
   }
 
   /**
@@ -423,5 +427,10 @@ class DPathElementCompileInfo(
         SDE("No element corresponding to step %s found.",
           step.toPrettyString)
     }
+  }
+
+  final def queryMatchError(step: StepQName, matches: Seq[DPathElementCompileInfo]) = {
+    SDE("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
   }
 }

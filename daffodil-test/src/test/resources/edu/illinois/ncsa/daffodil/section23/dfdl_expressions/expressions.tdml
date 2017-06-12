@@ -217,6 +217,28 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ fn:count(../ex:a) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="a" type="xs:int" />
+          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ ../ex:a[2] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 
@@ -6597,6 +6619,42 @@ c]]></value>
     <tdml:document>1,2,3</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: quuery_style_01
+        Schema: paths
+          Root: e7
+       Purpose: This test demonstrates that Daffodil does not support query style path expressions
+  -->
+
+  <tdml:parserTestCase name="query_style_01" root="e7"
+    model="paths" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
+      <tdml:error>ex:a</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: quuery_style_02
+        Schema: paths
+          Root: e8
+       Purpose: This test demonstrates that Daffodil does not support query style path expressions
+  -->
+
+  <tdml:parserTestCase name="query_style_02" root="e8"
+    model="paths" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
+      <tdml:error>ex:a</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

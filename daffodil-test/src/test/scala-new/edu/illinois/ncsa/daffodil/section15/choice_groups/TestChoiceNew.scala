@@ -40,9 +40,11 @@ object TestChoiceNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
 
   val runner = Runner(testDir, "choice1765.tdml")
+  val runner1773 = Runner(testDir, "choice1773.tdml")
 
   @AfterClass def shutDown {
     runner.reset
+    runner1773.reset
   }
 }
 
@@ -55,4 +57,8 @@ class TestChoiceNew {
   @Test def test_backtrack2(): Unit = { runner.runOneTest("backtrack2") }
   @Test def test_backtrack3(): Unit = { runner.runOneTest("backtrack2") }
   @Test def test_backtrack4(): Unit = { runner.runOneTest("backtrack4") }
+
+  // DFDL-1773
+  @Test def test_choiceSlotAmbiguous1(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous1") }
+  @Test def test_choiceSlotAmbiguous2(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous2") }
 }
