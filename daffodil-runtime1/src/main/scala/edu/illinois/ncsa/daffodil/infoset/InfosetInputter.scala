@@ -91,10 +91,8 @@ abstract class InfosetInputter
    * Get the content of a simple type. This will only be called when the
    * current event type is StartElement and the element is a simple type. If
    * the event contains complex data, it is an error and should throw
-   * NonTextFoundInSimpleContentException. Upon a successful return, a call to
-   * getEventType() should return EndElement for the simple type. If the
-   * element does not have any simple content, this should return either null
-   * or the empty string.
+   * NonTextFoundInSimpleContentException. If the element does not have any
+   * simple content, this should return either null or the empty string.
    */
   def getSimpleText(): String
 
@@ -172,7 +170,7 @@ abstract class InfosetInputter
    * and when all items have been dequeued, reset the indices to start the next
    * enqueues at the beginning of the array.
    */
-  final private val MaxPendingQueueSize = 3
+  final private val MaxPendingQueueSize = 2
   private val pendingNodes = new Array[DINode](MaxPendingQueueSize)
   private val pendingStartOrEnd = new Array[InfosetEventKind](MaxPendingQueueSize)
   private var pendingCurIndex: Int = 0
@@ -321,10 +319,8 @@ abstract class InfosetInputter
       }
     }
 
-    e match {
-      case c: DIComplex => nodeStack.push(e)
-      case s: DISimple => queueAnotherEvent(EndKind, e)
-    }
+    nodeStack.push(e)
+
     Assert.invariant(e.parent ne null)
     nextElementResolver =
       if (e.erd.isSimpleType)
@@ -334,12 +330,9 @@ abstract class InfosetInputter
   }
 
   private def createElement() = {
-    Assert.usage(getEventType() == StartElement)
     val erd = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
     val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
 
-    // save isNilled(), since we'll potentially need it after a call to
-    // getSimpleText() below, which changes the current event
     val optNilled = isNilled()
 
     if (optNilled.isDefined) {
@@ -359,7 +352,6 @@ abstract class InfosetInputter
           case ex: NonTextFoundInSimpleContentException =>
             UnparseError(One(elem.erd.schemaFileLocation), Nope, ex.getMessage())
         }
-      Assert.invariant(getEventType() == EndElement)
       if (optNilled.isDefined && optNilled.get) {
         if (txt != null && txt != "") {
           UnparseError(One(elem.erd.schemaFileLocation), Nope, "Nilled simple element %s has content", erd.namedQName.toExtendedSyntax)
@@ -376,10 +368,10 @@ abstract class InfosetInputter
 
   private def handleEndElement() {
     nodeStack.top match {
-      case c: DIComplex => {
-        end(c)
+      case e: DIElement => {
+        end(e)
         nodeStack.pop
-        nextElementResolver = c.erd.nextElementResolver
+        nextElementResolver = e.erd.nextElementResolver
       }
       case a: DIArray => {
         end(a)

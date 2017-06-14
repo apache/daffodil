@@ -111,9 +111,6 @@ class JDOMInfosetInputter(doc: Document)
         ""
       }
 
-    // a call to getCurrentEventType will be the EndElement for this simple type
-    doStartEvent = false
-
     text
   }
 

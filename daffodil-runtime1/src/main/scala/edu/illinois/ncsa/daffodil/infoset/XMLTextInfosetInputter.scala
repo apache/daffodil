@@ -85,12 +85,26 @@ class XMLTextInfosetInputter(reader: java.io.Reader)
     (xsr, evAlloc)
   }
 
+  /**
+   * Used to force a StartElement event to occur even when xsr.getEventType
+   * would tell us to do an EndElement event. This is because getSimpleText
+   * moves the xsr to the end event without next() ever being called. So if
+   * getSimpleText is called, we set this to true to keep the current
+   * StartEvent until next() is called, at which point it is set back to false
+   * so the EndElement even is produced.
+   */
+  private var fakeStartEvent = false
+
   override def getEventType(): InfosetInputterEventType = {
-    xsr.getEventType() match {
-      case START_DOCUMENT => StartDocument
-      case END_DOCUMENT => EndDocument
-      case START_ELEMENT => StartElement
-      case END_ELEMENT => EndElement
+    if (fakeStartEvent) {
+      StartElement
+    } else {
+      xsr.getEventType() match {
+        case START_DOCUMENT => StartDocument
+        case END_DOCUMENT => EndDocument
+        case START_ELEMENT => StartElement
+        case END_ELEMENT => EndElement
+      }
     }
   }
 
@@ -116,6 +130,10 @@ class XMLTextInfosetInputter(reader: java.io.Reader)
         }
       }
     Assert.invariant(xsr.getEventType() == END_ELEMENT)
+    // getElementText moves the current event to the EndElement. We want to
+    // stay on StartElement until next is called. So set fakeStartEvent to true
+    // so that any calls to getEventType will return StartElement.
+    fakeStartEvent = true
     val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(txt)
     remapped
   }
@@ -146,10 +164,19 @@ class XMLTextInfosetInputter(reader: java.io.Reader)
   }
 
   override def next(): Unit = {
-    val next = nextTagOrEndDocument()
-    if (next == -1) {
-      // should not have been called, we finished
-      Assert.abort()
+    if (fakeStartEvent) {
+      // we are faking a StartElement event due to a call to getSimpleText. Now
+      // that we have called next() we need to return an EndElement event. The
+      // xsr is already on the end event for this element (due to
+      // getSimpleText), so all we need to to is flip the fakeStartEvent
+      // variable and we'll get the correct EndElement event
+      fakeStartEvent = false
+    } else {
+      val next = nextTagOrEndDocument()
+      if (next == -1) {
+        // should not have been called, we finished
+        Assert.abort()
+      }
     }
   }
 

@@ -83,10 +83,8 @@ abstract class InfosetInputter extends SInfosetInputter {
    * Get the content of a simple type. This will only be called when the
    * current event type is StartElement and the element is a simple type. If
    * the event contains complex data, it is an error and should throw
-   * NonTextFoundInSimpleContentException. Upon a successful return, a call to
-   * getEventType() should return EndElement for the simple type. If the
-   * element does not have any simple content, this should return either null
-   * or the empty string.
+   * NonTextFoundInSimpleContentException. If the element does not have any
+   * simple content, this should return either null or the empty string.
    */
   def getSimpleText(): String
 

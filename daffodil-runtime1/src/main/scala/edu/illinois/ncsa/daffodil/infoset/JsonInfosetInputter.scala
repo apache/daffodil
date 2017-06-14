@@ -66,11 +66,13 @@ class JsonInfosetInputter(reader: java.io.Reader)
   private val arrayNameStack = new MStackOf[String]()
 
   /**
-   * This library has no concept of an end event for simple types. So we set
-   * this flag to signifiy that after we see a simple type start, the next
-   * event needs to be the corresponding end event.
+   * The jackson library has no concept of an end event for values (which
+   * represent simple types and nilled complex types). So if we see a json
+   * value we use these flags to signifiy that the next event should become a
+   * fake element end for this value.
    */
-  private var fakeSimpleElementEnd = false
+  private var fakeElementEndEvent = false
+  private var nextEventShouldBeFakeEnd = false
 
   /**
    * Used to determine the depth of objects we've see so that we know when we
@@ -88,14 +90,18 @@ class JsonInfosetInputter(reader: java.io.Reader)
   }
 
   override def getEventType(): InfosetInputterEventType = {
-    if (fakeSimpleElementEnd) {
+    if (fakeElementEndEvent) {
       EndElement
     } else {
       jsp.getCurrentToken() match {
         case JsonToken.START_OBJECT => if (objectDepth == 1) StartDocument else StartElement
         case JsonToken.END_OBJECT => EndElement
-        case JsonToken.VALUE_STRING => StartElement
-        case JsonToken.VALUE_NULL => StartElement
+        case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => {
+          // we don't want to start faking element end yet, but signify that
+          // after a call to next(), we will want to fake it
+          nextEventShouldBeFakeEnd = true
+          StartElement
+        }
         case null => EndDocument
         case _ => Assert.impossible()
       }
@@ -119,10 +125,7 @@ class JsonInfosetInputter(reader: java.io.Reader)
     null
   }
 
-  // note that after a call to this, getEventType should return EndElement
-  // without a call to next(). We handle this by setting fakeSimpleElementEnd = true
   override def getSimpleText(): String = {
-    fakeSimpleElementEnd = true
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
     } else {
@@ -155,42 +158,45 @@ class JsonInfosetInputter(reader: java.io.Reader)
   }
 
   override def next(): Unit = {
-    if (fakeSimpleElementEnd) {
-      fakeSimpleElementEnd = false
-    }
+    if (nextEventShouldBeFakeEnd) {
+      nextEventShouldBeFakeEnd = false
+      fakeElementEndEvent = true
+    } else {
+      fakeElementEndEvent = false
 
-    var exitNow = false
-    while (!exitNow) {
-      getNextToken(jsp) match {
-        // for arrays, just store the name of the array. When we see an
-        // immediate child of an array (either START_OBJECT or VALUE_STRING),
-        // then we will use the array name as its name
-        case JsonToken.START_ARRAY => arrayNameStack.push(jsp.getCurrentName())  
-        case JsonToken.END_ARRAY => arrayNameStack.pop
+      var exitNow = false
+      while (!exitNow) {
+        getNextToken(jsp) match {
+          // for arrays, just store the name of the array. When we see an
+          // immediate child of an array (either START_OBJECT or VALUE_STRING),
+          // then we will use the array name as its name
+          case JsonToken.START_ARRAY => arrayNameStack.push(jsp.getCurrentName())
+          case JsonToken.END_ARRAY => arrayNameStack.pop
 
-        // start end of a complex type
-        case JsonToken.START_OBJECT => objectDepth += 1; exitNow = true
-        case JsonToken.END_OBJECT => objectDepth -= 1; exitNow = true
+          // start end of a complex type
+          case JsonToken.START_OBJECT => objectDepth += 1; exitNow = true
+          case JsonToken.END_OBJECT => objectDepth -= 1; exitNow = true
 
-        // start of a simple type or null
-        case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => exitNow = true
+          // start of a simple type or null
+          case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => exitNow = true
 
-        // skip field names, jackson makes these available via
-        // getCurrentName(), except for array elements
-        case JsonToken.FIELD_NAME =>
+          // skip field names, jackson makes these available via
+          // getCurrentName(), except for array elements
+          case JsonToken.FIELD_NAME =>
 
-        case _ => 
-          throw new IllegalContentWhereEventExpected("Unexpected json token '" + jsp.getText() + "' on line " + jsp.getTokenLocation().getLineNr())
+          case _ =>
+            throw new IllegalContentWhereEventExpected("Unexpected json token '" + jsp.getText() + "' on line " + jsp.getTokenLocation().getLineNr())
+        }
       }
-    }
 
-    if (objectDepth == 0) {
-      // We consumed the wrapper object, the nextToken should be null, which we
-      // use to signifity EndDocument and hasNext == false. Note that if
-      // nextToken does not return null, Daffodil will later call hasNext() to
-      // test if there are anymore events. It will return true and Daffodil
-      // will throw an error. So we do not need to check if this is null here.
-      getNextToken(jsp)
+      if (objectDepth == 0) {
+        // We consumed the wrapper object, the nextToken should be null, which we
+        // use to signifity EndDocument and hasNext == false. Note that if
+        // nextToken does not return null, Daffodil will later call hasNext() to
+        // test if there are anymore events. It will return true and Daffodil
+        // will throw an error. So we do not need to check if this is null here.
+        getNextToken(jsp)
+      }
     }
   }
 

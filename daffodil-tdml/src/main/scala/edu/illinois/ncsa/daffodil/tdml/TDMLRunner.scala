@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.tdml
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.StringWriter
+import java.io.StringReader
 import java.net.URI
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -87,9 +88,8 @@ import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
+import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -746,8 +746,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val testInfoset = optExpectedInfoset.get
 
     while (stillTesting) {
-      val out = new ScalaXMLInfosetOutputter()
-      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), out, testDataLength)
+      val outputter = new TDMLInfosetOutputter()
+      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), outputter, testDataLength)
 
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
@@ -774,7 +774,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         Some(new TDMLException(leftOverMsg))
       } else None
 
-      val resultXmlNode = out.getResult
+      val resultXmlNode = outputter.getResult
       VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset)
 
       (shouldValidate, expectsValidationError) match {
@@ -800,7 +800,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
 
-        val inputter = new ScalaXMLInfosetInputter(resultXmlNode)
+        val inputter = outputter.toInfosetInputter()
         val unparseResult = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
         if (unparseResult.isError) {
           val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
@@ -1924,4 +1924,167 @@ object UTF8Encoder {
     res
   }
 
+}
+
+
+class TDMLInfosetOutputter() extends InfosetOutputter {
+  private val jsonWriter = new StringWriter()
+  private val xmlWriter = new StringWriter()
+
+  private val scalaOut = new ScalaXMLInfosetOutputter()
+  private val jdomOut = new JDOMInfosetOutputter()
+  private val w3cdomOut = new W3CDOMInfosetOutputter()
+  private val jsonOut = new JsonInfosetOutputter(jsonWriter)
+  private val xmlOut = new XMLTextInfosetOutputter(xmlWriter)
+
+  private val outputters = Seq(xmlOut, scalaOut, jdomOut, w3cdomOut, jsonOut)
+
+  override def reset(): Unit = { outputters.foreach(_.reset()) }
+
+  override def startSimple(simple: DISimple): Boolean = {
+    if (!outputters.forall(_.startSimple(simple)))
+      throw new TDMLException("startSimple failed")
+    true
+  }
+
+  override def endSimple(simple: DISimple): Boolean = {
+    if (!outputters.forall(_.endSimple(simple)))
+      throw new TDMLException("endSimple failed")
+    true
+  }
+
+  override def startComplex(complex: DIComplex): Boolean = {
+    if (!outputters.forall(_.startComplex(complex)))
+      throw new TDMLException("startComplex failed")
+    true
+  }
+
+  override def endComplex(complex: DIComplex): Boolean = {
+    if (!outputters.forall(_.endComplex(complex)))
+      throw new TDMLException("endComplex failed")
+    true
+  }
+
+  override def startArray(array: DIArray): Boolean = {
+    if (!outputters.forall(_.startArray(array)))
+      throw new TDMLException("startArray failed")
+    true
+  }
+
+  override def endArray(array: DIArray): Boolean = {
+    if (!outputters.forall(_.endArray(array)))
+      throw new TDMLException("endArray failed")
+    true
+  }
+
+  override def startDocument(): Boolean = {
+    if (!outputters.forall(_.startDocument()))
+      throw new TDMLException("startDocument failed")
+    true
+  }
+
+  override def endDocument(): Boolean = {
+    if (!outputters.forall(_.endDocument()))
+      throw new TDMLException("endDocument failed")
+    true
+  }
+
+  def getResult() = scalaOut.getResult
+
+  def toInfosetInputter() = {
+    val scalaIn = new ScalaXMLInfosetInputter(scalaOut.getResult)
+    val jdomIn = new JDOMInfosetInputter(jdomOut.getResult)
+    val w3cdomIn = new W3CDOMInfosetInputter(w3cdomOut.getResult)
+    val jsonIn = new JsonInfosetInputter(new StringReader(jsonWriter.toString))
+    val xmlIn = new XMLTextInfosetInputter(new StringReader(xmlWriter.toString))
+    new TDMLInfosetInputter(scalaIn, Seq(jdomIn, w3cdomIn, jsonIn, xmlIn))
+  }
+}
+
+
+class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Seq[InfosetInputter]) extends InfosetInputter {
+
+  override def getEventType(): InfosetInputterEventType = {
+    val res = scalaInputter.getEventType()
+    if (!others.forall(_.getEventType() == res))
+      throw new TDMLException("getEventType does not match")
+    res
+  }
+
+  override def getLocalName(): String = {
+    val res = scalaInputter.getLocalName()
+    if (!others.forall(_.getLocalName() == res))
+      throw new TDMLException("getLocalName does not match")
+    res
+  }
+
+  override def getNamespaceURI(): String = {
+    val res = scalaInputter.getNamespaceURI()
+    val resIsEmpty = res == null || res == ""
+    val othersMatch = others.forall { i =>
+      if (!i.supportsNamespaces) {
+        true
+      } else {
+        val ns = i.getNamespaceURI()
+        val nsIsEmpty = ns == null || ns == ""
+        // some inputters return null for no namespace, some return empty
+        // string, we consider those the same
+        ns == res || (resIsEmpty && nsIsEmpty)
+      }
+    }
+    if (!othersMatch)
+      throw new TDMLException("getNamespaceURI does not match")
+    res
+  }
+
+  override def getSimpleText(): String = {
+    val res = scalaInputter.getSimpleText()
+    val resIsEmpty = res == null || res == ""
+    val othersmatch = others.forall { i =>
+      val st = i.getSimpleText()
+      val stIsEmpty = st == null || res == ""
+      val areSame = res == st || (resIsEmpty && stIsEmpty)
+      if (areSame) {
+        true
+      } else {
+        if (i.isInstanceOf[JsonInfosetInputter]) {
+          // the json infoset inputter maintains CRLF, but XML converts CRLF to
+          // LF. So if this is Json, then compare with the CRLF converted to LF
+          res == st.replace("\r\n", "\n")
+        } else {
+          false
+        }
+      }
+    }
+
+    if (!othersmatch)
+      throw new TDMLException("getSimpleText does not match")
+    res
+  }
+
+  override def isNilled(): MaybeBoolean = {
+    val res = scalaInputter.isNilled()
+    if (!others.forall(_.isNilled() == res))
+      throw new TDMLException("isNilled does not match")
+    res
+  }
+
+  override def hasNext(): Boolean = {
+    val res = scalaInputter.hasNext()
+    if (!others.forall(_.hasNext() == res))
+      throw new TDMLException("hasNext does not match")
+    res
+  }
+
+  override def next(): Unit = {
+    scalaInputter.next
+    others.foreach(_.next)
+  }
+
+  override def fini: Unit = {
+    scalaInputter.fini
+    others.foreach(_.fini)
+  }
+
+  override val supportsNamespaces = true
 }
