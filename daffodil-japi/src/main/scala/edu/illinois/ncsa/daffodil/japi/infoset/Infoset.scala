@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.infoset.InfosetInputterEventType
 import edu.illinois.ncsa.daffodil.infoset.DISimple
 import edu.illinois.ncsa.daffodil.infoset.DIComplex
 import edu.illinois.ncsa.daffodil.infoset.DIArray
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 /**
  * Abstract class used to determine how the infoset representation should be
@@ -86,7 +87,7 @@ abstract class InfosetInputter extends SInfosetInputter {
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
    */
-  def getSimpleText(): String
+  def getSimpleText(primType: NodeInfo.Kind): String
 
   /**
    * Determine if the current event is nilled. This will only be called when
@@ -330,7 +331,7 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def getEventType() = infosetInputter.getEventType()
   override def getLocalName() = infosetInputter.getLocalName()
   override def getNamespaceURI() = infosetInputter.getNamespaceURI()
-  override def getSimpleText() = infosetInputter.getSimpleText()
+  override def getSimpleText(primType: NodeInfo.Kind) = infosetInputter.getSimpleText(primType)
   override def hasNext() = infosetInputter.hasNext()
   override def isNilled() = infosetInputter.isNilled()
   override def next() = infosetInputter.next()

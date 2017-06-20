@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
@@ -94,7 +95,7 @@ abstract class InfosetInputter
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
    */
-  def getSimpleText(): String
+  def getSimpleText(primType: NodeInfo.Kind): String
 
   /**
    * Determine if the current event is nilled. This will only be called when
@@ -347,7 +348,7 @@ abstract class InfosetInputter
     if (erd.isSimpleType) {
       val txt =
         try {
-          getSimpleText()
+          getSimpleText(erd.optPrimType.get)
         } catch {
           case ex: NonTextFoundInSimpleContentException =>
             UnparseError(One(elem.erd.schemaFileLocation), Nope, ex.getMessage())

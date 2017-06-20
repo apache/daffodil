@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.infoset
 import edu.illinois.ncsa.daffodil.util.MStackOfBoolean
 import edu.illinois.ncsa.daffodil.util.Indentable
 import com.fasterxml.jackson.core.io.JsonStringEncoder
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   extends InfosetOutputter with Indentable {
@@ -103,9 +104,14 @@ class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     startNode()
     startElement(simple)
     if (!simple.isNilled) {
-      val escaped = stringEncoder.quoteAsString(simple.dataValueAsString) // escapes according to Json spec
+      val text =
+        if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+          new String(stringEncoder.quoteAsString(simple.dataValueAsString)) // escapes according to Json spec
+        } else {
+          simple.dataValueAsString
+        }
       writer.write('"')
-      writer.write(escaped)
+      writer.write(text)
       writer.write('"')
     } else {
       writer.write("null")

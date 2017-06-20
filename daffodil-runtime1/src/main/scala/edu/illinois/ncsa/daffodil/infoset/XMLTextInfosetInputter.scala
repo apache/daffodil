@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamConstants._
@@ -118,9 +119,7 @@ class XMLTextInfosetInputter(reader: java.io.Reader)
     xsr.getNamespaceURI()
   }
 
-  // note that after a call to this, getEventType should return END_ELEMENT
-  // without a call to next()
-  override def getSimpleText(): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     val txt =
       try {
         xsr.getElementText()
@@ -134,8 +133,11 @@ class XMLTextInfosetInputter(reader: java.io.Reader)
     // stay on StartElement until next is called. So set fakeStartEvent to true
     // so that any calls to getEventType will return StartElement.
     fakeStartEvent = true
-    val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(txt)
-    remapped
+    if (primType.isInstanceOf[NodeInfo.String.Kind]) {
+      XMLUtils.remapPUAToXMLIllegalCharacters(txt)
+    } else {
+      txt
+    }
   }
 
   override def isNilled(): MaybeBoolean = {

@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.infoset
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 import org.jdom2.Document
 import org.jdom2.Element
@@ -94,7 +95,7 @@ class JDOMInfosetInputter(doc: Document)
 
   override def getNamespaceURI(): String = stack.top._1.getNamespace.getURI
   
-  override def getSimpleText(): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next
@@ -106,7 +107,11 @@ class JDOMInfosetInputter(doc: Document)
           case t: Text => t.getText()
           case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.getQualifiedName)
         }
-        XMLUtils.remapPUAToXMLIllegalCharacters(text)
+        if (primType.isInstanceOf[NodeInfo.String.Kind]) {
+          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+        } else {
+          text
+        }
       } else {
         ""
       }

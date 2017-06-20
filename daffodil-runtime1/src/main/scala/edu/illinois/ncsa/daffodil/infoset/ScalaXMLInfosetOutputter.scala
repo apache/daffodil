@@ -38,6 +38,7 @@ import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputter
     with XMLInfosetOutputter {
@@ -69,24 +70,13 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
         scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name,
             XMLUtils.xmlNilAttribute, diSimple.erd.minimizedScope, true)
       } else if (diSimple.hasValue) {
-        val s = remapped(diSimple.dataValueAsString)
-        // At this point s contains only legal XML characters.
-        // However, since we're going to create actual XML documents here,
-        // we have to do escaping. There are two ways to do escaping.
-        // One is to convert &, <, >, and " to &amp; &lt; &gt; &quot;.
-        // The other is to wrap the contents in <![CDATA[ ...]]> brackets.
-        // For strings longer than a certain size, or with a large number of
-        // the characters requiring escaping,... CDATA is preferred.
-        //
-        // TODO: add some tunable option to control (a) PUA mapping or not
-        // (b) CDATA or escapify, or CDATA for things of some size, or we
-        // can put Daffodil specific annotations on the ERD e.g., daf:xmlEscapePolicy
-        // with options for single chars, CDATA, or and generate always or
-        // generate when needed. etc.
-        //
-        // Anyway... Constructing a Text node seems to automatically escapeify
-        // the supplied content.
-        val textNode = new scala.xml.Text(s)
+        val text =
+          if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+            remapped(diSimple.dataValueAsString)
+          } else {
+            diSimple.dataValueAsString
+          }
+        val textNode = new scala.xml.Text(text)
         scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name, Null,
             diSimple.erd.minimizedScope, true, textNode)
       } else {

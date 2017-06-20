@@ -32,6 +32,7 @@
 package edu.illinois.ncsa.daffodil.infoset
 
 import edu.illinois.ncsa.daffodil.util.Indentable
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.
@@ -86,15 +87,15 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     outputStartTag(simple, name)
 
     if (!simple.isNilled && simple.hasValue) {
-      // TODO: some quick and dirty performance testing shows that this remap
-      // and escape is somewhat expensive. This needs to be confirmed, but we
-      // should perhaps only do them if we first detect characters that either
-      // need to be remapped or escaped. This should make the common case of no
-      // weird characters faster. Or perhaps just need to rewrite them to be
-      // faster and combine the two functions. Need to confirm and profile
-      val s = remapped(simple.dataValueAsString)
-      val escaped = scala.xml.Utility.escape(s)
-      writer.write(escaped)
+      val text =
+        if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+          val s = remapped(simple.dataValueAsString)
+          scala.xml.Utility.escape(s)
+        } else {
+          simple.dataValueAsString
+        }
+
+      writer.write(text)
     }
 
     outputEndTag(simple, name)

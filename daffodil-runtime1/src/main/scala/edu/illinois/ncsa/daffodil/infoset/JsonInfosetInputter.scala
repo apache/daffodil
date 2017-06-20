@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.infoset
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.core.JsonParser
@@ -125,7 +126,7 @@ class JsonInfosetInputter(reader: java.io.Reader)
     null
   }
 
-  override def getSimpleText(): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
     } else {

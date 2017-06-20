@@ -90,6 +90,7 @@ import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -2037,11 +2038,11 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
     res
   }
 
-  override def getSimpleText(): String = {
-    val res = scalaInputter.getSimpleText()
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
+    val res = scalaInputter.getSimpleText(primType)
     val resIsEmpty = res == null || res == ""
     val othersmatch = others.forall { i =>
-      val st = i.getSimpleText()
+      val st = i.getSimpleText(primType)
       val stIsEmpty = st == null || res == ""
       val areSame = res == st || (resIsEmpty && stIsEmpty)
       if (areSame) {

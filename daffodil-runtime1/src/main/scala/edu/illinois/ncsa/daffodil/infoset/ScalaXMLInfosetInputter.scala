@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.infoset
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 import scala.xml.Elem
 import scala.xml.Text
@@ -86,7 +87,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
 
   override def getNamespaceURI(): String = stack.top._1.namespace
   
-  override def getSimpleText(): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next
@@ -97,7 +98,11 @@ class ScalaXMLInfosetInputter(rootNode: Node)
           case t: Text => t.data
           case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.label)
         }
-        XMLUtils.remapPUAToXMLIllegalCharacters(text)
+        if (primType.isInstanceOf[NodeInfo.String.Kind]) {
+          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+        } else {
+          text
+        }
       } else {
         ""
       }

@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -75,7 +76,13 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     val elem = createElement(diSimple)
 
     if (diSimple.hasValue) {
-      elem.appendChild(document.createTextNode(diSimple.dataValueAsString))
+      val text =
+        if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+          remapped(diSimple.dataValueAsString)
+        } else {
+          diSimple.dataValueAsString
+        }
+      elem.appendChild(document.createTextNode(text))
     }
 
     stack.top.appendChild(elem)

@@ -32,6 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.infoset
 
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+
 import org.jdom2.Document
 
 class JDOMSlowInfosetInputter(doc: Document)
@@ -48,7 +50,7 @@ class JDOMSlowInfosetInputter(doc: Document)
   override def getEventType() = xmlInfosetInputter.getEventType()
   override def getLocalName() = xmlInfosetInputter.getLocalName()
   override def getNamespaceURI() = xmlInfosetInputter.getNamespaceURI()
-  override def getSimpleText() = xmlInfosetInputter.getSimpleText()
+  override def getSimpleText(primType: NodeInfo.Kind) = xmlInfosetInputter.getSimpleText(primType)
   override def hasNext() = xmlInfosetInputter.hasNext()
   override def isNilled() = xmlInfosetInputter.isNilled()
   override def next() = xmlInfosetInputter.next()

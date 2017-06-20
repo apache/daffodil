@@ -305,12 +305,20 @@ object Misc {
     res
   }
 
-  def cvtByte(b: Byte): String = {
-    (if ((b & 0xff) < 0x10) "0" else "") + java.lang.Long.toString(b & 0xff, 16)
-  }
+  private val hexLookup = "0123456789ABCDEF".toArray
 
   def bytes2Hex(bytes: Array[Byte]): String = {
-    bytes.map(cvtByte(_)).mkString.toUpperCase
+    val hexArr = new Array[Char](bytes.length * 2)
+    var bytIdx = 0
+    var hexIdx = 0
+    while (bytIdx < bytes.length) {
+      val b = bytes(bytIdx) & 0xFF
+      hexArr(hexIdx) = hexLookup(b >>> 4)
+      hexArr(hexIdx + 1) = hexLookup(b & 0x0F)
+      bytIdx += 1
+      hexIdx += 2
+    }
+    new String(hexArr)
   }
 
   def bits2Bytes(bits: String): Array[Byte] =
