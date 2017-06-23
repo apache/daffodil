@@ -118,6 +118,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
+        case e: FNErrorException => false
         case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
       }

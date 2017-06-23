@@ -319,6 +319,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
       case e: NumberFormatException => doPE(e, state)
       case e: IllegalArgumentException => doPE(e, state)
       case e: ArithmeticException => doPE(e, state)
+      case e: FNErrorException => doPE(e, state)
       case th => throw th
     }
   }

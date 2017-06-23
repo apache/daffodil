@@ -33,6 +33,11 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.util.Maybe
+import Maybe._
 import edu.illinois.ncsa.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode
@@ -958,5 +963,35 @@ case class FNEndsWith(recipes: List[CompiledDPath])
 
     val res = sourceString.endsWith(postfixString)
     res
+  }
+}
+
+trait FNErrorException {
+  self: Diagnostic =>
+  def asDiagnostic = self
+}
+
+case class FNErrorMessage(schemaContext: Maybe[SchemaFileLocation], dataContext: Maybe[DataLocation], errorMessage: String)
+  extends ProcessingError("Expression Evaluation", schemaContext, dataContext, errorMessage)
+  with FNErrorException
+
+case class FNError(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
+  override def computeValue(values: List[Any], dstate: DState) = {
+    val maybeSFL =
+      if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
+      else Nope
+
+    val errorString =
+      if (values.isEmpty) "http://www.w3.org/2005/xqt-errors#FOER0000"
+      else values.mkString(". ")
+
+    dstate.mode match {
+      case UnparserNonBlocking | UnparserBlocking =>
+        UnparseError(maybeSFL, dstate.contextLocation, errorString)
+      case _ : ParserMode => {
+        val fe  = new FNErrorMessage(maybeSFL, dstate.contextLocation, errorString)
+        throw fe
+      }
+    }
   }
 }

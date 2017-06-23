@@ -54,4 +54,10 @@ class TestOutputValueCalcNew {
 
   @Test def test_OutputValueCalc_09() { runner.runOneTest("OutputValueCalc_09") }
   @Test def test_OutputValueCalc_10() { runner.runOneTest("OutputValueCalc_10") }
+
+  @Test def test_errorZeroArg() { runner.runOneTest("errorZeroArg") }
+  @Test def test_errorOneArg() { runner.runOneTest("errorOneArg") }
+  @Test def test_errorTwoArg() { runner.runOneTest("errorTwoArg") }
+  @Test def test_errorThreeArg() { runner.runOneTest("errorThreeArg") }
+
 }

@@ -292,6 +292,43 @@
 			dfdl:lengthKind="explicit" dfdl:representation="binary"
 			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="littleEndian" />
 
+		<xs:element name="err_01">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err1" type="xs:string"
+						dfdl:outputValueCalc="{fn:error()}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="err_02">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err1" type="xs:string"
+						dfdl:outputValueCalc="{fn:error('http://www.error.org')}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="err_03">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err1" type="xs:string"
+						dfdl:outputValueCalc="{fn:error('http://www.error.org', 'This is the error string')}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="err_04">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="val1" type="xs:string"/>
+					<xs:element name="err1" type="xs:string"
+						dfdl:outputValueCalc="{fn:error('http://www.error.org', 'This is the error string', ../ex:val1)}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
 	</tdml:defineSchema>
 
 	<tdml:unparserTestCase name="binaryIntegerBigEndian"
@@ -599,4 +636,90 @@
 		</tdml:document>
 	</tdml:unparserTestCase>
 
+	<tdml:unparserTestCase name="errorZeroArg"
+	    root="err_01" model="outputValueCalc-Embedded.dfdl.xsd"
+	    description="Simply calling fn:error() with zero arguments">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:err_01>
+					<err1>a</err1>
+				</ex:err_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>Unparse Error</tdml:error>
+			<tdml:error>xqt-errors#FOER0000</tdml:error>
+		</tdml:errors>
+	</tdml:unparserTestCase>
+
+	<tdml:unparserTestCase name="errorOneArg"
+	    root="err_02" model="outputValueCalc-Embedded.dfdl.xsd"
+	    description="Simply calling fn:error() with one argument">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:err_02>
+					<err1>a</err1>
+				</ex:err_02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	    <tdml:document />
+
+	    <tdml:errors>
+		    <tdml:error>Unparse Error</tdml:error>
+		    <tdml:error>http://www.error.org</tdml:error>
+	    </tdml:errors>
+
+    </tdml:unparserTestCase>
+
+	<tdml:unparserTestCase name="errorTwoArg"
+	    root="err_03" model="outputValueCalc-Embedded.dfdl.xsd"
+	    description="Simply calling fn:error() with two arguments">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:err_03>
+					<err1>a</err1>
+				</ex:err_03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	    <tdml:document />
+
+	    <tdml:errors>
+		    <tdml:error>Unparse Error</tdml:error>
+		    <tdml:error>http://www.error.org</tdml:error>
+		    <tdml:error>This is the error string</tdml:error>
+	    </tdml:errors>
+
+	</tdml:unparserTestCase>
+
+	<tdml:unparserTestCase name="errorThreeArg"
+	    root="err_04" model="outputValueCalc-Embedded.dfdl.xsd"
+	    description="Simply calling fn:error() with three arguments">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:err_04>
+					<val1>Error object</val1>
+					<err1>a</err1>
+				</ex:err_04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	    <tdml:document />
+
+	    <tdml:errors>
+		    <tdml:error>Unparse Error</tdml:error>
+		    <tdml:error>http://www.error.org</tdml:error>
+		    <tdml:error>This is the error string</tdml:error>
+		    <tdml:error>Error object</tdml:error>
+	    </tdml:errors>
+
+	</tdml:unparserTestCase>
 </tdml:testSuite>

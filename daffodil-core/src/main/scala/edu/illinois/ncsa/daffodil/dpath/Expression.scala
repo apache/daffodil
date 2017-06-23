@@ -1296,8 +1296,14 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "trace", DAF), args) =>
         DAFTraceExpr(functionQNameString, functionQName, args)
 
-      case (RefQName(_, "error", DAF), args) =>
+      case (RefQName(_, "error", DAF), args) => {
+        SDW("Expression daf:error is deprecated. Use fn:error instead")
         DAFErrorExpr(functionQNameString, functionQName, args)
+      }
+
+      case (RefQName(_, "error", FUNC), args) => {
+        FNErrorExpr(functionQNameString, functionQName, args)
+      }
 
       case (RefQName(_, "not", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
@@ -1629,6 +1635,10 @@ abstract class FunctionCallBase(functionQNameString: String,
     //
     SDE("The %s function requires at least %s argument(s).", functionQName.toPrettyString, n)
   }
+
+  final def argCountTooManyErr(n: Int) = {
+    SDE("The %s function requires no more than %s argument(s).", functionQName.toPrettyString, n)
+  }
 }
 
 /**
@@ -1931,6 +1941,20 @@ case class FNArgListExpr(nameAsParsed: String, fnQName: RefQName,
   override lazy val compiledDPath = {
     if (args.length < 1) argCountTooFewErr(1)
     new CompiledDPath(constructor(args.map { _.compiledDPath }) +: conversions)
+  }
+}
+
+case class FNErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Nothing
+
+  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = NodeInfo.String
+
+  override lazy val compiledDPath = {
+    if (args.length > 3) argCountTooManyErr(3)
+    Assert.invariant(conversions == Nil)
+    new CompiledDPath(FNError(args.map { _.compiledDPath }))
   }
 }
 
