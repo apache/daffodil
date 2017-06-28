@@ -72,14 +72,15 @@ trait ThrowsSDE {
 
   final def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 
-  final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: String, args: Any*) {
-    if (!testThatWillThrowIfFalse)
-      SDE(str, args: _*)
-  }
+  /***
+   * These functions are now macros as the original code:
+   * final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: => String, args: => Any*) =  if (!testThatWillThrowIfFalse) SDE(str, args: _*)
+   * would cause expensive object allocation, even when the
+   * test would be true and even when the function was inlined
+   */
+  final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionUnlessMacro
 
-  final def schemaDefinitionWhen(testThatWillThrowIfTrue: Boolean, str: String, args: Any*) {
-    schemaDefinitionUnless(!testThatWillThrowIfTrue, str, args: _*)
-  }
+  final def schemaDefinitionWhen(testThatWillThrowIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWhenMacro
 
   final def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
 
@@ -105,27 +106,25 @@ trait SavesErrorsAndWarnings {
 
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
 
-  def schemaDefinitionWarningUnless(testThatWillWarnIfFalse: Boolean, str: String, args: Any*) {
-    if (!testThatWillWarnIfFalse) SDW(str, args: _*)
-  }
+  /***
+   * These functions are now macros as the original code:
+   * final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: => String, args: => Any*) =  if (!testThatWillThrowIfFalse) SDE(str, args: _*)
+   * would cause expensive object allocation, even when the
+   * test would be true and even when the function was inlined
+   */
+  def schemaDefinitionWarningUnless(testThatWillWarnIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningUnlessMacro
 
   /**
    * Use this form if you need to be able to suppress the warning
    */
-  def schemaDefinitionWarningUnless(warnID: WarnID, testThatWillWarnIfFalse: Boolean, str: String, args: Any*) {
-    if (!testThatWillWarnIfFalse) SDW(warnID, str, args: _*)
-  }
+  def schemaDefinitionWarningUnless(warnID: WarnID, testThatWillWarnIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningUnlessSuppressMacro
 
-  def schemaDefinitionWarningWhen(testThatWillWarnIfTrue: Boolean, str: String, args: Any*) {
-    schemaDefinitionWarningUnless(!testThatWillWarnIfTrue, str, args: _*)
-  }
+  def schemaDefinitionWarningWhen(testThatWillWarnIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningWhenMacro
 
   /**
    * Use this form if you need to be able to suppress the warning
    */
-  def schemaDefinitionWarningWhen(warnID: WarnID, testThatWillWarnIfTrue: Boolean, str: String, args: Any*) {
-    schemaDefinitionWarningUnless(warnID, !testThatWillWarnIfTrue, str, args: _*)
-  }
+  def schemaDefinitionWarningWhen(warnID: WarnID, testThatWillWarnIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningWhenSuppressMacro
 
   /**
    * SDE special case when we're blaming the error on the value of a property.
