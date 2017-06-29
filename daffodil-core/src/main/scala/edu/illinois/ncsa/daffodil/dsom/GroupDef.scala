@@ -45,15 +45,12 @@ class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   def forGroupRef(gref: GroupRef, position: Int) = {
     trimmedXml match {
       case <group>{ contents @ _* }</group> => {
-        val guts = contents.collect { case e: scala.xml.Elem => e }
-        Assert.invariant(guts.length == 1)
-        guts(0) match {
-          case <sequence>{ _* }</sequence> =>
-            new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
-          case <choice>{ _* }</choice> =>
-            new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
-          case _ => Assert.invariantFailed("not a sequence or a choice.")
+        val ggd = contents.collect {
+          case <sequence>{ _* }</sequence> => new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
+          case <choice>{ _* }</choice> => new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
         }
+        Assert.invariant(ggd.length == 1)
+        ggd(0)
       }
       case _ => Assert.invariantFailed("not a group")
     }

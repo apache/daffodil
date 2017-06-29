@@ -1316,4 +1316,69 @@ A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
   </tdml:parserTestCase>
 
 
+  <tdml:defineSchema name="groupsWithAnnotations">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:group name="sequenceGroup">
+      <xs:annotation><xs:documentation>doc</xs:documentation></xs:annotation>
+      <!-- COMMENT -->
+      <xs:sequence>
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2" />
+        <xs:element name="stringy" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:group ref="ex:sequenceGroup" />
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="choiceGroup">
+      <xs:annotation><xs:documentation>doc</xs:documentation></xs:annotation>
+      <!-- COMMENT -->
+      <xs:choice>
+        <xs:element name="inty" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2" />
+        <xs:element name="stringy" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" />
+      </xs:choice>
+    </xs:group>
+
+    <xs:element name="e2" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:group ref="ex:choiceGroup" />
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="sequence_group_with_annotation_01" root="e1"
+    model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[10st]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>10</inty>
+          <stringy>st</stringy>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="choice_group_with_annotation_01" root="e2"
+    model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[st]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <stringy>st</stringy>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

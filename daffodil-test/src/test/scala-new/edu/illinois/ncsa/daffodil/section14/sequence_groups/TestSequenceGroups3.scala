@@ -58,4 +58,7 @@ class TestSequenceGroups3 {
   @Test def test_hiddenGroupSeqWithRequiredElements() { runner_02.runOneTest("hiddenGroupSeqWithRequiredElements") }
   @Test def test_hiddenGroupChoiceWithAllRequiredBranches() { runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
 
+  @Test def test_sequence_group_with_annotation_01() { runner_02.runOneTest("sequence_group_with_annotation_01") }
+  @Test def test_choice_group_with_annotation_01() { runner_02.runOneTest("choice_group_with_annotation_01") }
+
 }
