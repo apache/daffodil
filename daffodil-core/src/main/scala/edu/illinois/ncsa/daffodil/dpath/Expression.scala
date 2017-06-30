@@ -621,12 +621,7 @@ case class IfExpression(ifthenelse: List[Expression])
       this.targetType
   }
 
-  override lazy val inherentType = {
-    // we need the type which is the generalization of the thenPart and
-    // elsePart inherent types, but it's an error if they have no generalization.
-    //
-    NodeInfoUtils.generalizeIfThenElse(thenPart, elsePart)
-  }
+  override lazy val inherentType = targetType
 }
 
 case class OrExpression(ands: List[Expression])

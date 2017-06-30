@@ -136,4 +136,8 @@ class TestDFDLExpressionsNew {
   @Test def test_query_style_01 { runner4.runOneTest("query_style_01") }
   @Test def test_query_style_02 { runner4.runOneTest("query_style_02") }
 
+  // DFDL-1719
+  @Test def test_if_expression_type_01 { runner5.runOneTest("if_expression_type_01") }
+  @Test def test_if_expression_type_02 { runner5.runOneTest("if_expression_type_02") }
+  @Test def test_if_expression_type_03 { runner5.runOneTest("if_expression_type_03") }
 }

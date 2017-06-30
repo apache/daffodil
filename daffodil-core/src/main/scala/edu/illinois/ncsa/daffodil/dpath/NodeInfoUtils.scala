@@ -39,30 +39,6 @@ import NodeInfo._
 object NodeInfoUtils {
 
   /**
-   * Generalizes the type of the two alternatives of an if-then-else
-   */
-  def generalizeIfThenElse(thenExpr: Expression, elseExpr: Expression): NodeInfo.Kind = {
-    val a = thenExpr.inherentType
-    val b = elseExpr.inherentType
-    if (a == b) a
-    else if (a.isSubtypeOf(b)) b
-    else if (b.isSubtypeOf(a)) a
-    else
-      (a, b) match {
-        case (s: String.Kind, _) => String
-        case (_, s: String.Kind) => String
-        case (Float, Double) => Double
-        case (Double, Float) => Double
-        case (Decimal, Double) => Decimal
-        case (Double, Decimal) => Decimal
-        case (Boolean, bt: Numeric.Kind) => bt
-        case (bt: Numeric.Kind, Boolean) => bt
-        case (it: Long.Kind, ArrayIndex) => ArrayIndex
-        case _ => thenExpr.SDE("Static type error: expressions '%s' and '%s' have incompatible types %s and %s.", thenExpr.text, elseExpr.text, a, b)
-      }
-  }
-
-  /**
    * For a comparison operator, compute type to which the args should be converted
    */
   def generalizeArgTypesForComparisonOp(op: String,

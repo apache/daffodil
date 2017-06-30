@@ -72,6 +72,25 @@
     </xs:sequence>
    </xs:complexType>
   </xs:element>
+
+  <xs:element name="e2" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="arr" type="xs:unsignedByte" dfdl:length="2" dfdl:occursCountKind="expression"
+       dfdl:occursCount="{ if (../count eq 1) then ../count else 0 }" maxOccurs="unbounded" dfdl:alignmentUnits="bits"/>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e3" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ if (../count eq 1) then ../count div 0.75 else 0 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
   
   </tdml:defineSchema>
   
@@ -125,6 +144,48 @@
       <tdml:error>column</tdml:error>
       <tdml:error>../ex:f2</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_01" root="e2" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">0111</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2 xmlns:ex="http://example.com">
+          <count>1</count>
+          <arr>3</arr>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_02" root="e3" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3 xmlns:ex="http://example.com">
+          <count>1</count>
+          <ovc>1</ovc>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_03" root="e3" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3 xmlns:ex="http://example.com">
+          <count>2</count>
+          <ovc>0</ovc>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
  
 </tdml:testSuite>
