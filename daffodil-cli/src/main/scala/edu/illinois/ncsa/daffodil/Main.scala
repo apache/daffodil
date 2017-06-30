@@ -858,36 +858,6 @@ object Main extends Logging {
             if (parseResult.isError) {
               1
             } else {
-              // check for left over data (if we know the size up front, like for a file)
-              val hasLeftOverData = optDataSize match {
-                case Some(sz) => {
-                  if (!loc.isAtEnd) {
-                    log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", sz, loc)
-                    true
-                  } else false
-                }
-                case None => {
-                  // we need to look at the internal state of the parser inStream to
-                  // see how big it is. We do this after execution so as
-                  // not to traverse the data twice.
-                  val ps = parseResult.resultState.asInstanceOf[PState]
-                  val dis = ps.dataInputStream
-                  val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
-                  if (hasMoreData) {
-                    dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
-                    val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
-                    val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
-                    if (lengthInBytes > 0)
-                      log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
-                    else {
-                      // less than 1 byte is available
-                      log(LogLevel.Error, "Left over data. Less than one byte available. Location: %s", loc)
-                    }
-                    true
-                  } else false
-                }
-              }
-
               // only XMLTextInfosetOutputter and JsonInfosetOutputter write
               // directly to the writer. Other InfosetOutputters must manually
               // be converted to a string and written to the output
@@ -911,7 +881,37 @@ object Main extends Logging {
 
               writer.flush()
 
-              if (hasLeftOverData) 1 else 0
+              // check for left over data (if we know the size up front, like for a file)
+              optDataSize match {
+                case Some(sz) => {
+                  if (!loc.isAtEnd) {
+                    log(LogLevel.Warning, "Left over data. %s bytes available. Location: %s", sz, loc)
+                    true
+                  } else false
+                }
+                case None => {
+                  // we need to look at the internal state of the parser inStream to
+                  // see how big it is. We do this after execution so as
+                  // not to traverse the data twice.
+                  val ps = parseResult.resultState.asInstanceOf[PState]
+                  val dis = ps.dataInputStream
+                  val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
+                  if (hasMoreData) {
+                    dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
+                    val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
+                    val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
+                    if (lengthInBytes > 0)
+                      log(LogLevel.Warning, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
+                    else {
+                      // less than 1 byte is available
+                      log(LogLevel.Warning, "Left over data. Less than one byte available. Location: %s", loc)
+                    }
+                    true
+                  } else false
+                }
+              }
+
+              0
             }
           }
           case Some(processor) => 1
