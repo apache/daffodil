@@ -34,12 +34,12 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
 import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
+import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
@@ -64,7 +64,7 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the internal/body parser has completed.
  */
 class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
-  override val context: RuntimeData, bodyParser: Parser)
+                           override val context: RuntimeData, bodyParser: Parser)
   extends Parser {
 
   override lazy val childProcessors = List(bodyParser)
@@ -110,7 +110,7 @@ class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
  * cached, so upon exiting scope the cache must be invalidated.
  */
 class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
-  override val context: RuntimeData, bodyParser: Parser)
+                                override val context: RuntimeData, bodyParser: Parser)
   extends Parser {
 
   override lazy val childProcessors = Seq(bodyParser)
@@ -166,13 +166,12 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 }
 
 class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
-  extends ParserObject(rd)
-  with WithParseErrorThrowing {
+  extends ParserObject(rd) {
   override def nom = "ChoiceDispatch"
 
   override lazy val childProcessors = dispatchBranchKeyMap.values.toSeq
 
-  def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
+  def parse(pstate: PState): Unit = {
     val key = dispatchKeyEv.evaluate(pstate)
 
     val parserOpt = dispatchBranchKeyMap.get(key)

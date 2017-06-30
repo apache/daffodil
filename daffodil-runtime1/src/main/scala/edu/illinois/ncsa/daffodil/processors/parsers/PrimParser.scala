@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 trait PrimParser
   extends PrimProcessor
   with Parser
-  with WithParseErrorThrowing
 
 // Deprecated and to be phased out. Use the trait PrimParser instead.
 abstract class PrimParserObject(override val context: RuntimeData)

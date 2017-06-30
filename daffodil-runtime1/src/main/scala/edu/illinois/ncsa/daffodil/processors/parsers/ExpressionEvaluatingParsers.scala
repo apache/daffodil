@@ -32,13 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors._; import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dpath.ParserDiscriminatorNonBlocking
 import edu.illinois.ncsa.daffodil.dpath.ParserNonBlocking
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.infoset.InfosetSimpleElement
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 // import java.lang.{ Boolean => JBoolean }
 
@@ -48,7 +52,7 @@ import edu.illinois.ncsa.daffodil.infoset.InfosetSimpleElement
 abstract class ExpressionEvaluationParser(
   expr: CompiledExpression[AnyRef],
   rd: RuntimeData)
-  extends ParserObject(rd) with WithParseErrorThrowing {
+  extends ParserObject(rd) {
 
   override lazy val childProcessors = Nil
 
@@ -67,13 +71,11 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
   def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info)
     {
-      withParseErrorThrowing(start) {
-        log(LogLevel.Debug, "This is %s", toString)
-        val currentElement: InfosetSimpleElement = start.simpleElement
-        val res = eval(start)
-        if (start.status ne Success) return
-        currentElement.setDataValue(res)
-      }
+      log(LogLevel.Debug, "This is %s", toString)
+      val currentElement: InfosetSimpleElement = start.simpleElement
+      val res = eval(start)
+      currentElement.setDataValue(res)
+      if (start.status ne Success) return
     }
 }
 
@@ -81,16 +83,14 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
   extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): Unit = {
-    withParseErrorThrowing(start) {
-      log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
-      val res = eval(start)
-      res match {
-        case ps: PState => return ;
-        case _ => /*fall through*/ }
-      if (start.status.isInstanceOf[Failure]) return
-      // val vmap = start.variableMap
-      start.setVariable(decl, res, decl, start)
-    }
+    log(LogLevel.Debug, "This is %s", toString) // important. Don't toString unless we have to log.
+    val res = eval(start)
+    res match {
+      case ps: PState => return ;
+      case _ => /*fall through*/ }
+    if (start.status.isInstanceOf[Failure]) return
+    // val vmap = start.variableMap
+    start.setVariable(decl, res, decl, start)
   }
 }
 
@@ -122,38 +122,36 @@ class AssertExpressionEvaluationParser(
   def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info)
     {
-      withParseErrorThrowing(start) {
-        log(LogLevel.Debug, "This is %s", toString)
-        //
-        // This now informs us of the success/failure of the expression
-        // evaluation via side-effect on the start state passed here.
-        //
-        val res =
-          try {
-            if (discrim)
-              start.dState.setMode(ParserDiscriminatorNonBlocking)
-            eval(start)
-          } finally {
-            start.dState.setMode(ParserNonBlocking)
-          }
-        //
-        // a PE during evaluation of an assertion is a PE
-        //
-        // Removed this assert check because eval now side-effects start to
-        // contain the result status.
-        // Assert.invariant(!start.status.isInstanceOf[Failure])
-        //
-        // Assert.invariant(res != null)
-        if (start.status ne Success) return
-
-        val testResult = res.asInstanceOf[Boolean]
-        if (testResult) {
-          start.setDiscriminator(discrim)
-        } else {
-          // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
-          val diag = new AssertionFailed(decl.schemaFileLocation, start, msg)
-          start.setFailed(diag)
+      log(LogLevel.Debug, "This is %s", toString)
+      //
+      // This now informs us of the success/failure of the expression
+      // evaluation via side-effect on the start state passed here.
+      //
+      val res =
+        try {
+          if (discrim)
+            start.dState.setMode(ParserDiscriminatorNonBlocking)
+          eval(start)
+        } finally {
+          start.dState.setMode(ParserNonBlocking)
         }
+      //
+      // a PE during evaluation of an assertion is a PE
+      //
+      // Removed this assert check because eval now side-effects start to
+      // contain the result status.
+      // Assert.invariant(!start.status.isInstanceOf[Failure])
+      //
+      // Assert.invariant(res != null)
+      if (start.status ne Success) return
+
+      val testResult = res.asInstanceOf[Boolean]
+      if (testResult) {
+        start.setDiscriminator(discrim)
+      } else {
+        // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
+        val diag = new AssertionFailed(decl.schemaFileLocation, start, msg)
+        start.setFailed(diag)
       }
     }
 }

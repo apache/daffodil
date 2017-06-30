@@ -32,6 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
+import java.lang.{ Number => JNumber }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
 import scala.xml.NodeSeq.seqToNodeSeq
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
@@ -40,16 +43,12 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.infoset.DINode
 import edu.illinois.ncsa.daffodil.infoset.InfosetException
-import edu.illinois.ncsa.daffodil.processors.VariableException
+import edu.illinois.ncsa.daffodil.processors.CompileState
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.processors.VariableException
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import java.lang.{ Number => JNumber }
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
-import edu.illinois.ncsa.daffodil.processors.CompileState
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.CompileState
+import edu.illinois.ncsa.daffodil.util.Misc
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 

@@ -45,9 +45,8 @@ import edu.illinois.ncsa.daffodil.equality._
 import java.lang.{ Long => JLong }
 
 sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
-  erd: ElementRuntimeData)
+                                                erd: ElementRuntimeData)
   extends ParserObject(erd)
-  with WithParseErrorThrowing
   with CaptureParsingValueLength {
 
   override lazy val childProcessors = Seq(eParser)
@@ -58,12 +57,14 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
    * Computes number of bits in length. If an error occurs this should
    * modify the state to reflect a processing error.
    */
-  protected def getBitLength(s: PState): Long
+  protected def getBitLength(s: PState): MaybeULong
 
-  final def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
+  final def parse(pState: PState): Unit = {
 
-    val nBits = getBitLength(pState)
+    val maybeNBits = getBitLength(pState)
+
     if (pState.status _ne_ Success) return
+    val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
     val startingBitPos0b = dis.bitPos0b
@@ -105,7 +106,7 @@ class SpecifiedLengthPatternParser(
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
-  final override protected def getBitLength(s: PState): Long = {
+  final override protected def getBitLength(s: PState): MaybeULong = {
     val dis = s.dataInputStream
     val mark = dis.markPos
     withMatcher { m =>
@@ -118,7 +119,7 @@ class SpecifiedLengthPatternParser(
 
       dis.resetPos(mark)
       val length = endBitLimit - dis.bitPos0b
-      length
+      MaybeULong(length)
     }
   }
 }
@@ -130,10 +131,10 @@ class SpecifiedLengthExplicitParser(
   toBits: Int)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  final override def getBitLength(s: PState): Long = {
+  final override def getBitLength(s: PState): MaybeULong = {
     val nBytesAsAny = lengthEv.evaluate(s)
     val nBytes = Numbers.asLong(nBytesAsAny)
-    nBytes * toBits
+    MaybeULong(nBytes * toBits)
   }
 }
 
@@ -143,7 +144,7 @@ class SpecifiedLengthImplicitParser(
   nBits: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  final override def getBitLength(s: PState): Long = nBits
+  final override def getBitLength(s: PState): MaybeULong = MaybeULong(nBits)
 }
 
 /**
@@ -180,7 +181,7 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
 
   protected def getCharLength(s: PState): Long
 
-  final protected override def getBitLength(s: PState): Long = {
+  final protected override def getBitLength(s: PState): MaybeULong = {
     val nChars = getCharLength(s)
     //
     // TODO: Performance - if the encoding is an expression, but that
@@ -191,12 +192,13 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
     // the encoding is variable width.
     //
     val mBitLimit = maybeBitPosAfterNChars(s, nChars)
-    if (!mBitLimit.isDefined)
-      PE(s.schemaFileLocation, "%s - %s - Parse failed.  Failed to find exactly %s characters.",
+    if (!mBitLimit.isDefined) {
+      PE(s, "%s - %s - Parse failed.  Failed to find exactly %s characters.",
         this.toString(), erd.name, nChars)
-    else {
+      MaybeULong.Nope
+    } else {
       val bitLength = mBitLimit.get - s.bitPos0b
-      bitLength
+      MaybeULong(bitLength)
     }
   }
 }

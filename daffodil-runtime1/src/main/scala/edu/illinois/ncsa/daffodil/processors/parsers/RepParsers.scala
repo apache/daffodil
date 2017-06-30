@@ -32,19 +32,20 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
+import java.lang.{ Long => JLong }
+
 import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.util.Numbers
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import java.lang.{ Long => JLong }
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import edu.illinois.ncsa.daffodil.util.Numbers
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends ParserObject(context) {
@@ -291,11 +292,11 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
 }
 
 class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: ElementRuntimeData)
-  extends ParserObject(erd) with WithParseErrorThrowing {
+  extends ParserObject(erd) {
 
   override lazy val childProcessors = Nil
 
-  def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
+  def parse(pstate: PState): Unit = {
     val oc = occursCountEv.evaluate(pstate)
     val ocLong = Numbers.asLong(oc)
     if (ocLong < 0 ||

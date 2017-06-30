@@ -69,16 +69,17 @@ package edu.illinois.ncsa.daffodil.processors
  * Extensively modified - little of the original remains. - Mike Beckerle 2012.
  */
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.infoset.RetryableException
-import edu.illinois.ncsa.daffodil.processors.parsers.WithParseErrorThrowing
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 
 sealed abstract class VariableState extends Serializable
 
@@ -172,8 +173,7 @@ final class VariableBox(initialVMap: VariableMap) {
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  */
 class VariableMap private (vTable: Map[GlobalQName, List[List[Variable]]])
-  extends WithParseErrorThrowing
-  with Serializable {
+  extends Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
     this(topLevelVRDs.map {

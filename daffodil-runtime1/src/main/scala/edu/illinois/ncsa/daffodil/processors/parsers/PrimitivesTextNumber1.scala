@@ -84,7 +84,7 @@ case class ConvertTextNumberParser[S](
   e: ElementRuntimeData) extends PrimParserObject(e) {
   override def toString = "to(xs:" + helper.xsdType + ")"
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  def parse(start: PState): Unit = {
     val node: DISimple = start.simpleElement
     val str = node.dataValueAsString
 
@@ -180,7 +180,7 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
     // add '^' and '$' to require the regular expression to match the entire
     // string as a zero rep instead of just part of it
     val ignoreCaseStr = if (ignoreCase) "(?i)" else ""
-    val regex= (ignoreCaseStr + "^" + d.delimRegExParseDelim + "$").r
+    val regex = (ignoreCaseStr + "^" + d.delimRegExParseDelim + "$").r
     regex
   }
 }
@@ -414,12 +414,12 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String], ignore
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) extends Serializable {
 
   protected def checkUnique(decimalSepList: Maybe[List[Character]],
-    groupingSep: Maybe[Character],
-    exponentRep: Maybe[String],
-    infRep: Maybe[String],
-    nanRep: Maybe[String],
-    zeroRep: List[String],
-    context: ThrowsSDE) = {
+                            groupingSep: Maybe[Character],
+                            exponentRep: Maybe[String],
+                            infRep: Maybe[String],
+                            nanRep: Maybe[String],
+                            zeroRep: List[String],
+                            context: ThrowsSDE) = {
 
     import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
@@ -452,15 +452,15 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   }
 
   protected def generateNumFormat(decimalSepList: Maybe[List[Character]],
-    groupingSep: Maybe[Character],
-    exponentRep: String,
-    infRep: Maybe[String],
-    nanRep: Maybe[String],
-    checkPolicy: TextNumberCheckPolicy,
-    pattern: String,
-    rounding: TextNumberRounding,
-    roundingMode: Maybe[TextNumberRoundingMode],
-    roundingIncrement: MaybeDouble) = {
+                                  groupingSep: Maybe[Character],
+                                  exponentRep: String,
+                                  infRep: Maybe[String],
+                                  nanRep: Maybe[String],
+                                  checkPolicy: TextNumberCheckPolicy,
+                                  pattern: String,
+                                  rounding: TextNumberRounding,
+                                  roundingMode: Maybe[TextNumberRoundingMode],
+                                  roundingIncrement: MaybeDouble) = {
 
     val dfs = new DecimalFormatSymbols()
 
@@ -565,17 +565,17 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 // CachedDynamic hides this distinction (or should), as does CompiledExpression underneath that.
 
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
-  parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExpEv: Maybe[Evaluatable[List[String]]],
-  groupingSepExpEv: Maybe[Evaluatable[String]],
-  exponentRepExpEv: Evaluatable[String],
-  infRep: Maybe[String],
-  nanRep: Maybe[String],
-  checkPolicy: TextNumberCheckPolicy,
-  pattern: String,
-  rounding: TextNumberRounding,
-  roundingMode: Maybe[TextNumberRoundingMode],
-  roundingIncrement: MaybeDouble)
+                                   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
+                                   decimalSepExpEv: Maybe[Evaluatable[List[String]]],
+                                   groupingSepExpEv: Maybe[Evaluatable[String]],
+                                   exponentRepExpEv: Evaluatable[String],
+                                   infRep: Maybe[String],
+                                   nanRep: Maybe[String],
+                                   checkPolicy: TextNumberCheckPolicy,
+                                   pattern: String,
+                                   rounding: TextNumberRounding,
+                                   roundingMode: Maybe[TextNumberRoundingMode],
+                                   roundingIncrement: MaybeDouble)
   extends NumberFormatFactoryBase[S](parserHelper) {
   Assert.invariant((!decimalSepExpEv.isDefined || decimalSepExpEv.get.isConstant) &&
     (!groupingSepExpEv.isDefined || groupingSepExpEv.get.isConstant) &&
@@ -631,17 +631,17 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 }
 
 class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
-  parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExpEv: Maybe[Evaluatable[List[String]]],
-  groupingSepExpEv: Maybe[Evaluatable[String]],
-  exponentRepExpEv: Evaluatable[String],
-  infRep: Maybe[String],
-  nanRep: Maybe[String],
-  checkPolicy: TextNumberCheckPolicy,
-  pattern: String,
-  rounding: TextNumberRounding,
-  roundingMode: Maybe[TextNumberRoundingMode],
-  roundingIncrement: MaybeDouble)
+                                    parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
+                                    decimalSepExpEv: Maybe[Evaluatable[List[String]]],
+                                    groupingSepExpEv: Maybe[Evaluatable[String]],
+                                    exponentRepExpEv: Evaluatable[String],
+                                    infRep: Maybe[String],
+                                    nanRep: Maybe[String],
+                                    checkPolicy: TextNumberCheckPolicy,
+                                    pattern: String,
+                                    rounding: TextNumberRounding,
+                                    roundingMode: Maybe[TextNumberRoundingMode],
+                                    roundingIncrement: MaybeDouble)
   extends NumberFormatFactoryBase[S](parserHelper)
   with Dynamic {
 

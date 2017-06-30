@@ -971,7 +971,7 @@ trait FNErrorException {
   def asDiagnostic = self
 }
 
-case class FNErrorMessage(schemaContext: Maybe[SchemaFileLocation], dataContext: Maybe[DataLocation], errorMessage: String)
+case class FNErrorFunctionException(schemaContext: Maybe[SchemaFileLocation], dataContext: Maybe[DataLocation], errorMessage: String)
   extends ProcessingError("Expression Evaluation", schemaContext, dataContext, errorMessage)
   with FNErrorException
 
@@ -989,7 +989,7 @@ case class FNError(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
       case UnparserNonBlocking | UnparserBlocking =>
         UnparseError(maybeSFL, dstate.contextLocation, errorString)
       case _ : ParserMode => {
-        val fe  = new FNErrorMessage(maybeSFL, dstate.contextLocation, errorString)
+        val fe  = new FNErrorFunctionException(maybeSFL, dstate.contextLocation, errorString)
         throw fe
       }
     }

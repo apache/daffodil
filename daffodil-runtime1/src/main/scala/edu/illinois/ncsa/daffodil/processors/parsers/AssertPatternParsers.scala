@@ -55,21 +55,19 @@ abstract class AssertPatternParserBase(
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
   final def parse(start: PState): Unit = {
-    withParseErrorThrowing(start) {
-      val bytePos = (start.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
-      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
+    val bytePos = (start.bitPos >> 3).toInt
+    log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
+    log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-      log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
+    log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
-      val dis = start.dataInputStream
-      val mark = dis.markPos
-      withMatcher { m =>
-        val isMatch = dis.lookingAt(m)
-        afterParse(start, isMatch, m)
-      }
-      dis.resetPos(mark)
+    val dis = start.dataInputStream
+    val mark = dis.markPos
+    withMatcher { m =>
+      val isMatch = dis.lookingAt(m)
+      afterParse(start, isMatch, m)
     }
+    dis.resetPos(mark)
   }
 
   protected def afterParse(start: PState, isMatch: Boolean, matcher: Matcher): Unit

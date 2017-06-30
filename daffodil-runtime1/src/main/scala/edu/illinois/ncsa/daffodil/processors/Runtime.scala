@@ -74,6 +74,7 @@ import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
 import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -271,6 +272,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       case e: TunableLimitExceededError => {
         state.setFailed(e)
       }
+      case us: UnsuppressableException => throw us
+      case x: Throwable => Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
     }
 
     state.dataInputStream.validateFinalStreamState

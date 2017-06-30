@@ -34,17 +34,18 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util._
-import Maybe._
-import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Processor
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * This mixin for setting up all the characteristics of charset encoding
@@ -113,7 +114,35 @@ trait Parser
   final def parse1(pstate: PState): Unit = {
     Assert.invariant(isInitialized)
     if (pstate.dataProc.isDefined) pstate.dataProc.get.before(pstate, this)
-    parse(pstate)
+    try {
+      parse(pstate)
+    } catch {
+      /* 
+       * We only catch ParseError here as we expect the majority of
+       * exceptions to be handled internally. Parsers should call
+       * state.setFailed(exception).
+       * 
+       * When exceptions are necessary we expect them to be handled internally
+       * in DPath.scala and DPathRuntime where they are either converted to
+       * ParseError, SDE or rethrown (when necessary).
+       * 
+       * In DPath.scala there's a method called handleThrow which catches:
+       * InfosetException, VariableException, ExpressionEvaluationException,
+       * IllegalSTateException, NumberFormatException, ArithmeticException
+       * and FNErrorException.  Upon which we call handleCompileState or 
+       * doPE based upon the exception type. HandleCompileState further
+       * decides whether to doSDE, doPE or just call state.setFailed(e). Any
+       * other exception is simply rethrown.
+       * 
+       * In DPathRuntime.runExpressionForConstant there's a catch for
+       * InfosetException, VariableException, IllegalStateException,
+       * IndexOutOfBoundsException, IllegalArgumentException and
+       * FNErrorException that just returns false.  For ArithmeticException,
+       * NumberFormatException, SchemaDefinitionDiagnosticsBase and
+       * ProcessingError it throws a new SDE.
+       * */
+      case pe: ParseError => pstate.setFailed(pe)
+    }
     if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
   }
 

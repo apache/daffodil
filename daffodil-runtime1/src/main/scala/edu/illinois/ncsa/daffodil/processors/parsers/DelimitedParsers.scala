@@ -75,7 +75,7 @@ class StringDelimitedParser(
 
   }
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  def parse(start: PState): Unit = {
 
     // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
     //

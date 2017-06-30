@@ -39,7 +39,7 @@ class UnorderedSequenceParser(
   sortOrder: Seq[(String, org.jdom2.Namespace)],
   scalarMembers: Seq[(String, String, org.jdom2.Namespace)],
   uoSeqParser: Parser)
-  extends ParserObject(context) with WithParseErrorThrowing {
+  extends ParserObject(context) {
 
   override def nom = "UnorderedSequence"
   override lazy val childProcessors = Seq(uoSeqParser)
@@ -164,7 +164,7 @@ class UnorderedSequenceParser(
   //    })
   //  }
 
-  override def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  override def parse(start: PState): Unit = {
     ???
     //    val end = uoSeqParser.parse1(start)
     //    val currentElemAfter = end.parentElement.jdomElt.get
