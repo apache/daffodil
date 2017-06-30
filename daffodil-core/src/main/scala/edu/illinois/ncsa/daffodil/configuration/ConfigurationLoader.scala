@@ -53,18 +53,16 @@ import edu.illinois.ncsa.daffodil.api.URISchemaSource
  */
 object ConfigurationLoader {
 
-  val loader = new DaffodilXMLLoader()
-
-  def getConfiguration(uri: URI): Node = {
+  def getConfiguration(loader: DaffodilXMLLoader, uri: URI): Node = {
     Assert.usage(uri != null, "getConfiguration expects 'uri' to not be null!")
     val node = loader.load(new URISchemaSource(uri))
     scala.xml.Utility.trim(node)
   }
 
-  def getConfiguration(fileName: String): Node = {
+  def getConfiguration(loader: DaffodilXMLLoader, fileName: String): Node = {
     Assert.usage(fileName != null, "getConfiguration expects 'fileName' to not be null!")
     val f = new File(fileName)
-    getConfiguration(f.toURI)
+    getConfiguration(loader, f.toURI)
   }
 
 }

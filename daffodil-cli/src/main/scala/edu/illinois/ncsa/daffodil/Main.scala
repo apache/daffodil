@@ -600,7 +600,8 @@ object Main extends Logging {
    * @return The Node representation of the file.
    */
   def loadConfigurationFile(pathName: String) = {
-    val node = ConfigurationLoader.getConfiguration(pathName)
+    val loader = new DaffodilXMLLoader()
+    val node = ConfigurationLoader.getConfiguration(loader, pathName)
     node
   }
 

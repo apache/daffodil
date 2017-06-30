@@ -566,7 +566,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
           case None => None
           case Some(uri) => {
             // Read file, convert to definedConfig
-            val node = ConfigurationLoader.getConfiguration(uri)
+            val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
             val definedConfig = DefinedConfig(node, parent)
             Some(definedConfig)
           }
@@ -585,7 +585,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
           case (Some(definedConfig), None) => Some(definedConfig)
           case (None, Some(uri)) => {
             // Read file, convert to definedConfig
-            val node = ConfigurationLoader.getConfiguration(uri)
+            val node = ConfigurationLoader.getConfiguration(parent.loader, uri)
             val definedConfig = DefinedConfig(node, parent)
             Some(definedConfig)
           }
@@ -609,6 +609,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
+
+    // Remove this check when DFDL-1143 is fixed
+    if (tunables.size > 0) {
+      throw new TDMLException("Tunables in TDML tests can lead to unexpected and random behaviors, do not use them until this is fixed. Tunables set are: " + tunables.keys.mkString(", "))
+    }
     compiler.setTunables(tunables)
 
     val optInputOrExpectedData = document.map { _.data }

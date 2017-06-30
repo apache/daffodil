@@ -38,7 +38,7 @@ package edu.illinois.ncsa.daffodil.section00.general
 
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import org.junit.Test
+//import org.junit.Test
 
 object TestGeneralNew {
 
@@ -51,14 +51,15 @@ object TestGeneralNew {
 }
 
 class TestGeneralNew {
-  import TestGeneralNew._
+  //import TestGeneralNew._
 
   // TODO: DFDL-451 - After speaking with Mike B. about this we are putting this functionality on the backburner
   // until we can figure out the appropriate behavior here.
   //
   //@Test def test_check_escape_separator_distinct_fail() { runner.runOneTest("check_escape_separator_distinct_fail") }
 
-  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
-  @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
+  // DFDL-1143
+  //@Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
+  //@Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
 
 }
