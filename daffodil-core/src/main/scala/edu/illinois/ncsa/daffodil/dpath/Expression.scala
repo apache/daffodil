@@ -621,7 +621,17 @@ case class IfExpression(ifthenelse: List[Expression])
       this.targetType
   }
 
-  override lazy val inherentType = targetType
+  override lazy val inherentType = {
+    (thenPart.inherentType, elsePart.inherentType) match {
+      case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
+        NodeInfoUtils.generalizeArgAndResultTypesForNumericOp(op, left, right)._2
+      case (left, right) if left == right => left
+      case (left, right) if right == NodeInfo.Nothing => left
+      case (left, right) if left == NodeInfo.Nothing => right
+      case (left, right) =>
+        SDE("If-expression branches must have similar types, but were %s and %s ", left, right)
+    }
+  }
 }
 
 case class OrExpression(ands: List[Expression])

@@ -91,7 +91,25 @@
     </xs:sequence>
    </xs:complexType>
   </xs:element>
-  
+
+  <xs:element name="e4" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else 0) + 6 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e5" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else '0') + 6 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
   </tdml:defineSchema>
   
  <tdml:parserTestCase
@@ -186,6 +204,46 @@
         </ex:e3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_04" root="e4" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <count>2</count>
+          <ovc>11</ovc>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_05" root="e4" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <count>1</count>
+          <ovc>12</ovc>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_06" root="e5" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>If-expression branches must have similar types</tdml:error>
+      <tdml:error>Double</tdml:error>
+      <tdml:error>String</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
  
 </tdml:testSuite>

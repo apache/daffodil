@@ -140,4 +140,7 @@ class TestDFDLExpressionsNew {
   @Test def test_if_expression_type_01 { runner5.runOneTest("if_expression_type_01") }
   @Test def test_if_expression_type_02 { runner5.runOneTest("if_expression_type_02") }
   @Test def test_if_expression_type_03 { runner5.runOneTest("if_expression_type_03") }
+  @Test def test_if_expression_type_04 { runner5.runOneTest("if_expression_type_04") }
+  @Test def test_if_expression_type_05 { runner5.runOneTest("if_expression_type_05") }
+  @Test def test_if_expression_type_06 { runner5.runOneTest("if_expression_type_06") }
 }
