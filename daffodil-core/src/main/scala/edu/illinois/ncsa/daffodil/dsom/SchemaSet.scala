@@ -435,7 +435,7 @@ final class SchemaSet(
    */
   private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String, sdoc: SchemaDocument) = {
     val dfv = new DFDLDefineVariable(
-      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, sdoc) {
+      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } external="true" xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, sdoc) {
       override lazy val namespace = NS(nsURI)
       override lazy val targetNamespace = NS(nsURI)
     }

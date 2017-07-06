@@ -273,5 +273,16 @@
       <tdml:error>encoding</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="badElementFormProperty" root="badElementFormProperty"
+    model="property_syntax.dfdl.xsd" description="element form - DFDL-7-022R. Tests an invalidly placed dfdl:property annotation.">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:property</tdml:error>
+      <tdml:error>annotation element</tdml:error>
+      <tdml:error>badElementFormProperty</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

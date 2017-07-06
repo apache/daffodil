@@ -3,8 +3,15 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
   defaultRoundTrip="true">
-
+  
+  <tdml:defineConfig name="littleEndian">
+    <daf:externalVariableBindings>
+	  <daf:bind name="dfdl:byteOrder">littleEndian</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+  
   <!--
     Test name: pcap_test_tcp_ecn
        Schema: pcap.dfdl.xsd
@@ -25442,7 +25449,7 @@
   -->
 
   <tdml:parserTestCase name="pcap_test_dns" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test">
+    model="pcap.dfdl.xsd" description="pcap test" config="littleEndian">
     <tdml:document>
       <tdml:documentPart type="file">dns.cap</tdml:documentPart>
     </tdml:document>
@@ -27221,7 +27228,7 @@
   -->
 
   <tdml:parserTestCase name="pcap_test_http_ipv6" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test">
+    model="pcap.dfdl.xsd" description="pcap test" config="littleEndian">
     <tdml:document>
       <tdml:documentPart type="file">http.ipv6.cap</tdml:documentPart>
     </tdml:document>
@@ -27733,7 +27740,7 @@
   -->
 
   <tdml:parserTestCase name="pcap_test_icmp" root="PCAP"
-    model="pcap.dfdl.xsd" description="pcap test">
+    model="pcap.dfdl.xsd" description="pcap test" config="littleEndian">
     <tdml:document>
       <tdml:documentPart type="file">icmp.cap</tdml:documentPart>
     </tdml:document>
@@ -28119,7 +28126,7 @@
   
    <tdml:unparserTestCase name="pcap_test_icmp_unparse1" root="PCAP"
     model="pcap.dfdl.xsd" description="pcap test" 
-    roundTrip="true">
+    roundTrip="true" config="littleEndian">
     <tdml:document>
       <tdml:documentPart type="file">icmp1.cap</tdml:documentPart>
     </tdml:document>

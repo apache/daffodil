@@ -132,11 +132,13 @@ The message root is 'PCAP'.
                                  test="{ (xs:string(.) eq 'A1B2C3D4') or (xs:string(.) eq 'D4C3B2A1') }" />
                     <dfdl:setVariable ref="pcap:ByteOrder" value="{ if (xs:string(.) eq 'A1B2C3D4') then 'bigEndian' else 'littleEndian' }" />
                     <!-- We depend on external variable $dfdl:byteOrder to specify what the output's byte order should be. -->
-                    <dfdl:property name="outputValueCalc"><![CDATA[{
-                      if ($dfdl:byteOrder eq 'bigEndian') 
-                        then xs:hexBinary('A1B2C3D4') 
-                        else xs:hexBinary('D4C3B2A1')
-                    }]]></dfdl:property>
+                    <dfdl:element>
+                      <dfdl:property name="outputValueCalc"><![CDATA[{
+                        if ($dfdl:byteOrder eq 'bigEndian') 
+                          then xs:hexBinary('A1B2C3D4') 
+                          else xs:hexBinary('D4C3B2A1')
+                      }]]></dfdl:property>
+                    </dfdl:element>
                   </xs:appinfo>
                 </xs:annotation>
               </xs:element>

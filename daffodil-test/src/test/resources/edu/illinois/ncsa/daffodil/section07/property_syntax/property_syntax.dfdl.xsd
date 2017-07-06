@@ -74,5 +74,19 @@
             dfdl:lengthKind="delimited" 
             dfdl:encoding="ASCII" 
             dfdl:textNumberPattern="##0" />
-  
+            
+            
+            
+     <xs:element name="badElementFormProperty" type="xs:int">
+        <xs:annotation>
+          <xs:documentation><![CDATA[ 
+            Example of a User mistake. They forgot that element form property
+            syntax must be contained within dfdl:element.
+            JIRA DFDL-1722
+          ]]></xs:documentation> 
+          <xs:appinfo source="http://www.ogf.org/dfdl/" > 
+               <dfdl:property name="representation">text</dfdl:property>      
+           </xs:appinfo>
+        </xs:annotation> 
+      </xs:element>
 </xs:schema>

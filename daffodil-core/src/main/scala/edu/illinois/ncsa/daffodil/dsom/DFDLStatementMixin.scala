@@ -59,7 +59,8 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
       // property element annotations aren't "statements" so we don't want them back from this
       // and in fact can't construct them here without causing trouble (circular definitions)
       //
-      case <dfdl:property>{ _* }</dfdl:property> => None
+      case <dfdl:property>{ _* }</dfdl:property> =>
+        SDE("A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. ")
       case _ => SDE("Invalid DFDL annotation found: %s", node)
     }
   }
