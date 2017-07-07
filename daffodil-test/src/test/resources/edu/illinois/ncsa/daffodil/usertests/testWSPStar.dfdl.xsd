@@ -49,7 +49,7 @@ xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" >
         This DFDL schema models JSON in a non-recursive fashion.  It handles 5 levels of data.
     -->
 
-  <xsd:element name="Json" dfdl:lengthKind="endOfParent">
+  <xsd:element name="Json" dfdl:lengthKind="implicit">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name="Structure" minOccurs="1" maxOccurs="500">

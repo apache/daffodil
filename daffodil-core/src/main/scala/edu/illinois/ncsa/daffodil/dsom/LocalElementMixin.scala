@@ -83,7 +83,8 @@ trait LocalElementMixin
         else if (representation =:= Representation.Binary) true
         else false
       }
-      case LengthKind.EndOfParent => ??? // not yet implemented.
+      case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
+      case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
     }
     res
   }.value
