@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="ASCII"?>
+<?xml-stylesheet type="text/xsl" href="DFDLTutorialStylesheet.xsl"?>
+<tdml:testSuite 
+  suiteName="Bug Report TDML Template" 
+  description="Illustration of TDML for bug reporting."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:ex="http://example.com" 
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" 
+  xmlns="http://www.w3.org/1999/xhtml" 
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd"
+  defaultRoundTrip="false">
+  
+  <!-- 
+  This example TDML file is for a self-contained bug report. 
+  
+  It shows a parse test, and similar unparse test.
+  -->
+
+  <tdml:defineSchema name="bug01Schema" elementFormDefault="unqualified">
+
+   <xs:import 
+     namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" /> 
+     
+    <dfdl:defineFormat name="myFormat">
+      <dfdl:format  ref="gpf:GeneralPurposeFormat"
+      lengthKind="implicit" 
+        representation="text" 
+        encoding="ASCII" 
+        initiator="" 
+        terminator="" 
+        separator="" />
+    </dfdl:defineFormat>
+ 
+    <dfdl:format ref="ex:myFormat" />
+
+    <xs:element name="myTestRoot" type="xs:dateTime" 
+      dfdl:calendarPattern="MM.dd.yyyy 'at' HH:mm:ssZZZZZ" 
+      dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="delimited" 
+      dfdl:terminator="%NL;" />
+ 
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="dateTimeTest" root="myTestRoot" model="bug01Schema" 
+    description="A hypothetical bug illustration about parsing a date time.">
+   
+   <tdml:document>
+     <tdml:documentPart type="text" 
+     replaceDFDLEntities="true"><![CDATA[04.02.2013 at 14:00:56 GMT-05:00%LF;]]></tdml:documentPart>
+   </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+     
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseDateTimeTest" root="myTestRoot" model="bug01Schema" 
+    description="Another bug illustration, this time unparsing direction.">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+   <tdml:document>
+     <tdml:documentPart type="text" 
+       replaceDFDLEntities="true"><![CDATA[04.02.2013 at 14:00:56-05:00%CR;%LF;]]></tdml:documentPart>
+   </tdml:document>
+       
+   </tdml:unparserTestCase>
+   
+</tdml:testSuite>

@@ -40,9 +40,15 @@ object TestTutorials {
   val runner1 = Runner("/", "bitorder.tutorial.tdml.xml")
   val runner2 = Runner("/", "test1.tutorial.tdml.xml")
   val runner3 = Runner("/", "testTDMLTutorialFile2.tutorial.tdml.xml")
+  val runner4 = Runner("/", "tdmlTutorial.tdml.xml")
+  val runner5 = Runner("/", "bugReportTemplate.tdml")
 
   @AfterClass def shutDown {
     runner1.reset
+    runner2.reset
+    runner3.reset
+    runner4.reset
+    runner5.reset
   }
 
 }
@@ -59,5 +65,11 @@ class TestTutorials {
   @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
+
+  @Test def test_bugReportParse1() { runner4.runOneTest("dateTimeTest") }
+  @Test def test_bugReportUnparse1() { runner4.runOneTest("unparseDateTimeTest") }
+
+  @Test def test_bugReportTemplateParse1() { runner5.runOneTest("dateTimeTest") }
+  @Test def test_bugReportTemplateUnparse1() { runner5.runOneTest("unparseDateTimeTest") }
 
 }

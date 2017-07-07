@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="ASCII"?>
+<?xml-stylesheet type="text/xsl" href="DFDLTutorialStylesheet.xsl"?>
+<tdml:testSuite suiteName="A TDML Tutorial" description="Illustration of how to test DFDL schemas, and also how to report a bug using TDML."
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xml="http://www.w3.org/XML/1998/namespace"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" xmlns="http://www.w3.org/1999/xhtml"
+  xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData tdml.xsd" defaultRoundTrip="true">
+
+
+  <tdml:tutorial xml:space="preserve"><p>
+This file is an example of a self-contained test described in a TDML file.
+<br />
+These are easily run using the Daffodil command line interface (CLI).
+<br />
+A TDML file is actually a test suite of tests, and we include two here. One
+is a parser test case, the other an unparser test case.
+<br />
+The file root element is tdml:testSuite which contains namespace prefix
+definitions (several are generally needed), and other important attributes:
+</p>
+<dl>
+<dt>defaultRoundTrip</dt>
+<dd>by default a parse test will be run "round trip"
+meaning both a parse and unparse will be done. If false or omitted
+a parse test will only parse, an unparse test will only unparse, though
+this may be controlled on a test-by-test basis with the roundTrip 
+attribute of parserTestCase and unparserTestCase elements.</dd>
+<dt>defaultConfig</dt>
+<dd>gives the name of a defined configuration, which can bind
+external variables, or set tunable parameters. This can also be controlled
+on a test-by-test basis with the config attribute of the parserTestCase
+and unparserTestCase elements.</dd>
+</dl>
+<p>
+We begin below by defining a DFDL schema directly in our TDML file.
+<br />
+Use defineSchema to include a DFDL schema directly inside the TDML file.
+You can alternatively put the DFDL schema in a separate file if you prefer.
+<br />
+The target namespace of these named defineSchemas will be http://example.com which is
+bound to the prefix "ex" above.
+<br />    
+Each defineSchema has a name, so that one TDML file can contain tests which reference
+different DFDL schemas.
+ <br />
+To embed a schema inside the TDML you don't include the xs:schema element from
+the schema file, nor do you need to wrap the top-level DFDL annotation objects with
+xs:annotation and xs:appinfo.
+<br />
+In other words, inside a defineSchema you can directly put:
+dfdl:defineFormat, dfdl:defineEscapeSchema,
+dfdl:format (for the default format), xs:element, xs:simpleType, xs:complexType, xs:group,
+xs:import, or xs:include.
+<br />    
+It is common for a TDML file to contain an embedded schema which includes or 
+imports other DFDL schemas that are in files.
+<br />        
+Our embedded DFDL schema begins with a named format definition - notice no 
+surrounding xs:annotation nor xs:appinfo
+<br />
+We reference a useful starting point format definition provided to the DFDL 
+community by IBM. (It is built into the Daffodil software.)
+</p></tdml:tutorial>
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+
+    <dfdl:defineFormat name="myDefaults">
+      <dfdl:format lengthKind="implicit" representation="text" encoding="ASCII" initiator="" terminator="" separator=""
+    ref="gpf:GeneralPurposeFormat" />
+    </dfdl:defineFormat>
+ 
+    <!--
+    The dfdl:format annotation puts the above format definition into use
+    for tests that use this defined schema.
+     -->
+
+    <dfdl:format ref="ex:myDefaults" />
+
+    <!-- 
+    Include the format we reference from myDefaults. IBM provided this
+    nice one as a good starting point.
+     -->
+
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" /> 
+ 
+    <!-- 
+    Now imagine we are reporting a bug with date/time functionality, and
+    this element exercises the feature of concern.
+     -->
+
+    <xs:element name="myTestRoot" type="xs:dateTime" dfdl:calendarPattern="MM.dd.yyyy 'at' HH:mm:ssZZZZZ" dfdl:calendarPatternKind="explicit"
+    dfdl:lengthKind="delimited" dfdl:terminator="%NL;" />
+ 
+  </tdml:defineSchema>
+
+  <tdml:tutorial xml:space="preserve">
+ <h1>Parser Test Cases</h1><p>
+ Here is a test case that exercises the above schema.
+ <br />
+ A single TDML file can contain many test cases like the one below. 
+ <br />
+ You must give the name of the model (aka the schema), that can be the name of a
+ schema defined immediately in this file like above, or a file name.
+ <br />
+ You must also give the name of the root element that the test will use.
+ <br />  
+ Because the tdml:testSuite element has defaultRoundTrip="true" this "parser" 
+ test case will actually test parsing and unparsing, but as it is a parser
+ test case, it begins with parsing the data to an infoset, then unparses it
+ and checks that it gets back the original data. 
+ </p></tdml:tutorial>
+
+  <tdml:parserTestCase name="dateTimeTest" root="myTestRoot" model="s1" 
+    description="Test of date/time. Runs round trip (parse and unparse) because that is the default for this test suite.">
+
+    <tdml:tutorial xml:space="preserve"><p>
+The data for your test is given by the tdml:document element, which optionally 
+contains tdml:documentPart elements. A tdml:documentPart can be of type "text", 
+"bytes" or "bits". 
+<br />
+Notice specifically the use of the CDATA bracketing of the data in the TDML 
+file. This insures that no unintended whitespace gets inserted around your data.
+<br /> 
+DFDL Character Entities can be used in textual data. (See the %LF; in there), if the 
+attribute 'replaceDFDLEntities', a boolean, is true. 
+<br />  
+There are ways to do binary data in hexadecimal, and even bit by bit, and
+even mixtures of text and binary data.
+<br /> 
+For this example we'll just look at a simple textual data document.
+</p></tdml:tutorial>
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[04.02.2013 at 14:00:56 GMT-05:00%LF;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:tutorial xml:space="preserve"><p>
+ The infoset element gives the expected infoset, expressed as an XML fragment.
+ </p></tdml:tutorial>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset><!--Always need this extra tdml:dfdlInfoset element as well -->
+        <!--
+         Here is our actual expected result, where the date and time
+         is now in XML's cannonical representation for these.
+        -->
+        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+     
+  <!-- end of the test case -->
+  </tdml:parserTestCase>
+
+  <tdml:tutorial xml:space="preserve">
+<h1>Unparser Test Cases</h1><p>
+This is how unparser tests work.
+<br />
+Note the use of the roundTrip="false" attribute to override the
+defaultRoundTrip="true" that was set on the tdml:testSuite element.
+<br />
+So this test will unparse only, and not attempt to use the same schema to
+parse the data.
+</p></tdml:tutorial>
+
+  <tdml:unparserTestCase name="unparseDateTimeTest" root="myTestRoot" model="s1" description="date time issue, unparser"
+    roundTrip="false">
+
+    <tdml:tutorial xml:space="preserve"><p>
+For an unparser test, the incoming data is the infoset element.
+<br />   
+The data for your test is what is expected as output of the unparse.
+<br />
+The infoset element gives the expected infoset, expressed as an XML fragment.
+In an unparser test, it is normally written first, with the data document
+second. The order doesn't actually matter.
+</p></tdml:tutorial>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:myTestRoot>2013-04-02T14:00:56.000000-05:00</ex:myTestRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[04.02.2013 at 14:00:56-05:00%CR;%LF;]]></tdml:documentPart>
+    </tdml:document>
+       
+   <!-- end of the test case -->
+  </tdml:unparserTestCase>
+   
+  <!-- end of the whole TDML file -->
+</tdml:testSuite>

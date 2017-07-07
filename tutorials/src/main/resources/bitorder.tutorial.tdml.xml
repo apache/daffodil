@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="DFDLTutorialStylesheet.xsl"?>
-<tdml:testSuite description="Understanding dfdl:bitOrder" suiteName="bitorder tutorial" 
+<tdml:testSuite suiteName="Understanding dfdl:bitOrder" 
 xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 

@@ -15,9 +15,22 @@
     </p>
   </xsl:template>
   
-  <xsl:template match="tdml:testSuite//tdml:document[@tdml:tutorialInclude='no']"/>
-  <xsl:template match="tdml:testSuite//tdml:document[not(@tdml:tutorialInclude)]">
-    
+ <xsl:template match="tdml:testSuite/tdml:parserTestCase[@tdml:tutorialInclude='no']"/>
+  <xsl:template match="tdml:testSuite/tdml:parserTestCase[not(@tdml:tutorialInclude)]">
+       <h2>Parse Test: <xsl:value-of select="@name"/></h2>
+    <p><xsl:value-of select="@description"/></p>
+    <xsl:apply-templates select="*"/>
+  </xsl:template>
+  
+  <xsl:template match="tdml:testSuite/tdml:unparserTestCase[@tdml:tutorialInclude='no']"/>
+  <xsl:template match="tdml:testSuite/tdml:unparserTestCase[not(@tdml:tutorialInclude)]">
+    <h2>Unparse Test: <xsl:value-of select="@name"/></h2>
+    <p><xsl:value-of select="@description"/></p>
+    <xsl:apply-templates select="*"/>
+  </xsl:template>
+  
+  <xsl:template match="tdml:document[@tdml:tutorialInclude='no']"/>
+  <xsl:template match="tdml:document[not(@tdml:tutorialInclude)]">
     <b>Data Stream:</b>
     <table>
       <tr>
@@ -34,10 +47,10 @@
   </xsl:template>
   
 
-  <xsl:template match="tdml:testSuite//tdml:infoset[@tdml:tutorialInclude='no']"/>
-  <xsl:template match="tdml:testSuite//tdml:infoset[not(@tdml:tutorialInclude)]">
+  <xsl:template match="tdml:infoset[@tdml:tutorialInclude='no']"/>
+  <xsl:template match="tdml:infoset[not(@tdml:tutorialInclude)]">
     <xsl:variable name="nodestring">
-      <xsl:apply-templates select="." mode="serialize"/>
+      <xsl:apply-templates select="./tdml:dfdlInfoset/*" mode="serialize"/>
     </xsl:variable>
     <b>Infoset:</b>
     <table>
@@ -82,7 +95,7 @@
   </xsl:template>
 
 <!-- These match nodes containing the don't include in tutorial indicator, and 
-     also, all-whitespace nodes that preceed them. -->
+     also, all-whitespace nodes that precede them. -->
      
  <xsl:template mode="serialize"  match="text()[string-length(translate(., ' &#9;&#xA;&#xD;', '')) = 0 and
     following-sibling::node()[1][@tdml:tutorialInclude='no']]"/>
@@ -127,7 +140,7 @@
           li.L8 { background: #f5f5f5 }
         </style>
         <title>
-          <xsl:value-of select="tdml:testSuite/@description"/>
+          <xsl:value-of select="tdml:testSuite/@suiteName"/>
         </title>
       </head>
       <body id="main">
@@ -138,13 +151,8 @@
           <div id="headerText">
             <hr/>
             <h1>
-              <xsl:value-of select="tdml:testSuite/@description"/>
+              <xsl:value-of select="tdml:testSuite/@suiteName"/>
             </h1>
-            <h4>
-              A Tutorial on
-              <a href="https://www.ogf.org/ogf/doku.php/standards/dfdl/dfdl">Data Format Description Language (DFDL)</a>
-              .
-            </h4>
             <p>
               For quick reference here is the
               <a href="https://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/">DFDL Specification (HTML)</a>
