@@ -102,7 +102,7 @@ class TestCLIdebugger {
       shell.expect(contains("(debug)"))
 
       shell.sendLine("s")
-      shell.expect(contains("occursBounds: occurs bounds not set"))
+      shell.expect(contains("occursBounds: 1"))
 
       shell.sendLine("complete")
       shell.sendLine("quit")
@@ -129,7 +129,7 @@ class TestCLIdebugger {
       shell.expect(contains("error: undefined info command: oc"))
 
       shell.sendLine("s")
-      shell.expect(contains("occursBounds: occurs bounds not set"))
+      shell.expect(contains("occursBounds: 1"))
 
       shell.sendLine("complete")
       shell.sendLine("quit")

@@ -93,8 +93,11 @@ object Rep {
       if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, iParser)
-      if (pstate.status ne Success)
+      if (pstate.status ne Success) {
+        pstate.mpstate.arrayIndexStack.pop()
+        pstate.mpstate.occursBoundsStack.pop()
         return // fail if we don't get them all
+      }
       pstate.mpstate.moveOverOneArrayIndexOnly
     }
   }
@@ -115,6 +118,8 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
         PE(pstate, "Failed to populate %s[%s].  Expected %s item(s). Cause: %s.",
           context.prefixedName, pstate.mpstate.arrayPos, n,
           cause) // they all must succeed, otherwise we fail here.
+          pstate.mpstate.arrayIndexStack.pop()
+          pstate.mpstate.occursBoundsStack.pop()
         return
       }
       pstate.mpstate.moveOverOneArrayIndexOnly

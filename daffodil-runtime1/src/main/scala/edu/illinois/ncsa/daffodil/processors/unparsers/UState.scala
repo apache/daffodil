@@ -405,6 +405,7 @@ class UStateMain private (
   override def childPos = childIndexStack.top
 
   val occursBoundsStack = MStackOfLong()
+  occursBoundsStack.push(1L)
 
   override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
 

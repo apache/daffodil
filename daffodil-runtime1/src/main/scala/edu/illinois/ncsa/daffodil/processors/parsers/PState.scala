@@ -143,7 +143,7 @@ class MPState private () {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)
-    childIndexStack.push(1L)
+    occursBoundsStack.push(1L)
     delimitersLocalIndexStack.push(-1)
   }
 }

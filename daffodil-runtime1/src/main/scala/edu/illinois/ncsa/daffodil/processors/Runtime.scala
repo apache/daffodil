@@ -242,6 +242,12 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       this.startElement(state, p)
       p.parse1(state)
       this.endElement(state, p)
+
+      /* Verify that all stacks are empty */
+      Assert.invariant(state.mpstate.arrayIndexStack.length == 1)
+      Assert.invariant(state.mpstate.groupIndexStack.length == 1)
+      Assert.invariant(state.mpstate.childIndexStack.length == 1)
+      Assert.invariant(state.mpstate.occursBoundsStack.length == 1)
     } catch {
       // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure"
       // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an
@@ -346,6 +352,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val rootUnparser = ssrd.unparser
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     rootUnparser.unparse(state)
+
+    /* Verify that all stacks are empty */
+    Assert.invariant(state.arrayIndexStack.length == 1)
+    Assert.invariant(state.groupIndexStack.length == 1)
+    Assert.invariant(state.childIndexStack.length == 1)
+    Assert.invariant(state.occursBoundsStack.length == 1)
+    Assert.invariant(state.currentInfosetNodeStack.isEmpty)
+    Assert.invariant(state.escapeSchemeEVCache.isEmpty)
     //
     // All the DOS that precede the last one
     // will get setFinished by the suspension that created them. The last one after the
