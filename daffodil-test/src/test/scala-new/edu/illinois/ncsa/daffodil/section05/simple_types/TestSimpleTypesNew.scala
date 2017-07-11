@@ -59,8 +59,4 @@ class TestSimpleTypesNew {
   @Test def test_hexBinary_Delimited_04() { runner.runOneTest("hexBinary_Delimited_04") }
 
   @Test def test_hexBinary_specifiedLengthUnaligned() { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
-
-  @Test def test_hexBinary_bits_be_msbf() { runner.runOneTest("hexBinary_bits_be_msbf") }
-  @Test def test_hexBinary_bits_le_msbf() { runner.runOneTest("hexBinary_bits_le_msbf") }
-  @Test def test_hexBinary_bits_le_lsbf() { runner.runOneTest("hexBinary_bits_le_lsbf") }
 }
