@@ -124,9 +124,9 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     assert(document != null)
 
     val elem: Element =
-      if(diElement.erd.thisElementsNamespace.isNoNamespace)
-        document.createElement(diElement.erd.name)
-      else {
+      if(diElement.erd.thisElementsNamespace.isNoNamespace) {
+        document.createElementNS(null, diElement.erd.name)
+      } else {
         document.createElementNS(diElement.erd.thisElementsNamespace, diElement.erd.prefixedName)
       }
 
