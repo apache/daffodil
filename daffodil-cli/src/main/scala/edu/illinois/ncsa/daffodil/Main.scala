@@ -34,8 +34,10 @@ package edu.illinois.ncsa.daffodil
 
 import java.io.FileOutputStream
 import java.io.BufferedWriter
+import java.io.BufferedReader
 import java.io.OutputStreamWriter
 import java.io.OutputStream
+import java.io.InputStreamReader
 import java.io.Writer
 import java.io.FileInputStream
 import java.io.ByteArrayInputStream
@@ -95,21 +97,18 @@ import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JsonInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.JDOMSlowInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetInputter
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.parsers.DocumentBuilderFactory
-import org.xml.sax.InputSource
+import org.apache.commons.io.IOUtils
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -385,7 +384,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some("scala-xml")) => Right(Unit)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
-      case (Some("jdom-slow")) => Right(Unit)
       case (Some("w3cdom")) => Right(Unit)
       case (Some("null")) => Right(Unit)
       case (Some(t)) => Left("Unknown infoset type: " + t)
@@ -440,11 +438,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     validateOpt(infosetType, unparse) {
       case (Some("xml"), _) => Right(Unit)
       case (Some("scala-xml"), _) => Right(Unit)
-      case (Some("scala-slow"), Some(false)) => Left("infoset type scala-slow not valid with parse performance")
-      case (Some("scala-slow"), _) => Right(Unit)
       case (Some("json"), _) => Right(Unit)
       case (Some("jdom"), _) => Right(Unit)
-      case (Some("jdom-slow"), _) => Right(Unit)
       case (Some("w3cdom"), _) => Right(Unit)
       case (Some("null"), Some(true)) => Left("infoset type null not valid with performance --unparse")
       case (Some("null"), _) => Right(Unit)
@@ -509,10 +504,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     validateOpt(infosetType) {
       case (Some("xml")) => Right(Unit)
       case (Some("scala-xml")) => Right(Unit)
-      case (Some("scala-slow")) => Right(Unit)
       case (Some("json")) => Right(Unit)
       case (Some("jdom")) => Right(Unit)
-      case (Some("jdom-slow")) => Right(Unit)
       case (Some("w3cdom")) => Right(Unit)
       //case (Some("null")) => Right(Unit) // null is not valid for unparsing
       case (Some(t)) => Left("Unknown infoset type: " + t)
@@ -752,38 +745,47 @@ object Main extends Logging {
       case "scala-xml" => new ScalaXMLInfosetOutputter()
       case "json" => new JsonInfosetOutputter(writer)
       case "jdom" => new JDOMInfosetOutputter()
-      case "jdom-slow" => new JDOMSlowInfosetOutputter()
       case "w3cdom" => new W3CDOMInfosetOutputter()
       case "null" => new NullInfosetOutputter()
     }
   }
 
-  // converts the reader to whatever form the InfosetInputter will want, this
-  // should be called outside of a performance loop, with getInfosetInputter
-  // called inside the performance loop
-  def infosetReaderToAnyRef(infosetType: String, reader: java.io.Reader): AnyRef = {
+  // Converts the data to whatever form the InfosetInputter will want. Note
+  // that this requires that the result of this must be thread safe and not
+  // mutated by the InfosetInputters, since it will be shared among
+  // InfosetInputters to reduce copies. This means InfosetInputters that expect
+  // a Reader (e.g. xml, json) will just return the data here and have the
+  // Reader created when the InfosetInputter is created.
+  //
+  // This should be called outside of a performance loop, with
+  // getInfosetInputter called inside the performance loop
+  def infosetDataToInputterData(infosetType: String, data: Array[Byte]): AnyRef = {
     infosetType match {
-      case "xml" => reader
-      case "scala-xml" | "scala-slow" => scala.xml.XML.load(reader)
-      case "json" => reader
-      case "jdom" | "jdom-slow" => (new org.jdom2.input.SAXBuilder()).build(reader)
+      case "xml" => data
+      case "scala-xml" => scala.xml.XML.load(new ByteArrayInputStream(data))
+      case "json" => data
+      case "jdom" => new org.jdom2.input.SAXBuilder().build(new ByteArrayInputStream(data))
       case "w3cdom" => {
         val dbf = DocumentBuilderFactory.newInstance()
         dbf.setNamespaceAware(true)
         val db = dbf.newDocumentBuilder()
-        db.parse(new InputSource(reader))
+        db.parse(new ByteArrayInputStream(data))
       }
     }
   }
 
   def getInfosetInputter(infosetType: String, anyRef: AnyRef): InfosetInputter = {
     infosetType match {
-      case "xml" => new XMLTextInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
+      case "xml" => {
+        val rdr = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])))
+        new XMLTextInfosetInputter(rdr)
+      }
       case "scala-xml" => new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
-      case "scala-slow" => new ScalaXMLSlowInfosetInputter(anyRef.asInstanceOf[scala.xml.Node])
-      case "json" => new JsonInfosetInputter(anyRef.asInstanceOf[java.io.Reader])
+      case "json" => {
+        val rdr = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(anyRef.asInstanceOf[Array[Byte]])))
+        new JsonInfosetInputter(rdr)
+      }
       case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
-      case "jdom-slow" => new JDOMSlowInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
       case "w3cdom" => new W3CDOMInfosetInputter(anyRef.asInstanceOf[org.w3c.dom.Document])
     }
   }
@@ -862,9 +864,6 @@ object Main extends Logging {
               // directly to the writer. Other InfosetOutputters must manually
               // be converted to a string and written to the output
               outputter match {
-                case jdomslow: JDOMSlowInfosetOutputter => writer.write(
-                    new org.jdom2.output.XMLOutputter().outputString(jdomslow.getJDOMResult)
-                  )
                 case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
                 case jdom: JDOMInfosetOutputter => writer.write(
                     new org.jdom2.output.XMLOutputter().outputString(jdom.getResult)
@@ -954,29 +953,29 @@ object Main extends Logging {
               }
             }
 
+            val infosetType = performanceOpts.infosetType.get.get
+
             val dataSeq = files.map { filePath =>
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
               val fileContent = new Array[Byte](dataSize.toInt)
               input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
-              (filePath, fileContent, dataSize * 8)
+              val data = performanceOpts.unparse() match {
+                case true => infosetDataToInputterData(infosetType, fileContent)
+                case false => fileContent
+              }
+              (filePath, data, dataSize * 8)
             }
-
-            val infosetType = performanceOpts.infosetType.get.get
 
             val inputs = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
               val (path, data, dataLen) = dataSeq(index)
               val inData = performanceOpts.unparse() match {
                 case true => {
-                  val is = new java.io.ByteArrayInputStream(data)
-                  val isr = new java.io.InputStreamReader(is)
-                  val br = new java.io.BufferedReader(isr)
-                  val anyRef = infosetReaderToAnyRef(infosetType, br)
-                  Left(anyRef)
+                  Left(data)
                 }
                 case false => {
-                  val bais = new ByteArrayInputStream(data)
+                  val bais = new ByteArrayInputStream(data.asInstanceOf[Array[Byte]])
                   val channel = java.nio.channels.Channels.newChannel(bais);
                   Right(channel)
                 }
@@ -1002,7 +1001,6 @@ object Main extends Logging {
 
             //the following line allows output verification
             //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
-
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = inputsWithIndex.map {
@@ -1089,12 +1087,13 @@ object Main extends Logging {
         //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
-        val rdr = unparseOpts.infile.get match {
-          case Some("-") | None => new java.io.InputStreamReader(System.in)
-          case Some(fileName) => new java.io.FileReader(new File(fileName))
+        val is = unparseOpts.infile.get match {
+          case Some("-") | None => System.in
+          case Some(fileName) => new FileInputStream(fileName)
         }
 
-        val inputterData = infosetReaderToAnyRef(unparseOpts.infosetType.get.get, rdr)
+        val data = IOUtils.toByteArray(is)
+        val inputterData = infosetDataToInputterData(unparseOpts.infosetType.get.get, data)
         val inputter = getInfosetInputter(unparseOpts.infosetType.get.get, inputterData)
 
         val rc = processor match {
