@@ -58,7 +58,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, examples, japi, sapi, tutorials)
+                    .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, japi, sapi, tutorials)
   }
 
   // Note: Removed nopub from macroLib - not sure why macrolib should be needed after scala compilation
@@ -130,11 +130,6 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(tdml)
                              .dependsOn(core % "test->test") // need test utilities in core's test dirs
-
-  lazy val examples    = Project(id = "daffodil-examples", base = file("daffodil-examples"), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(tdml)
 
   lazy val testIBM1    = Project(id = "daffodil-test-ibm1", base = file("daffodil-test-ibm1"), settings = s ++ nopub)
                              .configs(DebugTest)
@@ -335,7 +330,6 @@ object DaffodilBuild extends Build {
   // native package configuration
   val packageSettings = Seq(
     packageName := "daffodil",
-    mappings in Universal ++= createRecursiveMapping(file("daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/"), "examples"),
     mappings in Universal += dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
     mappings in Universal += baseDirectory.value / "README" -> "README",
     mappings in Universal <+= (packageBin in japi in Compile, name in japi in Compile, organization, version) map {
@@ -483,20 +477,6 @@ and validation.""",
   lazy val sapiSettings = Seq(
     scalacOptions in (Compile, doc) <<= (version, baseDirectory) map ((v,b) => Seq("-doc-title", "Daffodil-" + v + " Scala API", "-doc-root-content", b + "/root-doc.txt"))
   )
-
-  def createRecursiveMapping(dir: File, newDir: String): Seq[(File,String)] = {
-    // this recursively gathers all files in the daffodil-examples resources
-    // directory and creates a mapping to the relative location in the
-    // 'examples' directory which is packaged in zip/tars
-    val allFiles = dir.***
-    val basename = dir.getName
-    val mappings = allFiles.pair { f: File =>
-      val relative = f.relativeTo(dir.getParentFile).get.toString
-      val exRelative = relative.replaceFirst("^" + basename, newDir)
-      Some(exRelative)
-    }
-    mappings
-  }
 
   def errorIfNoVersion(vers: String): Boolean = {
     if (vers == "0.0.0-SNAPSHOT") {
