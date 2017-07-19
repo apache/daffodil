@@ -708,7 +708,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           val loc: DataLocation = actual.resultState.currentLocation
 
           if (!loc.isAtEnd) {
-            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
+            val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
+            actual.addDiagnostic(new GeneralParseFailure(leftOverMsg))
             actual
           } else {
             // We did not get an error!!
@@ -775,8 +776,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val loc: DataLocation = actual.resultState.currentLocation
 
       val leftOverException = if (!loc.isAtEnd) {
-        val leftOverMsg = "Left over data: " + loc.toString
-        // println(leftOverMsg)
+        val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
         Some(new TDMLException(leftOverMsg))
       } else None
 
@@ -962,7 +962,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val loc: DataLocation = parseActual.resultState.currentLocation
 
       val leftOverException = if (!loc.isAtEnd) {
-        val leftOverMsg = "Left over data: " + loc.toString
+        val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, testDataLength - (loc.bitPos1b - 1))
         println(leftOverMsg)
         Some(new TDMLException(leftOverMsg))
       } else None

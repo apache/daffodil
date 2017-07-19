@@ -885,7 +885,7 @@ object Main extends Logging {
               optDataSize match {
                 case Some(sz) => {
                   if (!loc.isAtEnd) {
-                    log(LogLevel.Warning, "Left over data. %s bytes available. Location: %s", sz, loc)
+                    log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (sz * 8) - (loc.bitPos1b - 1))
                     true
                   } else false
                 }
@@ -901,10 +901,10 @@ object Main extends Logging {
                     val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
                     val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
                     if (lengthInBytes > 0)
-                      log(LogLevel.Warning, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
+                      log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (lengthInBytes * 8))
                     else {
                       // less than 1 byte is available
-                      log(LogLevel.Warning, "Left over data. Less than one byte available. Location: %s", loc)
+                      log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with less than one byte remaining.", loc.bitPos1b - 1)
                     }
                     true
                   } else false

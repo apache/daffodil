@@ -478,7 +478,7 @@
       <tdml:documentPart type="byte">74657374</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data: byte 3</tdml:error>
+      <tdml:error>Left over data. Consumed 24 bit(s) with 8 bit(s) remaining.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -834,7 +834,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expectIn(1, contains("Left over data."))
+      shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with 40 bit(s) remaining."))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -851,7 +851,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("Left over data"))
+      shell.expect(contains("Left over data. Consumed 56 bit(s) with 32 bit(s) remaining."))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
