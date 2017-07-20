@@ -1632,7 +1632,6 @@ The schema corresponding to this table is given below. This schema is derived fr
        Purpose: This test shows the bit order of 'leastSignificantBitFirst'.
 -->
 
-
 <!--
      Test Name: leastSignificantBitFirstRTL
         Schema: s2
@@ -1655,7 +1654,21 @@ The schema corresponding to this table is given below. This schema is derived fr
     </tdml:infoset>
   </tdml:parserTestCase>
 
+<tdml:defineSchema name="s2_1">
+    <dfdl:format ref="ex:daffodilTest1" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
+    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3"/>
+          <xs:element name="B" type="xs:int" dfdl:length="7"/>
+          <xs:element name="C" type="xs:int" dfdl:length="4"/>
+          <xs:element name="D" type="xs:int" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
 
 <!--
      Test Name: mostSignificantBitFirst
@@ -1664,8 +1677,24 @@ The schema corresponding to this table is given below. This schema is derived fr
        Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
 -->
 
-
-  <tdml:defineSchema name="s4">
+  <!--
+     Test Name: littleEndianLeastFirstLTR
+        Schema: s4
+          Root: littleLeast
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
+  -->
+  <tdml:parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+      <documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <littleLeast>00925A</littleLeast>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:defineSchema name="s4">
     <dfdl:format ref="ex:daffodilTest1" representation="binary" 
                  lengthUnits="bytes" lengthKind='explicit' 
                  alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
@@ -1677,30 +1706,13 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:defineSchema>
 
   <!--
-     Test Name: littleEndianLeastFirstLTR
-        Schema: s4
-          Root: littleLeast
-       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
-  -->
-  <tdml:parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
-    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData"  tdml:tutorialInclude="no">
-      <documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <littleLeast>00925A</littleLeast>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <!--
      Test Name: littleEndianLeastFirstRTL
         Schema: s4
           Root: littleLeast
        Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes right to left.
   -->
   <tdml:parserTestCase name="littleEndianLeastFirstRTL" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes right to left">
-    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData"  tdml:tutorialInclude="no">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
       <documentPart type="bits" byteOrder="RTL">01011010 10010010 00000000</documentPart>
     </document>
     <tdml:infoset>
@@ -1709,18 +1721,41 @@ The schema corresponding to this table is given below. This schema is derived fr
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-
-  <tdml:defineSchema name="s5">
+  
+    <tdml:defineSchema name="s4_1">
     <dfdl:format ref="ex:daffodilTest1" representation="binary" 
                  lengthUnits="bytes" lengthKind='explicit' 
                  alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
 
-    <xs:element name="bigLeast" type="xs:hexBinary" 
-                dfdl:byteOrder="bigEndian" dfdl:representation="binary" 
-                dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="1"/>
+    <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian" 
+       dfdl:representation="binary" 
+       dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+
   </tdml:defineSchema>
 
-  <tdml:defineSchema name="s6">
+<!--
+     Test Name: bitOrderDocument
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test specifies the bitOrder in the document.
+-->
+  <tdml:parserTestCase name="bitOrderDocument" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+      <documentPart type="bits">01001|011 00|010101</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="http://example.com">
+        <noBitOrder>
+          <A>3</A>
+          <B>9</B>
+          <C>21</C>
+          <D>0</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:defineSchema name="s6">
     <dfdl:format ref="ex:daffodilTest1" representation="binary" 
                  lengthUnits="bits" lengthKind='explicit' 
                  alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
@@ -1739,35 +1774,13 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:defineSchema>
 
 <!--
-     Test Name: bitOrderDocument
-        Schema: s6
-          Root: noBitOrder
-       Purpose: This test specifies the bitOrder in the document.
--->
-  <tdml:parserTestCase name="bitOrderDocument" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
-      <documentPart type="bits">01001|011 00|010101</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <noBitOrder>
-          <A>3</A>
-          <B>9</B>
-          <C>21</C>
-          <D>0</D>
-        </noBitOrder>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-<!--
      Test Name: bitOrderChange
         Schema: s6
           Root: noBitOrder
        Purpose: This test changes bitOrder when on a byte boundary.
 -->
   <tdml:parserTestCase name="bitOrderChange" root="noBitOrder" model="s6" description="Tests changing bitOrder when on a byte boundary.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
       <documentPart type="bits" bitOrder="LSBFirst">01001|011</documentPart>
       <documentPart type="bits" bitOrder="MSBFirst">010101|00</documentPart>
     </document>
@@ -1782,6 +1795,24 @@ The schema corresponding to this table is given below. This schema is derived fr
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+    <tdml:defineSchema name="s6_1">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+                 lengthUnits="bits" lengthKind='explicit' 
+                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
+          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
+          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
+          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
 
 <!--
      Test Name: bitOrderTypeByte
@@ -1790,7 +1821,7 @@ The schema corresponding to this table is given below. This schema is derived fr
        Purpose: This test specifies the bitOrder in the document when the type is 'byte'.
 -->
   <tdml:parserTestCase name="bitOrderTypeByte" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document when the type is 'byte'.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst"  tdml:tutorialInclude="no">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
       <documentPart type="byte">C6 A2</documentPart>
     </document>
     <tdml:infoset>
@@ -1804,6 +1835,24 @@ The schema corresponding to this table is given below. This schema is derived fr
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+    <tdml:defineSchema name="s6_2">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+                 lengthUnits="bits" lengthKind='explicit' 
+                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
+          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
+          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
+          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
 
 
 </tdml:testSuite>

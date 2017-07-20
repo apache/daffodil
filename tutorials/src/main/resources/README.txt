@@ -33,6 +33,12 @@ You would browse the example tutorial here via http://localhost:8000/bitorder.tu
 
 #!/usr/bin/python
 
+# Note: You can just view the .tdml.xml file directly using a file explorer and "open with..." and choose Firefox. 
+# Firefox will display it, and use the stylesheets. 
+# (True as of firefox version 54.0) 
+
+#This script is only needed for chrome. 
+
 import SimpleHTTPServer
 import SocketServer
 

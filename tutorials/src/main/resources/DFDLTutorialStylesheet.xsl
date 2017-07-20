@@ -31,22 +31,21 @@
   
   <xsl:template match="tdml:document[@tdml:tutorialInclude='no']"/>
   <xsl:template match="tdml:document[not(@tdml:tutorialInclude)]">
+    <xsl:variable name="nodestring">
+      <xsl:apply-templates select="../tdml:document" mode="serialize"/>
+    </xsl:variable>
     <b>Data Stream:</b>
     <table>
       <tr>
         <td>
-          <pre class="prettyprint linenums">
-          <xsl:copy>
-              <xsl:apply-templates select="@* | node()" mode="inner"/>
-          </xsl:copy>
-          <!-- <xsl:copy-of select="."/> -->
-          </pre>
+        <pre class="prettyprint linenums">
+          <xsl:value-of select="$nodestring"/>
+         </pre>
         </td>
       </tr>
     </table>
   </xsl:template>
   
-
   <xsl:template match="tdml:infoset[@tdml:tutorialInclude='no']"/>
   <xsl:template match="tdml:infoset[not(@tdml:tutorialInclude)]">
     <xsl:variable name="nodestring">
