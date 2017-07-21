@@ -1009,4 +1009,8 @@ class TestDFDLExpressions {
 
 // DFDL-1771
   @Test def test_expr_path_past_root1 { runner7.runOneTest("test_expr_path_past_root1") }
+
+  // DFDL-1804
+    @Test def test_traceComplex { runner7.runOneTest("traceComplex") }
+
 }

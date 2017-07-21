@@ -35,14 +35,39 @@ package edu.illinois.ncsa.daffodil.dpath
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.infoset.DISimple
+import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
+import edu.illinois.ncsa.daffodil.infoset.InfosetCommon
 
 case class DAFTrace(recipe: CompiledDPath, msg: String)
-  extends FNOneArg(recipe, NodeInfo.AnyType) {
+  extends RecipeOpWithSubRecipes(recipe) {
 
-  override def computeValue(str: AnyRef, dstate: DState) = {
-    System.err.println("trace " + msg + ":" + str.toString)
-    str
+  private def asXMLString(ie: InfosetCommon) = {
+    val sw = new java.io.StringWriter()
+    val xml = new XMLTextInfosetOutputter(sw)
+    ie.visit(xml, false)
+    sw.toString()
   }
+
+  override def run(dstate: DState): Unit = {
+    recipe.run(dstate)
+    val nodeString: String = dstate.currentNode match {
+      case _: DISimple | null => {
+        // if there is no current node (null case) then there must be a
+        // current value.
+        val v = dstate.currentValue
+        dstate.setCurrentValue(v)
+        v.toString()
+      }
+      case other: InfosetCommon => "\n" + asXMLString(other)
+    }
+    System.err.println("trace " + msg + ":" + nodeString)
+  }
+
+  // This is toXML for the case class object, not the infoset node it is
+  // dealing with.
+  override def toXML = toXML(recipe.toXML)
+
 }
 
 case object DAFError extends RecipeOp {

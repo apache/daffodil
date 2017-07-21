@@ -245,5 +245,42 @@
       <tdml:error>String</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="traceComplex" elementFormDefault="unqualified">
+
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="aComplexElement">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="y" type="xs:int" dfdl:inputValueCalc="{ 0 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="f" type="xs:string"
+            dfdl:inputValueCalc="{ if (fn:exists(daf:trace(../aComplexElement, 'We can trace a complex element'))) then 'exists' else 'nope' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="traceComplex" model="traceComplex" root="e"
+    description="Test that daf:trace can take as argument a complex element.">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e>
+          <aComplexElement>
+            <y>0</y>
+          </aComplexElement>
+          <f>exists</f>
+        </ex:e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
  
 </tdml:testSuite>

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
+import edu.illinois.ncsa.daffodil.processors._; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -594,6 +594,11 @@ trait ExistsKind {
       // if you reach into a child element slot that isn't filled
       case e: InfosetNoSuchChildElementException => ifClosedDoesntExist(dstate, th)
       case e: InfosetArrayIndexOutOfBoundsException => ifClosedDoesntExist(dstate, th)
+
+      // Note that in debugger, expressions are sometimes evaluated in contexts
+      // where they don't make sense.
+      // But we must rethrow this or it will get suppressed when it is a real error.
+      case e: InfosetWrongNodeType => throw th
       //
       // other processing errors indicate it doesn't exist
       //
@@ -988,8 +993,8 @@ case class FNError(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
     dstate.mode match {
       case UnparserNonBlocking | UnparserBlocking =>
         UnparseError(maybeSFL, dstate.contextLocation, errorString)
-      case _ : ParserMode => {
-        val fe  = new FNErrorFunctionException(maybeSFL, dstate.contextLocation, errorString)
+      case _: ParserMode => {
+        val fe = new FNErrorFunctionException(maybeSFL, dstate.contextLocation, errorString)
         throw fe
       }
     }
