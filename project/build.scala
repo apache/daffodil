@@ -331,7 +331,7 @@ object DaffodilBuild extends Build {
   val packageSettings = Seq(
     packageName := "daffodil",
     mappings in Universal += dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
-    mappings in Universal += baseDirectory.value / "README" -> "README",
+    mappings in Universal += baseDirectory.value / "README.md" -> "README.md",
     mappings in Universal <+= (packageBin in japi in Compile, name in japi in Compile, organization, version) map {
       (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
     },
