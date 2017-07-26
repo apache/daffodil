@@ -52,11 +52,6 @@ class TresysTests2 {
   //  val ab = testDir + "ABLargeData.tdml.dat"
   //  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
   // Too slow to use in regression. So slow it's a bug.
-  // @Test def test_AB007() { runnerAB.runOneTest("AB007") }
-
-  val ae = testDir + "AE.tdml"
-  lazy val runnerAE = new DFDLTestSuite(Misc.getRequiredResource(ae))
-  @Test def test_AE000() { runnerAE.runOneTest("AE000") } // needs newVariableInstance
 
   // Commented out as we have no plans to make this run yet,
   // and there is no check for recursion, so they die slowly with stack
