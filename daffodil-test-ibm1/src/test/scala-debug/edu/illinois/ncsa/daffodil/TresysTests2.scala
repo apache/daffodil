@@ -53,18 +53,6 @@ class TresysTests2 {
   //  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
   // Too slow to use in regression. So slow it's a bug.
 
-  // Commented out as we have no plans to make this run yet,
-  // and there is no check for recursion, so they die slowly with stack
-  // overflow
-  //
-  //  val ao = testDir + "AO.tdml"
-  //  lazy val runnerAO = new DFDLTestSuite(Misc.getRequiredResource(ao))
-  //  @Test def test_AO000() { runnerAO.runOneTest("AO000") } // Needs recursion. Not in DFDL v1.0 spec.
-  //  @Test def test_AO001() { runnerAO.runOneTest("AO001") } // Perhaps as an extension to DFDL.
-  //  @Test def test_AO002() { runnerAO.runOneTest("AO002") }
-  //  @Test def test_AO003() { runnerAO.runOneTest("AO003") }
-  //  @Test def test_AO004() { runnerAO.runOneTest("AO004") }
-
   val ap = testDir + "AP.tdml"
   lazy val runnerAP = new DFDLTestSuite(Misc.getRequiredResource(ap))
   @Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent
