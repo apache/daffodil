@@ -39,10 +39,12 @@ import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextI
 import edu.illinois.ncsa.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
 import edu.illinois.ncsa.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
 import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
+import edu.illinois.ncsa.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
 import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
 import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
 import edu.illinois.ncsa.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
 import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
+import edu.illinois.ncsa.daffodil.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputterEventType
 // TODO: Not sure about the access to internal infoset implementation details.
@@ -270,6 +272,17 @@ class JDOMInfosetOutputter()
 }
 
 /**
+ * Output the infoset as a w3c Document
+ */
+class W3CDOMInfosetOutputter()
+  extends InfosetOutputterProxy {
+
+  override val infosetOutputter = new SW3CDOMInfosetOutputter()
+
+  def getResult(): org.w3c.dom.Document = infosetOutputter.getResult()
+}
+
+/**
  * Ignore all infoset output
  */
 class NullInfosetOutputter()
@@ -313,7 +326,7 @@ class JsonInfosetInputter(reader: java.io.Reader)
 }
 
 /**
- * Read in an infoset in the form of jdom2 Document
+ * Read in an infoset in the form of a jdom2 Document
  *
  * @param document the infoset in the form of a jdom2 Document
  */
@@ -321,6 +334,22 @@ class JDOMInfosetInputter(document: org.jdom2.Document)
   extends InfosetInputterProxy {
 
   override val infosetInputter = new SJDOMInfosetInputter(document)
+}
+
+/**
+ * Read in an infoset in the form of a w3c Document
+ *
+ * @param document the infoset in the form of a w3c Document. Note that w3c
+ *                 Documents are not guaranteed to be thread-safe, even if all
+ *                 users only read/traverse it. It is up to the user to ensure
+ *                 that the Document passed into the W3CDOMInfosetInputter is
+ *                 not read or written by other threads while the
+ *                 W3CDOMInfosetInputter has access to it.
+ */
+class W3CDOMInfosetInputter(document: org.w3c.dom.Document)
+  extends InfosetInputterProxy {
+
+  override val infosetInputter = new SW3CDOMInfosetInputter(document)
 }
 
 /* A proxy for existing infoset inputters */

@@ -755,7 +755,9 @@ object Main extends Logging {
   // mutated by the InfosetInputters, since it will be shared among
   // InfosetInputters to reduce copies. This means InfosetInputters that expect
   // a Reader (e.g. xml, json) will just return the data here and have the
-  // Reader created when the InfosetInputter is created.
+  // Reader created when the InfosetInputter is created. Note that w3c dom is
+  // not thread-safe, even for reading, so we must create a thread local
+  // variable so that each thread has its own copy of the dom tree.
   //
   // This should be called outside of a performance loop, with
   // getInfosetInputter called inside the performance loop
@@ -766,10 +768,14 @@ object Main extends Logging {
       case "json" => data
       case "jdom" => new org.jdom2.input.SAXBuilder().build(new ByteArrayInputStream(data))
       case "w3cdom" => {
-        val dbf = DocumentBuilderFactory.newInstance()
-        dbf.setNamespaceAware(true)
-        val db = dbf.newDocumentBuilder()
-        db.parse(new ByteArrayInputStream(data))
+        new ThreadLocal[org.w3c.dom.Document] {
+          override def initialValue = {
+            val dbf = DocumentBuilderFactory.newInstance()
+            dbf.setNamespaceAware(true)
+            val db = dbf.newDocumentBuilder()
+            db.parse(new ByteArrayInputStream(data))
+          }
+        }
       }
     }
   }
@@ -786,7 +792,10 @@ object Main extends Logging {
         new JsonInfosetInputter(rdr)
       }
       case "jdom" => new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document])
-      case "w3cdom" => new W3CDOMInfosetInputter(anyRef.asInstanceOf[org.w3c.dom.Document])
+      case "w3cdom" => {
+        val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
+        new W3CDOMInfosetInputter(tl.get)
+      }
     }
   }
 
