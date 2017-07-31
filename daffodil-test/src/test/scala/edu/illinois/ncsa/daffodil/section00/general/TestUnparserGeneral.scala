@@ -80,4 +80,9 @@ class TestUnparserGeneral {
 
   @Test def test_parseDelimitedString01() { runner.runOneTest("parseDelimitedString01") }
 
+  // DFDL-1650
+  @Test def test_alignmentPaddingOVC1() { runner.runOneTest("alignmentPaddingOVC1") }
+  @Test def test_alignmentPaddingOVC2() { runner.runOneTest("alignmentPaddingOVC2") }
+  @Test def test_alignmentPaddingOVC3() { runner.runOneTest("alignmentPaddingOVC3") }
+
 }
