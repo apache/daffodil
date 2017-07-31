@@ -961,14 +961,14 @@ class TestDFDLExpressions {
   @Test def test_valueLengthPair3() { runner5.runOneTest("valueLengthPair3") }
   @Test def test_valueLengthAndOccurs1() { runner5.runOneTest("valueLengthAndOccurs1") }
 
-// Added from scala-new for DFDL-1198
+  // Added from scala-new for DFDL-1198
   @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
   @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }
   @Test def test_array_index_oob_03() { runner.runOneTest("array_index_oob_03") }
   @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
   @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
 
-// Added from scala-new for DFDL-1660
+  // Added from scala-new for DFDL-1660
   @Test def test_array_index_relative_path_subexpression_01() { runner.runOneTest("array_index_relative_path_subexpression_01") }
 
   //DFDL-1702
@@ -1007,10 +1007,10 @@ class TestDFDLExpressions {
   @Test def test_mathPow33 { runner2.runOneTest("mathPow33") }
   @Test def test_mathPow34 { runner2.runOneTest("mathPow34") }
 
-// DFDL-1771
+  // DFDL-1771
   @Test def test_expr_path_past_root1 { runner7.runOneTest("test_expr_path_past_root1") }
 
   // DFDL-1804
-    @Test def test_traceComplex { runner7.runOneTest("traceComplex") }
+  @Test def test_traceComplex { runner7.runOneTest("traceComplex") }
 
 }

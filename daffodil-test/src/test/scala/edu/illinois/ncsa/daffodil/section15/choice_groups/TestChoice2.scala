@@ -36,7 +36,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestChoiceNew {
+object TestChoice2 {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
 
   val runner = Runner(testDir, "choice1765.tdml")
@@ -48,9 +48,9 @@ object TestChoiceNew {
   }
 }
 
-class TestChoiceNew {
+class TestChoice2 {
 
-  import TestChoiceNew._
+  import TestChoice2._
 
   // DFDL-1765
   @Test def test_backtrack1(): Unit = { runner.runOneTest("backtrack1") }
