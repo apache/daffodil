@@ -52,9 +52,6 @@ object TestOutputValueCalcNew {
 class TestOutputValueCalcNew {
   import TestOutputValueCalcNew._
 
-  @Test def test_OutputValueCalc_09() { runner.runOneTest("OutputValueCalc_09") }
-  @Test def test_OutputValueCalc_10() { runner.runOneTest("OutputValueCalc_10") }
-
   @Test def test_errorZeroArg() { runner.runOneTest("errorZeroArg") }
   @Test def test_errorOneArg() { runner.runOneTest("errorOneArg") }
   @Test def test_errorTwoArg() { runner.runOneTest("errorTwoArg") }

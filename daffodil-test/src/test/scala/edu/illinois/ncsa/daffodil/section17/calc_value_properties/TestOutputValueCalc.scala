@@ -77,4 +77,7 @@ class TestOutputValueCalc {
   @Test def test_ovc_w_runtime_cal_lang() { runner2.runOneTest("ovc_w_runtime_cal_lang") }
   @Test def test_ovc_w_runtime_escape_char() { runner2.runOneTest("ovc_w_runtime_escape_char") }
   @Test def test_ovc_w_runtime_escape_escape_char() { runner2.runOneTest("ovc_w_runtime_escape_escape_char") }
+
+  @Test def test_OutputValueCalc_09() { runner.runOneTest("OutputValueCalc_09") }
+  @Test def test_OutputValueCalc_10() { runner.runOneTest("OutputValueCalc_10") }
 }
