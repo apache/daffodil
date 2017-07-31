@@ -846,7 +846,8 @@ Differences were (path, expected, actual):
     //
     val pp = new edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter(2)
     val xmlString = pp.format(xml)
-    val fw = new java.io.FileWriter(tmpSchemaFile)
+    val fos = new java.io.FileOutputStream(tmpSchemaFile)
+    val fw = new java.io.OutputStreamWriter(fos, "utf-8")
     fw.write(xmlString)
     fw.close()
     tmpSchemaFile
