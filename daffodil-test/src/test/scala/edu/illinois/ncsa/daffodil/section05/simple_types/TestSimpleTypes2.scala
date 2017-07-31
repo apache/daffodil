@@ -49,6 +49,8 @@ object TestSimpleTypes2 {
   val runnerST = Runner(testDir, "simple-type-bases.tdml")
   val runner_01 = Runner(testDir_01, "dpaext1.tdml")
 
+  val runner = Runner(testDir, "SimpleTypes.tdml")
+
   @AfterClass def shutDown() {
     runnerAL.reset
     runner2.reset
@@ -57,6 +59,7 @@ object TestSimpleTypes2 {
     runner_01.reset
     runner1.reset
     runnerST.reset
+    runner.reset
   }
 }
 
@@ -107,4 +110,7 @@ class TestSimpleTypes2 {
 
   @Test def test_mostSigBitFirstLEFloat() { runner1.runOneTest("mostSigBitFirstLEFloat") }
   @Test def test_mostSigBitFirstLEDouble() { runner1.runOneTest("mostSigBitFirstLEDouble") }
+
+  @Test def test_hexBinary_Delimited_04() { runner.runOneTest("hexBinary_Delimited_04") }
+
 }
