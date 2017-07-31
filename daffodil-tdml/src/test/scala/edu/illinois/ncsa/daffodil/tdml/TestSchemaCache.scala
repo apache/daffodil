@@ -35,10 +35,11 @@ package edu.illinois.ncsa.daffodil.tdml
 import java.io.File
 import junit.framework.Assert.assertEquals
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnTDML2 { ImplicitsSuppressUnusedImportWarning() }
+import edu.illinois.ncsa.daffodil.Implicits._; 
 import java.io.FileOutputStream
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import org.junit.Before
+import scala.Rightobject INoWarnTDML2 { ImplicitsSuppressUnusedImportWarning() }
 
 class TestSchemaCache {
 
