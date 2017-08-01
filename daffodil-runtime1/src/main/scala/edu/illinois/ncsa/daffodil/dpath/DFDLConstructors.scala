@@ -91,7 +91,7 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
  *
  * • dfdl:hexBinary(xs:short(208)) is the hexBinary value "00D0".
  * • dfdl:hexBinary(208) is the hexBinary value "D0".
- * • dfdl:hexBinary(-2084) is the hexBinary value "F7FF".
+ * • dfdl:hexBinary(-2084) is the hexBinary value "F7DC".
  *
  */
 case class DFDLHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)

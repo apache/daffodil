@@ -52,8 +52,4 @@ class TestSimpleTypesUnparseDebug {
   //DFDL-1454
   //dfdl:hexBinary not behaving like xs:hexBinary 
   @Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
-  
-  //DFDL-1455
-  //result doesn't match example in the spec
-  @Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
 }

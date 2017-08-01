@@ -111,7 +111,13 @@
     </xs:complexType>
   </xs:element>
     
-    <xs:element name="hb_14" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:outputValueCalc="{ dfdl:hexBinary(-2084) }"/>
+    <xs:element name="hb_14">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hb_14" type="xs:hexBinary" dfdl:fillByte="0" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:outputValueCalc="{ dfdl:hexBinary(-2084) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="hb_15" dfdl:fillByte="a" dfdl:lengthKind="implicit">
       <xs:simpleType>
@@ -489,11 +495,13 @@
       model="SimpleTypes-binary">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_14></ex:hb_14>
+        <ex:hb_14>
+          <ex:hb_14>F7DC</ex:hb_14>
+        </ex:hb_14>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="byte"><![CDATA[f7ff]]></tdml:documentPart>
+      <tdml:documentPart type="byte"><![CDATA[f7dc]]></tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

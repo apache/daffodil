@@ -53,10 +53,6 @@ class TestSimpleTypesUnparse {
   //dfdl:hexBinary not behaving like xs:hexBinary 
   //@Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
   
-  //DFDL-1455
-  //result doesn't match example in the spec
-  //@Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
-  
   @Test def test_hexBinary_unparse_01() { runner.runOneTest("hexBinary_unparse_01") }
   @Test def test_hexBinary_unparse_02() { runner.runOneTest("hexBinary_unparse_02") }
   @Test def test_hexBinary_unparse_03() { runner.runOneTest("hexBinary_unparse_03") }
@@ -72,6 +68,7 @@ class TestSimpleTypesUnparse {
   @Test def test_hexBinary_unparse_14() { runner.runOneTest("hexBinary_unparse_14") }
   @Test def test_hexBinary_unparse_15() { runner.runOneTest("hexBinary_unparse_15") }
   @Test def test_hexBinary_unparse_16() { runner.runOneTest("hexBinary_unparse_16") }
+  @Test def test_hexBinary_unparse_17() { runner.runOneTest("hexBinary_unparse_17") }
   @Test def test_hexBinary_unparse_18() { runner.runOneTest("hexBinary_unparse_18") }
   @Test def test_hexBinary_unparse_19() { runner.runOneTest("hexBinary_unparse_19") }
 
