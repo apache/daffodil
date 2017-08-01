@@ -124,7 +124,8 @@ class TestLengthProperties {
   @Test def test_bitUCombo() { runner_02.runOneTest("bitUCombo") }
   @Test def test_bitUCombo2() { runner_02.runOneTest("bitUCombo2") }
 
-  //  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
+  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
+  @Test def test_LengthProp_bits_bool_false() { runner_02.runOneTest("LengthProp_bits_bool_false") }
 
   @Test def test_LengthProp_leftover1() { runner_02.runOneTest("LengthProp_leftover1") }
   @Test def test_LengthProp_leftover2() { runner_02.runOneTest("LengthProp_leftover2") }

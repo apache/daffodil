@@ -51,6 +51,5 @@ class TestLengthPropertiesNew {
 
   import TestLengthPropertiesNew._
 
-  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
 }
