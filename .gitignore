@@ -1,3 +1,5 @@
+*.sbt
+!build.sbt
 .cache-main
 .cache-tests
 target
