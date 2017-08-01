@@ -32,11 +32,11 @@
 
 package edu.illinois.ncsa.daffodil.section05.simple_types
 
+import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
 
-object TestBooleanNew {
+object TestBoolean2 {
   private val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
 
   val runner = Runner(testDir, "Boolean.tdml")
@@ -46,8 +46,8 @@ object TestBooleanNew {
   }
 }
 
-class TestBooleanNew {
-  import TestBooleanNew._
+class TestBoolean2 {
+  import TestBoolean2._
 
   @Test def test_binaryBoolean_0() { runner.runOneTest("binaryBoolean_0") }
   @Test def test_binaryBoolean_unparse_0() { runner.runOneTest("binaryBoolean_unparse_0") }

@@ -83,7 +83,4 @@ class TresysTests3 {
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 
-  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
-  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
-
 }

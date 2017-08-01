@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TresysTests {
 
@@ -103,6 +104,9 @@ object TresysTests {
 
   //  val ba = testDir + "BA.tdml"
   //  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
+
+  lazy val runnerBC = Runner(testDir, "BC.tdml")
+  lazy val runnerBD = Runner(testDir, "BD.tdml")
 }
 
 class TresysTests {
@@ -179,4 +183,7 @@ class TresysTests {
 
   // Jira DFDL-1392
   //  @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
+
+  @Test def test_BC000() { runnerBC.runOneTest("BC000") } // text boolean type
+  @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
 }
