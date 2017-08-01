@@ -36,7 +36,7 @@ import org.junit.Test
 import org.junit.AfterClass
 import edu.illinois.ncsa.daffodil.tdml.Runner
 
-object TestUnionsNew {
+object TestUnions {
   private val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
 
   val runner = Runner(testDir, "unions.tdml")
@@ -46,8 +46,8 @@ object TestUnionsNew {
   }
 }
 
-class TestUnionsNew {
-  import TestUnionsNew._
+class TestUnions {
+  import TestUnions._
 
   @Test def test_unionOf1() { runner.runOneTest("unionOf1") }
   @Test def test_unionOf1b() { runner.runOneTest("unionOf1b") }
