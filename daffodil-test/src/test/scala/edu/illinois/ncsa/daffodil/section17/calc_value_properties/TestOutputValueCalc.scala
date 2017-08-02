@@ -66,6 +66,9 @@ class TestOutputValueCalc {
   @Test def test_ovcHiddenCalculations1() { runner2.runOneTest("ovcHiddenCalculations1") }
   @Test def test_ovcHiddenCalculations2() { runner2.runOneTest("ovcHiddenCalculations2") }
   @Test def test_ovcHiddenCalculations3() { runner2.runOneTest("ovcHiddenCalculations3") }
+  @Test def test_hiddenGroupOvcError() { runner2.runOneTest("hiddenGroupOvcError") }
+//  @Test def test_hiddenGroupWithOvc() { runner2.runOneTest("hiddenGroupWithOvc") }
+
 
   @Test def test_ovcAllowMissingOVCElem() { runner2.runOneTest("ovcAllowMissingOVCElem") }
   @Test def test_ovcIgnoreOVCElem() { runner2.runOneTest("ovcIgnoreOVCElem") }

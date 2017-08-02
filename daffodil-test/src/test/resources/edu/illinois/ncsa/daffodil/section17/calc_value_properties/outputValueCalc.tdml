@@ -466,7 +466,7 @@
 <!--
      	Test Name: OutputValueCalc_05
         Schema: outputValueCalc-Embedded.dfdl.xsd
-          Root: ovc_06
+          Root: ovc_05
        Purpose: This test demonstrates that OVC suspends the unparsing of x and y, until z can be evaluated.
        Then unparses: z, y, x and output in x,y,z order. dfdl:encoding
 -->

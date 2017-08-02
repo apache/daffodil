@@ -97,6 +97,38 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:group name="arrayGroup">
+      <xs:sequence>
+        <xs:element name="array" type="xs:int" maxOccurs="unbounded" dfdl:occursCountKind='implicit'
+          dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="1" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="number" type="xs:int"/>
+          <xs:sequence dfdl:hiddenGroupRef="ex:arrayGroup"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="arrayGroup2">
+      <xs:sequence>
+        <xs:element name="array" type="xs:int" maxOccurs="unbounded" dfdl:occursCountKind='implicit'
+          dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:outputValueCalc="{ 7 }" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="number" type="xs:int"/>
+          <xs:sequence dfdl:hiddenGroupRef="ex:arrayGroup2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="ovcHiddenCalculations1" root="root" model="ovc1" description="ovc test that computes 1.2.3.4 from 4 binary bytes, and invert of that for unparse.">
@@ -132,6 +164,40 @@
         </ex:root2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="hiddenGroupOvcError" root="root3" model="ovc1" description="Test with a hidden group which is missing an outputValueCalc.">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root3>
+          <number>1</number>
+          <arrayGroup>234</arrayGroup>
+        </ex:root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Element(s) of hidden group must define dfdl:outputValueCalc</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="hiddenGroupWithOvc" root="root4" model="ovc1" description="Test with a hidden group with an outputValueCalc.">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root4>
+          <number>1</number>
+        </ex:root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text">1777</tdml:documentPart>
+    </tdml:document>
+
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="ovc2" elementFormDefault="unqualified">
