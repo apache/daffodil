@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section12.length_properties
 
-import org.junit.Test
+//import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -49,7 +49,7 @@ object TestLengthPropertiesNew {
 
 class TestLengthPropertiesNew {
 
-  import TestLengthPropertiesNew._
+//  import TestLengthPropertiesNew._
 
 
 }
