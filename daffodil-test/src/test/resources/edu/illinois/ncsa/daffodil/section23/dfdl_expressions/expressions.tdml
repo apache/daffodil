@@ -6734,6 +6734,7 @@ c]]></value>
     <xs:element name="div18" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float('NaN') }" />
     <xs:element name="div19" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double('INF') }" />
     <xs:element name="div20" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float('INF') }" />
+    <xs:element name="div21" type="xs:string" dfdl:inputValueCalc="{ 90.0 div 1234567.0 }" />
 
     <xs:element name="idiv01" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(2) }" />
     <xs:element name="idiv02" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float(2) }" />
@@ -6866,6 +6867,10 @@ c]]></value>
     <tdml:infoset><tdml:dfdlInfoset><div20>0.0</div20></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="div21" root="div21" model="XPathDiv" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><div21>7.290005321703885E-5</div21></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
 
 
   <tdml:parserTestCase name="idiv01" root="idiv01" model="XPathDiv" description="Section 23 - DFDL Expressions - idiv">
