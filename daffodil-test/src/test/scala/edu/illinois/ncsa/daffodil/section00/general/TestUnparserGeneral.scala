@@ -63,6 +63,7 @@ class TestUnparserGeneral {
   @Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
 
   @Test def test_parseFixedLengthString01() { runner.runOneTest("parseFixedLengthString01") }
+  @Test def test_parseFixedLengthStringLength0() { runner.runOneTest("parseFixedLengthStringLength0") }
 
   @Test def test_negativeUnparseTest01() { runner.runOneTest("negativeUnparseTest01") }
   @Test def test_negativeUnparseTest02() { runner.runOneTest("negativeUnparseTest02") }

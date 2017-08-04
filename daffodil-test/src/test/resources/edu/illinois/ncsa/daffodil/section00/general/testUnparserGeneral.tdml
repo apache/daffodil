@@ -43,6 +43,15 @@
     <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
     <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:textPadKind='none'/>
 
+      <xs:element name="e4" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
+	    <xs:element name="s1" dfdl:lengthKind="explicit" dfdl:length="0" type="xs:string" dfdl:textPadKind='none'/>
+	    <xs:element name="s2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" dfdl:textPadKind='none' default="broken"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="illegalChars">
@@ -180,6 +189,27 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+<!--
+      Test Name: parseFixedLengthStringLength0
+         Schema: fixedLengthStrings
+        Purpose: Test to see what happens when the fixed length of a string is '0' and when a default value is supplied
+-->
+
+  <tdml:parserTestCase name="parseFixedLengthStringLength0" root="e4" model="fixedLengthStrings" roundTrip="true">
+    <tdml:document>[,2]</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <ex:s1></ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 
 <!--
       Test Name: unparseFixedLengthString02
