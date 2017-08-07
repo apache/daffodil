@@ -160,15 +160,15 @@ class ProcessorFactory(val sset: SchemaSet)
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     ExecutionMode.usingCompilerMode {
-      Assert.usage(canProceed)
+      Assert.usage(!isError)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val rootERD = rootElem.elementRuntimeData
       rootElem.schemaDefinitionUnless(rootERD.outputValueCalcExpr.isEmpty,
         "The root element cannot have the dfdl:outputValueCalc property.")
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
-      val p = if (rootElem.canProceed) parser else null
-      val u = if (rootElem.canProceed) unparser else null
+      val p = if (!rootElem.isError) parser else null
+      val u = if (!rootElem.isError) unparser else null
       val ssrd = new SchemaSetRuntimeData(
         p,
         u,

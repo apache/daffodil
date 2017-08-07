@@ -75,7 +75,7 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
       val currentElement: InfosetSimpleElement = start.simpleElement
       val res = eval(start)
       currentElement.setDataValue(res)
-      if (start.status ne Success) return
+      if (start.processorStatus ne Success) return
     }
 }
 
@@ -88,7 +88,7 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
     res match {
       case ps: PState => return ;
       case _ => /*fall through*/ }
-    if (start.status.isInstanceOf[Failure]) return
+    if (start.processorStatus.isInstanceOf[Failure]) return
     // val vmap = start.variableMap
     start.setVariable(decl, res, decl, start)
   }
@@ -140,10 +140,10 @@ class AssertExpressionEvaluationParser(
       //
       // Removed this assert check because eval now side-effects start to
       // contain the result status.
-      // Assert.invariant(!start.status.isInstanceOf[Failure])
+      // Assert.invariant(!start.processorStatus.isInstanceOf[Failure])
       //
       // Assert.invariant(res != null)
-      if (start.status ne Success) return
+      if (start.processorStatus ne Success) return
 
       val testResult = res.asInstanceOf[Boolean]
       if (testResult) {

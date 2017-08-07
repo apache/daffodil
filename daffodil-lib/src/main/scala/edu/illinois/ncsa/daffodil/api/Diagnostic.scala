@@ -241,21 +241,12 @@ trait WithDiagnostics {
    * This predicate indicates whether the object in question succeeded or failed
    * at whatever some action was trying to do. That is to say,
    * do the diagnostics contain a hard error, or do the diagnostics
-   * only contain warnings and/or advisory content. If true then only warnings
+   * only contain warnings and/or advisory content. If false then only warnings
    * and other non-fatal diagnostics have appeared, so subsequent actions can
    * proceed.
    *
    * The classic example of this is compilation. If only warnings were produced
    * then one can proceed to run the compiled entity.
-   *
-   * This list is lazily constructed, so asking a compiler for its diagnostics forces
-   * the completion of all compilation so that any diagnostics will have been
-   * created. That is, this isn't for polling for diagnostics or anything like that.
    */
-  final lazy val canProceed: Boolean = !isError
   def isError: Boolean
-  /**
-   * Indicates whether there are any diagnostic objects available.
-   */
-  // def hasDiagnostics : Boolean
 }

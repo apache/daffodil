@@ -12,6 +12,13 @@
   
   <include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
   
-  <element name="e2" type="xsd:int" dfdl:lengthKind="delimited"/>
+  <element name="e2" dfdl:lengthKind="delimited">
+    <simpleType>
+      <restriction base="xsd:int">
+        <minInclusive value="0" />
+        <maxInclusive value="20" />
+      </restriction>
+    </simpleType>
+  </element>
   
 </schema>

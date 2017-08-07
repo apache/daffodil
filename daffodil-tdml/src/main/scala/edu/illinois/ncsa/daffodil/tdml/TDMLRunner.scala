@@ -714,7 +714,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           } else {
             // We did not get an error!!
             // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new TDMLException("Expected error. Didn't get one. Actual result was\n" + sw.toString) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+            throw new TDMLException("Expected error. Didn't get one. Actual result was\n" + sw.toString)
           }
         }
         processor.getDiagnostics ++ actual.getDiagnostics
@@ -756,21 +756,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val outputter = new TDMLInfosetOutputter()
       val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), outputter, testDataLength)
 
-      if (!actual.canProceed) {
+      if (actual.isProcessingError) {
         // Means there was an error, not just warnings.
         val diagObjs = actual.getDiagnostics
         if (diagObjs.length == 1) throw new TDMLException(diagObjs(0))
         val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-        throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
-      }
-
-      validationMode match {
-        case ValidationMode.Off => // Don't Validate
-        case mode => {
-          if (actual.isValidationSuccess) {
-            // println("Validation Succeeded!")
-          }
-        }
+        throw new TDMLException(diags)
       }
 
       val loc: DataLocation = actual.resultState.currentLocation
@@ -784,8 +775,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset)
 
       (shouldValidate, expectsValidationError) match {
-        case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
-        case (true, false) => VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        case (true, true) => {
+          VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
+          Assert.invariant(actual.isValidationError)
+        }
+        case (true, false) => {
+          VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+          Assert.invariant(!actual.isValidationError)
+        }
         case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
         case (false, false) => // Nothing to do here.
       }
@@ -808,7 +805,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
         val inputter = outputter.toInfosetInputter()
         val unparseResult = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
-        if (unparseResult.isError) {
+        if (unparseResult.isProcessingError) {
           val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
           if (diagObjs.length == 1) throw diagObjs(0)
           throw new TDMLException(diagObjs)
@@ -952,12 +949,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val out = new ScalaXMLInfosetOutputter()
       val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), out, testDataLength)
 
-      if (!parseActual.canProceed) {
+      if (parseActual.isProcessingError) {
         // Means there was an error, not just warnings.
         val diagObjs = parseActual.getDiagnostics
         if (diagObjs.length == 1) throw diagObjs(0)
         val diags = parseActual.getDiagnostics.map(_.getMessage()).mkString("\n")
-        throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+        throw new TDMLException(diags)
       }
       val loc: DataLocation = parseActual.resultState.currentLocation
 
@@ -971,8 +968,14 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyParserTestData(xmlNode, inputInfoset)
 
       (shouldValidate, expectsValidationError) match {
-        case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
-        case (true, false) => VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        case (true, true) => {
+          VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
+          Assert.invariant(actual.isValidationError)
+        }
+        case (true, false) => {
+          VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+          Assert.invariant(!actual.isValidationError)
+        }
         case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
         case (false, false) => // Nothing to do here.
       }

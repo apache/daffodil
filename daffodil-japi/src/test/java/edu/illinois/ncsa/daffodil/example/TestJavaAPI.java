@@ -794,4 +794,67 @@ public class TestJavaAPI {
 	}
 
 
+	@Test
+	public void testJavaAPI16() throws IOException, InvalidUsageException {
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+		ProcessorFactory pf = c.compileFile(schemaFile);
+		DataProcessor dp = pf.onPath("/");
+		dp.setValidationMode(ValidationMode.Limited);
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+		assertTrue(res.isError());
+		assertFalse(res.isProcessingError());
+		assertTrue(res.isValidationError());
+		assertTrue(res.location().isAtEnd());
+
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		assertEquals(1, diags.size());
+		Diagnostic d = diags.get(0);
+		assertTrue(d.getMessage().contains("maxInclusive"));
+		assertTrue(d.getMessage().contains("e2"));
+		assertTrue(d.getMessage().contains("20"));
+	}
+
+	@Test
+	public void testJavaAPI17() throws IOException, InvalidUsageException {
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+		ProcessorFactory pf = c.compileFile(schemaFile);
+		DataProcessor dp = pf.onPath("/");
+		dp.setValidationMode(ValidationMode.Full);
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+		JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+		ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+		assertTrue(res.isError());
+		assertFalse(res.isProcessingError());
+		assertTrue(res.isValidationError());
+		assertTrue(res.location().isAtEnd());
+
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		assertEquals(3, diags.size());
+		Diagnostic d0 = diags.get(0);
+		Diagnostic d1 = diags.get(1);
+		Diagnostic d2 = diags.get(2);
+
+		assertTrue(d0.getMessage().contains("42"));
+		assertTrue(d0.getMessage().contains("e2"));
+		assertTrue(d0.getMessage().contains("not valid"));
+
+		assertTrue(d1.getMessage().contains("42"));
+		assertTrue(d1.getMessage().contains("maxInclusive"));
+		assertTrue(d1.getMessage().contains("20"));
+
+		assertTrue(d2.getMessage().contains("maxInclusive"));
+		assertTrue(d2.getMessage().contains("e2"));
+		assertTrue(d2.getMessage().contains("20"));
+	}
+
 }

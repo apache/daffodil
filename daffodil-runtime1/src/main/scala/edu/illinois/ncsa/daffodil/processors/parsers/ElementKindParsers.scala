@@ -192,7 +192,7 @@ class ChoiceDispatchCombinatorParser(rd: RuntimeData, dispatchKeyEv: ChoiceDispa
       log(LogLevel.Debug, "Dispatching to choice alternative: %s", parser)
       parser.parse1(pstate)
 
-      if (pstate.status eq Success) {
+      if (pstate.processorStatus eq Success) {
         log(LogLevel.Debug, "Choice dispatch success: %s", parser)
       } else {
         log(LogLevel.Debug, "Choice dispatch failed: %s", parser)
@@ -213,7 +213,7 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
     bodyParser.parse1(start)
-    if (start.status ne Success) return
+    if (start.processorStatus ne Success) return
 
     val shouldValidate =
       start.dataProc.isDefined && start.dataProc.value.getValidationMode != ValidationMode.Off
@@ -228,11 +228,11 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
       val occurrence = actualOccurs - 1
 
       if (isUnbounded && occurrence < minO)
-        start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
+        start.validationError("%s occurred '%s' times when it was expected to be a " +
           "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
           occurrence, minO)
       else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
-        start.reportValidationError("%s occurred '%s' times when it was expected to be a " +
+        start.validationError("%s occurred '%s' times when it was expected to be a " +
           "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
           occurrence, minO, maxO)
       else {

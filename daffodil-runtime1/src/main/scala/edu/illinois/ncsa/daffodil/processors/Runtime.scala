@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.util.Validator
 import org.xml.sax.SAXParseException
 import edu.illinois.ncsa.daffodil.api.ValidationMode
@@ -208,7 +207,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       state.dataProc.get.init(ssrd.parser)
       doParse(ssrd.parser, state)
       val pr = new ParseResult(this, state)
-      if (!pr.isError) {
+      if (!pr.isProcessingError) {
         pr.validateResult()
 
         // now that everything has succeeded, call the infoset outputter to
@@ -402,7 +401,7 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
    * @param state the initial parse state.
    */
   def validateResult(): Unit = {
-    Assert.usage(resultState.status eq Success)
+    Assert.usage(resultState.processorStatus eq Success)
     if (dp.getValidationMode == ValidationMode.Full) {
       val schemaURIStrings = resultState.infoset.asInstanceOf[InfosetElement].runtimeData.schemaURIStringsForFullValidation
       try {
@@ -418,35 +417,19 @@ class ParseResult(dp: DataProcessor, override val resultState: PState)
         // So we also need this catch
         //
         case e: SAXException =>
-          resultState.reportValidationErrorNoContext(e)
+          resultState.validationErrorNoContext(e)
       }
     }
   }
 
   override def warning(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe)
+    resultState.validationErrorNoContext(spe)
   }
   override def error(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe)
+    resultState.validationErrorNoContext(spe)
   }
   override def fatalError(spe: SAXParseException): Unit = {
-    resultState.reportValidationErrorNoContext(spe)
-  }
-
-  lazy val isValidationSuccess = {
-    val res = dp.getValidationMode match {
-      case ValidationMode.Off => true
-      case _ => {
-        val res = resultState.diagnostics.exists { d =>
-          d match {
-            case ve: ValidationError => true
-            case _ => false
-          }
-        }
-        res
-      }
-    }
-    res
+    resultState.validationErrorNoContext(spe)
   }
 }
 

@@ -255,7 +255,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
 
       // at this point the recursive parse of the children is finished
 
-      if (state.status ne Success) return
+      if (state.processorStatus ne Success) return
 
       // We might not have used up all the bits. So some bits may need to
       // be skipped and filled in by fillbyte.

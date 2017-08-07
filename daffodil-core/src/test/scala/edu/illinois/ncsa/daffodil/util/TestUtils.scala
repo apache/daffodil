@@ -130,7 +130,7 @@ object TestUtils {
     }
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = u.unparse(inputter, out)
-    if (actual.isError) {
+    if (actual.isProcessingError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
@@ -150,7 +150,7 @@ object TestUtils {
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val inputter = new ScalaXMLInfosetInputter(infoset)
     val actual = u.unparse(inputter, out)
-    if (actual.isError) {
+    if (actual.isProcessingError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
@@ -208,7 +208,7 @@ object TestUtils {
 
     val outputter = new ScalaXMLInfosetOutputter()
     val actual = p.parse(d, outputter)
-    if (actual.isError) {
+    if (actual.isProcessingError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
@@ -267,7 +267,6 @@ class Fakes private () {
     def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = null
     def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
-    //final lazy val canProceed: Boolean = !isError
     def isError: Boolean = false
   }
   lazy val fakeDP = new FakeDataProcessor

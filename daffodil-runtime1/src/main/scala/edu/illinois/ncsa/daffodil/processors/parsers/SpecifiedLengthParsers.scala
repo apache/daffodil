@@ -63,7 +63,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
 
     val maybeNBits = getBitLength(pState)
 
-    if (pState.status _ne_ Success) return
+    if (pState.processorStatus _ne_ Success) return
     val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
@@ -82,7 +82,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
     // consume at the end. That is, the specified length can be an
     // outer constraint, but the children may not use it all up, leaving
     // a section at the end.
-    if (pState.status ne Success) return
+    if (pState.processorStatus ne Success) return
     val finalEndPos0b = startingBitPos0b + nBits
 
     captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))

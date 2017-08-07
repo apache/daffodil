@@ -771,4 +771,67 @@ class TestScalaAPI {
     Daffodil.setLoggingLevel(LogLevel.Info)
   }
 
+  @Test
+  def testScalaAPI16() {
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
+    dp.setValidationMode(ValidationMode.Limited)
+    val file = getResource("/test/sapi/myData.dat")
+    val fis = new java.io.FileInputStream(file)
+    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val outputter = new ScalaXMLInfosetOutputter()
+    val res = dp.parse(rbc, outputter, 2 << 3)
+    assertTrue(res.isError())
+    assertFalse(res.isProcessingError())
+    assertTrue(res.isValidationError() )
+    assertTrue(res.location().isAtEnd())
+
+    val diags = res.getDiagnostics
+    assertEquals(1, diags.size)
+    val d = diags(0)
+    assertTrue(d.getMessage().contains("maxInclusive"))
+    assertTrue(d.getMessage().contains("e2"))
+    assertTrue(d.getMessage().contains("20"))
+  }
+
+  @Test
+  def testScalaAPI17() {
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
+    dp.setValidationMode(ValidationMode.Full)
+    val file = getResource("/test/sapi/myData.dat")
+    val fis = new java.io.FileInputStream(file)
+    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val outputter = new ScalaXMLInfosetOutputter()
+    val res = dp.parse(rbc, outputter, 2 << 3)
+    assertTrue(res.isError())
+    assertFalse(res.isProcessingError())
+    assertTrue(res.isValidationError() )
+    assertTrue(res.location().isAtEnd())
+
+    val diags = res.getDiagnostics
+    assertEquals(3, diags.size)
+    val d0 = diags(0)
+    val d1 = diags(1)
+    val d2 = diags(2)
+    assertTrue(d0.getMessage().contains("42"))
+    assertTrue(d0.getMessage().contains("e2"))
+    assertTrue(d0.getMessage().contains("not valid"))
+
+    assertTrue(d1.getMessage().contains("42"))
+    assertTrue(d1.getMessage().contains("maxInclusive"))
+    assertTrue(d1.getMessage().contains("20"))
+
+    assertTrue(d2.getMessage().contains("maxInclusive"))
+    assertTrue(d2.getMessage().contains("e2"))
+    assertTrue(d2.getMessage().contains("20"))
+  }
+
+
 }

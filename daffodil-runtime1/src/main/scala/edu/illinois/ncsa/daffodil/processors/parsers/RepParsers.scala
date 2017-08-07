@@ -93,7 +93,7 @@ object Rep {
       if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, iParser)
-      if (pstate.status ne Success) {
+      if (pstate.processorStatus ne Success) {
         pstate.mpstate.arrayIndexStack.pop()
         pstate.mpstate.occursBoundsStack.pop()
         return // fail if we don't get them all
@@ -113,8 +113,8 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
       if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, rParser)
       rParser.parse1(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, rParser)
-      if (pstate.status ne Success) {
-        val cause = pstate.status.asInstanceOf[Failure].cause
+      if (pstate.processorStatus ne Success) {
+        val cause = pstate.processorStatus.asInstanceOf[Failure].cause
         PE(pstate, "Failed to populate %s[%s].  Expected %s item(s). Cause: %s.",
           context.prefixedName, pstate.mpstate.arrayPos, n,
           cause) // they all must succeed, otherwise we fail here.
@@ -154,7 +154,7 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
         if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
-        if (pstate.status ne Success) {
+        if (pstate.processorStatus ne Success) {
           //
           // Did not succeed
           //
@@ -201,7 +201,7 @@ class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeDa
   def parseAllRepeats(pstate: PState): Unit = {
     Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
 
-    if (pstate.status ne Success) {
+    if (pstate.processorStatus ne Success) {
       PE(pstate, "Failed to populate %s[%s].  Expected %s item(s).",
         context.prefixedName, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
     }
@@ -212,12 +212,12 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   extends RepParser(-1, rParser, erd, "Unbounded") {
 
   def parseAllRepeats(initialState: PState): Unit = {
-    Assert.invariant(initialState.status eq Success)
+    Assert.invariant(initialState.processorStatus eq Success)
     val startState = initialState.mark("RepUnboundedParser1")
     val pstate = initialState
     var priorState = initialState.mark("RepUnboundedParser2")
     var returnFlag = false
-    while (!returnFlag && (pstate.status eq Success)) {
+    while (!returnFlag && (pstate.processorStatus eq Success)) {
 
       //      erd.maxOccurs.foreach { maxOccurs =>
       //        if ((occursCountKind == OccursCountKind.Implicit) &&
@@ -251,7 +251,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       }
 
       if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
-      if (pstate.status ne Success) {
+      if (pstate.processorStatus ne Success) {
         //
         // Did not succeed
         //
@@ -325,7 +325,7 @@ class RepAtMostOccursCountParser(rParser: Parser, intN: Long, erd: ElementRuntim
     // repeat either n times, or occursCount times if that's less than n.
     val n = math.min(pstate.mpstate.occursBounds, erd.minOccurs.get)
     Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
-    if (pstate.status ne Success) {
+    if (pstate.processorStatus ne Success) {
       PE(pstate, "Failed to populate %s[%s].  Expected at most %s items.",
         erd.prefixedName, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
       return
@@ -338,7 +338,7 @@ class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
   def parseAllRepeats(pstate: PState): Unit = {
     val ocInt = pstate.mpstate.occursBounds.toInt
     Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
-    if (pstate.status ne Success) {
+    if (pstate.processorStatus ne Success) {
       PE(pstate, "Failed to populate %s[%s].  Expected %s item(s).",
         erd.prefixedName, pstate.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
       return

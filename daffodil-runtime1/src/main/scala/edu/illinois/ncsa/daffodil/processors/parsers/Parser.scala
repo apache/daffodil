@@ -172,7 +172,7 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
     while (i < numChildParsers) {
       val parser = childParsers(i)
       parser.parse1(pstate)
-      if (pstate.status ne Success)
+      if (pstate.processorStatus ne Success)
         return
       i += 1
     }
@@ -209,7 +209,7 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           throw d
         }
       }
-      if (pstate.status eq Success) {
+      if (pstate.processorStatus eq Success) {
         log(LogLevel.Debug, "Choice alternative success: %s", parser)
         pstate.discard(pBefore)
         pBefore = null

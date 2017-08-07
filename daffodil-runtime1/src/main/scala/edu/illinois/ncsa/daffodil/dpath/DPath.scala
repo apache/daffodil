@@ -254,8 +254,8 @@ final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kin
     if (maybeRes.isDefined) {
       maybeRes.value
     } else {
-      Assert.invariant(state.status ne Success)
-      val cause = state.status.asInstanceOf[Failure].cause
+      Assert.invariant(state.processorStatus ne Success)
+      val cause = state.processorStatus.asInstanceOf[Failure].cause
       throw cause /* try-catch exists in Parser.parse1 to catch these */
     }
   }

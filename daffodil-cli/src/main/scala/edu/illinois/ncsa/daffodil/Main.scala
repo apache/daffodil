@@ -654,7 +654,7 @@ object Main extends Logging {
     val compiler = Compiler()
     val processor = Timer.getResult("reloading", compiler.reload(savedParser))
     displayDiagnostics(processor)
-    if (processor.canProceed) {
+    if (!processor.isError) {
       processor.setValidationMode(mode)
       Some(processor)
     } else None
@@ -725,7 +725,7 @@ object Main extends Logging {
     val schemaSource = URISchemaSource(schema)
     val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compileSource(schemaSource)
-      if (processorFactory.canProceed) {
+      if (!processorFactory.isError) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
         displayDiagnostics(processor)
         processor.setValidationMode(mode)
@@ -839,7 +839,7 @@ object Main extends Logging {
         }
 
         val rc = processor match {
-          case Some(processor) if (processor.canProceed) => {
+          case Some(processor) if (!processor.isError) => {
             val (input, optDataSize) = parseOpts.infile.get match {
               case Some("-") | None => (System.in, None)
               case Some(file) => {
@@ -866,7 +866,7 @@ object Main extends Logging {
               })
             val loc = parseResult.resultState.currentLocation
             displayDiagnostics(parseResult)
-            if (parseResult.isError) {
+            if (parseResult.isProcessingError) {
               1
             } else {
               // only XMLTextInfosetOutputter and JsonInfosetOutputter write
@@ -919,7 +919,7 @@ object Main extends Logging {
                 }
               }
 
-              0
+              if (parseResult.isValidationError) 1 else 0
             }
           }
           case Some(processor) => 1
@@ -951,7 +951,7 @@ object Main extends Logging {
         }
 
         val rc = processor match {
-          case Some(processor: DataProcessor) if (processor.canProceed) => {
+          case Some(processor: DataProcessor) if (!processor.isError) => {
             val infile = new java.io.File(performanceOpts.infile())
 
             val files = {

@@ -183,7 +183,6 @@ object DFDL {
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State
-    def isValidationSuccess: Boolean
   }
 
   trait UnparseResult extends Result with WithDiagnostics {
@@ -199,7 +198,8 @@ object DFDL {
    * Interface for Parse and Unparse states
    */
   trait State {
-    def status: ProcessorResult
+    def processorStatus: ProcessorResult
+    def validationStatus: Boolean
     def diagnostics: Seq[Diagnostic]
     def currentLocation: DataLocation
   }
@@ -212,7 +212,7 @@ object DFDL {
     var diagnostics: Seq[Diagnostic] = Nil
 
     private def resultStatusDiagnostics: Seq[Diagnostic] = {
-      resultState.status match {
+      resultState.processorStatus match {
         case Failure(c) => List(c)
         case Success => Nil
       }
@@ -225,6 +225,9 @@ object DFDL {
     def addDiagnostic(d: Diagnostic) {
       diagnostics = d +: diagnostics
     }
-    lazy val isError = resultState.status ne Success
+
+    def isError = isProcessingError || isValidationError
+    def isProcessingError = resultState.processorStatus != Success
+    def isValidationError = resultState.validationStatus != true
   }
 }

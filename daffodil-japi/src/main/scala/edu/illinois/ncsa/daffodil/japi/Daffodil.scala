@@ -307,10 +307,10 @@ class ProcessorFactory private[japi] (pf: SProcessorFactory)
  * Abstract class that adds diagnostic information to classes that extend it.
  *
  * When a function returns a class that extend this, one should call
- * [[WithDiagnostics#isError]] or [[WithDiagnostics#canProceed]] on that class
- * before performing any further actions. If an error exists, any use of that
- * class, aside from those functions in [[WithDiagnostics]], is invalid and
- * will result in an Exception.
+ * [[WithDiagnostics#isError]] on that class before performing any further
+ * actions. If an error exists, any use of that class, aside from those
+ * functions in [[WithDiagnostics]], is invalid and will result in an
+ * Exception.
  */
 abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
 
@@ -326,12 +326,13 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
    *
    * @return true it is safe to proceed, false otherwise
    */
-  def canProceed() = wd.canProceed
+  @deprecated("Use !isError() to determine if it is safe to proceed","2.0.0")
+  def canProceed() = !isError
 
   /**
    * Get the list of [[Diagnostic]]'s created during the construction of the parent object
    *
-   * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false or [[WithDiagnostics#canProceed]] is true.
+   * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false.
    */
   def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) } // implicitly converts to the Java collection
 }
@@ -623,6 +624,24 @@ class ParseResult private[japi] (pr: SParseResult, deprecatedOutput: Maybe[JDOMI
    * @return the data location where the parse completed
    */
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
+
+  /**
+   * Determine if any processing errors occurred. isError() will always return
+   * true if this returns true.
+   *
+   * @return true if any processing errors occured, false otherwise.
+   */
+  def isProcessingError(): Boolean = pr.isProcessingError
+
+  /**
+   * Determine if all validation checks passed based on the validation mode of
+   * the DataProcessor. If validation mode is Off, this will always return
+   * false. This is only meaningful when isProcessingError() is false.
+   * isError() will always return true if this return true.
+   *
+   * @return true if any validation errors occurred, false otherwise.
+   */
+  def isValidationError(): Boolean = pr.isValidationError
 }
 
 /**

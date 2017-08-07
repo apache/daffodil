@@ -94,7 +94,7 @@ abstract class ElementParserBase(
         log(LogLevel.Debug,
           "Validation failed for %s due to %s. The element was %s.",
           context.toString, failureMessage, currentElement.namedQName)
-        pstate.reportValidationError("%s failed facet checks due to: %s",
+        pstate.validationError("%s failed facet checks due to: %s",
           context.toString, failureMessage)
         currentElement.setValid(false)
         pstate
@@ -109,7 +109,7 @@ abstract class ElementParserBase(
       val startingBitPos = pstate.dataInputStream.mark("ElementParserBase1")
       patDiscrimParser.get.parse1(pstate)
       // Pattern fails at the start of the Element
-      if (pstate.status ne Success) {
+      if (pstate.processorStatus ne Success) {
         pstate.dataInputStream.discard(startingBitPos)
         return
       } else {
@@ -123,7 +123,7 @@ abstract class ElementParserBase(
         val d = patAssertParser(i)
         d.parse1(pstate)
         // Pattern fails at the start of the Element
-        if (pstate.status ne Success) {
+        if (pstate.processorStatus ne Success) {
           pstate.dataInputStream.discard(startingBitPos)
           return
         }
@@ -140,12 +140,12 @@ abstract class ElementParserBase(
     try {
       // TODO: Performance/Maintainability - get rid of use of return statements.
 
-      if (pstate.status ne Success) return // but finally at the bottom will run!
+      if (pstate.processorStatus ne Success) return // but finally at the bottom will run!
 
       if (eBeforeParser.isDefined)
         eBeforeParser.get.parse1(pstate)
 
-      if (pstate.status ne Success) return
+      if (pstate.processorStatus ne Success) return
 
       // We just successfully created the element in the infoset. Notify the
       // debugger of this so it can do things like check for break points
@@ -158,13 +158,13 @@ abstract class ElementParserBase(
 
       var setVarFailureDiags: Seq[Diagnostic] = Nil
 
-      if (pstate.status eq Success) {
+      if (pstate.processorStatus eq Success) {
         var i: Int = 0
         while (i < setVarParser.length) {
           val d = setVarParser(i)
           i += 1
           d.parse1(pstate)
-          if (pstate.status ne Success) {
+          if (pstate.processorStatus ne Success) {
             setVarFailureDiags = pstate.diagnostics
             // a setVariable statement may fail. But we want to continue to try
             // more of the setVariable statements, as they may be necessary
@@ -180,7 +180,7 @@ abstract class ElementParserBase(
       if (testDiscrimParser.isDefined) {
         testDiscrimParser.get.parse1(pstate)
         // Tests fail at the end of the Element
-        if (pstate.status ne Success) { return }
+        if (pstate.processorStatus ne Success) { return }
       }
 
       //
@@ -193,7 +193,7 @@ abstract class ElementParserBase(
       }
 
       // Element evaluation failed, return
-      if (pstate.status ne Success) { return }
+      if (pstate.processorStatus ne Success) { return }
 
       {
         var i = 0
@@ -203,14 +203,14 @@ abstract class ElementParserBase(
 
           d.parse1(pstate)
           // Tests fail at the end of the Element
-          if (pstate.status ne Success) { return }
+          if (pstate.processorStatus ne Success) { return }
         }
       }
 
       if (eAfterParser.isDefined)
         eAfterParser.get.parse1(pstate)
 
-      if (pstate.status ne Success) return
+      if (pstate.processorStatus ne Success) return
     } finally {
       parseEnd(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.value.endElement(pstate, this)
@@ -268,7 +268,7 @@ class ElementParser(
     val currentElement = pstate.infoset
     val priorElement = currentElement.diParent
 
-    if (pstate.status eq Success) {
+    if (pstate.processorStatus eq Success) {
       val shouldValidate =
         (pstate.dataProc.isDefined) && pstate.dataProc.value.getValidationMode != ValidationMode.Off
       if (shouldValidate && erd.isSimpleType) {

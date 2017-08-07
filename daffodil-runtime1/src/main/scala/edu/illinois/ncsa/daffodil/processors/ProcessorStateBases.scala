@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
@@ -96,32 +97,49 @@ case class TupleForDebugger(
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
-  var dataProc: Maybe[DataProcessor],
-  protected var status_ : ProcessorResult) extends DFDL.State
+  var dataProc: Maybe[DataProcessor]) extends DFDL.State
   with StateForDebugger
-  with ThrowsSDE with SavesErrorsAndWarnings
+  with ThrowsSDE
+  with SavesErrorsAndWarnings
   with LocalBufferMixin
   with EncoderDecoderMixin
   with Logging {
 
-  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], status: ProcessorResult = Success) =
-    this(new VariableBox(vmap), diags, dataProc, status)
+  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor]) =
+    this(new VariableBox(vmap), diags, dataProc)
 
   def variableMap = variableBox.vmap
   def setVariableMap(newMap: VariableMap) {
     variableBox.setVMap(newMap)
   }
 
-  def status = status_
+  protected var _processorStatus: ProcessorResult = Success
+  protected var _validationStatus: Boolean = true
+
+  def processorStatus = _processorStatus
+  def validationStatus = _validationStatus
 
   final def setFailed(failureDiagnostic: Diagnostic) {
     // threadCheck()
     if (!diagnostics.contains(failureDiagnostic)) {
-      status_ = new Failure(failureDiagnostic)
+      _processorStatus = new Failure(failureDiagnostic)
       diagnostics = failureDiagnostic :: diagnostics
     } else {
-      Assert.invariant(status ne Success)
+      Assert.invariant(processorStatus ne Success)
     }
+  }
+
+  def validationError(msg: String, args: Any*) {
+    val ctxt = getContext()
+    val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
+    _validationStatus = false
+    diagnostics = vde :: diagnostics
+  }
+
+  def validationErrorNoContext(cause: Throwable): Unit = {
+    val vde = new ValidationError(this, cause)
+    _validationStatus = false
+    diagnostics = vde :: diagnostics
   }
 
   /**
@@ -131,7 +149,7 @@ abstract class ParseOrUnparseState protected (
    * This happens, for example, in the debugger when it is evaluating expressions.
    */
   def setSuccess() {
-    status_ = Success
+    _processorStatus = Success
   }
 
   def currentNode: Maybe[DINode]

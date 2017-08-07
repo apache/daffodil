@@ -51,7 +51,7 @@ case class ConvertTextCombinatorUnparser(
   override def unparse(state: UState): Unit = {
     converterUnparser.unparse1(state, rd)
 
-    if (state.status ne Success) return
+    if (state.processorStatus ne Success) return
 
     valueUnparser.unparse1(state, rd)
   }

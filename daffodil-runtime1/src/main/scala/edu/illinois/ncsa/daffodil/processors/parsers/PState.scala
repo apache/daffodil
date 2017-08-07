@@ -38,7 +38,6 @@ import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.io.DataInputStream
@@ -69,7 +68,6 @@ import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 object MPState {
@@ -153,12 +151,11 @@ final class PState private (
   var dataInputStream: DataInputStream,
   val output: InfosetOutputter,
   vmap: VariableMap,
-  statusArg: ProcessorResult,
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), statusArg) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg)) {
 
   override def currentNode = Maybe(infoset)
 
@@ -209,7 +206,7 @@ final class PState private (
 
   override def toString() = {
     // threadCheck()
-    "PState( bitPos=%s status=%s )".format(bitPos0b, status)
+    "PState( bitPos=%s status=%s )".format(bitPos0b, processorStatus)
   }
 
   def currentLocation: DataLocation =
@@ -260,17 +257,6 @@ final class PState private (
     this.setVariableMap(variableMap.setVariable(vrd, newValue, referringContext, pstate))
   }
 
-  def reportValidationError(msg: String, args: Any*) {
-    val ctxt = getContext()
-    val vde = new ValidationError(Maybe(ctxt.schemaFileLocation), this, msg, args: _*)
-    diagnostics = vde :: diagnostics
-  }
-
-  def reportValidationErrorNoContext(cause: Throwable): Unit = {
-    val vde = new ValidationError(this, cause)
-    diagnostics = vde :: diagnostics
-  }
-
   def pushDiscriminator {
     // threadCheck()
     discriminatorStack.push(false)
@@ -308,7 +294,8 @@ object PState {
     val complexElementState = DIComplexState()
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
-    var status: ProcessorResult = _
+    var processorStatus: ProcessorResult = _
+    var validationStatus: Boolean = _
     var diagnostics: List[Diagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
 
@@ -319,7 +306,8 @@ object PState {
       complexElementState.clear()
       disMark = null
       variableMap = null
-      status = null
+      processorStatus = null
+      validationStatus = true
       diagnostics = null
       delimitedParseResult = Nope
       mpStateMark.clear()
@@ -333,7 +321,8 @@ object PState {
         complexElementState.captureFrom(e)
       this.disMark = ps.dataInputStream.mark(requestorID)
       this.variableMap = ps.variableMap
-      this.status = ps.status
+      this.processorStatus = ps.processorStatus
+      this.validationStatus = ps.validationStatus
       this.diagnostics = ps.diagnostics
       this.mpStateMark.captureFrom(ps.mpstate)
     }
@@ -346,7 +335,8 @@ object PState {
       }
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
-      ps.status_ = this.status
+      ps._processorStatus = this.processorStatus
+      ps._validationStatus = this.validationStatus
       ps.diagnostics = this.diagnostics
       ps.delimitedParseResult = this.delimitedParseResult
       mpStateMark.restoreInto(ps.mpstate)
@@ -369,10 +359,9 @@ object PState {
 
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
     val variables = dataProc.getVariables
-    val status = Success
     val diagnostics = Nil
     val mutablePState = MPState()
-    val newState = new PState(doc, dis, output, variables, status, diagnostics, mutablePState,
+    val newState = new PState(doc, dis, output, variables, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }
@@ -388,11 +377,10 @@ object PState {
     dataProc: DFDL.DataProcessor): PState = {
 
     val variables = dataProc.getVariables
-    val status = Success
     val diagnostics = Nil
     val mutablePState = MPState()
 
-    val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, status, diagnostics, mutablePState,
+    val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }

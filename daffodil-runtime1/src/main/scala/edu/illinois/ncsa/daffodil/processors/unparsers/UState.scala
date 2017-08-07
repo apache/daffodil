@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dpath.UnparserBlocking
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.equality.EqualitySuppressUnusedImportWarning
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
@@ -64,7 +63,6 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.Suspension
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.processors.VariableBox
@@ -78,7 +76,6 @@ import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
@@ -90,7 +87,7 @@ abstract class UState(
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor])
-  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, Success)
+  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def toString = {
@@ -182,13 +179,7 @@ abstract class UState(
 
   def addUnparseError(ue: UnparseError) {
     diagnostics = ue :: diagnostics
-    status_ = new Failure(ue)
-  }
-
-  def validationError(msg: String, args: Any*) {
-    val ctxt = getContext()
-    val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
-    diagnostics = vde :: diagnostics
+    _processorStatus = new Failure(ue)
   }
 }
 
