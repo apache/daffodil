@@ -71,7 +71,7 @@ object LineCounter extends App {
         new LineCounter("daffodil source sbt", root, List("daffodil"), List("project")))),
       new LineCounter("daffodil unit test", root + "daffodil", srcModulesToInclude, List("src/test")),
       new LineCounterCombiner("daffodil tests and examples", List(
-        new LineCounter("daffodil tests and examples", root + "daffodil", List("daffodil-test", "daffodil-examples"), List("src/main", "src/test"),
+        new LineCounter("daffodil tests and examples", root + "daffodil", List("daffodil-test"), List("src/main", "src/test"),
           filesToExclude = List("pcap.tdml")),
         new LineCounter("daffodil 'ibm1' ibm-supplied tests", root + "daffodil", List("daffodil-test-ibm1"),
           List("src/main",
@@ -93,25 +93,32 @@ object LineCounter extends App {
       new LineCounterCombiner("Public schemas", List(
         // NACHA is separate due to the 2013 subdir, which we don't have a way to deal with yet
         new LineCounter("DFDLSchemas/NACHA", root + "DFDLSchemas/NACHA", List("2013"), List("src/test")), // only src/test as IBM wrote this schema. We just tweeked it.
-        new LineCounter("DFDLSchemas/others", root + "DFDLSchemas", List("mil-std-2045"), List("src/main", "src/test")), // Not PCAP since included in daffodil-examples
-        new LineCounter("PNG", root, List("png", "jpeg"), List("src/main", "src/test")))),
+        new LineCounter("DFDLSchemas/others", root + "DFDLSchemas", List("mil-std-2045", "png", "bmp", "NITF", "PCAP", "CSV", "jpeg"), List("src/main", "src/test")),
+        new LineCounter("jpeg2000", root, List("jpeg2000"), List("src/main", "src/test")),
+        new LineCounter("ipfix", root, List("ipfix"), List("")),
+        new LineCounter("asterix", root, List("asterix"), List("src/main", "src/test")))),
       new LineCounterCombiner("fouo-schemas", List(
         new LineCounter("fouo-schemas", root + "fouo-schemas", Nil, List("src/main", "src/test"),
           filesToExclude = List(
             "army_drrs_lh.dfdl.tdml", // a giant tdml file that mostly just contains data
             "sets.xsd", "fields.xsd", "messages.xsd", "composites.xsd", // usmtf generated schema
-            "Link16ed6-ded.xsd", "Link16ed6-msg-forward-reference.xsd" // link16 nato generated schema
-            ) //
+            "link16ed6-daffodil-compliant-original.xsd", "link16ed6-daffodil-compliant-slow.xsd", "link16ed6-daffodil-compliant.xsd", // link16 nato generated schema
+            "proposed_ded.dfdl.xsd", "proposed_msg.dfdl.xsd", "dfidui.dfdl.xsd") //
             ),
         new LineCounter("vmf", root + "fouo-schemas/vmf", List("generator", "schema"), List("src/main", "src/test")),
         new LineCounterOneDir("vmf other", root + "fouo-schemas/vmf", List("build.sbt", "README.md") //
         ))), //
-      new LineCounterCombiner("calabash", List(
-        new LineCounter("calabash proper", root + "daffodil-calabash-extension", List("calabash-server"), List("src/main", "src/test"),
-          fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xsd", ".xpl", ".sbt")),
-        new LineCounter("calabash fouo", root + "daffodil-fouo", List("calabash-test"), List("src/main", "src/test"),
-          fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xpl", ".sbt")))),
-      new LineCounter("all sbt files", root, List("daffodil", "fouo-schemas", "DFDLSchemas", "daffodil-calabash-extension"), List(""), fileSuffixesToInclude = List(".sbt")))
+      new LineCounterCombiner("Integrations",
+        List(
+          new LineCounter("calabash proper", root + "daffodil-calabash-extension", List("calabash-server"), List("src/main", "src/test"),
+            fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xsd", ".xpl", ".sbt")),
+          new LineCounter("calabash fouo", root + "daffodil-fouo", List("calabash-test"), List("src/main", "src/test"),
+            fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".xpl", ".sbt")),
+          new LineCounter("NiFi", root + "daffodil-nifi", List("nifi-daffodil-nar", "nifi-daffodil-processors"), List("src/main", "src/test")),
+          new LineCounter("Spark", root, List("daffodil-spark"), List("src/main", "src/test")))),
+      new LineCounter("all sbt files", root, List("daffodil", "fouo-schemas", "DFDLSchemas", "daffodil-calabash-extension",
+        "daffodil-nifi", "jpeg2000", "daffodil-nifi", "daffodil-spark", "ipfix", "asterix"), List(""), fileSuffixesToInclude = List(".sbt")))
+
     val allpairs = counters.flatMap { _.pairs }
     val nFiles = allpairs.length
     allpairs.foreach { case (fn, cnt) => println(fn.stripPrefix(root), cnt) }
