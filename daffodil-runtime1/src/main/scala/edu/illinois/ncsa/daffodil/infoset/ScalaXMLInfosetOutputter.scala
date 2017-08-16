@@ -66,7 +66,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
   def startSimple(diSimple: DISimple): Boolean = {
 
     val e =
-      if (diSimple.isNilled && diSimple.erd.isNillable) {
+      if (isNilled(diSimple)) {
         scala.xml.Elem(diSimple.erd.thisElementsNamespacePrefix, diSimple.erd.name,
             XMLUtils.xmlNilAttribute, diSimple.erd.minimizedScope, true)
       } else if (diSimple.hasValue) {
@@ -106,7 +106,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetO
     val children = stack.pop
 
     val e =
-      if (diComplex.isNilled && diComplex.erd.isNillable) {
+      if (isNilled(diComplex)) {
         scala.xml.Elem(diComplex.erd.thisElementsNamespacePrefix, diComplex.erd.name,
           XMLUtils.xmlNilAttribute, diComplex.erd.minimizedScope, true)
       } else {

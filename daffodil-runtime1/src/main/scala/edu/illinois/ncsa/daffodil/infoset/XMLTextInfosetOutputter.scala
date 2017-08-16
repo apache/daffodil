@@ -68,7 +68,7 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
       writer.write(sb.toString)
     }
 
-    if (elem.isNilled) {
+    if (isNilled(elem)) {
       writer.write(" xsi:nil=\"true\"")
     }
 
@@ -86,7 +86,7 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
     val name = getTagName(simple)
     outputStartTag(simple, name)
 
-    if (!simple.isNilled && simple.hasValue) {
+    if (!isNilled(simple) && simple.hasValue) {
       val text =
         if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
           val s = remapped(simple.dataValueAsString)

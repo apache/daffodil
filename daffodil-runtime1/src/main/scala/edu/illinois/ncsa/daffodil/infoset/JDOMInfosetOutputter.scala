@@ -120,7 +120,7 @@ class JDOMInfosetOutputter extends InfosetOutputter
         new org.jdom2.Element(diElement.erd.name, diElement.erd.thisElementsNamespacePrefix,
           diElement.erd.thisElementsNamespace)
 
-    if (diElement.isNilled && diElement.erd.isNillable) {
+    if (isNilled(diElement)) {
       elem.setAttribute("nil", "true", xsiNS)
     }
     elem

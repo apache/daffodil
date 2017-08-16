@@ -99,11 +99,10 @@ class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   }
 
 
-
   override def startSimple(simple: DISimple): Boolean = {
     startNode()
     startElement(simple)
-    if (!simple.isNilled) {
+    if (!isNilled(simple)) {
       val text =
         if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
           new String(stringEncoder.quoteAsString(simple.dataValueAsString)) // escapes according to Json spec
@@ -127,7 +126,7 @@ class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   override def startComplex(complex: DIComplex): Boolean = {
     startNode()
     startElement(complex)
-    if (!complex.isNilled) {
+    if (!isNilled(complex)) {
       writer.write('{')
       prepareForChildren()
     } else {
@@ -137,7 +136,7 @@ class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   }
 
   override def endComplex(complex: DIComplex): Boolean = {
-    if (!complex.isNilled) {
+    if (!isNilled(complex)) {
       endNodeWithChildren()
       writer.write('}')
     } else {

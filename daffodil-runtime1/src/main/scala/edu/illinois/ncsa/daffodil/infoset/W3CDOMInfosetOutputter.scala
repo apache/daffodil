@@ -130,7 +130,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
         document.createElementNS(diElement.erd.thisElementsNamespace, diElement.erd.prefixedName)
       }
 
-    if (diElement.isNilled && diElement.erd.isNillable) {
+    if (isNilled(diElement)) {
       elem.setAttributeNS(XMLUtils.XSI_NAMESPACE.toString, "xsi:nil", "true")
     }
 

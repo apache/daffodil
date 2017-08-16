@@ -132,6 +132,21 @@ trait InfosetOutputter {
     // Done, Ready (Not started), Visiting (part way done - can retry to visit more)...
     status
   }
+
+  /**
+   * Helper function to determine if an element is nilled or not, taking into
+   * account whether or not the nilled state has been set yet.
+   *
+   * @param diElement the element to check the nilled state of
+   *
+   * @return true if the nilled state has been set and is true. false if the
+   *         nilled state is false or if the nilled state has not been set yet
+   *         (e.g. during debugging)
+   */
+  final def isNilled(diElement: DIElement): Boolean = {
+    val maybeIsNilled = diElement.maybeIsNilled
+    maybeIsNilled.isDefined && maybeIsNilled.get == true
+  }
 }
 
 object Status extends Enumeration {
