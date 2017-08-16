@@ -47,8 +47,8 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="embeddedWithInclude">
-    <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
-    <dfdl:format ref="GeneralPurposeFormat" />
+    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+    <dfdl:format ref="daffodilTest1" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
@@ -140,7 +140,7 @@
   -->
 
   <tdml:parserTestCase name="tdml_schema_include"
-    root="basic" model="embeddedWithImport" description="">
+    root="basic" model="embeddedWithInclude" description="">
     <tdml:document><![CDATA[moredata]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
