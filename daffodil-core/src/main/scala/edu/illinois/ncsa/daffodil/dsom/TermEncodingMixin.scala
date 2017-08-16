@@ -44,11 +44,17 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   requiredEvaluations(encodingInfo.preSerialization)
 
   protected final lazy val defaultEncodingErrorPolicy = {
-    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
-      encodingErrorPolicy
-    } else {
-      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
+    val policy =
+      if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
+        encodingErrorPolicy
+      } else {
+        optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
+      }
+    if (policy == EncodingErrorPolicy.Error) {
+      // DFDL-935 to enable
+      notYetImplemented("dfdl:encodingErrorPolicy=\"error\"")
     }
+    policy
   }
   /**
    * Character encoding common attributes

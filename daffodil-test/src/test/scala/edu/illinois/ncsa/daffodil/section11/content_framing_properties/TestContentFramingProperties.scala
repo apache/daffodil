@@ -86,7 +86,9 @@ class TestContentFramingProperties {
   @Test def test_packed7BitASCII10() { runner2.runOneTest("packed7BitASCII10") }
   @Test def test_packed7BitASCII_unparse() { runner2.runOneTest("packed7BitASCII_unparse") }
   @Test def test_packed7BitASCII_unparse2() { runner2.runOneTest("packed7BitASCII_unparse2") }
-  @Test def test_packed7BitASCII_unparse3() { runner2.runOneTest("packed7BitASCII_unparse3") }
+
+  // DFDL-935 to re-enable, needs encodingErrorPolicy="error"
+  //@Test def test_packed7BitASCII_unparse3() { runner2.runOneTest("packed7BitASCII_unparse3") }
 
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
@@ -128,7 +130,8 @@ class TestContentFramingProperties {
   @Test def test_octalLSBF1() { runner2.runOneTest("octalLSBF1") }
   @Test def test_octalLSBF2() { runner2.runOneTest("octalLSBF2") }
   @Test def test_octalLSBF_unparse1() { runner2.runOneTest("octalLSBF_unparse1") }
-  @Test def test_octalLSBF_unparse_error() { runner2.runOneTest("octalLSBF_unparse_error") }
+  // DFDL-935 to re-enable, needs encodingErrorPolicy="error"
+  //@Test def test_octalLSBF_unparse_error() { runner2.runOneTest("octalLSBF_unparse_error") }
   @Test def test_octalLSBF3() { runner2.runOneTest("octalLSBF3") }
   @Test def test_hexLSBF1() { runner2.runOneTest("hexLSBF1") }
   @Test def test_hexLSBF2() { runner2.runOneTest("hexLSBF2") }

@@ -707,7 +707,7 @@
     Schema: packed7BitASCII
     Purpose: This test demonstrates use of the X-DFDL-US-ASCII-7-BIT-PACKED
              encoding, with an invalid character with
-             encodingErrorPolicy="report".
+             encodingErrorPolicy="error".
   -->
   <tdml:unparserTestCase name="packed7BitASCII_unparse3" root="e1_1"
     model="packed7BitASCII" roundTrip="false">

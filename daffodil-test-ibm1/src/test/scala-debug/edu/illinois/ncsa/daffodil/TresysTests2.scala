@@ -93,5 +93,8 @@ class TresysTests2 {
   lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
 
   // DFDL-935
+  @Test def test_t1() { runnerMB.runOneTest("t1") }
+  @Test def test_t2() { runnerMB.runOneTest("t2") }
+  @Test def test_t3() { runnerMB.runOneTest("t3") }
   @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
 }
