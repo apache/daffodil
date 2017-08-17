@@ -39,7 +39,7 @@ import org.junit.AfterClass
 object TestInputValueCalcDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
 
-  val runner = Runner(testDir, "inputValueCalc.tdml")
+  val runner = Runner(testDir, "inputValueCalc.tdml", validateTDMLFile = false)
   val runnerAR = Runner(testDir, "AR.tdml")
   val runnerAQ = Runner(testDir, "AQ.tdml")
   val runnerAA = Runner(testDir, "AA.tdml")
@@ -65,9 +65,6 @@ class TestInputValueCalcDebug {
   @Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
   @Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
   @Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
-
-  //DFDL-1027
-  @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
 
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
