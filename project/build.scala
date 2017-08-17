@@ -308,6 +308,7 @@ object DaffodilBuild extends Build {
       case DepModuleInfo("xml-resolver", "xml-resolver", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
       case DepModuleInfo("org.fusesource.jansi", "jansi", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
       case DepModuleInfo("com.fasterxml.jackson.core", "jackson-core" , _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("com.ibm.icu", "icu4j" , "51.1") => LicenseInfo(LicenseCategory("ICU"), "ICU License", "https://ssl.icu-project.org/repos/icu/tags/release-51-2/icu4j/main/shared/licenses/license.html")
     },
     licenseFilter := {
       case LicenseCategory("NCSA", _) => false
