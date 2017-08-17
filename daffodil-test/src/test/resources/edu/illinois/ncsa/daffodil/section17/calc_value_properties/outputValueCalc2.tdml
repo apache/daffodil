@@ -129,6 +129,14 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="root5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="number" type="xs:int" minOccurs="0" dfdl:outputValueCalc="{ 5 }" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="ovcHiddenCalculations1" root="root" model="ovc1" description="ovc test that computes 1.2.3.4 from 4 binary bytes, and invert of that for unparse.">
@@ -184,7 +192,7 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="hiddenGroupWithOvc" root="root4" model="ovc1" description="Test with a hidden group with an outputValueCalc.">
+  <tdml:unparserTestCase name="hiddenGroupArrayWithOvc" root="root4" model="ovc1" description="Test with an array in a hidden group with an outputValueCalc.">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -194,9 +202,27 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>
-      <tdml:documentPart type="text">1777</tdml:documentPart>
-    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:outputValueCalc cannot be defined on array elements</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optionalWithOvc" root="root5" model="ovc1" description="Test with an optional element with an outputValueCalc.">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root5>
+          <number>1</number>
+        </ex:root5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:outputValueCalc cannot be defined on optional elements</tdml:error>
+    </tdml:errors>
 
   </tdml:unparserTestCase>
 

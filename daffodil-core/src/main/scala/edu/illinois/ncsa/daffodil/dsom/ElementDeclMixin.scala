@@ -226,6 +226,14 @@ trait ElementDeclMixin
   }.value
 
   final override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
-  final override lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
+  final override lazy val outputValueCalcOption = {
+    val optOVC = findPropertyOption("outputValueCalc")
+    self.schemaDefinitionWhen(optOVC.isDefined && self.isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
+    self.schemaDefinitionWhen(optOVC.isDefined && self.isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
+    // This should be an SDE, but is very useful for unit tests to be able to specify OVC on a single global element
+    // self.schemaDefinitionWhen(optOVC.isDefined && self.isInstanceOf[GlobalElementDecl], "dfdl:outputValueCalc cannot be defined on global elements.")
+
+    optOVC
+  }
 
 }

@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.section17.calc_value_properties
 
-import org.junit.Test
+//import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
@@ -47,7 +47,6 @@ object TestOutputValueCalcDebug {
 }
 
 class TestOutputValueCalcDebug {
-  import TestOutputValueCalcDebug._
+//  import TestOutputValueCalcDebug._
 
-  @Test def test_hiddenGroupWithOvc() { runner2.runOneTest("hiddenGroupWithOvc") }
 }
