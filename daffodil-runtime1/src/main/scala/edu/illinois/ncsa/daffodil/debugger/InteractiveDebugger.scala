@@ -1495,29 +1495,34 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             } else {
               currentNode
             }
-          rootNode
+          rootNode.asInstanceOf[DIDocument]
         }
 
         def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
 
-          val sw = new java.io.StringWriter()
-          val xml = new XMLTextInfosetOutputter(sw)
           val infoset = getInfoset(state.infoset)
-          infoset.visit(xml, DebuggerConfig.removeHidden)
-          val infosetString = sw.toString()
-          val lines = infosetString.split("\n")
-          val tailLines =
-            if (DebuggerConfig.infosetLines > 0) {
-              val dropCount = lines.size - DebuggerConfig.infosetLines
-              if (dropCount > 0) {
-                debugPrintln("...", "  ")
+          if (infoset.getRootElement != null) {
+            val sw = new java.io.StringWriter()
+            val xml = new XMLTextInfosetOutputter(sw)
+            infoset.visit(xml, DebuggerConfig.removeHidden)
+
+            val infosetString = sw.toString()
+            val lines = infosetString.split("\n")
+            val tailLines =
+              if (DebuggerConfig.infosetLines > 0) {
+                val dropCount = lines.size - DebuggerConfig.infosetLines
+                if (dropCount > 0) {
+                  debugPrintln("...", "  ")
+                }
+                lines.drop(dropCount)
+              } else {
+                lines
               }
-              lines.drop(dropCount)
-            } else {
-              lines
-            }
-          tailLines.foreach(l => debugPrintln(l, "  "))
+            tailLines.foreach(l => debugPrintln(l, "  "))
+          } else {
+            debugPrintln("No Infoset", "  ")
+          }
 
           DebugState.Pause
         }
