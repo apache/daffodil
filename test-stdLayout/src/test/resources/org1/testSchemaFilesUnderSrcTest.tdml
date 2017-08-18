@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tdml:testSuite 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  
+  xmlns:ex="http://example.com"
+  xmlns:outer="urn:outer" 
+  xmlns:testInner="urn:testInner"
+  xmlns:payload="urn:payload" 
+  
+  defaultRoundTrip="true" defaultValidation="limited">
+
+  <tdml:parserTestCase name="test_schemaFilesUnderSrcTest_01" root="TestInner" model="org1/xsd/testInner.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="file">org1/test-outer-data1.txt</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="urn:payload">
+          <testInner:TestInner>
+            <Payload>
+              <Message>
+                <Data>foobar</Data>
+              </Message>
+            </Payload>
+          </testInner:TestInner>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+</tdml:testSuite>

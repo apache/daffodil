@@ -1,0 +1,20 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:testInner" 
+  xmlns:tns="urn:testInner"
+  xmlns:inner="urn:inner"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  >
+  
+  <xs:import namespace="urn:inner" schemaLocation="org1/xsd/innerEnvelope.dfdl.xsd" />
+
+  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="inner:InnerFormat" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="TestInner" type="inner:InnerType" dfdl:lengthKind="implicit" />
+
+</xs:schema>

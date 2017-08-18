@@ -1,0 +1,20 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:testPayload" 
+  xmlns:tns="urn:testPayload"
+  xmlns:payload="urn:payload"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  >
+  
+  <xs:import namespace="urn:payload" schemaLocation="org2/xsd/payload.dfdl.xsd" />
+
+  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:baseFormat" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="TestPayload" type="payload:PayloadType" dfdl:lengthKind="implicit" />
+
+</xs:schema>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:outer" 
+  xmlns:tns="urn:outer"
+  xmlns:outer="urn:outer" 
+  xmlns:inner="urn:inner"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  >
+  
+  <xs:import namespace="urn:inner" schemaLocation="innerEnvelope.dfdl.xsd" />
+  
+  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+  
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:OuterFormat" />
+      <dfdl:defineFormat name="OuterFormat">
+        <dfdl:format ref="tns:baseFormat" />
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="Outer" type="tns:OuterType" dfdl:lengthKind="implicit" />
+
+  <xs:complexType name="OuterType">
+    <xs:sequence>
+      <xs:element ref="inner:Inner" maxOccurs="unbounded" dfdl:occursCountKind="parsed" />
+    </xs:sequence>
+  </xs:complexType>
+
+
+</xs:schema>

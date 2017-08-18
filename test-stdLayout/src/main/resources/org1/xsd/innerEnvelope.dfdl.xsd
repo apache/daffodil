@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:inner" 
+  xmlns:tns="urn:inner"
+  xmlns:inner="urn:inner"
+  xmlns:payload="urn:payload" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  >
+  
+  <xs:import namespace="urn:payload" schemaLocation="org2/xsd/payload.dfdl.xsd" />
+
+  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:InnerFormat" />
+      <dfdl:defineFormat name="InnerFormat">
+        <dfdl:format ref="tns:baseFormat" />
+      </dfdl:defineFormat>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="Inner" type="inner:InnerType" dfdl:lengthKind="implicit" />
+
+  <xs:complexType name="InnerType">
+    <xs:sequence>
+      <xs:element ref="payload:Payload" />
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

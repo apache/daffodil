@@ -58,7 +58,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, japi, sapi, tutorials)
+                    .aggregate(propgen, macroLib, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, japi, sapi, tutorials, testStdLayout)
   }
 
   // Note: Removed nopub from macroLib - not sure why macrolib should be needed after scala compilation
@@ -141,6 +141,12 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
+
+  lazy val testStdLayout    = Project(id = "test-stdLayout", base = file("test-stdLayout"), settings = s ++ nopub)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(tdml)
+                             .dependsOn(core % "test->test")
 
   //set up 'sbt stage' as a dependency
   lazy val cliTestTask = Keys.test in CliTest

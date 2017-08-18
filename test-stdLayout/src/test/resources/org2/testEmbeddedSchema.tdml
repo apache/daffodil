@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<tdml:testSuite 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  xmlns:testPayload="urn:testPayload"
+  xmlns:payload="urn:payload" 
+  
+  defaultRoundTrip="true" defaultValidation="limited">
+
+  <tdml:defineSchema name="embedded01">
+
+    <xs:import namespace="urn:payload" schemaLocation="org2/xsd/payload.dfdl.xsd" />
+
+    <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+
+    <dfdl:format ref="tns:baseFormat" />
+
+    <xs:element name="TestPayload" type="payload:PayloadType" dfdl:lengthKind="implicit" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_embeddedSchema_01" root="TestPayload" model="embedded01">
+    <tdml:document>
+      <tdml:documentPart type="file">org2/test-data1.txt</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns="urn:payload">
+        <ex:TestPayload>
+          <Message>
+            <Data>foobar</Data>
+          </Message>
+        </ex:TestPayload>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+</tdml:testSuite>
