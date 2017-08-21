@@ -213,13 +213,14 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
     bodyParser.parse1(start)
+
+    val actualOccurs = start.mpstate.arrayIndexStack.pop()
+    start.mpstate.occursBoundsStack.pop()
+
     if (start.processorStatus ne Success) return
 
     val shouldValidate =
       start.dataProc.isDefined && start.dataProc.value.getValidationMode != ValidationMode.Off
-
-    val actualOccurs = start.mpstate.arrayIndexStack.pop()
-    start.mpstate.occursBoundsStack.pop()
 
     if (shouldValidate && erd.minOccurs.isDefined && erd.maxOccurs.isDefined) {
       val minO = erd.minOccurs.get

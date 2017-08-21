@@ -260,8 +260,7 @@ class DFDLCatalogResolver private ()
           } catch {
             case _: java.io.IOException => Assert.invariantFailed("found resource but couldn't open")
           }
-        val input = new Input(publicId, systemId, new BufferedInputStream(resourceAsStream))
-        input.setBaseURI(uri.toString)
+        val input = new Input(publicId, uri.toString, new BufferedInputStream(resourceAsStream))
         input
       }
     }
@@ -317,10 +316,7 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
       contents
     }
   }
-  def setBaseURI(baseURI: String) = {
-    Assert.usage(!baseURI.contains("xsd/xsd"))
-    myBaseURI = baseURI
-  }
+  def setBaseURI(baseURI: String) = myBaseURI = baseURI
   def setByteStream(byteStream: InputStream) = {}
   def setCertifiedText(certifiedText: Boolean) = {}
   def setCharacterStream(characterStream: Reader) = {}

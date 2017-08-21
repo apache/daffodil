@@ -17,19 +17,9 @@
     <tdml:document>
       <tdml:documentPart type="file">org1/test-outer-data1.txt</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="urn:payload">
-        <outer:Outer>
-          <inner:Inner>
-            <Payload>
-              <Message>
-                <Data>foobar</Data>
-              </Message>
-            </Payload>
-          </inner:Inner>
-        </outer:Outer>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>RepUnbounded - No forward progress</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
 </tdml:testSuite>

@@ -117,9 +117,8 @@ object Misc {
     val resName = rawResName.replaceAll("""\s""", "%20")
     val (maybeRes, _) = Misc.getResourceOption(resName)
     if (maybeRes.isDefined) {
-      return maybeRes // found directly on the classpath.
-    }
-    val result: Option[URI] = {
+      maybeRes // found directly on the classpath.
+    } else {
       optContextURI.flatMap { contextURI =>
         //
         // try relative to enclosing context uri
@@ -132,46 +131,9 @@ object Misc {
         val contextURL = contextURI.toURL
         val completeURL = new URL(contextURL, resName)
         val res = tryURL(completeURL)
-        if (res.isDefined) return res
-        //
-        // We couldn't open the resolved URL.
-        // But there is one more thing we can try.
-        //
-        // Xerces/Java's XML parser seems to construct
-        // Base URIs carelessly. Sometimes you find
-        // ...foo/xsd/xsd/bar.xsd. That is, the xsd
-        // component is repeated twice. That is because something
-        // mindlessly strips off the last component of the path,
-        // and then appends the current schema's schema location
-        // onto it. Really it should be stripping off the
-        // current file's literal systemId, so as to get
-        // the right base.
-        //
-        // JIRA issue DFDL-1183 is about figuring out something better than this.
-        //
-        // So we can invert that logic.
-        // This is just a heuristic, but probably does what people want.
-        val parts = contextURI.toString.split("/")
-        val butLast = parts.dropRight(1)
-        val lastDir = butLast.takeRight(1).head
-        val priorDir = butLast.takeRight(2).head
-        val newContextURI =
-          if (priorDir != lastDir) {
-            // no repeating dir at the end.
-            contextURI
-          } else {
-            // this is the foo/xsd/xsd/bar.xsd case
-            val shortenedURIParts = parts.dropRight(2) :+ parts.last
-            val shortenedURI = new URI(shortenedURIParts.mkString("/"))
-            shortenedURI
-          }
-        val newContextURL = newContextURI.toURL
-        val newCompleteURL = new URL(newContextURL, resName)
-        val newRes = tryURL(newCompleteURL)
-        newRes
+        res
       }
     }
-    result
   }
 
   private def tryURL(url: URL): Option[URI] = {
