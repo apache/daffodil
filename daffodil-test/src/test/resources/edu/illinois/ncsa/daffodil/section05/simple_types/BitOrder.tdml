@@ -627,4 +627,57 @@
     </document>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="s8">
+    <dfdl:format representation="binary" lengthUnits="bits" lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
+      binaryFloatRep="ieee" calendarPatternKind="implicit" documentFinalTerminatorCanBeMissing="no"
+      emptyValueDelimiterPolicy="both" encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
+      initiatedContent="no" initiator="" leadingSkip="0" occursCountKind="parsed"
+      separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty"
+      terminator="" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10"
+      textStringJustification="left" textTrimKind="none" trailingSkip="0" utf16Width="fixed"
+      textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E"
+      textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRounding="explicit"
+      textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" decimalSigned="yes"
+      encodingErrorPolicy="replace" sequenceKind="ordered" calendarFirstDayOfWeek='Sunday'
+      calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en'
+      bitOrder="leastSignificantBitFirst" outputNewLine="%LF;" textPadKind="none" fillByte="%#r20;"
+      truncateSpecifiedLengthString="no" textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;"
+      textBooleanPadCharacter="%SP;" textCalendarPadCharacter="%SP;" textCalendarJustification="left"
+      textNumberJustification="right" textOutputMinLength="0" />
+
+    <xs:element name="e1" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" />
+          <xs:element name="B" type="xs:int" dfdl:length="5" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: noByteOrder
+        Schema: s8
+          Root: e1
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with no byte order defined.
+  -->
+ <tdml:parserTestCase name="noByteOrder" roundTrip="false"
+    root="e1" model="s8" description="Tests having a bit order with no byte order assigned.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01001011</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <e1>
+          <A>3</A>
+          <B>9</B>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

@@ -102,6 +102,7 @@ class TestSimpleTypes2 {
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
   @Test def test_bitOrderChangeInvalid2Unparser() { runner1.runOneTest("bitOrderChangeInvalid2Unparser") }
+  @Test def test_noByteOrder() { runner1.runOneTest("noByteOrder") }
 
   @Test def test_simpleTypeDerivedFromPrimType() { runnerST.runOneTest("simpleTypeDerivedFromPrimType") }
   @Test def test_simpleTypeChainedDerivations() { runnerST.runOneTest("simpleTypeChainedDerivations") }
