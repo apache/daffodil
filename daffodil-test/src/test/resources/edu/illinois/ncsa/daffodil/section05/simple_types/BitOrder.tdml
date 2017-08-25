@@ -664,20 +664,16 @@
           Root: e1
        Purpose: This test shows the bit order of 'leastSignificantBitFirst' with no byte order defined.
   -->
- <tdml:parserTestCase name="noByteOrder" roundTrip="false"
+ <tdml:parserTestCase name="noByteOrder"
     root="e1" model="s8" description="Tests having a bit order with no byte order assigned.">
     <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
       <documentPart type="bits" >01001011</documentPart>
     </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
-        <e1>
-          <A>3</A>
-          <B>9</B>
-        </e1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>byteOrder</tdml:error>
+      <tdml:error>not defined</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

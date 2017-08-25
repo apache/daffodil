@@ -40,12 +40,12 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="trimmed">
          <dfdl:format ref="untrimmed" textTrimKind="padChar"
-                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar"/>
+                      textStringPadCharacter="%SP;" textStringJustification="center" textPadKind="padChar" byteOrder="littleEndian"/>
       </dfdl:defineFormat>
       <dfdl:defineFormat name="untrimmed">
         <dfdl:format ref="daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=''/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef='' byteOrder="littleEndian"/>
         </dfdl:defineFormat>
       <dfdl:format ref="untrimmed"/>
     </xs:appinfo>

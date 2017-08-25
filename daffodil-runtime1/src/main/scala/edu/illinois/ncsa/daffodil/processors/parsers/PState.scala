@@ -408,9 +408,8 @@ object PState {
     dataProc: DFDL.DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
-    val bitOrder = root.defaultBitOrder
     val dis =
-      ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit, bitOrder)
+      ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit)
     createInitialPState(root, dis, output, dataProc)
   }
 }

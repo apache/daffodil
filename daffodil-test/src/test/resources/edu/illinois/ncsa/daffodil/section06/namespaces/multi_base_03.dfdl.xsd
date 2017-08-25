@@ -41,7 +41,7 @@
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" outputNewLine="%LF;"
         fillByte="%SP;" truncateSpecifiedLengthString="yes" escapeSchemeRef=""
-        textPadKind='none'/>
+        textPadKind='none' byteOrder="littleEndian"/>
     </xs:appinfo>
   </xs:annotation>
    

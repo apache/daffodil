@@ -40,7 +40,7 @@
       <dfdl:format ref="daffodilNewProperties1" 
         separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef="es"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef="es" byteOrder="littleEndian"/>
       <dfdl:defineEscapeScheme name="es">
         <dfdl:escapeScheme escapeCharacter="\" escapeEscapeCharacter="\" escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>

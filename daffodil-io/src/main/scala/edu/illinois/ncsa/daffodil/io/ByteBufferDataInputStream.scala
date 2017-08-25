@@ -131,11 +131,9 @@ object ByteBufferDataInputStream {
   def fromByteChannel(
     in: java.nio.channels.ReadableByteChannel,
     bitStartPos0b: Long,
-    numBitsLimit: Long, // a count, not a position
-    bitOrder: BitOrder) = {
+    numBitsLimit: Long) = { // a count, not a position
     val dis = ByteBufferDataInputStream(in, bitStartPos0b)
     if (numBitsLimit > 0) dis.setBitLimit0b(MaybeULong(bitStartPos0b + numBitsLimit))
-    dis.setBitOrder(bitOrder)
     dis
   }
 

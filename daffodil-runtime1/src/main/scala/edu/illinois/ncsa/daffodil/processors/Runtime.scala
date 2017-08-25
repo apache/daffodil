@@ -59,7 +59,6 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
@@ -288,7 +287,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.usage(!this.isError)
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     val out = DirectOrBufferedDataOutputStream(outStream, null) // null means no other stream created this one.
-    out.setBitOrder(BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0
+
     val unparserState =
       UState.createInitialUState(
         out,

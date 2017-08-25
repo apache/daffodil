@@ -75,12 +75,13 @@ trait ByteOrderMixin extends ByteOrderAnalysisMixin { self: ElementBase =>
 
   protected final lazy val byteOrderChange =
     prod("byteOrderChange",
-      (thereIsAByteOrderDefined &&
-        !isKnownSameByteOrder) || // need to change on the way in
-        (isArray && !hasUniformByteOrderThroughout)) { // need to change because of repetition
-        // (when we start next iteration, it's not the same as when we started first iteration)
-        // THis will SDE if there is no byte order defined for the array element (might only be byteOrder on things within the array)
-        // So we're artificially requiring byte order on all arrays that do not have a uniform byte order.
-        ByteOrderChange(this)
-      }
+      enclosingTerm.isEmpty || (
+        (thereIsAByteOrderDefined &&
+          !isKnownSameByteOrder) || // need to change on the way in
+          (isArray && !hasUniformByteOrderThroughout))) { // need to change because of repetition
+          // (when we start next iteration, it's not the same as when we started first iteration)
+          // THis will SDE if there is no byte order defined for the array element (might only be byteOrder on things within the array)
+          // So we're artificially requiring byte order on all arrays that do not have a uniform byte order.
+          ByteOrderChange(this)
+        }
 }

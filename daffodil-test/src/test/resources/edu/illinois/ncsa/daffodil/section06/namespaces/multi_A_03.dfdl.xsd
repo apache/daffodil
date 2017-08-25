@@ -52,7 +52,7 @@
       <dfdl:format ref="a03:daffodilNewProperties1" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
       leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" 
       textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
-      alignment="1" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered" escapeSchemeRef=""/>
+      alignment="1" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered" escapeSchemeRef="" byteOrder="littleEndian"/>
     </xs:appinfo>
   </xs:annotation>
   
