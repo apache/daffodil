@@ -237,24 +237,26 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             else eb.lengthUnits match {
               case LengthUnits.Bits => LengthMultipleOf(1)
               case LengthUnits.Bytes => LengthMultipleOf(8)
-              case LengthUnits.Characters => {
-                if (isKnownEncoding) {
-                  val dfdlCharset = charsetEv.optConstant.get
-                  val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
-                  LengthMultipleOf(fixedWidth)
-                } else {
-                  // runtime encoding, which must be a byte-length encoding
-                  LengthMultipleOf(8)
-                }
-              }
+              case LengthUnits.Characters => encodingLengthApprox
             }
           }
-          case LengthKind.Delimited => LengthMultipleOf(1)// TBD
-          case LengthKind.Pattern => LengthMultipleOf(1)// TBD
+          case LengthKind.Delimited => encodingLengthApprox
+          case LengthKind.Pattern => encodingLengthApprox
           case LengthKind.EndOfParent => LengthMultipleOf(1)// NYI
           case LengthKind.Prefixed => LengthMultipleOf(1)// NYI
         }
       }
+    }
+  }
+
+  private lazy val encodingLengthApprox: LengthApprox = {
+    if (isKnownEncoding) {
+      val dfdlCharset = charsetEv.optConstant.get
+      val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+      LengthMultipleOf(fixedWidth)
+    } else {
+      // runtime encoding, which must be a byte-length encoding
+      LengthMultipleOf(8)
     }
   }
 
