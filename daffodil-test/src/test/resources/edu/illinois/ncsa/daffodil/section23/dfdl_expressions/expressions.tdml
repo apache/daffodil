@@ -815,6 +815,34 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e46">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix" dfdl:seperator=",">
+          <xs:element name="hexBinary1" type="xs:hexBinary"
+            dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+            dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
+          <xs:element name="hexBinary2" type="xs:hexBinary"
+            dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+            dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
+          <xs:element name="equal" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:hexBinary1 eq ../ex:hexBinary2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e47">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="hexBinary1" type="xs:hexBinary"
+            dfdl:lengthKind="explicit" dfdl:lenghtUnits="bytes"
+            dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
+          <xs:element name="hexBinary2" type="xs:hexBinary"
+            dfdl:lengthKind="explicit" dfdl:lenghtUnits="bytes"
+            dfdl:length="3" dfdl:encoding="ISO-8859-1"/>
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:hexBinary1 ne ../ex:hexBinary2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
@@ -6602,6 +6630,102 @@ c]]></value>
           <ulong1>0</ulong1>
           <intEqULong>false</intEqULong>
         </e45>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_80
+        Schema: comparisonOperators
+          Root: e46
+       Purpose: This test demonstrates that hexBinary values can be compared for equality
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_80" root="e46"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FF FF FF FF]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e46>
+          <hexBinary1>FFFFFF</hexBinary1>
+          <hexBinary2>FFFFFF</hexBinary2>
+          <equal>true</equal>
+        </e46>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_81
+        Schema: comparisonOperators
+          Root: e46
+       Purpose: This test demonstrates that hexBinary values can be compared for equality
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_81" root="e46"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FF AA AA AA]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e46>
+          <hexBinary1>FFFFFF</hexBinary1>
+          <hexBinary2>AAAAAA</hexBinary2>
+          <equal>false</equal>
+        </e46>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_82
+        Schema: comparisonOperators
+          Root: e47
+       Purpose: This test demonstrates that hexBinary values can be compared for non-equality
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_82" root="e47"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FF AA AA AA]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e47>
+          <hexBinary1>FFFFFF</hexBinary1>
+          <hexBinary2>AAAAAA</hexBinary2>
+          <notEqual>true</notEqual>
+        </e47>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_83
+        Schema: comparisonOperators
+          Root: e47
+       Purpose: This test demonstrates that hexBinary values can be compared for non-equality
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_83" root="e47"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[FF FF FF FF FF FF]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e47>
+          <hexBinary1>FFFFFF</hexBinary1>
+          <hexBinary2>FFFFFF</hexBinary2>
+          <notEqual>false</notEqual>
+        </e47>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

@@ -291,6 +291,8 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case ("=", _) => subsetError("Unsupported operation '%s'. Use 'eq' instead.", op)
       case ("!=", _) => subsetError("Unsupported operation '%s'. Use 'ne' instead.", op)
 
+      case("eq", HexBinary) => EQ_CompareByteArray
+      case("ne", HexBinary) => NE_CompareByteArray
       case ("eq", _) => EQ_Compare
       case ("ne", _) => NE_Compare
 
@@ -420,6 +422,8 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       NodeInfo.DateTime
     case (left: NodeInfo.Boolean.Kind, right: NodeInfo.Boolean.Kind) =>
       NodeInfo.Boolean
+    case (left: NodeInfo.HexBinary.Kind, right: NodeInfo.HexBinary.Kind) =>
+      NodeInfo.HexBinary
     case (l, r) =>
       SDE("Cannot compare %s with %s for operator '%s'", l, r, op)
   }

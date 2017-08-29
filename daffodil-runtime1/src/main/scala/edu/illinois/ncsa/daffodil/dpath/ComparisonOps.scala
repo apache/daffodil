@@ -45,9 +45,23 @@ case object EQ_Compare extends CompareOpBase {
   }
 }
 
+case object EQ_CompareByteArray extends CompareOpBase {
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = {
+    val res = v1.asInstanceOf[Array[Byte]].sameElements(v2.asInstanceOf[Array[Byte]])
+    asBoolean(res)
+  }
+}
+
 case object NE_Compare extends CompareOpBase {
   def operate(v1: AnyRef, v2: AnyRef): JBoolean = {
     val res = v1 != v2
+    asBoolean(res)
+  }
+}
+
+case object NE_CompareByteArray extends CompareOpBase {
+  def operate(v1: AnyRef, v2: AnyRef): JBoolean = {
+    val res = !v1.asInstanceOf[Array[Byte]].sameElements(v2.asInstanceOf[Array[Byte]])
     asBoolean(res)
   }
 }

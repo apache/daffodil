@@ -201,6 +201,10 @@ class TestDFDLExpressions {
   @Test def test_comparison_operators_77() { runner.runOneTest("comparison_operators_77") }
   @Test def test_comparison_operators_78() { runner.runOneTest("comparison_operators_78") }
   @Test def test_comparison_operators_79() { runner.runOneTest("comparison_operators_79") }
+  @Test def test_comparison_operators_80() { runner.runOneTest("comparison_operators_80") }
+  @Test def test_comparison_operators_81() { runner.runOneTest("comparison_operators_81") }
+  @Test def test_comparison_operators_82() { runner.runOneTest("comparison_operators_82") }
+  @Test def test_comparison_operators_83() { runner.runOneTest("comparison_operators_83") }
 
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
