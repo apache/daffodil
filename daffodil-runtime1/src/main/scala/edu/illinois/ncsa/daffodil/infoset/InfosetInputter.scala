@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.util.CursorImplMixin
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
@@ -62,13 +63,15 @@ trait InfosetInputterCursor extends Cursor[InfosetAccessor] {
   override lazy val advanceAccessor = InfosetAccessor(null, null)
   override lazy val inspectAccessor = InfosetAccessor(null, null)
 
-  def initialize(rootElement: ElementRuntimeData)
+  def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables)
 }
 
 abstract class InfosetInputter
   extends InfosetInputterCursor
   with CursorImplMixin[InfosetAccessor] {
-
+  
+  var tunable = DaffodilTunables()
+  
   /**
    * Return the current infoset inputter event type
    */
@@ -124,11 +127,12 @@ abstract class InfosetInputter
    */
   val supportsNamespaces: Boolean
 
-  def initialize(rootElementInfo: ElementRuntimeData): Unit = {
+  def initialize(rootElementInfo: ElementRuntimeData, tunableArg: DaffodilTunables): Unit = {
+    tunable = tunableArg
     nextElementResolver =
       new OnlyOnePossibilityForNextElement(rootElementInfo.schemaFileLocation, rootElementInfo, RootResolver) // bootstrap
 
-    val diDoc = new DIDocument(rootElementInfo)
+    val diDoc = new DIDocument(rootElementInfo, tunable)
     nodeStack.push(diDoc)
 
     try {
@@ -332,7 +336,7 @@ abstract class InfosetInputter
 
   private def createElement() = {
     val erd = nextElementResolver.nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
-    val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
+    val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd, tunable)
 
     val optNilled = isNilled()
 
@@ -410,7 +414,7 @@ object NonUsableInfosetInputter extends InfosetInputterCursor {
   override def advance = doNotUse
   override def inspect = doNotUse
   override def fini = doNotUse
-  override def initialize(rootElement: ElementRuntimeData) = doNotUse
+  override def initialize(rootElement: ElementRuntimeData, tunable: DaffodilTunables) = doNotUse
 }
 
 // Performance Note - It's silly to use both a StartKind and EndKind accessor when

@@ -78,7 +78,7 @@ class TestInfosetInputterFromReader2 {
       new StreamInputStream(strings))
 
     val inputter = new XMLTextInfosetInputter(rdr)
-    inputter.initialize(rootERD)
+    inputter.initialize(rootERD, u.getTunables())
     val ic = Adapter(inputter)
     ic
   }

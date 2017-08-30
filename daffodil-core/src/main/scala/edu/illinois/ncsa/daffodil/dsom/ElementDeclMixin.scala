@@ -102,7 +102,7 @@ trait ElementDeclMixin
   private def namedTypeQName: Option[RefQName] = LV('namedTypeQName) {
     typeName match {
       case Some(tname) =>
-        Some(QName.resolveRef(tname, namespaces).get)
+        Some(QName.resolveRef(tname, namespaces, tunable).get)
       case None => None
     }
   }.value

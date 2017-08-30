@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 import edu.illinois.ncsa.daffodil.util.Memoize1
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -80,7 +81,8 @@ final class SchemaSet(
   schemaSourcesArg: Seq[DaffodilSchemaSource],
   val validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
-  parent: SchemaComponent)
+  parent: SchemaComponent,
+  override val tunable: DaffodilTunables)
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
 
@@ -143,7 +145,7 @@ final class SchemaSet(
   /**
    * This constructor for unit testing only
    */
-  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty, optTmpDir: Option[File] = None) =
+  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty, optTmpDir: Option[File] = None, tunableOpt: Option[DaffodilTunables] = None) =
     this(
       {
         if (root == null) None else {
@@ -155,7 +157,8 @@ final class SchemaSet(
       List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir)),
       false,
       false,
-      null)
+      null,
+      tunableOpt.getOrElse(DaffodilTunables()))
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
 

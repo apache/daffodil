@@ -90,7 +90,7 @@ class TestInfosetDefaultingInUnparser {
     val rootERD = u.ssrd.elementRuntimeData
 
     val inputter = new ScalaXMLInfosetInputter(xml)
-    inputter.initialize(rootERD)
+    inputter.initialize(rootERD, u.getTunables())
     val is = Adapter(inputter)
 
     val Start(bar_s: DIComplex) = is.next

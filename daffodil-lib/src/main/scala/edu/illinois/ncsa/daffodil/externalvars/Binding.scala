@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.externalvars
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
 
@@ -73,9 +74,9 @@ object Binding {
     new Binding(tryRefQName.get, value, null)
   }
 
-  def apply(node: Node): Binding = {
+  def apply(node: Node, tunable: DaffodilTunables): Binding = {
     val name = (node \ "@name").head.text
-    val refQName = QName.resolveRef(name, node.scope)
+    val refQName = QName.resolveRef(name, node.scope, tunable)
     val value = node.text
     new Binding(refQName.get, value, node.scope)
   }

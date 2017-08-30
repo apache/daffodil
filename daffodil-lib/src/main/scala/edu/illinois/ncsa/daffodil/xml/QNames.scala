@@ -32,9 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.xml
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 /**
  * Element references and Group References use this.
@@ -75,12 +75,13 @@ object ResolvesQNames {
 trait ResolvesQNames
   extends ThrowsSDE {
   def namespaces: scala.xml.NamespaceBinding
+  protected def tunable: DaffodilTunables
 
   /**
    * If prefix of name is unmapped, SDE
    */
   def resolveQName(qnString: String): RefQName = {
-    val eQN = QName.resolveRef(qnString, namespaces)
+    val eQN = QName.resolveRef(qnString, namespaces, tunable)
     // we don't want to just throw the exception, we want to
     // convert to an SDE, so we use recover
     val res = eQN.recover { ThrowSDE }.get

@@ -50,6 +50,11 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
 import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
 import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
+import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -65,6 +70,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   with FindPropertyMixin
   with SchemaFileLocatableImpl
   with PropTypes {
+  
+  def tunable: DaffodilTunables = parent.tunable
 
   val xml = xmlArg
   val aaa_xml = xml // for debugging, so we don't have to scroll down.
@@ -75,7 +82,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       variableMap,
       namespaces,
       path,
-      schemaFileLocation)
+      schemaFileLocation,
+      tunable)
 
   val context: SchemaComponent = parent
 
@@ -100,7 +108,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       path,
       namespaces,
       enclosingElement.map { _.erd },
-      Maybe.toMaybe(enclosingTerm.map { _.termRuntimeData }))
+      Maybe.toMaybe(enclosingTerm.map { _.termRuntimeData }),
+      tunable)
   }.value
 
   def variableMap: VariableMap = LV('variableMap) {

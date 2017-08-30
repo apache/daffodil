@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import java.lang.{ Long => JLong }
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -55,10 +54,10 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
   val intN = n.toInt
 
   def checkN(pstate: PState, n: Long): Boolean = {
-    if (n > DaffodilTunableParameters.maxOccursBounds) {
+    if (n > pstate.tunable.maxOccursBounds) {
       // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
       // after all....
-      PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.maxOccursBounds)
+      PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, pstate.tunable.maxOccursBounds)
       false
     } else true
   }
@@ -301,7 +300,7 @@ class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: Elemen
     val oc = occursCountEv.evaluate(pstate)
     val ocLong = Numbers.asLong(oc)
     if (ocLong < 0 ||
-      ocLong > DaffodilTunableParameters.maxOccursBounds) {
+      ocLong > pstate.tunable.maxOccursBounds) {
       PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCountEv, ocLong)
       return
     }

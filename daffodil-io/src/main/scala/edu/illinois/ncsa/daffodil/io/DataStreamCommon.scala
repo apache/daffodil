@@ -33,28 +33,15 @@
 package edu.illinois.ncsa.daffodil.io
 
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+
+import edu.illinois.ncsa.daffodil.api.DataStreamLimits
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.util.MaybeULong
-
-object DataStreamCommon {
-  /*
-   * These limits will come from tunables, or just hard implementation-specific
-   * thresholds.
-   */
-  trait Limits {
-    def maximumSimpleElementSizeInBytes: Long
-    def maximumSimpleElementSizeInCharacters: Long
-    def maximumForwardSpeculationLengthInBytes: Long
-    def maximumRegexMatchLengthInCharacters: Long
-    def defaultInitialRegexMatchLimitInChars: Long
-  }
-
-}
 
 /**
  * This is an interface trait, and it defines methods shared by
@@ -64,8 +51,8 @@ object DataStreamCommon {
  *
  */
 trait DataStreamCommon {
-  import DataStreamCommon._
-  def limits: Limits
+
+  def limits: DataStreamLimits
 
   /**
    * Allow tuning of these thresholds and starting values. These could,
@@ -78,7 +65,7 @@ trait DataStreamCommon {
    * the ElementRuntimeData object for each element, or some other kind
    * of dynamic cache.
    */
-  def setLimits(newLimits: Limits): Unit
+  def setLimits(newLimits: DataStreamLimits): Unit
 
   // def setEncodingMandatoryAlignment(bitAlignment: Int): Unit
   def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit

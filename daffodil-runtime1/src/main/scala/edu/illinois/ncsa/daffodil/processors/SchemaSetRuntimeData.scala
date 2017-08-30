@@ -47,6 +47,7 @@ final class SchemaSetRuntimeData(
   var validationMode: ValidationMode.Type)
   extends Serializable with ThrowsSDE {
 
+  def tunable = elementRuntimeData.tunable
   def encodingInfo = elementRuntimeData.encodingInfo
   override def schemaFileLocation = elementRuntimeData.schemaFileLocation
   override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args)

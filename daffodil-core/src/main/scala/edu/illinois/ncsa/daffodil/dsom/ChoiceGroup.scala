@@ -42,10 +42,11 @@ import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import edu.illinois.ncsa.daffodil.api.WarnID
+
 
 /**
  * Choices are a bit complicated.
@@ -218,7 +219,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
               case _: ChoiceBranchStartEvent => "start"
             }
             // there are no element children in any of the branches.
-            SDW(DaffodilTunableParameters.WarnID.MultipleChoiceBranches,
+            SDW(WarnID.MultipleChoiceBranches,
               "Multiple choice branches are associated with the %s of element %s.\n" +
                 "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
                 "The offending choice branches are:\n%s\n" +

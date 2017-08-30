@@ -67,6 +67,8 @@ abstract class Expression extends OOLAGHost
   requiredEvaluations(isTypeCorrect)
   requiredEvaluations(compiledDPath_)
 
+  def tunable = compileInfo.tunable
+
   /**
    * Override where we traverse/access elements.
    */
@@ -241,11 +243,12 @@ abstract class Expression extends OOLAGHost
   def inherentType: NodeInfo.Kind
 
   def resolveRef(qnameString: String) = {
-    QName.resolveRef(qnameString, namespaces).recover {
+    QName.resolveRef(qnameString, namespaces, tunable).recover {
       case _: Throwable =>
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
     }.get
   }
+
 }
 
 abstract class ExpressionLists(val lst: List[Expression])
@@ -832,7 +835,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   lazy val stepQName = {
-    val e = QName.resolveStep(step, namespaces)
+    val e = QName.resolveStep(step, namespaces, tunable)
     e match {
       case Failure(th) => SDE("Step %s prefix has no corresponding namespace.", step)
       case Success(v) => v

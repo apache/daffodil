@@ -40,6 +40,7 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 object TestInfoset {
   /**
@@ -55,9 +56,9 @@ object TestInfoset {
    * classes.
    */
 
-  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
+  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node, tunable: DaffodilTunables = DaffodilTunables()): InfosetElement = {
     val ic = new ScalaXMLInfosetInputter(xmlElem)
-    ic.initialize(erd)
+    ic.initialize(erd, tunable)
     val aacc = ic.advanceAccessor
     Assert.invariant(ic.advance == true)
     val infosetRootNode = aacc.node

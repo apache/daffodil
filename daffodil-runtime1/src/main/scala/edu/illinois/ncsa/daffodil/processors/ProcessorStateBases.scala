@@ -33,8 +33,10 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.api.WarnID
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
@@ -55,8 +57,6 @@ import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
 import edu.illinois.ncsa.daffodil.infoset._
 
 /**
@@ -97,7 +97,8 @@ case class TupleForDebugger(
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
-  var dataProc: Maybe[DataProcessor]) extends DFDL.State
+  var dataProc: Maybe[DataProcessor],
+  val tunable: DaffodilTunables) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -105,8 +106,8 @@ abstract class ParseOrUnparseState protected (
   with EncoderDecoderMixin
   with Logging {
 
-  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor]) =
-    this(new VariableBox(vmap), diags, dataProc)
+  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], tunable: DaffodilTunables) =
+    this(new VariableBox(vmap), diags, dataProc, tunable)
 
   def variableMap = variableBox.vmap
   def setVariableMap(newMap: VariableMap) {
@@ -255,7 +256,7 @@ abstract class ParseOrUnparseState protected (
 
   def SDW(warnID: WarnID, str: String, args: Any*) = {
     // ExecutionMode.requireRuntimeMode
-    if (DaffodilTunableParameters.notSuppressedWarning(warnID)) {
+    if (tunable.notSuppressedWarning(warnID)) {
       val ctxt = getContext()
       val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
       diagnostics = rsdw :: diagnostics
@@ -276,7 +277,7 @@ abstract class ParseOrUnparseState protected (
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
 class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
-  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc) {
+  extends ParseOrUnparseState(trd.variableMap, Nil, maybeDataProc, tunable = trd.tunable) {
   /**
    * As seen from class CompileState, the missing signatures are as follows.
    *  *  For convenience, these are usable as stub implementations.

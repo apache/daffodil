@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
@@ -746,10 +745,10 @@ trait ElementBaseGrammarMixin
 
       case PrimType.Decimal => {
         Assert.invariant(binaryIntRep == bin)
-        if (binaryDecimalVirtualPoint > DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
-          SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
-        if (binaryDecimalVirtualPoint < DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
-          SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
+        if (binaryDecimalVirtualPoint > tunable.maxBinaryDecimalVirtualPoint)
+          SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, tunable.maxBinaryDecimalVirtualPoint)
+        if (binaryDecimalVirtualPoint < tunable.minBinaryDecimalVirtualPoint)
+          SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, tunable.minBinaryDecimalVirtualPoint)
         if (binaryNumberKnownLengthInBits == -1 ||
           binaryNumberKnownLengthInBits > 8) byteOrderRaw // must have or SDE
         binaryNumberKnownLengthInBits match {

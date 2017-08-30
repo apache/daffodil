@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -254,7 +253,7 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
 
   def unparse(state: UState) {
     state.arrayIndexStack.push(1L) // one-based indexing
-    state.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
+    state.occursBoundsStack.push(state.tunable.maxOccursBounds)
 
     var event = state.advanceOrError
     Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])

@@ -90,7 +90,6 @@ import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
 import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
@@ -109,6 +108,8 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
+import edu.illinois.ncsa.daffodil.api.TunableLimitExceededError
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -630,7 +631,7 @@ object Main extends Logging {
    * @param vars The individual variables input via the command line using the -D command.
    * @param configFileNode The Node representing the configuration file if there is one.
    */
-  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node]): Seq[Binding] = {
+  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node], tunables: DaffodilTunables): Seq[Binding] = {
     val configFileVars: Seq[Binding] = configFileNode match {
       case None => Seq.empty
       case Some(configNode) => {
@@ -639,7 +640,7 @@ object Main extends Logging {
         val extVarBindingNodeOpt = (configNode \ "externalVariableBindings").headOption
         extVarBindingNodeOpt match {
           case None => Seq.empty
-          case Some(extVarBindingsNode) => ExternalVariablesLoader.getVariables(extVarBindingsNode)
+          case Some(extVarBindingsNode) => ExternalVariablesLoader.getVariables(extVarBindingsNode, tunables)
         }
       }
     }
@@ -828,11 +829,13 @@ object Main extends Logging {
         val processor = {
           if (parseOpts.parser.isDefined) {
             val p = createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))
+            p.get.setExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
-            val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
             val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
+            val tunablesObj = DaffodilTunables(tunables)
+            val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode, tunablesObj)
+
             //val schema = new URI(parseOpts.schemaString())
             createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
           }
@@ -906,7 +909,7 @@ object Main extends Logging {
                   val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
                   if (hasMoreData) {
                     dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
-                    val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
+                    val maybeString = dis.getSomeString(processor.getTunables.maxFieldContentLengthInBytes)
                     val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
                     if (lengthInBytes > 0)
                       log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (lengthInBytes * 8))
@@ -941,11 +944,13 @@ object Main extends Logging {
         val processor = {
           if (performanceOpts.parser.isDefined) {
             val p = createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.get, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode))
+            p.get.setExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
-            val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode)
             val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
+            val tunablesObj = DaffodilTunables(tunables)
+            val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode, tunablesObj)
+
             createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
@@ -1078,11 +1083,13 @@ object Main extends Logging {
         val processor = {
           if (unparseOpts.parser.isDefined) {
             val p = createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validate)
-            p.get.setExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode))
+            p.get.setExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
-            val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode)
             val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
+            val tunablesObj = DaffodilTunables(tunables)
+            val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode, tunablesObj)
+
             createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.get, unparseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
@@ -1101,14 +1108,13 @@ object Main extends Logging {
           case Some(fileName) => new FileInputStream(fileName)
         }
 
-        val data = IOUtils.toByteArray(is)
-        val inputterData = infosetDataToInputterData(unparseOpts.infosetType.get.get, data)
-        val inputter = getInfosetInputter(unparseOpts.infosetType.get.get, inputterData)
-
         val rc = processor match {
           case None => 1
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
+            val data = IOUtils.toByteArray(is)
+            val inputterData = infosetDataToInputterData(unparseOpts.infosetType.get.get, data)
+            val inputter = getInfosetInputter(unparseOpts.infosetType.get.get, inputterData)
             val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
             output.close()
             displayDiagnostics(unparseResult)
@@ -1127,8 +1133,9 @@ object Main extends Logging {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
-        val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode)
         val tunables = retrieveTunables(saveOpts.tunables, cfgFileNode)
+        val tunablesObj = DaffodilTunables(tunables)
+        val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode, tunablesObj)
 
         val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.get, saveOpts.path.get, extVarsBindings, tunables, validate)
 
@@ -1313,7 +1320,7 @@ object Main extends Logging {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }
-      case e: DaffodilTunableParameters.TunableLimitExceededError => {
+      case e: TunableLimitExceededError => {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }

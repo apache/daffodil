@@ -237,7 +237,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
       optRestriction.flatMap { r => toOpt(r.hasMaxExclusive, r.maxExclusiveValue) },
       optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
       optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
-      optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } })
+      optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } },
+      tunable)
   }
 
   private lazy val noFacetChecks =

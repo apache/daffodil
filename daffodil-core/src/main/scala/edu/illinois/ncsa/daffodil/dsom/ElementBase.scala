@@ -268,7 +268,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       namedQName,
       optPrimType,
       schemaFileLocation,
-      elementChildrenCompileInfo)
+      elementChildrenCompileInfo,
+      tunable)
     eci
   }
 

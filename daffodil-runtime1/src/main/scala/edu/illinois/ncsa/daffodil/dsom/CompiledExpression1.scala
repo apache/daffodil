@@ -46,11 +46,11 @@ import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.TransientParam
 import edu.illinois.ncsa.daffodil.util.Maybe
 import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.api.UnqualifiedPathStepPolicy
 
 trait ContentValueReferencedElementInfoMixin {
 
@@ -213,7 +213,8 @@ class DPathCompileInfo(
   @TransientParam variableMapArg: => VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
-  override val schemaFileLocation: SchemaFileLocation)
+  override val schemaFileLocation: SchemaFileLocation,
+  val tunable: DaffodilTunables)
   extends ImplementsThrowsSDE with PreSerialization
   with HasSchemaFileLocation {
 
@@ -322,8 +323,9 @@ class DPathElementCompileInfo(
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
-  val elementChildrenCompileInfo: Seq[DPathElementCompileInfo])
-  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl)
+  val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
+  override val tunable: DaffodilTunables)
+  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable)
   with HasSchemaFileLocation
   with HasSlotIndexInParent {
 
@@ -357,7 +359,7 @@ class DPathElementCompileInfo(
 
     val retryMatchesERD =
       if (matchesERD.isEmpty &&
-        DaffodilTunableParameters.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
+        tunable.unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
         step.prefix.isEmpty && step.namespace != NoNamespace) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path

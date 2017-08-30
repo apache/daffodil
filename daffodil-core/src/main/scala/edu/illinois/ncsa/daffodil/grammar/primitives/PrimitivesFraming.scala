@@ -32,25 +32,24 @@
 
 package edu.illinois.ncsa.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
 import edu.illinois.ncsa.daffodil.processors.parsers.MandatoryTextAlignmentParser
+import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.parsers.SkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.AlignmentFillUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 
-  e.schemaDefinitionUnless(skipLengthInBits < DaffodilTunableParameters.maxSkipLengthInBytes * 8,
-    "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, DaffodilTunableParameters.maxSkipLengthInBytes * 8)
+  e.schemaDefinitionUnless(skipLengthInBits < e.tunable.maxSkipLengthInBytes * 8,
+    "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, e.tunable.maxSkipLengthInBytes * 8)
 
   final lazy val parser: Parser = new SkipRegionParser(skipLengthInBits, e.runtimeData)
   final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.runtimeData, e.fillByteEv)

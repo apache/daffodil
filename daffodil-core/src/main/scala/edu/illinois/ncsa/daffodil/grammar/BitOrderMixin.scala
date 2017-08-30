@@ -31,17 +31,16 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
 import edu.illinois.ncsa.daffodil.grammar.primitives.BitOrderChange
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 
   protected final lazy val optDefaultBitOrder: Option[BitOrder] = {
     val bitOrd =
-      if (DaffodilTunableParameters.requireBitOrderProperty) {
+      if (tunable.requireBitOrderProperty) {
         Some(bitOrder)
       } else {
         optionBitOrder

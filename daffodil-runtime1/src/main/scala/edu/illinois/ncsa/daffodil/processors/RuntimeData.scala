@@ -69,6 +69,7 @@ import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.util.OKOrError
 import java.util.regex.Matcher
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -94,6 +95,8 @@ sealed trait RuntimeData
   def immediateEnclosingTermRuntimeData: Maybe[TermRuntimeData]
   def variableMap: VariableMap
   override def toString = diagnosticDebugName
+  
+  def tunable: DaffodilTunables
 
 }
 
@@ -138,6 +141,21 @@ sealed abstract class TermRuntimeData(
     case _ => false
   }
 
+  /**
+   * At some point TermRuntimeData is a ResolvesQNames which requires tunables:
+   *
+   *  Anything to do with expressions might deal with namespace prefixes on
+   *  qnames in expressions, or on NCNames in expressions, so has to have
+   *  the namespace default policy tunable so as to be able to be compatible
+   *  with IBM's implementation of DPath.
+   *
+   * TermRuntimeData refers to a DPathCompileInfo which has the namespace
+   * prefix, element name, etc. that are needed in order to compile DPath
+   * expressions at runtime (in the debugger, which is part of the runtime;
+   * hence, need this info at runtime.)
+   */
+  def tunable = dpathCompileInfo.tunable
+
   lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
   lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
   lazy val encodingInfo = encodingInfoArg
@@ -161,6 +179,7 @@ sealed abstract class TermRuntimeData(
     hasNoSkipRegions
     defaultBitOrder
     optIgnoreCase
+    tunable
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -178,7 +197,8 @@ sealed class NonTermRuntimeData(
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
-  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData])
+  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData],
+  @TransientParam tunableArg: => DaffodilTunables)
   extends RuntimeData
   with PreSerialization {
 
@@ -189,6 +209,7 @@ sealed class NonTermRuntimeData(
   lazy val namespaces = namespacesArg
   lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
   lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
+  lazy val tunable = tunableArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -199,6 +220,7 @@ sealed class NonTermRuntimeData(
     namespaces
     immediateEnclosingElementRuntimeData
     immediateEnclosingTermRuntimeData
+    tunable
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -233,9 +255,9 @@ final class SimpleTypeRuntimeData(
   @TransientParam maxExclusiveArg: => Option[java.math.BigDecimal],
   @TransientParam totalDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam fractionDigitsArg: => Option[java.math.BigDecimal],
-  @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData] //
-  ) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
-  pathArg, namespacesArg, None, None) {
+  @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData],
+  @TransientParam tunableArg: => DaffodilTunables) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
+  pathArg, namespacesArg, None, None, tunableArg) {
 
   import OKOrError._
 
@@ -864,7 +886,8 @@ final class VariableRuntimeData(
   @TransientParam maybeDefaultValueExprArg: => Maybe[CompiledExpression[AnyRef]],
   @TransientParam typeRefArg: => RefQName,
   @TransientParam globalQNameArg: => GlobalQName,
-  @TransientParam primTypeArg: => NodeInfo.PrimType)
+  @TransientParam primTypeArg: => NodeInfo.PrimType,
+  @TransientParam tunableArg: => DaffodilTunables)
   extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,
@@ -872,7 +895,8 @@ final class VariableRuntimeData(
     pathArg,
     namespacesArg,
     None,
-    None)
+    None,
+    tunableArg)
   with Serializable {
 
   lazy val external = externalArg

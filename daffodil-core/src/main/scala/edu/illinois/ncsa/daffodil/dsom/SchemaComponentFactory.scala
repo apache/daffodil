@@ -54,7 +54,8 @@ class SchemaComponentFactory(override val xml: scala.xml.Node,
   with NestingLexicalMixin {
 
   override def parent = schemaDocument
-
+  
+  final override def tunable = schemaDocument.tunable
 }
 
 trait SchemaFileLocatableImpl

@@ -248,7 +248,7 @@ class ElementParser(
   }
 
   def parseBegin(pstate: PState): Unit = {
-    val currentElement = Infoset.newElement(erd).asInstanceOf[DIElement]
+    val currentElement = Infoset.newElement(erd, pstate.tunable).asInstanceOf[DIElement]
 
     log(LogLevel.Debug, "currentElement = %s", currentElement)
     val priorElement = pstate.infoset
@@ -351,7 +351,7 @@ class ChoiceElementParser(
    * the state to be referring to this new element as what we're parsing data into.
    */
   def parseBegin(pstate: PState): Unit = {
-    val currentElement = Infoset.newElement(erd)
+    val currentElement = Infoset.newElement(erd, pstate.tunable)
     log(LogLevel.Debug, "currentElement = %s", currentElement)
   }
 

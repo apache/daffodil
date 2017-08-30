@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
@@ -45,7 +44,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   protected final lazy val defaultEncodingErrorPolicy = {
     val policy =
-      if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
+      if (self.tunable.requireEncodingErrorPolicyProperty) {
         encodingErrorPolicy
       } else {
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)

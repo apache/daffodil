@@ -79,6 +79,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
 import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
@@ -86,8 +87,9 @@ abstract class UState(
   dos: DataOutputStream,
   vbox: VariableBox,
   diagnosticsArg: List[Diagnostic],
-  dataProcArg: Maybe[DataProcessor])
-  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg)
+  dataProcArg: Maybe[DataProcessor],
+  tunable: DaffodilTunables)
+  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def toString = {
@@ -199,8 +201,9 @@ class UStateForSuspension(
   arrayIndex: Long,
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
-  override val prior: UStateForSuspension)
-  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc) {
+  override val prior: UStateForSuspension,
+  tunable: DaffodilTunables)
+  extends UState(dos, vbox, mainUState.diagnostics, mainUState.dataProc, tunable) {
 
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
@@ -263,8 +266,9 @@ class UStateMain private (
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   dos: DataOutputStream,
-  initialSuspendedExpressions: mutable.Queue[Suspension])
-  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg)) {
+  initialSuspendedExpressions: mutable.Queue[Suspension],
+  tunable: DaffodilTunables)
+  extends UState(dos, vbox, diagnosticsArg, One(dataProcArg), tunable) {
 
   dState.setMode(UnparserBlocking)
 
@@ -274,9 +278,10 @@ class UStateMain private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     dataOutputStream: DataOutputStream,
-    initialSuspendedExpressions: mutable.Queue[Suspension]) =
+    initialSuspendedExpressions: mutable.Queue[Suspension],
+    tunable: DaffodilTunables) =
     this(inputter, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      dataOutputStream, initialSuspendedExpressions)
+      dataOutputStream, initialSuspendedExpressions, tunable)
 
   private var _prior: UStateForSuspension = null
   override def prior = _prior
@@ -314,7 +319,8 @@ class UStateMain private (
       arrayIndexStack.top, // only need the to of the stack, not the whole thing
       es,
       ds,
-      prior)
+      prior,
+      tunable)
 
     this._prior = clone
     clone
@@ -479,7 +485,7 @@ object UState {
     val variables = dataProc.getVariables
     val diagnostics = Nil
     val newState = new UStateMain(inputter, variables, diagnostics, dataProc.asInstanceOf[DataProcessor], out,
-      new mutable.Queue[Suspension]) // null means no prior UState
+      new mutable.Queue[Suspension], dataProc.getTunables()) // null means no prior UState
     newState
   }
 }

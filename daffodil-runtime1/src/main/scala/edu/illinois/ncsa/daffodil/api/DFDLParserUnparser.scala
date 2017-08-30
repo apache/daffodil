@@ -157,8 +157,12 @@ object DFDL {
     def save(output: DFDL.Output): Unit
     def setExternalVariables(extVars: Map[String, String]): Unit
     def setExternalVariables(extVars: File): Unit
+    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit
     def setExternalVariables(extVars: Seq[Binding]): Unit
     def getVariables(): VariableMap
+    def setTunable(tunable: String, value: String): Unit
+    def setTunables(tunables: Map[String,String]): Unit
+    def getTunables(): DaffodilTunables
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.

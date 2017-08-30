@@ -44,6 +44,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import scala.util.Success
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -52,6 +53,8 @@ class TestExternalVariablesLoader extends Logging {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
+  
+  val tunable = DaffodilTunables()
 
   def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:daffodilTest1"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
@@ -116,7 +119,7 @@ class TestExternalVariablesLoader extends Logging {
     assertTrue(var_v_with_default.value.isDefined)
     assertEquals("42", var_v_with_default.value.get.toString())
 
-    val vmap = ExternalVariablesLoader.loadVariables(extVarFile1, sd, initialVMap)
+    val vmap = ExternalVariablesLoader.loadVariables(extVarFile1, sd, initialVMap, tunable)
 
     // Verify that the external variables override the previous values
     // in the VariableMap
@@ -132,7 +135,7 @@ class TestExternalVariablesLoader extends Logging {
     val e = intercept[SchemaDefinitionError] {
       // fakeSD does not contain any defineVariables
       // Because we are trying to load external variables and none are defined we should SDE.
-      ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, new VariableMap())
+      ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, new VariableMap(), tunable)
     }
     val err = e.getMessage()
     assertTrue(err.contains("unknown variable ex:v_no_default"))

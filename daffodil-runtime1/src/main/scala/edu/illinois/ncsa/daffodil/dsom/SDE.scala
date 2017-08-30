@@ -40,10 +40,10 @@ import edu.illinois.ncsa.daffodil.processors.CompileState
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.CompileState
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.api.WarnID
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
@@ -184,6 +184,8 @@ trait ImplementsThrowsSDE
 
 trait ImplementsThrowsOrSavesSDE
   extends ImplementsThrowsSDE with SavesErrorsAndWarnings {
+  
+  def tunable: DaffodilTunables
 
   def error(th: Diagnostic): Unit
   def warn(th: Diagnostic): Unit
@@ -198,8 +200,7 @@ trait ImplementsThrowsOrSavesSDE
    * This form allows All warnings to be suppressed centrally but not individually.
    */
   def SDW(id: String, args: Any*): Unit = {
-    import DaffodilTunableParameters._
-    if (notSuppressedWarning(WarnID.All)) {
+    if (tunable.notSuppressedWarning(WarnID.All)) {
       ExecutionMode.requireCompilerMode
       val sdw = new SchemaDefinitionWarning(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
       warn(sdw)
@@ -211,7 +212,7 @@ trait ImplementsThrowsOrSavesSDE
    * individually selectively.
    */
   def SDW(warnID: WarnID, fmt: String, args: Any*): Unit = {
-    if (DaffodilTunableParameters.notSuppressedWarning(warnID)) {
+    if (tunable.notSuppressedWarning(warnID)) {
       ExecutionMode.requireCompilerMode
       val sdw = new SchemaDefinitionWarning(Some(schemaFileLocation), NoAnnotationContext, fmt, args: _*)
       warn(sdw)

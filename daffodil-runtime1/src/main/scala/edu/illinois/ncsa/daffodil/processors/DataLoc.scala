@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.io.DataDumper
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -125,7 +124,7 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[D
     val startOfInterestRegionBits0b = prestate.bitPos1b - 1
     val endOfInterestRegionBits0b = state.bitPos0b
     val lengthOfInterestRegionInBits = math.min(math.max(endOfInterestRegionBits0b - startOfInterestRegionBits0b, 0),
-      DaffodilTunableParameters.maxDataDumpSizeInBytes)
+      state.tunable.maxDataDumpSizeInBytes)
     val regionSpecifier = Some((startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt))
 
     val s = (eitherStream, prestate, state) match {
@@ -148,9 +147,9 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[D
       //
       case (Right(vis: DataInputStream), prestate: DataLocation, state: PState) => {
         // Parser
-        val howFarIntoPastData = math.min(bytePos0b - dumpStartBytePos0b, DaffodilTunableParameters.maxDataDumpSizeInBytes)
+        val howFarIntoPastData = math.min(bytePos0b - dumpStartBytePos0b, state.tunable.maxDataDumpSizeInBytes)
         val pastBBuf = vis.pastData(howFarIntoPastData.toInt)
-        val howFarIntoFutureData = math.min((dumpEndBytePos0b + 1) - bytePos0b, DaffodilTunableParameters.maxDataDumpSizeInBytes)
+        val howFarIntoFutureData = math.min((dumpEndBytePos0b + 1) - bytePos0b, state.tunable.maxDataDumpSizeInBytes)
         Assert.invariant(howFarIntoFutureData >= 0)
         val futureBBuf = vis.futureData(howFarIntoFutureData.toInt)
         val allDataBBuf = Utils.concatByteBuffers(pastBBuf, futureBBuf)

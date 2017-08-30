@@ -54,11 +54,14 @@ object TestGeneral {
   lazy val testDir3 = "/test space/test 1/"
   lazy val runner_ns = Runner(testDir3, "namespaces.tdml")
 
+  lazy val tunables_runner = Runner(testDir, "tunables.tdml")
+
   @AfterClass def shutDown() {
     runner.reset
     runner1.reset
     runnerA_B.reset
     runner_ns.reset
+    tunables_runner.reset
   }
 }
 
@@ -111,4 +114,9 @@ class TestGeneral {
     val versionStr = scala.util.Properties.versionNumberString
     assertTrue("The scala version must begin with 2.11. The current version is: " + versionStr, versionStr.startsWith("2.11."))
   }
+
+  // DFDL-1143
+  @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
+  @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
+
 }

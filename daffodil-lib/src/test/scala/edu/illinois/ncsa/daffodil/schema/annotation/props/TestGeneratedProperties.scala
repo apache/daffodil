@@ -37,7 +37,8 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.WarnID
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -71,6 +72,7 @@ class TestGeneratedProperties {
     val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
+    lazy val tunable = DaffodilTunables()
 
     def SDE(id: String, args: Any*): Nothing = {
       throw new Exception(id.format(args: _*))
@@ -84,7 +86,7 @@ class TestGeneratedProperties {
       System.err.println(new Exception(id.format(args: _*)))
     }
 
-    def SDW(warnID: DaffodilTunableParameters.WarnID, id: String, args: Any*): Unit = {
+    def SDW(warnID: WarnID, id: String, args: Any*): Unit = {
       System.err.println(new Exception(id.format(args: _*)))
     }
 

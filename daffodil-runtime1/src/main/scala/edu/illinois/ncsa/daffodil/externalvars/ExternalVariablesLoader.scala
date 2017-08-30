@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * The purpose of this object is to be able to take
@@ -71,11 +72,11 @@ object ExternalVariablesLoader {
     bindings
   }
 
-  def getVariables(node: Node): Seq[Binding] = getBindings(node)
+  def getVariables(node: Node, tunableArg: DaffodilTunables): Seq[Binding] = getBindings(node, tunableArg)
 
-  def getVariables(varsFile: File): Seq[Binding] = {
+  def getVariables(varsFile: File, tunableArg: DaffodilTunables): Seq[Binding] = {
     val node = getVariablesAsNode(varsFile)
-    val bindings = this.getBindings(node)
+    val bindings = this.getBindings(node, tunableArg)
     bindings
   }
 
@@ -102,19 +103,19 @@ object ExternalVariablesLoader {
     finalVMap
   }
 
-  def loadVariables(fileName: String, referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
+  def loadVariables(fileName: String, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(fileName != null, "loadVariables expects 'fileName' to not be null!")
     val f = new File(fileName)
-    loadVariables(f, referringContext, vmap)
+    loadVariables(f, referringContext, vmap, tunableArg)
   }
 
-  def loadVariables(uri: URI, referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
+  def loadVariables(uri: URI, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(uri != null, "loadVariables expects 'uri' to not be null!")
     val file = new File(uri)
-    loadVariables(file, referringContext, vmap)
+    loadVariables(file, referringContext, vmap, tunableArg)
   }
 
-  def loadVariables(file: File, referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
+  def loadVariables(file: File, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(file != null, "loadVariables expects 'file' to not be null!")
     ExternalVariablesValidator.validate(file) match {
       case Left(ex) => Assert.abort(ex)
@@ -123,13 +124,13 @@ object ExternalVariablesLoader {
     val enc = determineEncoding(file) // The encoding is needed for ConstructingParser
     val input = scala.io.Source.fromURI(file.toURI)(enc)
     val node = ConstructingParser.fromSource(input, true).document.docElem
-    loadVariables(node, referringContext, vmap)
+    loadVariables(node, referringContext, vmap, tunableArg)
   }
 
-  def loadVariables(node: Node, referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
+  def loadVariables(node: Node, referringContext: ThrowsSDE, vmap: VariableMap, tunableArg: DaffodilTunables): VariableMap = {
     Assert.usage(node != null, "loadVariables expects 'node' to not be null!")
     Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
-    val bindings = getBindings(node)
+    val bindings = getBindings(node, tunableArg)
     loadVariables(bindings, referringContext, vmap)
   }
 
@@ -139,9 +140,9 @@ object ExternalVariablesLoader {
     finalVMap
   }
 
-  private def getBindings(extVarBindings: Node) = {
+  private def getBindings(extVarBindings: Node, tunableArg: DaffodilTunables) = {
     val bindings = extVarBindings \ "bind"
-    bindings.map(b => Binding(b))
+    bindings.map(b => Binding(b, tunableArg))
   }
 
 }

@@ -32,9 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import edu.illinois.ncsa.daffodil.api.WarnID
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
@@ -61,7 +61,7 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
     val er = findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
-        SDW(DaffodilTunableParameters.WarnID.EscapeSchemeRefUndefined,
+        SDW(WarnID.EscapeSchemeRefUndefined,
           "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
         None
       }

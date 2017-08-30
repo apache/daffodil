@@ -42,6 +42,7 @@ import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.api.DataStreamLimits
 
 trait DataStreamCommonState {
 
@@ -51,7 +52,7 @@ trait DataStreamCommonState {
   var encodingMandatoryAlignmentInBits: Int = 8
   var maybeUTF16Width: Maybe[UTF16Width] = Maybe(UTF16Width.Fixed)
   var debugging: Boolean = false
-  var limits_ : DataStreamCommon.Limits = BBSLimits
+  var limits_ : DataStreamLimits = BBSLimits
   //
   // These are for dealing with 4-byte UTF-8 codepoints
   // that require 2 16-bit charaters.
@@ -106,9 +107,9 @@ trait DataStreamCommonImplMixin extends DataStreamCommon with Logging {
 
   final def isFixedWidthEncoding = cst.maybeCharWidthInBits.isDefined
 
-  final override def limits: DataStreamCommon.Limits = cst.limits_
+  final override def limits: DataStreamLimits = cst.limits_
 
-  final override def setLimits(newLimits: DataStreamCommon.Limits) {
+  final override def setLimits(newLimits: DataStreamLimits) {
     cst.limits_ = newLimits
   }
 

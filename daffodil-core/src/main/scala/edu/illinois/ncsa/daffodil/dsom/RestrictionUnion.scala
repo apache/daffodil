@@ -83,7 +83,7 @@ final class Restriction(xmlArg: Node, val simpleType: SimpleTypeDefBase)
   lazy val baseQName = {
     val baseQNameNodeSeq = xml \ "@base"
     val baseQNameString = baseQNameNodeSeq.text
-    val tryBaseQName = QName.resolveRef(baseQNameString, xml.scope)
+    val tryBaseQName = QName.resolveRef(baseQNameString, xml.scope, tunable)
     Assert.invariant(tryBaseQName.isSuccess)
     tryBaseQName.get
   }

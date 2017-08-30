@@ -66,8 +66,8 @@ import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.parsers.NotParsableParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying
@@ -94,8 +94,8 @@ class ProcessorFactory(val sset: SchemaSet)
 
   lazy val (generateParser, generateUnparser) = {
     val (context, policy) =
-      if (DaffodilTunableParameters.parseUnparsePolicy.isDefined) {
-        (None, DaffodilTunableParameters.parseUnparsePolicy.get)
+      if (tunable.parseUnparsePolicy.isDefined) {
+        (None, tunable.parseUnparsePolicy.get)
       } else {
         (Some(rootElem), rootElem.rootParseUnparsePolicy)
       }
@@ -221,6 +221,8 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
 
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
+  private var tunablesObj = DaffodilTunables()
+
   private val externalDFDLVariables: Queue[Binding] = Queue.empty
 
   /**
@@ -247,60 +249,20 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   def setExternalDFDLVariable(variable: Binding) = externalDFDLVariables.enqueue(variable)
   def setExternalDFDLVariables(variables: Seq[Binding]) = variables.foreach(b => setExternalDFDLVariable(b))
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsFile)
+    val extVars = ExternalVariablesLoader.getVariables(extVarsFile, tunablesObj)
     setExternalDFDLVariables(extVars)
   }
 
   def setTunable(tunable: String, value: String): Unit = {
-    tunable.toLowerCase match {
-      case "requirebitorderproperty" => DaffodilTunableParameters.requireBitOrderProperty = java.lang.Boolean.valueOf(value)
-      case "requireencodingerrorpolicyproperty" => DaffodilTunableParameters.requireEncodingErrorPolicyProperty = java.lang.Boolean.valueOf(value)
-      case "maxfieldcontentlengthinbytes" => DaffodilTunableParameters.maxFieldContentLengthInBytes = java.lang.Long.valueOf(value)
-      case "defaultinitialregexmatchlimitinchars" => DaffodilTunableParameters.defaultInitialRegexMatchLimitInChars = java.lang.Long.valueOf(value)
-      case "maxdatadumpsizeinbytes" => DaffodilTunableParameters.maxDataDumpSizeInBytes = java.lang.Long.valueOf(value)
-      case "maxoccursbounds" => DaffodilTunableParameters.maxOccursBounds = java.lang.Long.valueOf(value)
-      case "maxskiplengthinbytes" => DaffodilTunableParameters.maxSkipLengthInBytes = java.lang.Long.valueOf(value)
-      case "maxbinarydecimalvirtualpoint" => DaffodilTunableParameters.maxBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value)
-      case "minbinarydecimalvirtualpoint" => DaffodilTunableParameters.minBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value)
-      case "generatednamespaceprefixstem" => DaffodilTunableParameters.generatedNamespacePrefixStem = value
-      case "readerbytebuffersize" => DaffodilTunableParameters.readerByteBufferSize = java.lang.Long.valueOf(value)
-      case "maxlengthforvariablelengthdelimiterdisplay" => DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay = java.lang.Integer.valueOf(value)
-      case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
-      case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
-      case "parseUnparsePolicy" => {
-        val policy = value.toLowerCase match {
-          case "parseonly" => Some(ParseUnparsePolicy.ParseOnly)
-          case "unparseonly" => Some(ParseUnparsePolicy.UnparseOnly)
-          case "both" => Some(ParseUnparsePolicy.Both)
-          case "schema" => None
-          case _ => Assert.usageError("Unknown value for parseUnparsePolicy tunable. Value must be \"parseOnly\", \"unparseOnly\", \"both\", or \"schema\".")
-        }
-        DaffodilTunableParameters.parseUnparsePolicy = policy
-      }
-      case "unqualifiedpathsteppolicy" => {
-        val policy = value.toLowerCase match {
-          case "nonamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.NoNamespace
-          case "defaultnamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.DefaultNamespace
-          case "preferdefaultnamespace" => DaffodilTunableParameters.UnqualifiedPathStepPolicy.PreferDefaultNamespace
-          case _ => Assert.usageError("Unknown value for unqualifiedPathStepPolicy tunable. Value must be \"noNamespace\", \"defaultNamespace\", or \"perferDefaultNamespace\".")
-        }
-        DaffodilTunableParameters.unqualifiedPathStepPolicy = policy
-      }
-      case "suppressschemadefinitionwarnings" => {
-        val ws = """\s+"""
-        // value is whitespace separated list of warning identifier strings
-        val warnIDs = value.split(ws).toSeq
-        warnIDs.foreach { s =>
-          if (!DaffodilTunableParameters.suppressSchemaDefinitionWarning(s))
-            log(LogLevel.Warning, "Ignoring unknown warning identifier: %s", s)
-        }
-      }
-      case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
-    }
+    tunablesObj = tunablesObj.setTunable(tunable, value)
   }
 
   def setTunables(tunables: Map[String, String]): Unit = {
-    tunables.foreach { case (k, v) => setTunable(k, v) }
+    tunablesObj = tunablesObj.setTunables(tunables)
+  }
+
+  def resetTunables(): Unit = {
+    tunablesObj = DaffodilTunables()
   }
 
   /**
@@ -365,7 +327,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory =
     Compiler.synchronized {
       val noParent = null // null indicates this is the root, and has no parent
-      val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent)
+      val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent, tunablesObj)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError

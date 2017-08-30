@@ -91,6 +91,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -494,10 +495,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     roundTrip: Boolean,
     tracer: Option[Debugger]): Unit
 
-  private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
+  private def retrieveBindings(cfg: DefinedConfig, tunable: DaffodilTunables): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
       case None => Seq.empty
-      case Some(bindingsNode) => ExternalVariablesLoader.getVariables(bindingsNode)
+      case Some(bindingsNode) => ExternalVariablesLoader.getVariables(bindingsNode, tunable)
     }
     bindings
   }
@@ -593,10 +594,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         optDefinedConfig
       }
     }
-    val externalVarBindings: Seq[Binding] = cfg match {
-      case None => Seq.empty
-      case Some(definedConfig) => retrieveBindings(definedConfig)
-    }
+
     val defaultTunables: Map[String, String] = defaultCfg match {
       case None => Map.empty
       case Some(definedConfig) => retrieveTunables(definedConfig)
@@ -606,15 +604,18 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
     }
 
+    val tunableObj = DaffodilTunables(tunables)
+
+    compiler.setTunables(tunables)
+
+    val externalVarBindings: Seq[Binding] = cfg match {
+      case None => Seq.empty
+      case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
+    }
+
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
-
-    // Remove this check when DFDL-1143 is fixed
-    if (tunables.size > 0) {
-      throw new TDMLException("Tunables in TDML tests can lead to unexpected and random behaviors, do not use them until this is fixed. Tunables set are: " + tunables.keys.mkString(", "))
-    }
-    compiler.setTunables(tunables)
 
     val optInputOrExpectedData = document.map { _.data }
     val nBits: Option[Long] = document.map { _.nBits }

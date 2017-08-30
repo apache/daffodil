@@ -35,9 +35,9 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.util.NamedMixinBase
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * Common Mixin for things that have a name attribute.
@@ -176,6 +176,8 @@ trait GlobalElementComponentMixin
  * Namely the local element declaration class.
  */
 trait ElementFormDefaultMixin {
+  
+  def tunable: DaffodilTunables
 
   def xml: Node
 
@@ -213,7 +215,7 @@ trait ElementFormDefaultMixin {
             // then we just take head of this list, and we get tryPre
             // Note: this does NOT create the giant list of all Int values.
             val uniqueSuffix = if (i == 0) "" else i.toString
-            val prefixStem = DaffodilTunableParameters.generatedNamespacePrefixStem
+            val prefixStem = tunable.generatedNamespacePrefixStem
             val tryPre = prefixStem + uniqueSuffix
             if (xml.scope.getURI(tryPre) == null)
               Some(tryPre) // tryPre is not bound to a namespace, so we can use it.

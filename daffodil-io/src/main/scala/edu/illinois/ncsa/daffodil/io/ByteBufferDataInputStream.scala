@@ -56,6 +56,7 @@ import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.MStackOf
+import edu.illinois.ncsa.daffodil.api.DataStreamLimits
 
 /**
  * Factory for creating this type of DataInputStream
@@ -243,7 +244,7 @@ private[io] class MarkPool() extends Pool[MarkState] {
  * However, as this daffodil-io module is more primitive than the
  * daffodil runtime, this allows us to unit test things in isolation.
  */
-private object BBSLimits extends DataStreamCommon.Limits {
+private object BBSLimits extends DataStreamLimits {
   def maximumSimpleElementSizeInBytes: Long = 1024 * 1024
   def maximumSimpleElementSizeInCharacters: Long = 1024 * 1024
   def maximumForwardSpeculationLengthInBytes: Long = 1024 * 1024

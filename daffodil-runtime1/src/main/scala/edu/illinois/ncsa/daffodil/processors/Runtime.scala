@@ -53,8 +53,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.io.ObjectOutputStream
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.TunableLimitExceededError
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
@@ -62,7 +60,6 @@ import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
-import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
@@ -73,6 +70,8 @@ import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
 import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.api.TunableLimitExceededError
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -109,10 +108,13 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   extends DFDL.DataProcessor with Logging
   with HasSetDebugger with Serializable
   with MultipleEventHandler {
+  
+  protected var tunablesObj = ssrd.tunable // Compiler-set tunables
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
   def getVariables = ssrd.variables
+  def getTunables = tunablesObj
 
   @transient private var areDebugging_ = false
 
@@ -147,12 +149,19 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
   def setExternalVariables(extVars: File): Unit = {
-    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
+    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables, getTunables)
+  }
+  def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {
+    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables, getTunables)
   }
   def setExternalVariables(extVars: Seq[Binding]): Unit = {
     ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
 
+  def setTunable(tunable: String, value: String): Unit = tunablesObj = tunablesObj.setTunable(tunable, value)
+  def setTunables(tunables: Map[String, String]): Unit = tunablesObj = tunablesObj.setTunables(tunables)
+  def resetTunables(): Unit = tunablesObj = ssrd.tunable // Compiler-set values
+  
   override def isError = false // really there is no compiling at all currently, so there can be no errors.
 
   override def getDiagnostics = ssrd.diagnostics
@@ -226,17 +235,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     }
   }
 
-  object dataInputStreamLimits extends DataStreamCommon.Limits {
-    def maximumSimpleElementSizeInBytes: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
-    def maximumSimpleElementSizeInCharacters: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
-    def maximumForwardSpeculationLengthInBytes: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
-    def maximumRegexMatchLengthInCharacters: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
-    def defaultInitialRegexMatchLimitInChars: Long = DaffodilTunableParameters.defaultInitialRegexMatchLimitInChars
-  }
-
   private def doParse(p: Parser, state: PState) {
     try {
-      state.dataInputStream.setLimits(dataInputStreamLimits)
+      state.dataInputStream.setLimits(state.tunable)
       this.startElement(state, p)
       p.parse1(state)
       this.endElement(state, p)
@@ -299,7 +300,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         addEventHandler(debugger)
         unparserState.notifyDebugging(true)
       }
-      inputter.initialize(ssrd.elementRuntimeData)
+      inputter.initialize(ssrd.elementRuntimeData, unparserState.tunable)
       unparserState.dataProc.get.init(ssrd.unparser)
       doUnparse(unparserState)
       unparserState.evalSuspensions(unparserState) // handles outputValueCalc that were suspended due to forward references.

@@ -36,18 +36,14 @@ package edu.illinois.ncsa.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-//import org.junit.Test
+import edu.illinois.ncsa.daffodil.util.Misc
 
 object TestGeneralNew {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  val bb = testDir + "tunables.tdml"
-  lazy val tunables_runner = new DFDLTestSuite(Misc.getRequiredResource(bb))
 }
 
 class TestGeneralNew {
@@ -57,9 +53,4 @@ class TestGeneralNew {
   // until we can figure out the appropriate behavior here.
   //
   //@Test def test_check_escape_separator_distinct_fail() { runner.runOneTest("check_escape_separator_distinct_fail") }
-
-  // DFDL-1143
-  //@Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
-  //@Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
-
 }

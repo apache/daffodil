@@ -121,7 +121,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       variableMap,
       namespaces,
       path,
-      schemaFileLocation)
+      schemaFileLocation,
+      tunable)
 
   /**
    * An integer which is the alignment of this term. This takes into account the

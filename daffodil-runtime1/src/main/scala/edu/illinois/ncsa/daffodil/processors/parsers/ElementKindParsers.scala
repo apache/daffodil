@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
 import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
@@ -210,7 +209,7 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
   def parse(start: PState): Unit = {
 
     start.mpstate.arrayIndexStack.push(1L) // one-based indexing
-    start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
+    start.mpstate.occursBoundsStack.push(start.tunable.maxOccursBounds)
 
     bodyParser.parse1(start)
 

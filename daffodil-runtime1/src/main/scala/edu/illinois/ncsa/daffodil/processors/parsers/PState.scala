@@ -69,6 +69,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 object MPState {
 
@@ -154,8 +155,9 @@ final class PState private (
   diagnosticsArg: List[Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
-  var delimitedParseResult: Maybe[dfa.ParseResult])
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg)) {
+  var delimitedParseResult: Maybe[dfa.ParseResult],
+  tunable: DaffodilTunables) // Runtime tunables obtained from DataProcessor
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
   override def currentNode = Maybe(infoset)
 
@@ -356,13 +358,15 @@ object PState {
     dis: DataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
+    
+    val tunables = dataProc.getTunables()
 
-    val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
+    val doc = Infoset.newDocument(root, tunables).asInstanceOf[DIElement]
     val variables = dataProc.getVariables
     val diagnostics = Nil
     val mutablePState = MPState()
     val newState = new PState(doc, dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope)
+      dataProc.asInstanceOf[DataProcessor], Nope, tunables)
     newState
   }
 
@@ -381,7 +385,7 @@ object PState {
     val mutablePState = MPState()
 
     val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope)
+      dataProc.asInstanceOf[DataProcessor], Nope, dataProc.getTunables())
     newState
   }
 

@@ -246,6 +246,7 @@ class Fakes private () {
       </xs:choice>
     </xs:group>)
   val DummyPrimitiveFactory = null
+  val tunable = DaffodilTunables()
   lazy val xsd_sset: SchemaSet = new SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
@@ -256,18 +257,25 @@ class Fakes private () {
   lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
 
   class FakeDataProcessor extends DFDL.DataProcessor {
+    protected var tunablesObj = DaffodilTunables()
     def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
     def save(output: DFDL.Output): Unit = {}
     def setExternalVariables(extVars: Map[String, String]): Unit = {}
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}
+    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {}
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
     def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = null
     def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     def isError: Boolean = false
+    def setTunables(tunables: DaffodilTunables): Unit = {}
+    def setTunable(tunable: String, value: String): Unit = {}
+    def setTunables(tunables: Map[String,String]): Unit = {}
+    def getTunables(): DaffodilTunables = { tunablesObj }
+    
   }
   lazy val fakeDP = new FakeDataProcessor
 

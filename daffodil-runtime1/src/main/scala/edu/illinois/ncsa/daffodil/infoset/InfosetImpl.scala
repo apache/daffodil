@@ -44,7 +44,6 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
@@ -67,6 +66,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 sealed trait DINode {
 
@@ -952,7 +952,7 @@ final class DIArray(
 
   def namedQName = erd.namedQName
 
-  private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
+  private val initialSize = parent.tunable.initialElementOccurrencesHint.toInt
   //TODO: really this needs to be adaptive, and resize upwards reasonably.
   //A non-copying thing - list like, may be better, but we do need access to be
   //constant time.
@@ -1289,7 +1289,7 @@ sealed trait DIFinalizable {
  * One[DIArray] means the slot is for a recurring element which can have 2+ instances.
  * The DIArray object's length gives the number of occurrences.
  */
-sealed class DIComplex(override val erd: ElementRuntimeData)
+sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: DaffodilTunables)
   extends DIElement
   with DIComplexSharedImplMixin
   with InfosetComplexElement
@@ -1490,7 +1490,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
  * Making this extend DIComplex eliminates a bunch of boundary
  * conditions having to do with the document root element.
  */
-final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
+final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
+  extends DIComplex(erd, tunable)
   with InfosetDocument {
   var root: DIElement = null
 
@@ -1528,17 +1529,17 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
 
 object Infoset {
 
-  def newElement(erd: ElementRuntimeData): InfosetElement = {
+  def newElement(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetElement = {
     if (erd.isSimpleType) new DISimple(erd)
-    else new DIComplex(erd)
+    else new DIComplex(erd, tunable)
   }
 
-  def newDocument(erd: ElementRuntimeData): InfosetDocument = {
-    new DIDocument(erd)
+  def newDocument(erd: ElementRuntimeData, tunable: DaffodilTunables): InfosetDocument = {
+    new DIDocument(erd, tunable)
   }
 
-  def newDocument(root: InfosetElement): InfosetDocument = {
-    val doc = newDocument(root.runtimeData)
+  def newDocument(root: InfosetElement, tunable: DaffodilTunables): InfosetDocument = {
+    val doc = newDocument(root.runtimeData, tunable)
     doc.setRootElement(root)
     doc
   }

@@ -69,7 +69,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   }
 
   final lazy val typeQName = {
-    val eQN = QName.resolveRef(typeQNameString, namespaces)
+    val eQN = QName.resolveRef(typeQNameString, namespaces, tunable)
     val res = eQN.recover {
       case _: Throwable =>
         SDE("Variables must have primitive types. Type is '%s'.", typeQNameString)
@@ -103,12 +103,13 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     maybeDefaultValueExpr,
     this.typeQName,
     this.namedQName.asInstanceOf[GlobalQName],
-    this.primType)
+    this.primType,
+    this.tunable)
 }
 
 abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
-
+  
   final lazy val ref = getAttributeRequired("ref")
   final lazy val varQName = resolveQName(ref)
 

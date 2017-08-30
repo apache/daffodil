@@ -397,7 +397,7 @@ sealed trait RegularElementUnparserStartEndStrategy
       } else {
         // Since we never get events for hidden elements, their infoset elements
         // will have never been created. This means we need to manually create them
-        val e = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
+        val e = if (erd.isComplexType) new DIComplex(erd, state.tunable) else new DISimple(erd)
         state.currentInfosetNode.asComplex.addChild(e)
         e
       }

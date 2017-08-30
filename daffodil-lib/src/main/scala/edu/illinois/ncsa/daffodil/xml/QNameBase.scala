@@ -32,14 +32,16 @@
 
 package edu.illinois.ncsa.daffodil.xml
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
-import scala.language.reflectiveCalls
-import java.net.URISyntaxException
 import java.net.URI
+import java.net.URISyntaxException
+
+import scala.language.reflectiveCalls
 import scala.util.Try
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathStepPolicy
+
+import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.api.UnqualifiedPathStepPolicy
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Please centralize QName handling here.
@@ -120,8 +122,8 @@ import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.UnqualifiedPathS
  */
 object QName {
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[RefQName] =
-    RefQNameFactory.resolveRef(qnameString, scope)
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[RefQName] =
+    RefQNameFactory.resolveRef(qnameString, scope, tunable)
 
   /**
    * Specialized getQName function for handling
@@ -165,8 +167,8 @@ object QName {
     res
   }
 
-  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding): Try[StepQName] =
-    StepQNameFactory.resolveRef(qnameString, scope)
+  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[StepQName] =
+    StepQNameFactory.resolveRef(qnameString, scope, tunable)
 
   def createLocal(name: String, targetNamespace: NS, isQualified: Boolean,
     scope: scala.xml.NamespaceBinding) = {
@@ -474,17 +476,17 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
 protected trait RefQNameFactoryBase[T] {
 
-  protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding): Option[String]
+  protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Option[String]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[T] = Try {
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables): Try[T] = Try {
     qnameString match {
       case QNameRegex.QName(pre, local) => {
         val prefix = Option(pre)
         // note that the prefix, if defined, can never be ""
         val optURI = prefix match {
-          case None => resolveDefaultNamespace(scope)
+          case None => resolveDefaultNamespace(scope, tunable)
           case Some(pre) => Option(scope.getURI(pre))
         }
         val ns = (prefix, optURI) match {
@@ -505,7 +507,7 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     RefQName(prefix, local, namespace)
 
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding) =
+  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables) =
     Option(scope.getURI(null)) // could be a default namespace
 }
 
@@ -514,8 +516,9 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     StepQName(prefix, local, namespace)
 
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding) = {
-    DaffodilTunableParameters.unqualifiedPathStepPolicy match {
+    /* This is what needs Tunables and propagates into Expression */
+  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables) = {
+    tunable.unqualifiedPathStepPolicy match {
       case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace
       case UnqualifiedPathStepPolicy.DefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
       case UnqualifiedPathStepPolicy.PreferDefaultNamespace => Option(scope.getURI(null)) // could be a default namespace

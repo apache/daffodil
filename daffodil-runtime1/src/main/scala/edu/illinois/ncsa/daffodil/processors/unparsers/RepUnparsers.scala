@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
@@ -46,10 +45,10 @@ abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntime
   val intN = n.toInt
 
   def checkN(ustate: UState, n: Long) {
-    if (n > DaffodilTunableParameters.maxOccursBounds) {
+    if (n > ustate.tunable.maxOccursBounds) {
       // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
       // after all....
-      UE(ustate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.maxOccursBounds)
+      UE(ustate, "Occurs count %s exceeds implementation maximum of %s.", n, ustate.tunable.maxOccursBounds)
     }
   }
 

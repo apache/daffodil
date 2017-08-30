@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.exceptions
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.DaffodilTunableParameters.WarnID
+import edu.illinois.ncsa.daffodil.api.WarnID
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This

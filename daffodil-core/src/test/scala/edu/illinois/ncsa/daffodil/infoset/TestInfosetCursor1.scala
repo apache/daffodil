@@ -57,7 +57,7 @@ class TestInfosetInputter1 {
     }
     val rootERD = u.ssrd.elementRuntimeData
     val ic = new XMLTextInfosetInputter(infosetRdr)
-    ic.initialize(rootERD)
+    ic.initialize(rootERD, u.getTunables())
     ic
   }
 
