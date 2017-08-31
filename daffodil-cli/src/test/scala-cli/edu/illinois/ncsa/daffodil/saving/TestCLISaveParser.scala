@@ -421,4 +421,26 @@ class TestCLISaveParser {
       shell.close()
     }
   }
+
+  @Test def test_3941_CLI_Saving_SaveParser_tunables() {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("", true)
+
+    try {
+      String.format("%s save-parser -s %s -r e1 -T parseUnparsePolicy=parseOnly %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+
+      val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("[error]"))
+      shell.expect(contains("Runtime Schema Definition Error: This schema was compiled without unparse support."))
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
 }

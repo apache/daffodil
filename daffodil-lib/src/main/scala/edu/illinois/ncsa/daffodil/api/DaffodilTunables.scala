@@ -185,7 +185,7 @@ case class DaffodilTunables(
       case "minbinarydecimalvirtualpoint" => this.copy(minBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value))
       case "generatednamespaceprefixstem" => this.copy(generatedNamespacePrefixStem = value)
       case "readerbytebuffersize" => this.copy(readerByteBufferSize = java.lang.Long.valueOf(value))
-      case "parseUnparsePolicy" => {
+      case "parseunparsepolicy" => {
         val policy = value.toLowerCase match {
           case "parseonly" => Some(ParseUnparsePolicy.ParseOnly)
           case "unparseonly" => Some(ParseUnparsePolicy.UnparseOnly)
