@@ -12,8 +12,8 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <x type="xsd:hexBinary">DEADBEEF</x>
-          <y type="xsd:hexBinary">FA7A55</y>
+          <x xsi:type="xsd:hexBinary">DEADBEEF</x>
+          <y xsi:type="xsd:hexBinary">FA7A55</y>
         </list>
       </dfdlInfoset>
     </infoset>

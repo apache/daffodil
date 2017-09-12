@@ -200,7 +200,7 @@ class TestTDMLRunner {
                   <document>0123</document>
                   <infoset>
                     <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
-                      <byte1 xsi:type="xs:byte">123</byte1>
+                      <byte1>123</byte1>
                     </dfdlInfoset>
                   </infoset>
                 </parserTestCase>

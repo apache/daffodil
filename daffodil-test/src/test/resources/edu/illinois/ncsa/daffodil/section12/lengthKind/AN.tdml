@@ -50,10 +50,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-          <folder type="xsd:string">folder1</folder>
-          <folder type="xsd:string">folder2</folder>
-          <folder type="xsd:string">folder3</folder>
-          <file type="xsd:string">file_name</file>
+          <folder xsi:type="xsd:string">folder1</folder>
+          <folder xsi:type="xsd:string">folder2</folder>
+          <folder xsi:type="xsd:string">folder3</folder>
+          <file xsi:type="xsd:string">file_name</file>
         </path>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -68,9 +68,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <path xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-          <folder type="xsd:string">folder1</folder>
-          <folder type="xsd:string">folder2</folder>
-          <folder type="xsd:string">folder3</folder>
+          <folder xsi:type="xsd:string">folder1</folder>
+          <folder xsi:type="xsd:string">folder2</folder>
+          <folder xsi:type="xsd:string">folder3</folder>
         </path>
       </tdml:dfdlInfoset>
     </tdml:infoset>

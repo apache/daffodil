@@ -557,7 +557,10 @@ object XMLUtils {
   }
 
   /**
-   * Removes attributes associated xmlns quasi-attributes.
+   * Removes attributes that we want to ignore when comparing
+   * infosets.
+   *
+   * Removes dafint namespace attributes such as dafint:line and dafint:col.
    *
    * If a sequence of namespaces are given, only those attributes and scopes in
    * those namepsaces are removed. Otherwise, all attributes and scopes (aside
@@ -568,8 +571,10 @@ object XMLUtils {
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
    *
-   * Also strips out comments and mixed whitespace nodes. Throws an exception
-   * if it contains mixed non-whitespace nodes.
+   * Also strips out comments and mixed whitespace nodes, and coalesces
+   * adjacent text nodes.
+   *
+   * Throws an exception if it contains mixed non-whitespace nodes.
    */
   def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
     val res1 = removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
@@ -581,12 +586,11 @@ object XMLUtils {
   /**
    * removes insignificant whitespace from between elements
    */
+
   private def removeMixedWhitespace(ns: Node): Node = {
     if (!ns.isInstanceOf[Elem]) return ns
-
     val e = ns.asInstanceOf[Elem]
     val children = e.child
-
     val noMixedChildren =
       if (children.exists(_.isInstanceOf[Elem])) {
         children.filter {
@@ -605,6 +609,7 @@ object XMLUtils {
           case _ => true
         }
       }
+
     val res =
       if (noMixedChildren eq children) e
       else e.copy(child = noMixedChildren)
@@ -671,13 +676,21 @@ object XMLUtils {
             case xsiNilAttr @ PrefixedAttribute("xsi", "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == null) => {
               true
             }
-            case attr => {
-              if (ns.length > 0) {
-                !ns.contains(NS(attr.getNamespace(e)))
-              } else {
-                false
-              }
+            case dafIntAttr @ PrefixedAttribute(pre, _, _, _) if (pre ne null) && (dafIntAttr.getNamespace(e) == XMLUtils.DAFFODIL_INTERNAL_NAMESPACE.toString) => {
+              Assert.invariant(pre != "")
+              false // drop dafint attributes.
             }
+            case xsiTypeAttr @ PrefixedAttribute(_, "type", _, _) if (NS(xsiTypeAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) =>
+              false // drop xsi:type attributes for now. Such time as we add
+            // support for them, we would need to not remove them.
+            // TODO: actually check xsi:type attributes are correct - but this
+            // requires schema-aware comparison.
+            case xsiTypeAttr @ PrefixedAttribute("xsi", "type", _, _) =>
+              false // drop xsi:type attributes for now. Even if prefix xsi is not defined.
+            // This just avoids having to edit many tests to add in the xmlns:xsi=....
+            // namespace declaration.
+            case attr =>
+              true // keep all other attributes
           }
         }
 

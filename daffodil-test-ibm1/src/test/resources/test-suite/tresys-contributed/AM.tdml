@@ -51,7 +51,7 @@
         <mimeType xmlns="http://www.example.org/example1/"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
-            <type type="xsd:string">image/gif</type>
+            <type xsi:type="xsd:string">image/gif</type>
           </mime>
         </mimeType>
       </dfdlInfoset>
@@ -116,7 +116,7 @@
         <mimeType xmlns="http://www.example.org/example1/"
           xmlns:xsd="http://www.w3.org/2001/XMLSchema">
           <mime>
-            <type type="xsd:string">image/jpeg</type>
+            <type xsi:type="xsd:string">image/jpeg</type>
           </mime>
         </mimeType>
       </dfdlInfoset>

@@ -12,14 +12,14 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <a type="xsd:byte">-1</a>
-          <b type="xsd:unsignedByte">255</b>
-          <c type="xsd:short">-1</c>
-          <d type="xsd:unsignedShort">65535</d>
-          <e type="xsd:int">-1</e>
-          <f type="xsd:unsignedInt">4294967295</f>
-          <g type="xsd:long">-1</g>
-          <h type="xsd:unsignedLong">18446744073709551615</h>
+          <a xsi:type="xsd:byte">-1</a>
+          <b xsi:type="xsd:unsignedByte">255</b>
+          <c xsi:type="xsd:short">-1</c>
+          <d xsi:type="xsd:unsignedShort">65535</d>
+          <e xsi:type="xsd:int">-1</e>
+          <f xsi:type="xsd:unsignedInt">4294967295</f>
+          <g xsi:type="xsd:long">-1</g>
+          <h xsi:type="xsd:unsignedLong">18446744073709551615</h>
         </list>
       </dfdlInfoset>
     </infoset>
@@ -33,14 +33,14 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <a type="xsd:byte">127</a>
-          <b type="xsd:unsignedByte">127</b>
-          <c type="xsd:short">32767</c>
-          <d type="xsd:unsignedShort">32767</d>
-          <e type="xsd:int">2147483647</e>
-          <f type="xsd:unsignedInt">2147483647</f>
-          <g type="xsd:long">9223372036854775807</g>
-          <h type="xsd:unsignedLong">9223372036854775807</h>
+          <a xsi:type="xsd:byte">127</a>
+          <b xsi:type="xsd:unsignedByte">127</b>
+          <c xsi:type="xsd:short">32767</c>
+          <d xsi:type="xsd:unsignedShort">32767</d>
+          <e xsi:type="xsd:int">2147483647</e>
+          <f xsi:type="xsd:unsignedInt">2147483647</f>
+          <g xsi:type="xsd:long">9223372036854775807</g>
+          <h xsi:type="xsd:unsignedLong">9223372036854775807</h>
         </list>
       </dfdlInfoset>
     </infoset>

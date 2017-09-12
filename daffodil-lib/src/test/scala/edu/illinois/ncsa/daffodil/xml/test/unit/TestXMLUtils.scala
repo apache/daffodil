@@ -88,7 +88,7 @@ class TestXMLUtils {
 
   @Test def testNilDiff1() {
     val d1 = <a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true" foo="bar"/>
-    val d2 = <a baz="quuxly"/>
+    val d2 = <a dafint:col="30" xmlns:dafint={ XMLUtils.INT_NS }/>
     val d1NoA = XMLUtils.removeAttributes(d1)
     val d2NoA = XMLUtils.removeAttributes(d2)
     val diffs = XMLUtils.computeDiff(d1NoA, d2NoA)
@@ -137,7 +137,7 @@ class TestXMLUtils {
 
   @Test def testRemoveAttributes1() {
     val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
-                <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
+                <test2:foo dafint:qaz="qaz" dafint:line="300" xsi:nil="true"/>
               </test:bar>
     val res = XMLUtils.removeAttributes(xml)
     assertEquals(<bar><foo xsi:nil="true"/></bar>, Utility.trim(res))

@@ -62,10 +62,10 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <list xmlns="http://example.com">
-          <x type="xsd:byte">0</x>
-          <y type="xsd:byte">1</y>
-          <z type="xsd:byte">2</z>
-          <w type="xsd:byte">3</w>
+          <x xsi:type="xsd:byte">0</x>
+          <y xsi:type="xsd:byte">1</y>
+          <z xsi:type="xsd:byte">2</z>
+          <w xsi:type="xsd:byte">3</w>
         </list>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -81,10 +81,10 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <list xmlns="http://example.com">
-          <x type="xsd:byte">-1</x>
-          <y type="xsd:byte">-2</y>
-          <z type="xsd:byte">-3</z>
-          <w type="xsd:byte">-4</w>
+          <x xsi:type="xsd:byte">-1</x>
+          <y xsi:type="xsd:byte">-2</y>
+          <z xsi:type="xsd:byte">-3</z>
+          <w xsi:type="xsd:byte">-4</w>
         </list>
       </tdml:dfdlInfoset>
     </tdml:infoset>

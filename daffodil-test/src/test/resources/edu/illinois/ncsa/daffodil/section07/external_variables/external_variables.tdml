@@ -153,8 +153,8 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<c xmlns="http://www.example.org/example1/">
-					<d type="xsd:int">2</d>
-					<e type="xsd:int">1</e>
+					<d xsi:type="xsd:int">2</d>
+					<e xsi:type="xsd:int">1</e>
 				</c>
 
 			</tdml:dfdlInfoset>
@@ -171,8 +171,8 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<c xmlns="http://www.example.org/example1/">
-					<d type="xsd:int">2</d>
-					<e type="xsd:int">1</e>
+					<d xsi:type="xsd:int">2</d>
+					<e xsi:type="xsd:int">1</e>
 				</c>
 
 			</tdml:dfdlInfoset>
@@ -245,8 +245,8 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<c xmlns="http://www.example.org/example1/">
-					<d type="xsd:int">2</d>
-					<e type="xsd:int">2</e>
+					<d xsi:type="xsd:int">2</d>
+					<e xsi:type="xsd:int">2</e>
 				</c>
 
 			</tdml:dfdlInfoset>
@@ -344,10 +344,10 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<c xmlns="http://www.example.org/example1/">
-					<d type="xsd:int">42</d>
-					<e type="xsd:int">1</e>
-					<f type="xsd:int">73</f>
-					<g type="xsd:int">48</g>
+					<d xsi:type="xsd:int">42</d>
+					<e xsi:type="xsd:int">1</e>
+					<f xsi:type="xsd:int">73</f>
+					<g xsi:type="xsd:int">48</g>
 				</c>
 
 			</tdml:dfdlInfoset>

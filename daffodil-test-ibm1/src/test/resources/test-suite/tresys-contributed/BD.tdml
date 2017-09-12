@@ -11,10 +11,10 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <x type="xsd:boolean">true</x>
-          <x type="xsd:boolean">false</x>
-          <x type="xsd:boolean">false</x>
-          <x type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">false</x>
+          <x xsi:type="xsd:boolean">false</x>
+          <x xsi:type="xsd:boolean">true</x>
         </list>
       </dfdlInfoset>
     </infoset>
