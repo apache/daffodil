@@ -36,10 +36,10 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-          <w type="xsd:int">1</w>
-          <x type="xsd:int">2</x>
-          <y type="xsd:int">3</y>
-          <z type="xsd:int">4</z>
+          <w xsi:type="xsd:int">1</w>
+          <x xsi:type="xsd:int">2</x>
+          <y xsi:type="xsd:int">3</y>
+          <z xsi:type="xsd:int">4</z>
         </list>
 
       </tdml:dfdlInfoset>

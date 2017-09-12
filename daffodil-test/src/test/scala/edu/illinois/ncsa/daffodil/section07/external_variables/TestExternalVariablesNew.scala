@@ -52,4 +52,14 @@ class TestExternalVariablesNew {
   @Test def test_read_config_from_file() {
     runner.runOneTest("read_config_from_file")
   }
+
+  /**
+   * Test that a default XMLNS binding isn't present. That would be broken
+   * as this schema depends on unqualified child element names
+   * (elementFormDefault unqualified, which is the default)
+   */
+  @Test
+  def test_testNoRootUnnecessaryBinding(): Unit = {
+    runner.trace.runOneTest("testNoRootUnnecessaryBinding")
+  }
 }

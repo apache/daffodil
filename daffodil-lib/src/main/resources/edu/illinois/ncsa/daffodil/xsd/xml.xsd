@@ -1,6 +1,7 @@
 <?xml version='1.0'?>
 <xs:schema targetNamespace="http://www.w3.org/XML/1998/namespace"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <xs:annotation>
     <xs:documentation>

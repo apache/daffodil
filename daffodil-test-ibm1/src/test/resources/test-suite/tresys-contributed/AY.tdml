@@ -11,12 +11,12 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <character type="xsd:string">itTERMINATOR1emST0</character>
-          <character type="xsd:string">item1SEPARATOR</character>
-          <block type="xsd:string">,item2</block>
-          <block type="xsd:string">STARTitem3</block>
-          <block type="xsd:string">iENDtSTARTem4</block>
-          <block type="xsd:string">itTERMINATOR2em5</block>
+          <character xsi:type="xsd:string">itTERMINATOR1emST0</character>
+          <character xsi:type="xsd:string">item1SEPARATOR</character>
+          <block xsi:type="xsd:string">,item2</block>
+          <block xsi:type="xsd:string">STARTitem3</block>
+          <block xsi:type="xsd:string">iENDtSTARTem4</block>
+          <block xsi:type="xsd:string">itTERMINATOR2em5</block>
         </list>
       </dfdlInfoset>
     </infoset>

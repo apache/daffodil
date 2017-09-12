@@ -918,7 +918,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
-    val infosetXML = inputInfoset.dfdlInfoset.rawContents
+    val infosetXML = inputInfoset.dfdlInfoset.contents
 
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
@@ -998,7 +998,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       else {
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
-        val infosetXML = inputInfoset.dfdlInfoset.rawContents
+        val infosetXML = inputInfoset.dfdlInfoset.contents
         val inputter = new ScalaXMLInfosetInputter(infosetXML)
         val actual = processor.unparse(inputter, output)
         output.close()
@@ -1041,12 +1041,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
 object VerifyTestCase {
   def verifyParserTestData(actual: Node, infoset: Infoset) {
-    //
-    // Attributes on the XML like xsi:type and also namespaces (I think) are
-    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't
-    // use attributes at all)
-    //
-    val actualNoAttrs = XMLUtils.removeAttributes(actual)
+
+    val actualForCompare = XMLUtils.removeAttributes(actual)
+
+    // For debug
+    // scala.xml.XML.save("/tmp/actual.out.xml", actual, "utf-8")
+
     //
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
@@ -1066,16 +1066,15 @@ object VerifyTestCase {
     // an element with a string as its value. It's an element with several text nodes as
     // its values.
     //
-    // so we run the expected stuff through the same converters that were used to
-    // convert the actual.
-    // val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
-    val expected = infoset.contents
-    // infoset.contents already has attributes removed.
-    // however, we call removeAttributes anyway because of the way it collapses
-    // multiple strings within a text node.
-    val expectedNoAttrs = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
+    // so we run the expected stuff through the same conditioners as the actual
+    // data so that they are properly comparable.
+    //
 
-    XMLUtils.compareAndReport(expectedNoAttrs, actualNoAttrs)
+    val expected = infoset.contents
+
+    val expectedForCompare = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
+
+    XMLUtils.compareAndReport(expectedForCompare, actualForCompare)
   }
 
   def verifyUnparserTestData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
@@ -1774,32 +1773,10 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     }
   }
 
-  val rawContents = {
+  val contents = {
     Assert.usage(infosetNodeSeq.size == 1, "dfdlInfoset element must contain a single root element")
     val c = infosetNodeSeq(0)
     c
-  }
-
-  val Seq(contents) = {
-    val c = rawContents
-    val expected = c // Utility.trim(c) // must be exactly one root element in here.
-    val expectedNoAttrs = try {
-      XMLUtils.removeAttributes(expected)
-    } catch {
-      case e: Exception => throw new TDMLException(e)
-    }
-    //
-    // Let's validate the expected content against the schema
-    // Just to be sure they don't drift.
-    //
-    //    val ptc = parent.parent
-    //    val schemaNode = ptc.findModel(ptc.model)
-    //
-    // This is causing trouble, with the stripped attributes, etc.
-    // TODO: Fix so we can validate these expected results against
-    // the DFDL schema used as a XSD for the expected infoset XML.
-    //
-    expectedNoAttrs
   }
 }
 

@@ -251,8 +251,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <binaryList xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <x type="xsd:boolean">true</x>
-          <x type="xsd:boolean">false</x>
+          <x xsi:type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">false</x>
         </binaryList>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -263,8 +263,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:binaryList xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <ex:x type="xsd:boolean">true</ex:x>
-          <ex:x type="xsd:boolean">false</ex:x>
+          <ex:x xsi:type="xsd:boolean">true</ex:x>
+          <ex:x xsi:type="xsd:boolean">false</ex:x>
         </ex:binaryList>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -281,10 +281,10 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <binaryList2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <x type="xsd:boolean">true</x>
-          <x type="xsd:boolean">false</x>
-          <x type="xsd:boolean">true</x>
-          <x type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">false</x>
+          <x xsi:type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">true</x>
         </binaryList2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -295,8 +295,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:binaryList2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <ex:x type="xsd:boolean">true</ex:x>
-          <ex:x type="xsd:boolean">false</ex:x>
+          <ex:x xsi:type="xsd:boolean">true</ex:x>
+          <ex:x xsi:type="xsd:boolean">false</ex:x>
         </ex:binaryList2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -310,8 +310,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:binaryList3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <ex:x type="xsd:boolean">true</ex:x>
-          <ex:x type="xsd:boolean">false</ex:x>
+          <ex:x xsi:type="xsd:boolean">true</ex:x>
+          <ex:x xsi:type="xsd:boolean">false</ex:x>
         </ex:binaryList3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -328,8 +328,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <binaryList4 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <x type="xsd:boolean">true</x>
-          <x type="xsd:boolean">false</x>
+          <x xsi:type="xsd:boolean">true</x>
+          <x xsi:type="xsd:boolean">false</x>
         </binaryList4>
       </tdml:dfdlInfoset>
     </tdml:infoset>

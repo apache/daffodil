@@ -46,12 +46,12 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <DFDL xmlns="http://example.com">
-          <x type="xsd:float">10.5</x>
-          <y type="xsd:float">12.01</y>
-          <Multiply type="xsd:float">126.105</Multiply>
-          <Add type="xsd:float">22.51</Add>
-          <Subtract type="xsd:float">-1.5100002</Subtract>
-          <SubtractLiteral type="xsd:float">8.5</SubtractLiteral>
+          <x xsi:type="xsd:float">10.5</x>
+          <y xsi:type="xsd:float">12.01</y>
+          <Multiply xsi:type="xsd:float">126.105</Multiply>
+          <Add xsi:type="xsd:float">22.51</Add>
+          <Subtract xsi:type="xsd:float">-1.5100002</Subtract>
+          <SubtractLiteral xsi:type="xsd:float">8.5</SubtractLiteral>
         </DFDL>
       </tdml:dfdlInfoset>
     </tdml:infoset>

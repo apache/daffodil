@@ -13,7 +13,7 @@ zone 1
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <zone1 type="xsd:string">zone 1</zone1>
+          <zone1 xsi:type="xsd:string">zone 1</zone1>
         </allZones>
       </dfdlInfoset>
     </infoset>
@@ -28,7 +28,7 @@ zone 2
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <zone2 type="xsd:string">zone 2</zone2>
+          <zone2 xsi:type="xsd:string">zone 2</zone2>
         </allZones>
       </dfdlInfoset>
     </infoset>
@@ -43,7 +43,7 @@ zone 3
     <infoset>
       <dfdlInfoset>
         <allZones xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <zone3 type="xsd:string">zone 3</zone3>
+          <zone3 xsi:type="xsd:string">zone 3</zone3>
         </allZones>
       </dfdlInfoset>
     </infoset>

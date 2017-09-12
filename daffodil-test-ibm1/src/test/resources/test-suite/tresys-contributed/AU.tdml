@@ -13,14 +13,14 @@
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <bcd type="xsd:int">0017</bcd>
-          <bcd type="xsd:int">0023</bcd>
-          <bcd type="xsd:int">0027</bcd>
-          <bcd type="xsd:int">1941</bcd>
-          <packed type="xsd:int">018</packed>
-          <packed type="xsd:int">-018</packed>
-          <packed type="xsd:int">721</packed>
-          <packed type="xsd:int">-721</packed>
+          <bcd xsi:type="xsd:int">0017</bcd>
+          <bcd xsi:type="xsd:int">0023</bcd>
+          <bcd xsi:type="xsd:int">0027</bcd>
+          <bcd xsi:type="xsd:int">1941</bcd>
+          <packed xsi:type="xsd:int">018</packed>
+          <packed xsi:type="xsd:int">-018</packed>
+          <packed xsi:type="xsd:int">721</packed>
+          <packed xsi:type="xsd:int">-721</packed>
           <string>Bunch of Numbers</string>
         </list>
       </dfdlInfoset>

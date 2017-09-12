@@ -69,7 +69,7 @@ class TestTDMLUnparseCases {
     tc.document
     val is = tc.inputInfoset
     // println(is)
-    val bar = is.dfdlInfoset.rawContents
+    val bar = is.dfdlInfoset.contents
     val scala.xml.Elem(pre, label, _, _, _) = bar
     assertEquals("ex", pre)
     assertEquals("bar", label)

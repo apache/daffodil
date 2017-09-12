@@ -525,124 +525,124 @@ Date: Mon Feb 23 15:20:47 CST 2009
         <table>
           <matrix>
             <row>
-              <cell type="xs:int">0</cell>
-              <cell type="xs:int">1</cell>
-              <cell type="xs:int">2</cell>
-              <cell type="xs:int">3</cell>
-              <cell type="xs:int">4</cell>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
+              <cell xsi:type="xs:int">0</cell>
+              <cell xsi:type="xs:int">1</cell>
+              <cell xsi:type="xs:int">2</cell>
+              <cell xsi:type="xs:int">3</cell>
+              <cell xsi:type="xs:int">4</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
             </row>
             <row>
-              <cell type="xs:int">1</cell>
-              <cell type="xs:int">2</cell>
-              <cell type="xs:int">3</cell>
-              <cell type="xs:int">4</cell>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
+              <cell xsi:type="xs:int">1</cell>
+              <cell xsi:type="xs:int">2</cell>
+              <cell xsi:type="xs:int">3</cell>
+              <cell xsi:type="xs:int">4</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
             </row>
             <row>
-              <cell type="xs:int">2</cell>
-              <cell type="xs:int">3</cell>
-              <cell type="xs:int">4</cell>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
+              <cell xsi:type="xs:int">2</cell>
+              <cell xsi:type="xs:int">3</cell>
+              <cell xsi:type="xs:int">4</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
             </row>
             <row>
-              <cell type="xs:int">3</cell>
-              <cell type="xs:int">4</cell>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
+              <cell xsi:type="xs:int">3</cell>
+              <cell xsi:type="xs:int">4</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
             </row>
             <row>
-              <cell type="xs:int">4</cell>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
+              <cell xsi:type="xs:int">4</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
             </row>
             <row>
-              <cell type="xs:int">5</cell>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
-              <cell type="xs:int">14</cell>
+              <cell xsi:type="xs:int">5</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
+              <cell xsi:type="xs:int">14</cell>
             </row>
             <row>
-              <cell type="xs:int">6</cell>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
-              <cell type="xs:int">14</cell>
-              <cell type="xs:int">15</cell>
+              <cell xsi:type="xs:int">6</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
+              <cell xsi:type="xs:int">14</cell>
+              <cell xsi:type="xs:int">15</cell>
             </row>
             <row>
-              <cell type="xs:int">7</cell>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
-              <cell type="xs:int">14</cell>
-              <cell type="xs:int">15</cell>
-              <cell type="xs:int">16</cell>
+              <cell xsi:type="xs:int">7</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
+              <cell xsi:type="xs:int">14</cell>
+              <cell xsi:type="xs:int">15</cell>
+              <cell xsi:type="xs:int">16</cell>
             </row>
             <row>
-              <cell type="xs:int">8</cell>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
-              <cell type="xs:int">14</cell>
-              <cell type="xs:int">15</cell>
-              <cell type="xs:int">16</cell>
-              <cell type="xs:int">17</cell>
+              <cell xsi:type="xs:int">8</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
+              <cell xsi:type="xs:int">14</cell>
+              <cell xsi:type="xs:int">15</cell>
+              <cell xsi:type="xs:int">16</cell>
+              <cell xsi:type="xs:int">17</cell>
             </row>
             <row>
-              <cell type="xs:int">9</cell>
-              <cell type="xs:int">10</cell>
-              <cell type="xs:int">11</cell>
-              <cell type="xs:int">12</cell>
-              <cell type="xs:int">13</cell>
-              <cell type="xs:int">14</cell>
-              <cell type="xs:int">15</cell>
-              <cell type="xs:int">16</cell>
-              <cell type="xs:int">17</cell>
-              <cell type="xs:int">18</cell>
+              <cell xsi:type="xs:int">9</cell>
+              <cell xsi:type="xs:int">10</cell>
+              <cell xsi:type="xs:int">11</cell>
+              <cell xsi:type="xs:int">12</cell>
+              <cell xsi:type="xs:int">13</cell>
+              <cell xsi:type="xs:int">14</cell>
+              <cell xsi:type="xs:int">15</cell>
+              <cell xsi:type="xs:int">16</cell>
+              <cell xsi:type="xs:int">17</cell>
+              <cell xsi:type="xs:int">18</cell>
             </row>
           </matrix>
         </table>
@@ -887,14 +887,14 @@ more ignored input
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <list>
-          <x type="xs:string">first x</x>
-          <x type="xs:string">second x</x>
-          <x type="xs:string">third x</x>
-          <y type="xs:string">first y</y>
-          <y type="xs:string">second y</y>
-          <y type="xs:string">third y</y>
-          <y type="xs:string">fourth y</y>
-          <y type="xs:string">fifth y</y>
+          <x xsi:type="xs:string">first x</x>
+          <x xsi:type="xs:string">second x</x>
+          <x xsi:type="xs:string">third x</x>
+          <y xsi:type="xs:string">first y</y>
+          <y xsi:type="xs:string">second y</y>
+          <y xsi:type="xs:string">third y</y>
+          <y xsi:type="xs:string">fourth y</y>
+          <y xsi:type="xs:string">fifth y</y>
         </list>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -951,13 +951,13 @@ more ignored input
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <table>
-          <product type="xs:int">6000</product>
-          <sum type="xs:int">60</sum>
-          <concat type="xs:string">102030</concat>
-          <x type="xs:string">10</x>
-          <y type="xs:string">20</y>
-          <z type="xs:string">30</z>
-          <productAgain type="xs:string">6000</productAgain>
+          <product xsi:type="xs:int">6000</product>
+          <sum xsi:type="xs:int">60</sum>
+          <concat xsi:type="xs:string">102030</concat>
+          <x xsi:type="xs:string">10</x>
+          <y xsi:type="xs:string">20</y>
+          <z xsi:type="xs:string">30</z>
+          <productAgain xsi:type="xs:string">6000</productAgain>
         </table>
       </tdml:dfdlInfoset>
     </tdml:infoset>

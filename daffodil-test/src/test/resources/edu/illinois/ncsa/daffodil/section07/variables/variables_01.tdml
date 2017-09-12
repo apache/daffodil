@@ -46,8 +46,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <c xmlns="http://www.example.org/example1/">
-          <d type="xsd:int">42</d>
-          <e type="xsd:int">42</e>
+          <d xsi:type="xsd:int">42</d>
+          <e xsi:type="xsd:int">42</e>
         </c>
 
       </tdml:dfdlInfoset>
@@ -60,7 +60,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:c_2 >
-          <d type="xsd:int">42</d>
+          <d xsi:type="xsd:int">42</d>
         </ex:c_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>

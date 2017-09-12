@@ -86,237 +86,237 @@
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <table>
             <metadata>
-              <repdate type="xs:date">2008-04-10-06:00</repdate>
-              <reptime type="xs:time">04:37:00.000000-06:00</reptime>
-              <startDate type="xs:date">2008-03-30-06:00</startDate>
-              <endDate type="xs:date">2008-03-30-06:00</endDate>
+              <repdate xsi:type="xs:date">2008-04-10-06:00</repdate>
+              <reptime xsi:type="xs:time">04:37:00.000000-06:00</reptime>
+              <startDate xsi:type="xs:date">2008-03-30-06:00</startDate>
+              <endDate xsi:type="xs:date">2008-03-30-06:00</endDate>
             </metadata>
             <data>
-              <Symptom type="xs:string">ABDPAINS</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">ABDPAINS</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">ALLERGIC</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">ALLERGIC</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">ANKLPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">ANKLPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">ANXIETY</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">ANXIETY</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">BACKPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">BACKPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">BREASTP</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">BREASTP</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">BREATHDI</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">BREATHDI</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">BREATRAP</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">BREATRAP</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">CHESTPN</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">CHESTPN</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">COLDSYM</Symptom>
-              <Count type="xs:int">5</Count>
+              <Symptom xsi:type="xs:string">COLDSYM</Symptom>
+              <Count xsi:type="xs:int">5</Count>
             </data>
             <data>
-              <Symptom type="xs:string">CONSTIPA</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">CONSTIPA</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">COUGH</Symptom>
-              <Count type="xs:int">7</Count>
+              <Symptom xsi:type="xs:string">COUGH</Symptom>
+              <Count xsi:type="xs:int">7</Count>
             </data>
             <data>
-              <Symptom type="xs:string">COUGHACK</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">COUGHACK</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">CRAMPS</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">CRAMPS</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">DIARRHEA</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">DIARRHEA</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">DISCHARG</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">DISCHARG</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">DOC</Symptom>
-              <Count type="xs:int">5</Count>
+              <Symptom xsi:type="xs:string">DOC</Symptom>
+              <Count xsi:type="xs:int">5</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EARACHE</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">EARACHE</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EARDISCH</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">EARDISCH</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EYEBLOOD</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">EYEBLOOD</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EYEBURN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">EYEBURN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EYEDISCH</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">EYEDISCH</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">EYERED</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">EYERED</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">FEVER</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">FEVER</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">FLUSHED</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">FLUSHED</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">FLUSYMPT</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">FLUSYMPT</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">FOOTPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">FOOTPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">FUSSY</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">FUSSY</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">HANDPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">HANDPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">HEADACHE</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">HEADACHE</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">HIPPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">HIPPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">INFO</Symptom>
-              <Count type="xs:int">11</Count>
+              <Symptom xsi:type="xs:string">INFO</Symptom>
+              <Count xsi:type="xs:int">11</Count>
             </data>
             <data>
-              <Symptom type="xs:string">ITCHING</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">ITCHING</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">KNEEPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">KNEEPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">LEGPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">LEGPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">LIGHTHEA</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">LIGHTHEA</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">NAUSEA</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">NAUSEA</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">NOSYMPTO</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">NOSYMPTO</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">PAIN</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">PAIN</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">PALPITAT</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">PALPITAT</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">PELVICPN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">PELVICPN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">POISON</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">POISON</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">RASH</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">RASH</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">REFILL</Symptom>
-              <Count type="xs:int">2</Count>
+              <Symptom xsi:type="xs:string">REFILL</Symptom>
+              <Count xsi:type="xs:int">2</Count>
             </data>
             <data>
-              <Symptom type="xs:string">REPORT</Symptom>
-              <Count type="xs:int">4</Count>
+              <Symptom xsi:type="xs:string">REPORT</Symptom>
+              <Count xsi:type="xs:int">4</Count>
             </data>
             <data>
-              <Symptom type="xs:string">SOB</Symptom>
-              <Count type="xs:int">3</Count>
+              <Symptom xsi:type="xs:string">SOB</Symptom>
+              <Count xsi:type="xs:int">3</Count>
             </data>
             <data>
-              <Symptom type="xs:string">SUNBURN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">SUNBURN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">SWOLLEN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">SWOLLEN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
-            <GT type="xs:int">0</GT>
+            <GT xsi:type="xs:int">0</GT>
           </table>
           <table>
             <metadata>
-              <repdate type="xs:date">2008-04-10-06:00</repdate>
-              <reptime type="xs:time">04:37:00.000000-06:00</reptime>
-              <startDate type="xs:date">2008-03-30-06:00</startDate>
-              <endDate type="xs:date">2008-03-30-06:00</endDate>
+              <repdate xsi:type="xs:date">2008-04-10-06:00</repdate>
+              <reptime xsi:type="xs:time">04:37:00.000000-06:00</reptime>
+              <startDate xsi:type="xs:date">2008-03-30-06:00</startDate>
+              <endDate xsi:type="xs:date">2008-03-30-06:00</endDate>
             </metadata>
             <data>
-              <Symptom type="xs:string">URINFREQ</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">URINFREQ</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">URINPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">URINPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">VAGPAIN</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">VAGPAIN</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">VOMITING</Symptom>
-              <Count type="xs:int">8</Count>
+              <Symptom xsi:type="xs:string">VOMITING</Symptom>
+              <Count xsi:type="xs:int">8</Count>
             </data>
             <data>
-              <Symptom type="xs:string">WEAKNESS</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">WEAKNESS</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
             <data>
-              <Symptom type="xs:string">WOUND</Symptom>
-              <Count type="xs:int">1</Count>
+              <Symptom xsi:type="xs:string">WOUND</Symptom>
+              <Count xsi:type="xs:int">1</Count>
             </data>
-            <GT type="xs:int">109</GT>
+            <GT xsi:type="xs:int">109</GT>
           </table>
         </wholeFile>
       </dfdlInfoset>
