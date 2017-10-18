@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.infoset.DIArray
 import edu.illinois.ncsa.daffodil.infoset.DIElement
 import edu.illinois.ncsa.daffodil.infoset.InfosetNoSuchChildElementException
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 /**
  * Moves to above the root element so that an absolute path
@@ -100,7 +99,7 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
 case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(indexRecipe) {
 
-  val childSlot = info.slotIndexInParent
+  val childNamedQName = info.namedQName
 
   override def run(dstate: DState) {
     val savedCurrentElement = dstate.currentComplex
@@ -110,7 +109,7 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     // necessary since one of the following functions could throw, leaving the
     // current node to null. And future calls depend on a current node to be set
     dstate.setCurrentNode(savedCurrentElement)
-    val childArrayElementERD: ElementRuntimeData = dstate.withRetryIfBlocking(savedCurrentElement.erd.childERDs(childSlot))
+    val childArrayElementERD = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(info).asInstanceOf[DIArray].erd)
     val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD))
     val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])

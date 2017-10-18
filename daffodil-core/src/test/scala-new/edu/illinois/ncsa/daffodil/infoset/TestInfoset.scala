@@ -393,9 +393,16 @@ class TestInfoset1 {
     assertTrue(x_erd.isArray)
     assertFalse(c_erd.isArray)
     val infoset = TestInfoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
-    val warr = infoset.getChildArray(w_erd)
-    assertTrue(warr ne null) // getChildArray now creates empty array if needed.
+
+    try {
+      infoset.getChildArray(w_erd)
+      fail("Expected InfosetNoSuchChildElementException")
+    } catch {
+      case e: InfosetNoSuchChildElementException => /* w element is not in xmlInfoset */
+    }
+
     assertTrue(infoset.isInstanceOf[DIComplex])
+
     infoset.getChildArray(x_erd) match {
       case arr: DIArray => {
         assertEquals(2, arr.length)

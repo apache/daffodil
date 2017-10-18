@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
-
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
 
 sealed trait InfosetInputterEventType
@@ -69,13 +68,13 @@ trait InfosetInputterCursor extends Cursor[InfosetAccessor] {
 abstract class InfosetInputter
   extends InfosetInputterCursor
   with CursorImplMixin[InfosetAccessor] {
-  
+
   var tunable = DaffodilTunables()
-  
+
   /**
    * Return the current infoset inputter event type
    */
-  def getEventType(): InfosetInputterEventType 
+  def getEventType(): InfosetInputterEventType
 
   /**
    * Get the local name of the current event. This will only be called when the
@@ -254,7 +253,6 @@ abstract class InfosetInputter
       true
   }
 
-
   private def handleStartElement() {
     val e = createElement()
     //
@@ -274,8 +272,8 @@ abstract class InfosetInputter
         c.addChild(e)
         start(e)
       } else {
-        val a = c.getChildArray(e.erd).asInstanceOf[DIArray]
-        a.append(e)
+        c.addChild(e) // addChild here sets the 'array' value
+        val a = e.array.get.asInstanceOf[DIArray]
         nodeStack.push(a)
         //
         // The first event is created (and passed back) via the start method
@@ -286,7 +284,6 @@ abstract class InfosetInputter
         //
         start(a)
         queueAnotherEvent(StartKind, e)
-        e.setParent(a.parent)
       }
     } else {
       // top must be an array
@@ -314,12 +311,11 @@ abstract class InfosetInputter
           end(a)
           nodeStack.pop
           val c = nodeStack.top.asInstanceOf[DIComplex]
-          val nextA = c.getChildArray(e.erd).asInstanceOf[DIArray]
+          c.addChild(e) // addChild here sets the 'array' value
+          val nextA = e.array.get.asInstanceOf[DIArray]
           nodeStack.push(nextA)
           queueAnotherEvent(StartKind, nextA)
-          nextA.append(e)
           queueAnotherEvent(StartKind, e)
-          e.setParent(nextA.parent)
         }
       }
     }

@@ -81,7 +81,6 @@ trait InfosetComplexElement extends InfosetElement {
 
   def getChild(erd: ElementRuntimeData): InfosetElement
   def getChildArray(erd: ElementRuntimeData): InfosetArray
-  def setChildArray(erd: ElementRuntimeData, a: InfosetArray): Unit
 
   /**
    * Determines slotInParent from the ERD of the infoset element arg.

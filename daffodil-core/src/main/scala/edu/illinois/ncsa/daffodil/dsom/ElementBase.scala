@@ -262,7 +262,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       variableMap,
       namespaces,
       slashPath,
-      slotIndexInParent,
       name,
       isArray,
       namedQName,
@@ -548,8 +547,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       targetNamespacePrefix,
       thisElementsNamespacePrefix,
       isHidden,
-      nChildSlots,
-      slotIndexInParent,
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
@@ -584,38 +581,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *  This QName should contain the prefix from the element reference
    */
   def namedQName: NamedQName
-
-  /**
-   * Each distinctly named child gets a slot.
-   *
-   * In the case where you have several elements with the same name and type,
-   * but separated by other non-optional elements, then those are considered
-   * to be different slots.
-   *
-   * Also, an xs:choice of elements, each child element gets its own slot. We
-   * are not attempting to multiplex slots so that they are cleverly being shared.
-   *
-   * If a choice had many many disjoint children, then probably a map should be
-   * used, not an array (as the infoset representation) so as to avoid wasting
-   * all the slot space in these objects. This would still be constant-time access,
-   * just with a larger constant overhead. It's a time/space tradeoff.
-   */
-  final lazy val nChildSlots: Int = {
-    if (isSimpleType) 0
-    else elementChildren.length
-  }
-
-  final lazy val slotIndexInParent: Int = {
-    if (!nearestEnclosingElement.isDefined) 0
-    else {
-      val elemParent = nearestEnclosingElementNotRef.get
-      val realElement = this.referredToComponent // because we might be an ElementRef
-      val realChildren = elemParent.elementChildren.map { _.referredToComponent }
-      val pos = realChildren.indexOf(realElement)
-      Assert.invariant(pos >= 0)
-      pos
-    }
-  }
 
   /**
    * Direct element children of a complex element.

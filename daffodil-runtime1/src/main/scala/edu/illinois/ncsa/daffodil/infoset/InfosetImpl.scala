@@ -67,6 +67,7 @@ import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.parsers.PState
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import java.util.HashMap
 
 sealed trait DINode {
 
@@ -97,8 +98,8 @@ sealed trait DINode {
    * Can treat any DINode, even simple ones, as a container of other nodes.
    * This simplifies walking an infoset.
    */
-  def filledSlots: IndexedSeq[DINode]
-  final def numChildren = filledSlots.length
+  def contents: IndexedSeq[DINode]
+  final def numChildren = contents.length
 
   def visit(handler: InfosetOutputter, removeHidden: Boolean = true)
 
@@ -687,7 +688,7 @@ sealed trait DIElementSharedImplMixin
 
 sealed trait DIComplexSharedMembersMixin {
 
-  final var _lastSlotAdded: Int = -1
+  final var _numChildren: Int = 0
   final var _arraySize: MaybeInt = MaybeInt.Nope
 }
 
@@ -698,19 +699,19 @@ sealed trait DIComplexSharedImplMixin
   abstract override def restoreInto(e: DIElement) {
     val c = e.asInstanceOf[DIComplex]
     c.restoreFrom(this)
-    c._lastSlotAdded = this._lastSlotAdded
+    c._numChildren = this._numChildren
     super.restoreInto(e)
   }
 
   abstract override def captureFrom(e: DIElement) {
     val c = e.asInstanceOf[DIComplex]
     c.captureInto(this)
-    this._lastSlotAdded = c._lastSlotAdded
+    this._numChildren = c._numChildren
     super.captureFrom(e)
   }
 
   abstract override def clear() {
-    _lastSlotAdded = -1
+    _numChildren = 0
     _arraySize = MaybeInt.Nope
     super.clear()
   }
@@ -970,7 +971,7 @@ final class DIArray(
     _contents.reduceToSize(n)
   }
 
-  override def filledSlots: IndexedSeq[DINode] = _contents
+  override def contents: IndexedSeq[DINode] = _contents
 
   /**
    * Note that occursIndex argument starts at position 1.
@@ -1030,7 +1031,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   final override def isSimple = true
   final override def isComplex = false
 
-  def filledSlots: IndexedSeq[DINode] = IndexedSeq.empty
+  def contents: IndexedSeq[DINode] = IndexedSeq.empty
 
   private var _stringRep: String = null
   private var _bdRep: JBigDecimal = null
@@ -1321,82 +1322,45 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     }
   }
 
-  // the DIDocument overrides number of slots to 1.
-  def nSlots = erd.nChildSlots
-  protected final def slots = _slots
+  lazy val childNodes = new ArrayBuffer[DINode]
+  lazy val nameToChildNodeLookup = new HashMap[NamedQName, ArrayBuffer[DINode]]
 
-  private lazy val _slots = {
-    val slots = new Array[DINode](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
-    slots
+  override lazy val contents: IndexedSeq[DINode] = childNodes
+
+  override def children = childNodes.toStream
+
+  final def getChild(erd: ElementRuntimeData): InfosetElement = {
+    getChild(erd.dpathElementCompileInfo)
   }
 
-  override lazy val filledSlots: IndexedSeq[DINode] = slots.filter { _ ne null }
-
-  override def children = _slots.map { s => if (Maybe.WithNulls.isDefined(s)) Some(s) else None }.flatten.toStream
-
-  final def getChild(erd: ElementRuntimeData): InfosetElement =
-    getChild(erd.dpathElementCompileInfo)
-
   final def getChild(info: DPathElementCompileInfo): InfosetElement = {
-    val slot = info.slotIndexInParent
-    val res =
-      if (slot >= slots.length) Assert.invariantFailed("slot number out of range") // null // TODO should this out-of-range be an exception?
-      else {
-        val s = _slots(slot)
-        s.asInstanceOf[InfosetElement]
-      }
-    if (res ne null) res
-    else {
+    if (nameToChildNodeLookup.containsKey(info.namedQName))
+      nameToChildNodeLookup.get(info.namedQName)(0).asInstanceOf[InfosetElement]
+    else
       throw new InfosetNoSuchChildElementException(this, info)
-    }
   }
 
   final def getChildArray(childERD: ElementRuntimeData): InfosetArray = {
     Assert.usage(childERD.isArray)
+
     getChildArray(childERD.dpathElementCompileInfo)
   }
 
   final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
     Assert.usage(info.isArray)
-    val slot = info.slotIndexInParent
-    getChildArray(slot)
-  }
 
-  private def getChildArray(slot: Int): InfosetArray = {
-    val slotVal = _slots(slot)
-    if (slotVal ne null)
-      slotVal match {
-        case arr: DIArray => slotVal.asInstanceOf[DIArray]
-        case _ => Assert.usageError("not an array")
-      }
-    else {
-      val arrayERD = erd.childERDs(slot)
-      // slot is null. There isn't even an array object yet.
-      // create one (it will have zero entries)
-      val ia = new DIArray(arrayERD, this)
-      // no array there yet. So we have to create one.
-      setChildArray(slot, ia)
-      ia
-    }
-  }
+    val name = info.namedQName
 
-  final override def setChildArray(erd: ElementRuntimeData, arr: InfosetArray) {
-    Assert.usage(erd.isArray)
-    setChildArray(erd.slotIndexInParent, arr.asInstanceOf[DIArray])
-  }
+    val array = if (nameToChildNodeLookup.containsKey(name)) {
+      val seq = nameToChildNodeLookup.get(name)
+      // Don't support query expressions yet, so should only have
+      // one item in the list
+      //
+      seq(0).asInstanceOf[InfosetArray] //.find(node => node.isInstanceOf[DIArray]).getOrElse(Assert.usageError("not an array")).asInstanceOf[InfosetArray]
+    } else
+      throw new InfosetNoSuchChildElementException(this, info)
 
-  final def setChildArray(slot: Int, arr: DIArray) {
-    Assert.invariant(_slots(slot) eq null)
-    _slots(slot) = arr
-    //
-    // Because arrays are created if not existing, an expression like ../A[1]
-    // can cause array A to come into existence (though empty) and A might be
-    // part of an expression that is reaching backward into earlier data (when
-    // parsing) so that we might be creating an array earlier in the slots
-    // of this element. Hence, the slot being passed here is not necessarily
-    // the last slot added. It might be before it.
-    //
-    _lastSlotAdded = math.max(slot, _lastSlotAdded)
+    array
   }
 
   /**
@@ -1405,82 +1369,112 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
    * duration of the parse/unparse, once they are no longer needed.
    */
   final def resetChildArray(slot: Int) {
-    _slots(slot) = null
-    _lastSlotAdded = slot
+    val numChildrenToRemove = numChildren - slot
+
+    var i = numChildrenToRemove
+
+    while (i > 0) {
+      val childToRemove = childNodes(i)
+      if (nameToChildNodeLookup.containsKey(childToRemove.namedQName)) {
+        val fastSeq = nameToChildNodeLookup.get(childToRemove.namedQName)
+        if (fastSeq.length == 1)
+          // last one, remove the whole key entry
+          nameToChildNodeLookup.remove(childToRemove.namedQName)
+        else
+          // not the last one, just drop the end
+          fastSeq.dropRight(1)
+      } else { /* Does not exist, nothing to do? */ }
+
+      i -= 1
+    }
+
+    childNodes.dropRight(numChildrenToRemove)
+    _numChildren = childNodes.length
   }
 
   override def addChild(e: InfosetElement): Unit = {
     if (e.runtimeData.isArray) {
-      //
-      // make sure there is an array to accept
-      // the child
-      //
-      val arr = getChildArray(e.runtimeData) // creates if it doesn't exist
-      Assert.invariant(arr ne null)
-      arr.append(e)
+      val childERD = e.runtimeData
+      if (childNodes.isEmpty || childNodes.last.erd != childERD) {
+        // no children, or last child is not a DIArray for
+        // this element, create the DIArray
+        val ia = new DIArray(childERD, this)
+        addChildToFastLookup(ia)
+        childNodes.append(ia)
+        _numChildren = childNodes.length
+        ia
+      }
+      // Array is now always last, add the new child to it
+      childNodes.last.asInstanceOf[DIArray].append(e)
     } else {
-      _slots(e.runtimeData.slotIndexInParent) = e.asInstanceOf[DINode]
-      _lastSlotAdded = e.runtimeData.slotIndexInParent
+      childNodes.append(e.asInstanceOf[DINode])
+      addChildToFastLookup(e.asInstanceOf[DINode])
+      _numChildren = childNodes.length
     }
     e.setParent(this)
+  }
+
+  def addChildToFastLookup(node: DINode): Unit = {
+    val name = node.namedQName
+
+    if (nameToChildNodeLookup.containsKey(name)) {
+      nameToChildNodeLookup.get(name).append(node)
+    } else {
+      nameToChildNodeLookup.put(name, ArrayBuffer(node))
+    }
   }
 
   final def captureInto(cs: DIComplexSharedImplMixin) {
     Assert.invariant(_arraySize == MaybeInt.Nope)
     Assert.invariant(cs._arraySize == MaybeInt.Nope)
 
-    cs._arraySize =
-      if (_lastSlotAdded >= 0) {
-        _slots(_lastSlotAdded) match {
-          case arr: DIArray => MaybeInt(arr.length.toInt)
-          case _ => MaybeInt.Nope
-        }
-      } else {
-        MaybeInt.Nope
+    cs._arraySize = if (_numChildren > 0) {
+      childNodes.last match {
+        case arr: DIArray => MaybeInt(arr.length.toInt)
+        case _ => MaybeInt.Nope
       }
+    } else { MaybeInt.Nope }
   }
 
   final def restoreFrom(cs: DIComplexSharedImplMixin) {
-    Assert.invariant(_arraySize == MaybeInt.Nope)
+    var i = childNodes.length - 1
 
-    var i = _lastSlotAdded
-    while (i > cs._lastSlotAdded) {
-      _slots(i) = null
+    // for each child we will remove, remove it from the fastLookup map.
+    // this should always be the last element in the hashmap seq
+    while (i >= cs._numChildren) {
+      val childToRemove = childNodes(i)
+      if (nameToChildNodeLookup.containsKey(childToRemove.namedQName)) {
+        val fastSeq = nameToChildNodeLookup.get(childToRemove.namedQName)
+        if (fastSeq.length == 1)
+          // last one, remove the whole key entry
+          nameToChildNodeLookup.remove(childToRemove.namedQName)
+        else
+          // not the last one, just drop the end
+          fastSeq.dropRight(1)
+      } else { /* Nothing to do? Doesn't exist. */ }
+
       i -= 1
     }
-    _lastSlotAdded = cs._lastSlotAdded
+    // now just quickly remove all those children
+    childNodes.reduceToSize(cs._numChildren)
+    _numChildren = cs._numChildren
 
-    // check invariant. All slots after last slot added
-    // should be null.
-    {
-      var i = _lastSlotAdded + 1
-      while (i < _slots.length) {
-        Assert.invariant(_slots(i) eq null)
-        i = i + 1
-      }
-    }
-
-    if (cs._arraySize.isDefined) {
-      _slots(_lastSlotAdded).asInstanceOf[DIArray].reduceToSize(cs._arraySize.get)
+    if (cs._arraySize.isDefined && _numChildren > 0) {
+      childNodes.last.asInstanceOf[DIArray].reduceToSize(cs._arraySize.get)
     }
   }
 
   override def totalElementCount: Long = {
     if (erd.isNillable && isNilled) return 1L
     var a: Long = 1
-    var i = 0
-    while (i < _slots.length) {
-      val slot = _slots(i)
-      i += 1
-      if (slot ne null) a += slot.totalElementCount
-    }
+    childNodes.foreach(node => a += node.totalElementCount)
     a
   }
 
   override def visit(handler: InfosetOutputter, removeHidden: Boolean = true) {
     if (!this.isHidden || !removeHidden) {
       handler.startComplex(this)
-      _slots.foreach { slot => if (slot ne null) slot.visit(handler, removeHidden) }
+      childNodes.foreach(node => node.visit(handler, removeHidden))
       handler.endComplex(this)
     }
   }
@@ -1502,15 +1496,18 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
    */
   var isCompileExprFalseRoot: Boolean = false
 
-  override def nSlots = 1
-
   def setRootElement(rootElement: InfosetElement) {
     root = rootElement.asInstanceOf[DIElement]
     addChild(root)
   }
 
   override def addChild(child: InfosetElement) {
-    slots(0) = child.asInstanceOf[DINode]
+    // DIDocument only ever allowed a single child
+    //
+    Assert.invariant(childNodes.length == 0)
+    val node = child.asInstanceOf[DINode]
+    childNodes.append(node)
+    nameToChildNodeLookup.put(node.namedQName, ArrayBuffer(node))
     child.setParent(this)
     root = child.asInstanceOf[DIElement]
   }

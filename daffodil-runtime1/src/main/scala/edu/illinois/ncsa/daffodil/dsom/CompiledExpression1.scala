@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.util.TransientParam
@@ -317,7 +316,6 @@ class DPathElementCompileInfo(
   @TransientParam variableMap: => VariableMap,
   namespaces: scala.xml.NamespaceBinding,
   path: String,
-  val slotIndexInParent: Int,
   val name: String,
   val isArray: Boolean,
   val namedQName: NamedQName,
@@ -326,8 +324,7 @@ class DPathElementCompileInfo(
   val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
   override val tunable: DaffodilTunables)
   extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable)
-  with HasSchemaFileLocation
-  with HasSlotIndexInParent {
+  with HasSchemaFileLocation {
 
   override def toString = "DPathElementCompileInfo(%s)".format(name)
 

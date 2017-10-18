@@ -95,7 +95,7 @@ sealed trait RuntimeData
   def immediateEnclosingTermRuntimeData: Maybe[TermRuntimeData]
   def variableMap: VariableMap
   override def toString = diagnosticDebugName
-  
+
   def tunable: DaffodilTunables
 
 }
@@ -225,10 +225,6 @@ sealed class NonTermRuntimeData(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-}
-
-trait HasSlotIndexInParent {
-  def slotIndexInParent: Int
 }
 
 /**
@@ -448,7 +444,7 @@ final class SimpleTypeRuntimeData(
   }
 
   private def checkMinLength(diNode: DISimple, minValue: java.math.BigDecimal,
-    e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
+                             e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
     val minAsLong = minValue.longValueExact()
     primType match {
       case PrimType.String => {
@@ -471,7 +467,7 @@ final class SimpleTypeRuntimeData(
   }
 
   private def checkMaxLength(diNode: DISimple, maxValue: java.math.BigDecimal,
-    e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
+                             e: ThrowsSDE, primType: PrimType): java.lang.Boolean = {
     val maxAsLong = maxValue.longValueExact()
     primType match {
       case PrimType.String => {
@@ -633,20 +629,18 @@ final class ElementRuntimeData(
   @TransientParam targetNamespacePrefixArg: => String,
   @TransientParam thisElementsNamespacePrefixArg: => String,
   @TransientParam isHiddenArg: => Boolean,
-  @TransientParam nChildSlotsArg: => Int,
-  @TransientParam slotIndexInParentArg: => Int,
   @TransientParam isNillableArg: => Boolean,
   @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
   @TransientParam isRequiredArg: => Boolean, // must have at least 1 occurrence
   /**
-   * This is the properly qualified name for recognizing this
-   * element.
-   *
-   * This takes into account xs:schema's elementFormDefault attribute.
-   * If 'qualified' then there will be a namespace component.
-   * If 'unqualified' the the namespace component will be No_Namespace.
-   */
+ * This is the properly qualified name for recognizing this
+ * element.
+ *
+ * This takes into account xs:schema's elementFormDefault attribute.
+ * If 'qualified' then there will be a namespace component.
+ * If 'unqualified' the the namespace component will be No_Namespace.
+ */
   @TransientParam namedQNameArg: => NamedQName,
   @TransientParam isRepresentedArg: => Boolean,
   @TransientParam couldHaveTextArg: => Boolean,
@@ -659,16 +653,15 @@ final class ElementRuntimeData(
   // Unparser-specific arguments
   //
   /**
-   * pass true for this if the corresponding infoset element is never
-   * accessed by way of expressions. Enables the element to be dropped
-   * from the infoset immediately after unparsing is complete.
-   */
+ * pass true for this if the corresponding infoset element is never
+ * accessed by way of expressions. Enables the element to be dropped
+ * from the infoset immediately after unparsing is complete.
+ */
   @TransientParam notReferencedByExpressionsArg: => Boolean,
   @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
   @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]])
   extends TermRuntimeData(parentArg, parentTermArg, encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
-    defaultBitOrderArg, optIgnoreCaseArg)
-  with HasSlotIndexInParent {
+    defaultBitOrderArg, optIgnoreCaseArg){
 
   lazy val parent = parentArg
   lazy val parentTerm = parentTermArg
@@ -693,8 +686,6 @@ final class ElementRuntimeData(
   lazy val targetNamespacePrefix = targetNamespacePrefixArg
   lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
   lazy val isHidden = isHiddenArg
-  lazy val nChildSlots = nChildSlotsArg
-  lazy val slotIndexInParent = slotIndexInParentArg
   lazy val isNillable = isNillableArg
   lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
@@ -733,8 +724,6 @@ final class ElementRuntimeData(
     targetNamespacePrefix
     thisElementsNamespacePrefix
     isHidden
-    nChildSlots
-    slotIndexInParent
     isNillable
     isArray
     isOptional

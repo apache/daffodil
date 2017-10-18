@@ -269,6 +269,15 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="e1c">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+          <xs:element name="hideme" type="xs:string" dfdl:inputValueCalc="{ fn:concat(fn:substring(/ex:e1c/ex:password[10], 1, 1), '***') }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="e2">
       <xs:complexType>
         <xs:sequence>
@@ -4658,7 +4667,7 @@ c]]></value>
      Test Name: arrayIndexOutOfBounds_01
         Schema: hiddenElem 
           Root: e1
-       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds 
+       Purpose: This test demonstrates that a proper error occurs if array doesn't exist with valid indices.
   -->
 
   <tdml:parserTestCase name="arrayIndexOutOfBounds_01" root="e1"
@@ -4668,8 +4677,9 @@ c]]></value>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
         <tdml:error>expression evaluation error</tdml:error>
-        <tdml:error>Value 1 is out of range</tdml:error>
-        <tdml:error>with length 0</tdml:error>
+        <tdml:error>Child element</tdml:error>
+        <tdml:error>password</tdml:error>
+        <tdml:error>does not exist</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4683,12 +4693,73 @@ c]]></value>
   <tdml:parserTestCase name="arrayIndexOutOfBounds_02" root="e1b"
     model="hiddenElem" description="Section 23 - DFDL Expressions">
 
+    <tdml:document>pw:p455w0rd</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>expression evaluation error</tdml:error>
+        <tdml:error>Value -1 is out of range</tdml:error>
+        <tdml:error>with length 1</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayIndexOutOfBounds_03
+        Schema: hiddenElem 
+          Root: e1c
+       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds 
+  -->
+
+  <tdml:parserTestCase name="arrayIndexOutOfBounds_03" root="e1c"
+    model="hiddenElem" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>pw:p455w0rd</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>expression evaluation error</tdml:error>
+        <tdml:error>Value 10 is out of range</tdml:error>
+        <tdml:error>with length 1</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <!--
+     Test Name: arrayIndexOutOfBounds_04
+        Schema: hiddenElem 
+          Root: e1b
+       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds
+       (negative) for an array that does not exist. We should be able to error on this 'negative' index without testing
+       that 'password' exists.
+  -->
+
+  <tdml:parserTestCase name="arrayIndexOutOfBounds_04" root="e1b"
+    model="hiddenElem" description="Section 23 - DFDL Expressions">
+
     <tdml:document>p455w0rd</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
         <tdml:error>expression evaluation error</tdml:error>
         <tdml:error>Value -1 is out of range</tdml:error>
-        <tdml:error>with length 0</tdml:error>
+        <tdml:error>with length 1</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayIndexOutOfBounds_05
+        Schema: hiddenElem 
+          Root: e1c
+       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds
+       (positive, so requires the element to exist) for an array that does not exist. 
+  -->
+
+  <tdml:parserTestCase name="arrayIndexOutOfBounds_05" root="e1c"
+    model="hiddenElem" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>p455w0rd</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>expression evaluation error</tdml:error>
+        <tdml:error>Child element</tdml:error>
+        <tdml:error>password</tdml:error>
+        <tdml:error>does not exist</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   

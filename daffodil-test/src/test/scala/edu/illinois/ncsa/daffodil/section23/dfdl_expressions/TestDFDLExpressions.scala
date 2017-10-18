@@ -108,6 +108,11 @@ class TestDFDLExpressions {
 
   @Test def test_arrayIndexOutOfBounds_01() { runner.runOneTest("arrayIndexOutOfBounds_01") }
   @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
+  @Test def test_arrayIndexOutOfBounds_03() { runner.runOneTest("arrayIndexOutOfBounds_03") }
+  
+  // TODO: TBD DFDL-TICKET, should statically tell this is an invalid index (-1)
+  //@Test def test_arrayIndexOutOfBounds_04() { runner.runOneTest("arrayIndexOutOfBounds_04") }
+  @Test def test_arrayIndexOutOfBounds_05() { runner.runOneTest("arrayIndexOutOfBounds_05") }
 
   @Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
   @Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
