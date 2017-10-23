@@ -58,7 +58,7 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
    * issue DFDL-77)
    */
   final lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
-    val er = findPropertyOption("escapeSchemeRef")
+    val er = self.resolver.findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
         SDW(WarnID.EscapeSchemeRefUndefined,

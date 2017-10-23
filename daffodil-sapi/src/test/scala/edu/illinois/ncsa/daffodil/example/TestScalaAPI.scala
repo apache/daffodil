@@ -196,7 +196,7 @@ class TestScalaAPI {
     val locs = d.getLocationsInSchemaFiles
     assertEquals(1, locs.size)
     val loc = locs(0)
-    assertTrue(loc.toString().contains("mySchema2.dfdl.xsd"))
+    assertTrue(loc.toString().contains("mySchema1.dfdl.xsd")) // reports the element ref, not element decl.
 
     assertEquals(0, lw.errors.size)
     assertEquals(0, lw.warnings.size)
@@ -786,7 +786,7 @@ class TestScalaAPI {
     val res = dp.parse(rbc, outputter, 2 << 3)
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
-    assertTrue(res.isValidationError() )
+    assertTrue(res.isValidationError())
     assertTrue(res.location().isAtEnd())
 
     val diags = res.getDiagnostics
@@ -812,7 +812,7 @@ class TestScalaAPI {
     val res = dp.parse(rbc, outputter, 2 << 3)
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
-    assertTrue(res.isValidationError() )
+    assertTrue(res.isValidationError())
     assertTrue(res.location().isAtEnd())
 
     val diags = res.getDiagnostics
@@ -832,6 +832,5 @@ class TestScalaAPI {
     assertTrue(d2.getMessage().contains("e2"))
     assertTrue(d2.getMessage().contains("20"))
   }
-
 
 }

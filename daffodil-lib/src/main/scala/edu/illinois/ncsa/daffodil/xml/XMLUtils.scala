@@ -330,6 +330,27 @@ object XMLUtils {
   val XHTML_NAMESPACE = NS("http://www.w3.org/1999/xhtml")
 
   /**
+   * Returns an Elem with local name "element", and the scope provided
+   * with the prefix of the Elem setup to match the scope's binding
+   * for the XSD_NAMESPACE.
+   *
+   * If the XSD_NAMESPACE is the default namespace, then the prefix will
+   * be null. If the XSD_NAMESPACE is bound to a prefix, the first such
+   * prefix will be used for the returned Elem.
+   */
+  def getXSDElement(scope: NamespaceBinding): Elem = {
+    val xsdPre = scope.getPrefix(XSD_NAMESPACE.toString)
+    val isXSDTheDefaultNS = XSD_NAMESPACE.toString() == scope.getURI(null)
+    val xsdPrefix =
+      if (xsdPre ne null) xsdPre
+      else if (isXSDTheDefaultNS) null
+      else Assert.usageError("Scope argument must have a binding for the XSD namespace.")
+    val res =
+      Elem(xsdPrefix, "element", Null, scope, true)
+    res
+  }
+
+  /**
    * Added to support extensions and proposed future features as part of daffodil.
    *
    * The DFDL standard requires us to keep these out of the primary DFDL namespace, and

@@ -40,8 +40,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Math
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-
-
+import edu.illinois.ncsa.daffodil.dsom.Root
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -53,13 +52,11 @@ trait LengthApprox {
   val nBits: Long
   def +(that: LengthApprox): LengthApprox = (this, that) match {
     case (l: LengthExact, r: LengthExact) => LengthExact(l.nBits + r.nBits)
-    case (l, r) =>  LengthMultipleOf(Math.gcd(l.nBits, r.nBits))
+    case (l, r) => LengthMultipleOf(Math.gcd(l.nBits, r.nBits))
   }
 }
 case class LengthExact(nBits: Long) extends LengthApprox
 case class LengthMultipleOf(nBits: Long) extends LengthApprox
-
-
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
 
@@ -84,7 +81,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         true
       else
         false
-    } else if (this.rootElement.get.isScannable)
+    } else if (this.rootElementRef.get.isScannable)
       true
     else
       false
@@ -98,14 +95,13 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         true
       else
         false
-    } else if (this.rootElement.get.isScannable)
+    } else if (this.rootElementRef.get.isScannable)
       true
     else
       false
   }
 
   final lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
-
 
   private lazy val alignmentApprox: AlignmentMultipleOf = {
     AlignmentMultipleOf(alignmentValueInBits.toLong)
@@ -134,7 +130,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
-    if (enclosingComponent.isEmpty) {
+    if (this.isInstanceOf[Root]) {
       AlignmentMultipleOf(0) // root is aligned with anything
     } else {
       val (priorSibs, parent) = potentialPriorTerms
@@ -175,7 +171,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         } else {
           Seq()
         }
-          
+
       val priorAlignmentsApprox = priorSibs.map(_.endingAlignmentApprox) ++ parent.map(_.contentStartAlignment).toSeq ++ arraySelfAlignment
       priorAlignmentsApprox.reduce(_ * _)
     }
@@ -233,8 +229,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
                 // multiple of 8
                 LengthMultipleOf(8)
               }
-            }
-            else eb.lengthUnits match {
+            } else eb.lengthUnits match {
               case LengthUnits.Bits => LengthMultipleOf(1)
               case LengthUnits.Bytes => LengthMultipleOf(8)
               case LengthUnits.Characters => encodingLengthApprox
@@ -242,8 +237,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           }
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
-          case LengthKind.EndOfParent => LengthMultipleOf(1)// NYI
-          case LengthKind.Prefixed => LengthMultipleOf(1)// NYI
+          case LengthKind.EndOfParent => LengthMultipleOf(1) // NYI
+          case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
     }
@@ -266,10 +261,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       val isSkipRegionByteLength = (leadingSkipInBits % 8 == 0) && (trailingSkipInBits % 8 == 0)
 
       val isByteLength = this match {
-        case mg: ModelGroup => mg.groupMembersNoRefs.forall { _.isKnownToBeByteAlignedAndByteLength }
+        case mg: ModelGroup => mg.groupMembers.forall { _.isKnownToBeByteAlignedAndByteLength }
         case eb: ElementBase => {
           val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
-          val isSelfByteLength = 
+          val isSelfByteLength =
             if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
               eb.complexType.group.isKnownToBeByteAlignedAndByteLength
             } else {

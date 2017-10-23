@@ -57,7 +57,7 @@ object INoWarn6 { ImplicitsSuppressUnusedImportWarning() }
 object ENoWarn6 { EqualitySuppressUnusedImportWarning() }
 
 object RepPrims {
-  abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram)
+  abstract class RepPrim(context: ElementBase, n: Long, r: => Gram)
     extends UnaryGram(context, r) {
     Assert.invariant(n > 0)
     lazy val rd = context.elementRuntimeData
@@ -67,23 +67,23 @@ object RepPrims {
 
   }
 
-  abstract class Rep3Arg(f: (LocalElementBase, Long, => Gram) => Gram) {
-    def apply(context: LocalElementBase, n: Long, rr: => Gram) = {
+  abstract class Rep3Arg(f: (ElementBase, Long, => Gram) => Gram) {
+    def apply(context: ElementBase, n: Long, rr: => Gram) = {
       lazy val r = rr
       if (n == 0 || r.isEmpty) EmptyGram
       else f(context, n, r)
     }
   }
 
-  abstract class Rep2Arg(f: (LocalElementBase, => Gram) => Gram) {
-    def apply(context: LocalElementBase, r: => Gram) = {
+  abstract class Rep2Arg(f: (ElementBase, => Gram) => Gram) {
+    def apply(context: ElementBase, r: => Gram) = {
       lazy val rr = r
       if (rr.isEmpty) EmptyGram
       else f(context, r)
     }
   }
 
-  class RepExactlyNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
+  class RepExactlyNPrim(context: ElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     // Since this is Exactly N, there is no new point of uncertainty considerations here.
     override lazy val parser = new RepExactlyNParser(n, r.parser, context.elementRuntimeData)
@@ -91,27 +91,27 @@ object RepPrims {
 
   }
 
-  class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
+  class RepAtMostTotalNPrim(context: ElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     override lazy val parser = new RepAtMostTotalNParser(n, r.parser, context.elementRuntimeData)
     override lazy val unparser = new RepAtMostTotalNUnparser(n, r.unparser, context.elementRuntimeData)
 
   }
 
-  class RepExactlyTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
+  class RepExactlyTotalNPrim(context: ElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     override lazy val parser = new RepExactlyTotalNParser(n, r.parser, context.elementRuntimeData)
     override lazy val unparser = new RepExactlyTotalNUnparser(n, r.unparser, context.elementRuntimeData)
 
   }
 
-  class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r) {
+  class RepUnboundedPrim(e: ElementBase, r: => Gram) extends RepPrim(e, 1, r) {
 
     override lazy val parser = new RepUnboundedParser(e.occursCountKind, r.parser, e.elementRuntimeData)
     override lazy val unparser = new RepUnboundedUnparser(e.occursCountKind, r.unparser, e.elementRuntimeData)
   }
 
-  class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram)
+  class RepAtMostOccursCountPrim(e: ElementBase, n: Long, r: => Gram)
     extends RepPrim(e, n, r) {
 
     override lazy val parser = new RepAtMostOccursCountParser(r.parser, n, e.elementRuntimeData)
@@ -119,7 +119,7 @@ object RepPrims {
 
   }
 
-  class RepExactlyTotalOccursCountPrim(e: LocalElementBase, r: => Gram)
+  class RepExactlyTotalOccursCountPrim(e: ElementBase, r: => Gram)
     extends RepPrim(e, 1, r) {
 
     override lazy val parser = new RepExactlyTotalOccursCountParser(r.parser, e.elementRuntimeData)

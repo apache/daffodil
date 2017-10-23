@@ -191,22 +191,22 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
 
-    val Seq(four: LocalElementBase) = seqFollowingThree.allSelfContainedTermsTerminatedByRequiredElement
+    val Seq(four: ElementBase) = seqFollowingThree.allSelfContainedTermsTerminatedByRequiredElement
     assertEquals("four", four.name)
 
   }
@@ -282,24 +282,24 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(2, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
     val seqFollowingThree = elemsFollowingTwo(1).asInstanceOf[Sequence]
-    val Seq(four: LocalElementBase) = seqFollowingThree.groupMembers
+    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree2 = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four2: LocalElementBase) = seqFollowingThree2.groupMembers
+    val Seq(four2: ElementBase) = seqFollowingThree2.groupMembers
     assertEquals("four", four2.name)
   }
 
@@ -373,22 +373,22 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(2, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingOne(1).asInstanceOf[LocalElementBase].name)
+    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four: LocalElementBase) = seqFollowingThree.groupMembers
+    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
 
   }
@@ -463,21 +463,21 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, _: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, _: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(1, elemsFollowingOne.length)
-    assertEquals("two", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("two", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(1, elemsFollowingTwo.length)
-    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("three", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
     val seqFollowingThree = elemsFollowingThree(0).asInstanceOf[Sequence]
-    val Seq(four: LocalElementBase) = seqFollowingThree.groupMembers
+    val Seq(four: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", four.name)
 
   }
@@ -558,30 +558,30 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
-    val Seq(four: LocalElementBase) = seq.groupMembers
+    val Seq(four: ElementBase) = seq.groupMembers
 
     val elemsFollowingOne = one.possibleNextTerms
-    val Seq(eTwo: LocalElementBase, eThree: LocalElementBase, seqFollowingThree: Sequence) = one.possibleNextTerms
+    val Seq(eTwo: ElementBase, eThree: ElementBase, seqFollowingThree: Sequence) = one.possibleNextTerms
     assertEquals(3, elemsFollowingOne.length)
     assertEquals("two", eTwo.name)
     assertEquals("three", eThree.name)
-    val Seq(eFour: LocalElementBase) = seqFollowingThree.groupMembers
+    val Seq(eFour: ElementBase) = seqFollowingThree.groupMembers
     assertEquals("four", eFour.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(eThree_2: LocalElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
+    val Seq(eThree_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", eThree_2.name)
-    val Seq(eFour_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(eFour_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals("four", eFour_2.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
     assertEquals(1, elemsFollowingThree.length)
-    val Seq(eFour_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(eFour_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals("four", eFour_3.name)
 
     val elemsFollowingFour = four.possibleNextTerms
@@ -665,29 +665,29 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase, seq: Sequence) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase, seq: Sequence) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
-    val Seq(four: LocalElementBase) = seq.groupMembers
+    val Seq(four: ElementBase) = seq.groupMembers
 
     val elemsFollowingOne = one.possibleNextTerms
-    val Seq(two_1: LocalElementBase, three_1: LocalElementBase, seqFollowingThree_1: Sequence) = one.possibleNextTerms
-    val Seq(four_1: LocalElementBase) = seqFollowingThree_1.groupMembers
+    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = one.possibleNextTerms
+    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
     assertEquals(3, elemsFollowingOne.length)
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
     assertEquals("four", four_1.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_2: LocalElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
-    val Seq(four_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(three_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
+    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_2.name)
     assertEquals("four", four_2.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
-    val Seq(four_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_3.name)
 
@@ -784,8 +784,8 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(two_1: LocalElementBase, three_1: LocalElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-    val Seq(four_1: LocalElementBase) = seqFollowingThree_1.groupMembers
+    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
+    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
@@ -795,30 +795,30 @@ class TestDsomCompilerNew extends Logging {
 
     val elemsFollowingA = a.possibleNextTerms
     assertEquals(1, elemsFollowingA.length)
-    assertEquals("b", elemsFollowingA(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("b", elemsFollowingA(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingB = b.possibleNextTerms
     assertEquals(1, elemsFollowingB.length)
-    assertEquals("c", elemsFollowingB(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("c", elemsFollowingB(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingC = c.possibleNextTerms
-    val Seq(two_2: LocalElementBase, three_2: LocalElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
-    val Seq(four_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
+    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(3, elemsFollowingC.length)
     assertEquals("two", two_2.name)
     assertEquals("three", three_2.name)
     assertEquals("four", four_2.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_3: LocalElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
-    val Seq(four_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(three_3: ElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
+    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_3.name)
     assertEquals("four", four_3.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_4: Sequence) = three.possibleNextTerms
-    val Seq(four_4: LocalElementBase) = seqFollowingThree_4.groupMembers
+    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_4.name)
 
@@ -923,8 +923,8 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(two_1: LocalElementBase, three_1: LocalElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-    val Seq(four_1: LocalElementBase) = seqFollowingThree_1.groupMembers
+    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
+    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
@@ -933,8 +933,8 @@ class TestDsomCompilerNew extends Logging {
     val Seq(a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl, _: Sequence) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
-    val Seq(b_1: LocalElementBase, c_1: LocalElementBase, seqFollowingC_1: Sequence) = a.possibleNextTerms
-    val Seq(s1_1: LocalElementBase, s2_1: LocalElementBase, s3_1: LocalElementBase) = seqFollowingC_1.groupMembers
+    val Seq(b_1: ElementBase, c_1: ElementBase, seqFollowingC_1: Sequence) = a.possibleNextTerms
+    val Seq(s1_1: ElementBase, s2_1: ElementBase, s3_1: ElementBase) = seqFollowingC_1.groupMembers
     assertEquals(3, elemsFollowingA.length)
     assertEquals("b", b_1.name)
     assertEquals("c", c_1.name)
@@ -943,8 +943,8 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("s-3", s3_1.name)
 
     val elemsFollowingB = b.possibleNextTerms
-    val Seq(c_2: LocalElementBase, seqFollowingC_2: Sequence) = b.possibleNextTerms
-    val Seq(s1_2: LocalElementBase, s2_2: LocalElementBase, s3_2: LocalElementBase) = seqFollowingC_2.groupMembers
+    val Seq(c_2: ElementBase, seqFollowingC_2: Sequence) = b.possibleNextTerms
+    val Seq(s1_2: ElementBase, s2_2: ElementBase, s3_2: ElementBase) = seqFollowingC_2.groupMembers
     assertEquals(2, elemsFollowingB.length)
     assertEquals("c", c_2.name)
     assertEquals("s-1", s1_2.name)
@@ -953,22 +953,22 @@ class TestDsomCompilerNew extends Logging {
 
     val elemsFollowingC = c.possibleNextTerms
     val Seq(seqFollowingC_3: Sequence) = c.possibleNextTerms
-    val Seq(s1_3: LocalElementBase, s2_3: LocalElementBase, s3_3: LocalElementBase) = seqFollowingC_3.groupMembers
+    val Seq(s1_3: ElementBase, s2_3: ElementBase, s3_3: ElementBase) = seqFollowingC_3.groupMembers
     assertEquals(1, elemsFollowingC.length)
     assertEquals("s-1", s1_3.name)
     assertEquals("s-2", s2_3.name)
     assertEquals("s-3", s3_3.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_2: LocalElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
-    val Seq(four_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(three_2: ElementBase, seqFollowingThree_2: Sequence) = two.possibleNextTerms
+    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_2.name)
     assertEquals("four", four_2.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_3: Sequence) = three.possibleNextTerms
-    val Seq(four_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_3.name)
 
@@ -1073,8 +1073,8 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(two_1: LocalElementBase, three_1: LocalElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-    val Seq(four_1: LocalElementBase) = seqFollowingThree_1.groupMembers
+    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
+    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
@@ -1083,8 +1083,8 @@ class TestDsomCompilerNew extends Logging {
     val Seq(a: LocalElementDecl, b: LocalElementDecl, _: Sequence, c: LocalElementDecl) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
-    val Seq(b_1: LocalElementBase, seqFollowingA: Sequence) = a.possibleNextTerms
-    val Seq(s1_1: LocalElementBase, s2_1: LocalElementBase, s3_1: LocalElementBase) = seqFollowingA.groupMembers
+    val Seq(b_1: ElementBase, seqFollowingA: Sequence) = a.possibleNextTerms
+    val Seq(s1_1: ElementBase, s2_1: ElementBase, s3_1: ElementBase) = seqFollowingA.groupMembers
     assertEquals(2, elemsFollowingA.length)
     assertEquals("b", b_1.name)
     assertEquals("s-1", s1_1.name)
@@ -1093,30 +1093,30 @@ class TestDsomCompilerNew extends Logging {
 
     val elemsFollowingB = b.possibleNextTerms
     val Seq(seqFollowingB: Sequence) = b.possibleNextTerms
-    val Seq(s1_2: LocalElementBase, s2_2: LocalElementBase, s3_2: LocalElementBase) = seqFollowingB.groupMembers
+    val Seq(s1_2: ElementBase, s2_2: ElementBase, s3_2: ElementBase) = seqFollowingB.groupMembers
     assertEquals(1, elemsFollowingB.length)
     assertEquals("s-1", s1_2.name)
     assertEquals("s-2", s2_2.name)
     assertEquals("s-3", s3_2.name)
 
     val elemsFollowingC = c.possibleNextTerms
-    val Seq(two_2: LocalElementBase, three_2: LocalElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
-    val Seq(four_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = c.possibleNextTerms
+    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(3, elemsFollowingC.length)
     assertEquals("two", two_2.name)
     assertEquals("three", three_2.name)
     assertEquals("four", four_2.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_3: LocalElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
-    val Seq(four_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(three_3: ElementBase, seqFollowingThree_3: Sequence) = two.possibleNextTerms
+    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_3.name)
     assertEquals("four", four_3.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_4: Sequence) = three.possibleNextTerms
-    val Seq(four_4: LocalElementBase) = seqFollowingThree_4.groupMembers
+    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_4.name)
 
@@ -1221,8 +1221,8 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(two_1: LocalElementBase, three_1: LocalElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
-    val Seq(four_1: LocalElementBase) = seqFollowingThree_1.groupMembers
+    val Seq(two_1: ElementBase, three_1: ElementBase, seqFollowingThree_1: Sequence) = oneCTSeq.possibleNextTerms
+    val Seq(four_1: ElementBase) = seqFollowingThree_1.groupMembers
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("two", two_1.name)
     assertEquals("three", three_1.name)
@@ -1231,8 +1231,8 @@ class TestDsomCompilerNew extends Logging {
     val Seq(_: Sequence, a: LocalElementDecl, b: LocalElementDecl, c: LocalElementDecl) = oneCTSeq.groupMembers
 
     val elemsFollowingA = a.possibleNextTerms
-    val Seq(b_2: LocalElementBase, c_2: LocalElementBase, two_2: LocalElementBase, three_2: LocalElementBase, seqFollowingThree_2: Sequence) = a.possibleNextTerms
-    val Seq(four_2: LocalElementBase) = seqFollowingThree_2.groupMembers
+    val Seq(b_2: ElementBase, c_2: ElementBase, two_2: ElementBase, three_2: ElementBase, seqFollowingThree_2: Sequence) = a.possibleNextTerms
+    val Seq(four_2: ElementBase) = seqFollowingThree_2.groupMembers
     assertEquals(5, elemsFollowingA.length)
     assertEquals("b", b_2.name)
     assertEquals("c", c_2.name)
@@ -1241,8 +1241,8 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("four", four_2.name)
 
     val elemsFollowingB = b.possibleNextTerms
-    val Seq(c_3: LocalElementBase, two_3: LocalElementBase, three_3: LocalElementBase, seqFollowingThree_3: Sequence) = b.possibleNextTerms
-    val Seq(four_3: LocalElementBase) = seqFollowingThree_3.groupMembers
+    val Seq(c_3: ElementBase, two_3: ElementBase, three_3: ElementBase, seqFollowingThree_3: Sequence) = b.possibleNextTerms
+    val Seq(four_3: ElementBase) = seqFollowingThree_3.groupMembers
     assertEquals(4, elemsFollowingB.length)
     assertEquals("c", c_3.name)
     assertEquals("two", two_3.name)
@@ -1250,23 +1250,23 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("four", four_3.name)
 
     val elemsFollowingC = c.possibleNextTerms
-    val Seq(two_4: LocalElementBase, three_4: LocalElementBase, seqFollowingThree_4: Sequence) = c.possibleNextTerms
-    val Seq(four_4: LocalElementBase) = seqFollowingThree_4.groupMembers
+    val Seq(two_4: ElementBase, three_4: ElementBase, seqFollowingThree_4: Sequence) = c.possibleNextTerms
+    val Seq(four_4: ElementBase) = seqFollowingThree_4.groupMembers
     assertEquals(3, elemsFollowingC.length)
     assertEquals("two", two_4.name)
     assertEquals("three", three_4.name)
     assertEquals("four", four_4.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(three_5: LocalElementBase, seqFollowingThree_5: Sequence) = two.possibleNextTerms
-    val Seq(four_5: LocalElementBase) = seqFollowingThree_5.groupMembers
+    val Seq(three_5: ElementBase, seqFollowingThree_5: Sequence) = two.possibleNextTerms
+    val Seq(four_5: ElementBase) = seqFollowingThree_5.groupMembers
     assertEquals(2, elemsFollowingTwo.length)
     assertEquals("three", three_5.name)
     assertEquals("four", four_5.name)
 
     val elemsFollowingThree = three.possibleNextTerms
     val Seq(seqFollowingThree_6: Sequence) = three.possibleNextTerms
-    val Seq(four_6: LocalElementBase) = seqFollowingThree_6.groupMembers
+    val Seq(four_6: ElementBase) = seqFollowingThree_6.groupMembers
     assertEquals(1, elemsFollowingThree.length)
     assertEquals("four", four_6.name)
 
@@ -1335,26 +1335,26 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase) =
       rootCTSeq.groupMembers // has an element and a sub-sequence as its children.
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(3, elemsFollowingOne.length)
-    assertEquals("one", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingOne(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingOne(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingOne(2).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(3, elemsFollowingTwo.length)
-    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[ElementBase].name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(3, elemsFollowingThree.length)
-    assertEquals("one", elemsFollowingThree(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingThree(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingThree(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingThree(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingThree(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingThree(2).asInstanceOf[ElementBase].name)
   }
 
   /**
@@ -1419,26 +1419,26 @@ class TestDsomCompilerNew extends Logging {
     val elemsFollowingRootSeq = rootCTSeq.possibleNextTerms
     assertEquals(0, elemsFollowingRootSeq.length)
 
-    val Seq(one: LocalElementBase, two: LocalElementBase, three: LocalElementBase) =
+    val Seq(one: ElementBase, two: ElementBase, three: ElementBase) =
       rootCTSeq.groupMembers
 
     val elemsFollowingOne = one.possibleNextTerms
     assertEquals(3, elemsFollowingOne.length)
-    assertEquals("one", elemsFollowingOne(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingOne(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingOne(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingOne(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingOne(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingOne(2).asInstanceOf[ElementBase].name)
 
     val elemsFollowingTwo = two.possibleNextTerms
     assertEquals(3, elemsFollowingTwo.length)
-    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingTwo(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingTwo(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingTwo(2).asInstanceOf[ElementBase].name)
 
     val elemsFollowingThree = three.possibleNextTerms
     assertEquals(3, elemsFollowingThree.length)
-    assertEquals("one", elemsFollowingThree(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingThree(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingThree(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("one", elemsFollowingThree(0).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingThree(1).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingThree(2).asInstanceOf[ElementBase].name)
   }
 
   /**
@@ -1517,7 +1517,7 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(one_1: LocalElementBase, two_1: LocalElementBase, three_1: LocalElementBase) = oneCTSeq.possibleNextTerms
+    val Seq(one_1: ElementBase, two_1: ElementBase, three_1: ElementBase) = oneCTSeq.possibleNextTerms
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("one", one_1.name)
     assertEquals("two", two_1.name)
@@ -1527,24 +1527,24 @@ class TestDsomCompilerNew extends Logging {
 
     val elemsFollowingA = a.possibleNextTerms
     assertEquals(6, elemsFollowingA.length)
-    assertEquals("a", elemsFollowingA(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("b", elemsFollowingA(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("c", elemsFollowingA(2).asInstanceOf[LocalElementBase].name)
-    assertEquals("one", elemsFollowingA(3).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingA(4).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingA(5).asInstanceOf[LocalElementBase].name)
+    assertEquals("a", elemsFollowingA(0).asInstanceOf[ElementBase].name)
+    assertEquals("b", elemsFollowingA(1).asInstanceOf[ElementBase].name)
+    assertEquals("c", elemsFollowingA(2).asInstanceOf[ElementBase].name)
+    assertEquals("one", elemsFollowingA(3).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingA(4).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingA(5).asInstanceOf[ElementBase].name)
 
     val elemsFollowingB = b.possibleNextTerms
     assertEquals(6, elemsFollowingB.length)
-    assertEquals("a", elemsFollowingB(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("b", elemsFollowingB(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("c", elemsFollowingB(2).asInstanceOf[LocalElementBase].name)
-    assertEquals("one", elemsFollowingB(3).asInstanceOf[LocalElementBase].name)
-    assertEquals("two", elemsFollowingB(4).asInstanceOf[LocalElementBase].name)
-    assertEquals("three", elemsFollowingB(5).asInstanceOf[LocalElementBase].name)
+    assertEquals("a", elemsFollowingB(0).asInstanceOf[ElementBase].name)
+    assertEquals("b", elemsFollowingB(1).asInstanceOf[ElementBase].name)
+    assertEquals("c", elemsFollowingB(2).asInstanceOf[ElementBase].name)
+    assertEquals("one", elemsFollowingB(3).asInstanceOf[ElementBase].name)
+    assertEquals("two", elemsFollowingB(4).asInstanceOf[ElementBase].name)
+    assertEquals("three", elemsFollowingB(5).asInstanceOf[ElementBase].name)
 
     val elemsFollowingC = c.possibleNextTerms
-    val Seq(a_2: LocalElementBase, b_2: LocalElementBase, c_2: LocalElementBase, one_2: LocalElementBase, two_2: LocalElementBase, three_2: LocalElementBase) = c.possibleNextTerms
+    val Seq(a_2: ElementBase, b_2: ElementBase, c_2: ElementBase, one_2: ElementBase, two_2: ElementBase, three_2: ElementBase) = c.possibleNextTerms
     assertEquals(6, elemsFollowingC.length)
     assertEquals("a", a_2.name)
     assertEquals("b", b_2.name)
@@ -1554,14 +1554,14 @@ class TestDsomCompilerNew extends Logging {
     assertEquals("three", three_2.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(one_3: LocalElementBase, two_3: LocalElementBase, three_3: LocalElementBase) = two.possibleNextTerms
+    val Seq(one_3: ElementBase, two_3: ElementBase, three_3: ElementBase) = two.possibleNextTerms
     assertEquals(3, elemsFollowingTwo.length)
     assertEquals("one", one_3.name)
     assertEquals("two", two_3.name)
     assertEquals("three", three_3.name)
 
     val elemsFollowingThree = three.possibleNextTerms
-    val Seq(one_4: LocalElementBase, two_4: LocalElementBase, three_4: LocalElementBase) = three.possibleNextTerms
+    val Seq(one_4: ElementBase, two_4: ElementBase, three_4: ElementBase) = three.possibleNextTerms
     assertEquals(3, elemsFollowingThree.length)
     assertEquals("one", one_4.name)
     assertEquals("two", two_4.name)
@@ -1644,7 +1644,7 @@ class TestDsomCompilerNew extends Logging {
     val oneCTSeq = oneCT.sequence
     val elemsFollowingOneCTSeq = oneCTSeq.possibleNextTerms
 
-    val Seq(one_1: LocalElementBase, two_1: LocalElementBase, three_1: LocalElementBase) = oneCTSeq.possibleNextTerms
+    val Seq(one_1: ElementBase, two_1: ElementBase, three_1: ElementBase) = oneCTSeq.possibleNextTerms
     assertEquals(3, elemsFollowingOneCTSeq.length)
     assertEquals("one", one_1.name)
     assertEquals("two", two_1.name)
@@ -1654,28 +1654,28 @@ class TestDsomCompilerNew extends Logging {
 
     val elemsFollowingA = a.possibleNextTerms
     assertEquals(1, elemsFollowingA.length)
-    assertEquals("b", elemsFollowingA(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("b", elemsFollowingA(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingB = b.possibleNextTerms
     assertEquals(1, elemsFollowingB.length)
-    assertEquals("c", elemsFollowingB(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("c", elemsFollowingB(0).asInstanceOf[ElementBase].name)
 
     val elemsFollowingC = c.possibleNextTerms
-    val Seq(one_2: LocalElementBase, two_2: LocalElementBase, three_2: LocalElementBase) = c.possibleNextTerms
+    val Seq(one_2: ElementBase, two_2: ElementBase, three_2: ElementBase) = c.possibleNextTerms
     assertEquals(3, elemsFollowingC.length)
     assertEquals("one", one_2.name)
     assertEquals("two", two_2.name)
     assertEquals("three", three_2.name)
 
     val elemsFollowingTwo = two.possibleNextTerms
-    val Seq(one_3: LocalElementBase, two_3: LocalElementBase, three_3: LocalElementBase) = two.possibleNextTerms
+    val Seq(one_3: ElementBase, two_3: ElementBase, three_3: ElementBase) = two.possibleNextTerms
     assertEquals(3, elemsFollowingTwo.length)
     assertEquals("one", one_3.name)
     assertEquals("two", two_3.name)
     assertEquals("three", three_3.name)
 
     val elemsFollowingThree = three.possibleNextTerms
-    val Seq(one_4: LocalElementBase, two_4: LocalElementBase, three_4: LocalElementBase) = three.possibleNextTerms
+    val Seq(one_4: ElementBase, two_4: ElementBase, three_4: ElementBase) = three.possibleNextTerms
     assertEquals(3, elemsFollowingThree.length)
     assertEquals("one", one_4.name)
     assertEquals("two", two_4.name)

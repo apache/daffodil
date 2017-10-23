@@ -34,27 +34,15 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 
-final class LocalElementDeclFactory(override val xml: Node, sd: SchemaDocument)
-  extends SchemaComponentFactory(xml, sd)
-  with LocalElementComponentMixin {
-
-  def forModelGroup(parent: ModelGroup, position: Int) =
-    new LocalElementDecl(this, parent, position)
-
-}
-
-final class LocalElementDecl(factory: LocalElementDeclFactory,
-  override val parent: ModelGroup,
-  override val position: Int)
-  extends LocalElementBase(factory.xml, parent, position)
+final class LocalElementDecl(
+  final override val xml: Node,
+  final override val parent: GroupDefLike,
+  final override val position: Int)
+  extends ElementBase
   with LocalElementComponentMixin
   with ElementDeclMixin
   with NestingLexicalMixin {
 
-  override lazy val elementRef = None
-
   requiredEvaluations(minOccurs, maxOccurs)
-
-  final override lazy val namedQName = factory.namedQName
 
 }

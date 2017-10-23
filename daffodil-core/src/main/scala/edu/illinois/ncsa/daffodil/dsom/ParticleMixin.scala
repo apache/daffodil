@@ -113,8 +113,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
 // A Particle is something that can be repeating.
 trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
 
-  final override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  final override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
+  final lazy val optMinOccurs: Option[Int] = Some(minOccurs)
+  final lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString

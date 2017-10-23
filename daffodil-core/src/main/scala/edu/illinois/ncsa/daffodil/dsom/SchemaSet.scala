@@ -51,7 +51,6 @@ import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.util.Memoize1
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
@@ -83,7 +82,7 @@ final class SchemaSet(
   checkAllTopLevelArg: Boolean,
   parent: SchemaComponent,
   override val tunable: DaffodilTunables)
-  extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
+  extends SchemaComponentImpl(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
 
   requiredEvaluations(isValid)
@@ -333,7 +332,7 @@ final class SchemaSet(
    * grabs the first element declaration of the first schema file
    * to use as the root.
    */
-  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): GlobalElementDecl = {
+  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): Root = {
     val rootSpecFromCompiler = rootSpec
     val re =
       (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
@@ -352,8 +351,8 @@ final class SchemaSet(
           val gdeclf = firstSchemaDocument.globalElementDecls
           val firstElement = {
             schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
-            val rootElement = gdeclf(0).forRoot()
-            rootElement
+            val root = gdeclf(0).forRoot()
+            root
           }
           firstElement
         }
@@ -531,26 +530,6 @@ final class SchemaSet(
 
     finalVMap
   }.value
-
-  object LocalSimpleTypeDefFactory {
-
-    private val f =
-      Memoize1((n: Node) =>
-        Memoize1((sd: SchemaDocument) =>
-          new LocalSimpleTypeDefFactory(n, sd)))
-
-    def apply(xml: Node, sd: SchemaDocument) = f(xml)(sd)
-  }
-
-  object LocalElementDeclFactory {
-
-    private val f =
-      Memoize1((xml: Node) =>
-        Memoize1((sd: SchemaDocument) =>
-          new LocalElementDeclFactory(xml, sd)))
-
-    def apply(xml: Node, sd: SchemaDocument) = f(xml)(sd)
-  }
 }
 
 class ValidateSchemasErrorHandler(sset: SchemaSet) extends org.xml.sax.ErrorHandler {

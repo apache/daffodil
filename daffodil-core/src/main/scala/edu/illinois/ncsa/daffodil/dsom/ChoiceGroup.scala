@@ -47,8 +47,11 @@ import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.api.WarnID
 
-
 /**
+ *
+ * Captures concepts common to all choice definitions, which includes both
+ * local and global choice definitions, but not choice group references.
+ *
  * Choices are a bit complicated.
  *
  * They can have initiators and terminators. This is most easily thought of as wrapping each choice
@@ -78,8 +81,37 @@ import edu.illinois.ncsa.daffodil.api.WarnID
  *
  */
 
-final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ModelGroup(xmlArg, parent, position)
+trait ChoiceDefMixin
+  extends AnnotatedSchemaComponent
+  with GroupDefLike {
+
+  protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+
+  protected override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    node match {
+      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
+      case _ => annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+
+  protected def emptyFormatFactory: DFDLFormatAnnotation = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
+
+  lazy val xmlChildren = xml match {
+    case <choice>{ c @ _* }</choice> => c
+    case <group>{ _* }</group> => {
+      val ch = this match {
+        case cgd: GlobalChoiceGroupDef => cgd.xml \ "choice"
+      }
+      val <choice>{ c @ _* }</choice> = ch(0)
+      c
+    }
+  }
+}
+
+abstract class ChoiceTermBase( final override val xml: Node,
+  final override val parent: SchemaComponent,
+  final override val position: Int)
+  extends ModelGroup
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
@@ -89,18 +121,6 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
   protected final override lazy val myPeers = choicePeers
-
-  protected final override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
-    }
-  }
-
-  protected final def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
-
-  protected final override lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 
   final lazy val hasStaticallyRequiredInstances = {
     // true if the choice has syntactic features (initiator, terminator)
@@ -161,7 +181,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
    * they are still considered to be represented. (all sequence and choice groups are isRepresented == true).
    */
   final def branchesAreNonOptional = LV('branchesAreNonOptional) {
-    val branchesOk = groupMembersNoRefs map { branch =>
+    val branchesOk = groupMembers map { branch =>
       if (branch.isOptional) {
         schemaDefinitionErrorButContinue("Branch of choice %s must be non-optional.".format(branch.path))
         false
@@ -171,7 +191,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   }.value
 
   final def branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
-    val branchesOk = groupMembersNoRefs map { branch =>
+    val branchesOk = groupMembers map { branch =>
       if (!branch.isRepresented) {
         schemaDefinitionErrorButContinue("Branch of choice %s cannot have the dfdl:inputValueCalc property.".format(branch.path))
         false
@@ -181,7 +201,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   }.value
 
   final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
-    val eventTuples = groupMembersNoRefs.flatMap {
+    val eventTuples = groupMembers.flatMap {
       case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e))
       case mg: ModelGroup => {
         val idEvents = mg.identifyingEventsForChoiceBranch
@@ -199,7 +219,7 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
           if (event.isInstanceOf[ChoiceBranchStartEvent] && trds.exists {
             // any element children in any of the trds?
             // because if so, we have a true ambiguity here.
-            case sg: Sequence => {
+            case sg: SequenceTermBase => {
               val nonOVCEltChildren = sg.elementChildren.filterNot { _.isOutputValueCalc }
               nonOVCEltChildren.length > 0
             }
@@ -257,3 +277,12 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       optIgnoreCase)
   }
 }
+
+final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends ChoiceTermBase(xmlArg, parent, position)
+  with ChoiceDefMixin {
+
+  override lazy val optReferredToComponent = None
+
+}
+

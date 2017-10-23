@@ -45,7 +45,7 @@ import java.math.{ BigInteger => JBigInt }
  */
 trait LocalElementMixin
   extends ParticleMixin
-  with LocalElementGrammarMixin { self: LocalElementBase =>
+  with LocalElementGrammarMixin { self: ElementBase =>
 
   final def hasSep = LV('hasSep) {
     nearestEnclosingSequence match {
@@ -120,7 +120,7 @@ trait LocalElementMixin
       val res = es match {
         case None => true
         case Some(s) => {
-          val allRequired = s.groupMembersNoRefs.filter(_.isRequired)
+          val allRequired = s.groupMembers.filter(_.isRequired)
           val lastDeclaredRequired = allRequired.last
           if (lastDeclaredRequired _eq_ this) true
           else false

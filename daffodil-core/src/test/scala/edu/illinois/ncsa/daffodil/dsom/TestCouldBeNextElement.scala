@@ -55,10 +55,10 @@ class TestCouldBeNextElement {
               </xs:sequence>
               <xs:sequence>
               </xs:sequence>
-              <xs:element name="bar1" type="xs:string"/>
+              <xs:element name="bar1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
             </xs:choice>
-            <xs:element name="barOpt" minOccurs="0" dfdl:occursCountKind="implicit" type="xs:string"/>
-            <xs:element name="bar2" type="xs:string"/>
+            <xs:element name="barOpt" minOccurs="0" dfdl:occursCountKind="implicit" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="bar2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
@@ -72,25 +72,27 @@ class TestCouldBeNextElement {
 
     val rootCT = root.complexType
     val rootSeq = rootCT.sequence
-    val Seq(choice1: Choice, barOpt: LocalElementBase, bar2: LocalElementBase) = rootSeq.groupMembers
-    val Seq(choice1seq1: Sequence, choice1seq2: Sequence, bar1: LocalElementBase) = choice1.groupMembers
+    val Seq(choice1: Choice, barOpt: ElementBase, bar2: ElementBase) = rootSeq.groupMembers
+    val Seq(choice1seq1: Sequence, choice1seq2: Sequence, bar1: ElementBase) = choice1.groupMembers
     val Seq(gm: Sequence) = choice1seq1.groupMembers
     assertNotNull(gm)
 
     assertEquals(0, root.possibleNextChildElementsInInfoset.length)
     assertEquals(3, root.possibleFirstChildElementsInInfoset.length)
-    assertEquals("bar1", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("barOpt", root.possibleFirstChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("bar2", root.possibleFirstChildElementsInInfoset(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("bar1", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
+    assertEquals("barOpt", root.possibleFirstChildElementsInInfoset(1).asInstanceOf[ElementBase].name)
+    assertEquals("bar2", root.possibleFirstChildElementsInInfoset(2).asInstanceOf[ElementBase].name)
 
+    //val bar1PFCEII = bar1.possibleFirstChildElementsInInfoset
+    //val bar1PNCEII = bar1.possibleNextChildElementsInInfoset
     assertEquals(0, bar1.possibleFirstChildElementsInInfoset.length)
     assertEquals(2, bar1.possibleNextChildElementsInInfoset.length)
-    assertEquals("barOpt", bar1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("bar2", bar1.possibleNextChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
+    assertEquals("barOpt", bar1.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
+    assertEquals("bar2", bar1.possibleNextChildElementsInInfoset(1).asInstanceOf[ElementBase].name)
 
     assertEquals(0, barOpt.possibleFirstChildElementsInInfoset.length)
     assertEquals(1, barOpt.possibleNextChildElementsInInfoset.length)
-    assertEquals("bar2", barOpt.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("bar2", barOpt.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
 
     assertEquals(0, bar2.possibleFirstChildElementsInInfoset.length)
     assertEquals(0, bar2.possibleNextChildElementsInInfoset.length)
@@ -139,24 +141,24 @@ class TestCouldBeNextElement {
 
     val rootCT = root.complexType
     val rootSeq = rootCT.sequence
-    val Seq(array: LocalElementBase, after: LocalElementBase) = rootSeq.groupMembers
+    val Seq(array: ElementBase, after: ElementBase) = rootSeq.groupMembers
     val arrayCT = array.complexType
     val choice = arrayCT.modelGroup.asInstanceOf[Choice]
-    val Seq(ch1: LocalElementBase, ch2: LocalElementBase, array2: LocalElementBase, choiceSeq: Sequence) = choice.groupMembers
+    val Seq(ch1: ElementBase, ch2: ElementBase, array2: ElementBase, choiceSeq: Sequence) = choice.groupMembers
 
     assertEquals(0, root.possibleNextChildElementsInInfoset.length)
     assertEquals(2, root.possibleFirstChildElementsInInfoset.length)
-    assertEquals("array", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("after", root.possibleFirstChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
+    assertEquals("array", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
+    assertEquals("after", root.possibleFirstChildElementsInInfoset(1).asInstanceOf[ElementBase].name)
 
     assertEquals(3, array.possibleFirstChildElementsInInfoset.length)
-    assertEquals("ch1", array.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("ch2", array.possibleFirstChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
-    assertEquals("array", array.possibleFirstChildElementsInInfoset(2).asInstanceOf[LocalElementBase].name)
+    assertEquals("ch1", array.possibleFirstChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
+    assertEquals("ch2", array.possibleFirstChildElementsInInfoset(1).asInstanceOf[ElementBase].name)
+    assertEquals("array", array.possibleFirstChildElementsInInfoset(2).asInstanceOf[ElementBase].name)
 
     assertEquals(2, array.possibleNextChildElementsInInfoset.length)
-    assertEquals("array", array.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("after", array.possibleNextChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
+    assertEquals("array", array.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
+    assertEquals("after", array.possibleNextChildElementsInInfoset(1).asInstanceOf[ElementBase].name)
 
     assertEquals(0, after.possibleFirstChildElementsInInfoset.length)
     assertEquals(0, after.possibleNextChildElementsInInfoset.length)
@@ -199,17 +201,17 @@ class TestCouldBeNextElement {
 
     val rootCT = root.complexType
     val rootSeq = rootCT.sequence
-    val Seq(e1: LocalElementBase, e2: LocalElementBase, e3: LocalElementBase) = rootSeq.groupMembers
+    val Seq(e1: ElementBase, e2: ElementBase, e3: ElementBase) = rootSeq.groupMembers
 
     assertEquals(0, root.possibleNextChildElementsInInfoset.length)
     assertEquals(1, root.possibleFirstChildElementsInInfoset.length)
-    assertEquals("e1", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("e1", root.possibleFirstChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
 
     assertEquals(1, e1.possibleNextChildElementsInInfoset.length)
-    assertEquals("e2", e1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("e2", e1.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
 
     assertEquals(1, e2.possibleNextChildElementsInInfoset.length)
-    assertEquals("e3", e2.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("e3", e2.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
 
     assertEquals(0, e3.possibleNextChildElementsInInfoset.length)
   }
@@ -220,15 +222,15 @@ class TestCouldBeNextElement {
       <xs:element name="root">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="e1" type="xs:string" />
-            <xs:sequence dfdl:hiddenGroupRef="g1_hidden" />
-            <xs:element name="e2" type="xs:string" dfdl:occursCountKind="parsed" />
+            <xs:element name="e1" type="xs:string"/>
+            <xs:sequence dfdl:hiddenGroupRef="g1_hidden"/>
+            <xs:element name="e2" type="xs:string" dfdl:occursCountKind="parsed"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
       <xs:group name="g1_hidden">
         <xs:sequence>
-          <xs:element name="e2_hidden" type="xs:string" dfdl:occursCountKind="parsed" />
+          <xs:element name="e2_hidden" type="xs:string" dfdl:occursCountKind="parsed"/>
         </xs:sequence>
       </xs:group>)
 
@@ -242,11 +244,11 @@ class TestCouldBeNextElement {
     assertEquals(0, root.possibleNextChildElementsInInfoset.length)
     assertEquals(1, root.possibleFirstChildElementsInInfoset.length)
 
-    val e1 = root.possibleFirstChildElementsInInfoset(0).asInstanceOf[LocalElementBase]
+    val e1 = root.possibleFirstChildElementsInInfoset(0).asInstanceOf[ElementBase]
 
     assertEquals("e1", e1.name)
     assertEquals(1, e1.possibleNextChildElementsInInfoset.length)
-    assertEquals("e2", e1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("e2", e1.possibleNextChildElementsInInfoset(0).asInstanceOf[ElementBase].name)
   }
 
 }

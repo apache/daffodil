@@ -120,7 +120,17 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
     else new SeqCompParser(context.runtimeData, parserChildren.toArray)
   }
 
-  lazy val unparserChildren = children.filter(x => !x.isEmpty && (x.forWhat != ForParser)).map { _.unparser }.filterNot { _.isInstanceOf[NadaUnparser] }
+  lazy val unparserChildren = {
+    val unparserKeptChildren =
+      children.filter(
+        x =>
+          !x.isEmpty && (x.forWhat != ForParser))
+    val unparsers =
+      unparserKeptChildren.map { x =>
+        x.unparser
+      }.filterNot { _.isInstanceOf[NadaUnparser] }
+    unparsers
+  }
 
   final override lazy val unparser = {
     if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)

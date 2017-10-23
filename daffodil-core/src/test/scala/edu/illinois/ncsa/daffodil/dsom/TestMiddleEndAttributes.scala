@@ -264,9 +264,6 @@ class TestMiddleEndAttributes {
     val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
     // Sequence inside an element doesn't have an immediately enclosing model group
     assertEquals(None, e3seqImmediatelyEnclosingModelGroup)
-    // Global element instance appears inside the group that immediately contains the
-    // element reference.
-    assertEquals(Some(eMsgChoice), e3.immediatelyEnclosingModelGroup)
     // element reference also contained inside same
     assertEquals(Some(eMsgChoice), e2ref.immediatelyEnclosingModelGroup)
 

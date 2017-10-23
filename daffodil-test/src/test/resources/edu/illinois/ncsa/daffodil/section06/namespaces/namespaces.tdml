@@ -1549,7 +1549,12 @@
       <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
       <tdml:error>shishi</tdml:error>
       <tdml:error>Location line</tdml:error>
-      <tdml:error>section06/namespaces/shi</tdml:error>
+      <!-- 
+        No longer gives this location (which is the type definition location. Now it gives
+        the element reference having that type, which is a different file.
+        
+        <tdml:error>section06/namespaces/shi</tdml:error>
+        -->
     </tdml:errors>
   </tdml:parserTestCase>
 

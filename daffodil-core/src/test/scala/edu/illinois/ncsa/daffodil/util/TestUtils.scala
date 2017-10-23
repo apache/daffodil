@@ -227,6 +227,9 @@ object Fakes {
   def fakeElem = new Fakes().fakeElem
   def fakeSD = new Fakes().fakeSD
   def fakeGroupRef = new Fakes().fakeGroupRef
+  def fakeChoiceGroupRef = new Fakes().fakeChoiceGroupRef
+  def fakeSequenceGroupRef = new Fakes().fakeSequenceGroupRef
+  def fakeGroupRefFactory = new Fakes().fakeGroupRefFactory
 }
 
 class Fakes private () {
@@ -236,14 +239,20 @@ class Fakes private () {
     <xs:element name="fake2" type="tns:fakeCT"/>
     <xs:complexType name="fakeCT">
       <xs:sequence>
-        <xs:group ref="tns:fakeGroup"/>
+        <xs:group ref="tns:fakeChoiceGroup"/>
         <xs:element ref="tns:fake"/>
+        <xs:group ref="tns:fakeSequenceGroup"/>
       </xs:sequence>
     </xs:complexType>
-    <xs:group name="fakeGroup">
+    <xs:group name="fakeChoiceGroup">
       <xs:choice>
         <xs:sequence/>
       </xs:choice>
+    </xs:group>
+    <xs:group name="fakeSequenceGroup">
+      <xs:sequence>
+        <xs:sequence/>
+      </xs:sequence>
     </xs:group>)
   val DummyPrimitiveFactory = null
   val tunable = DaffodilTunables()
@@ -253,8 +262,11 @@ class Fakes private () {
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get.forRoot()
   lazy val fakeCT = fakeSD.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.sequence
-  lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
-  lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
+  lazy val Seq(fs1, fs2, fs3) = fakeSequence.groupMembers
+  lazy val fakeChoiceGroupRef = fs1.asInstanceOf[ChoiceGroupRef]
+  lazy val fakeGroupRef = fakeChoiceGroupRef
+  lazy val fakeSequenceGroupRef = fs3.asInstanceOf[SequenceGroupRef]
+  lazy val fakeGroupRefFactory = new GroupRefFactory(fs1.xml, fs1, 1, false)
 
   class FakeDataProcessor extends DFDL.DataProcessor {
     protected var tunablesObj = DaffodilTunables()
@@ -273,9 +285,9 @@ class Fakes private () {
     def isError: Boolean = false
     def setTunables(tunables: DaffodilTunables): Unit = {}
     def setTunable(tunable: String, value: String): Unit = {}
-    def setTunables(tunables: Map[String,String]): Unit = {}
+    def setTunables(tunables: Map[String, String]): Unit = {}
     def getTunables(): DaffodilTunables = { tunablesObj }
-    
+
   }
   lazy val fakeDP = new FakeDataProcessor
 

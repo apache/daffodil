@@ -33,11 +33,11 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.grammar.primitives.UnicodeByteOrderMark
-import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import edu.illinois.ncsa.daffodil.dsom.Root
 
-trait GlobalElementDeclGrammarMixin
+trait RootGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root
-  { self: GlobalElementDecl =>
+  { self: Root =>
 
   final lazy val document = prod("document") {
     schemaDefinitionUnless(isScalar, "The document element cannot be an array.")
@@ -45,4 +45,5 @@ trait GlobalElementDeclGrammarMixin
   }
 
   private def documentElement = enclosedElement
+
 }

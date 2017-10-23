@@ -353,6 +353,31 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+  <!-- TODO: The test below doesn't work - left over data.
+       Furthermore, TDML runner doesn't currently compare attributes, so 
+       cannot detect the error we're trying to detect, which is spurious
+       presence of a xmlns="" in the root element of the result infoset. 
+       There is a ticket Daffodil-1846 about making the TDML runner not strip
+       off the attributes - presumably also namespace bindings. -->
+  <tdml:parserTestCase name="testNoRootUnnecessaryBinding"
+      root="row2" model="edu.illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+      config="edu.illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
+      description="Root XML should not have xmlns='' in it. "
+      roundTrip="false">
+  
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <tns:row2 xmlns:tns="http://example.com"> <!-- should not have xmlns="" -->
+        <cell>-9</cell>
+        <cell>-2</cell>
+        <cell>-8</cell>
+      </tns:row2>
+    </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
 

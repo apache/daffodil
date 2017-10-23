@@ -43,6 +43,16 @@ trait TypeBase {
   def optRestriction: Option[Restriction] = None
   def optUnion: Option[Union] = None
   def typeNode: NodeInfo.AnyType.Kind
+
+}
+
+trait NonPrimTypeMixin {
+  def elementDecl: ElementDeclMixin
+
+  def elementBase: ElementBase = elementDecl match {
+    case eb: ElementBase => eb
+    case ged: GlobalElementDecl => ged.elementRef
+  }
 }
 
 sealed trait SimpleTypeBase extends TypeBase {
@@ -122,15 +132,14 @@ object PrimitiveType {
 
 }
 
-abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaComponent)
-  extends AnnotatedSchemaComponent(xmlArg, parent)
+abstract class SimpleTypeDefBase(xml: Node, parent: SchemaComponent)
+  extends AnnotatedSchemaComponentImpl(xml, parent)
   with SimpleTypeBase
-  with DFDLStatementMixin
+  with NonPrimTypeMixin
+  with ProvidesDFDLStatementMixin
   with OverlapCheckMixin {
 
-  requiredEvaluations(if (element.isSimpleType) simpleTypeRuntimeData.preSerialization)
-
-  def element: ElementBase
+  requiredEvaluations(if (elementDecl.isSimpleType) simpleTypeRuntimeData.preSerialization)
 
   override def typeNode = primType
 
@@ -141,25 +150,14 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
     res
   }
 
+  /**
+   * Exclusive of self.
+   */
   final lazy val bases: Seq[SimpleTypeDefBase] =
     if (restrictions.isEmpty) Nil
     else restrictions.tail.map { _.simpleType }
 
-  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.reverse.map { _.nonDefaultFormatChain }
-  private lazy val sTypeDefault: Seq[ChainPropProvider] = bases.reverse.map { _.defaultFormatChain }
-
-  // want a QueueSet i.e., fifo order if iterated, but duplicates
-  // kept out of the set. Will simulate by calling distinct.
-  def nonDefaultPropertySources = LV('nonDefaultPropertySources) {
-    val seq = (this.nonDefaultFormatChain +: sTypeNonDefault).distinct
-    checkNonOverlap(seq)
-    seq
-  }.value
-
-  def defaultPropertySources = LV('defaultPropertySources) {
-    val seq = (this.defaultFormatChain +: sTypeDefault).distinct
-    seq
-  }.value
+  override final def optReferredToComponent = optRestriction.flatMap { _.optBaseDef }
 
   protected final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
@@ -168,7 +166,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => Some(new DFDLSimpleType(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
+      case _ => annotationFactoryForDFDLStatement(node, elementBase)
     }
   }
 
@@ -183,33 +181,6 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
     }
   }
 
-  /**
-   * Combine our statements with those of our base def (if there is one)
-   *
-   * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
-   */
-  final lazy val statements: Seq[DFDLStatement] =
-    bases.flatMap { _.statements } ++ localStatements
-
-  private lazy val optBaseDef = optRestriction.flatMap { _.optBaseDef }
-
-  // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations
-  // for a particular annotation point, checking that there is only one format annotation, that
-  // asserts and discriminators are properly excluding each-other, etc.
-  // Code should be sharable for many kinds of annotation points, perhaps specialized for groups, complex type
-  // elements, and simple type elements.
-  //
-  // See JIRA issue DFDL-481
-  final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
-    optBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Seq.empty) ++ localNewVariableInstanceStatements
-  final lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
-  private lazy val combinedAsserts: Seq[DFDLAssert] = optBaseDef.map { _.assertStatements }.getOrElse(Nil) ++ localAssertStatements
-  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = optBaseDef.map { _.discriminatorStatements }.getOrElse(Nil) ++ localDiscriminatorStatements
-
-  final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
-    val combinedSvs = optBaseDef.map { _.setVariableStatements }.getOrElse(Nil) ++ localSetVariableStatements
-    checkDistinctVariableNames(combinedSvs)
-  }
   def toOpt[R <: AnyRef](b: Boolean, v: => R) = Misc.boolToOpt(b, v)
 
   lazy val simpleTypeRuntimeData: SimpleTypeRuntimeData = {
@@ -219,7 +190,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
       diagnosticDebugName,
       path,
       namespaces,
-      element.simpleType.primType,
+      primType,
       noFacetChecks,
       //
       // TODO: Cleanup code: really these should all have been option types
@@ -250,29 +221,13 @@ abstract class SimpleTypeDefBase(xmlArg: Node, override val parent: SchemaCompon
     }.getOrElse(true)
 }
 
-sealed abstract class SimpleTypeDefFactory(xml: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponentFactory(xml, schemaDocumentArg) {
-
-}
-
-final class LocalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
-  with LocalNonElementComponentMixin {
-
-  def forElement(element: ElementBase) =
-    new LocalSimpleTypeDef(this, element)
-
-}
-
 final class LocalSimpleTypeDef(
-  val factory: LocalSimpleTypeDefFactory,
-  elementArg: ElementBase)
-  extends SimpleTypeDefBase(factory.xml, elementArg)
+  xmlArg: Node, elementArg: ElementDeclMixin)
+  extends SimpleTypeDefBase(xmlArg, elementArg)
   with LocalNonElementComponentMixin
   with NestingLexicalMixin {
 
-  override def term = element
-  override lazy val element = elementArg
+  override lazy val elementDecl = elementArg
 
   /**
    * For anonymous simple type def, uses the base name, or primitive type name
@@ -303,13 +258,13 @@ final class LocalSimpleTypeDef(
  */
 
 final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SimpleTypeDefFactory(xmlArg, schemaDocumentArg)
+  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin {
 
   /**
    * Create a private instance for this element's use.
    */
-  def forElement(element: ElementBase) = new GlobalSimpleTypeDef(None, this, Some(element))
+  def forElement(elementDecl: ElementDeclMixin) = new GlobalSimpleTypeDef(None, this, Some(elementDecl))
   def forDerivedType(derivedType: SimpleTypeDefBase) = new GlobalSimpleTypeDef(Some(derivedType), this, None)
 
 }
@@ -320,12 +275,12 @@ final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDo
 final class GlobalSimpleTypeDef(
   derivedType: Option[SimpleTypeDefBase],
   val factory: GlobalSimpleTypeDefFactory,
-  val referringElement: Option[ElementBase])
+  val referringElement: Option[ElementDeclMixin])
   extends SimpleTypeDefBase(factory.xml, factory.schemaDocument)
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {
 
-  override def term = element
+  // override def term = element
 
   override lazy val referringComponent: Option[SchemaComponent] =
     (derivedType, referringElement) match {
@@ -334,9 +289,9 @@ final class GlobalSimpleTypeDef(
       case _ => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
     }
 
-  override lazy val element: ElementBase = referringComponent match {
-    case Some(dt: SimpleTypeDefBase) => dt.element
-    case Some(e: ElementBase) => e
+  override lazy val elementDecl: ElementDeclMixin = referringComponent match {
+    case Some(dt: SimpleTypeDefBase) => dt.elementDecl
+    case Some(e: ElementDeclMixin) => e
     case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 

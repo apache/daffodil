@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -45,36 +44,36 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.xml.ResolvesQNames
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
+
+abstract class SchemaComponentImpl( final override val xml: Node,
+  final override val parent: SchemaComponent)
+  extends SchemaComponent
 
 /**
  * The core root class of the DFDL Schema object model.
  *
  * Every schema component has a schema document, and a schema, and a namespace.
  */
-abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
-  extends OOLAGHost(parent)
+trait SchemaComponent
+  extends OOLAGHost
   with ImplementsThrowsOrSavesSDE
   with GetAttributesMixin
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
-  with FindPropertyMixin
   with SchemaFileLocatableImpl
   with PropTypes {
-  
-  def tunable: DaffodilTunables = parent.tunable
 
-  val xml = xmlArg
-  val aaa_xml = xml // for debugging, so we don't have to scroll down.
+  def xml: Node
+  def parent: SchemaComponent
+
+  final override def oolagContextViaArgs = Some(parent)
+
+  def tunable: DaffodilTunables = parent.tunable
 
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
@@ -116,28 +115,21 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     schemaSet.variableMap
   }.value
 
-  /*
-   * Anything non-annotated always returns property not found
+  /**
+   * Whether the component is hidden.
    *
-   * Override in annotated components
+   * Override this in the components that can hide - SequenceGroupRef
+   * and ChoiceGroupRef
    */
-  def findPropertyOption(pname: String): PropertyLookupResult = {
-    ExecutionMode.requireCompilerMode
-    NotFound(Nil, Nil, pname)
-  }
-  // Q: not sure why non-annotated schema components need to have findProperty
-  // on them at all. Who would call it polymorphically, not knowing whether they
-  // have an annotated schema component or not?
-  // A: DFDLAnnotation - the annotation objects themselves - aren't annotated
-  // schema components - they have a relationship to an annotated schema component
-  // but clearly they carry properties.
+  def isHidden: Boolean = isHiddenLV
 
-  def isHidden: Boolean = LV('isHidden) {
-    enclosingComponent match {
-      case None => Assert.invariantFailed("Root global element should be overriding this.")
+  private lazy val isHiddenLV = {
+    val optEC = enclosingComponent
+    optEC match {
+      case None => false
       case Some(ec) => ec.isHidden
     }
-  }.value
+  }
 
   lazy val schemaComponent: LookupLocation = this
 
@@ -149,19 +141,23 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     val ee = et match {
       case None => None
       case Some(eb: ElementBase) => Some(eb)
-      case Some(sc: SchemaComponent) => sc.enclosingElement
+      case Some(sc: SchemaComponent) => {
+        val scee = sc.enclosingElement
+        scee
+      }
     }
     ee
   }.value
 
-  final lazy val rootElement: Option[GlobalElementDecl] = {
+  final lazy val rootElementRef = rootElementDecl.map { _.elementRef }
+
+  final lazy val rootElementDecl: Option[GlobalElementDecl] = {
     enclosingElement match {
-      case Some(e) => e.rootElement
-      case None => {
-        if (this.isInstanceOf[GlobalElementDecl])
-          Some(this.asInstanceOf[GlobalElementDecl])
-        else
-          None
+      case Some(e) => e.rootElementDecl
+      case None => this match {
+        case ged: GlobalElementDecl => Some(ged)
+        case root: Root => root.optReferredToComponent
+        case _ => Assert.invariantFailed("No global element decl")
       }
     }
   }
@@ -254,7 +250,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
  * the 'schema'.
  */
 final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
-  extends SchemaComponent(<fake/>, schemaSetArg) {
+  extends SchemaComponentImpl(<fake/>, schemaSetArg) {
 
   requiredEvaluations(schemaDocuments)
 
@@ -278,7 +274,6 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
             thing match {
               case df: DFDLDefiningAnnotation => df.asAnnotation.locationDescription
               case sc: SchemaComponent => sc.locationDescription
-              case sf: SchemaComponentFactory => sf.locationDescription
               case _ => Assert.impossibleCase(thing)
             }
           }.mkString("\n"))

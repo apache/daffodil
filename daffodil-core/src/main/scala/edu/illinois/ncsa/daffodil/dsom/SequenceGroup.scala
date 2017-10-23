@@ -48,9 +48,14 @@ import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.grammar.SequenceGrammarMixin
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.SequenceRuntimeData
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
-class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ModelGroup(xmlArg, parent, position)
+abstract class SequenceTermBase(
+  final override val xml: Node,
+  final override val parent: SchemaComponent,
+  final override val position: Int)
+  extends ModelGroup
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SequenceGrammarMixin
@@ -59,56 +64,13 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   requiredEvaluations(checkIfValidUnorderedSequence)
   requiredEvaluations(modelGroupRuntimeData.preSerialization)
 
+  protected def apparentXMLChildren: Seq[Node]
+
   final override lazy val myPeers = sequencePeers
 
   final override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
 
-  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => Some(new DFDLSequence(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
-    }
-  }
-
-  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
-
-  // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
-  // attribute, not a format property in the usual sense.
-  // So we retrieve it by this lower-level mechanism which only combines short and long form.
-  //
-  // FIXME: must call findPropertyOption so that it gets a context back which
-  // allows resolution of a QName using the right scope.
-  final lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef")
-
-  /**
-   * We're hidden if we're inside something hidden, or we're explicitly a
-   * hidden group reference (sequence with hiddenGroupRef property)
-   */
-  final override lazy val isHidden = {
-    val res = hiddenGroupRefOption match {
-      case Some(_) => true
-      case None => someEnclosingComponent.isHidden
-    }
-    res
-  }
-
-  private lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
-
-  final def xmlChildren = LV('xmlChildren) {
-    hiddenGroupRefOption match {
-      case Some(qname) => {
-        schemaDefinitionUnless(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
-        // synthesize a group reference here.
-        val contextScope = xml.asInstanceOf[Elem].scope
-        val hgr = {
-          (<xs:group xmlns:xs={ XMLUtils.xsdURI } ref={ qname }/>).copy(scope = contextScope)
-        }
-        List(hgr)
-      }
-      case None => apparentXMLChildren
-    }
-  }.value
+  protected def hiddenGroupRefOption: PropertyLookupResult
 
   final lazy val hasStaticallyRequiredInstances = {
     // true if there are syntactic features
@@ -118,16 +80,16 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    lazy val memberHasRequiredSyntax = groupMembersNoRefs.exists(_.hasKnownRequiredSyntax)
+    lazy val memberHasRequiredSyntax = groupMembers.exists(_.hasKnownRequiredSyntax)
     lazy val prefixOrPostfixAndStaticallyRequiredInstance =
-      groupMembersNoRefs.filter { _.isRepresented }.exists { _.hasStaticallyRequiredInstances } &&
+      groupMembers.filter { _.isRepresented }.exists { _.hasStaticallyRequiredInstances } &&
         (hasPrefixSep || hasPostfixSep)
     lazy val infixAnd2OrMoreStaticallyRequiredInstances =
-      groupMembersNoRefs.filter { m => m.isRepresented && m.hasStaticallyRequiredInstances }.length > 1 && hasInfixSep
+      groupMembers.filter { m => m.isRepresented && m.hasStaticallyRequiredInstances }.length > 1 && hasInfixSep
     lazy val sepAndArryaWith2OrMoreStaticallyRequiredInstances =
-      groupMembersNoRefs.filter { m =>
+      groupMembers.filter { m =>
         m.isRepresented && m.hasStaticallyRequiredInstances && (m match {
-          case e: LocalElementBase => e.minOccurs > 1
+          case e: ElementBase => e.minOccurs > 1
           case _ => false
         })
       }.length > 0 && hasSeparator
@@ -153,9 +115,9 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   private def checkMembersHaveValidOccursCountKind: Unit = {
-    val validChildren: Seq[LocalElementBase] =
+    val validChildren: Seq[ElementBase] =
       groupMembers.filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef]
-      }.map(_.asInstanceOf[LocalElementBase])
+      }.map(_.asInstanceOf[ElementBase])
 
     val invalidChildren = validChildren.filter(e => {
       if (e.minOccurs == 0 | !e.isScalar) {
@@ -203,7 +165,8 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def checkHiddenSequenceIsDefaultableOrOVC: Unit = {
     if (this.isHidden) {
-      val nonDefaultableOrOVC = this.childrenInHiddenGroupNotDefaultableOrOVC
+      val nonDefaultableOrOVC =
+        this.childrenInHiddenGroupNotDefaultableOrOVC
       if (nonDefaultableOrOVC.length > 0) {
         this.SDE("Element(s) of hidden group must define dfdl:outputValueCalc:\n%s", nonDefaultableOrOVC.mkString("\n"))
       }
@@ -260,7 +223,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
     // Constructs a sequence of choice using newContent
     val newXML = {
-      xmlArg match {
+      xml match {
         case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, true, newContent: _*)
         case other => other
       }
@@ -294,6 +257,70 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       optIgnoreCase)
   }
 
+}
+
+/**
+ * Captures concepts associated with definitions of Sequence groups.
+ *
+ * Used by GlobalSequenceGroupDef and local Sequence, but not by SequenceGroupRef.
+ * Used on objects that can carry DFDLSequence annotation objects.
+ */
+trait SequenceDefMixin
+  extends AnnotatedSchemaComponent
+  with GroupDefLike {
+
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
+
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    node match {
+      case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => Some(new DFDLSequence(node, this))
+      case _ => annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+
+  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
+
+  final lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = (xml \\ "sequence")(0)
+
+  final def xmlChildren = apparentXMLChildren
+
+  // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
+  // attribute, not a format property in the usual sense.
+  // So we retrieve it by this lower-level mechanism which only combines short and long form.
+  //
+  final lazy val hiddenGroupRefOption =
+    findPropertyOptionThisComponentOnly("hiddenGroupRef")
+
+}
+
+/**
+ * Represents a local sequence definition.
+ */
+class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends SequenceTermBase(xmlArg, parent, position)
+  with SequenceDefMixin {
+
+  requiredEvaluations(checkHiddenGroupRefHasNoChildren)
+
+  override lazy val optReferredToComponent = None
+
+  private lazy val checkHiddenGroupRefHasNoChildren = {
+    if (hiddenGroupRefOption.isDefined) {
+      val axc = apparentXMLChildren
+      val len = axc.length
+      schemaDefinitionUnless(len == 0, "A sequence with hiddenGroupRef cannot have children.")
+    }
+  }
+
+  final lazy val hiddenGroupRefXML = LV('hiddenGroupRefXML) {
+    val Found(qname, _, _, _) = hiddenGroupRefOption
+    // synthesize a group reference here.
+    val contextScope = xml.asInstanceOf[Elem].scope
+    val hgr = {
+      (<xs:group xmlns:xs={ XMLUtils.xsdURI } ref={ qname }/>).copy(scope = contextScope)
+    }
+    hgr
+  }.value
 }
 
 final class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)

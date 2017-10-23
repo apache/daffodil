@@ -41,85 +41,28 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 
 /**
- * Shared characteristics of any annotated schema component.
- * Not all components can carry DFDL annotations.
+ * Only objects from which we generate processors (parsers/unparsers)
+ * can lookup property values.
+ *
+ * This avoids the possibility of a property being resolved incorrectly by
+ * not looking at the complete chain of schema components contributing to the
+ * property resolution.
+ *
+ * The only objects that should resolve properties are
+ * ElementRef, Root, LocalElementDecl, Sequence, Choice, SequenceRef, ChoiceRef
+ *
+ * These are all the "real" terms. Everything else is just contributing
+ * properties to the mix, but they are not points where properties are
+ * used to generate processors.
  */
+trait ResolvesProperties
+  extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
 
-abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
-  extends SchemaComponent(xml, sc)
-  with AnnotatedMixin {
-
-  requiredEvaluations(annotationObjs)
-  requiredEvaluations(shortFormPropertiesCorrect)
-  requiredEvaluations(nonDefaultPropertySources)
-  requiredEvaluations(defaultPropertySources)
-
+  /** Returns Term corresponding to this object. */
   def term: Term
-
-  //  /**
-  //   * only used for debugging
-  //   */
-  //  override lazy val properties: PropMap =
-  //    (nonDefaultPropertySources.flatMap { _.properties.toSeq } ++
-  //      defaultPropertySources.flatMap { _.properties.toSeq }).toMap
-
-  final lazy val shortFormPropertiesCorrect: Boolean = {
-    // Check that any unprefixed properties are disjoint with ALL DFDL property names.
-    // Warning otherwise
-    // Insure that some prefix is bound to the dfdl namespace. Warn otherwise.
-    // Warn if dfdl: is bound to something else than the DFDL namespace.
-    shortFormAnnotationsAreValid
-  }
-
-  /**
-   * Since validation of extra attributes on XML Schema elements is
-   * normally lax validation, we can't count on validation of DFDL schemas
-   * to tell us whether short-form annotations are correct or not.
-   *
-   * So, we have to do this check ourselves.
-   *
-   * TBD: change properties code generator to output the various lists of
-   * properties that we have to check against. (Might already be there...?)
-   *
-   */
-  def shortFormAnnotationsAreValid: Boolean = true
-
-  def nonDefaultPropertySources: Seq[ChainPropProvider]
-
-  def defaultPropertySources: Seq[ChainPropProvider]
-
-  lazy val nonDefaultFormatChain: ChainPropProvider = formatAnnotation.formatChain
-  lazy val defaultFormatChain: ChainPropProvider = {
-    val res = schemaDocument.formatAnnotation.formatChain
-    res
-  }
-
-  private def findDefaultOrNonDefaultProperty(
-    pname: String,
-    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
-    val seq = sources.map { _.chainFindProperty(pname) }
-    val optFound = seq.collectFirst { case found: Found => found }
-    val result = optFound match {
-      case Some(f: Found) => f
-      case None => {
-        // merge all the NotFound stuff.
-        val nonDefaults = seq.flatMap {
-          case NotFound(nd, d, _) => nd
-          case _: Found => Assert.invariantFailed()
-        }
-        val defaults = seq.flatMap {
-          case NotFound(nd, d, _) => d
-          case _: Found => Assert.invariantFailed()
-        }
-        Assert.invariant(defaults.isEmpty)
-        val nf = NotFound(nonDefaults, defaults, pname)
-        nf
-      }
-    }
-    result
-  }
 
   private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
     val result = findDefaultOrNonDefaultProperty(pname, nonDefaultPropertySources)
@@ -146,26 +89,18 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   }
 
   /**
-   * Use this when you want to know if a property is defined exactly on a
-   * component. This ignores any default properties or properties defined on
-   * element references. For example, if you want to know if a property was
-   * defined on a global element decl rather than an element reference to that
-   * decl.
+   * Does lookup of property using DFDL scoping rules, checking first non-default
+   *  properties, then default property locations.
    */
-  def findPropertyOptionThisComponentOnly(pname: String): PropertyLookupResult = {
-    val result = findDefaultOrNonDefaultProperty(pname, Seq(nonDefaultFormatChain))
-    result
-  }
-
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode
     // first try in regular properties
-    val regularResult = findNonDefaultProperty(pname)
+    val regularResult = resolver.findNonDefaultProperty(pname)
     regularResult match {
       case f: Found => f
       case NotFound(nonDefaultLocsTried1, defaultLocsTried1, _) => {
         Assert.invariant(defaultLocsTried1.isEmpty)
-        val defaultResult = findDefaultProperty(pname)
+        val defaultResult = resolver.findDefaultProperty(pname)
         defaultResult match {
           case f: Found => f
           case NotFound(nonDefaultLocsTried2, defaultLocsTried2, _) => {
@@ -179,6 +114,160 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
         }
       }
     }
+  }
+}
+
+/** Convenience class for implemening AnnotatedSchemaComponent trait */
+abstract class AnnotatedSchemaComponentImpl( final override val xml: Node,
+  final override val parent: SchemaComponent)
+  extends AnnotatedSchemaComponent
+
+/**
+ * Shared characteristics of any annotated schema component.
+ *
+ * Not all components can carry DFDL annotations.
+ */
+trait AnnotatedSchemaComponent
+  extends SchemaComponent
+  with AnnotatedMixin
+  with OverlapCheckMixin {
+
+  requiredEvaluations(annotationObjs)
+  requiredEvaluations(nonDefaultPropertySources)
+  requiredEvaluations(defaultPropertySources)
+
+  /** Returns the Term corresponding to this component. */
+  final lazy val term: Term = this match {
+    case gr: GroupRef => gr.asModelGroup
+    //    case mg: ModelGroup => mg.parent match {
+    //      case ggd: GlobalGroupDef => {
+    //        // this is the model group that is the definition of
+    //        // a global group, so our term is the group reference referring to this.
+    //        ggd.groupRef.asModelGroup
+    //      }
+    //      case _ => mg
+    //    }
+    case t: Term => t
+    case ged: GlobalElementDecl => ged.elementRef
+    case ty: SimpleTypeDefBase => ty.elementBase
+    case ty: ComplexTypeBase => ty.elementBase
+    case ggd: GlobalGroupDef => ggd.groupRef.asModelGroup
+    case sd: SchemaDocument =>
+      Assert.usageError("not to be called for schema documents")
+  }
+
+  /** Returns the property resolver for this component. */
+  final lazy val resolver: ResolvesProperties = {
+    val res = this match {
+      case sd: SchemaDocument => sd
+      case _ => term
+    }
+    res
+  }
+
+  /**
+   * Since validation of extra attributes on XML Schema elements is
+   * normally lax validation, we can't count on validation of DFDL schemas
+   * to tell us whether short-form annotations are correct or not.
+   *
+   * So, we have to do this check ourselves.
+   *
+   * TBD: change properties code generator to output the various lists of
+   * properties that we have to check against. (Might already be there...?)
+   *
+   */
+  // TODO: Implement this - DFDL-598, DFDL-1512
+  // private def areShortFormAnnotationsValid: Boolean = true
+
+  /**
+   * For property combining only. E.g., doesn't refer from an element
+   * to its complex type because we don't combine properties with that
+   * in DFDL v1.0. (I consider that a language design bug in DFDL v1.0, but
+   * that is the way it's defined.)
+   */
+  final protected def refersToForPropertyCombining: Option[AnnotatedSchemaComponent] = optReferredToComponent
+
+  protected def optReferredToComponent: Option[AnnotatedSchemaComponent] // override in ref objects
+
+  final protected lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = LV('nonDefaultPropertySources) {
+    this match {
+      case sd: SchemaDocument => Nil
+      case _ => {
+        val refTo = refersToForPropertyCombining
+        val chainFromReferredTo = refTo.map { c =>
+          val ndps = c.nonDefaultPropertySources
+          ndps
+        }.toSeq.flatten
+        val myNDFC = nonDefaultFormatChain
+        val completeNonDefaultFormatChain =
+          myNDFC +: chainFromReferredTo
+        val seq = completeNonDefaultFormatChain.distinct
+        checkNonOverlap(seq)
+        seq
+      }
+    }
+  }.value
+
+  final protected lazy val defaultPropertySources: Seq[ChainPropProvider] = LV('defaultPropertySources) {
+    val refTo = refersToForPropertyCombining
+    val chainFromReferredTo = refTo.toSeq.map { _.defaultPropertySources }.distinct.flatten
+    val completeDefaultFormatChain =
+      defaultFormatChain +: chainFromReferredTo
+    val seq = completeDefaultFormatChain.distinct
+    seq
+  }.value
+
+  final protected lazy val nonDefaultFormatChain: ChainPropProvider = {
+    val fa = formatAnnotation
+    val fc = fa.formatChain
+    fc
+  }
+
+  final protected lazy val defaultFormatChain: ChainPropProvider = {
+    val res = schemaDocument.formatAnnotation.formatChain
+    res
+  }
+
+  protected final def findDefaultOrNonDefaultProperty(
+    pname: String,
+    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
+    //
+    // Important - use of stream here insures we don't lookup
+    // properties down the chain once we have them here.
+    //
+    val str = sources.toStream.map { _.chainFindProperty(pname) }
+    val optFound = str.collectFirst { case found: Found => found }
+    val result = optFound match {
+      case Some(f: Found) => f
+      case None => {
+        val seq = str.toSeq
+        // merge all the NotFound stuff.
+        val nonDefaults = seq.flatMap {
+          case NotFound(nd, d, _) => nd
+          case _: Found => Assert.invariantFailed()
+        }
+        val defaults = seq.flatMap {
+          case NotFound(nd, d, _) => d
+          case _: Found => Assert.invariantFailed()
+        }
+        Assert.invariant(defaults.isEmpty)
+        val nf = NotFound(nonDefaults, defaults, pname)
+        nf
+      }
+    }
+    result
+  }
+
+  /**
+   * Use this when you want to know if a property is defined exactly on a
+   * component. This ignores any default properties or properties defined on
+   * element references. For example, if you want to know if a property was
+   * defined on a global element decl rather than an element reference to that
+   * decl.
+   */
+  final def findPropertyOptionThisComponentOnly(pname: String): PropertyLookupResult = {
+    val result = findDefaultOrNonDefaultProperty(pname, Seq(nonDefaultFormatChain))
+    result
   }
 }
 
@@ -280,7 +369,7 @@ trait AnnotatedMixin
   protected def emptyFormatFactory: DFDLFormatAnnotation
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
-  lazy val formatAnnotation = LV('formatAnnotation) {
+  final lazy val formatAnnotation = LV('formatAnnotation) {
     val format = annotationObjs.collect { case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa }
     val res = format match {
       case Seq() => emptyFormatFactory // does make things with the right namespace scopes attached!

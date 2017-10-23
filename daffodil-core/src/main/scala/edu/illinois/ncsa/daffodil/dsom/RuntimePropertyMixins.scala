@@ -184,7 +184,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
   lazy val isLengthKindDelimited = {
-    decl.referredToComponent match {
+    this match {
       case mg: ModelGroup => mg.enclosingElement.get.lengthKind == LengthKind.Delimited
       case eb: ElementBase => eb.lengthKind == LengthKind.Delimited
     }
@@ -214,7 +214,8 @@ trait DelimitedRuntimeValuedPropertiesMixin
     val qn = this.qNameForProperty("terminator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, terminatorRaw)
+    val raw = terminatorRaw
+    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, raw)
   }.value
 
   final def terminatorLoc = (this.diagnosticDebugName, this.path)
@@ -525,7 +526,7 @@ trait ElementRuntimeValuedPropertiesMixin
 trait SequenceRuntimeValuedPropertiesMixin
   extends DelimitedRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
-  with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
+  with RawSequenceRuntimeValuedPropertiesMixin { decl: SequenceTermBase =>
 
   private lazy val separatorExpr = {
     val qn = this.qNameForProperty("separator")

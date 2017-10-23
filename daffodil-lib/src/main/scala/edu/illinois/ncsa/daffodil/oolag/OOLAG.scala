@@ -46,7 +46,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
  * OOLAG = Object-oriented Lazy Attribute Grammars
  *
  * It's a collection of techniques for compilation/transformation
- * in a functional programming style
+ * in a functional programming style. You can find an article about
+ * Attribute Grammars on Wikipedia.
  */
 
 object OOLAG extends Logging {
@@ -89,28 +90,48 @@ object OOLAG extends Logging {
    */
   private val OOLAGRoot: OOLAGHost = null
 
-  private sealed abstract class Args
-  private case object OneArg extends Args
-  private case object ZeroArgs extends Args
+  sealed abstract class Args
+  case object OneArg extends Args
+  case object ZeroArgs extends Args
+
+  /**
+   * Convenience class for implementing OOLAGHost trait.
+   *
+   *  Insures context is set by way of construction. Use the trait and
+   *  implement the context yourself if you want to make use of setting the
+   *  context after the objects are constructed.
+   */
+  abstract class OOLAGHostImpl private (
+    oolagContextArg: OOLAGHost,
+    final override val nArgs: Args)
+    extends OOLAGHost {
+
+    def this(oolagContext: OOLAGHost) = this(oolagContext, OneArg)
+    def this() = this(null, ZeroArgs)
+
+    final protected override def oolagContextViaArgs = {
+      Some(oolagContextArg)
+    }
+  }
 
   /**
    * An OOLAGHost, or OOLAG for short, is a collection of OOLAGValues
    * or LVs for short.
    *
    * The way these are generally used now is like this
-   *
+   * {{{
    *  def foo = LV('foo) {...calculation...}.value
-   *
+   * }}}
    * or, if you would like a slot to show up in the debugger so you
    * can more easily see the value of the LV then you can
-   *
+   * {{{
    * lazy val foo = LV('foo){...calculation...}.value
-   *
+   * }}}
    * Why scala needs 'real' Lisp-style macros: Well wouldn't it be
    * nicer if I could write:
-   *
+   * {{{
    *    defAttribute foo {... calculation ...}
-   *
+   * }}}
    * and have that be equivalent the more verbose stuff above it?
    * But I digress...
    *
@@ -123,17 +144,20 @@ object OOLAG extends Logging {
    * we want to say that our particular OOLAGHost-derived class must
    * evaluate the 'foo' LV otherwise we don't know if it has errors or not,
    * then we write:
-   *
+   * {{{
    *     requiredEvaluations(foo)
-   *
+   * }}}
    * This goes at the top of the class definition. When isError is invoked
    * the value of 'foo' will be computed if it has not been attempted
    * already. This insures that the value exists for 'foo', or any errors/warnings
    * to be determined by its calculation have been recorded.
    */
-  abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
+  trait OOLAGHost
     extends Logging with WithDiagnostics
     with NamedMixinBase {
+
+    protected def oolagContextViaArgs: Option[OOLAGHost] = None
+    protected def nArgs: Args = OneArg
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
@@ -142,7 +166,7 @@ object OOLAG extends Logging {
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Some(oolagContextArg)
-      if (oolagContextArg != OOLAGRoot) {
+      if (oolagContext != OOLAGRoot) {
         oolagRoot.requiredEvalFunctions ++= this.requiredEvalFunctions
         this.requiredEvalFunctions = Nil
       }
@@ -154,9 +178,6 @@ object OOLAG extends Logging {
       else
         false
     }
-
-    def this(oolagContextArg: OOLAGHost) = this(oolagContextArg, OneArg)
-    def this() = this(null, ZeroArgs)
 
     /**
      * Used to check things that OOLAG doesn't protect against such as
@@ -193,7 +214,7 @@ object OOLAG extends Logging {
         Assert.usage(oolagContextViaSet != None, "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.")
         oolagContextViaSet.get
       }
-      case OneArg => oolagContextArg
+      case OneArg => oolagContextViaArgs.get
     }
 
     /**

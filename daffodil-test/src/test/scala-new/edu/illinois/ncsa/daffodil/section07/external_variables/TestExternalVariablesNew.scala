@@ -52,5 +52,4 @@ class TestExternalVariablesNew {
   @Test def test_read_config_from_file() {
     runner.runOneTest("read_config_from_file")
   }
-
 }

@@ -60,7 +60,8 @@ trait InitiatedTerminatedMixin
   }
 
   final lazy val hasTerminator = {
-    terminatorExpr.isKnownNonEmpty
+    val res = terminatorExpr.isKnownNonEmpty
+    res
   }
 
   lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
@@ -75,7 +76,7 @@ trait InitiatedTerminatedMixin
    * present, or there is an expression. (Such expressions are not allowed to evaluate to "" - you
    * can't turn off a delimiter by providing "" at runtime. Minimum length is 1 for these at runtime.
    * <p>
-   * Override in Sequence to also check for separator.
+   * Override in SequenceTermBase to also check for separator.
    */
   lazy val hasDelimiters = hasInitiator || hasTerminator
 

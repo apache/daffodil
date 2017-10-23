@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.Option.option2Iterable
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Text
@@ -45,26 +44,49 @@ import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
 import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
+import java.lang.{ Integer => JInt }
+import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 
 /**
  * A factory for model groups.
+ *
+ * Takes care of detecting group references, and constructing the
+ * proper SequenceGroupRef or ChoiceGroupRef object.
  */
-sealed abstract class ModelGroupFactory private () {
+object ModelGroupFactory {
 
   /**
    * Because of the contexts where this is used, we return a list. That lets users
    * flatmap it to get a collection of model groups. Nil for non-model groups, non-Nil for the model group
    * object. There should be only one non-Nil.
    */
-  def apply(child: Node, parent: SchemaComponent, position: Int) = {
-    val childList: List[GroupBase] = child match {
-      case <sequence>{ _* }</sequence> => List(new Sequence(child, parent, position))
+  def apply(child: Node, parent: SchemaComponent, position: Int, isHidden: Boolean): List[ModelGroup] = {
+    val childList: List[ModelGroup] = child match {
+      case <sequence>{ _* }</sequence> => {
+        val seq = new Sequence(child, parent, position)
+        if (seq.hiddenGroupRefOption.isDefined) {
+          //
+          // construct the group ref XML, then recursively process that,
+          // but set flag so it will be hidden.
+          //
+          val hgrXML = seq.hiddenGroupRefXML
+          ModelGroupFactory(hgrXML, parent, position, true)
+        } else {
+          List(seq)
+        }
+      }
       case <choice>{ _* }</choice> => List(new Choice(child, parent, position))
       case <group>{ _* }</group> => {
-        parent match {
-          case ct: ComplexTypeBase => List(new GroupRef(child, ct, 1))
-          case mg: ModelGroup => List(new GroupRef(child, mg, position))
+        val pos = parent match {
+          case ct: ComplexTypeBase => 1
+          case mg: ModelGroup => position
+          case gd: GlobalGroupDef => position
         }
+        val isH = isHidden || parent.isHidden
+        val groupRefFactory = new GroupRefFactory(child, parent, pos, isH)
+        val groupRefInstance = groupRefFactory.groupRef
+        List(groupRefInstance.asModelGroup)
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
@@ -78,25 +100,96 @@ sealed abstract class ModelGroupFactory private () {
 
 }
 
-object ModelGroupFactory extends ModelGroupFactory()
+/**
+ * Factory for Terms
+ */
+object TermFactory {
+
+  /**
+   * Returns a List of Term. There should be exactly one Term in the list.
+   *
+   * List, not one term, because of the context where this is used, non-Nil for
+   * an actual term. There should be only one non-Nil allows flattening to
+   * remove all the parts of the schema that are not relevant.
+   *
+   */
+  def apply(child: Node, parent: GroupDefLike, position: Int) = {
+    val childList: List[Term] = child match {
+      case <element>{ _* }</element> => {
+        val refProp = child.attribute("ref").map { _.text }
+        // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
+        // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
+        refProp match {
+          case None => {
+            val eDecl = new LocalElementDecl(child, parent, position)
+            List(eDecl)
+          }
+          case Some(_) => List(new ElementRef(child, parent, position))
+        }
+      }
+      case <annotation>{ _* }</annotation> => Nil
+      case textNode: Text => Nil
+      case _ => ModelGroupFactory(child, parent, position, false)
+    }
+    childList
+  }
+}
 
 /**
  * Base class for all model groups, which are term containers.
+ *
+ * There are ultimately 4 concrete classes that implement this:
+ * Sequence, Choice, SequenceGroupRef, and ChoiceGroupRef
  */
-abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: Int)
-  extends GroupBase(xmlArg, parentArg, position)
-  with DFDLStatementMixin
+abstract class ModelGroup
+  extends Term
   with ModelGroupGrammarMixin
   with OverlapCheckMixin
-  with RealTermMixin
   with NestingLexicalMixin {
 
   requiredEvaluations(groupMembers)
 
+  def groupMembers: Seq[Term]
+  def xmlChildren: Seq[Node]
+  protected def myPeers: Option[Seq[ModelGroup]]
+
+  final override def isScalar = true
+  final override def isOptional = false
+  final override def isRequired = true
+  final override def isArray = false
+
+  private def prettyIndex = LV('prettyIndex) {
+    myPeers.map { peers =>
+      {
+        if (peers.length == 1) "" // no index expression if we are the only one
+        else "[" + (peers.indexOf(this) + 1) + "]" // 1-based indexing in XML/XSD
+      }
+    }.getOrElse("")
+  }.value
+
+  override lazy val diagnosticDebugName = prettyBaseName + prettyIndex
+
+  /**
+   * This is only the immediately enclosing model group. It doesn't walk outward.
+   */
+  final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
+  final lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
+  final lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }
+
+  override lazy val alignmentValueInBits: JInt = {
+    this.alignment match {
+      case AlignmentType.Implicit => 1
+      case align: JInt => this.alignmentUnits match {
+        case AlignmentUnits.Bits => align
+        case AlignmentUnits.Bytes => 8 * align
+      }
+    }
+  }
+
   final lazy val elementChildren: Seq[ElementBase] =
     groupMembers.flatMap {
       case eb: ElementBase => Seq(eb)
-      case gb: GroupBase => gb.group.elementChildren
+      case gb: ModelGroup => gb.elementChildren
     }
 
   final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
@@ -115,118 +208,25 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   def modelGroupRuntimeData: ModelGroupRuntimeData
 
-  final lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
-  final lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
+  protected final lazy val prettyBaseName = xml.label
 
-  final def nonDefaultPropertySources = LV('nonDefaultPropertySources) {
-    val seq = (gRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain)).distinct
-    checkNonOverlap(seq)
-    seq
-  }.value
-
-  final def defaultPropertySources = LV('defaultPropertySources) {
-    val seq = (gRefDefault.toSeq ++ Seq(this.defaultFormatChain)).distinct
-    seq
-  }.value
-
-  protected final lazy val prettyBaseName = xmlArg.label
-
-  protected def xmlChildren: Seq[Node]
-
-  private def goodXmlChildren = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }.value
-  private lazy val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
-  private lazy val pairs = goodXmlChildren zip positions
-
-  final lazy val sequenceChildren = groupMembers.collect { case s: Sequence => s }
-  final lazy val choiceChildren = groupMembers.collect { case s: Choice => s }
+  final lazy val sequenceChildren = groupMembers.collect { case s: SequenceTermBase => s }
+  final lazy val choiceChildren = groupMembers.collect { case s: ChoiceTermBase => s }
   final lazy val groupRefChildren = groupMembers.collect { case s: GroupRef => s }
-
-  final def group = this
-
-  final lazy val groupMembers = {
-    pairs.flatMap {
-      case (n, i) =>
-        termFactory(n, this, i)
-    }
-  }
 
   final override lazy val termChildren = groupMembers
 
-  final lazy val groupMembersNoRefs = groupMembers.map {
-    case eRef: ElementRef => eRef.referencedElement
-    case gb: GroupBase => gb.group
-    case x => x
-  }
-
   /**
-   * Factory for Terms
-   *
-   * Because of the context where this is used, this returns a list. Nil for non-terms, non-Nil for
-   * an actual term. There should be only one non-Nil.
-   *
-   * This could be static code in an object. It doesn't reference any of the state of the ModelGroup,
-   * it's here so that type-specific overrides are possible in Sequence or Choice
+   * Returns tuple, where the first is children that could be last, and the
+   * second is a boolean if all children could be optional, and thus this could
+   * be last
    */
-  private def termFactory(child: Node, parent: ModelGroup, position: Int) = {
-    val childList: List[Term] = child match {
-      case <element>{ _* }</element> => {
-        val refProp = child.attribute("ref").map { _.text }
-        // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
-        // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
-        refProp match {
-          case None => List(schemaSet.LocalElementDeclFactory(child, schemaDocument).forModelGroup(parent, position))
-          case Some(_) => List(new ElementRef(child, parent, position))
-        }
-      }
-      case <annotation>{ _* }</annotation> => Nil
-      case textNode: Text => Nil
-      case _ => ModelGroupFactory(child, parent, position)
-    }
-    childList
-  }
-
-  /**
-   * XML is full of uninteresting text nodes. We just want the element children, not all children.
-   */
-  private def removeNonInteresting(child: Node) = {
-    val childList: List[Node] = child match {
-      case _: Text => Nil
-      case _: Comment => Nil
-      case <annotation>{ _* }</annotation> => Nil
-      case _ => List(child)
-    }
-    childList
-  }
-
-  /**
-   * Combine our statements with those of the group ref that is referencing us (if there is one)
-   */
-  final lazy val statements: Seq[DFDLStatement] = localStatements ++ groupRef.map { _.statements }.getOrElse(Nil)
-  final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
-    localNewVariableInstanceStatements ++ groupRef.map { _.newVariableInstanceStatements }.getOrElse(Nil)
-  final lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
-  private lazy val combinedAsserts: Seq[DFDLAssert] = localAssertStatements ++ groupRef.map { _.assertStatements }.getOrElse(Nil)
-  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = localDiscriminatorStatements ++ groupRef.map { _.discriminatorStatements }.getOrElse(Nil)
-
-  final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
-    val combinedSvs = localSetVariableStatements ++ groupRef.map { _.setVariableStatements }.getOrElse(Nil)
-    checkDistinctVariableNames(combinedSvs)
-  }
-
-  final lazy val groupRef = parent match {
-    case ggd: GlobalGroupDef => Some(ggd.groupRef)
-    case _ => None
-  }
-
-  // returns tuple, where the first is children that could be last, and the
-  // second is a boolean if all children could be optional, and thus this could
-  // be last
   lazy val potentialLastChildren: (Seq[Term], Boolean) = {
     val (potentialLast, allOptional) = this match {
-      case ch: Choice => (ch.groupMembersNoRefs, false)
-      case sq: Sequence if !sq.isOrdered => (sq.groupMembersNoRefs, true) // TBD: is true correct? Are all children optional in unordered sequence?
-      case sq: Sequence => {
-        val maybeLast = sq.groupMembersNoRefs.lastOption
+      case ch: ChoiceTermBase => (ch.groupMembers, false)
+      case sq: SequenceTermBase if !sq.isOrdered => (sq.groupMembers, true) // TBD: is true correct? Are all children optional in unordered sequence?
+      case sq: SequenceTermBase => {
+        val maybeLast = sq.groupMembers.lastOption
         if (maybeLast.isDefined) {
           val last = maybeLast.get
           val lastIsOptional = last match {
@@ -255,10 +255,10 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
-      val listOfTerms = groupMembersNoRefs.map(m => {
+      val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: LocalElementBase if e.isOptional => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
-          case e: LocalElementBase => Seq(e)
+          case e: ElementBase if e.isOptional => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
       }).flatten
@@ -266,7 +266,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }.value
 
   final def identifyingEventsForChoiceBranch: Seq[ChoiceBranchEvent] = LV('identifyingEventsForChoiceBranch) {
-    Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[Choice], "identifyingElementsForChoiceBranch must only be called on children of choices")
+    Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[ChoiceTermBase], "identifyingElementsForChoiceBranch must only be called on children of choices")
 
     val childrenIdentifiers = possibleFirstChildElementsInInfoset
     val parentNextIdentifiers =
@@ -314,10 +314,10 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
    */
   protected final def possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
     val firstTerms = this match {
-      case c: Choice => groupMembersNoRefs
-      case s: Sequence if !s.isOrdered => groupMembersNoRefs
-      case s: Sequence => {
-        groupMembersNoRefs.headOption match {
+      case c: ChoiceTermBase => groupMembers
+      case s: SequenceTermBase if !s.isOrdered => groupMembers
+      case s: SequenceTermBase => {
+        groupMembers.headOption match {
           case None => Nil
           case Some(e: ElementBase) if e.canBeAbsentFromUnparseInfoset => {
             // this case covers optional elements, arrrays with minOccurs = 0,
@@ -326,7 +326,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
             // follow it
             Seq(e) ++ e.possibleNextSiblingTerms
           }
-          case Some(s: Sequence) if s.hiddenGroupRefOption.isDefined => s.possibleNextSiblingTerms
+          case Some(s: SequenceTermBase) if s.isHidden => s.possibleNextSiblingTerms
           case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
           case Some(e: ElementBase) => Seq(e)
           case Some(mg: ModelGroup) => Seq(mg)
@@ -351,7 +351,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
-  // model groups can't be elements.
+  /** Always false as model groups can't be elements.*/
   protected final def couldBeLastElementInModelGroup: Boolean = false
 
   /*
@@ -362,7 +362,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   private def hasRequiredNextSiblingElement: Boolean = LV('hasRequiredNextSiblingElement) {
     val hasRequired = enclosingTerm match {
       case None => false
-      case Some(s: Sequence) if s.isOrdered => {
+      case Some(s: SequenceTermBase) if s.isOrdered => {
         // possibleNextSiblingTerms is either all optional/does not have a
         // required element, or the last one is required. Thus, this has a
         // required next sibling if the last sibling element is required
@@ -386,14 +386,14 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
    */
   final def mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
     this match {
-      case s: Sequence if s.hiddenGroupRefOption.isDefined => false
-      case s: Sequence if s.isOrdered =>
-        groupMembersNoRefs.exists {
+      case s: SequenceTermBase if s.isHidden => false
+      case s: SequenceTermBase if s.isOrdered =>
+        groupMembers.exists {
           case e: ElementBase => !e.canBeAbsentFromUnparseInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       case _ =>
-        groupMembersNoRefs.forall {
+        groupMembers.forall {
           case e: ElementBase => !e.canBeAbsentFromUnparseInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }

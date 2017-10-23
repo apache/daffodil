@@ -35,43 +35,41 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 
 /**
- * Note ElementRef isn't a first class citizen with the other schema components.
- * It gets bypassed in that most things here just delegate to the GlobalElementDecl
- * that this references.
- *
- * Most of the framework expects to be handling elements via the ElementBase abstract
- * class. That class is responsible for testing and reaching back over to an ElementRef.
- *
- * So for example, to find out if an element has a property, an Element has to consider
- * that the property might be expressed on an element ref (if there is one), the element
- * itself, or a simpleType def or a base simple type def. Element does this. ElementRef
- * doesn't.
+ * There are 3 first-class concrete children of ElementBase.
+ * Root, LocalElementDecl, and ElementRef
  */
-final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position)
+final class ElementRef(xmlArg: Node, parent: GroupDefLike, position: Int)
+  extends AbstractElementRef(xmlArg, parent, position)
+
+abstract class AbstractElementRef(xmlArg: Node,
+  parentArg: SchemaComponent,
+  positionArg: Int)
+  extends ElementBase
   with ElementReferenceGrammarMixin
   with HasRefMixin
   with NamedMixin
   with NestingLexicalMixin {
 
+  override lazy val xml = xmlArg
+  final override lazy val parent = parentArg
+  final override lazy val position = positionArg
+
   requiredEvaluations(referencedElement)
 
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = referencedElement.findPropertyOption(pname)
-    res
-  }
+  def complexType: ComplexTypeBase = this.referencedElement.complexType
+  def defaultValueAsString: String = this.referencedElement.defaultValueAsString
+  def hasDefaultValue: Boolean = this.referencedElement.hasDefaultValue
+  def isComplexType: Boolean = this.referencedElement.isComplexType
+  def isNillable: Boolean = this.referencedElement.isNillable
+  def isSimpleType: Boolean = this.referencedElement.isSimpleType
+  def simpleType: SimpleTypeBase = this.referencedElement.simpleType
+  def primType: NodeInfo.PrimType = this.referencedElement.primType
 
-  lazy val nonDefaultPropertySources = referencedElement.nonDefaultPropertySources
-  lazy val defaultPropertySources = referencedElement.defaultPropertySources
-
-  lazy val elementRef = None
-
-  override lazy val referredToComponent = referencedElement
+  override lazy val optReferredToComponent = Some(referencedElement)
 
   /**
    * Note: since the namedQName might not exist, we cannot use
@@ -83,10 +81,12 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
     referencedElement.namedQName
   }.value
 
-  override lazy val prefix = referencedElement.prefix
+  override lazy val name = refQName.local
+
+  override lazy val prefix = refQName.prefix.getOrElse(null)
 
   // Need to go get the Element we are referencing
-  final lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
+  lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
     val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
       case None => {
@@ -106,43 +106,10 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
     res
   }.value
 
-  override lazy val runtimeData = referencedElement.runtimeData
-  override lazy val termRuntimeData = referencedElement.termRuntimeData
-  override def erd = referencedElement.erd
-  override lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
-    referencedElement.elementRuntimeData
-  }.value
-  override lazy val dpathElementCompileInfo = referencedElement.dpathElementCompileInfo
-
-  // These will just delegate to the referenced element declaration
-  def isNillable = referencedElement.isNillable
-  def isSimpleType = referencedElement.isSimpleType
-  def isComplexType = referencedElement.isComplexType
-
-  def isDefaultable: Boolean = referencedElement.isDefaultable
-  def defaultValueAsString = referencedElement.defaultValueAsString
-
   override lazy val namespace = refQName.namespace
 
   override lazy val diagnosticDebugName = "element reference " + refQName
 
-  override lazy val name = this.ref
-
-  // TODO: perhaps many members of ElementRef are unused.
-  // Consider removing some. Although consider that
-  // some have to be here because of abstract bases or traits requiring them
-  // even if they aren't called.
   override def typeDef = referencedElement.typeDef
-
-  // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
-  override def inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
-  override def outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
-
-  //TODO: refactor and use shared code for creating resolved set of annotations for an annotation point.
-  override lazy val statements = localStatements
-  override lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
-  override lazy val assertStatements = localAssertStatements
-  override lazy val discriminatorStatements = localDiscriminatorStatements
-  override lazy val setVariableStatements = localSetVariableStatements
 
 }

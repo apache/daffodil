@@ -34,70 +34,128 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.QName
+import scala.xml.Text
+import scala.xml.Comment
 
-class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
-  extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
+final class GlobalGroupDefFactory(defXML: Node, schemaDocument: SchemaDocument)
+  extends SchemaComponentFactory(defXML, schemaDocument)
   with GlobalNonElementComponentMixin {
 
-  private lazy val trimmedXml = scala.xml.Utility.trim(xmlArg)
-
-  def forGroupRef(gref: GroupRef, position: Int) = {
+  def forGroupRef(refXML: Node, refLexicalParent: SchemaComponent, position: Int,
+    isHidden: Boolean): (GroupRef, GlobalGroupDef) = {
+    val trimmedXml = scala.xml.Utility.trim(defXML)
     trimmedXml match {
       case <group>{ contents @ _* }</group> => {
-        val ggd = contents.collect {
-          case <sequence>{ _* }</sequence> => new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
-          case <choice>{ _* }</choice> => new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
+        val list = contents.collect {
+          case groupXML @ <sequence>{ _* }</sequence> => {
+            lazy val gref: SequenceGroupRef = new SequenceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
+            lazy val gdef: GlobalSequenceGroupDef = new GlobalSequenceGroupDef(defXML, groupXML, schemaDocument, gref)
+            gref.groupDef
+            gdef.groupRef
+            (gref, gdef)
+          }
+          case groupXML @ <choice>{ _* }</choice> =>
+            lazy val gref: ChoiceGroupRef = new ChoiceGroupRef(gdef, refXML, refLexicalParent, position, isHidden)
+            lazy val gdef: GlobalChoiceGroupDef = new GlobalChoiceGroupDef(defXML, groupXML, schemaDocument, gref)
+            gref.groupDef
+            gdef.groupRef
+            (gref, gdef)
         }
-        Assert.invariant(ggd.length == 1)
-        ggd(0)
+        val res = list(0)
+        res
       }
       case _ => Assert.invariantFailed("not a group")
     }
   }
-
-  override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
-
 }
 
-sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val groupRef: GroupRef, position: Int)
-  extends SchemaComponent(xmlArg, schemaDocumentArg)
-  with GlobalNonElementComponentMixin 
+/**
+ * Common concepts for components that define groups.
+ *
+ * This includes both global group definitions, and local sequence
+ * and choice groups.
+ */
+trait GroupDefLike
+  extends AnnotatedSchemaComponent
+  with ProvidesDFDLStatementMixin {
+
+  def xmlChildren: Seq[Node]
+
+  /** Returns the group members that are elements or model groups. */
+  final lazy val groupMembers: Seq[Term] = LV('groupMembers) {
+    //
+    // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
+    // and our ModelGroup factory has to return Nil for annotations and Text nodes.
+    //
+    val goodXmlChildren = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }.value
+    val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
+    val pairs = goodXmlChildren zip positions
+    pairs.flatMap {
+      case (n, i) =>
+        TermFactory(n, this, i)
+    }
+  }.value
+
+  /**
+   * XML is full of uninteresting text nodes. We just want the element children, not all children.
+   */
+  private def removeNonInteresting(child: Node) = {
+    val childList: List[Node] = child match {
+      case _: Text => Nil
+      case _: Comment => Nil
+      case <annotation>{ _* }</annotation> => Nil
+      case _ => List(child)
+    }
+    childList
+  }
+}
+
+/**
+ * Global Group Defs carry annotations that are combined wiht those
+ * of the corresponding group reference that refers to them.
+ *
+ * These are not carried on the xs:group element itself, but the xs:sequence
+ * or xs:choice XML child. When we refer to the annotations on a global group
+ * definition, we are referring to the annotations on the xs:sequence or xs:choice.
+ */
+sealed abstract class GlobalGroupDef(
+  defXML: Node,
+  groupXML: Node,
+  schemaDocumentArg: SchemaDocument,
+  grefArg: => GroupRef)
+  extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
+  with GroupDefLike
+  with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {
 
-  requiredEvaluations(modelGroup)
+  requiredEvaluations(groupMembers)
   requiredEvaluations(validateChoiceBranchKey)
 
-  final lazy val referringComponent = {
-    val res = Some(groupRef)
-    res
-  }
-
-  // final override protected def enclosingComponentDef = groupRef.enclosingComponent
-
-  //
-  // Note: Dealing with XML can be fragile. It's easy to forget some of these children
-  // might be annotations and Text nodes. Even if you trim the text nodes out, there are
-  // places where annotations can be.
-  //
-  final lazy val <group>{ xmlChildren @ _* }</group> = xml
-  //
-  // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
-  // and our ModelGroup factory has to return Nil for annotations and Text nodes.
-  //
-  final lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { ModelGroupFactory(_, this, position) }
+  lazy val groupRef = grefArg // once only
 
   def validateChoiceBranchKey(): Unit = {
     // Ensure the model group of a global group def do not define choiceBranchKey.
-    val found = modelGroup.findPropertyOptionThisComponentOnly("choiceBranchKey")
+    val found = findPropertyOptionThisComponentOnly("choiceBranchKey")
     if (found.isDefined) {
       SDE("dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition")
     }
   }
+
+  final override lazy val name = defXML.attribute("name").map { _.text }.getOrElse(
+    Assert.invariantFailed("Global group def without name attribute."))
+
+  final override protected def optReferredToComponent = None
+
+  final override lazy val referringComponent = Some(groupRef.asModelGroup)
 }
 
-final class GlobalSequenceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
-  extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)
+final class GlobalSequenceGroupDef(defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument, gref: => SequenceGroupRef)
+  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument, gref)
+  with SequenceDefMixin
 
-final class GlobalChoiceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
-  extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)
+final class GlobalChoiceGroupDef(defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument, gref: => ChoiceGroupRef)
+  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument, gref)
+  with ChoiceDefMixin {
+
+}
+

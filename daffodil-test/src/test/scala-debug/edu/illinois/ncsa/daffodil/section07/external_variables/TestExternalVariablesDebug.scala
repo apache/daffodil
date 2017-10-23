@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,16 +30,28 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package edu.illinois.ncsa.daffodil.section07.external_variables
 
-import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.util._
 
-trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
+class TestExternalVariablesDebug {
 
-  private lazy val statementGrams = statements.map { _.gram }
-  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
+  val tdml = testDir + "external_variables.tdml"
 
-  final lazy val dfdlStatementEvaluations = prod("dfdlStatementEvaluations", statementGrams.length > 0) {
-    statementGrams.fold(mt) { _ ~ _ }
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  // It's important to note here that external variables
+  // via the TDMLRunner are currently passed in during
+  // compilation.
+
+  //
+  // Use to reproduce CLI test test_2360_CLI_Parsing_SimpleParse_stdOut_extVars2
+  // TODO: When Daffodil-1846 is fixed this test could be enabled.
+  @Test
+  def test_testNoRootUnnecessaryBinding(): Unit = {
+    runner.trace.runOneTest("testNoRootUnnecessaryBinding")
   }
 }

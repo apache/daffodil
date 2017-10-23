@@ -33,8 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import java.util.UUID
-import scala.xml.Node
-import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
@@ -43,18 +41,27 @@ import java.lang.{ Integer => JInt }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 
-/////////////////////////////////////////////////////////////////
-// Groups System
-/////////////////////////////////////////////////////////////////
-
-// A term is content of a group
-abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
-  extends AnnotatedSchemaComponent(xmlArg, parentArg)
+/**
+ * Term, and what is and isn't a Term, is a key concept in DSOM.
+ *
+ * From elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
+ * From sequences, Sequence and SequenceGroupRef are Term. GlobalSequenceGroupDef is *not* a Term.
+ * From choices, Choice and ChoiceGroupRef are Term. GlobalChoiceGroupDef is *not* a Term.
+ *
+ * Terms are the things we actually generate parsers/unparsers for. Non-Terms just
+ * contribute information used by Terms.
+ */
+trait Term
+  extends AnnotatedSchemaComponent
+  with ResolvesProperties
+  with ResolvesDFDLStatementMixin
   with TermRuntimeValuedPropertiesMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
   with TermEncodingMixin {
+
+  def position: Int
 
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")
@@ -63,8 +70,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case _ => None
     }
   }
-
-  override final def term = this
 
   /**
    * A scalar means has no dimension. Exactly one occurrence.
@@ -115,15 +120,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def elementChildren: Seq[ElementBase]
 
-  override lazy val dpathCompileInfo =
-    new DPathCompileInfo(
-      enclosingComponent.map { _.dpathCompileInfo },
-      variableMap,
-      namespaces,
-      path,
-      schemaFileLocation,
-      tunable)
-
   /**
    * An integer which is the alignment of this term. This takes into account the
    * representation, type, charset encoding and alignment-related properties.
@@ -153,6 +149,9 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * base class. This is to make it clear
    * we're not talking about the XML structures inside the XML parent (which might
    * include annotations, etc.
+   *
+   * For elements this is Nil for simple types, a single model group for
+   * complex types. For model groups there can be more children.
    */
   def termChildren: Seq[Term]
 
@@ -166,9 +165,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
-  lazy val referredToComponent = this // override in ElementRef and GroupRef
-
-  lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
+  /** Overridden as false for elements with dfdl:inputValueCalc property. */
+  lazy val isRepresented = true
 
   /**
    * nearestEnclosingSequence
@@ -182,36 +180,36 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  final lazy val nearestEnclosingSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingSequence: Option[SequenceTermBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) => Some(s)
+    case Some(s: SequenceTermBase) => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingSequence
   }
 
-  final lazy val nearestEnclosingChoiceBeforeSequence: Option[Choice] = enclosingTerm match {
+  final lazy val nearestEnclosingChoiceBeforeSequence: Option[ChoiceTermBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) => None
-    case Some(c: Choice) => Some(c)
+    case Some(s: SequenceTermBase) => None
+    case Some(c: ChoiceTermBase) => Some(c)
     case Some(_) => enclosingTerm.get.nearestEnclosingChoiceBeforeSequence
   }
 
-  final lazy val nearestEnclosingUnorderedSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequence: Option[SequenceTermBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) if !s.isOrdered => Some(s)
+    case Some(s: SequenceTermBase) if !s.isOrdered => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
-  final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[SequenceTermBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) if !s.isOrdered => Some(s)
-    case Some(s: Sequence) => None
+    case Some(s: SequenceTermBase) if !s.isOrdered => Some(s)
+    case Some(s: SequenceTermBase) => None
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
   final lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
     case None => false
-    case Some(s: Sequence) => false
-    case Some(c: Choice) => true
+    case Some(s: SequenceTermBase) => false
+    case Some(c: ChoiceTermBase) => true
     case Some(_) => enclosingTerm.get.inChoiceBeforeNearestEnclosingSequence
   }
 
@@ -220,47 +218,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case Some(eb: ElementBase) => Some(eb)
     case Some(_) => enclosingTerm.get.nearestEnclosingElement
   }
-
-  final lazy val nearestEnclosingElementNotRef: Option[ElementBase] = nearestEnclosingElement match {
-    case None => None
-    case Some(er: ElementRef) => er.nearestEnclosingElement // can't be an element ref again
-    case x => x
-  }
-
-  protected final def thisTermNoRefs: Term = LV('thisTermNoRefs) {
-    val es = nearestEnclosingSequence
-
-    val thisTerm = this match {
-      case eRef: ElementRef => eRef.referencedElement
-      // case gd: GlobalGroupDef => gd.thisTermNoRefs // TODO: scala 2.10 compiler says this line is impossible.
-      case gb: GroupBase if gb.enclosingTerm.isDefined => {
-        // We're a group.  We need to determine what we're enclosed by.
-        gb.enclosingTerm.get match {
-          case encGRef: GroupRef => {
-            // We're enclosed by a GroupRef.  We need to retrieve
-            // what encloses that GroupRef
-
-            val res = encGRef.enclosingTerm match {
-              case None => encGRef.group
-              case Some(encTerm) => encTerm.thisTermNoRefs
-            }
-            //encGRef.thisTerm
-            res
-          }
-          case encGB: GroupBase if es.isDefined && encGB == es.get => {
-            // We're an immediate child of the nearestEnclosingSequence
-            // therefore we just return our self as the Term
-            this
-          }
-          case e: LocalElementBase => e // Immediate enclosed by LocalElementBase, return it.
-          case _ => gb.group
-        }
-      }
-      case gb: GroupBase => gb.group
-      case x => x
-    }
-    thisTerm
-  }.value
 
   /**
    * We want to determine if we're in an unordered sequence
@@ -281,22 +238,16 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
-      case c: Choice => Some(c)
-      case s: Sequence => Some(s)
+      case c: ChoiceTermBase => Some(c)
+      case s: SequenceTermBase => Some(s)
       case d: SchemaDocument => {
-        // we're a global object. Our parent is a schema document
-        // so follow backpointers to whatever is referencing us.
-        this match {
-          case ge: GlobalElementDecl => ge.elementRef match {
-            case None => {
-              // we are root. So there is no enclosing model group at all
-              None
-            }
-            case Some(er) => er.immediatelyEnclosingModelGroup
-          }
-        }
+        // we must be the Root elementRef
+        Assert.invariant(this.isInstanceOf[Root])
+        None
       }
-      case gdd: GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
+      case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
+      case gdd: GlobalGroupDef => gdd.groupRef.asModelGroup.immediatelyEnclosingModelGroup
+      case ged: GlobalElementDecl => ged.elementRef.immediatelyEnclosingModelGroup
       case ct: ComplexTypeBase => {
         None
         // The above formerly was ct.element.immediatelyEnclosingModelGroup,
@@ -311,16 +262,19 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final lazy val positionInNearestEnclosingSequence: Int = {
     val res =
       if (enclosingComponent == nearestEnclosingSequence) position
+      else if (this.isInstanceOf[Root]) 1
       else {
         enclosingComponent match {
           case Some(term: Term) => term.positionInNearestEnclosingSequence
           case Some(ct: ComplexTypeBase) => {
-            val ctElem = ct.element
-            val ctPos = ctElem.positionInNearestEnclosingSequence
+            val ctPos = ct.elementDecl match {
+              case eb: ElementBase => eb.positionInNearestEnclosingSequence
+              case ged: GlobalElementDecl => ged.elementRef.positionInNearestEnclosingSequence
+            }
             ctPos
           }
-          case Some(ggd: GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
-          case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
+          case Some(ggd: GlobalGroupDef) => ggd.groupRef.asModelGroup.positionInNearestEnclosingSequence
+          case x => Assert.invariantFailed("For " + this + " unable to compute position in nearest enclosing sequence. The enclosingComponent was " + x)
         }
       }
     res
@@ -332,7 +286,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   final lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>
-      val allSiblings = enc.groupMembers.map { _.referredToComponent }
+      val allSiblings = enc.groupMembers
       allSiblings
     }
     res.getOrElse(Nil)
@@ -420,17 +374,19 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def isKnownRequiredElement = false
   def hasKnownRequiredSyntax = false
 
-  // Returns a tuple, where the first item in the tuple is the list of sibling
-  // terms that could appear before this. The second item in the tuple is a
-  // One(parent) if all siblings are optional or this element has no prior siblings
+  /**
+   * Returns a tuple, where the first item in the tuple is the list of sibling
+   * terms that could appear before this. The second item in the tuple is a
+   * One(parent) if all siblings are optional or this element has no prior siblings
+   */
   lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = {
     val (potentialPrior, parent) = enclosingTerm match {
       case None => (Seq(), None)
       case Some(eb: ElementBase) => (Seq(), Some(eb))
-      case Some(ch: Choice) => (Seq(), Some(ch))
-      case Some(sq: Sequence) if !sq.isOrdered => (sq.groupMembersNoRefs, Some(sq))
-      case Some(sq: Sequence) if sq.isOrdered => {
-        val previousTerms = sq.groupMembersNoRefs.takeWhile { _ != this }
+      case Some(ch: ChoiceTermBase) => (Seq(), Some(ch))
+      case Some(sq: SequenceTermBase) if !sq.isOrdered => (sq.groupMembers, Some(sq))
+      case Some(sq: SequenceTermBase) if sq.isOrdered => {
+        val previousTerms = sq.groupMembers.takeWhile { _ != this }
         if (previousTerms.isEmpty) {
           // first child of seq, the seq is the only previous term
           (Seq(), Some(sq))
@@ -473,14 +429,18 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    */
   lazy val childrenInHiddenGroupNotDefaultableOrOVC: Seq[ElementBase] = {
     // this should only be called on hidden elements
-    Assert.invariant(this.isHidden)
+    val isH = isHidden
+    Assert.invariant(isH)
 
     val res = this match {
-      case s: Sequence => {
-        s.groupMembersNoRefs.flatMap { _.childrenInHiddenGroupNotDefaultableOrOVC }
+      case s: SequenceTermBase => {
+        s.groupMembers.flatMap { member =>
+          val res = member.childrenInHiddenGroupNotDefaultableOrOVC
+          res
+        }
       }
-      case c: Choice => {
-        val branches = c.groupMembersNoRefs.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
+      case c: ChoiceTermBase => {
+        val branches = c.groupMembers.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
         val countFullyDefaultableOrOVCBranches = branches.count { _.length == 0 }
         if (countFullyDefaultableOrOVCBranches == 0) {
           c.SDE("xs:choice inside a hidden group must contain a branch with all children having the dfdl:outputValueCalc property set.")
@@ -525,10 +485,225 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case mg: ModelGroup => {
         val modelGroupCouldHaveSuspensions =
           commonCouldHaveSuspensions ||
-            mg.groupMembersNoRefs.exists { _.couldHaveSuspensions }
+            mg.groupMembers.exists { _.couldHaveSuspensions }
 
         modelGroupCouldHaveSuspensions
       }
+    }
+  }
+
+  final lazy val possibleNextTerms: Seq[Term] = LV('possibleNextTerms) {
+    val es = this.nearestEnclosingSequence
+    val eus = this.nearestEnclosingUnorderedSequenceBeforeSequence
+    val ec = this.nearestEnclosingChoiceBeforeSequence
+
+    val enclosingUnorderedGroup = {
+      (ec, eus) match {
+        case (None, None) => None
+        case (Some(choice), _) => Some(choice)
+        case (None, Some(uoSeq)) => Some(uoSeq)
+      }
+    }
+    val listOfNextTerm = (enclosingUnorderedGroup, es) match {
+      case (None, None) => Seq.empty
+      case (Some(unorderedGroup), _) => {
+        // We're in a choice or unordered sequence
+        //
+        // List must be all of our peers since (as well as our self)
+        // we could be followed by any of them plus
+        // whatever follows the unordered group.
+        val peersCouldBeNext = unorderedGroup.groupMembers
+
+        val termsUntilFirstRequiredTerm = peersCouldBeNext ++ unorderedGroup.possibleNextTerms
+        termsUntilFirstRequiredTerm
+      }
+      case (None, Some(oSeq)) => {
+        // We're in an ordered sequence
+
+        val termsUntilFirstRequiredTerm =
+          isDeclaredLastInSequence match {
+            case true => oSeq.possibleNextTerms
+            case false => {
+
+              val members = oSeq.groupMembers
+
+              val selfAndAfter = members.dropWhile(m => m ne this)
+              val after = selfAndAfter.drop(1)
+              val nextMember = after.headOption
+
+              val nextMembers =
+                nextMember match {
+                  case Some(e: ElementBase) if e.isOptional => Seq(e) ++ e.possibleNextTerms
+                  case Some(e: ElementBase) => Seq(e)
+                  case Some(mg: ModelGroup) => Seq(mg)
+                  case None => Nil // Assert.impossibleCase
+                }
+              nextMembers
+            }
+          }
+        termsUntilFirstRequiredTerm
+      }
+    }
+    listOfNextTerm
+  }.value
+
+  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
+    val es = nearestEnclosingSequence
+    // how do we determine what child node we are? We search.
+    // TODO: better structure for O(1) answer to this.
+    es match {
+      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
+      case Some(s) => {
+        val members = s.groupMembers
+        if (members.last eq this) true // we want object identity comparison here, not equality.
+        else false
+      }
+    }
+  }.value
+
+  protected def possibleFirstChildTerms: Seq[Term]
+
+  /*
+   * Returns list of Elements that could be the first child in the infoset of this model group or element.
+   */
+  final def possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
+    val pfct = possibleFirstChildTerms
+    val firstChildren = pfct.flatMap {
+      case e: ElementBase if e.isHidden => Nil
+      case e: ElementBase => Seq(e)
+      case s: SequenceTermBase if s.isHidden => Nil
+      case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
+    }
+    firstChildren.distinct
+  }.value
+
+  /*
+   * Returns a list of Elements that could follow this Term, including
+   * siblings, children of siblings, and siblings of the parent and their children.
+   *
+   * What stops this is when the end of an enclosing element has to be next.
+   */
+  final def possibleNextChildElementsInInfoset: Seq[ElementBase] = LV('possibleNextChildElementsInInfoset) {
+    val arrayNext = if (isArray) Seq(this.asInstanceOf[ElementBase]) else Nil
+
+    val nextSiblingElements = {
+      val poss = possibleNextSiblingTerms
+      val res = poss.flatMap {
+        possible =>
+          possible match {
+            case e: ElementBase => Seq(e)
+            case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
+          }
+      }
+      res
+    }
+
+    val nextParentElts = nextParentElements
+    val res = arrayNext ++ nextSiblingElements ++ nextParentElts
+    res
+  }.value
+
+  def nextParentElements: Seq[ElementBase]
+
+  protected def couldBeLastElementInModelGroup: Boolean
+
+  /*
+   * Returns a list of sibling Terms that could follow this term. This will not
+   * return any children of sibling Terms, or any siblings of the parent.
+   */
+  final def possibleNextSiblingTerms: Seq[Term] = LV('possibleNextSiblingTerms) {
+    val et = enclosingTerm
+    val listOfNextTerm = et match {
+      case None => Nil // root element, has no siblings
+      case Some(e: ElementBase) => Nil // complex element, cannot have another model group other than this one
+      case Some(c: ChoiceTermBase) => Nil // in choice, no other siblings could come after this one
+      case Some(s: SequenceTermBase) if !s.isOrdered => s.groupMembers // unorderd sequence, all siblings (and myself) could be next
+      case Some(s: SequenceTermBase) => {
+        // in a sequence, the next term could be any later sibling that is not
+        // or does not have a required element, up to and including the first
+        // term that is/has a required element
+        //        def isOutputValueCalc(term: Term) =
+        //          term match { case eb: ElementBase if eb.isOutputValueCalc => true; case _ => false }
+        val selfAndAllNextSiblings = s.groupMembers.dropWhile(_ != this)
+        val allNextSiblings = if (selfAndAllNextSiblings.length > 0) selfAndAllNextSiblings.tail else Nil
+        val nextSiblings = allNextSiblings // .dropWhile(isOutputValueCalc(_))
+        val (optional, firstRequiredAndLater) = nextSiblings.span {
+          case e: ElementBase => e.canBeAbsentFromUnparseInfoset
+          case mg: ModelGroup => !mg.mustHaveRequiredElement
+        }
+        optional ++ firstRequiredAndLater.take(1)
+      }
+    }
+    listOfNextTerm
+  }.value
+
+  /**
+   * Set of elements referenced from an expression in the scope of this term.
+   *
+   * Specific to certain function call contexts e.g., only elements referenced
+   * by dfdl:valueLength or dfdl:contentLength.
+   *
+   * Separated by parser/unparser since parsers have to derive from
+   * dfdl:inputValueCalc, and must include discriminators and assert test
+   * expressions. Unparsers must derive from dfdl:outputValueCalc and exclude
+   * discriminators and asserts. Both must include setVariable/newVariableInstance,
+   * and property expressions are nearly the same. There are some unparser-specfic
+   * properties that take runtime-valued expressions - dfdl:outputNewLine is
+   * one example.
+   */
+  final lazy val contentLengthParserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyContentReferencedElementInfos
+    val stmtRefs = statementContentParserReferencedElementInfos
+    val calcRefs = calcContentParserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthParserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val contentLengthUnparserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyContentReferencedElementInfos
+    val stmtRefs = statementContentUnparserReferencedElementInfos
+    val calcRefs = calcContentUnparserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthUnparserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val valueLengthParserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyValueReferencedElementInfos
+    val stmtRefs = statementValueParserReferencedElementInfos
+    val calcRefs = calcValueParserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthParserReferencedElementInfos) }
+    res
+  }
+
+  /**
+   * Any element referenced from an expression in the scope of this term
+   * is in this set.
+   */
+  final lazy val valueLengthUnparserReferencedElementInfos: Set[DPathElementCompileInfo] = {
+    val propRefs = propertyValueReferencedElementInfos
+    val stmtRefs = statementValueUnparserReferencedElementInfos
+    val calcRefs = calcValueUnparserReferencedElementInfos
+    val locRefs = propRefs ++ stmtRefs ++ calcRefs
+    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthUnparserReferencedElementInfos) }
+    res
+  }
+
+  private lazy val realChildren: Seq[Term] = {
+    this match {
+      case mg: ModelGroup => mg.groupMembers.asInstanceOf[Seq[Term]]
+      case eb: ElementBase if (eb.isComplexType) => Seq(eb.complexType.group)
+      case eb: ElementBase => Seq()
     }
   }
 

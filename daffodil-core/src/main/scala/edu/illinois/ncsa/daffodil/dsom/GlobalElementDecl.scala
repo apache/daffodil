@@ -32,63 +32,26 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.grammar._
+import scala.xml.Node
 
-/**
- * A global element decl uses LocalElementBase because it behaves like a local
- * element when you consider that except for the root case, it has to be combined
- * with an ElementRef that references it. The ElementRef can carry the things
- * like min/maxOccurs and such that aren't allowed on a GlobalElementDecl. The
- * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
- */
 final class GlobalElementDecl(
-  val factory: GlobalElementDeclFactory,
-  override val elementRef: Option[ElementRef])
-  extends LocalElementBase(factory.xml, factory.schemaDocument, 0)
+  xmlArg: Node,
+  schemaDocument: SchemaDocument,
+  elementRefArg: => AbstractElementRef)
+  extends AnnotatedSchemaComponentImpl(xmlArg, schemaDocument)
   with GlobalElementComponentMixin
   with ElementDeclMixin
-  with GlobalElementDeclGrammarMixin
-  with NestingTraversesToReferenceMixin
-  /*
-   * global elements combined with element references referring to them can
-   * be multiple occurring (aka arrays) hence, we have to have things
-   * that take root and referenced situation into account.
-   */
-  with RequiredOptionalMixin {
+  with NestingTraversesToReferenceMixin {
+  //   global elements combined with element references referring to them can
+  //   be multiple occurring (aka arrays) hence, we have to have things
+  //   that take root and referenced situation into account.
+
+  lazy val elementRef = elementRefArg
+  override lazy val dpathCompileInfo = elementRef.dpathElementCompileInfo
 
   requiredEvaluations(validateChoiceBranchKey)
 
-  override lazy val maxOccurs = elementRef match {
-    case Some(er) => er.maxOccurs
-    case None => 1
-  }
-
-  override lazy val minOccurs = elementRef match {
-    case Some(er) => er.minOccurs
-    case None => 1
-  }
-
-  lazy val isRoot = elementRef == None
-
-  override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
-
-  // final override protected def enclosingComponentDef = elementRef.flatMap { _.enclosingComponent }
-
-  override lazy val referringComponent: Option[SchemaComponent] = elementRef
-
-  // GlobalElementDecls need to have access to elementRef's local properties.
-
-  // We inherit the requirement for these attributes from Term. It all gets
-  // too complicated in DSOM if you try to make GlobalElementDecl share with the other
-  // element structures but not be a Term.
-  //
-  // But a GlobalElementDecl isn't really a Term except in a degenerate sense
-  // that the root element is sort of a Term.
-  //
-  // In other words, we shouldn't be treating this as a term.
-  //
-
-  lazy val rootParseUnparsePolicy = defaultParseUnparsePolicy
+  override lazy val referringComponent: Option[SchemaComponent] = Some(elementRef) // optElementRef
 
   def validateChoiceBranchKey(): Unit = {
     // Ensure that the global element decl does not have choiceBranchKey set.

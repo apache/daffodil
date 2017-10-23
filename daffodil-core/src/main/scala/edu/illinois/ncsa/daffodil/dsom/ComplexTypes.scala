@@ -37,9 +37,10 @@ import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.QName
 
-abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
-  extends SchemaComponent(xmlArg, parent)
+abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
+  extends SchemaComponentImpl(xmlArg, parentArg)
   with TypeBase
+  with NonPrimTypeMixin
   with ComplexTypeBaseGrammarMixin {
 
   final override def optRestriction = None
@@ -48,11 +49,11 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   requiredEvaluations(modelGroup)
 
-  def element: ElementBase
+  override def elementDecl: ElementDeclMixin
 
   protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
-  final def group = modelGroup.group
+  final def group = modelGroup
 
   /**
    * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.
@@ -62,7 +63,6 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   final lazy val Seq(modelGroup) = {
     val s = smg
-    // TODO: why check this? Schema validation will enforce this for us. (I think).
     schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
     s
   }
@@ -71,7 +71,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
     xmlChildren.flatMap {
       xmlChild =>
         {
-          val g = ModelGroupFactory(xmlChild, this, 1) // discards unwanted text nodes also.
+          val g = ModelGroupFactory(xmlChild, this, 1, false) // discards unwanted text nodes also.
           g
         }
     }
@@ -101,7 +101,7 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
   extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin {
 
-  def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
+  def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl)
 
   override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
@@ -109,17 +109,17 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 /**
  * For unit testing purposes, the element argument might be supplied as null.
  */
-final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
+final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementDecl: ElementDeclMixin)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {
 
-  lazy val referringComponent = Option(element)
+  override lazy val referringComponent = Option(elementDecl)
 
 }
 
-final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
-  extends ComplexTypeBase(xmlArg, element)
+final class LocalComplexTypeDef(xmlArg: Node, override val elementDecl: ElementDeclMixin)
+  extends ComplexTypeBase(xmlArg, elementDecl)
   with LocalNonElementComponentMixin
   with NestingLexicalMixin {
   // nothing

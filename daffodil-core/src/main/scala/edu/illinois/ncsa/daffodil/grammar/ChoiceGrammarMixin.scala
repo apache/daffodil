@@ -32,10 +32,10 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.Choice
+import edu.illinois.ncsa.daffodil.dsom.ChoiceTermBase
 import edu.illinois.ncsa.daffodil.grammar.primitives.ChoiceCombinator
 
-trait ChoiceGrammarMixin extends GrammarMixin { self: Choice =>
+trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
 
   override lazy val groupContent = prod("choiceContent") {
     ChoiceCombinator(this, alternatives)

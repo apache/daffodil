@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
 abstract class Primitive(e: Term, guard: Boolean = false)
-    extends Terminal(e, guard) {
+  extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
 }
 
@@ -45,14 +45,14 @@ abstract class Primitive(e: Term, guard: Boolean = false)
  * For stubbing out primitives that are placeholders
  */
 abstract class UnimplementedPrimitive(e: Term, guard: Boolean = false)
-    extends Primitive(e, guard)
-    with HasNoUnparser {
+  extends Primitive(e, guard)
+  with HasNoUnparser {
   override final lazy val parser = hasNoParser
 }
 
 // base stub classes
 
-case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
+// case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
 
 case class SaveInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
 
@@ -66,4 +66,4 @@ case class StopValue(e: ElementBase with LocalElementMixin) extends Unimplemente
 
 case class TheDefaultValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isDefaultable)
 
-case class UnicodeByteOrderMark(e: GlobalElementDecl) extends UnimplementedPrimitive(e, false)
+case class UnicodeByteOrderMark(e: Root) extends UnimplementedPrimitive(e, false)

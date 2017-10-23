@@ -89,7 +89,7 @@ final class XMLSchemaDocument(xmlArg: Node,
    * even though it does not have a namespace
    */
   override val isBootStrapSD: Boolean)
-  extends SchemaComponent(xmlArg, sfArg.getOrElse(schemaSetArg))
+  extends SchemaComponentImpl(xmlArg, sfArg.getOrElse(schemaSetArg))
   with SchemaDocumentMixin
   with SchemaDocIncludesAndImportsMixin {
 
@@ -147,12 +147,18 @@ final class XMLSchemaDocument(xmlArg: Node,
  * I.e., default format properties, named format properties, etc.
  */
 final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
-  extends AnnotatedSchemaComponent(xmlSDoc.xml, xmlSDoc)
+  extends AnnotatedSchemaComponent
   with SchemaDocumentMixin
+  with ResolvesProperties
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
-  override def term = Assert.usageError("not to be called on SchemaDocument")
+  final override val xml = xmlSDoc.xml
+  final override def parent = xmlSDoc
+
+  override lazy val optReferredToComponent = None
+
+  // override def term = Assert.usageError("not to be called on SchemaDocument")
 
   /**
    * Implements the selectivity so that if you specify a root element
@@ -196,12 +202,12 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   //    val dfdlAttrs = attrs.filter{ a => a.isPrefixed && a.}
   //  }
 
-  def nonDefaultPropertySources = Seq()
-
-  def defaultPropertySources = LV('defaultPropertySources) {
-    val seq = Seq(this.defaultFormatChain)
-    seq
-  }.value
+  //  def nonDefaultPropertySources = Seq()
+  //
+  //  def defaultPropertySources = LV('defaultPropertySources) {
+  //    val seq = Seq(this.defaultFormatChain)
+  //    seq
+  //  }.value
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     val res = node match {
@@ -251,7 +257,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    */
   lazy val globalElementDecls = {
     val xmlelts = (xml \ "element")
-    val factories = xmlelts.map { new edu.illinois.ncsa.daffodil.dsom.GlobalElementDeclFactory(_, this) }
+    val factories = xmlelts.map { new GlobalElementDeclFactory(_, this) }
     factories
   }
   lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }

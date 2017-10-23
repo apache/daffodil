@@ -38,6 +38,11 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolic
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
+/**
+ * Captures concepts around dfdl:encoding property and Terms.
+ *
+ * Just factored out into a trait for isolation of related code.
+ */
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   requiredEvaluations(encodingInfo.preSerialization)
@@ -113,9 +118,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       case mg: ModelGroup => {
         mg.hasNoSkipRegions &&
           hasTextAlignment
-      }
-      case gr: GroupRef => {
-        gr.group.isLocallyTextOnly
       }
     }
     res

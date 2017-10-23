@@ -32,10 +32,10 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.Sequence
 import edu.illinois.ncsa.daffodil.grammar.primitives.SequenceCombinator
+import edu.illinois.ncsa.daffodil.dsom.SequenceTermBase
 
-trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
+trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
   final override lazy val groupContent = prod("groupContent") {
     self.sequenceKind match {

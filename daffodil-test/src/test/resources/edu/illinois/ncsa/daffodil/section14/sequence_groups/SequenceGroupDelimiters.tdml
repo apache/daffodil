@@ -357,7 +357,8 @@
 
   <tdml:parserTestCase name="groupRefInheritProps"
     root="list" model="groupRefInheritProps.xsd"
-    description="separator defined on a group reference - DFDL-14-008R">
+    description="separator defined on a group reference - DFDL-14-008R"
+    roundTrip="false">
 
     <tdml:document><![CDATA[Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
     <tdml:infoset>

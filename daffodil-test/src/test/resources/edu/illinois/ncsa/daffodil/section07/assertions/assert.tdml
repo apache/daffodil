@@ -639,11 +639,12 @@
 
   <tdml:parserTestCase name="assertOnGroupRef" root="Item"
     model="s1" description="assert on a group reference - DFDL-7-050R">
-
     <tdml:document><![CDATA[Shirts,30]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Assert</tdml:error>
-      <tdml:error>pattern</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>Pattern</tdml:error>
+      <tdml:error>\p{L}{3},\d{3}</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

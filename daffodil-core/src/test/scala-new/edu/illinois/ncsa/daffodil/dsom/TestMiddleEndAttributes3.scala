@@ -138,7 +138,7 @@ class TestMiddleEndAttributes3 {
     assertNotNull(ile_nextSibling)
     val ilct = ile.complexType
     val ilseq = ilct.sequence
-    val Seq(_: ElementBase, _: Sequence, ipsrcle: ElementBase) = ilseq.groupMembers
+    val Seq(_: ElementBase, _: SequenceGroupRef, ipsrcle: ElementBase) = ilseq.groupMembers
     val nextSiblings = ipsrcle.nextSibling
     assertNotNull(nextSiblings)
     val nextParents = ipsrcle.nextParentElements

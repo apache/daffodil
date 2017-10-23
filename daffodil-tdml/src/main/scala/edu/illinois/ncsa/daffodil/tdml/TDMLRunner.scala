@@ -1108,7 +1108,12 @@ object VerifyTestCase {
 
     if (expectedDiags.isDefined && actualDiags.length == 0) {
       throw new TDMLException(""""Diagnostic message(s) were expected but not found."""" +
-        "\n" + """Expected: """ + expectedDiagMsgs.mkString("\n"))
+        "\n" + """Expected: """ + expectedDiagMsgs.mkString("\n") +
+        ( if (actualDiagMsgs.length == 0)
+          "\n No diagnostic messages were issued."
+        else
+          "\n The actual diagnostics messages were: " + actualDiagMsgs.mkString("\n")
+        ))
     }
 
     // must find each expected warning message within some actual warning message.
