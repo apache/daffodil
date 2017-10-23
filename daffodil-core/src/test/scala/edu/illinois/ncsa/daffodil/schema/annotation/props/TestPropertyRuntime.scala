@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentImpl
 import edu.illinois.ncsa.daffodil.util.Fakes
 import edu.illinois.ncsa.daffodil.dsom.NestingLexicalMixin
 
@@ -88,7 +88,7 @@ class TestPropertyRuntime {
 
 }
 
-class HasMixin extends SchemaComponent(<foo/>, null)
+class HasMixin extends SchemaComponentImpl(<foo/>, null)
   with TheExamplePropMixin
   with NestingLexicalMixin {
 

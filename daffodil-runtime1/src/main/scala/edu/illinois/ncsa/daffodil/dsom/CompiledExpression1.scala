@@ -221,7 +221,7 @@ class DPathCompileInfo(
   lazy val variableMap =
     variableMapArg
 
-  override def preSerialization = {
+  override def preSerialization: Any = {
     parent
     variableMap
   }
@@ -314,6 +314,7 @@ class DPathCompileInfo(
 class DPathElementCompileInfo(
   @TransientParam parentArg: => Option[DPathCompileInfo],
   @TransientParam variableMap: => VariableMap,
+  @TransientParam elementChildrenCompileInfoArg: => Seq[DPathElementCompileInfo],
   namespaces: scala.xml.NamespaceBinding,
   path: String,
   val name: String,
@@ -321,10 +322,17 @@ class DPathElementCompileInfo(
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
-  val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
-  override val tunable: DaffodilTunables)
+  override val tunable: DaffodilTunables,
+  maybeReferencedElementCompileInfo: Maybe[DPathElementCompileInfo])
   extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl, tunable)
   with HasSchemaFileLocation {
+
+  lazy val elementChildrenCompileInfo = elementChildrenCompileInfoArg
+
+  override def preSerialization: Any = {
+    super.preSerialization
+    elementChildrenCompileInfo
+  }
 
   override def toString = "DPathElementCompileInfo(%s)".format(name)
 

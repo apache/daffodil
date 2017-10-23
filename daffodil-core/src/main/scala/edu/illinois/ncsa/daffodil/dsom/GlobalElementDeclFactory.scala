@@ -50,10 +50,16 @@ class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   with GlobalElementComponentMixin {
 
   def forRoot() = asRoot // cache. Not a new one every time.
-  lazy val asRoot = new GlobalElementDecl(this, None)
+  lazy val asRoot = {
+    lazy val ged = new GlobalElementDecl(this, root)
+    lazy val root: Root = new Root(schemaDocument, namedQName, ged)
+    root
+  }
 
-  def forElementRef(eRef: ElementRef) = {
-    new GlobalElementDecl(this, Some(eRef))
+  def forElementRef(eRef: AbstractElementRef) = {
+    if (this.namedQName.local == "NS_06")
+      println("stop here")
+    new GlobalElementDecl(this, eRef)
   }
 
 }

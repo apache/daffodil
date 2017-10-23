@@ -49,7 +49,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
  * A schema component for simple type restrictions
  */
 final class Restriction(xmlArg: Node, val simpleType: SimpleTypeDefBase)
-  extends SchemaComponent(xmlArg, simpleType.schemaDocument)
+  extends SchemaComponentImpl(xmlArg, simpleType.schemaDocument)
   with NestingLexicalMixin
   with Facets
   with TypeChecks {
@@ -187,7 +187,7 @@ final class Restriction(xmlArg: Node, val simpleType: SimpleTypeDefBase)
  * A schema component for simple type unions
  */
 final class Union(xmlArg: Node, simpleType: SimpleTypeDefBase)
-  extends SchemaComponent(xmlArg, simpleType.schemaDocument)
+  extends SchemaComponentImpl(xmlArg, simpleType.schemaDocument)
   with NestingLexicalMixin {
 
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
@@ -213,7 +213,7 @@ final class Union(xmlArg: Node, simpleType: SimpleTypeDefBase)
   private lazy val immediateTypeXMLs = xml \ "simpleType"
   private lazy val immediateTypes = immediateTypeXMLs.map { node =>
     {
-      schemaSet.LocalSimpleTypeDefFactory(node, schemaDocument).forElement(simpleType.element)
+      schemaSet.LocalSimpleTypeDefFactory(node, schemaDocument).forElement(simpleType.elementDecl)
     }
   }
 
@@ -226,7 +226,7 @@ final class Union(xmlArg: Node, simpleType: SimpleTypeDefBase)
   }
   private lazy val namedTypeQNames = namedTypeQNameStrings.map { qns => resolveQName(qns) }
   private lazy val namedTypes = namedTypeQNames.map {
-    qn => schemaSet.getGlobalSimpleTypeDef(qn).get.forElement(simpleType.element)
+    qn => schemaSet.getGlobalSimpleTypeDef(qn).get.forElement(simpleType.elementDecl)
   }
   private lazy val directMemberTypes: Seq[SimpleTypeDefBase] = namedTypes ++ immediateTypes
 

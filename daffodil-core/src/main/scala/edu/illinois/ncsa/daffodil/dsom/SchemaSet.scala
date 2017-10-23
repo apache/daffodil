@@ -83,7 +83,7 @@ final class SchemaSet(
   checkAllTopLevelArg: Boolean,
   parent: SchemaComponent,
   override val tunable: DaffodilTunables)
-  extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
+  extends SchemaComponentImpl(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
 
   requiredEvaluations(isValid)
@@ -333,7 +333,7 @@ final class SchemaSet(
    * grabs the first element declaration of the first schema file
    * to use as the root.
    */
-  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): GlobalElementDecl = {
+  def rootElement(rootSpecFromProcessorFactory: Option[RootSpec]): Root = {
     val rootSpecFromCompiler = rootSpec
     val re =
       (rootSpecFromCompiler, rootSpecFromProcessorFactory) match {
@@ -352,8 +352,8 @@ final class SchemaSet(
           val gdeclf = firstSchemaDocument.globalElementDecls
           val firstElement = {
             schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
-            val rootElement = gdeclf(0).forRoot()
-            rootElement
+            val root = gdeclf(0).forRoot()
+            root
           }
           firstElement
         }

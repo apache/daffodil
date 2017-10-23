@@ -49,7 +49,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
 
   requiredEvaluations(statements)
 
-  protected final def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): Option[DFDLAnnotation] = {
+  final def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): Option[DFDLAnnotation] = {
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => Some(new DFDLAssert(node, self))
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => Some(new DFDLDiscriminator(node, self))
@@ -78,38 +78,66 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
    * E.g., dfdl:newVariableInstance isn't allowed on simpleType, can only have one discriminator per
    * annotation point, and per combined annotation point, discriminators and assertions exclude each other, etc.
    */
-  def statements: Seq[DFDLStatement]
-  def newVariableInstanceStatements: Seq[DFDLNewVariableInstance]
-  final lazy val notNewVariableInstanceStatements = setVariableStatements ++ discriminatorStatements ++ assertStatements
-  def assertStatements: Seq[DFDLAssert]
-  def discriminatorStatements: Seq[DFDLDiscriminator]
-  def setVariableStatements: Seq[DFDLSetVariable]
 
-  final lazy val localStatements = this.annotationObjs.collect { case st: DFDLStatement => st }
-  final lazy val localNewVariableInstanceStatements = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
-  final lazy val localNotNewVariableInstanceStatements = localStatements.diff(localNewVariableInstanceStatements)
-  final lazy val (localDiscriminatorStatements,
-    localAssertStatements) = {
+  /**
+   * Combine our statements with those of what we reference.
+   * Elements reference types
+   * ElementRefs reference elements, etc.
+   *
+   * The order here is important. The statements from type come first, then from declaration, then from
+   * reference.
+   */
+
+  final protected def optReferencedStatementSource: Option[DFDLStatementMixin] =
+    self.optReferredToComponent.asInstanceOf[Option[DFDLStatementMixin]]
+
+  final lazy val statements: Seq[DFDLStatement] =
+    optReferencedStatementSource.toSeq.flatMap { _.statements } ++ localStatements
+
+  final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+    optReferencedStatementSource.toSeq.flatMap { _.newVariableInstanceStatements } ++
+      localNewVariableInstanceStatements
+
+  final lazy val notNewVariableInstanceStatements = setVariableStatements ++ discriminatorStatements ++ assertStatements
+
+  final lazy val (discriminatorStatements, assertStatements) =
+    checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+
+  private lazy val combinedAsserts: Seq[DFDLAssert] =
+    optReferencedStatementSource.toSeq.flatMap { _.assertStatements } ++ localAssertStatements
+
+  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] =
+    optReferencedStatementSource.toSeq.flatMap { _.discriminatorStatements } ++ localDiscriminatorStatements
+
+  final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+    val combinedSvs = optReferencedStatementSource.toSeq.flatMap { _.setVariableStatements } ++ localSetVariableStatements
+    checkDistinctVariableNames(combinedSvs)
+  }
+
+  private lazy val localStatements = this.annotationObjs.collect { case st: DFDLStatement => st }
+  private lazy val localNewVariableInstanceStatements = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
+
+  private lazy val (localDiscriminatorStatements, localAssertStatements) = {
     val discrims = localStatements.collect { case disc: DFDLDiscriminator => disc }
     val asserts = localStatements.collect { case asrt: DFDLAssert => asrt }
     checkDiscriminatorsAssertsDisjoint(discrims, asserts)
   }
 
-  final def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
+  private def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
     schemaDefinitionUnless(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
     schemaDefinitionUnless(asserts == Nil || discrims == Nil,
       "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.")
     (discrims, asserts)
   }
 
-  final def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
+  private def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
     val names = svs.map { _.defv.globalQName }
     val areAllDistinct = names.distinct.size == names.size
     schemaDefinitionUnless(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
     svs
   }
 
-  final lazy val localSetVariableStatements = {
+  private lazy val localSetVariableStatements = {
     val svs = localStatements.collect { case sv: DFDLSetVariable => sv }
     checkDistinctVariableNames(svs)
   }

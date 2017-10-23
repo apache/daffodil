@@ -33,53 +33,43 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.equality._
+import scala.xml.Node
 
+trait ElementLikeMixin
+  extends AnnotatedSchemaComponent {
+
+  private lazy val elementBase = this match {
+    case ged: GlobalElementDecl => ged.elementRef
+    case eb: ElementBase => eb
+  }
+
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    node match {
+      case <dfdl:element>{ contents @ _* }</dfdl:element> => Some(new DFDLElement(node, this))
+      case _ => elementBase.annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+
+  protected final lazy val emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
+
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
+}
 /**
  * Shared by all element declarations local or global
  */
 trait ElementDeclMixin
-  extends OverlapCheckMixin { self: ElementBase =>
+  extends ElementLikeMixin {
 
-  private def eRefNonDefault: Option[ChainPropProvider] = LV('eRefNonDefault) {
-    elementRef.map {
-      _.nonDefaultFormatChain
-    }
-  }.value
+  def namedQName: NamedQName
 
-  private def eRefDefault: Option[ChainPropProvider] = LV('eRefDefault) {
-    elementRef.map {
-      _.defaultFormatChain
-    }
-  }.value
-
-  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = self.typeDef match {
-    case st: SimpleTypeDefBase => st.nonDefaultPropertySources
-    case _ => Seq()
+  final override protected def optReferredToComponent = typeDef match {
+    case std: SimpleTypeDefBase => Some(std)
+    case ctd: ComplexTypeBase => None // in DFDL v1.0 complex types are not annotated, so can't carry properties nor statements.
+    case _ => None
   }
-  private lazy val sTypeDefault: Seq[ChainPropProvider] = self.typeDef match {
-    case st: SimpleTypeDefBase => st.defaultPropertySources
-    case _ => Seq()
-  }
-
-  /**
-   * This and the partner defaultPropertySources are what ElementBase reaches back to get from
-   * the ElementRef in order to have the complete picture of all the properties in effect for
-   * that ElementBase.
-   */
-  final def nonDefaultPropertySources = LV('nonDefaultPropertySources) {
-    val seq = (eRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain) ++ sTypeNonDefault).distinct
-    checkNonOverlap(seq)
-    seq
-  }.value
-
-  final def defaultPropertySources = LV('defaultPropertySources) {
-    val seq = (eRefDefault.toSeq ++ Seq(this.defaultFormatChain) ++ sTypeDefault).distinct
-    seq
-  }.value
 
   final def immediateType: Option[TypeBase] = LV('immediateType) {
     val st = xml \ "simpleType"
@@ -87,10 +77,10 @@ trait ElementDeclMixin
     val nt = typeName
     if (st.length == 1) {
       val factory = schemaSet.LocalSimpleTypeDefFactory(st(0), schemaDocument)
-      val lstd = factory.forElement(self)
+      val lstd = factory.forElement(this)
       Some(lstd)
     } else if (ct.length == 1)
-      Some(new LocalComplexTypeDef(ct(0), self))
+      Some(new LocalComplexTypeDef(ct(0), this))
     else {
       Assert.invariant(nt != "")
       None
@@ -164,6 +154,12 @@ trait ElementDeclMixin
     dv
   }
 
+  // shorthand
+  final lazy val primType = {
+    val res = typeDef.asInstanceOf[SimpleTypeBase].primType
+    res
+  }
+
   final lazy val hasDefaultValue: Boolean = {
     Assert.usage(isSimpleType)
     defaultAttr.isDefined
@@ -171,69 +167,17 @@ trait ElementDeclMixin
 
   final lazy val isNillable = (xml \ "@nillable").text == "true"
 
+  final def simpleType = typeDef match {
+    case st: SimpleTypeBase => st
+    case ct: ComplexTypeBase =>
+      Assert.invariantFailed("Must be simple type: " + namedQName)
+  }
+
+  final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
   /**
    * Convenience methods for unit testing purposes.
    */
   final def sequence = complexType.sequence
   final def choice = complexType.choice
-
-  /**
-   * We require that there be a concept of empty if we're going to be able to default something
-   * and we are going to require that we can tell this statically. I.e., we're not going to defer this to runtime
-   * just in case the delimiters are being determined at runtime.
-   *
-   * That is to say, if a delimiter is an expression, then we're assuming that means
-   * at runtime it will not evaluate to empty string (so you can specify the delimiter
-   * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
-   */
-  final lazy val isDefaultable: Boolean = LV('isDefaultable) {
-    if (isSimpleType) {
-      if (!isRepresented) false
-      else if (!hasDefaultValue) false
-      else {
-        if (!emptyIsAnObservableConcept)
-          SDW("Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
-        schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
-        if (isArray && !isRequiredArrayElement) {
-          (optMinOccurs, occursCountKind) match {
-            case (_, OccursCountKind.Parsed) |
-              (_, OccursCountKind.StopValue) =>
-              SDE("XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
-                defaultValueAsString, occursCountKind)
-            case (Some(0), _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
-              defaultValueAsString)
-            case _ => // ok
-          }
-        }
-        Assert.invariant(hasDefaultValue)
-        !isOptional &&
-          (isScalar ||
-            isRequiredArrayElement)
-      }
-    } else {
-      // TODO: Implement complex element defaulting
-      // JIRA issue DFDL-1277
-      //
-      // a complex element is defaultable
-      // recursively if everything in it is defaultable
-      // and everything in it has no required representation
-      // (e.g., no required delimiters, no alignment, no skip, etc.)
-      // furthermore, even the defaultable things inside must satisfy
-      // a stricter criterion. They must have emptyValueDelimiterPolicy='none'
-      // if delimiters are defined and they could be empty (which is implied if they are defaultable)
-      false
-    }
-  }.value
-
-  final override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
-  final override lazy val outputValueCalcOption = {
-    val optOVC = findPropertyOption("outputValueCalc")
-    self.schemaDefinitionWhen(optOVC.isDefined && self.isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
-    self.schemaDefinitionWhen(optOVC.isDefined && self.isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
-    // This should be an SDE, but is very useful for unit tests to be able to specify OVC on a single global element
-    // self.schemaDefinitionWhen(optOVC.isDefined && self.isInstanceOf[GlobalElementDecl], "dfdl:outputValueCalc cannot be defined on global elements.")
-
-    optOVC
-  }
 
 }

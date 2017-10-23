@@ -213,7 +213,7 @@ case class InfosetValueLengthUnknownException(lengthState: LengthState, override
 final class FakeDINode extends DISimple(null) {
   private def die = throw new InfosetNoInfosetException(Nope)
 
-  override def parent = die
+  override val parent = die
   override def diParent = die
   override def setParent(p: InfosetComplexElement): Unit = die
 

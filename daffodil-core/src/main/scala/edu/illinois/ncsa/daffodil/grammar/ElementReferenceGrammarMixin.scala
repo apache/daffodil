@@ -32,10 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.ElementRef
+import edu.illinois.ncsa.daffodil.dsom.AbstractElementRef
 
-trait ElementReferenceGrammarMixin { self: ElementRef =>
-
-  final override lazy val termContentBody = self.referencedElement.termContentBody
+trait ElementReferenceGrammarMixin { self: AbstractElementRef =>
 
 }

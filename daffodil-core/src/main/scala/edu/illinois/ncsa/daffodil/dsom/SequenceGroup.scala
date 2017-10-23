@@ -49,8 +49,11 @@ import edu.illinois.ncsa.daffodil.grammar.SequenceGrammarMixin
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.SequenceRuntimeData
 
-class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ModelGroup(xmlArg, parent, position)
+abstract class SequenceBase(
+  final override val xml: Node,
+  final override val parent: SchemaComponent,
+  final override val position: Int)
+  extends ModelGroup
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SequenceGrammarMixin
@@ -63,14 +66,6 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
 
-  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => Some(new DFDLSequence(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
-    }
-  }
-
-  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
@@ -93,7 +88,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
 
-  private lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
+  protected def apparentXMLChildren: Seq[Node]
 
   final def xmlChildren = LV('xmlChildren) {
     hiddenGroupRefOption match {
@@ -260,7 +255,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
     // Constructs a sequence of choice using newContent
     val newXML = {
-      xmlArg match {
+      xml match {
         case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, true, newContent: _*)
         case other => other
       }
@@ -294,6 +289,21 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       optIgnoreCase)
   }
 
+}
+
+class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends SequenceBase(xmlArg, parent, position) {
+
+  override lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = (xml \\ "sequence")(0)
+
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    node match {
+      case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => Some(new DFDLSequence(node, this))
+      case _ => annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+
+  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 }
 
 final class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)

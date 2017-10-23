@@ -115,8 +115,13 @@ trait RealTermMixin { self: Term =>
 
               val members = oSeq.groupMembersNoRefs
 
-              val nextMember =
-                members.dropWhile(m => m != thisTermNoRefs).filterNot(m => m == thisTermNoRefs).headOption
+              val ttnr = thisTermNoRefs
+              val selfAndAfter = members.dropWhile(m => m != ttnr)
+              val after = selfAndAfter.filterNot(_ == ttnr)
+              val nextMember = after.headOption
+              if (nextMember.isEmpty)
+                println("stop here")
+              // members.dropWhile(m => m != thisTermNoRefs).filterNot(m => m == thisTermNoRefs).headOption
 
               val nextMembers =
                 nextMember match {
@@ -154,13 +159,14 @@ trait RealTermMixin { self: Term =>
    * Returns list of Elements that could be the first child in the infoset of this model group or element.
    */
   final def possibleFirstChildElementsInInfoset: Seq[ElementBase] = LV('possibleFirstChildElementsInInfoset) {
-    val firstChildren = possibleFirstChildTerms.flatMap {
+    val pfct = possibleFirstChildTerms
+    val firstChildren = pfct.flatMap {
       case e: ElementBase if e.isHidden => Nil
       case e: ElementBase => Seq(e)
       case s: Sequence if s.isHidden || s.hiddenGroupRefOption.isDefined => Nil
       case mg: ModelGroup => mg.possibleFirstChildElementsInInfoset
     }
-    firstChildren
+    firstChildren.distinct
   }.value
 
   /*
@@ -186,6 +192,7 @@ trait RealTermMixin { self: Term =>
 
     val nextParentElts = nextParentElements
     val res = arrayNext ++ nextSiblingElements ++ nextParentElts
+    println(this + " possible next " + res)
     res
   }.value
 
@@ -198,18 +205,20 @@ trait RealTermMixin { self: Term =>
    * return any children of sibling Terms, or any siblings of the parent.
    */
   final def possibleNextSiblingTerms: Seq[Term] = LV('possibleNextSiblingTerms) {
-    val listOfNextTerm = enclosingTerm match {
+    val et = enclosingTerm
+    val listOfNextTerm = et match {
       case None => Nil // root element, has no siblings
       case Some(e: ElementBase) => Nil // complex element, cannot have another model group other than this one
-      case Some(c: Choice) => Nil // in choice, no other siblings could come after this one
-      case Some(s: Sequence) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
-      case Some(s: Sequence) => {
+      case Some(c: ChoiceBase) => Nil // in choice, no other siblings could come after this one
+      case Some(s: SequenceBase) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
+      case Some(s: SequenceBase) => {
         // in a sequence, the next term could be any later sibling that is not
         // or does not have a required element, up to and including the first
         // term that is/has a required element
         //        def isOutputValueCalc(term: Term) =
         //          term match { case eb: ElementBase if eb.isOutputValueCalc => true; case _ => false }
-        val allNextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
+        val selfAndAllNextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs)
+        val allNextSiblings = if (selfAndAllNextSiblings.length > 0) selfAndAllNextSiblings.tail else Nil
         val nextSiblings = allNextSiblings // .dropWhile(isOutputValueCalc(_))
         val (optional, firstRequiredAndLater) = nextSiblings.span {
           case e: ElementBase => e.canBeAbsentFromUnparseInfoset
@@ -218,6 +227,7 @@ trait RealTermMixin { self: Term =>
         optional ++ firstRequiredAndLater.take(1)
       }
     }
+    println(this + " enclosed by " + et + " next terms " + listOfNextTerm)
     listOfNextTerm
   }.value
 

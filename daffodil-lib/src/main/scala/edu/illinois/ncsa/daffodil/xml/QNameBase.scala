@@ -357,6 +357,8 @@ sealed trait NamedQName
     Assert.usage(!namespace.isNoNamespace)
     Assert.usage(!namespace.isUnspecified)
   }
+
+  def toRefQName = RefQName(prefix, local, namespace)
 }
 
 /**
@@ -516,7 +518,7 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     StepQName(prefix, local, namespace)
 
-    /* This is what needs Tunables and propagates into Expression */
+  /* This is what needs Tunables and propagates into Expression */
   override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding, tunable: DaffodilTunables) = {
     tunable.unqualifiedPathStepPolicy match {
       case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace

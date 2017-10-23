@@ -62,7 +62,7 @@ import edu.illinois.ncsa.daffodil.cookers.ChoiceBranchKeyCooker
 
 object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 
-case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
+case class DelimiterStackCombinatorSequence(sq: SequenceBase, body: Gram) extends Terminal(sq, !body.isEmpty) {
   lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorParseEv) else Nope
   lazy val pSep = if (sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorParseEv) else Nope
   lazy val pTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorParseEv) else Nope
@@ -76,7 +76,7 @@ case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Te
   override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, uSep, uTerm, sq.runtimeData, body.unparser)
 }
 
-case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Terminal(ch, !body.isEmpty) {
+case class DelimiterStackCombinatorChoice(ch: ChoiceBase, body: Gram) extends Terminal(ch, !body.isEmpty) {
   lazy val pInit = if (ch.initiatorParseEv.isKnownNonEmpty) One(ch.initiatorParseEv) else Nope
   lazy val pTerm = if (ch.terminatorParseEv.isKnownNonEmpty) One(ch.terminatorParseEv) else Nope
 
@@ -113,7 +113,7 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) exte
   override lazy val unparser: DaffodilUnparser = new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.runtimeData, body.unparser)
 }
 
-case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
+case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.elementDecl, !body.isEmpty) {
 
   override def isEmpty = body.isEmpty
 
@@ -123,7 +123,7 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
     new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
-case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
+case class SequenceCombinator(sq: SequenceBase, rawTerms: Seq[Gram])
   extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
 
   private val mt: Gram = EmptyGram
@@ -167,7 +167,7 @@ case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !b
  * need to determine which branch of the choice to take at runtime. This
  * unparser uses a Map to make the determination based on the element seen.
  */
-case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
+case class ChoiceCombinator(ch: ChoiceBase, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
   lazy val parser: DaffodilParser = {
     if (!ch.isDirectDispatch) {
       val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }

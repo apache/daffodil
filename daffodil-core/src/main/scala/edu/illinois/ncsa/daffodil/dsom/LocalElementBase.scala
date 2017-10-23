@@ -32,10 +32,8 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
-
-abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ElementBase(xmlArg, parent, position)
+trait LocalElementBase
+  extends ElementBase
   with LocalElementMixin {
 
   requiredEvaluations(checkForAlignmentAmbiguity)

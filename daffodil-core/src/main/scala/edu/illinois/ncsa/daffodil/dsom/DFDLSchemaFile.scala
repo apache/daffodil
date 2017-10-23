@@ -53,7 +53,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
   seenBeforeArg: IIMap)
-  extends SchemaComponent(<file/>, sset)
+  extends SchemaComponentImpl(<file/>, sset)
   with org.xml.sax.ErrorHandler {
 
   requiredEvaluations(isValid)

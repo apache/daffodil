@@ -270,7 +270,7 @@ case class InputValueCalc(e: ElementBase,
 //  }
 //}
 
-abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
+abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase)
   extends Terminal(decl, true) {
 
   lazy val eName = decl.diagnosticDebugName
@@ -286,22 +286,22 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
   override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }
 
-case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
-  extends AssertPatternPrimBase(decl, stmt) {
+case class AssertPatternPrim(term: Term, stmt: DFDLAssert)
+  extends AssertPatternPrimBase(term, stmt) {
 
   val kindString = "AssertPatternPrim"
 
   lazy val parser: DaffodilParser = {
-    new AssertPatternParser(eName, kindString, decl.term.termRuntimeData, testPattern, stmt.message)
+    new AssertPatternParser(eName, kindString, term.termRuntimeData, testPattern, stmt.message)
   }
 
 }
 
-case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
-  extends AssertPatternPrimBase(decl, stmt) {
+case class DiscriminatorPatternPrim(term: Term, stmt: DFDLAssertionBase)
+  extends AssertPatternPrimBase(term, stmt) {
 
   val kindString = "DiscriminatorPatternPrim"
 
-  lazy val parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.term.termRuntimeData, stmt.message)
+  lazy val parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, term.termRuntimeData, stmt.message)
 }
 

@@ -184,7 +184,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
   lazy val isLengthKindDelimited = {
-    decl.referredToComponent match {
+    this match {
       case mg: ModelGroup => mg.enclosingElement.get.lengthKind == LengthKind.Delimited
       case eb: ElementBase => eb.lengthKind == LengthKind.Delimited
     }

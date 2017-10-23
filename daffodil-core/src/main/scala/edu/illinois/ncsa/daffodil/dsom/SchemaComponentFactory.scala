@@ -1,7 +1,7 @@
 /* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
+ *               http://www.troverride val esys.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
@@ -33,29 +33,40 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import scala.xml.Node
 
 /**
  * Anything that can be computed without reference to the point of use
  * or point of reference can be computed here on these factory objects.
  */
-class SchemaComponentFactory(override val xml: scala.xml.Node,
-  override val schemaDocument: SchemaDocument)
-  extends OOLAGHost(schemaDocument)
-  with SchemaFileLocatableImpl
-  with CommonContextMixin
-  with GetAttributesMixin
-  with ImplementsThrowsSDE
+abstract class SchemaComponentFactory( final override val xml: Node,
+  final override val schemaDocument: SchemaDocument)
+  extends SchemaComponent
+  with NestingLexicalMixin {
+  //  extends OOLAGHost(schemaDocument)
+  //  with SchemaFileLocatableImpl
+  //  with CommonContextMixin
+  //  with GetAttributesMixin
+  //  with ImplementsThrowsSDE
+  //  with NestingLexicalMixin {
+
+  final override def parent = schemaDocument
+
+  //  final override def tunable = schemaDocument.tunable
+}
+
+abstract class AnnotatedSchemaComponentFactory( final override val xml: Node,
+  final override val schemaDocument: SchemaDocument)
+  extends AnnotatedSchemaComponent
   with NestingLexicalMixin {
 
-  override def parent = schemaDocument
-  
-  final override def tunable = schemaDocument.tunable
+  final override def parent = schemaDocument
+
 }
 
 trait SchemaFileLocatableImpl

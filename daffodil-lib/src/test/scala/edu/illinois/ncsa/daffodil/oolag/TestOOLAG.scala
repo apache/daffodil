@@ -49,7 +49,7 @@ class MyException(msg: String)
 }
 
 abstract class MyBase(parentArg: MyBase)
-  extends OOLAGHost(parentArg) {
+  extends OOLAGHostImpl(parentArg) {
 
   def a1 = a1_.value
   def a1_ = LV('a1) {

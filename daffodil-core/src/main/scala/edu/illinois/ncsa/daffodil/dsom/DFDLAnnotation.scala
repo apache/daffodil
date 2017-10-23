@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 
 /**
  * Base class for any DFDL annotation
@@ -56,30 +57,34 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
  * bit more tightly to the OOLAG library there.
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg)
-  with NestingLexicalMixin {
+  extends SchemaComponent
+  with NestingLexicalMixin
+  with FindPropertyMixin // only needed because unit tests look at properties on annotations
+  {
 
+  final override val xml = xmlArg
+  final override def parent = annotatedSCArg
   final override val context: AnnotatedSchemaComponent = annotatedSCArg
 
   // delegate to the annotated component.
   override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.findPropertyOption(pname)
+    val res = annotatedSC.resolver.findPropertyOption(pname)
     res
   }
 
   final lazy val annotatedSC = annotatedSCArg
 
-  override def toString = path
+  override def toString = diagnosticDebugName
 
   override lazy val diagnosticDebugName: String = {
     val cn = Misc.getNameFromClass(this)
     val n =
       if (cn.startsWith("DFDL")) {
         val nn = cn.replaceFirst("DFDL", "")
-        Misc.initialLowerCase(nn)
+        "dfdl:" + Misc.initialLowerCase(nn)
       } else {
         cn
       }
-    n
+    n + "(" + annotatedSC.path + ")"
   }
 }
