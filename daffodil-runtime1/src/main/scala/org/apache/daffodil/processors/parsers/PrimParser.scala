@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.PrimProcessor
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.PrimProcessor
+import org.apache.daffodil.processors.RuntimeData
 
 /**
  * A PrimParser is a parser that contains no child parsers.

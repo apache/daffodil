@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package org.apache.daffodil.xml.test.unit
 
 import junit.framework.Assert.assertEquals
 import org.junit.Test

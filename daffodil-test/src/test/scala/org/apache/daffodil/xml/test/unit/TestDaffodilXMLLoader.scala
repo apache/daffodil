@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package org.apache.daffodil.xml.test.unit
 
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.DaffodilXMLLoader
 import junit.framework.Assert._
 import org.junit.Test
 import java.io.File
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.URISchemaSource
 
 /**
  * This unit test cannot be in the regular daffodil-core library due

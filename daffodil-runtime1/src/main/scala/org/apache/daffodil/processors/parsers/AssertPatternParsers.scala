@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.processors._
+import org.apache.daffodil.util.LogLevel
 import java.util.regex.Matcher
-import edu.illinois.ncsa.daffodil.util.OnStack
+import org.apache.daffodil.util.OnStack
 
 abstract class AssertPatternParserBase(
   eName: String,

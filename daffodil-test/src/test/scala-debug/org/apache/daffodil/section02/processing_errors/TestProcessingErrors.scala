@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section02.processing_errors
+package org.apache.daffodil.section02.processing_errors
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestProcessingErrorsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
+  val testDir = "/org/apache/daffodil/section02/processing_errors/"
   val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
 

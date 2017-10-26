@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
@@ -40,46 +40,46 @@ import java.nio.charset.CharsetEncoder
 import scala.Left
 import scala.collection.mutable
 
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dpath.UnparserBlocking
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.equality.EqualitySuppressUnusedImportWarning
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.infoset.DIArray
-import edu.illinois.ncsa.daffodil.infoset.DIElement
-import edu.illinois.ncsa.daffodil.infoset.DINode
-import edu.illinois.ncsa.daffodil.infoset.InfosetElement
-import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
-import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.Suspension
-import edu.illinois.ncsa.daffodil.processors.UnparseResult
-import edu.illinois.ncsa.daffodil.processors.VariableBox
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.util.Cursor
-import edu.illinois.ncsa.daffodil.util.LocalStack
-import edu.illinois.ncsa.daffodil.util.MStackOf
-import edu.illinois.ncsa.daffodil.util.MStackOfLong
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.infoset.InfosetAccessor
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.dpath.UnparserBlocking
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.equality.EqualitySuppressUnusedImportWarning
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.infoset.DIArray
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.DINode
+import org.apache.daffodil.infoset.InfosetElement
+import org.apache.daffodil.io.CharBufferDataOutputStream
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.io.StringDataInputStreamForUnparse
+import org.apache.daffodil.processors.DataLoc
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.DelimiterStackUnparseNode
+import org.apache.daffodil.processors.EscapeSchemeUnparserHelper
+import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.processors.UnparseResult
+import org.apache.daffodil.processors.VariableBox
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.util.Cursor
+import org.apache.daffodil.util.LocalStack
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.MStackOfLong
+import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.infoset.InfosetAccessor
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.api.DaffodilTunables
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 

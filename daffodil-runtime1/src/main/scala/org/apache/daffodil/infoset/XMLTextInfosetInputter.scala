@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.dpath.NodeInfo
 
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamConstants._

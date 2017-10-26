@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.grammar._
+import org.apache.daffodil.grammar._
 
 /**
  * A global element decl uses LocalElementBase because it behaves like a local

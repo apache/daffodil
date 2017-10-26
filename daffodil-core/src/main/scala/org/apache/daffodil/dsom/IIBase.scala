@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.util.Misc
 import scala.xml.Node
 import scala.collection.immutable.ListMap
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.util._
 import IIUtils._
 import java.io.File
 import java.net.URI
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.Delay
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.Delay
 import java.net.URLEncoder
-import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.URISchemaSource
 import java.net.URISyntaxException
 
 /**
@@ -179,7 +179,17 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
     res
   }.value
 
-  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
+  final lazy val schemaLocationProperty = {
+    val prop = getAttributeOption("schemaLocation")
+    prop.map { text =>
+      if (text.contains("edu/illinois/ncsa/daffodil")) {
+        SDW("schemaLocation property uses deprecated edu/illinois/ncsa/daffodil path instead of org/apache/daffodil. Converting to new path.")
+        text.replace("edu/illinois/ncsa/daffodil", "org/apache/daffodil")
+      } else {
+        text
+      }
+    }
+  }
 
   protected final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) } catch { case ex: URISyntaxException => return false }

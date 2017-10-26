@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.TextJustificationType
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.parsers.PaddingRuntimeMixin
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.processors.DelimiterIterator
 
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,

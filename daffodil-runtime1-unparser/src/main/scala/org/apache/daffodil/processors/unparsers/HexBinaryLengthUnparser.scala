@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import edu.illinois.ncsa.daffodil.infoset.RetryableException
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.FillByteEv
+import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.exceptions.Assert
 
 abstract class HexBinaryUnparserBase(erd: ElementRuntimeData, fillByteEv: FillByteEv)
   extends PrimUnparserObject(erd) {

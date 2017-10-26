@@ -30,44 +30,44 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.compiler
+package org.apache.daffodil.compiler
 
 import java.io.File
 import java.io.FileInputStream
 import java.io.ObjectInputStream
 import java.nio.channels.Channels
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.oolag.OOLAG
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
-import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
-import edu.illinois.ncsa.daffodil.externalvars.Binding
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.oolag.OOLAG
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.xml._
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.UnitTestSchemaSource
+import org.apache.daffodil.externalvars.Binding
 import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
-import edu.illinois.ncsa.daffodil.util.CheckJavaVersion
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.processors.VariableMap
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.processors.SchemaSetRuntimeData
+import org.apache.daffodil.util.CheckJavaVersion
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.processors.VariableMap
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import java.io.StreamCorruptedException
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
-import edu.illinois.ncsa.daffodil.processors.Processor
-import edu.illinois.ncsa.daffodil.processors.parsers.NotParsableParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.processors.SerializableDataProcessor
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.processors.parsers.NotParsableParser
+import org.apache.daffodil.processors.unparsers.NotUnparsableUnparser
+import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
+import org.apache.daffodil.dsom.SchemaComponent
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying

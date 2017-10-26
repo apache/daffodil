@@ -43,7 +43,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://c04.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_04.dfdl.xsd"/>
+  <xs:import namespace="http://c04.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_04.dfdl.xsd"/>
 
   <xs:element name="bSeq">
     <xs:complexType>

@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 /**
  * Provides the classes necessary to compile DFDL schemas, parse and
@@ -56,7 +56,7 @@ package edu.illinois.ncsa.daffodil
  *
  * <h4>Parse</h4>
  *
- * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
+ * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
  * of a java.nio.channels.ReadableByteChannel and an [[infoset.InfosetOutputter]]
  * to determine the output representation of the infoset (e.g. Scala XML Nodes,
  * JDOM2 Documents, etc.):
@@ -67,7 +67,7 @@ package edu.illinois.ncsa.daffodil
  * val node = scalaOutputter.getResult
  * }}}
  *
- * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
+ * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
  * times without the need to create other data processors. However,
  * [[infoset.InfosetOutputter]]'s are not thread safe, requiring a unique instance per
  * thread. An [[infoset.InfosetOutputter]] should call [[infoset.InfosetOutputter#reset]] before

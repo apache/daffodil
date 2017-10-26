@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.dsom.ElementBase
 
 case class BCDIntPrim(e: ElementBase) extends UnimplementedPrimitive(e, false)

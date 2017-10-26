@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section31.escape_characters
+package org.apache.daffodil.section31.escape_characters
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestEscapes {
-  val testDir = "/edu/illinois/ncsa/daffodil/section31/escape_characters/"
+  val testDir = "/org/apache/daffodil/section31/escape_characters/"
   val runner = Runner(testDir, "Escapes.tdml")
 
   @AfterClass def shutDown() {

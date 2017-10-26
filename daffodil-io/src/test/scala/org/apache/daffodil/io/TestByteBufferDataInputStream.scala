@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
 import java.nio.ByteBuffer
 import passera.unsigned.ULong
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.Implicits._
 import java.nio.charset.MalformedInputException
 import java.util.regex.Pattern
 import java.nio.charset.StandardCharsets
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.MaybeULong
 
 class TestByteBufferDataInputStream {
   val tenDigits = "1234567890"

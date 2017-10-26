@@ -30,8 +30,8 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
-import edu.illinois.ncsa.daffodil.util.Enum
+package org.apache.daffodil.dsom
+import org.apache.daffodil.util.Enum
 import scala.util.matching.Regex
 
 object Facet extends Enum {

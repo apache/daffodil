@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.unparsers.ByteOrderChangeUnparser
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.parsers.ByteOrderChangeParser
-import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.unparsers.ByteOrderChangeUnparser
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.parsers.ByteOrderChangeParser
+import org.apache.daffodil.processors.CheckByteAndBitOrderEv
 
 case class ByteOrderChange(e: ElementBase) extends Terminal(e, true) {
 

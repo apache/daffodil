@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.schema.annotation.props.gen.TestKind
 import com.ibm.icu.impl.UnicodeRegex
 import java.util.regex.PatternSyntaxException
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.grammar.primitives.DiscriminatorPatternPrim
-import edu.illinois.ncsa.daffodil.grammar.primitives.DiscriminatorBooleanPrim
-import edu.illinois.ncsa.daffodil.grammar.primitives.AssertPatternPrim
-import edu.illinois.ncsa.daffodil.grammar.primitives.AssertBooleanPrim
+import org.apache.daffodil.grammar.primitives.DiscriminatorPatternPrim
+import org.apache.daffodil.grammar.primitives.DiscriminatorBooleanPrim
+import org.apache.daffodil.grammar.primitives.AssertPatternPrim
+import org.apache.daffodil.grammar.primitives.AssertBooleanPrim
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {

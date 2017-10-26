@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.processors.SimpleTypeRuntimeData
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.processors.SimpleTypeRuntimeData
+import org.apache.daffodil.util.Misc
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None

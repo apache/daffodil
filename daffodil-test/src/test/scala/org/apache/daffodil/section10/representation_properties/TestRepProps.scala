@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section10.representation_properties
+package org.apache.daffodil.section10.representation_properties
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestRepProps {
-  val testDir = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
+  val testDir = "/org/apache/daffodil/section10/representation_properties/"
   val runner = Runner(testDir, "RepProps.tdml")
 
   @AfterClass def shutDown {

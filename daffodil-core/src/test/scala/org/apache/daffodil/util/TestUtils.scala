@@ -30,30 +30,30 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import java.io.File
 import java.io.FileNotFoundException
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.compiler.Compiler
+import org.apache.daffodil.Implicits._; object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.compiler.Compiler
 import java.nio.channels.ReadableByteChannel
 import org.junit.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.grammar.primitives.VariableMapFactory
-import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.debugger._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.grammar.primitives.VariableMapFactory
+import org.apache.daffodil.api._
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.debugger._
 import java.nio.channels.Channels
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.InfosetInputter
 
 /*
  * This is not a file of tests.

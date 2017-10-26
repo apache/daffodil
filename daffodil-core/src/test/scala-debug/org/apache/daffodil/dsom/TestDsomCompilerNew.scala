@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.compiler._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util._
+import org.apache.daffodil.compiler._
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util._
 import scala.xml._
-import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.Implicits._; object INoWarn1 { ImplicitsSuppressUnusedImportWarning() }
 
 class TestExternalVariablesLoaderNew extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE

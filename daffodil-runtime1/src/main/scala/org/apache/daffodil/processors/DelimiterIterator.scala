@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.processors.parsers.DelimiterTextType
 import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.util.MStackOfInt
+import org.apache.daffodil.util.MStackOfInt
 
 trait LocalDelimiters { this: DelimiterIterator =>
   val delimiterIndexStack: MStackOfInt

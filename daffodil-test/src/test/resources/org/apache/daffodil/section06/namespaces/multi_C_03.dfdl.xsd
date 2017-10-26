@@ -41,7 +41,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://d03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_D_03.dfdl.xsd"/>
+  <xs:import namespace="http://d03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_D_03.dfdl.xsd"/>
 
   <xs:simpleType name="nestType" dfdl:textNumberPadCharacter=".">
     <xs:restriction base="d03:nestBase"/>

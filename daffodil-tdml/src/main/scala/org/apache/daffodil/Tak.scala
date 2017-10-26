@@ -31,9 +31,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 
 /**
  * Tak is about establishing a sort-of platform independent self-calibrating

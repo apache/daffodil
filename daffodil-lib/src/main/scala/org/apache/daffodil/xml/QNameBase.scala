@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import java.net.URI
 import java.net.URISyntaxException
@@ -38,10 +38,10 @@ import java.net.URISyntaxException
 import scala.language.reflectiveCalls
 import scala.util.Try
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.api.UnqualifiedPathStepPolicy
-import edu.illinois.ncsa.daffodil.equality.TypeEqual
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.equality.TypeEqual
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Please centralize QName handling here.

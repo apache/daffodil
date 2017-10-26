@@ -37,7 +37,7 @@
   suiteName="generalUnparserTests">
 
   <tdml:defineSchema name="fixedLengthStrings">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
     <dfdl:format ref="ex:daffodilTest1" textPadKind='padChar' />
     <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes"/>
     <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
@@ -55,7 +55,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="illegalChars">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
     <dfdl:format ref="ex:daffodilTest1"/>
 
     <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string"/>
@@ -383,7 +383,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="delimitedStrings">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
 
       <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
@@ -577,7 +577,7 @@
 
 
   <tdml:defineSchema name="alignmentPaddingOVC">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
 
       <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes"

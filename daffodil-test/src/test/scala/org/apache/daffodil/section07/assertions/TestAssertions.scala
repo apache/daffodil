@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.assertions
+package org.apache.daffodil.section07.assertions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestAssertions {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
+  val testDir = "/org/apache/daffodil/section07/assertions/"
   val runner = Runner(testDir, "assert.tdml", validateTDMLFile = false)
 
   @AfterClass def tearDown {

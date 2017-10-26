@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.simple_types
+package org.apache.daffodil.section05.simple_types
 
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestSimpleTypes2 {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val testDir = "/org/apache/daffodil/section05/simple_types/"
+  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
 
   val runnerAL = Runner(testDir, "AL.tdml")
   val runner2 = Runner(testDir, "WhiteSpace.tdml")

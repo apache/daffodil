@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.collection.immutable.ListMap
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.NoNamespace
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.schema.annotation.props.LookupLocation
 
 /**
  * Base class for annotations that carry format properties

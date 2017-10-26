@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package org.apache.daffodil.xml.test.unit
 
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.JDOMUtils
-import edu.illinois.ncsa.daffodil.xml.NS
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.JDOMUtils
+import org.apache.daffodil.xml.NS
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 class TestXMLUtils {
 

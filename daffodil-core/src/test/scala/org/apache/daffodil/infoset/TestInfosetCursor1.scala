@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits.intercept
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.processors.unparsers.UnparseError
 
 class TestInfosetInputter1 {
 

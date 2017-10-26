@@ -31,15 +31,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Enum
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType

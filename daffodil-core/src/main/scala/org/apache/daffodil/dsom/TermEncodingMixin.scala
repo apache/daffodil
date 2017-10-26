@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import org.apache.daffodil.processors.EncodingRuntimeData
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.processors.KnownEncodingMixin
+import org.apache.daffodil.io.NonByteSizeCharset
 
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 

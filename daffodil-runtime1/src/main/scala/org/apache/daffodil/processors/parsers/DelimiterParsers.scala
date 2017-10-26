@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
-import edu.illinois.ncsa.daffodil.processors.LocalTypedDelimiterIterator
-import edu.illinois.ncsa.daffodil.processors.RemoteTypedDelimiterIterator
-import edu.illinois.ncsa.daffodil.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.dfa.TextParser
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.util.Enum
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.DelimiterIterator
+import org.apache.daffodil.processors.LocalTypedDelimiterIterator
+import org.apache.daffodil.processors.RemoteTypedDelimiterIterator
+import org.apache.daffodil.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Misc
 import scala.collection.mutable.ArrayBuffer
 
 object DelimiterTextType extends Enum {

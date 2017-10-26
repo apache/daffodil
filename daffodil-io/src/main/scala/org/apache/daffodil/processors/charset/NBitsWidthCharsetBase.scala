@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
 import java.nio.CharBuffer
 import java.nio.charset.Charset
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.CharsetEncoder
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetDecoder
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.io.NonByteSizeCharset
+import org.apache.daffodil.io.NonByteSizeCharsetDecoder
+import org.apache.daffodil.io.NonByteSizeCharsetEncoder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.MaybeInt
 
 /**
  * Some encodings are not byte-oriented.

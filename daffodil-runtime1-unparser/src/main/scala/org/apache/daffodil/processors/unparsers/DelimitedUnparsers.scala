@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
-import edu.illinois.ncsa.daffodil.equality.ViewEqual
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
+import org.apache.daffodil.equality.ViewEqual
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.EscapeSchemeBlockUnparserHelper
+import org.apache.daffodil.processors.EscapeSchemeCharUnparserHelper
+import org.apache.daffodil.processors.EscapeSchemeUnparseEv
+import org.apache.daffodil.processors.dfa.CreateFieldDFA
+import org.apache.daffodil.processors.dfa.TextDelimitedUnparser
+import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
 
 sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],

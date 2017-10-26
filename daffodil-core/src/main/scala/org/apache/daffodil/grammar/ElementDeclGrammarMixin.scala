@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.grammar.primitives.UnicodeByteOrderMark
-import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import org.apache.daffodil.grammar.primitives.UnicodeByteOrderMark
+import org.apache.daffodil.dsom.GlobalElementDecl
 
 trait GlobalElementDeclGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root

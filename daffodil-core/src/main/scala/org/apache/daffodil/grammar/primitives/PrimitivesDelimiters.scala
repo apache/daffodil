@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.Implicits._;
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextParser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
-import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.Implicits._;
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.processors.dfa.TextParser
+import org.apache.daffodil.processors.parsers.DelimiterTextParser
+import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.unparsers.DelimiterTextUnparser
 
 object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 

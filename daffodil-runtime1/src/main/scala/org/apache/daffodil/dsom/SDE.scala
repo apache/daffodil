@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.CompileState
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.CompileState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.api.WarnID
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.CompileState
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.CompileState
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.WarnID
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],

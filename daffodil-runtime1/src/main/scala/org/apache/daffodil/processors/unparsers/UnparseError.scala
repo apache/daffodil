@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
-import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+package org.apache.daffodil.processors.unparsers
+import org.apache.daffodil.api._
+import org.apache.daffodil.processors._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.SchemaFileLocation
 
 class UnparseAlternativeFailed(rd: RuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
   extends UnparseError(One(rd.schemaFileLocation), One(loc), Maybe.Nope, Maybe("Alternative failed. Reason(s): %s"), errors)

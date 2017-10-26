@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import org.junit.Test
 import junit.framework.Assert._
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestBits2 {
 

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.discriminators
+package org.apache.daffodil.section07.discriminators
 
 /*import org.junit.Test */
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestDiscriminators2 {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
+  val testDir = "/org/apache/daffodil/section07/discriminators/"
   val runner2 = Runner(testDir, "discriminator2.tdml")
 
   @AfterClass def shutDown() {

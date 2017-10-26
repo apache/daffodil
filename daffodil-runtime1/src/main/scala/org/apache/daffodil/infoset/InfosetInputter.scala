@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ProcessingError
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
-import edu.illinois.ncsa.daffodil.util.Cursor
-import edu.illinois.ncsa.daffodil.util.Accessor
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.CursorImplMixin
-import edu.illinois.ncsa.daffodil.util.MStackOf
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ProcessingError
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.util.Cursor
+import org.apache.daffodil.util.Accessor
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.CursorImplMixin
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.api.DaffodilTunables
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
 

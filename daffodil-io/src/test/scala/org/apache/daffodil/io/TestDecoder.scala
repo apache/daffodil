@@ -33,7 +33,7 @@
 //
 // KEEP THIS FILE IN CASE WE HAVE TO GO BACK TO SUPPORTING JAVA 7
 //
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 //
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction

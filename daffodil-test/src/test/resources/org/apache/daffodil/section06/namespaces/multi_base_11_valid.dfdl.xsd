@@ -34,7 +34,7 @@
 <p1:schema xmlns:p1="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="ns2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ns3" xmlns:p2="ns2" xmlns:p8="http://a06.com" xmlns:p9="http://b06.com">
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <p3:annotation xmlns:p3="http://www.w3.org/2001/XMLSchema">
     <p4:appinfo source="http://www.ogf.org/dfdl/" xmlns:p4="http://www.w3.org/2001/XMLSchema">
@@ -46,8 +46,8 @@
     </p4:appinfo>
   </p3:annotation>
   
-  <p5:include xmlns:p5="http://www.w3.org/2001/XMLSchema" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_11_nons_valid.dfdl.xsd"/>
-  <p6:import xmlns:p6="http://www.w3.org/2001/XMLSchema" namespace="http://b06.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_06_valid.dfdl.xsd"/>
+  <p5:include xmlns:p5="http://www.w3.org/2001/XMLSchema" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_11_nons_valid.dfdl.xsd"/>
+  <p6:import xmlns:p6="http://www.w3.org/2001/XMLSchema" namespace="http://b06.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_06_valid.dfdl.xsd"/>
 
   <p7:element xmlns:p7="http://www.w3.org/2001/XMLSchema" name="root" type="p1:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
 

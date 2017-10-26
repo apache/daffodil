@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section16.array_optional_elem
+package org.apache.daffodil.section16.array_optional_elem
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestUnparseArrayFixedOptionalElemNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
+  val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
 
   val runner_fixed = Runner(testDir, "UnparseArrayFixedOptionalElem.tdml")
 

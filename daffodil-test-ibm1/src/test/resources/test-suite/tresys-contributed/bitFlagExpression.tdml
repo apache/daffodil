@@ -8,7 +8,7 @@
   xmlns:ex="http://example.com"
   xmlns="http://example.com" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="sch1">

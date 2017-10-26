@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.debugger
+package org.apache.daffodil.debugger
 
 class TraceDebuggerRunner extends InteractiveDebuggerRunner {
   val traceIter = Seq("display info parser",

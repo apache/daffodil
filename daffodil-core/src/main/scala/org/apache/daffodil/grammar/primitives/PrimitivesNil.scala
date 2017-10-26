@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralValueNilOfSpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralValueNilOfSpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.parsers.LiteralValueNilOfSpecifiedLengthParser
+import org.apache.daffodil.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
+import org.apache.daffodil.processors.unparsers.LiteralValueNilOfSpecifiedLengthUnparser
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.processors.unparsers.NadaUnparser
 
 case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
   extends Terminal(e, true)

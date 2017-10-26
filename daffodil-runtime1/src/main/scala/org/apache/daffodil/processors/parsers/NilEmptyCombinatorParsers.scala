@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.RuntimeData
 
 case class SimpleNilOrEmptyOrValueParser(ctxt: RuntimeData, nilParser: Parser, emptyParser: Parser, valueParser: Parser)
   extends AltCompParser(ctxt, Seq(nilParser, emptyParser, valueParser))

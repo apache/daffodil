@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.infoset.RetryableException
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.infoset.RetryableException
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't

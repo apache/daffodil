@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
-import edu.illinois.ncsa.daffodil.io.DataInputStream
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.DelimiterIterator
+import org.apache.daffodil.io.DataInputStream
 import scala.collection.mutable.ArrayBuffer
 
 class TextPaddingParser(val padChar: Char,

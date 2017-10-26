@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.util.Numbers
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.util.OnStack
+import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.util.OnStack
 import java.util.regex.Matcher
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.equality._
 import java.lang.{ Long => JLong }
 
 sealed abstract class SpecifiedLengthParserBase(eParser: Parser,

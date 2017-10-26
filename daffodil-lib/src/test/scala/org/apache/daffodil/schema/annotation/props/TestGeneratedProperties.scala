@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.schema.annotation.props
+package org.apache.daffodil.schema.annotation.props
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.schema.annotation.props.gen._
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.api.WarnID
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.

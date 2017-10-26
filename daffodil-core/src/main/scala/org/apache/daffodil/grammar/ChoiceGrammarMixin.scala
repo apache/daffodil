@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.Choice
-import edu.illinois.ncsa.daffodil.grammar.primitives.ChoiceCombinator
+import org.apache.daffodil.dsom.Choice
+import org.apache.daffodil.grammar.primitives.ChoiceCombinator
 
 trait ChoiceGrammarMixin extends GrammarMixin { self: Choice =>
 

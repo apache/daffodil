@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.schema.annotation.props
+package org.apache.daffodil.schema.annotation.props
 
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.ResolvesQNames
+import org.apache.daffodil.api.LocationInSchemaFile
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.ResolvesQNames
 
 /**
  * This file is classes and traits to implement

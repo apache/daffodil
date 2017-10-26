@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section15.choice_groups
+package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestUnparseChoice {
-  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val testDir = "/org/apache/daffodil/section15/choice_groups/"
   val runnerCH = Runner(testDir, "choice-unparse.tdml")
 
   @AfterClass def tearDown() {

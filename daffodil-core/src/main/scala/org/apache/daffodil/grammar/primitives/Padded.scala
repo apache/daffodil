@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.TextTruncationType
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextBooleanJustification
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextCalendarJustification
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberJustification
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.util.MaybeChar
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.processors.TextJustificationType
+import org.apache.daffodil.processors.TextTruncationType
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.schema.annotation.props.gen.TextBooleanJustification
+import org.apache.daffodil.schema.annotation.props.gen.TextCalendarJustification
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberJustification
+import org.apache.daffodil.schema.annotation.props.gen.TextPadKind
+import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification
+import org.apache.daffodil.schema.annotation.props.gen.TextTrimKind
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.util.MaybeChar
 
 trait PaddingInfoMixin {
   def eBase: ElementBase

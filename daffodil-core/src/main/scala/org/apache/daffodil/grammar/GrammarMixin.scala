@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+package org.apache.daffodil.grammar
+import org.apache.daffodil.compiler._
+import org.apache.daffodil.dsom.SchemaComponent
 
 trait GrammarMixin {
 

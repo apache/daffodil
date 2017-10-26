@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.QName
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.QName
 
 class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponentFactory(xmlArg, schemaDocumentArg)

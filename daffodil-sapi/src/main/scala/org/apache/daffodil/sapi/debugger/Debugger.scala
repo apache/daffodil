@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.debugger
+package org.apache.daffodil.sapi.debugger
 
 /**
  * Abstract debugger runner, which can be implemented to create a custom debugger runner
@@ -46,7 +46,7 @@ abstract class DebuggerRunner {
    * Called by Daffodil when there is a pause in parsing to determine what
    * debugger actions should be taken.
 
-   * @see <a target="_blank" href='https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Interactive+Debugger'>Daffodil Interactive Debugger</a> - debugger commands
+   * @see <a target="_blank" href='https://cwiki.apache.org/confluence/display/DAFFODIL/Interactive+Debugger'>Daffodil Interactive Debugger</a> - debugger commands
    *
    * @return a debugger command that tells the Daffodil debugger what step to
    *         take next.

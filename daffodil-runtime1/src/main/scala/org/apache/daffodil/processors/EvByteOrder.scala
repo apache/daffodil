@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.equality._
+import org.apache.daffodil.io.NonByteSizeCharset
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section15.choice_groups
+package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 object TestUnparseChoiceNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val testDir = "/org/apache/daffodil/section15/choice_groups/"
   val aa = testDir + "choice-unparse.tdml"
   var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

@@ -30,29 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.infoset.DIComplex
-import edu.illinois.ncsa.daffodil.infoset.DIElement
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
-import edu.illinois.ncsa.daffodil.processors.CharsetEv
-import edu.illinois.ncsa.daffodil.processors.LengthEv
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.util.MaybeJULong
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.FillByteEv
+import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.processors.charset.DFDLCharset
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.processors.SuspendableUnparser
+import org.apache.daffodil.processors.CharsetEv
+import org.apache.daffodil.processors.LengthEv
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.util.MaybeJULong
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import passera.unsigned.ULong
 
 import java.nio.charset.MalformedInputException

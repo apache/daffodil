@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 
 trait PropertyReferencedElementInfosMixin {
   protected final type F = ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
-import edu.illinois.ncsa.daffodil.grammar.primitives.InitiatedContent
-import edu.illinois.ncsa.daffodil.grammar.primitives.Terminator
-import edu.illinois.ncsa.daffodil.grammar.primitives.Initiator
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.grammar.GrammarMixin
+import org.apache.daffodil.grammar.primitives.InitiatedContent
+import org.apache.daffodil.grammar.primitives.Terminator
+import org.apache.daffodil.grammar.primitives.Initiator
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin

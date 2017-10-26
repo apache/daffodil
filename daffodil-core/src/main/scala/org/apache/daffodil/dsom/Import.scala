@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml._
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.util._
 import IIUtils._
 import java.net.URI
 

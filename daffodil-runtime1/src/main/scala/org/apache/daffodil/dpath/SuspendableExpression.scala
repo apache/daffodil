@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.Suspension
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.util.LogLevel
 
 trait SuspendableExpression
   extends Suspension {

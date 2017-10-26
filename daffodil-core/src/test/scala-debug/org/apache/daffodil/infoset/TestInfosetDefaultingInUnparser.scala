@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarnU1 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.xml._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.equality._; object ENoWarnU1 { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.xml._
 
 /*
  * These are all tests of default-value insertion.

@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
-import edu.illinois.ncsa.daffodil.grammar.primitives.AssertBase
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.grammar.primitives.AssertBase
 
 /**
  * The other kind of DFDL annotations are DFDL 'statements'.

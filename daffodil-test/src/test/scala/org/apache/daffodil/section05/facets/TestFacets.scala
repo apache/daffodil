@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.facets
+package org.apache.daffodil.section05.facets
 
 import org.junit.Test
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestFacets {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
+  val testDir = "/org/apache/daffodil/section05/facets/"
   val runner = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
 
   @AfterClass def tearDown() { runner.reset }

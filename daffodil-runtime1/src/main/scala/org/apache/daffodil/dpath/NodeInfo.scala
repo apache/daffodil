@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import scala.BigDecimal
 import scala.BigInt
-import edu.illinois.ncsa.daffodil.calendar._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.calendar._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Enum
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.xml.XMLUtils
 import java.lang.{
   Long => JLong,
   Double => JDouble,
@@ -51,7 +51,7 @@ import java.lang.{
   Byte => JByte,
   Boolean => JBoolean
 }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**

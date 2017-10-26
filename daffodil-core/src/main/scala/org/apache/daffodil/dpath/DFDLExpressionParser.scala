@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.dsom._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.dsom._
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml._
+import org.apache.daffodil.xml._
 import scala.util.parsing.input.CharSequenceReader
-import edu.illinois.ncsa.daffodil.oolag.ErrorsNotYetRecorded
+import org.apache.daffodil.oolag.ErrorsNotYetRecorded
 import scala.util.parsing.combinator.RegexParsers
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 

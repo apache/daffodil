@@ -14,10 +14,10 @@
     </p>
     <p>Here is some sample content. Anything XHTML works here.</p>
     <p>
-      DFDL has this <a href='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>bitOrder property</a>. Let's talk about that.
+      DFDL has this <a href='http://daffodil.apache.org/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>bitOrder property</a>. Let's talk about that.
       Here's a quote from the spec., something I expect many TDML tutorials to want to do so as to highlight specific phrasing or language.
       </p>
-      <blockquote cite='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>
+      <blockquote cite='http://daffodil.apache.org/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>
         The bits of a byte each have a place value or significance of 2
         <sup>n</sup>
         , for n from 0 to 7.
@@ -135,7 +135,7 @@
       example.</p>
   </tdml:tutorial>
   <tdml:defineSchema name="s">
-    <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
     <dfdl:format ref="ex:daffodilTest1"/>
     <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
   </tdml:defineSchema>

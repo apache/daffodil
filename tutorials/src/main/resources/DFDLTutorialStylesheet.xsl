@@ -154,7 +154,7 @@
             </h1>
             <p>
               For quick reference here is the
-              <a href="https://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/">DFDL Specification (HTML)</a>
+              <a href="https://daffodil.apache.org/projects/artifacts/DFDL/latest/documentation/Manual/">DFDL Specification (HTML)</a>
             </p>
             <hr/>
           </div>

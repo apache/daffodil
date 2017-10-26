@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.MStackOf
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.dpath.NodeInfo
 
 import org.jdom2.Document
 import org.jdom2.Element

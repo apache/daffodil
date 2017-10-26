@@ -41,7 +41,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://e03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_E_03.dfdl.xsd"/>
+  <xs:import namespace="http://e03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_E_03.dfdl.xsd"/>
   
   <xs:simpleType name="nestBase">
     <xs:restriction base="e03:subNestBase"/>

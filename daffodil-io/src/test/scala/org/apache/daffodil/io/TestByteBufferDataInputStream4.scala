@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 
 class TestByteBufferDataInputStream4 {
 

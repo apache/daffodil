@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import java.io.FileOutputStream
 import java.io.BufferedWriter
@@ -47,26 +47,26 @@ import java.nio.charset.StandardCharsets
 import java.net.URI
 import scala.xml.SAXParseException
 import org.rogach.scallop
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Timer
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.LogWriter
-import edu.illinois.ncsa.daffodil.util.LoggingDefaults
-import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
+import org.apache.daffodil.debugger.{ InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Timer
+import org.apache.daffodil.xml._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.LogWriter
+import org.apache.daffodil.util.LoggingDefaults
+import org.apache.daffodil.exceptions.NotYetImplementedException
 import java.io.File
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.api.ValidationMode
+import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.api.ValidationMode
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
-import edu.illinois.ncsa.daffodil.api.ValidationMode
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.configuration.ConfigurationLoader
+import org.apache.daffodil.api.ValidationMode
 import scala.language.reflectiveCalls
 import scala.concurrent.Future
 import java.util.concurrent.Executors
@@ -75,41 +75,41 @@ import scala.reflect.runtime.universe._
 import org.rogach.scallop.ScallopOption
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
-import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.compiler._
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.compiler.InvalidParserException
 import java.net.URI
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.tdml.TDMLException
-import edu.illinois.ncsa.daffodil.xml.RefQName
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.tdml.TDMLException
+import org.apache.daffodil.xml.RefQName
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.util.InvalidJavaVersionException
-import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.JsonInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.JsonInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.ScalaXMLInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.JDOMInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.W3CDOMInfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.HasSetDebugger
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.util.InvalidJavaVersionException
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.infoset.NullInfosetOutputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.infoset.JsonInfosetOutputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.infoset.JDOMInfosetOutputter
+import org.apache.daffodil.infoset.W3CDOMInfosetOutputter
+import org.apache.daffodil.infoset.XMLTextInfosetInputter
+import org.apache.daffodil.infoset.JsonInfosetInputter
+import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.infoset.JDOMInfosetInputter
+import org.apache.daffodil.infoset.W3CDOMInfosetInputter
+import org.apache.daffodil.infoset.InfosetInputter
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
-import edu.illinois.ncsa.daffodil.api.TunableLimitExceededError
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.TunableLimitExceededError
+import org.apache.daffodil.api.DaffodilTunables
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -1281,7 +1281,7 @@ object Main extends Logging {
                           |
                           | Please report this bug and help us fix it:
                           |
-                          |  https://opensource.ncsa.illinois.edu/confluence/display/DFDL/How+to+Report+a+Bug
+                          |  https://cwiki.apache.org/confluence/display/DAFFODIL/How+to+Report+a+Bug
                           |
                           | Please include the following exception, the command you
                           | ran, and any input, schema, or tdml files used that led
@@ -1305,8 +1305,7 @@ object Main extends Logging {
                           | You can create a bug and track the progress of this
                           | feature at:
                           |
-                          |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
-                          |
+                          |  https://issues.apache.org/jira/projects/DAFFODIL
                           |""".format(e.getMessage()).stripMargin)
     1
   }

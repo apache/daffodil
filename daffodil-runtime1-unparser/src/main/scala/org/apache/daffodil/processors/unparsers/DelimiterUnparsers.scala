@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
 
 class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextType.Type)
   extends PrimUnparserObject(erd) with TextUnparserRuntimeMixin {

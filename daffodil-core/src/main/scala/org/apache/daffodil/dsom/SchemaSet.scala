@@ -30,29 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.compiler.RootSpec
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.oolag.OOLAG
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.grammar.primitives.VariableMapFactory
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.compiler.RootSpec
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml._
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.oolag.OOLAG
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.grammar.primitives.VariableMapFactory
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.dpath.NodeInfo
 import java.io.File
-import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
-import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
-import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.util.Memoize1
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.xml.DFDLCatalogResolver
+import org.apache.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.api.UnitTestSchemaSource
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.Memoize1
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has

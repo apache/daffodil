@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
-import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
+import org.apache.daffodil.processors.CheckEncodingEv
 
 class EncodingChangeUnparser(val context: TermRuntimeData, checkBitOrderAndCharset: CheckBitOrderAndCharsetEv, checkEncoding: CheckEncodingEv)
   extends PrimUnparser with TextUnparserRuntimeMixin {

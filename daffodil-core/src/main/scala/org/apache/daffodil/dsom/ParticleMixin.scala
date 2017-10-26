@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.equality._
 
 trait RequiredOptionalMixin { self: ElementBase =>
 

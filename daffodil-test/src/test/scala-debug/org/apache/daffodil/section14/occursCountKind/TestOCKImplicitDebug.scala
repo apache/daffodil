@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.occursCountKind
+package org.apache.daffodil.section14.occursCountKind
 
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestOCKImplicitDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
+  val testDir = "/org/apache/daffodil/section14/occursCountKind/"
   val runner = Runner(testDir, "ockImplicit.tdml")
 
   @AfterClass def shutDown {

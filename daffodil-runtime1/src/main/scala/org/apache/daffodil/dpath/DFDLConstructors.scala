@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Numbers._
+import org.apache.daffodil.util.Numbers._
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 

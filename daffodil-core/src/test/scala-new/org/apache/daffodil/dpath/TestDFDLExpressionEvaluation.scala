@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.compiler._
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.util.TestUtils
-import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
-import edu.illinois.ncsa.daffodil.infoset.DIDocument
-import edu.illinois.ncsa.daffodil.infoset.NullInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.TestInfoset
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.util.TestUtils
+import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.infoset.DIDocument
+import org.apache.daffodil.infoset.NullInfosetOutputter
+import org.apache.daffodil.infoset.TestInfoset
 
 class TestDFDLExpressionEvaluation extends Parsers {
 

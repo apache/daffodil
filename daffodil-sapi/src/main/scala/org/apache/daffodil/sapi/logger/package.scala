@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi
+package org.apache.daffodil.sapi
 
 /**
  * Provides the classes necessary to recieve logging messages from Daffodil.

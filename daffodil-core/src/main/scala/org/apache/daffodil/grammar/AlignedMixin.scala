@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.ModelGroup
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.util.Math
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.ModelGroup
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Math
+import org.apache.daffodil.io.NonByteSizeCharset
 
 
 

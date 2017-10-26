@@ -1,6 +1,6 @@
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.util.Enum
+import org.apache.daffodil.util.Enum
 
   /**
    * Specified how unqualified path steps are resolved.

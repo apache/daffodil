@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.sequence_groups
+package org.apache.daffodil.section14.sequence_groups
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.tdml.DFDLTestSuite
 import org.junit.AfterClass
 
 object TestSequenceGroupUnparse {
-  val testDir = "edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+  val testDir = "org/apache/daffodil/section14/sequence_groups/"
   val aa = testDir + "SequenceGroupUnparse.tdml"
   val res = Misc.getRequiredResource(aa)
   var runner = new DFDLTestSuite(res)

@@ -186,7 +186,7 @@ object DaffodilBuild extends Build {
   )
 
   def runPropertyGenerator(outdir: File, cp: Seq[File], log: Logger): Set[File] = {
-    val mainClass = "edu.illinois.ncsa.daffodil.propGen.PropertyGenerator"
+    val mainClass = "org.apache.daffodil.propGen.PropertyGenerator"
     val out = new java.io.ByteArrayOutputStream()
     val forkOpts = new ForkOptions(None, Some(CustomOutput(out)), cp, None, Nil, false)
     val ret = new Fork("java", Some(mainClass)).fork(forkOpts, Seq(outdir.toString)).exitValue()
@@ -223,7 +223,7 @@ object DaffodilBuild extends Build {
   def copyResources(outdir: File, inRSrc: Set[File], log: Logger): Set[File] = {
     val dfdlSchemas = inRSrc.filter { f => f.isFile }
     val managed_resources = dfdlSchemas.map { in =>
-      val out = outdir / "edu" / "illinois" / "ncsa" / "daffodil" / "xsd" / in.getName
+      val out = outdir / "org" / "apache" / "daffodil" / "xsd" / in.getName
       IO.copyFile(in, out)
       log.info("Generated %s".format(out))
       out

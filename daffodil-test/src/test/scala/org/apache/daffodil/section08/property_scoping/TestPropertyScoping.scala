@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section08.property_scoping
+package org.apache.daffodil.section08.property_scoping
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestPropertyScoping {
-  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
+  val testDir = "/org/apache/daffodil/section08/property_scoping/"
   val runner = Runner(testDir, "PropertyScoping.tdml")
   val runner_01 = Runner(testDir, "PropertyScoping_01.tdml")
 

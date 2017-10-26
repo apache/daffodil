@@ -34,7 +34,7 @@
 <shi:schema xmlns:shi="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="shi:shi" xmlns:shishi="shi:shi" xmlns:shishishi="shi:shi:shi">
   
-  <shi:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <shi:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <shi:annotation>
     <shi:appinfo source="http://www.ogf.org/dfdl/">
@@ -43,8 +43,8 @@
     </shi:appinfo>
   </shi:annotation>
 
-  <shi:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/shi"/>
-  <shi:import namespace="shi:shi:shi" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_shi.dfdl.xsd"/>
+  <shi:include schemaLocation="org/apache/daffodil/section06/namespaces/shi"/>
+  <shi:import namespace="shi:shi:shi" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_shi.dfdl.xsd"/>
 
   <shi:element name="shishishi2">
     <shi:complexType>

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
-import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
-import edu.illinois.ncsa.daffodil.xml.HasRefMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
+import org.apache.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
+import org.apache.daffodil.grammar.GroupRefGrammarMixin
+import org.apache.daffodil.xml.HasRefMixin
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 
 /**
  * A GroupRef (group reference) is a term, but most everything is delgated to the

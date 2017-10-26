@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.RuntimeData
 
 /**
  * Parent class of all DFA text parsers.

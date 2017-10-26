@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.dsom.ComplexTypeBase
-import edu.illinois.ncsa.daffodil.dsom.GroupRef
-import edu.illinois.ncsa.daffodil.grammar.primitives.ComplexTypeCombinator
+package org.apache.daffodil.grammar
+import org.apache.daffodil.dsom.ComplexTypeBase
+import org.apache.daffodil.dsom.GroupRef
+import org.apache.daffodil.grammar.primitives.ComplexTypeCombinator
 
 trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
 

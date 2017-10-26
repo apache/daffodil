@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.grammar.primitives.Nada
+import org.apache.daffodil.dsom.SchemaComponent
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.compiler.ParserOrUnparser
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.compiler.BothParserAndUnparser
 
 trait HasNoUnparser {
   final lazy val unparser: Unparser = hasNoUnparser

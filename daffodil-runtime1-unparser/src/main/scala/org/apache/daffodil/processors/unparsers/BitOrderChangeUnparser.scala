@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
-import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
-import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
+import org.apache.daffodil.processors.CheckByteAndBitOrderEv
+import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.SuspendableUnparser
 
 class BitOrderChangeUnparserSuspendableOperation(
   override val rd: TermRuntimeData,

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-import edu.illinois.ncsa.daffodil.cookers.Converter
+import org.apache.daffodil.cookers.Converter
 
 
 object LocaleConverter extends Converter[String, ULocale] {

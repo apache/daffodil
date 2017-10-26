@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section02.schema_definition_errors
+package org.apache.daffodil.section02.schema_definition_errors
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestSDE {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
+  val testDir = "/org/apache/daffodil/section02/schema_definition_errors/"
   val runner = Runner(testDir, "SchemaDefinitionErrors.tdml")
 
   @AfterClass def tearDown() {

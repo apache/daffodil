@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package org.apache.daffodil.xml.test.unit
 
 import org.junit.Test
 import org.junit.Assert._
@@ -70,7 +70,7 @@ class TestXMLPrettyPrinter {
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
     //
-    import edu.illinois.ncsa._
+    import org.apache._
     val pcdata = scala.xml.PCData("a\nb")
     val fragment = <x>{ pcdata }</x>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
@@ -85,7 +85,7 @@ class TestXMLPrettyPrinter {
 
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_text() {
 
-    import edu.illinois.ncsa._
+    import org.apache._
     val str = """aaaaa
 bbbbb"""
     val fragment = <xxxxx><yyyyy><zzzzz>{ str }</zzzzz></yyyyy></xxxxx>
@@ -104,7 +104,7 @@ bbbbb</zzzzz>
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
     //
-    import edu.illinois.ncsa._
+    import org.apache._
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata }</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
@@ -126,7 +126,7 @@ bbbbb ]]></zzzzz>
     // because we know scala's XML literals don't preserve CDATA as PCData nodes
     // we force it to have a PCData node by constructing one explicitly here.
 
-    import edu.illinois.ncsa._
+    import org.apache._
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata } xyzzy { pcdata }</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
@@ -164,7 +164,7 @@ bbbbb ]]></zzzzz>
 
   @Test def test_daffodil_pretty_printer_preserves_simple_values1() {
 
-    import edu.illinois.ncsa._
+    import org.apache._
     val fragment = <xxxxx><yyyyy><zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
@@ -178,7 +178,7 @@ bbbbb ]]></zzzzz>
 
   @Test def test_daffodil_pretty_printer_removes_redundant_xmlns_bindings() {
 
-    import edu.illinois.ncsa._
+    import org.apache._
     val fragment = <xxxxx xmlns="foobar"><yyyyy><zzzzz xmlns="foobar">aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
@@ -193,7 +193,7 @@ bbbbb ]]></zzzzz>
 
   @Test def test_daffodil_pretty_printer_newlines_and_indents1() {
 
-    import edu.illinois.ncsa._
+    import org.apache._
     val fragment = <tns:row2 xmlns:tns="http://example.com"><cell>-9</cell><cell>-2</cell><cell>-8</cell></tns:row2>
     val pp = new daffodil.xml.scalaLib.PrettyPrinter(2)
     val xmlString = pp.format(fragment)

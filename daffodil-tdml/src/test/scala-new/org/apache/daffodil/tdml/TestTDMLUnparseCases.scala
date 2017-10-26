@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 class TestTDMLUnparseCases {
 
@@ -50,7 +50,7 @@ class TestTDMLUnparseCases {
 
     val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+                        <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
                         <dfdl:format ref="ex:daffodilTest1"/>
                         <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
                       </ts:defineSchema>

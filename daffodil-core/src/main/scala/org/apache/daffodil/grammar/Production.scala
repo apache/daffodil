@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.NadaParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
-import edu.illinois.ncsa.daffodil.compiler.ForUnparser
-import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.dsom.SchemaComponent
+import org.apache.daffodil.compiler.ParserOrUnparser
+import org.apache.daffodil.processors.parsers.NadaParser
+import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.compiler.ForUnparser
+import org.apache.daffodil.compiler.ForParser
+import org.apache.daffodil.util.LogLevel
 
 /**
  * Prod or Grammar Production

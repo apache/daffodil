@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.compiler
+package org.apache.daffodil.compiler
 
-import edu.illinois.ncsa.daffodil.xml.NS
+import org.apache.daffodil.xml.NS
 
 /**
  * Contains a specification of the root element to be used.

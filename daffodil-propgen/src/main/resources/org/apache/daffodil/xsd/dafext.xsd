@@ -2,16 +2,16 @@
 <!--
 	 TODO: Tresys Copyright
 -->
-<xsd:schema targetNamespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+<xsd:schema targetNamespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-  xmlns:dafint="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
+  xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int xsd/dafint.xsd">
+  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int xsd/dafint.xsd">
 
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int"/>
 
   <xsd:attribute name="parseUnparsePolicy" type="daf:ParseUnparsePolicyEnum"/>
 

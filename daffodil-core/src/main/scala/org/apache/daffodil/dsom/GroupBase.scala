@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.schema.annotation.props.AlignmentType
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import java.lang.{ Integer => JInt }
 
 abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)

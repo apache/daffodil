@@ -6,15 +6,15 @@
   xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" 
   elementFormDefault="unqualified"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
-  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ edu/illinois/ncsa/daffodil/xsd/DFDL_part3_model.xsd
+  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ org/apache/daffodil/xsd/DFDL_part3_model.xsd
   http://www.w3.org/2001/XMLSchema XMLSchema_for_DFDL.xsd
-  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext edu/illinois/ncsa/daffodil/xsd/dafext.xsd">
+  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext org/apache/daffodil/xsd/dafext.xsd">
 
   <xsd:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="XMLSchema_for_DFDL.xsd"/>
-  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" schemaLocation="edu/illinois/ncsa/daffodil/xsd/dafext.xsd"/>
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="edu/illinois/ncsa/daffodil/xsd/DFDL_part3_model.xsd"/>
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd"/>
+  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/" schemaLocation="org/apache/daffodil/xsd/DFDL_part3_model.xsd"/>
 
   <xs:attribute name="tutorialInclude" type="xs:string" fixed="no"/>
   

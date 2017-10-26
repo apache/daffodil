@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.util.Bits
+import org.apache.daffodil.util.Bits
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.Maybe
 
 /**
  * By "non byte sized" we mean some number of bits less than 8.

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.util.Misc
 
 class TestDumpDisplay {
   val dfdl = XMLUtils.DFDL_NAMESPACE

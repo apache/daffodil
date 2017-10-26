@@ -30,40 +30,40 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.debugger
+package org.apache.daffodil.debugger
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.parsers._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.ExecutionMode
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.processors._ ; import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.parsers._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.ExecutionMode
 import java.io.File
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
-import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerClass
-import edu.illinois.ncsa.daffodil.dpath.DPathUtil
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.oolag.ErrorsNotYetRecorded
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.util.Enum
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.dsom.ExpressionCompilerClass
+import org.apache.daffodil.dpath.DPathUtil
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.ExpressionEvaluationException
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.oolag.ErrorsNotYetRecorded
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.dsom.RelativePathPastRootError
+import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.infoset.InfosetItem
-import edu.illinois.ncsa.daffodil.infoset.InfosetElement
-import edu.illinois.ncsa.daffodil.infoset.InfosetDocument
-import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.infoset.InfosetItem
+import org.apache.daffodil.infoset.InfosetElement
+import org.apache.daffodil.infoset.InfosetDocument
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit

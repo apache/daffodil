@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.lang.{ Boolean => JBoolean }
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextBooleanTrueRepEv
-import edu.illinois.ncsa.daffodil.processors.TextBooleanFalseRepEv
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.TextBooleanTrueRepEv
+import org.apache.daffodil.processors.TextBooleanFalseRepEv
 
 case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,

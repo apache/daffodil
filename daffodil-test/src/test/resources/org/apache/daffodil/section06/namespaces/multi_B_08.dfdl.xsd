@@ -34,7 +34,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://b08.com" xmlns:b08="http://b08.com" xmlns:c08="http://c08.com">
       
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -45,7 +45,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://c08.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_08.dfdl.xsd"/>
+  <xs:import namespace="http://c08.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_08.dfdl.xsd"/>
 
   <xs:element name="bElem" type="c08:cString">
     <xs:annotation>

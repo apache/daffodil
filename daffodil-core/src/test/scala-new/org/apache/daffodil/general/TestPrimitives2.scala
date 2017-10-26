@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.general
+package org.apache.daffodil.general
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.TestUtils
 
 class TestPrimitives2 {
 

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.schema.annotation.props
+package org.apache.daffodil.schema.annotation.props
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.ThrowsSDE
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.util.Fakes
-import edu.illinois.ncsa.daffodil.dsom.NestingLexicalMixin
+import org.apache.daffodil.dsom.SchemaComponent
+import org.apache.daffodil.util.Fakes
+import org.apache.daffodil.dsom.NestingLexicalMixin
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType] // with ThrowsSDE

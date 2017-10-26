@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.oolag
+package org.apache.daffodil.oolag
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.oolag.OOLAG._
+import org.apache.daffodil.oolag.OOLAG._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.Abort
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 
 class MyException(msg: String)
   extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {

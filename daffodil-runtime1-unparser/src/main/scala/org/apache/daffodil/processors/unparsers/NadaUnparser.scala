@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.RuntimeData
 
 class NadaUnparser(override val context: RuntimeData)
   extends PrimUnparser {

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.SchemaFileLocatable
+import org.apache.daffodil.xml.GetAttributesMixin
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.exceptions.ThrowsSDE
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 
 /**
  * Anything that can be computed without reference to the point of use

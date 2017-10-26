@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.saving
+package org.apache.daffodil.saving
 
 import junit.framework.Assert._
 import org.junit.Test
 import org.junit.Before
 import org.junit.After
 import scala.sys.process._
-import edu.illinois.ncsa.daffodil.CLI.Util
+import org.apache.daffodil.CLI.Util
 import java.io.File
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
@@ -60,7 +60,7 @@ class TestCLISaveParser {
   }
 
   @Test def test_3017_CLI_Saving_SaveParser_simple() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 
@@ -82,7 +82,7 @@ class TestCLISaveParser {
     val shell = Util.startIncludeErrors("")
     val savedParser = "external_variables.dfdl.xsd.bin"
     val parserFile = new File(savedParser)
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val saveCmd = String.format("%s -v save-parser -s %s > %s\n",
       Util.binPath,
       (if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile),
@@ -109,8 +109,8 @@ class TestCLISaveParser {
 
   @Test def test_3019_CLI_Saving_SaveParser_withConfig() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
     val (testSchemaFile, testConfigFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile)) else (schemaFile, configFile)
 
     val shell = Util.start("")
@@ -130,8 +130,8 @@ class TestCLISaveParser {
 
   @Test def test_3020_CLI_Saving_SaveParser_namespaceUsed() {
 
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input8.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.start("")
@@ -152,7 +152,7 @@ class TestCLISaveParser {
 
   @Test def test_3021_CLI_Saving_SaveParser_path() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 
@@ -171,8 +171,8 @@ class TestCLISaveParser {
 
   @Test def test_3022_CLI_Saving_SaveParser_MultSchema() {
 
-    val schemaFile1 = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd")
-    val schemaFile2 = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd")
+    val schemaFile1 = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd")
+    val schemaFile2 = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
     val (testSchemaFile1, testSchemaFile2) = if (Util.isWindows) (Util.cmdConvert(schemaFile1), Util.cmdConvert(schemaFile2)) else (schemaFile1, schemaFile2)
     val shell = Util.start("", true)
 
@@ -191,7 +191,7 @@ class TestCLISaveParser {
 
   @Test def test_3023_CLI_Saving_SaveParser_verboseMode() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
 
@@ -218,7 +218,7 @@ class TestCLISaveParser {
   // See DFDL-1016
   /*@Test def test_3038_CLI_Saving_SaveParser_namespaceNoRoot() {
 
-    val cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {http://www.example.org/example1/} savedParser.xml\n"
+    val cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {http://www.example.org/example1/} savedParser.xml\n"
     val shell = Util.start(cmd, true)
 
     // Error message needs to be updated with actual message
@@ -231,7 +231,7 @@ class TestCLISaveParser {
 
   @Test def test_3039_CLI_Saving_SaveParser_emptyNamespace() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.startNoConvert("")
 
@@ -252,8 +252,8 @@ class TestCLISaveParser {
 
   @Test def test_DFDL_1205_CLI_FullValidation_SavedParser_Incompatible() {
 
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input8.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
     val shell = Util.start("", true)
 
@@ -281,7 +281,7 @@ class TestCLISaveParser {
 
   @Test def test_3508_CLI_Saving_SaveParser_extVars() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
 
     val savedParser = "test_3508.xsd.bin"
@@ -313,7 +313,7 @@ class TestCLISaveParser {
   // See DFDL-1147
   /*@Test def test_3063_CLI_Saving_SaveParser_validate() {
 
-    val cmd = Util.binPath + " save-parser --validate on -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    val cmd = Util.binPath + " save-parser --validate on -s daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
 
     var cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
@@ -321,7 +321,7 @@ class TestCLISaveParser {
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
     shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
-    cmd = Util.binPath + " save-parser --validate -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    cmd = Util.binPath + " save-parser --validate -s daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
 
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
@@ -329,14 +329,14 @@ class TestCLISaveParser {
     shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
     shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
-    cmd = Util.binPath + " save-parser --validate limited -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    cmd = Util.binPath + " save-parser --validate limited -s daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
 
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
     shell.send(cmd2)
     shell.expect(contains("[warning] Validation Error: validation_check failed"))
 
-    cmd = Util.binPath + " save-parser --validate off -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    cmd = Util.binPath + " save-parser --validate off -s daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
     shell.send(cmd)
 
     cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
@@ -350,10 +350,10 @@ class TestCLISaveParser {
   // See DFDL-1141
   /*@Test def test_3036_CLI_Saving_SaveParser_debug() {
 
-    val cmd = Util.binPath + " -d save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
+    val cmd = Util.binPath + " -d save-parser -s daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     val shell = Util.start(cmd)
 
-    val cmd2 = Util.binPath + " parse --parser savedParser.xml daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
+    val cmd2 = Util.binPath + " parse --parser savedParser.xml daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input1.txt\n"
     shell.send(cmd2)
     shell.expect(contains("(debug)"))
     shell.send("continue\n")
@@ -366,7 +366,7 @@ class TestCLISaveParser {
 
   @Test def test_3037_CLI_Saving_SaveParser_trace() {
 
-    val cmd = Util.binPath + " -t save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd savedParser.xml\n"
+    val cmd = Util.binPath + " -t save-parser -s daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd savedParser.xml\n"
     val shell = Util.start(cmd)
 
     val cmd2 = "echo test| " + Util.binPath + " parse --parser savedParser.xml\n"
@@ -380,8 +380,8 @@ class TestCLISaveParser {
 
   /* // See DFDL-1342
   @Test def test_3572_CLI_Saving_SaveParser_unparse() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/output/output1.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/output/output1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
     val shell = Util.start("")
 
@@ -401,8 +401,8 @@ class TestCLISaveParser {
 
   @Test def test_3573_CLI_Saving_SaveParser_unparse2() {
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input12.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.start("")
@@ -423,8 +423,8 @@ class TestCLISaveParser {
   }
 
   @Test def test_3941_CLI_Saving_SaveParser_tunables() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input12.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.start("", true)

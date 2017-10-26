@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.unparsers.EncodingChangeUnparser
-import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
-import edu.illinois.ncsa.daffodil.processors.parsers.EncodingChangeParser
-import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.unparsers.EncodingChangeUnparser
+import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
+import org.apache.daffodil.processors.parsers.EncodingChangeParser
+import org.apache.daffodil.processors.CheckEncodingEv
 
 case class EncodingChange(t: Term) extends Terminal(t, true) {
 

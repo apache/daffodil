@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.exceptions._
 import java.io.FileNotFoundException
 import junit.framework.Assert._
 

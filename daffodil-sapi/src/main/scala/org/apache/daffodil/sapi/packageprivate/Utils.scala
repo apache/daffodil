@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.packageprivate
+package org.apache.daffodil.sapi.packageprivate
 // The compiler plugin that converts Scala code to Java code for Javadoc
 // generation has no concept of package private. So if there is anything that
 // should be package private and thus not part of the public API (e.g.
@@ -39,14 +39,14 @@ package edu.illinois.ncsa.daffodil.sapi.packageprivate
 // anything in the sapi.packageprivate package. So anything that should be package
 // private should go in this package.
 
-import edu.illinois.ncsa.daffodil.sapi._
-import edu.illinois.ncsa.daffodil.sapi.logger._
-import edu.illinois.ncsa.daffodil.sapi.debugger._
-import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
-import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
-import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
+import org.apache.daffodil.sapi._
+import org.apache.daffodil.sapi.logger._
+import org.apache.daffodil.sapi.debugger._
+import org.apache.daffodil.api.{ ValidationMode => SValidationMode }
+import org.apache.daffodil.util.{ LogLevel => SLogLevel }
+import org.apache.daffodil.util.{ LogWriter => SLogWriter }
+import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 
 private[sapi] object LoggingConversions {
 

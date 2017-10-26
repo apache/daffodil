@@ -30,26 +30,26 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
+package org.apache.daffodil.section23.dfdl_expressions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestDFDLExpressions2 {
 
-  val testDir = "edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val testDir = "org/apache/daffodil/section23/dfdl_expressions/"
   val runner = Runner(testDir, "expressions.tdml")
 
-  val testDir3 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
+  val testDir3 = "/org/apache/daffodil/section23/runtime_properties/"
   val runner3 = Runner(testDir3, "runtime-properties.tdml")
 
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val testDir2 = "/org/apache/daffodil/section23/dfdl_functions/"
   val runner2 = Runner(testDir2, "Functions.tdml")
 
   val runner_fun = Runner(testDir, "functions.tdml")
 
-  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val testDir4 = "/org/apache/daffodil/section23/dfdl_expressions/"
   val runner4 = Runner(testDir4, "expressions.tdml")
 
   val runner5 = Runner(testDir4, "expressions2.tdml")

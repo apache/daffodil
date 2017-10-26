@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example;
+package org.apache.daffodil.example;
 
-import edu.illinois.ncsa.daffodil.japi.debugger.*;
+import org.apache.daffodil.japi.debugger.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;

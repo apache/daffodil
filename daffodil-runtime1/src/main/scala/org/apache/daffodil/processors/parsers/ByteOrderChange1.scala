@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.BinaryParserUnparserRuntimeMixin
-import edu.illinois.ncsa.daffodil.processors.ByteOrderEv
-import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.BinaryParserUnparserRuntimeMixin
+import org.apache.daffodil.processors.ByteOrderEv
+import org.apache.daffodil.processors.CheckByteAndBitOrderEv
+import org.apache.daffodil.processors.ElementRuntimeData
 
 class ByteOrderChangeParser(val elementRuntimeData: ElementRuntimeData, byteOrdEv: ByteOrderEv, check: CheckByteAndBitOrderEv)
   extends PrimParser with BinaryParserUnparserRuntimeMixin {

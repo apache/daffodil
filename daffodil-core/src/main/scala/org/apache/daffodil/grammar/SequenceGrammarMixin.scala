@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.Sequence
-import edu.illinois.ncsa.daffodil.grammar.primitives.SequenceCombinator
+package org.apache.daffodil.grammar
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom.Sequence
+import org.apache.daffodil.grammar.primitives.SequenceCombinator
 
 trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
 

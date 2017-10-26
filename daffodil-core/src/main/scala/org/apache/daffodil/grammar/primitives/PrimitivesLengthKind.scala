@@ -30,40 +30,40 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
 import scala.Boolean
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
-import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinarySpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
-import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringNoTruncateUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
-import edu.illinois.ncsa.daffodil.processors.TextTruncationType
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.dfa.TextDelimitedParser
+import org.apache.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
+import org.apache.daffodil.processors.dfa.TextPaddingParser
+import org.apache.daffodil.processors.parsers.HexBinaryDelimitedParser
+import org.apache.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
+import org.apache.daffodil.processors.parsers.HexBinarySpecifiedLengthParser
+import org.apache.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
+import org.apache.daffodil.processors.parsers.OptionalInfixSepParser
+import org.apache.daffodil.processors.parsers.StringDelimitedParser
+import org.apache.daffodil.processors.parsers.StringOfSpecifiedLengthParser
+import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
+import org.apache.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
+import org.apache.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
+import org.apache.daffodil.processors.unparsers.OptionalInfixSepUnparser
+import org.apache.daffodil.processors.unparsers.StringDelimitedUnparser
+import org.apache.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
+import org.apache.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
+import org.apache.daffodil.processors.unparsers.StringNoTruncateUnparser
+import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.processors.FieldDFAParseEv
+import org.apache.daffodil.processors.TextTruncationType
 
 case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
 

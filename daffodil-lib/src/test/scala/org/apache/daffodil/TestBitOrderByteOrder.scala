@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import junit.framework.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 
 class TestByteOrder {
 

@@ -42,7 +42,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://b13.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_13.dfdl.xsd"/>
+  <xs:import namespace="http://b13.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_13.dfdl.xsd"/>
 
   <xs:element name="nestSequence">
     <xs:complexType>

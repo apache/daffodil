@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.dpath.ParserDiscriminatorNonBlocking
-import edu.illinois.ncsa.daffodil.dpath.ParserNonBlocking
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.infoset.InfosetSimpleElement
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.dpath.ParserDiscriminatorNonBlocking
+import org.apache.daffodil.dpath.ParserNonBlocking
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.InfosetSimpleElement
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.util.LogLevel
 
 // import java.lang.{ Boolean => JBoolean }
 

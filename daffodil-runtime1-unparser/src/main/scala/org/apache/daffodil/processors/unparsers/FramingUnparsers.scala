@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.FillByteEv
-import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
-import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.FillByteEv
+import org.apache.daffodil.processors.SuspendableOperation
+import org.apache.daffodil.processors.SuspendableUnparser
+import org.apache.daffodil.util.LogLevel
 
 class SkipRegionUnparser(
   skipInBits: Int,

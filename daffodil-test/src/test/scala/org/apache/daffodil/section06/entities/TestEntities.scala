@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section06.entities
+package org.apache.daffodil.section06.entities
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestEntities {
-  private val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  private val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  private val testDir = "/org/apache/daffodil/section06/entities/"
+  private val testDir_02 = "/org/apache/daffodil/ibm-tests/"
 
   val runner = Runner(testDir, "charClassEntities.tdml")
   val runner_01 = Runner(testDir, "Entities.tdml")

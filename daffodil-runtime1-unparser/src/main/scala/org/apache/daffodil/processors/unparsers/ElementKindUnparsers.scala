@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
+package org.apache.daffodil.processors.unparsers
+import org.apache.daffodil.processors._ ; import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.equality._
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends UnparserObject(rd) {

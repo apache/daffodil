@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.aligned_data
+package org.apache.daffodil.section12.aligned_data
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestAlignedData {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
+  val testDir_01 = "/org/apache/daffodil/section12/aligned_data/"
   val runner1 = Runner(testDir_01, "Aligned_Data.tdml")
   val runner2 = Runner(testDir_01, "BinaryInput_01.tdml")
 

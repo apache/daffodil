@@ -30,34 +30,34 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.WarnID
-import edu.illinois.ncsa.daffodil.dpath.DState
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.io.DataStreamCommon
-import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import edu.illinois.ncsa.daffodil.util.MStackOfLong
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.processors.charset.EncoderDecoderMixin
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
-import edu.illinois.ncsa.daffodil.infoset._
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.dpath.DState
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionWarning
+import org.apache.daffodil.dsom.ValidationError
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.io.DataStreamCommon
+import org.apache.daffodil.io.LocalBufferMixin
+import org.apache.daffodil.util.MStackOfLong
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.processors.charset.EncoderDecoderMixin
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.infoset._
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -282,7 +282,7 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
    * As seen from class CompileState, the missing signatures are as follows.
    *  *  For convenience, these are usable as stub implementations.
    */
-  // Members declared in edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+  // Members declared in org.apache.daffodil.processors.ParseOrUnparseState
   def arrayPos: Long = 1L
   def bitLimit0b: MaybeULong = MaybeULong.Nope
   def bitPos0b: Long = 0L
@@ -307,6 +307,6 @@ class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
 
   def thisElement = infoset
 
-  // Members declared in edu.illinois.ncsa.daffodil.processors.StateForDebugger
+  // Members declared in org.apache.daffodil.processors.StateForDebugger
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 }

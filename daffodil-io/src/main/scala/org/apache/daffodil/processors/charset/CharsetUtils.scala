@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -39,10 +39,10 @@ import java.nio.charset.CharsetDecoder
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.io.LocalBufferMixin
+import org.apache.daffodil.io.NonByteSizeCharset
+import org.apache.daffodil.util.MaybeInt
 
 /*
  * These are needed because the ordinary java/scala Charset, Encoder, and Decoder objects

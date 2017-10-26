@@ -33,7 +33,7 @@ realpath() {
   echo "$REALPATH"
 }
 
-MAINCLASS=edu.illinois.ncsa.daffodil.Main
+MAINCLASS=org.apache.daffodil.Main
 SCRIPT=$(realpath "$0")			# Full path to script, needed for symlinks
 BINDIR=`dirname ${SCRIPT}`		# Directory script is run in
 LIBDIR="$BINDIR/../lib"

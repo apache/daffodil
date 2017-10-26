@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example;
+package org.apache.daffodil.example;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -49,19 +49,19 @@ import java.util.List;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
-import edu.illinois.ncsa.daffodil.japi.Daffodil;
-import edu.illinois.ncsa.daffodil.japi.DataProcessor;
-import edu.illinois.ncsa.daffodil.japi.Diagnostic;
-import edu.illinois.ncsa.daffodil.japi.InvalidUsageException;
-import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
-import edu.illinois.ncsa.daffodil.japi.ParseResult;
-import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
-import edu.illinois.ncsa.daffodil.japi.UnparseResult;
-import edu.illinois.ncsa.daffodil.japi.ValidationMode;
-import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
-import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
-import edu.illinois.ncsa.daffodil.japi.infoset.JDOMInfosetOutputter;
-import edu.illinois.ncsa.daffodil.japi.infoset.JDOMInfosetInputter;
+import org.apache.daffodil.japi.Daffodil;
+import org.apache.daffodil.japi.DataProcessor;
+import org.apache.daffodil.japi.Diagnostic;
+import org.apache.daffodil.japi.InvalidUsageException;
+import org.apache.daffodil.japi.LocationInSchemaFile;
+import org.apache.daffodil.japi.ParseResult;
+import org.apache.daffodil.japi.ProcessorFactory;
+import org.apache.daffodil.japi.UnparseResult;
+import org.apache.daffodil.japi.ValidationMode;
+import org.apache.daffodil.japi.logger.ConsoleLogWriter;
+import org.apache.daffodil.japi.logger.LogLevel;
+import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
+import org.apache.daffodil.japi.infoset.JDOMInfosetInputter;
 
 public class TestJavaAPI {
 
@@ -81,7 +81,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -126,7 +126,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -139,7 +139,7 @@ public class TestJavaAPI {
 
 		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 		ReadableByteChannel input = Channels.newChannel(is);
-		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler compiler = Daffodil.compiler();
 		DataProcessor parser = compiler.reload(input);
 		parser.setDebugger(debugger);
 		parser.setDebugging(true);
@@ -182,7 +182,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -197,7 +197,7 @@ public class TestJavaAPI {
 
 		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 		ReadableByteChannel input = Channels.newChannel(is);
-		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler compiler = Daffodil.compiler();
 		DataProcessor parser = compiler.reload(input);
 
 		try {
@@ -219,7 +219,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Info);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -262,7 +262,7 @@ public class TestJavaAPI {
 	 */
 	@Test
 	public void testJavaAPI3() throws IOException {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -292,7 +292,7 @@ public class TestJavaAPI {
 	// before executing the test.
 	@Test
 	public void testJavaAPI3_A() throws Exception {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -306,7 +306,7 @@ public class TestJavaAPI {
 
 		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
 		ReadableByteChannel input = Channels.newChannel(is);
-		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler compiler = Daffodil.compiler();
 		DataProcessor parser = compiler.reload(input);
 
 		java.io.File file = getResource("/test/japi/myData16.dat");
@@ -331,7 +331,7 @@ public class TestJavaAPI {
 
 	@Test
 	public void testJavaAPI4b() throws IOException {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		File schemaFileName = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
@@ -359,7 +359,7 @@ public class TestJavaAPI {
 
 	@Test
 	public void testJavaAPI5() throws IOException {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		File schemaFileName = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
@@ -400,7 +400,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = new java.io.File("/test/japi/notHere1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -436,7 +436,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel", null);
@@ -479,7 +479,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
@@ -519,7 +519,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
@@ -565,7 +565,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI10() throws IOException {
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema4.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -592,7 +592,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI11() throws IOException {
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema5.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -634,7 +634,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw2);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -673,7 +673,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File extVarsFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
@@ -715,7 +715,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
@@ -760,7 +760,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Info);
 
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -796,7 +796,7 @@ public class TestJavaAPI {
 
 	@Test
 	public void testJavaAPI16() throws IOException, InvalidUsageException {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
@@ -822,7 +822,7 @@ public class TestJavaAPI {
 
 	@Test
 	public void testJavaAPI17() throws IOException, InvalidUsageException {
-		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);

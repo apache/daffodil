@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.unordered_sequences
+package org.apache.daffodil.section14.unordered_sequences
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestUnorderedSequencesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/unordered_sequences/"
+  val testDir = "/org/apache/daffodil/section14/unordered_sequences/"
   val runner = Runner(testDir, "UnorderedSequences.tdml")
 
   @AfterClass def shutDown {

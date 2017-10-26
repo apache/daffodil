@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
 import java.nio.charset.StandardCharsets
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.util.MaybeULong
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within

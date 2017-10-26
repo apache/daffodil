@@ -30,35 +30,35 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
-import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceDispatchCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.parsers.OptionalCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.HiddenChoiceCombinatorUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
-import edu.illinois.ncsa.daffodil.processors.parsers.DynamicEscapeSchemeParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.DynamicEscapeSchemeUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
-import edu.illinois.ncsa.daffodil.grammar.EmptyGram
-import edu.illinois.ncsa.daffodil.equality._;
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.cookers.ChoiceBranchKeyCooker
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.processors.parsers.ComplexTypeParser
+import org.apache.daffodil.processors.parsers.SequenceCombinatorParser
+import org.apache.daffodil.processors.parsers.ChoiceCombinatorParser
+import org.apache.daffodil.processors.parsers.ChoiceDispatchCombinatorParser
+import org.apache.daffodil.processors.parsers.ArrayCombinatorParser
+import org.apache.daffodil.processors.parsers.OptionalCombinatorParser
+import org.apache.daffodil.processors.unparsers.ComplexTypeUnparser
+import org.apache.daffodil.processors.unparsers.SequenceCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.ChoiceCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.HiddenChoiceCombinatorUnparser
+import org.apache.daffodil.processors.parsers.DelimiterStackParser
+import org.apache.daffodil.processors.parsers.DynamicEscapeSchemeParser
+import org.apache.daffodil.processors.unparsers.DynamicEscapeSchemeUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.ArrayCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.OptionalCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.DelimiterStackUnparser
+import org.apache.daffodil.grammar.EmptyGram
+import org.apache.daffodil.equality._;
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 
 object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 

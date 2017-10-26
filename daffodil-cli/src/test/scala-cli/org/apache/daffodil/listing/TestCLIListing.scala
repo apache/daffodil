@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.listing
+package org.apache.daffodil.listing
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.CLI.Util
+import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 
 class TestCLIlisting {
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
-    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml")
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")
 
@@ -57,16 +57,16 @@ class TestCLIlisting {
   /*
   @Test def test_993_CLI_Executing_Listing_listAll() {
     val shell = ex.spawn("/bin/bash")
-    shell.send("/bin/grep -c 'parserTestCase>' daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml\n")
+    shell.send("/bin/grep -c 'parserTestCase>' daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml\n")
     val num = shell.getCurrentStandardOutContents()
-    shell.send(Util.binPath + " test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml | tee /dev/tty | wc -l\n")
+    shell.send(Util.binPath + " test -l daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml | tee /dev/tty | wc -l\n")
     shell.expect(num)
     shell.send("exit\n")
     shell.expectClose()
   }
 
   @Test def test_999_CLI_Executing_Listing_listRegex01() {
-    val cmd = ""Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml "escape_entry4-\\d+"\n"""
+    val cmd = ""Util.binPath + " test -l --regex daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml "escape_entry4-\\d+"\n"""
     val shell = Util.start(cmd)
     shell.expect("escape_entry4-20")
     shell.expect("escape_entry4-21")
@@ -75,7 +75,7 @@ class TestCLIlisting {
   }
 
   @Test def test_1000_CLI_Executing_Listing_listRegex02() {
-    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entryb-\\d+'\n"
+    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml 'escape_entryb-\\d+'\n"
     val shell = Util.start(cmd)
     val output = shell.getCurrentStandardOutContents()
     if (output != ""){
@@ -87,7 +87,7 @@ class TestCLIlisting {
 */
 
   @Test def test_1016_CLI_Executing_Listing_listVerbose() {
-    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml")
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/assertions/assert.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")
 

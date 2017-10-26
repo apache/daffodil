@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
  */
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util.Misc
 
 object TestGeneralNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val testDir = "/org/apache/daffodil/section00/general/"
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 }

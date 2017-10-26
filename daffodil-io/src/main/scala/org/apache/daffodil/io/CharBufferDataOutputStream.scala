@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import passera.unsigned.ULong
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.util.Misc
 
 /**
  * Used to implement unparsing when length is specified in lengthUnits 'characters' when

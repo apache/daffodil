@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.CopyrightNotices
+import org.apache.daffodil.util.CopyrightNotices
 import passera.unsigned.PasseraCopyright
 
 object CopyrightAdditions {

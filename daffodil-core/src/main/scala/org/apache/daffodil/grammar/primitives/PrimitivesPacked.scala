@@ -30,8 +30,8 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.ElementBase
 
 case class PackedIntPrim(e: ElementBase) extends UnimplementedPrimitive(e, false)

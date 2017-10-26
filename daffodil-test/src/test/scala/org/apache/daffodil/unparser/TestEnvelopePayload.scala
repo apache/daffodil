@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.unparser
+package org.apache.daffodil.unparser
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestEnvelopePayload {
-  var runner = Runner("/edu/illinois/ncsa/daffodil/unparser/", "envelopePayload.tdml")
+  var runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")
 
   @AfterClass def tearDown() {
     runner.reset

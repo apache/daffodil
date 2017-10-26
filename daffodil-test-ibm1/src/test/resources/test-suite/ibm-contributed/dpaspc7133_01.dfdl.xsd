@@ -9,7 +9,7 @@
 Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	 -->
 
-	<xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
 	 
 	<!--
 		"another example" of short form in section 7.1.4.3 dfdl spec v.39

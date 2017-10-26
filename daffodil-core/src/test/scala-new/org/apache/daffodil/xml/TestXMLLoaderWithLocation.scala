@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 import java.io.File
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.URISchemaSource
 
 class TestXMLLoaderWithLocation {
 

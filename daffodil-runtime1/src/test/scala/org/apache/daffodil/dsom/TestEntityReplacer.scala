@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.cookers.EntityReplacer
 
 class TestEntityReplacer {
 

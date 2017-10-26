@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.japi.logger;
+package org.apache.daffodil.japi.logger;
 
 /**
  * Logging levels.

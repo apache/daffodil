@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section13.text_number_props
+package org.apache.daffodil.section13.text_number_props
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 import org.junit.Test
 
 class TestTextNumberPropsNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
+  val testDir = "/org/apache/daffodil/section13/text_number_props/"
   val aa = testDir + "TextNumberProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

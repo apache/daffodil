@@ -29,10 +29,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.Indentable
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.util.Indentable
+import org.apache.daffodil.dpath.NodeInfo
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.

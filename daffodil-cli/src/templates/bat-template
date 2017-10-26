@@ -20,7 +20,7 @@ REM environment variable will be used. If that is not specified, reasonable
 REM defaults for Daffodil will be defined.
 
 
-set MAINCLASS=edu.illinois.ncsa.daffodil.Main
+set MAINCLASS=org.apache.daffodil.Main
 set BINDIR=%~dp0
 set LIBDIR=%BINDIR%..\lib
 set CLASSPATH=%LIBDIR%\*

@@ -33,7 +33,7 @@
 -->
 <_-_-_:schema xmlns:_-_-_="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ψ="http://example.com" xmlns:ex="http://example.com" targetNamespace="http://example.com">
   
-  <_-_-_:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <_-_-_:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <_-_-_:annotation>
     <_-_-_:appinfo source="http://www.ogf.org/dfdl/">

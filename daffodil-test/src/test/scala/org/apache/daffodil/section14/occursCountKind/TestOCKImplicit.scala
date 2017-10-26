@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.occursCountKind
+package org.apache.daffodil.section14.occursCountKind
 
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
  */
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestOCKImplicit {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
+  val testDir = "/org/apache/daffodil/section14/occursCountKind/"
   val runner = Runner(testDir, "ockImplicit.tdml")
 
   @AfterClass def shutDown {

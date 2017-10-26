@@ -30,46 +30,46 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
 import scala.Right
 import scala.collection.mutable
 
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.processors.dfa
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.util.MStack
-import edu.illinois.ncsa.daffodil.util.MStackOfBoolean
-import edu.illinois.ncsa.daffodil.util.MStackOfInt
-import edu.illinois.ncsa.daffodil.util.MStackOfLong
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Poolable
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.ProcessorResult
-import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.processors.dfa
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.util.MStack
+import org.apache.daffodil.util.MStackOfBoolean
+import org.apache.daffodil.util.MStackOfInt
+import org.apache.daffodil.util.MStackOfLong
+import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Pool
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.ProcessorResult
+import org.apache.daffodil.processors.DataLoc
+import org.apache.daffodil.processors.EscapeSchemeParserHelper
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.api.DaffodilTunables
 
 object MPState {
 

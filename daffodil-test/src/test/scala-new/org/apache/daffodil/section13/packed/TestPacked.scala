@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section13.packed
+package org.apache.daffodil.section13.packed
 
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestPacked {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/packed/"
+  val testDir = "/org/apache/daffodil/section13/packed/"
   lazy val runner = Runner(testDir, "packed.tdml")
 
   @AfterClass def shutdown(): Unit = {

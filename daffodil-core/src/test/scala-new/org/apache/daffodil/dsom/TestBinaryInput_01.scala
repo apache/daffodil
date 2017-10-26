@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import junit.framework.Assert._
 import org.junit.Test
 import org.junit.After
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.io.DataInputStream
+import org.apache.daffodil.io.DataInputStream
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 

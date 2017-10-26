@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.macros
+package org.apache.daffodil.macros
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.Implicits._
 
 import org.junit.Test
 import org.junit.Assert._

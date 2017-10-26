@@ -30,43 +30,43 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRounding
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import com.ibm.icu.text.DecimalFormat
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextNumberUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
-import edu.illinois.ncsa.daffodil.util.MaybeDouble
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.ConvertTextNumberUnparser
+import org.apache.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
+import org.apache.daffodil.util.MaybeDouble
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextByteParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextDecimalParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextDoubleParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextFloatParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextIntParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextIntegerParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextLongParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNonNegativeIntegerParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNumberParser
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextShortParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextUnsignedByteParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextUnsignedLongParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextUnsignedShortParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryBase
-import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryDynamic
-import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryStatic
+import org.apache.daffodil.processors.parsers.ConvertTextByteParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
+import org.apache.daffodil.processors.parsers.ConvertTextDecimalParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextDoubleParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextFloatParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextIntParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextIntegerParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextLongParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextNonNegativeIntegerParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextNumberParser
+import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
+import org.apache.daffodil.processors.parsers.ConvertTextShortParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextUnsignedByteParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextUnsignedLongParserUnparserHelper
+import org.apache.daffodil.processors.parsers.ConvertTextUnsignedShortParserUnparserHelper
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
+import org.apache.daffodil.processors.parsers.NumberFormatFactoryDynamic
+import org.apache.daffodil.processors.parsers.NumberFormatFactoryStatic
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextUnsignedIntParserUnparserHelper
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.parsers.ConvertTextUnsignedIntParserUnparserHelper
+import org.apache.daffodil.processors.parsers.Parser
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {

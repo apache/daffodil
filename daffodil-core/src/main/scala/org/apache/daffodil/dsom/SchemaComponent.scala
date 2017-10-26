@@ -30,31 +30,31 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
-import edu.illinois.ncsa.daffodil.xml.ResolvesQNames
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.GetAttributesMixin
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.processors.NonTermRuntimeData
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.NonTermRuntimeData
+import org.apache.daffodil.xml.ResolvesQNames
+import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.schema.annotation.props.PropTypes
+import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.xml.GetAttributesMixin
+import org.apache.daffodil.schema.annotation.props.PropTypes
 
 /**
  * The core root class of the DFDL Schema object model.

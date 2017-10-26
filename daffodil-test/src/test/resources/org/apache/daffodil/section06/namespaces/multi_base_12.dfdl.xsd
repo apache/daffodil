@@ -41,7 +41,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://a12.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_12.dfdl.xsd"/>
+  <xs:import namespace="http://a12.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_12.dfdl.xsd"/>
 
   <xs:element name="rabbitHole">
     <xs:complexType>

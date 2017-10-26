@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.cookers.TextStandardGroupingSeparatorCooker
-import edu.illinois.ncsa.daffodil.cookers.TextBooleanFalseRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextStandardExponentRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextBooleanTrueRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextStandardDecimalSeparatorCooker
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.cookers.TextStandardGroupingSeparatorCooker
+import org.apache.daffodil.cookers.TextBooleanFalseRepCooker
+import org.apache.daffodil.cookers.TextStandardExponentRepCooker
+import org.apache.daffodil.cookers.TextBooleanTrueRepCooker
+import org.apache.daffodil.cookers.TextStandardDecimalSeparatorCooker
 
 class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, List[String]](

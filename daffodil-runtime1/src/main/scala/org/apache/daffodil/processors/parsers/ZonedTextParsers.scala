@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ElementRuntimeData
 
 class ZonedTextNumberParser(override val context: ElementRuntimeData)
   extends PrimParser {

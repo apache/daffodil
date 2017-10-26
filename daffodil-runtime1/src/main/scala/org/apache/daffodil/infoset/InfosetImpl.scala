@@ -30,43 +30,43 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
 import java.lang.{ Boolean => JBoolean, Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal }
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.MaybeULong
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowableWithCause
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.ThinThrowableWithCause
+import org.apache.daffodil.util.MaybeBoolean
 import scala.collection.IndexedSeq
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.calendar.DFDLCalendar
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.util.Numbers
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.processors._
+import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.api.DaffodilTunables
 import java.util.HashMap
 
 sealed trait DINode {

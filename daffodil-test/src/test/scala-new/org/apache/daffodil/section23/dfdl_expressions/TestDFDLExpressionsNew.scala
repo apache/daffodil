@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
+package org.apache.daffodil.section23.dfdl_expressions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestDFDLExpressionsNew {
 
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val testDir2 = "/org/apache/daffodil/section23/dfdl_functions/"
   val runner2 = Runner(testDir2, "Functions.tdml")
 
   @AfterClass def shutdown = {

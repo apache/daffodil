@@ -30,30 +30,30 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets
 import java.nio.charset.CodingErrorAction
 import passera.unsigned.ULong
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import java.nio.channels.Channels
 import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.Bits
+import org.apache.daffodil.util.LogLevel
 
 sealed trait DOSState
 private[io] case object Active extends DOSState

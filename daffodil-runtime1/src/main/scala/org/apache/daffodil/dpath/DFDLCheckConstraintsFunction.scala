@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 // TODO: replace these with our own Infoset implementation objects
 
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.util.OKOrError
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.util.OKOrError
 
 object DFDLCheckConstraintsFunction {
   /**

@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 import org.junit.Test
 import scala.xml.Node
 import org.junit.Test

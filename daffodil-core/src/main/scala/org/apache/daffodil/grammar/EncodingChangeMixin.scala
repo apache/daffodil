@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.grammar.primitives.EncodingChange
+import org.apache.daffodil.processors._
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.equality._
+import org.apache.daffodil.grammar.primitives.EncodingChange
 
 trait EncodingChangeMixin extends GrammarMixin { self: Term =>
 

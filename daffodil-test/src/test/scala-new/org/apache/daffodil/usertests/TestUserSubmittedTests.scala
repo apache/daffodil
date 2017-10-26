@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.usertests
+package org.apache.daffodil.usertests
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestUserSubmittedTestsNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+  val testDir = "/org/apache/daffodil/usertests/"
   val aa = testDir + "UserSubmittedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

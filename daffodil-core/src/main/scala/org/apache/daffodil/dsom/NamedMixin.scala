@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
+import org.apache.daffodil.xml.GetAttributesMixin
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.NamedMixinBase
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.NamedMixinBase
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * Common Mixin for things that have a name attribute.

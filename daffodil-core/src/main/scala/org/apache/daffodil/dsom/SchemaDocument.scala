@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-import edu.illinois.ncsa.daffodil.dsom.IIUtils.IIMap
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
+import org.apache.daffodil.dsom.IIUtils.IIMap
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
+import org.apache.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
 
 /**
  * A schema document corresponds to one file usually named with an ".xsd" extension.
@@ -251,7 +251,7 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    */
   lazy val globalElementDecls = {
     val xmlelts = (xml \ "element")
-    val factories = xmlelts.map { new edu.illinois.ncsa.daffodil.dsom.GlobalElementDeclFactory(_, this) }
+    val factories = xmlelts.map { new org.apache.daffodil.dsom.GlobalElementDeclFactory(_, this) }
     factories
   }
   lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { new GlobalSimpleTypeDefFactory(_, this) }

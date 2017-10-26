@@ -43,8 +43,8 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://a04.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_04.dfdl.xsd"/>
-  <xs:import namespace="http://b04.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_04_invalid.dfdl.xsd"/>
+  <xs:import namespace="http://a04.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_04.dfdl.xsd"/>
+  <xs:import namespace="http://b04.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_04_invalid.dfdl.xsd"/>
  
   <xs:element name="aSeq">
     <xs:complexType>

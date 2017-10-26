@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.oolag
+package org.apache.daffodil.oolag
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util._
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.util.Maybe._
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars

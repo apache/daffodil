@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.ThrowsSDE
 import java.text.ParsePosition
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.text.SimpleDateFormat
 import java.text.ParseException
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.calendar.DFDLDate
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
