@@ -2,6 +2,8 @@
 
 name := "daffodil"
 
+version in ThisBuild := "2.1.0-incubating-SNAPSHOT"
+
 organization in ThisBuild := "org.apache"
 
 scalaVersion in ThisBuild := "2.11.8"

@@ -201,18 +201,14 @@ object Misc {
   }
 
   /**
-   * Returns a tuple with the primary version number in the first slot
-   * the build hash in the second slot.
+   * Returns the primary version of daffodil from the jar
    */
-  def getDaffodilVersion: Tuple2[String, String] = {
+  def getDaffodilVersion: String = {
     val implVersion = this.getClass.getPackage.getImplementationVersion
     if (implVersion == null) {
-      ("", "")
+      ""
     } else {
-      val VersionRegex = """(.+)-(.+)""".r
-      implVersion match {
-        case VersionRegex(v, b) => (v, b)
-      }
+      implVersion
     }
   }
 

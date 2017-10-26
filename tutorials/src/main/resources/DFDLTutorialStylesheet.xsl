@@ -125,7 +125,6 @@
     <html>
       <head>
         <link rel="stylesheet" href="DFDLTutorialStylesheet.css" media="all"/>
-        <link rel="shortcut icon" href="http://www.tresys.com/favicon.ico?v=2"/>
                 <!-- This li.L0, li.L1 etc. is about turning on line numbering for all lines. 
                      The default was to put a line number only every 5 lines. -->
         <style>
@@ -144,9 +143,6 @@
       </head>
       <body id="main">
         <header>
-          <a id="logo" href="http://www.tresys.com">
-            <img src="tresys.png"/>
-          </a>
           <div id="headerText">
             <hr/>
             <h1>
@@ -199,10 +195,6 @@
             </ul>
             <hr/>
             <br/>
-            <p style="text-align: left;">
-              © 2016 Tresys Technology LLC. All Rights Reserved
-              <br/>
-            </p>
           </div>
         </footer>
       </body>
