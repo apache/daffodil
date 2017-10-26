@@ -291,7 +291,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     uri.getOrElse(throw new Exception("Could not find file or resource %s" format s))
   })
 
-  printedName = "daffodil"
+  printedName = "Apache Daffodil (incubating)"
 
   helpWidth(76)
 
@@ -312,16 +312,16 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     sys.exit(1)
   }
 
-  banner("""|Usage: %s [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
+  banner("""|Usage: daffodil [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
             |
-            |Global Options:""".format(printedName).stripMargin)
+            |Global Options:""".stripMargin)
 
   footer("""|
-            |Run '%s <subcommand> --help' for subcommand specific options""".format(printedName).stripMargin)
+            |Run 'daffodil <subcommand> --help' for subcommand specific options""".stripMargin)
 
   version({
-    val versions = Misc.getDaffodilVersion
-    val strVers = "%s %s (build %s)".format(printedName, versions._1, versions._2)
+    val version = Misc.getDaffodilVersion
+    val strVers = "%s %s".format(printedName, version)
     strVers
   })
 
@@ -1281,7 +1281,7 @@ object Main extends Logging {
                           |
                           | Please report this bug and help us fix it:
                           |
-                          |  https://opensource.ncsa.illinois.edu/confluence/display/DFDL/How+to+Report+a+Bug
+                          |  https://cwiki.apache.org/confluence/display/DAFFODIL/Report+a+Bug
                           |
                           | Please include the following exception, the command you
                           | ran, and any input, schema, or tdml files used that led
@@ -1305,8 +1305,7 @@ object Main extends Logging {
                           | You can create a bug and track the progress of this
                           | feature at:
                           |
-                          |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
-                          |
+                          |  https://issues.apache.org/jira/projects/DAFFODIL
                           |""".format(e.getMessage()).stripMargin)
     1
   }

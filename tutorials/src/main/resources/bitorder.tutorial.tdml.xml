@@ -9,8 +9,8 @@ xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns="http://www.w3.org/1999/xhtml">
   <tdml:tutorial xml:space="preserve">
     <p> DFDL has not only the dfdl:byteOrder property, but a property dfdl:bitOrder which is used when the data fields are not on byte boundaries. There are many formats which use individual bit flags, small 2 or 3 or 4 bit fields, or larger fields that do not use up an integral number of bytes. E.g., a 12-bit field. Given that the bits of these fields do not occupy whole bytes, the quesion arises of how we express which bits of a byte are the ones that make up a data field. </p>
-<p>The <a href='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>DFDL Specification describes dfdl:bitOrder</a>:</p>
-<blockquote cite='http://opensource.ncsa.illinois.edu/projects/artifacts/DFDL/latest/documentation/Manual/#_Toc398030723'>
+<p>The <a href='http://daffodil.apache.org/manual/#_Toc398030723'>DFDL Specification describes dfdl:bitOrder</a>:</p>
+<blockquote cite='http://daffodil.apache.org/manual/#_Toc398030723'>
 The bits of a byte each have a place value or significance of 2<sup>n</sup>, for n from 0 to 7. Hence, the byte value 255 = 2 <sup>7</sup> + 2<sup>6</sup> + 2<sup>5</sup> + 2<sup>4</sup> + 2<sup>3</sup> + 2<sup>2</sup> + 2<sup>1</sup> + 2<sup>0</sup>. A bit can always be unambiguously identified as the 2<sup>n</sup>-bit.
 The bit order is the correspondence of a bit's numeric significance to the bit position (1 to 8) within the byte. 
 </blockquote>

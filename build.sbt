@@ -4,6 +4,8 @@ name := "daffodil"
 
 organization in ThisBuild := "edu.illinois.ncsa"
 
+version in ThisBuild := "2.1.0-SNAPSHOT"
+
 scalaVersion in ThisBuild := "2.11.8"
 
 // incOptions := incOptions.value.withNameHashing(true) // 2.11 experimental incremental compilation improvements (perhaps not working right?)
@@ -20,8 +22,6 @@ logBuffered in ThisBuild := true
 testOptions in ThisBuild += Tests.Argument(TestFrameworks.JUnit, "-v")
 
 transitiveClassifiers := Seq("sources", "javadoc")
-
-resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.illinois.edu/nexus/content/repositories/releases"
 
 libraryDependencies in ThisBuild := Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
@@ -65,23 +65,13 @@ publishArtifact in Test := false
 
 pomIncludeRepository in ThisBuild := { _ => false }
 
-pomExtra in ThisBuild := (
-  <developers>
-    <developer>
-      <id>Tresys Technology</id>
-      <name>Tresys Technology</name>
-      <url>http://www.tresys.com</url>
-    </developer>
-  </developers>
-)
-
 scmInfo := Some(
   ScmInfo(
-    browseUrl = url("https://opensource.ncsa.illinois.edu/stash/projects/DFDL/repos/daffodil/browse"),
-    connection = "scm:git:https://opensource.ncsa.illinois.edu/stash/scm/dfdl/daffodil.git"
+    browseUrl = url("https://git-wip-us.apache.org/repos/asf?p=incubator-daffodil.git"),
+    connection = "scm:git:git://git.apache.org/incubator-daffodil.git"
   )
 )
 
 licenses in ThisBuild := Seq("University of Illinois/NCSA Open Source License" -> url("http://opensource.org/licenses/UoI-NCSA.php"))
 
-homepage in ThisBuild := Some(url("https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Home"))
+homepage in ThisBuild := Some(url("https://daffodil.apache.org"))
