@@ -54,4 +54,39 @@ class TestPacked {
   // @Test def testHexCharset03(): Unit = { runner.runOneTest("hexCharset03") } // textNumberPattern V symbol
   @Test def testHexCharset04(): Unit = { runner.runOneTest("hexCharset04") }
 
+  @Test def testPackedCharset01(): Unit = { runner.runOneTest("packedCharset01") }
+  @Test def testPackedCharset02(): Unit = { runner.runOneTest("packedCharset02") }
+  @Test def testPackedCharset03(): Unit = { runner.runOneTest("packedCharset03") }
+  //@Test def testPackedCharset04(): Unit = { runner.runOneTest("packedCharset04") } // need packed calendar
+  @Test def testPackedCharset05(): Unit = { runner.runOneTest("packedCharset05") }
+  @Test def testPackedCharset06(): Unit = { runner.runOneTest("packedCharset06") }
+  @Test def testPackedCharset07(): Unit = { runner.runOneTest("packedCharset07") }
+  @Test def testPackedCharset08(): Unit = { runner.runOneTest("packedCharset08") }
+  @Test def testPackedCharset09(): Unit = { runner.runOneTest("packedCharset09") }
+  @Test def testPackedCharset10(): Unit = { runner.runOneTest("packedCharset10") }
+
+  @Test def testBCDCharset01(): Unit = { runner.runOneTest("bcdCharset01") }
+  @Test def testBCDCharset02(): Unit = { runner.runOneTest("bcdCharset02") }
+  @Test def testBCDCharset03(): Unit = { runner.runOneTest("bcdCharset03") }
+  //@Test def testBCDCharset04(): Unit = { runner.runOneTest("bcdCharset04") } // need bcd calendar
+  @Test def testBCDCharset05(): Unit = { runner.runOneTest("bcdCharset05") }
+  @Test def testBCDCharset06(): Unit = { runner.runOneTest("bcdCharset06") }
+  @Test def testBCDCharset07(): Unit = { runner.runOneTest("bcdCharset07") }
+  @Test def testBCDCharset08(): Unit = { runner.runOneTest("bcdCharset08") }
+  @Test def testBCDCharset09(): Unit = { runner.runOneTest("bcdCharset09") }
+  @Test def testBCDCharset10(): Unit = { runner.runOneTest("bcdCharset10") }
+  @Test def testBCDCharset11(): Unit = { runner.runOneTest("bcdCharset11") }
+  @Test def testBCDCharset12(): Unit = { runner.runOneTest("bcdCharset12") }
+  @Test def testBCDCharset13(): Unit = { runner.runOneTest("bcdCharset13") }
+
+  @Test def testIBM4690Charset01(): Unit = { runner.runOneTest("IBM4690Charset01") }
+  @Test def testIBM4690Charset02(): Unit = { runner.runOneTest("IBM4690Charset02") }
+  @Test def testIBM4690Charset03(): Unit = { runner.runOneTest("IBM4690Charset03") }
+  //@Test def testIBM4690Charset04(): Unit = { runner.runOneTest("IBM4690Charset04") } // need bcd calendar
+  @Test def testIBM4690Charset05(): Unit = { runner.runOneTest("IBM4690Charset05") }
+  @Test def testIBM4690Charset06(): Unit = { runner.runOneTest("IBM4690Charset06") }
+  @Test def testIBM4690Charset07(): Unit = { runner.runOneTest("IBM4690Charset07") }
+  @Test def testIBM4690Charset08(): Unit = { runner.runOneTest("IBM4690Charset08") }
+  @Test def testIBM4690Charset09(): Unit = { runner.runOneTest("IBM4690Charset09") }
+  @Test def testIBM4690Charset10(): Unit = { runner.runOneTest("IBM4690Charset10") }
 }

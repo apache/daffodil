@@ -70,11 +70,11 @@ class IBMTestsThatThrow {
 
   @Test def test_length_implicit_12_02() { runner1.runOneTest("length_implicit_12_02") } // implicit length string - bug in IBM test (doesn't have minLength - both are required)
 
-  @Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") } // DFDL-629 binaryNumberRep="bcd"
+  @Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") } // DAFFODIL-1541 Need support for handling delimited data with encoding other than ISO-8859-1
 
   @Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") } // DFDL-452 text number advanced props
   @Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") } // DFDL-452 textStandardBase (base 16)
-  @Test def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") } // DFDL-629 binaryNumberRep="bcd"
+  @Test def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") } // DAFFODIL-1541 Need support for handling delimited data with encoding other than ISO-8859-1
 
   @Test def test_simple_type_properties_text_boolean_13_03() { runner2.runOneTest("simple_type_properties_text_boolean_13_03") } // DFDL-462 boolean type
   @Test def test_simple_type_properties_bin_boolean_13_01() { runner2.runOneTest("simple_type_properties_bin_boolean_13_01") } // DFDL-461 boolean type

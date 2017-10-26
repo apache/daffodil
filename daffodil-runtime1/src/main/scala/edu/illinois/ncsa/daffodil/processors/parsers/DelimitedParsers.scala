@@ -38,12 +38,15 @@ import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.PackedSignCodes
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets
+import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.DecimalUtils
 import edu.illinois.ncsa.daffodil.processors.AllTerminatingMarkupDelimiterIterator
 import passera.unsigned.ULong
 
@@ -182,4 +185,82 @@ class HexBinaryDelimitedParser(
       return
     }
   }
+}
+
+
+class PackedIntegerDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean,
+  packedSignCodes: PackedSignCodes)
+  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.packedToBigInteger(num, packedSignCodes)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+
+}
+
+class PackedDecimalDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean,
+  binaryDecimalVirtualPoint: Int,
+  packedSignCodes: PackedSignCodes)
+  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.packedToBigInteger(num, packedSignCodes)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+
+}
+
+class BCDIntegerDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean)
+  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
+}
+
+class BCDDecimalDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean,
+  binaryDecimalVirtualPoint: Int)
+  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
+}
+
+class IBM4690PackedIntegerDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean)
+  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
+}
+
+class IBM4690PackedDecimalDelimitedParser(
+  erd: ElementRuntimeData,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean,
+  binaryDecimalVirtualPoint: Int)
+  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
 }

@@ -653,14 +653,14 @@ trait ElementBase
   }
 
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
-    theRepresentation match {
-      case Representation.Text =>
-        thePrimType match {
-          case PrimType.HexBinary => Assert.impossible("type xs:hexBinary with representation='text'")
-          case _ => knownEncodingAlignmentInBits
-        }
-      case Representation.Binary =>
-        thePrimType match {
+    (theRepresentation, thePrimType) match {
+      case (Representation.Text, PrimType.HexBinary) => Assert.impossible("type xs:hexBinary with representation='text'")
+      case (Representation.Text, _) => knownEncodingAlignmentInBits
+      case (Representation.Binary, PrimType.Float | PrimType.Boolean) => 32
+      case (Representation.Binary, PrimType.Double) => 64
+      case (Representation.Binary, _) => binaryNumberRep match {
+        case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => 8
+        case _ => thePrimType match {
           case PrimType.String => Assert.impossible("type xs:string with representation='binary'")
           case PrimType.Double | PrimType.Long | PrimType.UnsignedLong => 64
           case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
@@ -674,6 +674,7 @@ trait ElementBase
             }
           case PrimType.HexBinary => 8
         }
+      }
     }
   }
 
@@ -697,7 +698,17 @@ trait ElementBase
                 SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
-            case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+            case Representation.Binary =>  primType match {
+              case PrimType.Float | PrimType.Double | PrimType.Boolean=> /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case _ => binaryNumberRep match {
+                case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
+                  if ((alignInBits % 4) != 0)
+                    SDE("The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
+                      alignInBits, primType.name)
+                }
+                case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              }
+            }
           }
         }
         alignInBits
