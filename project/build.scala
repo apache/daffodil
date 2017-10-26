@@ -336,8 +336,12 @@ object DaffodilBuild extends Build {
 
   // native package configuration
   val packageSettings = Seq(
-    packageName := "daffodil",
+    name := "daffodil",
+    packageName := name.value,
+    packageName in Linux := name.value,
+    packageName in Rpm := name.value,
     mappings in Universal += dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
+    mappings in Universal += baseDirectory.value / ".." / "DISCLAIMER" -> "DISCLAIMER",
     mappings in Universal += baseDirectory.value / "README.md" -> "README.md",
     mappings in Universal <+= (packageBin in japi in Compile, name in japi in Compile, organization, version) map {
       (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
@@ -345,121 +349,35 @@ object DaffodilBuild extends Build {
     mappings in Universal <+= (packageBin in sapi in Compile, name in sapi in Compile, organization, version) map {
       (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
     },
-    version in Rpm:= {
-	val idx = version.value.indexOf('-')
-	if (idx == -1)
-		version.value
-	else
-		version.value.substring(0, idx) },
-    maintainer in Rpm := "Tresys <daffodil-users@oss.tresys.com>",
+    maintainer in Rpm := "Apache Daffodil <dev@daffodil.apache.org>",
     packageArchitecture in Rpm := "noarch",
     packageSummary in Rpm := "Open source implementation of the Data Format Description Language (DFDL)",
-    packageDescription in Rpm := """Daffodil is the open source implementation of the Data Format Description 
-Language (DFDL), a specification created by the Open Grid Forum. DFDL is 
-capable of describing many data formats, including textual and binary, 
-commercial record-oriented, scientific and numeric, modern and legacy, and 
-many industry standards. It leverages XML technology and concepts, using a 
-subset of W3C XML schema type system and annotations to describe such data. 
-Daffodil uses this description to parse data into an XML infoset for ingestion 
+    packageDescription in Rpm := """Apache Daffodil (incubating) is the open source implementation of the Data
+Format Description Language (DFDL), a specification created by the Open Grid
+Forum. DFDL is capable of describing many data formats, including textual and
+binary, commercial record-oriented, scientific and numeric, modern and legacy,
+and many industry standards. It leverages XML technology and concepts, using a
+subset of W3C XML schema type system and annotations to describe such data.
+Daffodil uses this description to parse data into an XML infoset for ingestion
 and validation.""",
-    packageName in Linux := "daffodil",
+    version in Universal := version.value + "-bin",
+    version in Rpm := {
+      val parts = version.value.split("-", 2)
+      parts(0) // removes snapshot/beta/rc/etc, that should only be in the rpmRelease
+    },
     rpmRelease in Rpm := {
-	val idx = version.value.indexOf('-')
-	if (idx == -1)
-		"1"
-	else
-		"0." + version.value.toLowerCase.takeRight(version.value.length - (idx + 1))
-	},
-    rpmVendor in Rpm := "Tresys Technology",
-    rpmLicense in Rpm := Some( licenses.value.map{ case (n: String, _) => n }.mkString(" and ")  ),
-    name := "daffodil"
+      val parts = version.value.split("-", 2) // parts(0) is the version, parts(1) is snapshot/beta/rc/etc if it exists
+      if (parts.length > 1) {
+        "0." + parts(1).toLowerCase
+      } else {
+        "1"
+      }
+    },
+    rpmVendor in Rpm := "Apache Daffodil",
+    rpmLicense in Rpm := Some( licenses.value.map{ case (n: String, _) => n }.mkString(" and ")  )
   )
   cliOnlySettings ++= packageSettings
 
-
-  def exec(cmd: String): Seq[String] = {
-    val r = java.lang.Runtime.getRuntime()
-    val p = r.exec(cmd)
-    p.waitFor()
-    val ret = p.exitValue()
-    if (ret != 0) {
-      sys.error("Command failed: " + cmd)
-    }
-    val is = p.getInputStream
-    val res = scala.io.Source.fromInputStream(is).getLines()
-    res.toSeq
-  }
-
-  // get the version from the latest tag
-  s ++= Seq(version := {
-    val describe = exec("git describe --long HEAD")
-    assert(describe.length == 1)
-
-    val DescribeRegex = """^(.+)-(.+)-(.+)$""".r
-    val res = describe(0) match {
-      case DescribeRegex(taggedVersion, "0", hash) => {
-        // we are on a tag, build a tag release
-        val status = exec("git status --porcelain")
-        if (status.length > 0) {
-          taggedVersion + "-SNAPSHOT"
-        } else {
-          taggedVersion
-        }
-      }
-      case DescribeRegex(version, _, hash) => {
-        // not on a tag
-
-        // get the current branch
-        val branch = exec("git rev-parse --symbolic-full-name HEAD")
-        assert(branch.length == 1)
-        val VersionBranchRegex = """^refs/heads/(\d+\.\d+\.\d+)$""".r
-        branch(0) match {
-          case "HEAD" => {
-            // not on the tip of a branch
-            "0.0.0-SNAPSHOT"
-          }
-          case VersionBranchRegex(versionBranch) => {
-            // we are developing on a version branch, create a snapshot
-            versionBranch + "-SNAPSHOT"
-          }
-          case branch => {
-            // not on a version branch (e.g. a review branch), try to figure
-            // out the tracking branch
-            val trackingBranch = exec("git for-each-ref --format=%(upstream:short) " + branch)
-            assert(trackingBranch.length == 1)
-            val TrackingBranchRegex = """^.*/(\d+\.\d+\.\d+)$""".r
-            trackingBranch(0) match {
-              case TrackingBranchRegex(trackingVersion) => {
-                trackingVersion + "-SNAPSHOT"
-              }
-              case _ => {
-                // no idea what the version is, set it to a default
-                "0.0.0-SNAPSHOT"
-              }
-            }
-          }
-        }
-      }
-    }
-    res
-  })
-
-  def gitShortHash(): String = {
-    val hash = exec("git rev-parse --short HEAD")
-    assert(hash.length == 1)
-    hash(0)
-  }
-
-
-  // update the manifest version to include the git hash
-  lazy val manifestVersion = packageOptions in (Compile, packageBin) <++= version map { v => {
-    val version = "%s-%s".format(v, gitShortHash)
-    Seq(
-      Package.ManifestAttributes(java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION -> version),
-      Package.ManifestAttributes(java.util.jar.Attributes.Name.SPECIFICATION_VERSION -> version)
-    )
-  }}
-  s ++= manifestVersion
 
   // by default, sbt-pgp tries to read ~/.gnupg for keys. We need to force it
   // to be .sbt, which makes it easier to pass the keys around without having
@@ -478,48 +396,10 @@ and validation.""",
     packageDoc in Compile <<= packageDoc in GenJavaDoc,
     sources in GenJavaDoc <<= (target, compile in Compile, sources in Compile) map ((t, c, s) => (t / "java" ** "*.java").get.filterNot(f => f.toString.contains('$') || f.toString.contains("packageprivate")) ++ s.filter(_.getName.endsWith(".java"))),
     artifactName in packageDoc in GenJavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
-    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-Xdoclint:none", "-quiet", "-windowtitle", "Daffodil-" + v + " Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
+    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-Xdoclint:none", "-quiet", "-windowtitle", "Apache Daffodil (incubating) " + v + " Java API", "-doctitle", "<h1>Apache Daffodil (incubating)" + v + " Java API</h1>"))
   )
 
   lazy val sapiSettings = Seq(
-    scalacOptions in (Compile, doc) <<= (version, baseDirectory) map ((v,b) => Seq("-doc-title", "Daffodil-" + v + " Scala API", "-doc-root-content", b + "/root-doc.txt"))
+    scalacOptions in (Compile, doc) <<= (version, baseDirectory) map ((v,b) => Seq("-doc-title", "Apache Daffodil (incubating)" + v + " Scala API", "-doc-root-content", b + "/root-doc.txt"))
   )
-
-  def errorIfNoVersion(vers: String): Boolean = {
-    if (vers == "0.0.0-SNAPSHOT") {
-      sys.error("""
-Unable to determine Daffodil version. Try one of the following:
-
-1) Checkout a version branch:
-
-     $ git checkout 2.0.0
-
-2) Set your current branch to track a version branch:
-
-     $ git branch --set-upstream-to origin/2.0.0
-
-3) Create a new branch starting at a version branch and track it (recommended
-   whenever creating new feature branches in Daffodil):
-
-    $ git checkout -b branch_name --track origin/2.0.0
-
-4) Create a new branch starting at the current HEAD and track a version branch:
-
-    $ git checkout -b branch_name
-    $ git branch --set-upstream-to origin/2.0.0
-
-"""
-)
-      true
-    } else {
-      false
-    }
-  }
-
-  // fail to create any artifacts if we don't have a version number
-  lazy val requireVersionSettings = Seq(
-    packagedArtifacts <<= (packagedArtifacts, version).map { (p, v) => if (!p.isEmpty && !errorIfNoVersion(v)) p else Map.empty }
-  )
-  s ++= requireVersionSettings
-
 }

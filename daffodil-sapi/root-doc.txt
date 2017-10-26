@@ -1,4 +1,4 @@
-== Daffodil Scala API ==
+== Apache Daffodil (incubating) Scala API ==
 
 === Packages ===
 
