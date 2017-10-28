@@ -67,6 +67,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.NotParsableParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NotUnparsableUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentImpl
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 
 /**
@@ -85,8 +86,8 @@ object ForParser extends ParserOrUnparser
 object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
-class ProcessorFactory(val sset: SchemaSet)
-  extends SchemaComponent(<pf/>, sset)
+final class ProcessorFactory(val sset: SchemaSet)
+  extends SchemaComponentImpl(<pf/>, sset)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 

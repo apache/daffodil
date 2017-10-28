@@ -49,9 +49,8 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.ArrayCombinator
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 
-  /**
-   * further overridden in ElementRefGrammarMixin
-   */
+   override protected lazy val enclosedElement: Gram = enclosedElementProd
+    
   override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
     (if (isScalar) enclosedElement else recurrance)
   }

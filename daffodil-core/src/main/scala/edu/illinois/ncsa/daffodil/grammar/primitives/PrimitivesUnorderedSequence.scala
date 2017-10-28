@@ -36,7 +36,7 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.Sequence
+import edu.illinois.ncsa.daffodil.dsom.SequenceBase
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
@@ -47,15 +47,15 @@ object UnorderedSequence {
     // mandatory little optimization here. If there are no statements (most common case), then let's
     // shortcut and just use the guts parser.
 
-    Assert.usageErrorUnless(context.isInstanceOf[Sequence], "The context passed to UnorderedSequence must be a Sequence.")
+    Assert.usageErrorUnless(context.isInstanceOf[SequenceBase], "The context passed to UnorderedSequence must be a Sequence.")
 
-    val ctxt = context.asInstanceOf[Sequence]
+    val ctxt = context.asInstanceOf[SequenceBase]
 
     new UnorderedSequence(ctxt, eGram)
   }
 }
 
-class UnorderedSequence private (context: Sequence, eGramArg: => Gram) // private to force use of the object as factory
+class UnorderedSequence private (context: SequenceBase, eGramArg: => Gram) // private to force use of the object as factory
   extends UnaryGram(context, eGramArg) with HasNoUnparser {
 
   lazy val eGram = eGramArg // once only
@@ -67,7 +67,7 @@ class UnorderedSequence private (context: Sequence, eGramArg: => Gram) // privat
   val sortOrder = {
     val members = context.groupMembers.map(t => {
       t match {
-        case s: Sequence => s.groupMembers
+        case s: SequenceBase => s.groupMembers
         case _ => Seq(t)
       }
     }).flatten

@@ -33,8 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import java.util.UUID
-import scala.xml.Node
-import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
@@ -48,13 +46,17 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 /////////////////////////////////////////////////////////////////
 
 // A term is content of a group
-abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
-  extends AnnotatedSchemaComponent(xmlArg, parentArg)
+trait Term
+  extends AnnotatedSchemaComponent
+  with ResolvesProperties
   with TermRuntimeValuedPropertiesMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin {
+  with TermEncodingMixin
+  with RealTermMixin {
+
+  def position: Int
 
   def optIgnoreCase: Option[YesNo] = {
     val ic = cachePropertyOption("ignoreCase")
@@ -63,8 +65,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case _ => None
     }
   }
-
-  override final def term = this
 
   /**
    * A scalar means has no dimension. Exactly one occurrence.
@@ -115,14 +115,14 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def elementChildren: Seq[ElementBase]
 
-  override lazy val dpathCompileInfo =
-    new DPathCompileInfo(
-      enclosingComponent.map { _.dpathCompileInfo },
-      variableMap,
-      namespaces,
-      path,
-      schemaFileLocation,
-      tunable)
+  //  override lazy val dpathCompileInfo =
+  //    new DPathCompileInfo(
+  //      enclosingComponent.map { _.dpathCompileInfo },
+  //      variableMap,
+  //      namespaces,
+  //      path,
+  //      schemaFileLocation,
+  //      tunable)
 
   /**
    * An integer which is the alignment of this term. This takes into account the
@@ -166,8 +166,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
-  lazy val referredToComponent = this // override in ElementRef and GroupRef
-
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
 
   /**
@@ -182,36 +180,36 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  final lazy val nearestEnclosingSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingSequence: Option[SequenceBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) => Some(s)
+    case Some(s: SequenceBase) => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingSequence
   }
 
-  final lazy val nearestEnclosingChoiceBeforeSequence: Option[Choice] = enclosingTerm match {
+  final lazy val nearestEnclosingChoiceBeforeSequence: Option[ChoiceBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) => None
-    case Some(c: Choice) => Some(c)
+    case Some(s: SequenceBase) => None
+    case Some(c: ChoiceBase) => Some(c)
     case Some(_) => enclosingTerm.get.nearestEnclosingChoiceBeforeSequence
   }
 
-  final lazy val nearestEnclosingUnorderedSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequence: Option[SequenceBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) if !s.isOrdered => Some(s)
+    case Some(s: SequenceBase) if !s.isOrdered => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
-  final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[SequenceBase] = enclosingTerm match {
     case None => None
-    case Some(s: Sequence) if !s.isOrdered => Some(s)
-    case Some(s: Sequence) => None
+    case Some(s: SequenceBase) if !s.isOrdered => Some(s)
+    case Some(s: SequenceBase) => None
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
   final lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
     case None => false
-    case Some(s: Sequence) => false
-    case Some(c: Choice) => true
+    case Some(s: SequenceBase) => false
+    case Some(c: ChoiceBase) => true
     case Some(_) => enclosingTerm.get.inChoiceBeforeNearestEnclosingSequence
   }
 
@@ -227,40 +225,15 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case x => x
   }
 
-  protected final def thisTermNoRefs: Term = LV('thisTermNoRefs) {
-    val es = nearestEnclosingSequence
-
-    val thisTerm = this match {
-      case eRef: ElementRef => eRef.referencedElement
-      // case gd: GlobalGroupDef => gd.thisTermNoRefs // TODO: scala 2.10 compiler says this line is impossible.
-      case gb: GroupBase if gb.enclosingTerm.isDefined => {
-        // We're a group.  We need to determine what we're enclosed by.
-        gb.enclosingTerm.get match {
-          case encGRef: GroupRef => {
-            // We're enclosed by a GroupRef.  We need to retrieve
-            // what encloses that GroupRef
-
-            val res = encGRef.enclosingTerm match {
-              case None => encGRef.group
-              case Some(encTerm) => encTerm.thisTermNoRefs
-            }
-            //encGRef.thisTerm
-            res
-          }
-          case encGB: GroupBase if es.isDefined && encGB == es.get => {
-            // We're an immediate child of the nearestEnclosingSequence
-            // therefore we just return our self as the Term
-            this
-          }
-          case e: LocalElementBase => e // Immediate enclosed by LocalElementBase, return it.
-          case _ => gb.group
-        }
-      }
-      case gb: GroupBase => gb.group
-      case x => x
-    }
-    thisTerm
-  }.value
+  final lazy val thisTermNoRefs: Term = {
+    //    val thisTerm = this match {
+    //      case eRef: ElementRef => eRef.referencedElement
+    //      case gRef: GroupRef => gRef.asModelGroup
+    //      case _: Term => this
+    //    }
+    //    thisTerm
+    this
+  }
 
   /**
    * We want to determine if we're in an unordered sequence
@@ -281,22 +254,16 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
-      case c: Choice => Some(c)
-      case s: Sequence => Some(s)
+      case c: ChoiceBase => Some(c)
+      case s: SequenceBase => Some(s)
       case d: SchemaDocument => {
-        // we're a global object. Our parent is a schema document
-        // so follow backpointers to whatever is referencing us.
-        this match {
-          case ge: GlobalElementDecl => ge.elementRef match {
-            case None => {
-              // we are root. So there is no enclosing model group at all
-              None
-            }
-            case Some(er) => er.immediatelyEnclosingModelGroup
-          }
-        }
+        // we must be the Root elementRef
+        Assert.invariant(this.isInstanceOf[Root])
+        None
       }
-      case gdd: GlobalGroupDef => gdd.groupRef.immediatelyEnclosingModelGroup
+      case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
+      case gdd: GlobalGroupDef => gdd.groupRef.asModelGroup.immediatelyEnclosingModelGroup
+      case ged: GlobalElementDecl => ged.elementRef.immediatelyEnclosingModelGroup
       case ct: ComplexTypeBase => {
         None
         // The above formerly was ct.element.immediatelyEnclosingModelGroup,
@@ -315,11 +282,13 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         enclosingComponent match {
           case Some(term: Term) => term.positionInNearestEnclosingSequence
           case Some(ct: ComplexTypeBase) => {
-            val ctElem = ct.element
-            val ctPos = ctElem.positionInNearestEnclosingSequence
+            val ctPos = ct.elementDecl match {
+              case eb: ElementBase => eb.positionInNearestEnclosingSequence
+              case ged: GlobalElementDecl => ged.elementRef.positionInNearestEnclosingSequence
+            }
             ctPos
           }
-          case Some(ggd: GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
+          // case Some(ggd: GlobalGroupDef) => ggd.groupRef.positionInNearestEnclosingSequence
           case _ => Assert.invariantFailed("unable to compute position in nearest enclosing sequence")
         }
       }
@@ -332,7 +301,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   final lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>
-      val allSiblings = enc.groupMembers.map { _.referredToComponent }
+      val allSiblings = enc.groupMembers
       allSiblings
     }
     res.getOrElse(Nil)
@@ -420,16 +389,35 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def isKnownRequiredElement = false
   def hasKnownRequiredSyntax = false
 
-  // Returns a tuple, where the first item in the tuple is the list of sibling
-  // terms that could appear before this. The second item in the tuple is a
-  // One(parent) if all siblings are optional or this element has no prior siblings
+  //  protected def sameOrReferenceTo(a: Term, b: Term) = {
+  //    if (a eq b) true
+  //    else {
+  //      a match {
+  //        case er: ElementRef => er.referencedElement eq b
+  //        case gr: GroupRef => gr.groupDef eq b
+  //        case _ => b match {
+  //          case er: ElementRef => er.referencedElement eq a
+  //          case gr: GroupRef => gr.groupDef eq a
+  //          case _ => false
+  //        }
+  //      }
+  //    }
+  //  }
+  //
+  //  protected def sameOrReferenceToThis(t: Term) = sameOrReferenceTo(this, t)
+
+  /**
+   * Returns a tuple, where the first item in the tuple is the list of sibling
+   * terms that could appear before this. The second item in the tuple is a
+   * One(parent) if all siblings are optional or this element has no prior siblings
+   */
   lazy val potentialPriorTerms: (Seq[Term], Option[Term]) = {
     val (potentialPrior, parent) = enclosingTerm match {
       case None => (Seq(), None)
       case Some(eb: ElementBase) => (Seq(), Some(eb))
-      case Some(ch: Choice) => (Seq(), Some(ch))
-      case Some(sq: Sequence) if !sq.isOrdered => (sq.groupMembersNoRefs, Some(sq))
-      case Some(sq: Sequence) if sq.isOrdered => {
+      case Some(ch: ChoiceBase) => (Seq(), Some(ch))
+      case Some(sq: SequenceBase) if !sq.isOrdered => (sq.groupMembersNoRefs, Some(sq))
+      case Some(sq: SequenceBase) if sq.isOrdered => {
         val previousTerms = sq.groupMembersNoRefs.takeWhile { _ != this }
         if (previousTerms.isEmpty) {
           // first child of seq, the seq is the only previous term
@@ -476,10 +464,10 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     Assert.invariant(this.isHidden)
 
     val res = this match {
-      case s: Sequence => {
+      case s: SequenceBase => {
         s.groupMembersNoRefs.flatMap { _.childrenInHiddenGroupNotDefaultableOrOVC }
       }
-      case c: Choice => {
+      case c: ChoiceBase => {
         val branches = c.groupMembersNoRefs.map { _.childrenInHiddenGroupNotDefaultableOrOVC }
         val countFullyDefaultableOrOVCBranches = branches.count { _.length == 0 }
         if (countFullyDefaultableOrOVCBranches == 0) {

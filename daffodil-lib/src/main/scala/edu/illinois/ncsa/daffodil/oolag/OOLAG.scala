@@ -89,9 +89,9 @@ object OOLAG extends Logging {
    */
   private val OOLAGRoot: OOLAGHost = null
 
-  private sealed abstract class Args
-  private case object OneArg extends Args
-  private case object ZeroArgs extends Args
+  sealed abstract class Args
+  case object OneArg extends Args
+  case object ZeroArgs extends Args
 
   /**
    * An OOLAGHost, or OOLAG for short, is a collection of OOLAGValues
@@ -131,9 +131,21 @@ object OOLAG extends Logging {
    * already. This insures that the value exists for 'foo', or any errors/warnings
    * to be determined by its calculation have been recorded.
    */
-  abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
+  abstract class OOLAGHostImpl private (
+    final override val oolagContextArg: OOLAGHost,
+    final override val nArgs: Args)
+    extends OOLAGHost {
+
+    def this(oolagContext: OOLAGHost) = this(oolagContext, OneArg)
+    def this() = this(null, ZeroArgs)
+  }
+
+  trait OOLAGHost
     extends Logging with WithDiagnostics
     with NamedMixinBase {
+
+    protected def oolagContextArg: OOLAGHost
+    protected def nArgs: Args = OneArg
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
@@ -142,7 +154,7 @@ object OOLAG extends Logging {
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Some(oolagContextArg)
-      if (oolagContextArg != OOLAGRoot) {
+      if (oolagContext != OOLAGRoot) {
         oolagRoot.requiredEvalFunctions ++= this.requiredEvalFunctions
         this.requiredEvalFunctions = Nil
       }
@@ -154,9 +166,6 @@ object OOLAG extends Logging {
       else
         false
     }
-
-    def this(oolagContextArg: OOLAGHost) = this(oolagContextArg, OneArg)
-    def this() = this(null, ZeroArgs)
 
     /**
      * Used to check things that OOLAG doesn't protect against such as

@@ -1,7 +1,7 @@
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
+ *               http://woverride val ww.tresys.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 
-final class LocalElementDeclFactory(override val xml: Node, sd: SchemaDocument)
+final class LocalElementDeclFactory(xml: Node, sd: SchemaDocument)
   extends SchemaComponentFactory(xml, sd)
   with LocalElementComponentMixin {
 
@@ -44,16 +44,18 @@ final class LocalElementDeclFactory(override val xml: Node, sd: SchemaDocument)
 }
 
 final class LocalElementDecl(factory: LocalElementDeclFactory,
-  override val parent: ModelGroup,
-  override val position: Int)
-  extends LocalElementBase(factory.xml, parent, position)
+  final override val parent: ModelGroup,
+  final override val position: Int)
+  extends LocalElementBase
   with LocalElementComponentMixin
   with ElementDeclMixin
   with NestingLexicalMixin {
 
-  override lazy val elementRef = None
+  final override lazy val xml = factory.xml
 
   requiredEvaluations(minOccurs, maxOccurs)
+
+  override protected lazy val enclosedElement = enclosedElementProd
 
   final override lazy val namedQName = factory.namedQName
 

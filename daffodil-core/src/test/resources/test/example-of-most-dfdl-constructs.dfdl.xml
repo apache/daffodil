@@ -8,6 +8,8 @@
   xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
   http://www.w3.org/2001/XMLSchema xsd/XMLSchema_for_DFDL.xsd">
 
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+
   <annotation>
     <documentation>
       The goal of this schema is to make one use of every XSD
@@ -79,7 +81,8 @@
       <!-- note use of Japanese Kanji in the name -->
       <dfdl:defineFormat name="def2年月日">
         <dfdl:format representation="binary"
-          textStandardBase="10" escapeSchemeRef="tns:quotingScheme" sequenceKind="ordered" />
+          textStandardBase="10" escapeSchemeRef="tns:quotingScheme" sequenceKind="ordered"
+          ref="ex:daffodilTest1" />
       </dfdl:defineFormat>
       <dfdl:defineEscapeScheme name="quotingScheme">
         <dfdl:escapeScheme escapeCharacter="%%"

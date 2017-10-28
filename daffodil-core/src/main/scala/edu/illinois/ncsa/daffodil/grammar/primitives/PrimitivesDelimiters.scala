@@ -172,7 +172,7 @@ case class Initiator(e: Term) extends DelimiterText(e, e) {
   Assert.invariant(e.hasInitiator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
-case class Separator(s: Sequence, t: Term) extends DelimiterText(s, t) {
+case class Separator(s: SequenceBase, t: Term) extends DelimiterText(s, t) {
   Assert.invariant(s.hasSeparator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
 }

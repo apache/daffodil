@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -45,36 +44,36 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.xml.ResolvesQNames
 import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
+
+abstract class SchemaComponentImpl( final override val xml: Node,
+  final override val parent: SchemaComponent)
+  extends SchemaComponent
 
 /**
  * The core root class of the DFDL Schema object model.
  *
  * Every schema component has a schema document, and a schema, and a namespace.
  */
-abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
-  extends OOLAGHost(parent)
+trait SchemaComponent
+  extends OOLAGHost
   with ImplementsThrowsOrSavesSDE
   with GetAttributesMixin
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
-  with FindPropertyMixin
   with SchemaFileLocatableImpl
   with PropTypes {
-  
-  def tunable: DaffodilTunables = parent.tunable
 
-  val xml = xmlArg
-  val aaa_xml = xml // for debugging, so we don't have to scroll down.
+  def xml: Node
+  def parent: SchemaComponent
+
+  final override protected def oolagContextArg = parent
+
+  def tunable: DaffodilTunables = parent.tunable
 
   lazy val dpathCompileInfo: DPathCompileInfo =
     new DPathCompileInfo(
@@ -121,10 +120,10 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    *
    * Override in annotated components
    */
-  def findPropertyOption(pname: String): PropertyLookupResult = {
-    ExecutionMode.requireCompilerMode
-    NotFound(Nil, Nil, pname)
-  }
+  //  def findPropertyOption(pname: String): PropertyLookupResult = {
+  //    ExecutionMode.requireCompilerMode
+  //    NotFound(Nil, Nil, pname)
+  //  }
   // Q: not sure why non-annotated schema components need to have findProperty
   // on them at all. Who would call it polymorphically, not knowing whether they
   // have an annotated schema component or not?
@@ -145,33 +144,64 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * All schema components except the root have an enclosing element.
    */
   final lazy val enclosingElement: Option[ElementBase] = LV('enclosingElement) {
+    this match {
+      case l: LocalElementDecl if l.namedQName.local == "d" =>
+        println("Local Element 'd' detected")
+      case _ => //ok
+    }
     val et = enclosingTerm
     val ee = et match {
       case None => None
       case Some(eb: ElementBase) => Some(eb)
-      case Some(sc: SchemaComponent) => sc.enclosingElement
+      case Some(sc: SchemaComponent) => {
+        val scee = sc.enclosingElement
+        scee
+      }
     }
     ee
   }.value
 
-  final lazy val rootElement: Option[GlobalElementDecl] = {
+  final lazy val rootElementRef = rootElementDecl.map { _.elementRef }
+
+  final lazy val rootElementDecl: Option[GlobalElementDecl] = {
     enclosingElement match {
-      case Some(e) => e.rootElement
-      case None => {
-        if (this.isInstanceOf[GlobalElementDecl])
-          Some(this.asInstanceOf[GlobalElementDecl])
-        else
-          None
+      case Some(e) => e.rootElementDecl
+      case None => this match {
+        case ged: GlobalElementDecl => Some(ged)
+        case root: Root => root.optReferredToComponent
+        case _ => Assert.invariantFailed("No global element decl")
       }
     }
   }
 
   final lazy val enclosingTerm: Option[Term] = {
-    enclosingComponent match {
-      case None => None
-      case Some(t: Term) => Some(t)
-      case _ => enclosingComponent.get.enclosingTerm
+    this match {
+      case l: LocalElementDecl if l.namedQName.local == "d" =>
+        println("Local Element 'd' detected")
+      case s: Sequence if s.groupMembers.exists {
+        case l: LocalElementDecl =>
+          l.namedQName.local == "d"
+        case _ => false
+      } =>
+        println("sequence containing d detected.")
+      case _ => // ok
     }
+    val optec = enclosingComponent
+    val res = optec match {
+      case None => None
+      // case Some(ge: GlobalElementDecl) => ge.optElementRef.flatMap { _.enclosingTerm }
+      case Some(ggd: GlobalGroupDef) => {
+        val ggdet = ggd.groupRef.asModelGroup.enclosingTerm
+        ggdet
+      }
+      case Some(t: Term) => Some(t)
+      case Some(ged: GlobalElementDecl) => Some(ged.elementRef)
+      case Some(ec) => {
+        val ecet = ec.enclosingTerm
+        ecet
+      }
+    }
+    res
   }
 
   /**
@@ -254,7 +284,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
  * the 'schema'.
  */
 final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
-  extends SchemaComponent(<fake/>, schemaSetArg) {
+  extends SchemaComponentImpl(<fake/>, schemaSetArg) {
 
   requiredEvaluations(schemaDocuments)
 
@@ -278,7 +308,6 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
             thing match {
               case df: DFDLDefiningAnnotation => df.asAnnotation.locationDescription
               case sc: SchemaComponent => sc.locationDescription
-              case sf: SchemaComponentFactory => sf.locationDescription
               case _ => Assert.impossibleCase(thing)
             }
           }.mkString("\n"))

@@ -1,7 +1,7 @@
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
+ *               http://woverride val ww.tresys.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
@@ -34,82 +34,79 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Group_AnnotationMixin
-import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
 import edu.illinois.ncsa.daffodil.xml.HasRefMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
 
-/**
- * A GroupRef (group reference) is a term, but most everything is delgated to the
- * referred-to Global Group Definition object.
- */
-final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends GroupBase(xmlArg, parent, position)
-  with DFDLStatementMixin
-  with GroupRefGrammarMixin
-  with Group_AnnotationMixin
-  with SeparatorSuppressionPolicyMixin
-  with SequenceRuntimeValuedPropertiesMixin
-  with HasRefMixin
-  with NestingLexicalMixin {
+trait GroupRef { self: ModelGroup =>
 
-  requiredEvaluations(groupDef)
+  final def asModelGroup: ModelGroup = self
 
-  override lazy val elementChildren = group.elementChildren
+  def groupDef: GlobalGroupDef
 
-  // delegate to the model group object. It assembles properties from
-  // the group ref and the group def
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = group.findPropertyOption(pname)
-    res
-  }
-  lazy val nonDefaultPropertySources = group.nonDefaultPropertySources
-  lazy val defaultPropertySources = group.defaultPropertySources
+  final override def group = groupDef.modelGroup
 
-  protected lazy val prettyBaseName = "group.ref." + refQName.local
+  final def referredToComponent = group
 
-  protected lazy val myPeers = groupRefPeers
+  final override lazy val optReferredToComponent = Some(referredToComponent)
 
-  override lazy val termChildren: Seq[Term] = {
-    group.termChildren
-  }
-
-  final lazy val qname = resolveQName(ref)
-
-  protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => Some(new DFDLGroup(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
+      case _ => annotationFactoryForDFDLStatement(node, self)
     }
   }
 
   protected final def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
+}
 
-  def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
+/**
+ * A GroupRefFactory (group reference) is an indirection to
+ * factories to create a SequenceGroupRef, or ChoiceGroupRef.
+ *
+ * The refXMLArg is the xml for the group reference.
+ */
+final class GroupRefFactory(refXMLArg: Node, val refLexicalParent: SchemaComponent, position: Int)
+  extends SchemaComponentFactory(refXMLArg, refLexicalParent.schemaDocument)
+  with HasRefMixin {
 
-  override lazy val group = groupDef.modelGroup
+  final def qname = this.refQName
 
-  override lazy val termRuntimeData = group.termRuntimeData
-
-  override lazy val couldHaveText = group.couldHaveText
-
-  override lazy val referredToComponent = group
-
-  override lazy val encodingInfo = group.encodingInfo
-
-  lazy val groupDef = LV('groupDef) {
-    this.schemaSet.getGlobalGroupDef(qname) match {
-      case None => SDE("Referenced group definition not found: %s", this.ref)
-      case Some(x) => x.forGroupRef(this, position)
+  lazy val groupRef = {
+    val defFactory = parent.schemaSet.getGlobalGroupDef(qname).getOrElse {
+      SDE("Referenced group definition not found: %s", this.ref)
     }
-  }.value
+    lazy val gref = defFactory match {
+      case s: GlobalSequenceGroupDefFactory => new SequenceGroupRef(gdef.asInstanceOf[GlobalSequenceGroupDef], refXMLArg, refLexicalParent, position)
+      case c: GlobalChoiceGroupDefFactory => new ChoiceGroupRef(gdef.asInstanceOf[GlobalChoiceGroupDef], refXMLArg, refLexicalParent, position)
+    }
+    lazy val gdef: GlobalGroupDef = defFactory.forGroupRef(gref)
+    gref
+  }
 
-  lazy val statements = localStatements
-  lazy val newVariableInstanceStatements = localNewVariableInstanceStatements
-  lazy val assertStatements = localAssertStatements
-  lazy val discriminatorStatements = localDiscriminatorStatements
-  lazy val setVariableStatements = localSetVariableStatements
+}
 
+final class SequenceGroupRef(globalGroupDef: => GlobalSequenceGroupDef, refXML: Node, refLexicalParent: SchemaComponent, position: Int)
+  extends SequenceBase(refXML, refLexicalParent, position)
+  with GroupRef {
+
+  override lazy val groupDef = globalGroupDef
+
+  override lazy val apparentXMLChildren = groupDef.modelGroup.asInstanceOf[Sequence].apparentXMLChildren
+
+}
+
+final class ChoiceGroupRef(globalGroupDef: => GlobalChoiceGroupDef, refXML: Node, refLexicalParent: SchemaComponent, position: Int)
+  extends ChoiceBase(refXML, refLexicalParent, position)
+  with GroupRef {
+
+  override lazy val groupDef = globalGroupDef
+
+  requiredEvaluations(validateChoiceBranchKey)
+
+  private def validateChoiceBranchKey(): Unit = {
+    // Ensure the model group of a global group def do not define choiceBranchKey.
+    val found = findPropertyOptionThisComponentOnly("choiceBranchKey")
+    if (found.isDefined) {
+      SDE("dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition")
+    }
+  }
 }

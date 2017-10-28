@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.Parser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHostImpl
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
@@ -55,7 +55,7 @@ trait HasNoUnparser {
  * because this one has to actually be operationalized.
  */
 abstract class Gram(contextArg: SchemaComponent)
-  extends OOLAGHost(contextArg) {
+  extends OOLAGHostImpl(contextArg) {
 
   final def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
   final def SDW(str: String, args: Any*): Unit = context.SDW(str, args: _*)

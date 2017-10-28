@@ -47,7 +47,6 @@ import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.api.WarnID
 
-
 /**
  * Choices are a bit complicated.
  *
@@ -78,8 +77,10 @@ import edu.illinois.ncsa.daffodil.api.WarnID
  *
  */
 
-final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends ModelGroup(xmlArg, parent, position)
+abstract class ChoiceBase( final override val xml: Node,
+  final override val parent: SchemaComponent,
+  final override val position: Int)
+  extends ModelGroup
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
@@ -90,17 +91,16 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   protected final override lazy val myPeers = choicePeers
 
-  protected final override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
-    }
-  }
-
-  protected final def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
   protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
-  protected final override lazy val <choice>{ xmlChildren @ _* }</choice> = xml
+  protected final override lazy val xmlChildren = xml match {
+    case <choice>{ c @ _* }</choice> => c
+    case <group/> => {
+      val ch = this.asInstanceOf[ChoiceGroupRef].groupDef.xml \\ "choice"
+      val <choice>{ c @ _* }</choice> = ch(0)
+      c
+    }
+  }
 
   final lazy val hasStaticallyRequiredInstances = {
     // true if the choice has syntactic features (initiator, terminator)
@@ -257,3 +257,17 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       optIgnoreCase)
   }
 }
+
+final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
+  extends ChoiceBase(xmlArg, parent, position) {
+
+  protected override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
+    node match {
+      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
+      case _ => annotationFactoryForDFDLStatement(node, this)
+    }
+  }
+
+  protected def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
+}
+

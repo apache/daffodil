@@ -35,13 +35,13 @@ package edu.illinois.ncsa.daffodil.grammar
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.ModelGroup
-import edu.illinois.ncsa.daffodil.dsom.Sequence
-import edu.illinois.ncsa.daffodil.dsom.Choice
 import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
 import edu.illinois.ncsa.daffodil.grammar.primitives.LeadingSkipRegion
 import edu.illinois.ncsa.daffodil.grammar.primitives.AlignmentFill
 import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
 import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
+import edu.illinois.ncsa.daffodil.dsom.SequenceBase
+import edu.illinois.ncsa.daffodil.dsom.ChoiceBase
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
@@ -78,8 +78,8 @@ trait ModelGroupGrammarMixin
         ) {
         val content = initiatorRegion ~ groupContent ~ terminatorRegion
         self match {
-          case c: Choice => DelimiterStackCombinatorChoice(c, content)
-          case s: Sequence => DelimiterStackCombinatorSequence(s, content)
+          case c: ChoiceBase => DelimiterStackCombinatorChoice(c, content)
+          case s: SequenceBase => DelimiterStackCombinatorSequence(s, content)
         }
       } else { groupContent }
 

@@ -209,8 +209,10 @@ trait FindPropertyMixin extends PropTypes {
    * For unit testing convenience
    */
   final def verifyPropValue(key: String, value: String): Boolean = {
-    findPropertyOption(key) match {
-      case Found(`value`, _, _, _) => true
+    val prop = findPropertyOption(key)
+    val valueLC = value.toLowerCase
+    prop match {
+      case Found(v, _, _, _) if (v.toLowerCase == valueLC) => true
       case _: Found => false
       case _: NotFound => false
     }

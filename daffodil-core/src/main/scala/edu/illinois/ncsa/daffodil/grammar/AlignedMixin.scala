@@ -33,15 +33,8 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.ModelGroup
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Math
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
-
-
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -53,13 +46,11 @@ trait LengthApprox {
   val nBits: Long
   def +(that: LengthApprox): LengthApprox = (this, that) match {
     case (l: LengthExact, r: LengthExact) => LengthExact(l.nBits + r.nBits)
-    case (l, r) =>  LengthMultipleOf(Math.gcd(l.nBits, r.nBits))
+    case (l, r) => LengthMultipleOf(Math.gcd(l.nBits, r.nBits))
   }
 }
-case class LengthExact(nBits: Long) extends LengthApprox
-case class LengthMultipleOf(nBits: Long) extends LengthApprox
-
-
+case class LengthExact(override val nBits: Long) extends LengthApprox
+case class LengthMultipleOf(override val nBits: Long) extends LengthApprox
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
 
@@ -72,7 +63,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (!isRepresented) {
       true
     } else {
-      (priorAlignmentWithLeadingSkipApprox % alignmentApprox) == 0
+      false // (priorAlignmentWithLeadingSkipApprox % alignmentApprox) == 0
     }
   }.value
 
@@ -80,11 +71,12 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (self.encodingInfo.isKnownEncoding) {
       if (self.encodingInfo.knownEncodingAlignmentInBits == 1)
         true
-      else if (priorAlignmentWithLeadingSkipApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
-        true
       else
+        // if (priorAlignmentWithLeadingSkipApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
+        //    true
+        // else
         false
-    } else if (this.rootElement.get.isScannable)
+    } else if (this.rootElementRef.get.isScannable)
       true
     else
       false
@@ -94,11 +86,12 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (self.encodingInfo.isKnownEncoding) {
       if (self.encodingInfo.knownEncodingAlignmentInBits == 1)
         true
-      else if (endingAlignmentApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
-        true
       else
+        //        if (endingAlignmentApprox.nBits % self.encodingInfo.knownEncodingAlignmentInBits == 0)
+        //          true
+        //         else
         false
-    } else if (this.rootElement.get.isScannable)
+    } else if (this.rootElementRef.get.isScannable)
       true
     else
       false
@@ -106,10 +99,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
   final lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
 
-
-  private lazy val alignmentApprox: AlignmentMultipleOf = {
-    AlignmentMultipleOf(alignmentValueInBits.toLong)
-  }
+  //  private lazy val alignmentApprox: AlignmentMultipleOf = LV('alignmentApprox) {
+  //    AlignmentMultipleOf(alignmentValueInBits.toLong)
+  //  }.value
 
   lazy val leadingSkipInBits = {
     alignmentUnits match {
@@ -118,9 +110,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val leadingSkipApprox: LengthApprox = {
-    LengthExact(leadingSkipInBits)
-  }
+  //  private lazy val leadingSkipApprox: LengthApprox = {
+  //    LengthExact(leadingSkipInBits)
+  //  }
 
   lazy val trailingSkipInBits = {
     alignmentUnits match {
@@ -129,160 +121,163 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val trailingSkipApprox: LengthApprox = {
-    LengthExact(trailingSkipInBits)
-  }
+  //  private lazy val trailingSkipApprox: LengthApprox = {
+  //    LengthExact(trailingSkipInBits)
+  //  }
 
-  private lazy val priorAlignmentApprox: AlignmentMultipleOf = {
-    if (enclosingComponent.isEmpty) {
-      AlignmentMultipleOf(0) // root is aligned with anything
-    } else {
-      val (priorSibs, parent) = potentialPriorTerms
-      val arraySelfAlignment =
-        if (isArray) {
-          val e = this.asInstanceOf[ElementBase]
-          if (e.isComplexType && e.lengthKind == LengthKind.Implicit) {
-            // Array of a complex type with implicit length. In this case, it
-            // is not possible to calculate the approximate prior alignment of
-            // the previous element. This is because the prior alignment could
-            // come from a previous element of this same array. Since this
-            // array element is implicit length, knowing where it ends requires
-            // knowing where it starts and the approximate length of the
-            // children. But we can't know whree it starts without knowing
-            // where the previous one array element ends. And we end up in a
-            // loop.
-            //
-            // So there isn't much we can do regarding alignement. What we can
-            // do is determine if this array element is byte aligned AND all of
-            // its children are byte lengths/byte aligned, if that is the case
-            // then we at least know this array and its elements are byte
-            // aligned. If that isn't the case, there isn't much we can do.
-            if (isKnownToBeByteAlignedAndByteLength) {
-              Seq(AlignmentMultipleOf(8))
-            } else {
-              Seq(AlignmentMultipleOf(1))
-            }
-          } else {
-            // If this is an array, it's prior alignment could be it's own alignment.
-            // We really want to use this.endingAlignmentApprox since that
-            // takes into account the previous alignments, lengths, and leading
-            // skips. However, we cannot use that since that method ends up
-            // calling this method, which results in a circular loop. So,
-            // instead just use calculate this arrays ending alignment not
-            // taking into account it's previous alignment.
-            Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
-          }
-        } else {
-          Seq()
-        }
-          
-      val priorAlignmentsApprox = priorSibs.map(_.endingAlignmentApprox) ++ parent.map(_.contentStartAlignment).toSeq ++ arraySelfAlignment
-      priorAlignmentsApprox.reduce(_ * _)
-    }
-  }
+  //  private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
+  //    if (enclosingComponent.isEmpty) {
+  //      AlignmentMultipleOf(0) // root is aligned with anything
+  //    } else {
+  //      AlignmentMultipleOf(1) // everything else assumed 1 bit aligned
+  //      //      val (priorSibs, parent) = potentialPriorTerms
+  //      //      val arraySelfAlignment =
+  //      //        if (isArray) {
+  //      //          val e = this.asInstanceOf[ElementBase]
+  //      //          if (e.isComplexType && e.lengthKind == LengthKind.Implicit) {
+  //      //            // Array of a complex type with implicit length. In this case, it
+  //      //            // is not possible to calculate the approximate prior alignment of
+  //      //            // the previous element. This is because the prior alignment could
+  //      //            // come from a previous element of this same array. Since this
+  //      //            // array element is implicit length, knowing where it ends requires
+  //      //            // knowing where it starts and the approximate length of the
+  //      //            // children. But we can't know whree it starts without knowing
+  //      //            // where the previous one array element ends. And we end up in a
+  //      //            // loop.
+  //      //            //
+  //      //            // So there isn't much we can do regarding alignement. What we can
+  //      //            // do is determine if this array element is byte aligned AND all of
+  //      //            // its children are byte lengths/byte aligned, if that is the case
+  //      //            // then we at least know this array and its elements are byte
+  //      //            // aligned. If that isn't the case, there isn't much we can do.
+  //      //            if (isKnownToBeByteAlignedAndByteLength) {
+  //      //              Seq(AlignmentMultipleOf(8))
+  //      //            } else {
+  //      //              Seq(AlignmentMultipleOf(1))
+  //      //            }
+  //      //          } else {
+  //      //            // If this is an array, it's prior alignment could be it's own alignment.
+  //      //            // We really want to use this.endingAlignmentApprox since that
+  //      //            // takes into account the previous alignments, lengths, and leading
+  //      //            // skips. However, we cannot use that since that method ends up
+  //      //            // calling this method, which results in a circular loop. So,
+  //      //            // instead just use calculate this arrays ending alignment not
+  //      //            // taking into account it's previous alignment.
+  //      //            Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
+  //      //          }
+  //      //        } else {
+  //      //          Seq()
+  //      //        }
+  //      //
+  //      //      val priorAlignmentsApprox = priorSibs.map(_.endingAlignmentApprox) ++ parent.map(_.contentStartAlignment).toSeq ++ arraySelfAlignment
+  //      //      priorAlignmentsApprox.reduce(_ * _)
+  //    }
+  //  }.value
 
-  private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
-    priorAlignmentApprox + leadingSkipApprox
-  }
+  //  private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = LV('priorAlignmentWithLeadingSkipApprox) {
+  //    priorAlignmentApprox + leadingSkipApprox
+  //  }.value
 
-  protected lazy val contentStartAlignment: AlignmentMultipleOf = {
-    if ((priorAlignmentWithLeadingSkipApprox) % alignmentApprox == 0) {
-      // alignment won't be needed, continue using prior alignment as start alignment
-      priorAlignmentWithLeadingSkipApprox
-    } else {
-      // alignment will be needed, it will be forced to be aligned to alignmentApprox
-      alignmentApprox
-    }
-  }
+  protected lazy val contentStartAlignment: AlignmentMultipleOf = AlignmentMultipleOf(1)
+  //  {
+  //    if ((priorAlignmentWithLeadingSkipApprox) % alignmentApprox == 0) {
+  //      // alignment won't be needed, continue using prior alignment as start alignment
+  //      priorAlignmentWithLeadingSkipApprox
+  //    } else {
+  //      // alignment will be needed, it will be forced to be aligned to alignmentApprox
+  //      alignmentApprox
+  //    }
+  //  }
 
-  protected lazy val endingAlignmentApprox: AlignmentMultipleOf = {
-    this match {
-      case eb: ElementBase => {
-        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
-          eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
-        } else {
-          // simple type or complex type with specified length
-          contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
-        }
-      }
-      case mg: ModelGroup => {
-        val (lastChildren, couldBeLast) = mg.potentialLastChildren
-        val lastApprox = lastChildren.map(_.endingAlignmentApprox + trailingSkipApprox) ++ (if (couldBeLast) Seq(contentStartAlignment + trailingSkipApprox) else Seq())
-        lastApprox.reduce { _ * _ }
-      }
-    }
-  }
+  protected lazy val endingAlignmentApprox: AlignmentMultipleOf = AlignmentMultipleOf(1)
+  //  {
+  //    this match {
+  //      case eb: ElementBase => {
+  //        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+  //          eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
+  //        } else {
+  //          // simple type or complex type with specified length
+  //          contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
+  //        }
+  //      }
+  //      case mg: ModelGroup => {
+  //        val (lastChildren, couldBeLast) = mg.potentialLastChildren
+  //        val lastApprox = lastChildren.map(_.endingAlignmentApprox + trailingSkipApprox) ++ (if (couldBeLast) Seq(contentStartAlignment + trailingSkipApprox) else Seq())
+  //        lastApprox.reduce { _ * _ }
+  //      }
+  //    }
+  //  }
 
-  private lazy val elementSpecifiedLengthApprox: LengthApprox = {
-    this match {
-      case eb: ElementBase => {
-        eb.lengthKind match {
-          case LengthKind.Implicit => {
-            // asssert this is simple element base
-            LengthExact(eb.elementLengthInBitsEv.optConstant.get.get)
-          }
-          case LengthKind.Explicit => {
-            if (eb.elementLengthInBitsEv.optConstant.isDefined) {
-              val maybeLength = eb.elementLengthInBitsEv.optConstant.get
-              if (maybeLength.isDefined) {
-                LengthExact(maybeLength.get)
-              } else {
-                // this only occurs when lengthUnits="characters", but the
-                // charset does not have a fixed width. In that case, we know
-                // it's not a NonByteSizeCharset, so the length must be a
-                // multiple of 8
-                LengthMultipleOf(8)
-              }
-            }
-            else eb.lengthUnits match {
-              case LengthUnits.Bits => LengthMultipleOf(1)
-              case LengthUnits.Bytes => LengthMultipleOf(8)
-              case LengthUnits.Characters => encodingLengthApprox
-            }
-          }
-          case LengthKind.Delimited => encodingLengthApprox
-          case LengthKind.Pattern => encodingLengthApprox
-          case LengthKind.EndOfParent => LengthMultipleOf(1)// NYI
-          case LengthKind.Prefixed => LengthMultipleOf(1)// NYI
-        }
-      }
-    }
-  }
+  //  private lazy val elementSpecifiedLengthApprox: LengthApprox = {
+  //    this match {
+  //      case eb: ElementBase => {
+  //        eb.lengthKind match {
+  //          case LengthKind.Implicit => {
+  //            // asssert this is simple element base
+  //            LengthExact(eb.elementLengthInBitsEv.optConstant.get.get)
+  //          }
+  //          case LengthKind.Explicit => {
+  //            if (eb.elementLengthInBitsEv.optConstant.isDefined) {
+  //              val maybeLength = eb.elementLengthInBitsEv.optConstant.get
+  //              if (maybeLength.isDefined) {
+  //                LengthExact(maybeLength.get)
+  //              } else {
+  //                // this only occurs when lengthUnits="characters", but the
+  //                // charset does not have a fixed width. In that case, we know
+  //                // it's not a NonByteSizeCharset, so the length must be a
+  //                // multiple of 8
+  //                LengthMultipleOf(8)
+  //              }
+  //            } else eb.lengthUnits match {
+  //              case LengthUnits.Bits => LengthMultipleOf(1)
+  //              case LengthUnits.Bytes => LengthMultipleOf(8)
+  //              case LengthUnits.Characters => encodingLengthApprox
+  //            }
+  //          }
+  //          case LengthKind.Delimited => encodingLengthApprox
+  //          case LengthKind.Pattern => encodingLengthApprox
+  //          case LengthKind.EndOfParent => LengthMultipleOf(1) // NYI
+  //          case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
+  //        }
+  //      }
+  //    }
+  //  }
 
-  private lazy val encodingLengthApprox: LengthApprox = {
-    if (isKnownEncoding) {
-      val dfdlCharset = charsetEv.optConstant.get
-      val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
-      LengthMultipleOf(fixedWidth)
-    } else {
-      // runtime encoding, which must be a byte-length encoding
-      LengthMultipleOf(8)
-    }
-  }
+  //  private lazy val encodingLengthApprox: LengthApprox = {
+  //    if (isKnownEncoding) {
+  //      val dfdlCharset = charsetEv.optConstant.get
+  //      val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+  //      LengthMultipleOf(fixedWidth)
+  //    } else {
+  //      // runtime encoding, which must be a byte-length encoding
+  //      LengthMultipleOf(8)
+  //    }
+  //  }
 
-  protected lazy val isKnownToBeByteAlignedAndByteLength: Boolean = {
-    if (isRepresented) {
-      val isByteAligned = alignmentValueInBits == 8
-      val isSkipRegionByteLength = (leadingSkipInBits % 8 == 0) && (trailingSkipInBits % 8 == 0)
-
-      val isByteLength = this match {
-        case mg: ModelGroup => mg.groupMembersNoRefs.forall { _.isKnownToBeByteAlignedAndByteLength }
-        case eb: ElementBase => {
-          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
-          val isSelfByteLength = 
-            if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
-              eb.complexType.group.isKnownToBeByteAlignedAndByteLength
-            } else {
-              elementSpecifiedLengthApprox.nBits % 8 == 0
-            }
-          isSelfByteSizeEncoding && isSelfByteLength
-        }
-      }
-
-      isByteAligned && isSkipRegionByteLength && isByteLength
-    } else {
-      true
-    }
-  }
+  protected lazy val isKnownToBeByteAlignedAndByteLength: Boolean = false
+  //  {
+  //    if (isRepresented) {
+  //      val isByteAligned = alignmentValueInBits == 8
+  //      val isSkipRegionByteLength = (leadingSkipInBits % 8 == 0) && (trailingSkipInBits % 8 == 0)
+  //
+  //      val isByteLength = this match {
+  //        case mg: ModelGroup => mg.groupMembersNoRefs.forall { _.isKnownToBeByteAlignedAndByteLength }
+  //        case eb: ElementBase => {
+  //          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
+  //          val isSelfByteLength =
+  //            if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+  //              eb.complexType.group.isKnownToBeByteAlignedAndByteLength
+  //            } else {
+  //              elementSpecifiedLengthApprox.nBits % 8 == 0
+  //            }
+  //          isSelfByteSizeEncoding && isSelfByteLength
+  //        }
+  //      }
+  //
+  //      isByteAligned && isSkipRegionByteLength && isByteLength
+  //    } else {
+  //      true
+  //    }
+  //  }
 
 }

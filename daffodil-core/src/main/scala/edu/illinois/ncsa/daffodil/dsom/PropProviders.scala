@@ -120,6 +120,7 @@ trait LeafPropProvider
 final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
   extends Logging with PropTypes {
 
+  override def toString() = Misc.getNameFromClass(this) + "(" + forAnnotation + ")"
   /**
    * for debug/test only
    */

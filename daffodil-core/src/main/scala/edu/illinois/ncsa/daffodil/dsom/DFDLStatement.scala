@@ -46,4 +46,5 @@ abstract class DFDLStatement(node: Node,
   requiredEvaluations(gram)
 
   def gram: Gram
+
 }

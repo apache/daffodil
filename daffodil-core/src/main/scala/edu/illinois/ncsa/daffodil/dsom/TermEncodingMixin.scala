@@ -114,9 +114,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         mg.hasNoSkipRegions &&
           hasTextAlignment
       }
-      case gr: GroupRef => {
-        gr.group.isLocallyTextOnly
-      }
     }
     res
   }

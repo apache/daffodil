@@ -80,13 +80,16 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
       } catch { case e: PatternSyntaxException => SDE("The pattern contained invalid syntax: %s", e.getMessage()) }
 
       val hasWord = thePattern.contains("\\w")
-
-      if (decl.term.termRuntimeData.encodingInfo.knownEncodingIsUnicode && hasWord) {
-        SDW("The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
-          decl.term.termRuntimeData.encodingInfo.knownEncodingName, thePattern)
+      decl match {
+        case term: Term => {
+          val encInfo = term.termRuntimeData.encodingInfo
+          if (encInfo.knownEncodingIsUnicode && hasWord)
+            SDW("The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
+              encInfo.knownEncodingName, thePattern)
+        }
+        case _ => // ok
       }
     }
-
     optPattern
   }
 
@@ -131,8 +134,8 @@ final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 
   final def gram = LV('gram) {
     testKind match {
-      case TestKind.Pattern => AssertPatternPrim(decl, this)
-      case TestKind.Expression => AssertBooleanPrim(decl, this)
+      case TestKind.Pattern => AssertPatternPrim(decl.term, this)
+      case TestKind.Expression => AssertBooleanPrim(decl.term, this)
     }
   }.value
 }
@@ -142,8 +145,8 @@ final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
 
   final def gram = LV('gram) {
     testKind match {
-      case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
-      case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
+      case TestKind.Pattern => DiscriminatorPatternPrim(decl.term, this)
+      case TestKind.Expression => DiscriminatorBooleanPrim(decl.term, this)
     }
   }.value
 }

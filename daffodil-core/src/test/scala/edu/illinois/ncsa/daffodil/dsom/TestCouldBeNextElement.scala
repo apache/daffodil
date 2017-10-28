@@ -55,10 +55,10 @@ class TestCouldBeNextElement {
               </xs:sequence>
               <xs:sequence>
               </xs:sequence>
-              <xs:element name="bar1" type="xs:string"/>
+              <xs:element name="bar1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
             </xs:choice>
-            <xs:element name="barOpt" minOccurs="0" dfdl:occursCountKind="implicit" type="xs:string"/>
-            <xs:element name="bar2" type="xs:string"/>
+            <xs:element name="barOpt" minOccurs="0" dfdl:occursCountKind="implicit" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="bar2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
@@ -83,6 +83,8 @@ class TestCouldBeNextElement {
     assertEquals("barOpt", root.possibleFirstChildElementsInInfoset(1).asInstanceOf[LocalElementBase].name)
     assertEquals("bar2", root.possibleFirstChildElementsInInfoset(2).asInstanceOf[LocalElementBase].name)
 
+    //val bar1PFCEII = bar1.possibleFirstChildElementsInInfoset
+    //val bar1PNCEII = bar1.possibleNextChildElementsInInfoset
     assertEquals(0, bar1.possibleFirstChildElementsInInfoset.length)
     assertEquals(2, bar1.possibleNextChildElementsInInfoset.length)
     assertEquals("barOpt", bar1.possibleNextChildElementsInInfoset(0).asInstanceOf[LocalElementBase].name)
@@ -220,15 +222,15 @@ class TestCouldBeNextElement {
       <xs:element name="root">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="e1" type="xs:string" />
-            <xs:sequence dfdl:hiddenGroupRef="g1_hidden" />
-            <xs:element name="e2" type="xs:string" dfdl:occursCountKind="parsed" />
+            <xs:element name="e1" type="xs:string"/>
+            <xs:sequence dfdl:hiddenGroupRef="g1_hidden"/>
+            <xs:element name="e2" type="xs:string" dfdl:occursCountKind="parsed"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
       <xs:group name="g1_hidden">
         <xs:sequence>
-          <xs:element name="e2_hidden" type="xs:string" dfdl:occursCountKind="parsed" />
+          <xs:element name="e2_hidden" type="xs:string" dfdl:occursCountKind="parsed"/>
         </xs:sequence>
       </xs:group>)
 

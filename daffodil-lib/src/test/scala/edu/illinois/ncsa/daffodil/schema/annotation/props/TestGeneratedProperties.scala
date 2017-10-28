@@ -35,7 +35,7 @@ package edu.illinois.ncsa.daffodil.schema.annotation.props
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHostImpl
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.api.WarnID
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
@@ -54,7 +54,7 @@ class TestGeneratedProperties {
    * retrieves the property if it is present.
    */
   class HasLotsOfProperties
-    extends OOLAGHost(null)
+    extends OOLAGHostImpl(null)
     with LookupLocation
     with Format_AnnotationMixin
     with SeparatorSuppressionPolicyMixin {

@@ -40,12 +40,12 @@ trait NestingMixin {
   def parent: SchemaComponent
 
   /**
-   * Define this for schema components that have back-references to ref 
+   * Define this for schema components that have back-references to ref
    * objects.
    * So group def to group ref, globalelementdecl to element ref,
    * type to element, base type to derived type.
-   * 
-   * Not for format annotations however. We don't backpoint those to 
+   *
+   * Not for format annotations however. We don't backpoint those to
    * other format annotations that ref them.
    */
   protected def enclosingComponentDef: Option[SchemaComponent]
@@ -62,11 +62,12 @@ trait NestingMixin {
    */
   final lazy val enclosingComponent: Option[SchemaComponent] = {
     val optECD = enclosingComponentDef
-    optECD match {
+    val res = optECD match {
       case Some(eref: ElementRef) => eref.enclosingComponent
       case Some(gref: GroupRef) => gref.enclosingComponent
       case _ => optECD
     }
+    res
   }
 }
 

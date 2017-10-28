@@ -1,7 +1,7 @@
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
+ *               http://woverride val ww.tresys.com
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
@@ -37,9 +37,10 @@ import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.QName
 
-abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
-  extends SchemaComponent(xmlArg, parent)
+abstract class ComplexTypeBase(xml: Node, parent: SchemaComponent)
+  extends SchemaComponentImpl(xml, parent)
   with TypeBase
+  with NonPrimTypeMixin
   with ComplexTypeBaseGrammarMixin {
 
   final override def optRestriction = None
@@ -48,7 +49,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   requiredEvaluations(modelGroup)
 
-  def element: ElementBase
+  def elementDecl: ElementDeclMixin
 
   protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
@@ -101,7 +102,7 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
   extends SchemaComponentFactory(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin {
 
-  def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
+  def forElement(elementDecl: ElementDeclMixin) = new GlobalComplexTypeDef(xml, schemaDocument, elementDecl)
 
   override lazy val namedQName = QName.createGlobal(name, targetNamespace, xml.scope)
 }
@@ -109,17 +110,17 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 /**
  * For unit testing purposes, the element argument might be supplied as null.
  */
-final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
+final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, override val elementDecl: ElementDeclMixin)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
   with NestingTraversesToReferenceMixin {
 
-  lazy val referringComponent = Option(element)
+  override lazy val referringComponent = Option(elementDecl)
 
 }
 
-final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
-  extends ComplexTypeBase(xmlArg, element)
+final class LocalComplexTypeDef(xmlArg: Node, override val elementDecl: ElementDeclMixin)
+  extends ComplexTypeBase(xmlArg, elementDecl)
   with LocalNonElementComponentMixin
   with NestingLexicalMixin {
   // nothing

@@ -32,14 +32,12 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
-import scala.xml._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import java.lang.{ Integer => JInt }
 
-abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)
-  extends Term(xmlArg, parentArg, position) {
+trait GroupBase
+  extends Term {
 
   final override def isScalar = true
   final override def isOptional = false
@@ -64,22 +62,22 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
   final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
   final lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
   final lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }
-  final lazy val groupRefPeers = enclosingComponentModelGroup.map { _.groupRefChildren }
+  // final lazy val groupRefPeers = enclosingComponentModelGroup.map { _.groupRefChildren }
 
   protected def myPeers: Option[Seq[GroupBase]]
 
   def group: ModelGroup
 
-  final lazy val immediateGroup: Option[ModelGroup] = {
-    val res: Option[ModelGroup] = this.group match {
-      case (s: Sequence) => Some(s)
-      case (c: Choice) => Some(c)
-      case _ => None
-    }
-    res
-  }
+  //  final lazy val immediateGroup: Option[ModelGroup] = {
+  //    val res: Option[ModelGroup] = this.group match {
+  //      case (s: Sequence) => Some(s)
+  //      case (c: Choice) => Some(c)
+  //      case _ => None
+  //    }
+  //    res
+  //  }
 
-  final lazy val alignmentValueInBits: JInt = {
+  override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
       case AlignmentType.Implicit => 1
       case align: JInt => this.alignmentUnits match {

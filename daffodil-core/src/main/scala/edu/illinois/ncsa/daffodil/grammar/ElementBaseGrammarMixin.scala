@@ -37,7 +37,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
-import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import java.lang.{ Long => JLong }
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
@@ -657,11 +656,7 @@ trait ElementBaseGrammarMixin
     ConvertTextCombinator(this, stringValue, ConvertTextBooleanPrim(this))
   }
 
-  // shorthand
-  final lazy val primType = {
-    val res = typeDef.asInstanceOf[SimpleTypeBase].primType
-    res
-  }
+  def primType: PrimType
 
   protected final lazy val value = prod("value", isSimpleType) {
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
@@ -1025,7 +1020,9 @@ trait ElementBaseGrammarMixin
 
   private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 
-  protected final lazy val enclosedElement = prod("enclosedElement") {
+  protected def enclosedElement: Gram
+
+  final lazy val enclosedElementProd = prod("enclosedElement") {
     //
     // not isScalar, because this is reused inside arrays
     // that is, we're counting on reusuing this production for array elements

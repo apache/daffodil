@@ -176,7 +176,7 @@ trait GlobalElementComponentMixin
  * Namely the local element declaration class.
  */
 trait ElementFormDefaultMixin {
-  
+
   def tunable: DaffodilTunables
 
   def xml: Node

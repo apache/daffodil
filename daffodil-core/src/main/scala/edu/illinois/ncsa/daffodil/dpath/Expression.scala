@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
@@ -54,7 +54,7 @@ import edu.illinois.ncsa.daffodil.util.Numbers
  *
  * This is the OOLAG pattern again.
  */
-abstract class Expression extends OOLAGHost
+abstract class Expression extends OOLAGHostImpl()
   with ImplementsThrowsOrSavesSDE {
 
   /**
@@ -294,8 +294,8 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case ("=", _) => subsetError("Unsupported operation '%s'. Use 'eq' instead.", op)
       case ("!=", _) => subsetError("Unsupported operation '%s'. Use 'ne' instead.", op)
 
-      case("eq", HexBinary) => EQ_CompareByteArray
-      case("ne", HexBinary) => NE_CompareByteArray
+      case ("eq", HexBinary) => EQ_CompareByteArray
+      case ("ne", HexBinary) => NE_CompareByteArray
       case ("eq", _) => EQ_Compare
       case ("ne", _) => NE_Compare
 

@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.dsom
 
-import scala.xml.Node
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
@@ -77,8 +76,9 @@ object ElementBase {
 /**
  * Shared by all forms of elements, local or global or element reference.
  */
-abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends Term(xmlArg, parent, position)
+trait ElementBase
+  extends Term
+  with ElementLikeMixin
   with Element_AnnotationMixin
   with NillableMixin
   with DFDLStatementMixin
@@ -89,7 +89,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin
-  with RealTermMixin {
+  with OverlapCheckMixin {
 
   override final def eBase = this
 
@@ -111,19 +111,15 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def name: String
 
-  def inputValueCalcOption: PropertyLookupResult
-  def outputValueCalcOption: PropertyLookupResult
+  final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
+  final lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
   def isNillable: Boolean
   def isSimpleType: Boolean
   def isComplexType: Boolean
 
-  final def simpleType = typeDef match {
-    case st: SimpleTypeBase => st
-    case ct: ComplexTypeBase =>
-      Assert.invariantFailed("Must be simple type: " + ct.element.namedQName)
-  }
+  def simpleType: SimpleTypeBase
 
-  final def complexType = typeDef.asInstanceOf[ComplexTypeBase]
+  def complexType: ComplexTypeBase
 
   /**
    * Irrespective of whether the type of this element is immediate or
@@ -182,21 +178,21 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *  at parse runtime, or we can ignore that.
    */
   final lazy val isReferencedByContentLengthParserExpressions: Boolean =
-    rootElement.get.contentLengthParserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+    rootElementRef.get.contentLengthParserReferencedElementInfos.contains(this.dpathElementCompileInfo)
 
   /**
    * Tells us if, for this element, we need to capture its content length
    *  at unparse runtime, or we can ignore that.
    */
   final lazy val isReferencedByContentLengthUnparserExpressions: Boolean =
-    rootElement.get.contentLengthUnparserReferencedElementInfos.contains(this.dpathElementCompileInfo)
+    rootElementRef.get.contentLengthUnparserReferencedElementInfos.contains(this.dpathElementCompileInfo)
 
   /**
    * Tells us if, for this element, we need to capture its value length
    *  at parse runtime, or we can ignore that.
    */
   final lazy val isReferencedByValueLengthParserExpressions: Boolean = {
-    val setElems = rootElement.get.valueLengthParserReferencedElementInfos
+    val setElems = rootElementRef.get.valueLengthParserReferencedElementInfos
     //    if (this eq rootElement.get)
     //      println("PARSER these are referenced by valueCalc: " + setElems.toString)
     val res = setElems.contains(this.dpathElementCompileInfo)
@@ -207,7 +203,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *  at unparse runtime, or we can ignore that.
    */
   final lazy val isReferencedByValueLengthUnparserExpressions: Boolean = {
-    val setElems = rootElement.get.valueLengthUnparserReferencedElementInfos
+    val setElems = rootElementRef.get.valueLengthUnparserReferencedElementInfos
     //    if (this eq rootElement.get)
     //      println("UNPARSER these are referenced by valueCalc: " + setElems.toString)
     val isInExprs = setElems.contains(this.dpathElementCompileInfo)
@@ -252,14 +248,26 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val optMinOccurs: Option[Int] = None
   lazy val optMaxOccurs: Option[Int] = None
 
-  def elementRef: Option[ElementRef]
-
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
 
+  /**
+   * This is the compile info for this element. Since this might be an
+   * element ref, we optionally carry the compile info for the referenced
+   * element in that case.
+   */
   lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
+    this match {
+      case l: LocalElementDecl if l.namedQName.local == "d" =>
+        println("Local Element 'd' detected")
+      case _ => //ok
+    }
+    val ee = enclosingElement
     val eci = new DPathElementCompileInfo(
-      enclosingElement.map { _.dpathElementCompileInfo },
+      ee.map {
+        _.dpathElementCompileInfo
+      },
       variableMap,
+      elementChildrenCompileInfo,
       namespaces,
       slashPath,
       name,
@@ -267,10 +275,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       namedQName,
       optPrimType,
       schemaFileLocation,
-      elementChildrenCompileInfo,
-      tunable)
+      tunable,
+      maybeElementRefReferencedElementCompileInfo)
     eci
   }
+
+  protected def maybeElementRefReferencedElementCompileInfo: Maybe[DPathElementCompileInfo] = Maybe.Nope
 
   private lazy val thisElementsNamespace: NS = this.namedQName.namespace
   private lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
@@ -484,7 +494,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val childElementResolver: NextElementResolver =
     computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
 
-  lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
+  final def erd = elementRuntimeData // just an abbreviation
+
+  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
+    computeElementRuntimeData
+  }.value
+
+  protected def computeElementRuntimeData(): ElementRuntimeData = {
     val ee = enclosingElement
     //
     // Must be lazy below, because we are defining the elementRuntimeData in terms of
@@ -492,26 +508,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     // constructed lazily so that we first connect up all the erds to their children,
     // and only subsequently ask for these parents to be elaborated.
     //
-    lazy val optERD = ee.map { enc =>
+    lazy val parent = ee.map { enc =>
       Assert.invariant(this != enc)
       enc.elementRuntimeData
     }
-    lazy val maybeTRD = this.enclosingTerm.map { enc =>
+    lazy val parentTerm = this.enclosingTerm.map { enc =>
       Assert.invariant(this != enc)
       enc.termRuntimeData
     }
-    createElementRuntimeData(optERD, maybeTRD)
-  }.value
-
-  def erd = elementRuntimeData // just an abbreviation
-
-  /**
-   * Everything needed at runtime about the element
-   * in order to compile expressions using it, (for debug)
-   * and issue proper diagnostics in error situations.
-   */
-  private def createElementRuntimeData(parent: => Option[ElementRuntimeData],
-    parentTerm: => Maybe[TermRuntimeData]): ElementRuntimeData = {
 
     //
     // I got sick of initialization time problems, so this mutual recursion
@@ -590,13 +594,16 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val elementChildren: Seq[ElementBase] = {
     this.typeDef match {
       case ct: ComplexTypeBase => {
-        ct.group.elementChildren.asInstanceOf[Seq[ElementBase]]
+        ct.group.elementChildren
       }
       case _ => Nil
     }
   }
 
-  final lazy val elementChildrenCompileInfo = elementChildren.map { _.dpathElementCompileInfo }
+  final lazy val elementChildrenCompileInfo =
+    elementChildren.map {
+      _.dpathElementCompileInfo
+    }
 
   final override lazy val isRepresented = {
     val isRep = inputValueCalcOption.isInstanceOf[NotFound]
@@ -644,17 +651,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
-    node match {
-      case <dfdl:element>{ contents @ _* }</dfdl:element> => Some(new DFDLElement(node, this))
-      case _ => annotationFactoryForDFDLStatement(node, this)
-    }
-  }
-
-  protected final def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
-
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
-
   private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
     theRepresentation match {
       case Representation.Text =>
@@ -685,7 +681,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val alignmentValueInBits: JInt = {
     alignment match {
       case AlignmentType.Implicit => {
-        if (this.isComplexType) this.complexType.modelGroup.group.alignmentValueInBits
+        if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
         else implicitAlignmentInBits
       }
       case align: JInt => {
@@ -1072,58 +1068,63 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   /**
    * Does the element have a default value?
    */
-  def isDefaultable: Boolean
   def defaultValueAsString: String
+  def hasDefaultValue: Boolean
 
   /**
-   * Combine our statements with those of the ref that is referencing us (if there is one), and
-   * those of our simpleType (if we're a simple type element)
+   * We require that there be a concept of empty if we're going to be able to default something
+   * and we are going to require that we can tell this statically. I.e., we're not going to defer this to runtime
+   * just in case the delimiters are being determined at runtime.
    *
-   * The order here is important. The statements from type come first, then from declaration, then from
-   * reference.
+   * That is to say, if a delimiter is an expression, then we're assuming that means
+   * at runtime it will not evaluate to empty string (so you can specify the delimiter
+   * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
    */
-  lazy val statements: Seq[DFDLStatement] =
-    stForStatements.map { _.statements }.getOrElse(Nil) ++
-      localStatements ++
-      elementRef.map { _.statements }.getOrElse(Nil)
-
-  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
-    stForStatements.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++
-      localNewVariableInstanceStatements ++
-      elementRef.map { _.newVariableInstanceStatements }.getOrElse(Nil)
-
-  lazy val (discriminatorStatements, assertStatements) =
-    checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
-
-  private lazy val combinedAsserts: Seq[DFDLAssert] =
-    stForStatements.map { _.assertStatements }.getOrElse(Nil) ++
-      localAssertStatements ++
-      elementRef.map { _.assertStatements }.getOrElse(Nil)
-
-  private lazy val combinedDiscrims: Seq[DFDLDiscriminator] =
-    stForStatements.map { _.discriminatorStatements }.getOrElse(Nil) ++
-      localDiscriminatorStatements ++
-      elementRef.map { _.discriminatorStatements }.getOrElse(Nil)
-
-  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
-    val combinedSvs =
-      stForStatements.map { _.setVariableStatements }.getOrElse(Nil) ++
-        localSetVariableStatements ++
-        elementRef.map { _.setVariableStatements }.getOrElse(Nil)
-    checkDistinctVariableNames(combinedSvs)
-  }
-
-  private lazy val stForStatements = typeDef match {
-    case st: SimpleTypeDefBase => Some(st)
-    case _ => None
-  }
+  final lazy val isDefaultable: Boolean = LV('isDefaultable) {
+    if (isSimpleType) {
+      if (!isRepresented) false
+      else if (!hasDefaultValue) false
+      else {
+        if (!emptyIsAnObservableConcept)
+          SDW("Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
+        schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
+        if (isArray && !isRequiredArrayElement) {
+          (optMinOccurs, occursCountKind) match {
+            case (_, OccursCountKind.Parsed) |
+              (_, OccursCountKind.StopValue) =>
+              SDE("XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
+                defaultValueAsString, occursCountKind)
+            case (Some(0), _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
+              defaultValueAsString)
+            case _ => // ok
+          }
+        }
+        Assert.invariant(hasDefaultValue)
+        !isOptional &&
+          (isScalar ||
+            isRequiredArrayElement)
+      }
+    } else {
+      // TODO: Implement complex element defaulting
+      // JIRA issue DFDL-1277
+      //
+      // a complex element is defaultable
+      // recursively if everything in it is defaultable
+      // and everything in it has no required representation
+      // (e.g., no required delimiters, no alignment, no skip, etc.)
+      // furthermore, even the defaultable things inside must satisfy
+      // a stricter criterion. They must have emptyValueDelimiterPolicy='none'
+      // if delimiters are defined and they could be empty (which is implied if they are defaultable)
+      false
+    }
+  }.value
 
   protected final def possibleFirstChildTerms: Seq[Term] = termChildren
 
   protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
     val couldBeLast = enclosingTerm match {
       case None => true
-      case Some(s: Sequence) if s.isOrdered => {
+      case Some(s: SequenceBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
           case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
           case mg: ModelGroup => mg.mustHaveRequiredElement
@@ -1136,13 +1137,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val nextParentElements: Seq[ElementBase] = {
     if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
-      enclosingTerm.get.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
+      enclosingTerm.get.possibleNextChildElementsInInfoset
     } else {
       Nil
     }
   }
 
-  protected final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
+  final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 
   // This function ensures that all children have a compatable
   // parseUnparsePolicy with the root. In other words, if the root policy is

@@ -37,8 +37,6 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.ComplexTypeCombinator
 
 trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
 
-  override lazy val termContentBody = self.group.termContentBody
-
 }
 
 /////////////////////////////////////////////////////////////////
@@ -50,6 +48,6 @@ trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =
   override protected final def grammarContext = this
 
   lazy val mainGrammar = prod("mainGrammar") {
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType)
+    ComplexTypeCombinator(this, group.asChildOfComplexType)
   }
 }
