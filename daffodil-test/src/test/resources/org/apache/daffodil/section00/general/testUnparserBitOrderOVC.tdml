@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  suiteName="unparser tests involving bitOrder and outputValueCalc interactions"
+  defaultRoundTrip="false">
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+
+    <dfdl:format ref="ex:daffodilTest1" textPadKind='none' lengthKind="explicit" lengthUnits="bits" alignmentUnits="bits" alignment="1"
+      fillByte="%#xFF;" representation="binary" binaryNumberRep="binary" />
+
+    <dfdl:defineFormat name="be">
+      <dfdl:format byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="le">
+      <dfdl:format byteOrder="littleEndian" bitOrder="leastSignificantBitFirst" />
+    </dfdl:defineFormat>
+
+    <xs:element name="envelope" dfdl:lengthKind="implicit" dfdl:ref="be">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:unsignedByte" dfdl:length="8" dfdl:ref="be" />
+          <xs:element name="payload" dfdl:ref="le" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="AA" type="xs:string" dfdl:ref="le" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-5-BIT-PACKED-LSBF"
+                  dfdl:lengthUnits="characters" dfdl:outputValueCalc='{ fn:substring(../value, 1, 2) }' />
+                <xs:element name="NNN" type="xs:string" dfdl:ref="le" dfdl:length="3" dfdl:lengthKind="explicit" dfdl:encoding="X-DFDL-OCTAL-LSBF"
+                  dfdl:lengthUnits="characters" dfdl:outputValueCalc='{ fn:substring(../value, 3, 3) }' />
+                <xs:element name="value" type="xs:string" dfdl:ref="le" dfdl:inputValueCalc='{ fn:concat(../AA, ../NNN) }' />
+                <xs:element name="padBit" type="xs:unsignedByte" dfdl:ref="le" dfdl:length="1"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>          
+          <xs:sequence dfdl:ref="le" dfdl:alignment="1" dfdl:alignmentUnits="bytes">
+            <xs:element name="b" type="xs:unsignedByte" dfdl:length="8" dfdl:ref="be" dfdl:alignment="1" dfdl:alignmentUnits="bytes" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+  <tdml:unparserTestCase name="bitOrderOVC1" root="envelope" model="s1" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:envelope>
+          <a>255</a>
+          <payload>
+            <AA>AB</AA>
+            <NNN>123</NNN>
+            <value>XX123</value>
+            <padBit>1</padBit>
+          </payload>
+          <b>165</b>
+        </ex:envelope>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document bitOrder="MSBFirst">
+      <tdml:documentPart type="bits" bitOrder="MSBFirst" byteOrder="LTR">11111111</tdml:documentPart>
+      <tdml:documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">1111 1 011 010 001 01001 01000 </tdml:documentPart>
+      <tdml:documentPart type="bits" bitOrder="MSBFirst" byteOrder="LTR">10100101</tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

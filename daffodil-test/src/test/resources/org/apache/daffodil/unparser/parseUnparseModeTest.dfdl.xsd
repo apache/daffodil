@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  targetNamespace="http://example.com"
+  xmlns:tns="http://example.com"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:mode="urn:parseUnparseMode"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  elementFormDefault="unqualified">
+
+   <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+   <xs:import namespace="urn:parseUnparseMode" schemaLocation="parseUnparseMode.dfdl.xsd"/>
+   
+   <xs:annotation>
+     <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:format ref="tns:daffodilTest1" truncateSpecifiedLengthString="yes"/>
+      </xs:appinfo>
+   </xs:annotation>
+   
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="mode:hDefModeGroup" />
+          <xs:choice>
+          <xs:sequence>
+            <xs:group ref="mode:assertParsing"/>
+            <xs:element name="a" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="b" type="xs:string" dfdl:inputValueCalc="{ 'parsing' }" />
+          </xs:sequence>
+          <xs:sequence>
+            <xs:group ref="mode:assertUnparsing"/>
+            <xs:element name="a1" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="c" type="xs:unsignedByte" dfdl:lengthKind="explicit" 
+                        dfdl:lengthUnits="bytes" dfdl:length="1" 
+                        dfdl:representation="binary" 
+                        dfdl:binaryNumberRep="binary"/>
+          </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="rootAmbiguous">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="mode:hDefModeGroup" />
+          <xs:choice>
+          <xs:sequence>
+            <xs:group ref="mode:assertParsing"/>
+            <xs:element name="a" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="b" type="xs:string" dfdl:inputValueCalc="{ 'parsing' }" />
+          </xs:sequence>
+          <xs:sequence>
+            <xs:group ref="mode:assertUnparsing"/>
+            <xs:element name="a" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
+            <xs:element name="c" type="xs:unsignedByte" dfdl:lengthKind="explicit" 
+                        dfdl:lengthUnits="bytes" dfdl:length="1" 
+                        dfdl:representation="binary" 
+                        dfdl:binaryNumberRep="binary"/>
+          </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</xs:schema>

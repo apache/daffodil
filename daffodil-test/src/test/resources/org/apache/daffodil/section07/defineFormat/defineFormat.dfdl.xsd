@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"> 
+  
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+
+  <xs:annotation> 
+    <xs:appinfo source="http://www.ogf.org/dfdl/" >
+      <dfdl:format ref="daffodilTest1" lengthKind="implicit" leadingSkip='0' initiator="" terminator="" 
+      alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/> 
+      
+      <dfdl:defineFormat name="common"> 
+        <dfdl:format representation="text" lengthKind="delimited" leadingSkip='0' initiator="" textTrimKind="none"
+                     encoding="ASCII" initiatedContent="no" separator="" terminator="" ignoreCase="no"/> 
+      </dfdl:defineFormat>
+      
+      <dfdl:defineFormat name="base"> 
+        <dfdl:format representation="text" leadingSkip='0' initiator="" textTrimKind="none"
+                     encoding="ASCII" initiatedContent="no" separator="" terminator="" ignoreCase="no"/> 
+      </dfdl:defineFormat>
+      
+      <dfdl:defineFormat name="common1"> 
+        <dfdl:format ref="base" lengthKind="delimited" /> 
+      </dfdl:defineFormat> 
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:element name="address"> 
+    <xs:complexType> 
+      <xs:sequence dfdl:ref="common" 
+                   dfdl:sequenceKind="ordered"  
+                   dfdl:separator="*"  
+                   dfdl:separatorPosition="infix"  
+                   dfdl:separatorSuppressionPolicy="never">
+        <xs:element name="houseNumber" type="xs:int"  
+                    dfdl:ref="common" 
+                    dfdl:textNumberRep="standard"  
+                    dfdl:textNumberPattern="##0" />
+        <xs:element name="street" type="xs:string" 
+                    dfdl:ref="common" />  
+        <xs:element name="city" type="xs:string"
+		                dfdl:ref="common" />  
+        <xs:element name="state" type="xs:string"  
+                    dfdl:ref="common" />  
+      </xs:sequence> 
+    </xs:complexType> 
+  </xs:element>
+  
+  <xs:element name="address1"> 
+    <xs:complexType> 
+      <xs:sequence dfdl:ref="common1" 
+                   dfdl:sequenceKind="ordered"  
+                   dfdl:separator="*"  
+                   dfdl:separatorPosition="infix"  
+                   dfdl:separatorSuppressionPolicy="never">
+        <xs:element name="houseNumber" type="houseNumberType"  
+                    dfdl:ref="common1"/>
+        <xs:element name="street" type="xs:string" 
+                    dfdl:ref="common1" />  
+        <xs:element name="city" type="xs:string"
+                    dfdl:ref="common1" />  
+        <xs:element name="state" type="xs:string"  
+                    dfdl:ref="common1" />  
+      </xs:sequence> 
+    </xs:complexType>
+  </xs:element>
+    
+    <xs:simpleType name="houseNumberType" 
+               dfdl:textNumberRep="standard"  
+               dfdl:textNumberPattern="##0" > 
+      <xs:restriction base="xs:int"> 
+        <xs:minInclusive value="1" /> 
+      </xs:restriction> 
+    </xs:simpleType> 
+  
+</xs:schema>

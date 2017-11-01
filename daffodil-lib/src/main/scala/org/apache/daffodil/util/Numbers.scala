@@ -1,0 +1,356 @@
+/* Copyright (c) 2017 Tresys Technology, LLC. All rights reserved.
+ *
+ * Developed by: Tresys Technology, LLC
+ *               http://www.tresys.com
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal with
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ *
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimers.
+ *
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimers in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ *  3. Neither the names of Tresys Technology, nor the names of its contributors
+ *     may be used to endorse or promote products derived from this Software
+ *     without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+ * SOFTWARE.
+ */
+
+package org.apache.daffodil.util
+
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Byte => JByte }
+import java.lang.{ Double => JDouble }
+import java.lang.{ Float => JFloat }
+import java.lang.{ Integer => JInt }
+import java.lang.{ Long => JLong }
+import java.lang.{ Number => JNumber }
+import java.lang.{ Short => JShort }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+import org.apache.daffodil.exceptions.Assert
+
+object Numbers {
+
+  def isValidInt(n: Number): Boolean = {
+    val res = n match {
+      case j: JInt => true
+      case j: JShort => true
+      case j: JByte => true
+      case j: JLong if (j.longValue == j.intValue()) => true
+      case _ => {
+        val bd = asBigDecimal(n)
+        try {
+          bd.intValueExact()
+          true
+        } catch {
+          case e: java.lang.ArithmeticException => false
+        }
+      }
+    }
+    res
+  }
+
+  def isValidLong(n: Number): Boolean = {
+    val res = n match {
+      case j: JLong => true
+      case j: JInt => true
+      case j: JShort => true
+      case j: JByte => true
+      case _ => {
+        val bd = asBigDecimal(n)
+        try {
+          bd.longValueExact()
+          true
+        } catch {
+          case e: java.lang.ArithmeticException => false
+        }
+      }
+    }
+    res
+  }
+
+  /**
+   * This is true only if converting to a double and back results
+   * in an equal JBigDecimal.
+   *
+   * The scale matters. E.g., if you do:
+   * {{{
+   * val foo = new JBigDecimal("0.2")
+   * val bar = new JBigDecimal("0.200000000000")
+   * isDecimalDouble(foo) // true
+   * isDecimalDouble(bar) // false
+   * }}}
+   */
+  def isDecimalDouble(bd: JBigDecimal): Boolean = {
+    val df = bd.doubleValue()
+    if (df.isInfinity) false
+    else {
+      val d = JBigDecimal.valueOf(df)
+      d.equals(bd)
+    }
+  }
+
+  def asInt(n: AnyRef): JInt = {
+    val value = n match {
+      case f: JFloat => f.toInt
+      case d: JDouble => d.toInt
+      case b: JByte => b.toInt
+      case s: JShort => s.toInt
+      case i: JInt => return i
+      case l: JLong => l.toInt
+      case bi: BigInt => bi.toInt
+      case bd: BigDecimal => bd.toInt
+      case bi: JBigInt => bi.intValue()
+      case bd: JBigDecimal => bd.intValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Int. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JInt(value)
+  }
+  def asByte(n: AnyRef): JByte = {
+    val value = n match {
+      case f: JFloat => f.toByte
+      case d: JDouble => d.toByte
+      case b: JByte => return b
+      case s: JShort => s.toByte
+      case i: JInt => i.toByte
+      case l: JLong => l.toByte
+      case bi: BigInt => bi.toByte
+      case bd: BigDecimal => bd.toByte
+      case bi: JBigInt => bi.byteValue()
+      case bd: JBigDecimal => bd.byteValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Byte. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JByte(value)
+  }
+  def asShort(n: AnyRef): JShort = {
+    val value = n match {
+      case f: JFloat => f.toShort
+      case d: JDouble => d.toShort
+      case b: JByte => b.toShort
+      case s: JShort => return s
+      case i: JInt => i.toShort
+      case l: JLong => l.toShort
+      case bi: BigInt => bi.toShort
+      case bd: BigDecimal => bd.toShort
+      case bi: JBigInt => bi.shortValue()
+      case bd: JBigDecimal => bd.shortValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Short. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JShort(value)
+  }
+
+  def asLong(n: AnyRef): JLong = {
+    val value = n match {
+      case b: JByte => b.toLong
+      case s: JShort => s.toLong
+      case i: JInt => i.toLong
+      case d: JDouble => d.toLong
+      case f: JFloat => f.toLong
+      case l: JLong => return l
+      case bi: BigInt => bi.toLong
+      case bd: BigDecimal => bd.toLong
+      case bi: JBigInt => bi.longValue()
+      case bd: JBigDecimal => bd.longValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Long. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JLong(value)
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asBigInt(n: AnyRef): JBigInt = {
+    val value: JBigInt = n match {
+      case b: JBigInt => b //BigInt(b)
+      case bd: JBigDecimal => bd.toBigInteger()
+      case d: JDouble => new JBigDecimal(d).toBigInteger()
+      case f: JFloat => new JBigDecimal(f.toDouble).toBigInteger()
+      case bi: BigInt => bi.underlying()
+      case bd: BigDecimal => bd.underlying().toBigInteger()
+      // the rest of the JNumbers are integers long or smaller.
+      case jn: JNumber => new JBigInt(jn.toString())
+      case _ => Assert.invariantFailed("Unsupported conversion to BigInt. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    value
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asJBigInt(n: AnyRef): JBigInt = {
+    val value: JBigInt = n match {
+      case b: JBigInt => b
+      case bd: JBigDecimal => bd.toBigInteger()
+      case d: JDouble => JBigDecimal.valueOf(d).toBigInteger()
+      case f: JFloat => new JBigDecimal(f.toString()).toBigInteger()
+      case bi: BigInt => bi.bigInteger
+      case bd: BigDecimal => bd.toBigInt.bigInteger
+      // the rest of the JNumbers are integers long or smaller.
+      case jn: JNumber => JBigInt.valueOf(jn.longValue())
+      case _ => Assert.invariantFailed("Unsupported conversion to BigInt. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    value
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asFloat(n: AnyRef): JFloat = {
+    val value = n match {
+      case f: JFloat => return f
+      case d: JDouble => d.toFloat
+      case b: JByte => b.toFloat
+      case s: JShort => s.toFloat
+      case i: JInt => i.toFloat
+      case l: JLong => l.toFloat
+      case bi: BigInt => bi.toFloat
+      case bd: BigDecimal => bd.toFloat
+      case bi: JBigInt => bi.floatValue()
+      case bd: JBigDecimal => bd.floatValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Float. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JFloat(value)
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asDouble(n: AnyRef): JDouble = {
+    val value = n match {
+      case f: JFloat => f.toDouble
+      case d: JDouble => return d
+      case b: JByte => b.toDouble
+      case s: JShort => s.toDouble
+      case i: JInt => i.toDouble
+      case l: JLong => l.toDouble
+      case bi: BigInt => bi.toDouble
+      case bd: BigDecimal => bd.toDouble
+      case bi: JBigInt => bi.doubleValue()
+      case bd: JBigDecimal => bd.doubleValue()
+      case _ => Assert.invariantFailed("Unsupported conversion to Double. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    new JDouble(value)
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asBigDecimal(n: AnyRef): JBigDecimal = {
+    val value: JBigDecimal = n match {
+      //
+      // Not converting Float to string first causes precision issues
+      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999.
+      // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
+      case f: JFloat => new java.math.BigDecimal(f.toString)
+      case d: JDouble => java.math.BigDecimal.valueOf(d)
+      case bi: BigInt => new java.math.BigDecimal(bi.toString())
+      case bd: BigDecimal => bd.underlying()
+      case bi: JBigInt => new java.math.BigDecimal(bi.toString())
+      case bd: JBigDecimal => bd
+      // The rest of the cases are integers long or smaller
+      case jn: JNumber => new java.math.BigDecimal(jn.toString())
+      case _ => Assert.invariantFailed("Unsupported conversion to BigDecimal. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    value
+  }
+
+  /*
+   * We no longer support the use of scala's BigInt/BigDecimal types
+   * as it leads to precision issues within the ICU library.  By
+   * forcing the use of Java's types we get the proper handling of
+   * precision in ICU.
+   * */
+  def asJBigDecimal(n: AnyRef): JBigDecimal = {
+    val value: JBigDecimal = n match {
+      //
+      // Not converting Float to string first causes precision issues
+      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999.
+      // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
+      case f: JFloat => new JBigDecimal(f.toString)
+      case d: JDouble => JBigDecimal.valueOf(d)
+      case bi: BigInt => new JBigDecimal(bi.underlying())
+      case bd: BigDecimal => bd.bigDecimal
+      case bi: JBigInt => new JBigDecimal(bi)
+      case bd: JBigDecimal => bd
+      // The rest of the cases are integers long or smaller
+      case jn: JNumber => JBigDecimal.valueOf(jn.longValue())
+      case _ => Assert.invariantFailed("Unsupported conversion to BigDecimal. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+    value
+  }
+
+  def asBoolean(n: Any): JBoolean = {
+    n match {
+      case bool: JBoolean => return bool
+      case b: Boolean => new JBoolean(b)
+      case _ => Assert.invariantFailed("Unsupported conversion to Boolean. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+  }
+
+  def asNumber(n: Any): JNumber = {
+    n match {
+      case b: Byte => new JByte(b)
+      case s: Short => new JShort(s)
+      case i: Int => new JInt(i)
+      case l: Long => new JLong(l)
+      case f: Float => new JFloat(f)
+      case d: Double => new JDouble(d)
+      // case bi: BigInt => bi.bigInteger
+      // case bd: BigDecimal => bd.bigDecimal
+      case jn: JNumber => jn
+      case _ => Assert.invariantFailed("Unsupported conversion to Number. %s of type %s".format(
+        n, Misc.getNameFromClass(n)))
+    }
+  }
+
+  def asAnyRef(n: Any): AnyRef = {
+    n match {
+      // case bi: BigInt => bi.bigInteger
+      // case bd: BigDecimal => bd.bigDecimal
+      case ar: AnyRef => ar
+      case b: Boolean => new JBoolean(b)
+      case _ => asNumber(n)
+    }
+  }
+}

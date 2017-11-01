@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite xmlns="http://example.com"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+	xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext">
+
+	<tdml:defineSchema name="predefinedVars">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int"
+			external="true" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" external="true" />
+		<dfdl:defineVariable name="myVar1" type="xs:int"
+			defaultValue="6" external="true" />
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="accessPreDefs">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="encoding" type="xsd:string"
+						dfdl:inputValueCalc="{ $dfdl:encoding }" />
+					<xs:element name="byteOrder" type="xsd:string"
+						dfdl:inputValueCalc="{ $dfdl:byteOrder }" />
+					<xs:element name="binaryFloatRep" type="xsd:string"
+						dfdl:inputValueCalc="{ $dfdl:binaryFloatRep }" />
+					<xs:element name="outputNewLine" type="xsd:string"
+						dfdl:inputValueCalc="{ $dfdl:outputNewLine }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="setAPreDef">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="settingValue" type="xsd:string"
+						dfdl:inputValueCalc="{ 'setting a value' }">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:setVariable ref="dfdl:outputNewLine"
+									value="{ '%NL;' }" />
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="finalValue" type="xsd:string"
+						dfdl:inputValueCalc="{ $dfdl:outputNewLine }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="access_default_predefined_vars"
+		root="accessPreDefs" model="predefinedVars" description="Use of predefined vars - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<accessPreDefs xmlns="http://www.example.org/example1/">
+					<encoding>UTF-8</encoding>
+					<byteOrder>bigEndian</byteOrder>
+					<binaryFloatRep>ieee</binaryFloatRep>
+					<outputNewLine><![CDATA[%LF;]]></outputNewLine>
+				</accessPreDefs>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="set_predefined_var"
+		root="setAPreDef" model="predefinedVars" description="Use of predefined vars - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<setAPreDef xmlns="http://www.example.org/example1/">
+					<settingValue><![CDATA[setting a value]]></settingValue>
+					<finalValue><![CDATA[%NL;]]></finalValue>
+				</setAPreDef>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="v">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int"
+			external="true" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" external="true" />
+		<dfdl:defineVariable name="myVar1" type="xs:int"
+			defaultValue="6" external="true" />
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="c">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }">
+					</xs:element>
+					<xs:element name="e" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<!-- Overrides define variables -->
+	<tdml:defineConfig name="cfg_01">
+		<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+			<daf:bind name="ex:v_no_default">1</daf:bind>
+			<daf:bind name="ex:v_with_default">2</daf:bind>
+		</daf:externalVariableBindings>
+	</tdml:defineConfig>
+
+	<!-- Overrides define variables -->
+	<tdml:parserTestCase name="read_config_from_file"
+		root="c" model="v" config="daffodil_config.xml"
+		description="Use of defineVariable and extVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c xmlns="http://www.example.org/example1/">
+					<d type="xsd:int">2</d>
+					<e type="xsd:int">1</e>
+				</c>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- Overrides define variables -->
+	<tdml:parserTestCase name="override_define_vars_01"
+		root="c" model="v" config="cfg_01"
+		description="Use of defineVariable and extVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c xmlns="http://www.example.org/example1/">
+					<d type="xsd:int">2</d>
+					<e type="xsd:int">1</e>
+				</c>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineConfig name="config_05">
+		<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+			<daf:bind name="ex:v_with_default">48</daf:bind>
+		</daf:externalVariableBindings>
+	</tdml:defineConfig>
+
+	<!-- Should error since one external variable was never set -->
+	<tdml:parserTestCase name="override_define_vars_05"
+		root="c" model="v" config="config_05"
+		description="Use of defineVariable and extVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>v_no_default has no value.</tdml:error>
+			<tdml:error>It was not set, and has</tdml:error>
+			<tdml:error>no default value.</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="v2">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int"
+			external="true" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" external="true" />
+		<dfdl:defineVariable name="myVar1" type="xs:int"
+			defaultValue="6" />
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="c">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="e" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:defineConfig name="config_02">
+		<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+			<daf:bind name="ex:v_no_default">1</daf:bind>
+			<daf:bind name="ex:v_with_default">2</daf:bind>
+		</daf:externalVariableBindings>
+	</tdml:defineConfig>
+
+	<!-- Overrides define variables and sets one -->
+	<tdml:parserTestCase name="override_define_vars_02"
+		root="c" model="v2" config="config_02"
+		description="Use of defineVariable, extVariable, and setVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c xmlns="http://www.example.org/example1/">
+					<d type="xsd:int">2</d>
+					<e type="xsd:int">2</e>
+				</c>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="v3">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" external="true" />
+		<dfdl:defineVariable name="myVar1" type="xs:int"
+			defaultValue="6" />
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="c">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/">
+								<dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="e" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:defineConfig name="config_03">
+		<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+			<daf:bind name="ex:v_no_default">1</daf:bind>
+			<daf:bind name="ex:v_with_default">2</daf:bind>
+		</daf:externalVariableBindings>
+	</tdml:defineConfig>
+
+	<!-- Should error. One of the variables is not set to external, yet we attempt 
+		to set it externally. -->
+	<tdml:parserTestCase name="override_define_vars_03"
+		root="c" model="v3" config="config_03"
+		description="Use of defineVariable, extVariable, and setVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:errors>
+			<tdml:error>Cannot set variable</tdml:error>
+			<tdml:error>v_no_default</tdml:error>
+			<tdml:error>externally</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="v4">
+		<dfdl:defineVariable name="v_no_default" type="xsd:int"
+			external="true" />
+		<dfdl:defineVariable name="v_with_default" type="xsd:int"
+			defaultValue="42" external="true" />
+		<dfdl:defineVariable name="v_with_default2" type="xsd:int"
+			external="true">73</dfdl:defineVariable>
+		<dfdl:defineVariable name="v_with_global_default"
+			type="xsd:int" defaultValue="15" external="true" />
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="c">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="d" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default }" />
+					<xs:element name="e" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_no_default }" />
+					<xs:element name="f" type="xsd:int" dfdl:inputValueCalc="{ $ex:v_with_default2 }" />
+					<xs:element name="g" type="xsd:int"
+						dfdl:inputValueCalc="{ $ex:v_with_global_default }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:defineConfig name="config_04">
+		<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+			<daf:bind name="ex:v_no_default">1</daf:bind>
+			<daf:bind name="ex:v_with_global_default">48</daf:bind>
+		</daf:externalVariableBindings>
+	</tdml:defineConfig>
+
+	<!-- Overrides some define variables -->
+	<tdml:parserTestCase name="override_define_vars_04"
+		root="c" model="v4" config="config_04"
+		description="Use of defineVariable and extVariable - DFDL-7-091R">
+
+		<tdml:document />
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<c xmlns="http://www.example.org/example1/">
+					<d type="xsd:int">42</d>
+					<e type="xsd:int">1</e>
+					<f type="xsd:int">73</f>
+					<g type="xsd:int">48</g>
+				</c>
+
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>
+

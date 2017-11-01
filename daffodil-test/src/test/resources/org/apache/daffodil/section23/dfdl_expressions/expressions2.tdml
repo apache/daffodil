@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+
+ Developed by: Tresys Technology, LLC
+ http://www.tresys.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a 
+ copy of
+ this software and associated documentation files (the "Software"), to deal 
+ with
+ the Software without restriction, including without limitation the rights 
+ to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished 
+ to do
+ so, subject to the following conditions:
+
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimers.
+
+ 2. Redistributions in binary form must reproduce the above copyright
+ notice, this list of conditions and the following disclaimers in the
+ documentation and/or other materials provided with the distribution.
+
+ 3. Neither the names of Tresys Technology, nor the names of its contributors
+ may be used to endorse or promote products derived from this Software
+ without specific prior written permission.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+ OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+ THE
+ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH 
+ THE
+ SOFTWARE.
+-->
+<tdml:testSuite
+ suiteName="expressions2"
+ description="misc expression language tests"
+ xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:ex="http://example.com"
+ xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
+ xmlns:fn="http://www.w3.org/2005/xpath-functions"
+ defaultRoundTrip="true">
+
+ <tdml:defineSchema name="s1" 
+ elementFormDefault="unqualified"
+ >
+  <dfdl:format
+   ref="ex:daffodilTest1"
+   lengthKind="explicit" 
+   representation="binary" lengthUnits="bits"/>
+
+  <xs:element name="e1" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="ul" type="xs:unsignedLong" dfdl:length="2" />
+     <!-- 
+     DFDL-1669, the comparison of ul and 1 would return false because it
+     was comparing a java.math.BigInteger with a java.lang.Long
+      -->
+      <xs:element name="comp" type="xs:int"
+       dfdl:inputValueCalc="{ if ( ../ul eq 1 ) then 1 else 0 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e2" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="arr" type="xs:unsignedByte" dfdl:length="2" dfdl:occursCountKind="expression"
+       dfdl:occursCount="{ if (../count eq 1) then ../count else 0 }" maxOccurs="unbounded" dfdl:alignmentUnits="bits"/>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e3" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ if (../count eq 1) then ../count div 0.75 else 0 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e4" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else 0) + 6 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e5" dfdl:lengthKind="implicit">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="count" type="xs:unsignedByte" dfdl:length="2" />
+     <xs:element name="ovc" type="xs:unsignedByte" dfdl:inputValueCalc="{ 5 + (if (../count eq 1) then ../count div 0.75 else '0') + 6 }" />
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+  
+ <tdml:parserTestCase
+  name="test_dfdl_1669_unsignedLong_conversion"
+  root="e1"
+  model="s1"
+  description="Show that unsignedLong element values get compared to literal integers properly."
+  roundTrip="false"
+ >
+  <tdml:document>
+  <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+  <tdml:infoset>
+  <tdml:dfdlInfoset>
+   <ex:e1 xmlns:ex="http://example.com">
+    <ul>1</ul>
+    <comp>1</comp>
+   </ex:e1>
+   </tdml:dfdlInfoset>
+  </tdml:infoset>
+ </tdml:parserTestCase>
+
+<tdml:defineSchema name="s2" elementFormDefault="unqualified">
+  
+  <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+   
+  <!-- This for reproducing the diagnostic about upward paths past root -->
+  
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="ex:f1"/>
+        <xs:element ref="ex:f2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="f1" type="xs:int" dfdl:outputValueCalc="{../ex:f2 }"/>
+  <xs:element name="f2" type="xs:int" dfdl:inputValueCalc="{ ../ex:f1 }"/>
+
+ </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_expr_path_past_root1" root="root" model="s2"
+    description="Diagnostic for path past root says where the problem lies.">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Relative path</tdml:error>
+      <tdml:error>past root element</tdml:error>
+      <tdml:error>ex:f1</tdml:error>
+      <tdml:error>line</tdml:error>
+      <tdml:error>column</tdml:error>
+      <tdml:error>../ex:f2</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_01" root="e2" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">0111</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2 xmlns:ex="http://example.com">
+          <count>1</count>
+          <arr>3</arr>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_02" root="e3" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3 xmlns:ex="http://example.com">
+          <count>1</count>
+          <ovc>1</ovc>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_03" root="e3" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3 xmlns:ex="http://example.com">
+          <count>2</count>
+          <ovc>0</ovc>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_04" root="e4" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <count>2</count>
+          <ovc>11</ovc>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_05" root="e4" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">01</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <count>1</count>
+          <ovc>12</ovc>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if_expression_type_06" root="e5" model="s1"
+    description="convert then and else parts of if expression.">
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>If-expression branches must have similar types</tdml:error>
+      <tdml:error>Double</tdml:error>
+      <tdml:error>String</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="traceComplex" elementFormDefault="unqualified">
+
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="aComplexElement">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="y" type="xs:int" dfdl:inputValueCalc="{ 0 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="f" type="xs:string"
+            dfdl:inputValueCalc="{ if (fn:exists(daf:trace(../aComplexElement, 'We can trace a complex element'))) then 'exists' else 'nope' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="traceComplex" model="traceComplex" root="e"
+    description="Test that daf:trace can take as argument a complex element.">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e>
+          <aComplexElement>
+            <y>0</y>
+          </aComplexElement>
+          <f>exists</f>
+        </ex:e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+ 
+</tdml:testSuite>

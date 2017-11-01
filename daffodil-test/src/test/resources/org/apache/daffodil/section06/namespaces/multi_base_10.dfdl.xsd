@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a10="http://a10.com" xmlns:c10="http://c10.com">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="base:daffodilTest1" separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
+        textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://a10.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_10.dfdl.xsd"/>
+  <xs:import namespace="http://c10.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_10.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_10.dfdl.xsd"/>
+
+  <xs:element name="root">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element ref="base:foo"/>
+        <xs:element ref="a10:foo"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="root2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element ref="c10:foo"/>
+        <xs:element ref="a10:foo"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

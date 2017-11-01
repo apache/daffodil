@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="expressions"
+  description="lengthKind explicit and occursCountKind expression"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"  
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="true">
+  
+  <tdml:defineSchema name="cl1" elementFormDefault="unqualified">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" />
+
+    <!--  this lives in a hidden group for a reason. That way the len element doesn't appear
+    in the infoset, and that means the test can round-trip. If we didn't hide len, then to unparse we 
+    would have to NOT have len, but to parse we would have to have it.  -->
+    
+    <xs:group name="hiddenLen1">
+      <xs:sequence>
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
+      </xs:sequence>
+    </xs:group>
+    
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hiddenLen1"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:group name="hiddenLen2">
+      <xs:sequence>
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
+        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str2, 'bytes') }" />
+      </xs:sequence>
+    </xs:group>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hiddenLen2"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+          <xs:element name="str2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len2 }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:group name="hiddenLen3">
+      <xs:sequence>
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str2, 'bytes') }" />
+        <xs:element name="len2" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
+      </xs:sequence>
+    </xs:group>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hiddenLen3"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len2 }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+          <xs:element name="str2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:group name="hiddenLen4">
+      <xs:sequence>
+      <!-- this test puts an array between the length and the string whose length it is. That means the expression must be
+         delayed for long enough to parse the array. The idea here is to get the string to be far enough in the future that 
+         for certain the delay of the expression is for an extended period when other rich things must happen, including 
+         changing critical characteristics of the data. -->
+        <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../str, 'bytes') }" />
+        <xs:element name="occ" type="xs:int" dfdl:outputValueCalc="{ fn:count(../d) }" />
+      </xs:sequence>
+    </xs:group>
+    
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hiddenLen4"/>
+          <xs:element name="d" type="xs:int" minOccurs="0" maxOccurs="unbounded" 
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../occ }" 
+            dfdl:byteOrder="littleEndian"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="elemRef">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="str" type="xs:string" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:lengthUnits='bytes' dfdl:encoding='ascii' />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:valueLength(../ex:elemRef, 'bytes') }" />
+          <xs:element ref="ex:elemRef" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" type="xs:int" dfdl:length="{ dfdl:valueLength(../implicitLenComplex, 'bytes') }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" maxOccurs="unbounded" type="xs:int" dfdl:length="2" dfdl:occursCountKind="expression" dfdl:occursCount="{ dfdl:valueLength(../implicitLenComplex, 'bytes') }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="implicitLenComplex">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="len" type="xs:int" dfdl:length="1" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+                <xs:element name="payload" type="xs:int" dfdl:length="{ ../len }" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="foo" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:encoding="{ fn:concat('ISO-8859-', dfdl:valueLength(../implicitLenComplex, 'bytes') - 2) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="valueLengthPair1" root="e1"
+    model="cl1" description="simplest possible case of dfdl:outputValueCalc and dfdl:valueLength">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">000000053132333435</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <str>12345</str>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    </tdml:unparserTestCase>
+    
+      <tdml:unparserTestCase name="valueLengthPair2" root="e2"
+    model="cl1" description="dfdl:outputValueCalc two in a row and dfdl:valueLength">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000005 00000006 3132333435 313233343536</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <str>12345</str>
+          <str2>123456</str2>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+  
+        <tdml:unparserTestCase name="valueLengthPair3" root="e3"
+    model="cl1" description="dfdl:outputValueCalc two in a row out of order, and dfdl:valueLength">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000006 00000005 3132333435 313233343536</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>
+          <str>12345</str>
+          <str2>123456</str2>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="valueLengthAndOccurs1" root="e4"
+    model="cl1" description="dfdl:outputValueCalc and dfdl:valueLength separated by array with binary different byte order.">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000005 00000003 11223344 22334455 33445566 3132333435</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <d>1144201745</d>
+          <d>1430532898</d>
+          <d>1716864051</d>
+          <str>12345</str>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="valueLengthRef1" root="e5"
+    model="cl1" description="dfdl:valueLength of an element reference">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 06 31 32 33 34 35 41</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <len>6</len>
+          <ex:elemRef>
+            <str>12</str>
+            <str>34</str>
+            <str>5A</str>
+          </ex:elemRef>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+
+
+  <tdml:parserTestCase name="valueLengthDfdlLength" root="e6"
+    model="cl1" description="dfdl:valueLength inside dfdl:length">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 00 00 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>3</ex:foo>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDfdlOccursCount" root="e7"
+    model="cl1" description="dfdl:valueLength inside dfdl:occursCount">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 00 01 00 02 00 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>1</ex:foo>
+          <ex:foo>2</ex:foo>
+          <ex:foo>3</ex:foo>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDfdlEncoding" root="e8"
+    model="cl1" description="dfdl:valueLength inside dfdl:encoding">
+    <tdml:document>
+      <tdml:documentPart type="byte">02 00 06 AB</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8>
+          <ex:implicitLenComplex>
+            <ex:len>2</ex:len>
+            <ex:payload>6</ex:payload>
+          </ex:implicitLenComplex>
+          <ex:foo>«</ex:foo>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

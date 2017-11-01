@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<shi:schema xmlns:shi="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+  
+	<shi:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+
+  <shi:annotation>
+    <shi:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="daffodilTest1" separator="shi" initiator="shi" terminator="shi" leadingSkip='0' lengthUnits="characters" textTrimKind="none" 
+      initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorPolicy="suppressed" representation="text" textNumberRep="standard" 
+        lengthKind="delimited" encoding="US-ASCII" alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+    </shi:appinfo>
+  </shi:annotation>
+
+  <shi:element name="shiShishi">
+    <shi:complexType>
+      <shi:sequence>
+        <shi:element name="shi" type="shi:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+        <shi:element name="shi" type="shi:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+      </shi:sequence>
+    </shi:complexType>
+  </shi:element>
+        
+  <shi:element name="shi" type="shi:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+
+  <shi:simpleType name="shi" dfdl:lengthKind="explicit" dfdl:length="3">
+    <shi:restriction base="shi:string">
+      <shi:enumeration value="shi"/>
+    </shi:restriction>
+  </shi:simpleType>
+ 
+  <shi:element name="shishi"> 
+    <shi:annotation>
+      <shi:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </shi:appinfo>
+    </shi:annotation>
+    <shi:simpleType dfdl:lengthKind="explicit" dfdl:length="3">
+      <shi:restriction base="shi:int">
+        <shi:maxInclusive value="10"/>
+        <shi:minInclusive value="16"/>
+      </shi:restriction>
+    </shi:simpleType>
+  </shi:element>
+
+</shi:schema>

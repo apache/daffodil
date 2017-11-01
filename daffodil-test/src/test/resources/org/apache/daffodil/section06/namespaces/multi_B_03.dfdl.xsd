@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!--
+    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://b03.com" xmlns:b03="http://b03.com" xmlns:c03="http://c03.com">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format textNumberCheckPolicy="lax" textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
+        escapeSchemeRef=""/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://c03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_03.dfdl.xsd"/>
+
+  <xs:element name="nest" type="c03:nestType" dfdl:textNumberJustification="center"/>
+  
+  <xs:element name="nest2" type="c03:nestType" dfdl:textNumberPadCharacter="," dfdl:textNumberJustification="center"/>
+  
+  <xs:element name="nest3" type="c03:nestType2"/>
+  <xs:element name="nest4" type="c03:nestType3"/>
+  <xs:element name="nest5" type="c03:nestType4"/>
+  <xs:element name="nest5b" type="c03:nestType4b"/>
+  
+  <xs:element name="nestUnbounded" type="c03:nestType4"/>
+
+</xs:schema>

@@ -1,0 +1,2424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="Namespaces" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
+  defaultRoundTrip="true">
+
+  <tdml:defineSchema name="embeddedWithImport">
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <dfdl:format ref="gpf:GeneralPurposeFormat" />
+    <xs:element name="basic" type="xs:string"
+      dfdl:lengthKind="delimited" />
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="embeddedWithInclude">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    <dfdl:format ref="daffodilTest1" />
+    <xs:element name="basic" type="xs:string"
+      dfdl:lengthKind="delimited" />
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="embedded_base_01">
+    <dfdl:format ref="gpf:GeneralPurposeFormat" separator=""
+      initiator="" terminator="" leadingSkip='0' textTrimKind="none"
+      initiatedContent="no" ignoreCase="no" representation="text"
+      textNumberRep="standard" lengthKind="delimited" encoding="ASCII" />
+
+    <xs:import namespace="http://a01.com"
+      schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_01.dfdl.xsd" />
+    <xs:import namespace="http://b01.com"
+      schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_01.dfdl.xsd" />
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+
+    <xs:element name="choice01">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="local" type="xs:int"
+            dfdl:initiator="local01:" dfdl:lengthKind="delimited" />
+          <xs:element ref="a01:remote01" />
+          <xs:element ref="b01:remote02" />
+          <xs:element ref="a01:remote03" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="IncorrectAppinfoSource">
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <dfdl:format ref="gpf:GeneralPurposeFormat" />
+    <xs:element name="basic" type="xs:string"
+      dfdl:lengthKind="delimited" >
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: multifile_choice_embed
+    Schema: embedded_base_01
+    Root: choice01
+    Purpose: This test demonstrates the creation of a choice whose elements 
+    exist in multiple schemas.
+    In this case the data is parsed correctly. The base schema is embedded 
+    within a tdml file.
+  -->
+
+  <tdml:parserTestCase name="multifile_choice_embed"
+    root="choice01" model="embedded_base_01" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote01>123</remote01>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: tdml_schema_import
+    Schema: embeddedWithImport
+    Root: basic
+    Purpose: This test demonstrates that you can import schemas from embedded 
+    schemas (embedded in tdml file)
+  -->
+
+  <tdml:parserTestCase name="tdml_schema_import"
+    root="basic" model="embeddedWithImport" description="">
+    <tdml:document><![CDATA[data]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>data</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: tdml_schema_include
+    Schema: embeddedWithInclude
+    Root: basic
+    Purpose: This test demonstrates that you can include schemas from embedded 
+    schemas (embedded in tdml file)
+  -->
+
+  <tdml:parserTestCase name="tdml_schema_include"
+    root="basic" model="embeddedWithInclude" description="">
+    <tdml:document><![CDATA[moredata]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>moredata</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ibm_format_compat_01
+    Schema: ibm_format_compat.dfdl.xsd
+    Root: one
+    Purpose: This test demonstrates the use of the GeneralPurposeFormat (IBM 
+    compatible)
+  -->
+
+  <tdml:parserTestCase name="ibm_format_compat_01"
+    root="one" model="ibm_format_compat.dfdl.xsd" description="">
+    <tdml:document><![CDATA[3]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>3</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ibm_format_compat_02
+    Schema: ABC_IBM.xsd
+    Root: ABC
+    Purpose: This test demonstrates the ability to use IBM schemas that reference 
+    GeneralPurposeFormat without issue
+  -->
+
+  <tdml:parserTestCase name="ibm_format_compat_02"
+    root="ABC" model="ABC_IBM.xsd" description="">
+    <tdml:document><![CDATA[a
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <a>a</a>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ibm_format_compat_03
+    Schema: ibm_format_compat_2.xsd
+    Root: RNAChain
+    Purpose: This test demonstrates the ability to use IBM schemas that reference 
+    GeneralPurposeFormat without issue
+  -->
+
+  <tdml:parserTestCase name="ibm_format_compat_03"
+    root="RNAChain" model="ibm_format_compat_2.xsd" description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[4|]]></tdml:documentPart>
+      <tdml:documentPart type="bits">00011011</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <RNAChain>
+          <Count>4</Count>
+          <RNABase>0</RNABase>
+          <RNABase>1</RNABase>
+          <RNABase>2</RNABase>
+          <RNABase>3</RNABase>
+        </RNAChain>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="Lesson2_no_namespace"
+    root="address" model="address_no_namespace.dfdl.xsd" description="dfdl namespace - DFDL-6-002R">
+    <tdml:document><![CDATA[118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <address>
+          <houseNumber>118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+        </address>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: Lesson2_include_schema
+    Schema: customer_no_namespace.dfdl.xsd
+    Root: customer
+    Purpose: This test demonstrates the use of xs:include to include external 
+    schemas. In this case an element in the customer
+    sequence is a reference to the "address" element in the external schema.
+  -->
+
+  <tdml:parserTestCase name="Lesson2_include_schema"
+    root="customer" model="customer_no_namespace.dfdl.xsd" description="include a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <customer>
+          <firstName>James</firstName>
+          <surname>River</surname>
+          <address>
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </customer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: Lesson2_import_schema
+    Schema: customer_namespace.dfdl.xsd
+    Root: customer
+    Purpose: This test demonstrates the use of xs:import to include external 
+    schemas. In this case an element in the customer
+    sequence is a reference to the "address" element in the external schema.
+  -->
+
+  <tdml:parserTestCase name="Lesson2_import_schema"
+    root="customer" model="customer_namespace.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[James*River*118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <customer>
+          <firstName>James</firstName>
+          <surname>River</surname>
+          <address>
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </customer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_cyclical
+    Schema: cycle_base.dfdl.xsd
+    Root: elem
+    Purpose: This test demonstrates the use of xs:import with two schemas
+    that mutually import each other. This is legal and should not lead to 
+    an infinite loop or error message.
+  -->
+
+  <tdml:parserTestCase name="multifile_cyclical" root="elem"
+    model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <!-- Fix DFDL-1555 to enable roundTrip -->
+    <tdml:document><![CDATA[12*34]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>
+          <elsewhere>
+            <one>12</one>
+            <two>34</two>
+          </elsewhere>
+        </elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_choice_01
+    Schema: multi_base_01.dfdl.xsd
+    Root: choice01
+    Purpose: This test demonstrates the creation of a choice whose elements 
+    exist in multiple schemas.
+    In this case none of the choice elements are applicable and parsing fails.
+  -->
+
+  <tdml:parserTestCase name="multifile_choice_01"
+    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[local05:123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Alternative failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_choice_02
+    Schema: multi_base_01.dfdl.xsd
+    Root: choice01
+    Purpose: This test demonstrates the creation of a choice whose elements 
+    exist in multiple schemas.
+  -->
+
+  <tdml:parserTestCase name="multifile_choice_02"
+    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote01>123</remote01>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_choice_02b
+    Schema: multi_base_01.dfdl.xsd
+    Root: choice01
+    Purpose: This test demonstrates the creation of a choice whose elements 
+    exist in multiple schemas.
+  -->
+
+  <tdml:parserTestCase name="multifile_choice_02b"
+    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote01:123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_choice_03
+    Schema: multi_base_01.dfdl.xsd
+    Root: choice01
+    Purpose: This test demonstrates the creation of a choice whose elements 
+    exist in multiple schemas. In this case the
+    appropriate element is actually a type in schema A01 based on a simpleType 
+    defined in B01, and the choice
+    itself is in base01.
+  -->
+
+  <tdml:parserTestCase name="multifile_choice_03"
+    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[remote03:5555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <choice01>
+          <remote03>5555</remote03>
+        </choice01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_facets_01
+    Schema: multi_base_01.dfdl.xsd
+    Root: facets01
+    Purpose: This test demonstrates the use of an element whose facet restrictions 
+    exist across multiple schemas.
+  -->
+
+  <tdml:parserTestCase name="multifile_facets_01"
+    root="facets01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <facets01>10</facets01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_facets_02
+    Schema: multi_base_01.dfdl.xsd
+    Root: facets01
+    Purpose: This test demonstrates the use of an element whose facet restrictions 
+    exist across multiple schemas.
+  -->
+
+  <tdml:parserTestCase name="multifile_facets_02"
+    root="facets01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[11]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>dfdl:checkConstraints</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_facets_03
+    Schema: multi_base_01.dfdl.xsd
+    Root: facets02
+    Purpose: This test demonstrates the use of an element whose facet restrictions 
+    exist across multiple schemas.
+  -->
+
+  <tdml:parserTestCase name="multifile_facets_03"
+    root="facets02" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinExclusive(11) must be less than or equal to MaxInclusive(10)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_facets_04
+    Schema: multi_base_01.dfdl.xsd
+    Root: facets03
+    Purpose: This test demonstrates the use of an element whose facet restrictions 
+    exist across multiple schemas.
+    In this case both the maxInclusive and maxExclusive facets are defined, 
+    so the test should fail.
+  -->
+
+  <tdml:parserTestCase name="multifile_facets_04"
+    root="facets03" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[10]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MaxInclusive and MaxExclusive cannot be specified for the same simple type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multifile_facets_05
+    Schema: multi_B_08.dfdl.xsd
+    Root: bElem
+    Purpose: This test demonstrates the use of an element whose facet restrictions 
+    exist across multiple schemas.
+    In this case the data does not adhere to the pattern used in the assertion 
+    and the test should fail.
+  -->
+
+  <tdml:parserTestCase name="multifile_facets_05"
+    root="bElem" model="multi_B_08.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[noooooooo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: double_nesting_01
+    Schema: multi_base_02.dfdl.xsd
+    Root: super_seq
+    Purpose: This test demonstrates that a schema with no namespace can be 
+    included in multiple namespaces
+    and its elements can therefore be represented with different namespaces.
+  -->
+
+  <tdml:parserTestCase name="double_nesting_01"
+    root="super_seq" model="multi_base_02.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[1.3.2.5|5:4:3:1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <super_seq>
+          <seq>
+            <inty>1</inty>
+            <inty>3</inty>
+            <inty>2</inty>
+            <inty>5</inty>
+          </seq>
+          <seq>
+            <inty>5</inty>
+            <inty>4</inty>
+            <inty>3</inty>
+            <inty>1</inty>
+          </seq>
+        </super_seq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: scope_01
+    Schema: multi_A_02.dfdl.xsd
+    Root: seq2
+    Purpose: This test demonstrates that an element used locally within the 
+    schema will take on the properties of that schema.
+  -->
+
+  <tdml:parserTestCase name="scope_01" root="seq2"
+    model="multi_A_02.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[3.4.2.1.44.643.3.5.1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq2>
+          <inty>3</inty>
+          <inty>4</inty>
+          <inty>2</inty>
+          <inty>1</inty>
+          <inty>44</inty>
+          <inty>643</inty>
+          <inty>3</inty>
+          <inty>5</inty>
+          <inty>1</inty>
+        </seq2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: scope_02
+    Schema: multi_base_02.dfdl.xsd
+    Root: super_seq2
+    Purpose: This test demonstrates that an element used locally within the 
+    schema will take on the properties of that schema,
+    even if the element is defined in another schema with different properties.
+  -->
+
+  <tdml:parserTestCase name="scope_02" root="super_seq2"
+    model="multi_base_02.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[3'6'44'22'44'2'1'63'1]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <super_seq2>
+          <inty>3</inty>
+          <inty>6</inty>
+          <inty>44</inty>
+          <inty>22</inty>
+          <inty>44</inty>
+          <inty>2</inty>
+          <inty>1</inty>
+          <inty>63</inty>
+          <inty>1</inty>
+        </super_seq2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_01
+    Schema: multi_base_03.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    In Schema F, a format is defined.
+    In Schema E, a simpleType is declared that references the format in D.
+    In Schema D, a simpleType is declared that uses the simpleType in E as 
+    a restriction base.
+    In Schema C, a simpleType is declared that uses the simpleType in D as 
+    a restriction base.
+    In Schema B, an element is declared of the simpleType in C.
+    In Schema A, a sequence of B elements is declared
+    In Base Schema, a sequence of A sequences is declared.
+  -->
+
+  <tdml:parserTestCase name="long_chain_01" root="rabbitHole"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <rabbitHole>
+          <nestSequence>
+            <nest>53</nest>
+            <nest>41</nest>
+          </nestSequence>
+        </rabbitHole>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_02
+    Schema: multi_base_03.dfdl.xsd
+    Root: rabbitHole2
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    - In Base Schema, a sequence of A sequences is declared.
+    In this case, there are overlapping properties across files, and the 
+    error should be caught.
+
+  -->
+
+  <tdml:parserTestCase name="long_chain_02" root="rabbitHole2"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Overlapping properties</tdml:error>
+      <tdml:error>textNumberPadCharacter overlaps between b03:nest2 and c03:nestType.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_03
+    Schema: multi_base_03.dfdl.xsd
+    Root: rabbitHole3
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    - In Base Schema, a sequence of A sequences is declared.
+    In this case, length is set to "4" by the global format in Schema C when 
+    nestType2 is defined, but lengthKind
+    isn't set until Schema A, where it is done locally on the reference to 
+    element B.
+
+  -->
+
+  <tdml:parserTestCase name="long_chain_03" root="rabbitHole3"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <rabbitHole3>
+          <nestSequence3>
+            <nest3>5632</nest3>
+          </nestSequence3>
+        </rabbitHole3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_04
+    Schema: multi_base_03.dfdl.xsd
+    Root: rabbitHole4
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    - In Base Schema, a sequence of A sequences is declared.
+    In this case, length is set to "10" on the initial local format definition. 
+    Becuase of how scoping works, the
+    length is NOT changed to "4" by the global format in Schema C.
+
+  -->
+
+  <tdml:parserTestCase name="long_chain_04" root="rabbitHole4"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient Bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_05
+    Schema: multi_base_03.dfdl.xsd
+    Root: rabbitHole5
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    - In Base Schema, a sequence of A sequences is declared.
+    In this case, lengthKind is never set and an error should be thrown.
+
+  -->
+
+  <tdml:parserTestCase name="long_chain_05" root="rabbitHole5"
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>Non-default Properties</tdml:error>  
+      <tdml:error>multi_A_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_B_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
+      <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
+      <tdml:error>Location line</tdml:error>
+      <tdml:error>column</tdml:error>                         
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_06
+    Schema: multi_A_03.dfdl.xsd
+    Root: nestSequence6
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    In this case, each Schema file in the chain, starting at F, imposes its 
+    own terminator value, named
+    after the schema itself (Schema E's terminator is "E", B's is "B", etc.). 
+    Each time a new schema is used
+    in the chain, the separator is overwritten. Schema B is the last schema 
+    in the chain to set this value,
+    so the terminator for our data set will be "B".
+  -->
+
+  <tdml:parserTestCase name="long_chain_06" root="nestSequence6"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632B]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nestSequence6>
+          <nest5>5632</nest5>
+        </nestSequence6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_06b
+    Schema: multi_A_03.dfdl.xsd
+    Root: nestSequence6b
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema E, a simpleType is declared that references the format in 
+    D.
+    - In Schema D, a simpleType is declared that uses the simpleType in E 
+    as a restriction base.
+    - In Schema C, a simpleType is declared that uses the simpleType in D 
+    as a restriction base.
+    - In Schema B, an element is declared of the simpleType in C.
+    - In Schema A, a sequence of B elements is declared
+    In this case, each Schema file in the chain, starting at F, imposes its 
+    own terminator value, named
+    after the schema itself (Schema E's terminator is "E", B's is "B", etc.). 
+    However, in Schema C, a terminator
+    is defined on the simpleType itself, which takes precedence over global 
+    property definitions. Therefore, the
+    terminator will be "C!".
+  -->
+
+  <tdml:parserTestCase name="long_chain_06b" root="nestSequence6b"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[5632C!]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nestSequence6b>
+          <nest5b>5632</nest5b>
+        </nestSequence6b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: long_chain_07
+    Schema: multi_A_03.dfdl.xsd
+    Root: nestSequence7
+    Purpose: This test demonstrates a long chain of declarations that gradually 
+    builds an element.
+    - In Schema F, a format is defined.
+    - In Schema A, a sequence of B elements that reference format F is declared
+    This is a test to see if I can access items in Schema F directly from 
+    Schema A because of the
+    chain of imports.
+  -->
+
+  <tdml:parserTestCase name="long_chain_07" root="nestSequence7"
+    model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[345432F!]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nestSequence7>
+          <elem>345432</elem>
+        </nestSequence7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_conflict_01
+    Schema: multi_base_04.dfdl.xsd
+    Root: aSeq
+    Purpose: This test demonstrates a chain of declarations that gradually 
+    builds an element.
+    - In Schema C, a simpleType is declared and an element defined of that 
+    type.
+    - In Schema B, a sequence of 3 C elements is declared
+    - In Base Schema, a sequence of sequence B is declared
+    This is a test to see how having the same prefix set to multiple URIs 
+    across schemas is handled.
+  -->
+
+  <tdml:parserTestCase name="namespace_conflict_01"
+    root="aSeq" model="multi_base_04.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <aSeq>
+          <bSeq>
+            <cElem>12345</cElem>
+            <cElem>123456</cElem>
+            <cElem>323</cElem>
+          </bSeq>
+          <bSeq>
+            <cElem>13222</cElem>
+            <cElem>764536</cElem>
+            <cElem>400</cElem>
+          </bSeq>
+        </aSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: no_namespace_01
+    Schema: multi_base_05_nons.dfdl.xsd
+    Root: baseSeq
+    Purpose: This test demonstrates a chain of declarations that gradually 
+    builds an element.
+    - In Schema C, a string element is declared with a pattern restriction
+    - In Schema B, a comma-separated sequence of C elements is declared
+    - In Base Schema, a pipe-separated sequence of B sequences is declared
+    This is a test to demonstrate how inheritance works when no namespaces 
+    are defined.
+  -->
+
+  <tdml:parserTestCase name="no_namespace_01" root="baseSeq"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[333,421,234|123,123,123,123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq>
+          <bSeq>
+            <cElem>333</cElem>
+            <cElem>421</cElem>
+            <cElem>234</cElem>
+          </bSeq>
+          <bSeq>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+            <cElem>123</cElem>
+          </bSeq>
+        </baseSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: no_namespace_02
+    Schema: multi_base_05_nons.dfdl.xsd
+    Root: vagueBase
+    Purpose: This is a test to demonstrate how the parser handles duplicate 
+    element names across
+    schemas with no namespaces
+  -->
+
+  <tdml:parserTestCase name="no_namespace_02" root="vagueBase"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[333]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>More than one definition for name: vagueEle</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: no_namespace_03
+    Schema: multi_base_05_nons.dfdl.xsd
+    Root: baseSeq2
+    Purpose: This is a test to demonstrate how the parser handles referencing 
+    formats across
+    schemas with no namespaces
+  -->
+
+  <tdml:parserTestCase name="no_namespace_03" root="baseSeq2"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>More than one definition for name: pipes</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: no_namespace_temp
+    Schema: multi_temp.dfdl.xsd
+    Root: baseSeq2
+    Purpose: This is a test to demonstrate the error case seen in DFDL-545
+  -->
+
+  <tdml:parserTestCase name="no_namespace_temp"
+    root="baseSeq2" model="multi_temp.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>leadingSkip</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>separator</tdml:error>
+      <tdml:error>terminator</tdml:error>
+      <tdml:error>defineFormat</tdml:error>
+      <tdml:error>format</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: no_namespace_04
+    Schema: multi_base_05_nons.dfdl.xsd
+    Root: baseSeq2b
+    Purpose: This is a test to demonstrate how the parser handles referencing 
+    formats across
+    schemas with no namespaces, when there is a name conflict between formats 
+    in separate
+    files.
+  -->
+
+  <tdml:parserTestCase name="no_namespace_04" root="baseSeq2b"
+    model="multi_base_05_nons.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[||333|||.||343|||]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq2b>
+          <elem>333</elem>
+          <elem>343</elem>
+        </baseSeq2b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: combinations_02
+    Schema: multi_base_06.dfdl.xsd
+    Root: baseSeq2
+    Purpose: This schema setup demonstrates a combination of various multi-file 
+    schema setup configurations
+    Schema C defines 3 formats and does not contain a namespace. It also 
+    lives within a subfolder of the primary test folder.
+    Schema B includes Schema C and has a namespace. It defines 3 date elements 
+    that each reference a different format in Schema C.
+    Schema A defines a sequence group and does not have a targetNamespace. 
+    One of the group's elements is an element from Schema C.
+    Base Schema includes Schema A and imports Schema B. It defines several 
+    sequence of the hidden group from Schema A, and each has
+    a different date element from Schema B.
+    In this test, calendarTimeZone has an invalid value, and the error should 
+    point to the file where this is an issue.
+  -->
+
+  <tdml:parserTestCase name="combinations_02" root="baseSeq2"
+    model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.done|03-24-1988]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>not valid with respect to its type, 'CalendarTimeZoneType'</tdml:error>
+      <!-- Note that this test must be run by a special driver that
+        shuts off the Info logging from the import/include system. That logging
+        would make this match of the file name a false positive. We want 
+        the
+        error messages to specifically mention this file, not just show that
+        it was included. -->
+      <tdml:error>file:</tdml:error>
+      <tdml:error>subfolder/multi_C_06_nons.dfdl.xsd</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: combinations_03
+    Schema: multi_base_06_valid.dfdl.xsd
+    Root: baseSeq3
+    Purpose: This schema setup demonstrates a combination of various multi-file 
+    schema setup configurations
+    Schema C defines 3 formats and does not contain a namespace. It also 
+    lives within a subfolder of the primary test folder.
+    Schema B includes Schema C and has a namespace. It defines 3 date elements 
+    that each reference a different format in Schema C.
+    Schema A defines a sequence group and does not have a targetNamespace. 
+    One of the group's elements is an element from Schema C.
+    Base Schema includes Schema A and imports Schema B. It defines several 
+    sequence of the hidden group from Schema A, and each has
+    a different date element from Schema B.
+    In this test, everything is set up correctly and the data should be parsed 
+    without error.
+  -->
+
+  <tdml:parserTestCase name="combinations_03" root="baseSeq3"
+    model="multi_base_06_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.c:done|03-24-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq3>
+          <date3>1988-03-24+00:00</date3>
+        </baseSeq3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: combinations_04
+    Schema: multi_base_06_valid.dfdl.xsd
+    Root: baseSeq4
+    Purpose: This schema setup demonstrates a combination of various multi-file 
+    schema setup configurations
+    Schema C defines a string element with an initiator. It also lives within 
+    a subfolder of the primary test folder.
+    Schema B includes Schema C and has a targetNamespace.
+    Schema A includes Schema C and does not have a targetNamespace
+    Base Schema includes Schema A and imports Schema B. It defines a sequence 
+    of two elements that each reference the
+    element in Schema C. One is referenced through Schema B and uses the 
+    namespace of B. The other references it through
+    Schema A, and uses the base namespace since A has none. Each element 
+    is then modified with a unique terminator.
+    In this test, everything is set up correctly and the data should be parsed 
+    without error.
+
+    Also note that this schema has two cElem elements that have different
+    namespaces. Since these two elements occur one after the other and are
+    optional (dfdl:occursCountKind="parsed"), unparsing requires the namespace
+    to know which element to unparse. Normally, this isn't a problem, except
+    that some infoset representations (like json) do not support namespaces. So
+    this test would fail to unparse with a json InfosetInputter. Because of
+    this, this test outputs a warning saying that unparsing json might fail.
+  -->
+
+  <tdml:parserTestCase name="combinations_04" root="baseSeq4"
+    model="multi_base_06_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[c:done{|c:done}]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <baseSeq4>
+          <cElem>done</cElem>
+          <cElem>done</cElem>
+        </baseSeq4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>namespaces</tdml:warning>
+      <tdml:warning>infoset</tdml:warning>
+      <tdml:warning>http://baseSchema.com</tdml:warning>
+      <tdml:warning>http://b06.com</tdml:warning>
+      <tdml:warning>cElem</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: negative_import_01
+    Schema: multi_base_07_failure.dfdl.xsd
+    Root: elem
+    Purpose: In this test the schema attempts to import a namespace that 
+    does not exist and should fail accordingly.
+  -->
+
+  <tdml:parserTestCase name="negative_import_01"
+    root="elem" model="multi_base_07_failure.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[1]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Import element specifies namespace http://b00.com but namespace http://b06.com of imported schema does not match</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multi_encoding_01
+    Schema: multi_base_09.dfdl.xsd
+    Root: base
+    Purpose: In this test the two schemas used are in different encodings 
+    - base Schema is utf-16be, while
+    Schema A is utf-8. This should not interfere with the test and it should 
+    pass without issue.
+  -->
+
+  <tdml:parserTestCase name="multi_encoding_01"
+    root="base" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[A:one:A,55]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base>
+          <aElem>one</aElem>
+          <baseElem>55</baseElem>
+        </base>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multi_encoding_02
+    Schema: multi_base_09.dfdl.xsd
+    Root: base2
+    Purpose: In this test the two schemas used are in different encodings 
+    - base Schema is utf-16be, while
+    Schema A is utf-8. The sequence referenced has two elements, the first 
+    is a utf-8 binary string,
+    the second is a utf-16be binary string initiated by "A:" and terminated 
+    by ":A",
+    and they are separated by a utf-8 comma. (see test multi_encoding_05 
+    below for the case where the comma is not the same encoding.)
+    
+    This test works because the utf-16 data is delimited because we find 
+    the terminator ":A" in utf-16 character codes.
+    Then we don't find a utf-8 separator following, as we have run out of data.
+    
+    This test is legal (not an SDE) because the terminator of the 2nd element ":A" 
+    is mandatory. Hence, the scan to isolate this field is not seeking the separator
+    of the enclosing group. After it finds the terminator, it knows that it 
+    is seeking now a separator in a different character encoding, but there is no 
+    mixing going on here.
+    
+    The restriction is that when a delimiter is needed to delimit a prior element,
+    then it must be in the same encoding with that element's content so that a 
+    regex can scan characters that are uniformly all in the same encoding. See 
+    multi_encoding_05 below. 
+  -->
+
+  <tdml:parserTestCase name="multi_encoding_02"
+    root="base2" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>  <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">2C</tdml:documentPart>     <!-- US-ASCII for "," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart> <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2>
+          <baseElem>55</baseElem>
+          <aElem2>one</aElem2>
+        </base2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multi_encoding_03
+    Schema: multi_base_09.dfdl.xsd
+    Root: base3
+    Purpose: In this test the two schemas used are in different encodings 
+    - base Schema is utf-16be, while
+    Schema A is utf-8. The sequence referenced has two explicit-length binary 
+    string, the first
+    is utf-8 and the second if utf-16be. It should be parsed correctly.
+    
+    We expect an SDE because a separator of the group, or a terminator of 
+    the first child element, are required.
+  -->
+
+  <tdml:parserTestCase name="multi_encoding_03"
+    root="base3" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base3>
+          <baseElem>55</baseElem>
+          <aElem3>one</aElem3>
+        </base3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: multi_encoding_04
+    Schema: multi_base_09.dfdl.xsd
+    Root: base4
+    Purpose: In this test the two schemas used are in different encodings 
+    - base Schema is utf-16be, while
+    Schema A is utf-8. The sequence contains two elements whose lengths are 
+    delimited, with no delimiters defined.
+    Each element is in a different encoding.
+  -->
+
+  <tdml:parserTestCase name="multi_encoding_04"
+    root="base4" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55," -->
+      <tdml:documentPart type="byte">00 6F 00 6E 00 65</tdml:documentPart>  <!-- UTF-16BE for "one" -->
+    </tdml:document>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>terminating delimiter does not have the same encoding as the content preceding it</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!-- 
+    The restriction is that when a delimiter is needed to delimit a prior element,
+    then it must be in the same encoding with that element's content so that a 
+    regex can scan characters that are uniformly all in the same encoding.
+   -->
+   <tdml:parserTestCase name="multi_encoding_05"
+    root="base5" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>  <!-- UTF-8 for "55" -->
+      <tdml:documentPart type="byte">2C</tdml:documentPart>     <!-- US-ASCII for "," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart> <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>encoding</tdml:error>
+    <tdml:error>separator</tdml:error>    
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--  
+  The second child element data is not big enough (should be A:.......:A, that is 7 content
+  character. There are only 3 here, so we'll get some sort of error since that is the
+  end of the data.
+  
+  The problem is how inadequate the diagnostic message is. It needs to mention
+  the field name, where it starts, what the data it found looks like.
+  -->
+   <tdml:parserTestCase name="indexOutOfBounds_01"
+    root="base4" model="multi_base_09.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="byte">35 35</tdml:documentPart>              <!-- UTF-8 for "55," -->
+      <tdml:documentPart type="byte">00 41 00 3A 00 6F 00 6E 00 65 00 3A 00 41</tdml:documentPart>  <!-- UTF-16BE for "A:one:A" -->
+    </tdml:document>
+    <tdml:errors>
+    <tdml:error>Processing Error</tdml:error>
+    <tdml:error>Not enough data</tdml:error>
+    <tdml:error>6</tdml:error><!-- start location -->
+    <tdml:error>A:one:A</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+
+  <tdml:parserTestCase name="import_format_01"
+    description="Imported Schema Format - Use imported schema's default format"
+    model="predefined_format.dfdl.xsd" root="seq_01">
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_01>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </seq_01>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="import_format_02"
+    description="Imported Schema Format - Use default format except for overridden values"
+    model="predefined_format.dfdl.xsd" root="seq_02">
+    <tdml:document>
+      <tdml:documentPart type="text">98% 53% 100%</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_02>
+          <e1>98</e1>
+          <e2>53</e2>
+          <e3>100</e3>
+        </seq_02>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: element_conflict_01
+    Schema: multi_base_10.dfdl.xsd
+    Root: root
+    Purpose: Schema B does not have a namespace and defines an element "foo"
+    Schema A does have a namespace and also defines an element "foo"
+    In Base Schema, a comma-separated sequence of Schema A foo element and 
+    Schema B foo element is declared.
+    This is a test to demonstrate how name clashes are handled.
+  -->
+
+  <tdml:parserTestCase name="element_conflict_01"
+    root="root" model="multi_base_10.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[foo1,foo2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <foo>foo1</foo>
+          <foo>foo2</foo>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: element_conflict_02
+    Schema: multi_base_10.dfdl.xsd
+    Root: root2
+    Purpose: Schema C does have a namespace and defines an element "foo"
+    Schema A does have a namespace and also defines an element "foo"
+    In Base Schema, a comma-separated sequence of Schema A foo element and 
+    Schema C foo element is declared.
+    This is a test to demonstrate how name clashes are handled.
+  -->
+
+  <tdml:parserTestCase name="element_conflict_02"
+    root="root2" model="multi_base_10.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[c:foo1,foo2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <foo>foo1</foo>
+          <foo>foo2</foo>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_01
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shishishi
+    Purpose: This test demonstrates a basic one-schema scenario, where all 
+    user-defined values are "shi"
+    or some variation of "shi", including initiators, terminators, separators, 
+    namespaces,
+    element names, etc. These should not be confused and the data should 
+    parse without issue.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_01"
+    root="shishishi" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi terminator -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+        </shishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_01b
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shishishi2
+    Purpose: This test verifies that using "shi:shi:string" as a type no 
+    longer causes a "should be no fall through to this case"
+    abort message.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_01b"
+    root="shishishi2" model="multi_base_shi2.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishi terminator -->
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Error loading schema</tdml:error>
+      <tdml:error>'shi:shi:string' is not a valid value for 'QName'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_02
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shishishishi
+    Purpose: This test demonstrates a multi-schema scenario, where all user-defined 
+    values are "shi"
+    or some variation of "shi", including initiators, terminators, separators, 
+    namespaces,
+    element names, etc. These should not be confused and the data should 
+    parse without issue.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_02"
+    root="shishishishi" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <!-- Fix DFDL-1555 to enable roundTrip -->
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shishi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishishi>
+          <shiShishi>
+            <shi>shi</shi>
+            <shi>shi</shi>
+          </shiShishi>
+          <shi>shi</shi>
+        </shishishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_03
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shishishishishi
+    Purpose: This test demonstrates a multi-schema scenario, where all user-defined 
+    values are "shi"
+    or some variation of "shi", including initiators, terminators, separators, 
+    namespaces,
+    element names, etc. These should not be confused and the data should 
+    parse without issue.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_03"
+    root="shishishishishi" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shishishishishi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+          <shi>shi</shi>
+        </shishishishishi>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_04
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shi2
+    Purpose: This test demonstrates a multi-schema scenario, where all user-defined 
+    values are "shi"
+    It results in a schema definition error, which should clearly point to 
+    the location of the
+    issue.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_04"
+    root="shi2" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>shishishi122shishishi</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>MinInclusive(16) must be less than or equal to MaxInclusive(10)</tdml:error>
+      <tdml:error>shishi</tdml:error>
+      <tdml:error>Location line</tdml:error>
+      <tdml:error>section06/namespaces/shi</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: lion_eater_ambiguity_05
+    Schema: multi_base_shi.dfdl.xsd
+    Root: shi3
+    Purpose: This test demonstrates a multi-schema scenario, where all user-defined 
+    values are "shi"
+    or some variation of "shi", including initiators, terminators, separators, 
+    namespaces,
+    element names, etc. These should not be confused and the data should 
+    parse without issue.
+  -->
+
+  <tdml:parserTestCase name="lion_eater_ambiguity_05"
+    root="shi3" model="multi_base_shi.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi initiator -->
+      <tdml:documentPart type="text">5</tdml:documentPart> <!-- element shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi initiator -->
+      <tdml:documentPart type="text">12345</tdml:documentPart> <!-- element shishishi:shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishishi:shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi initiator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi value -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- element shishi:shi terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- sequence terminator -->
+      <tdml:documentPart type="text">shi</tdml:documentPart> <!-- root element shishishishi terminator -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <shi3>
+          <shi>5</shi>
+          <shi>12345</shi>
+          <shi>shi</shi>
+        </shi3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_ultra_uniqueness_01
+    Schema: multi_base_11_valid.dfdl.xsd
+    Root: root
+    Purpose: This test demonstrates a multi-schema scenario, where all namespace 
+    prefixes are unique.
+    the information should not be confused and it should parse without issue.
+  -->
+
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_01"
+    root="root" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>1</root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_ultra_uniqueness_02
+    Schema: multi_base_11_valid.dfdl.xsd
+    Root: root2
+    Purpose: This test demonstrates a multi-schema scenario, where all namespace 
+    prefixes are unique.
+    the information should not be confused and it should parse without issue.
+  -->
+
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_02"
+    root="root2" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>03-04-2013,04-12-1997,05-22-1980</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <date3>2013-03-04+00:00</date3>
+          <date3>1997-04-12+00:00</date3>
+          <date3>1980-05-22+00:00</date3>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_ultra_uniqueness_03
+    Schema: multi_base_11_valid.dfdl.xsd
+    Root: root3
+    Purpose: This test demonstrates a multi-schema scenario, where many namespace 
+    prefixes are unique.
+    In this case, the data should fail to parse because an int is expected, 
+    but a string is provided.
+  -->
+
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_03"
+    root="root3" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>thisIsNotAnInteger</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_ultra_uniqueness_04
+    Schema: multi_base_11_valid.dfdl.xsd
+    Root: root4
+    Purpose: This test demonstrates a multi-schema scenario, where many namespace 
+    prefixes are unique.
+    In this case, the data should fail to parse because an int is expected, 
+    but a string is provided.
+  -->
+
+  <tdml:parserTestCase name="namespace_ultra_uniqueness_04"
+    root="root4" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>thisIsNotAnInteger</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse 'thisIsNotAnInteger'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_scope_01
+    Schema: multi_base_11.dfdl.xsd
+    Root: root5
+    Purpose: This test demonstrates a multi-schema scenario, where many namespace 
+    prefixes are unique.
+    In this case, the data should fail to parse because the definition of 
+    the foo namespace prefix was overridden.
+    The new namespace does not have a "stringy" type.
+  -->
+
+  <tdml:parserTestCase name="namespace_scope_01"
+    root="root5" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>thisIsNotAnInteger</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No type definition found for</tdml:error>
+      <tdml:error>foo:stringy</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespace_scope_02
+    Schema: multi_base_11.dfdl.xsd
+    Root: root6
+    Purpose: This test demonstrates a multi-schema scenario, where many namespace 
+    prefixes are unique.
+    In this case, though the definition of the foo namespace prefix was overridden, 
+    the bar
+    prefix was assigned to the namespace for Schema B, so that prefix should 
+    work and this should
+    parse correctly.
+  -->
+
+  <tdml:parserTestCase name="namespace_scope_02"
+    root="root6" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>7</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root6>
+          <notAStringy3>7</notAStringy3>
+        </root6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: error_messages_01
+    Schema: multi_base_12.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test demonstrates that error messages with multi-file schemas 
+    are very specific
+    and help the user quickly find the issue.
+  -->
+
+  <tdml:parserTestCase name="error_messages_01"
+    root="rabbitHole" model="multi_base_12.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'textStringJustification' is not allowed to appear in element 'xs:element'.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: nonsense_namespace_01
+    Schema: ABC_invalid.xsd
+    Root: ABC
+    Purpose: This test demonstrates that attributes in unknown (yet properly 
+    defined) namespaces will be ignored.
+  -->
+
+  <tdml:parserTestCase name="nonsense_namespace_01"
+    root="ABC" model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[a
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <a>a</a>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonsense_namespace_02"
+    root="ABC" model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[d
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ABC>
+          <Container>
+            <d>d</d>
+          </Container>
+        </ABC>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonsense_namespace_03"
+    root="ABC_fail" model="ABC_invalid.xsd" description="">
+    <tdml:document><![CDATA[e
+]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Prefix</tdml:error>
+      <tdml:error>fn</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonsense_namespace_04
+    Schema: ABC_invalid_2.xsd
+    Root: a
+    Purpose: This test demonstrates that you cannot put non-native attributes on DFDL annotation elements.
+  -->
+
+  <tdml:parserTestCase name="nonsense_namespace_04" root="a" model="ABC_invalid_2.xsd" description="">
+    <tdml:document><![CDATA[a]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'rando:hm' is not allowed to appear in element 'dfdl:discriminator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaceLimit
+    Schema: namespaceCharLim.dfdl.xsd
+    Root: one
+    Purpose: This test demonstrates that namespace names can be very long 
+    (this one is approx 5200 characters)
+  -->
+
+  <tdml:parserTestCase name="namespaceLimitParse" root="one"
+    model="namespaceCharLim.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R"
+    roundTrip="false">
+    <tdml:document>1:42</tdml:document>
+    <tdml:errors>
+      <tdml:error>length of entity</tdml:error>
+      <tdml:error>5,248</tdml:error>
+      <tdml:error>exceeds</tdml:error>
+      <tdml:error>limit</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:unparserTestCase name="namespaceLimitUnparse" root="one"
+    model="namespaceCharLim.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R"
+    roundTrip="false">
+    <tdml:infoset xmlns="http://example.com" >
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>5,248</tdml:error>
+      <tdml:error>exceeds</tdml:error>
+      <tdml:error>limit</tdml:error>
+      </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: namespaceSpecialChars
+    Schema: namespaceSpecialChar.dfdl.xsd
+    Root: one
+    Purpose: This test helps demonstrate that DFDL namespaces follow the 
+    same naming conventions as XSDL namespaces.
+    This test demonstrates a very particular aspect of this convention: x00b7 
+    (the character ·) is listed in the available
+    name characters, but not in the name start characters. This test demonstrates 
+    the positive scenario where the character
+    is used in a name but not as the first character
+
+  -->
+
+  <tdml:parserTestCase name="namespaceSpecialChars"
+    root="one" model="namespaceSpecialChar.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaceSpecialChars2
+    Schema: namespaceRules.dfdl.xsd
+    Root: one
+    Purpose: This test helps demonstrate that DFDL namespaces follow the 
+    same naming conventions as XSDL namespaces.
+    This test demonstrates a very particular aspect of this convention: x00b7 
+    (the character ·) is listed in the available
+    name characters, but not in the name start characters. This test demonstrates 
+    the negative scenario where this character
+    is used as the first in a namespace name
+
+  -->
+
+  <tdml:parserTestCase name="namespaceSpecialChars2"
+    root="one" model="namespaceSpecialChar2.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Element or attribute do not match QName production: QName::=(NCName':')?NCName</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaceRules1
+    Schema: namespaceRules.dfdl.xsd
+    Root: one
+    Purpose: This test helps demonstrate that DFDL namespaces follow the 
+    same naming conventions as XSDL namespaces.
+
+  -->
+
+  <tdml:parserTestCase name="namespaceRules1" root="one"
+    model="namespaceRules.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>42</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaceRules2
+    Schema: namespaceRules2.dfdl.xsd
+    Root: one
+    Purpose: This test helps demonstrate that DFDL namespaces follow the 
+    same naming conventions as XSDL namespaces.
+
+  -->
+
+  <tdml:parserTestCase name="namespaceRules2" root="one"
+    model="namespaceRules2.dfdl.xsd"
+    description="Section 5 - DFDL Subset of XML Schema - DFDL Schemas consist of: Standard XSDL namespace management - DFDL-5-001R">
+    <tdml:document>1:42</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The prefix "xmlns" cannot be bound to any namespace explicitly; neither can the namespace for "xmlns" be bound to any prefix explicitly</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaces_qnames
+    Schema: qname1.dfdl.xsd
+    Root: e
+    Purpose: This test demonstrates that prefixes within expressions are 
+    resolved with respect to the namespace bindings
+    from the location where the expression was written, not where it is evaluated. 
+    In this case, the second element in the
+    sequence references a simpleType with a length that is set with an expression. 
+    The expression uses the namespace
+    prefix "ex1", which only exists within the context of that simpleType. 
+    However, the referencing element correctly
+    evaluates the expression to point to the previous element in the sequence, 
+    even though the referencing element's
+    namespace prefix is "foobar"
+
+  -->
+
+  <tdml:parserTestCase name="namespaces_qnames"
+    root="e" model="qname1.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+    <!-- Fix DFDL-1555 to enable roundTrip -->
+
+    <tdml:document>512345</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e xmlns="http://example.com/1">
+          <len>5</len>
+          <num>12345</num>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaces_qnames2
+    Schema: qname2.dfdl.xsd
+    Root: e1
+    Purpose: This test demonstrates that prefixes within expressions are 
+    resolved with respect to the namespace bindings
+    from the location where the expression was written, not where it is evaluated. 
+    In this case, the sequence
+    element references a simpleType that references an escape scheme. When 
+    the expression is written, the namespace
+    prefix "what" is bound to the target namespace for the current schema. 
+    When the expression is evaluated, the
+    namespace prefix is bound to the namespace for the imported schema, which 
+    contains another escape scheme definition.
+    The test will use the local escape scheme.
+
+  -->
+
+  <tdml:parserTestCase name="namespaces_qnames2"
+    root="e1" model="qname2.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+
+    <tdml:document>....//....</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <element1>..../....</element1>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: namespaces_qnames3
+    Schema: qname2.dfdl.xsd
+    Root: e2
+    Purpose: This test demonstrates that prefixes within expressions are 
+    resolved with respect to the namespace bindings
+    from the location where the expression was written, not where it is evaluated. 
+    This test counters the previous
+    test (namespaces_qnames2), which should be using the local definition 
+    of esc1. This test will use the escape
+    scheme from the imported schema, because the imported namespaces is not 
+    overridden in this element.
+
+  -->
+
+  <tdml:parserTestCase name="namespaces_qnames3"
+    root="e2" model="qname2.dfdl.xsd"
+    description="Section 5 - QNames must be properly resolved with respect to prefixes surrounding them.">
+
+    <tdml:document>....//....</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <element1>....//....</element1>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: defaultNamespaceInExpression
+    Schema: charClassEntities.dfdl.xsd
+    Purpose: This test verifies the fix for DFDL-407. Expressions should 
+    not require prefix-qualified names
+    if the default namespace is the same as the target namespace.
+  -->
+
+  <tdml:parserTestCase name="defaultNamespaceInExpression"
+    root="file" model="charClassEntities.dfdl.xsd"
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
+    <!-- Fix DFDL-1555 to enable roundTrip -->
+
+    <tdml:document><![CDATA[last,first,middle,DOB
+jones,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+jonesington,david,frederick,1986-02-19
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>jones</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>jonesington</item>
+            <item>david</item>
+            <item>frederick</item>
+            <item>1986-02-19</item>
+          </record>
+        </file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: defaultNamespaceInExpression2
+    Schema: charClassEntities.dfdl.xsd
+    Purpose: This test verifies the fix for DFDL-407. Expressions should 
+    not require prefix-qualified names
+    if the default namespace is the same as the target namespace. This test 
+    also demonstrates that
+    prefixes are resolved with respect to the namespace bindings from the 
+    location where the
+    expression was written, not where it is evaluated
+  -->
+
+  <tdml:parserTestCase name="defaultNamespaceInExpression2"
+    root="file2" model="charClassEntities.dfdl.xsd"
+    description="Hexadecimal code point used in document tag - DFDL-6-044R">
+    <!-- Fix DFDL-1555 to enable roundTrip -->
+
+    <tdml:document><![CDATA[last,first,middle,DOB
+jones,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+jonesington,david,frederick,1986-02-19
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <file2>
+          <header>
+            <title>last</title>
+            <title>first</title>
+            <title>middle</title>
+            <title>DOB</title>
+          </header>
+          <record>
+            <item>jones</item>
+            <item>robert</item>
+            <item>brandon</item>
+            <item>1988-03-24</item>
+          </record>
+          <record>
+            <item>johnson</item>
+            <item>john</item>
+            <item>henry</item>
+            <item>1986-01-23</item>
+          </record>
+          <record>
+            <item>jonesington</item>
+            <item>david</item>
+            <item>frederick</item>
+            <item>1986-02-19</item>
+          </record>
+        </file2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- schema has a mistake in it. User wrote <xs:format... when they
+    should have written <dfdl:format...
+
+    This test shows we get a diagnostic pointing at right file and line number.
+  -->
+  <tdml:parserTestCase name="junkAnnotation01" root="x"
+    model="junk-annotation-01.dfdl.xsd"
+    description="Diagnostic provides proper line number and file when a junk annotation is found - DFDL-6-007R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>junk-annotation-01.dfdl.xsd</tdml:error>
+      <tdml:error>line 34</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <!-- to isolate failure in JIRA issue DFDL-563 -->
+  <tdml:parserTestCase name="primTypesPrefixes01"
+    root="root1" model="primTypesPrefixes.dfdl.xsd"
+    description="Insure that primitive XML Schema types are properly recognized and distinguished by QNames">
+    <tdml:document>xyzzy,querty</tdml:document>
+    <tdml:errors>
+      <tdml:error>xyzzy</tdml:error>
+      <tdml:error>int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: toplevel_annotation_invalid_01
+    Schema: multi_base_04_invalid.dfdl.xsd
+    Root: aSeq
+    Purpose: This test demonstrates that error messages should display helpful and correct
+             information regarding errors in the schema.
+  -->
+
+  <tdml:parserTestCase name="toplevel_annotation_invalid_01"
+    root="aSeq" model="multi_base_04_invalid.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
+        <tdml:error>Location line 34 column 2</tdml:error>
+        <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: toplevel_annotation_invalid_02
+    Schema: multi_base_04_invalid2.dfdl.xsd
+    Root: aSeq
+    Purpose: This test demonstrates that error messages should display helpful and correct
+             information regarding errors in the schema.
+  -->
+
+  <tdml:parserTestCase name="toplevel_annotation_invalid_02"
+    root="aSeq" model="multi_base_04_invalid2.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
+        <tdml:error>Location line 51 column 8</tdml:error>
+        <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: errorLocations_01
+    Schema: multi_base_13.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test shows that diagnostic messages should point to the correct files and locations
+  -->
+
+  <tdml:parserTestCase name="errorLocations_01" root="rabbitHole"
+    model="multi_base_13.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[temp]]></tdml:document>
+      <tdml:errors>
+        <tdml:error>nonExistent</tdml:error>
+        <tdml:error>namespaces/multi_C_13.dfdl.xsd</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaSameDir_01
+    Schema: multi_base_14.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test demonstrates that when a schemaLocation is provided, the parser should look
+    in the same directory alongside the file doing the import. There are two different Schema C's
+    available. The schema selects the correct Schema C because it is in the same directory as Schema B when
+    C is imported. The incorrect Schema C lives on the same level as the base schema, one level up from Schema B.
+  -->
+
+  <tdml:parserTestCase name="schemaSameDir_01" root="rabbitHole"
+    model="multi_base_14.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[temp]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <rabbitHole>
+          <nestSequence>
+            <nest>temp</nest>
+          </nestSequence>
+        </rabbitHole>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaSameDir_02
+    Schema: multi_base_15.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test demonstrates that when a schemaLocation is provided, the parser should look
+    in the same directory alongside the file doing the include. There are two different Schema C's
+    available. The schema selects the correct Schema C because it is in the same directory as Schema B when
+    C is imported. The incorrect Schema C lives on the same level as the base schema, one level up from Schema B.
+  -->
+
+  <tdml:parserTestCase name="schemaSameDir_02" root="rabbitHole"
+    model="multi_base_15.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[temp]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <rabbitHole>
+          <nestSequence>
+            <nest>temp</nest>
+          </nestSequence>
+        </rabbitHole>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaSameDir_03
+    Schema: multi_base_16.dfdl.xsd
+    Root: rabbitHole
+    Purpose: This test demonstrates that when a schemaLocation is provided, the parser should look
+    in the same directory alongside the file doing the include.
+  -->
+
+  <tdml:parserTestCase name="schemaSameDir_03" root="rabbitHole"
+    model="multi_base_16.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[temp]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <rabbitHole>
+          <nestSequence>
+            <nest>temp</nest>
+          </nestSequence>
+        </rabbitHole>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaSameDirClasspath_01
+    Schema: multi_base_17.dfdl.xsd
+    Root: e17
+    Purpose: This test demonstrates that when a schemaLocation is provided, the parser should look
+    in the same directory alongside the file doing the include. This test combines that method with 
+    providing a schema location on the classpath.
+  -->
+
+  <tdml:parserTestCase name="schemaSameDirClasspath_01" root="e17"
+    model="multi_base_17.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[aElem,bElem]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e17>
+          <A>aElem</A>
+          <B>bElem</B>
+        </e17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: typeNameOverlap_01
+    Schema: multi_base_18.dfdl.xsd
+    Root: e
+    Purpose: This test demonstrates the issue seen in bug DFDL-563. When a custom type name overlaps
+    with a built-in type, the built-in type is used, regardless of namespace prefix used.
+  -->
+
+  <tdml:parserTestCase name="typeNameOverlap_01" root="e"
+    model="multi_base_18.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="bits">10000111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>135</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: typeNameOverlap_02
+    Schema: multi_base_19.dfdl.xsd
+    Root: e
+    Purpose: This test demonstrates the issue seen in bug DFDL-563. When a custom type name overlaps
+    with a built-in type, the built-in type is used, regardless of namespace prefix used.
+  -->
+
+  <tdml:parserTestCase name="typeNameOverlap_02" root="e"
+    model="multi_base_19.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="bits">10000111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>135</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: incorrectAppinfoSource
+    Schema: IncorrectAppinfoSource
+    Root: basic
+    Purpose: This test demonstrates that a warning is given when the appinfo source is not http://www.ogf.org/dfdl/
+    Currently tdml:warnings are not implemented so this test needs a manual check for the warning. Once that has been implemented this can be changed to automated.
+  -->
+
+  <tdml:parserTestCase name="incorrectAppinfoSource"
+    root="basic" model="IncorrectAppinfoSource" description="xs:appinfo source URI http://www.ogf.org/dfdl/ - DFDL-6-002R">
+    <tdml:document><![CDATA[test]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>test</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <!--tdml:warnings>
+    <tdml:warning>The xs:appinfo source attribute value 'http://www.ogf.org/dfdl/dfdl-1.0/' should be 'http://www.ogf.org/dfdl/'.</tdml:warning>
+    </tdml:warnings-->
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaNoGlobalElems_01
+    Schema: multi_base_20.dfdl.xsd
+    Root: base
+    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+  -->
+
+  <tdml:parserTestCase name="schemaNoGlobalElems_01"
+    root="base" model="multi_base_20.dfdl.xsd" description="">
+    <tdml:document>RED,ORANGE,BLUE</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base>
+          <acolor>RED</acolor>
+          <acolor>ORANGE</acolor>
+          <acolor>BLUE</acolor>
+        </base>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: schemaNoGlobalElems_02
+    Schema: multi_base_20.dfdl.xsd
+    Root: base2
+    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+  -->
+
+  <tdml:parserTestCase name="schemaNoGlobalElems_02"
+    root="base2" model="multi_base_20.dfdl.xsd" description="">
+    <tdml:document>one,two,three/four,five,six</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2>
+          <seq>
+            <elem>one</elem>
+            <elem>two</elem>
+            <elem>three</elem>
+          </seq>
+          <seq>
+            <elem>four</elem>
+            <elem>five</elem>
+            <elem>six</elem>
+          </seq>
+        </base2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

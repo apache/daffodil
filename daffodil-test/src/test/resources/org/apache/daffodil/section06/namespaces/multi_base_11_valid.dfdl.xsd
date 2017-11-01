@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<p1:schema xmlns:p1="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="ns2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="ns3" xmlns:p2="ns2" xmlns:p8="http://a06.com" xmlns:p9="http://b06.com">
+  
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+      
+  <p3:annotation xmlns:p3="http://www.w3.org/2001/XMLSchema">
+    <p4:appinfo source="http://www.ogf.org/dfdl/" xmlns:p4="http://www.w3.org/2001/XMLSchema">
+      <dfdl:format ref="p2:daffodilTest1" xmlns:p5="http://www.ogf.org/dfdl/dfdl-1.0/" separator="" initiator="" terminator="" leadingSkip='0' 
+      lengthUnits="characters" textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
+        textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+    </p4:appinfo>
+  </p3:annotation>
+  
+  <p5:include xmlns:p5="http://www.w3.org/2001/XMLSchema" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_11_nons_valid.dfdl.xsd"/>
+  <p6:import xmlns:p6="http://www.w3.org/2001/XMLSchema" namespace="http://b06.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_06_valid.dfdl.xsd"/>
+
+  <p7:element xmlns:p7="http://www.w3.org/2001/XMLSchema" name="root" type="p1:int" dfdl:lengthKind="explicit" dfdl:length="1"/>
+
+  <p10:element xmlns:p10="http://www.w3.org/2001/XMLSchema" name="root2">
+    <p11:complexType xmlns:p11="http://www.w3.org/2001/XMLSchema">
+      <p12:sequence xmlns:p12="http://www.w3.org/2001/XMLSchema" dfdl:separator=",">
+        <p13:element xmlns:p13="http://www.w3.org/2001/XMLSchema" maxOccurs="5" dfdl:occursCountKind="parsed" ref="p9:date3" dfdl:lengthKind="delimited"/>
+      </p12:sequence>
+    </p11:complexType>
+  </p10:element>
+
+  <p14:element xmlns:p14="http://www.w3.org/2001/XMLSchema" name="root3">
+    <p15:complexType xmlns:p15="http://www.w3.org/2001/XMLSchema">
+      <p16:sequence xmlns:p16="http://www.w3.org/2001/XMLSchema">
+        <p17:element xmlns:p17="http://www.w3.org/2001/XMLSchema" ref="p2:notAString"/>
+      </p16:sequence>
+    </p15:complexType>
+  </p14:element>
+  
+  <p18:element xmlns:p18="http://www.w3.org/2001/XMLSchema" name="root4">
+    <p19:complexType xmlns:p19="http://www.w3.org/2001/XMLSchema">
+      <p20:sequence xmlns:p20="http://www.w3.org/2001/XMLSchema">
+        <p21:element xmlns:p21="http://www.w3.org/2001/XMLSchema" ref="p2:notAStringy"/>
+      </p20:sequence>
+    </p19:complexType>
+  </p18:element>
+  
+  <xs:element name="root5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="p2:notAStringy2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="root6">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="p2:notAStringy3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</p1:schema>

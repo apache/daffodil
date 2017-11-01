@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="target" xmlns:tns="target"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
+        fillByte="f" occursCountKind="implicit"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
+    </appinfo>
+  </annotation>
+  <!-- Parsing of CSV -->
+
+  <element name="matrixString" type="tns:matrixTypeString" dfdl:lengthKind="implicit" />
+  <element name="matrix" type="tns:matrixType" dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType">
+    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit"
+        dfdl:encoding="utf-8">
+        <complexType>
+          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
+              dfdl:encodingErrorPolicy="replace" dfdl:encoding="utf-8" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <complexType name="matrixTypeString">
+    <sequence dfdl:separator="%NL;" dfdl:encoding="utf-8">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit"
+        dfdl:encoding="utf-8">
+        <complexType>
+          <sequence dfdl:separator="," dfdl:encoding="utf-8">
+            <element name="cell" type="xsd:string" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
+              dfdl:encodingErrorPolicy="replace" dfdl:encoding="utf-8" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+</schema>

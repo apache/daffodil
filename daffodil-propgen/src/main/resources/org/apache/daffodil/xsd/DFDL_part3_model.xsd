@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ******************************************************************
+  * (C) Copyright IBM Corp 2011
+  * All Rights Reserved
+  *
+  * This XML schema is 3 of 3 that defines the syntax of DFDL annotations.
+  * It defines the annotations themselves.
+  *
+  * DFDL Version 1.0
+  * Schema Version 1.0
+  ******************************************************************
+-->
+<xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
+  xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int"
+  attributeFormDefault="unqualified" elementFormDefault="qualified"
+  xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd 
+  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int org/apache/daffodil/xsd/dafint.xsd
+  urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int org/apache/daffodil/xsd/dafext.xsd">
+
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int" schemaLocation="org/apache/daffodil/xsd/dafint.xsd" />
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext" schemaLocation="org/apache/daffodil/xsd/dafext.xsd" />
+  <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
+
+
+  <!-- ======================================================== -->
+  <!-- DFDL Format definition types -->
+  <!-- ======================================================== -->
+
+  <!-- 7.2 dfdl:defineFormat -->
+  <xsd:element name="defineFormat" type="dfdl:DFDLDefineFormat" />
+  <xsd:complexType name="DFDLDefineFormat">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0"
+        ref="dfdl:format" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/>
+  </xsd:complexType>
+
+  <xsd:element name="format" type="dfdl:DFDLFormat" />
+  <xsd:complexType name="DFDLFormat">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:FormatAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <!-- 7.5 dfdl:defineEscapeScheme -->
+  <xsd:element name="defineEscapeScheme" type="dfdl:DFDLDefineEscapeScheme" />
+
+  <xsd:complexType name="DFDLDefineEscapeScheme">
+    <xsd:sequence>
+      <xsd:element ref="dfdl:escapeScheme" />
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/>
+  </xsd:complexType>
+
+  <xsd:element name="escapeScheme" type="dfdl:DFDLEscapeScheme" />
+
+  <xsd:complexType name="DFDLEscapeScheme">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:EscapeSchemeAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <!-- ================================================================= -->
+  <!-- Element form for properties -->
+  <!-- ================================================================= -->
+
+  <xsd:element name="property" type="dfdl:PropertyType" />
+
+  <xsd:complexType name="PropertyType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute name="name" type="dfdl:PropertyNameType" use='required'/>
+        <xsd:attributeGroup ref="dafint:daffodilAG"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <!-- ================================================================= -->
+  <!-- Elements, types and attribute groups to specify DFDL Variables -->
+  <!-- ================================================================= -->
+
+  <xsd:complexType name="DFDLVariableType">
+    <xsd:simpleContent>
+      <xsd:extension base="dfdl:DFDLStringLiteral_Or_DFDLExpression">
+        <xsd:attributeGroup ref="dafint:daffodilAG"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:attributeGroup name="DefineVariableAG">
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
+    <xsd:attribute name="predefined" type="xsd:boolean" />
+    <xsd:attribute name="type" type="xsd:QName" />
+    <xsd:attribute name="external" type="xsd:boolean" />
+    <xsd:attribute name="defaultValue"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+  </xsd:attributeGroup>
+
+  <xsd:attributeGroup name="SetVariableAG">
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
+    <xsd:attribute name="value"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+  </xsd:attributeGroup>
+
+  <xsd:attributeGroup name="NewVariableInstanceAG">
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
+    <xsd:attribute name="defaultValue"
+      type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
+  </xsd:attributeGroup>
+
+  <xsd:element name="defineVariable">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="dfdl:DFDLVariableType">
+          <xsd:attributeGroup ref="dfdl:DefineVariableAG" />
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="newVariableInstance">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="dfdl:DFDLVariableType">
+          <xsd:attributeGroup ref="dfdl:NewVariableInstanceAG" />
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="setVariable">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="dfdl:DFDLVariableType">
+          <xsd:attributeGroup ref="dfdl:SetVariableAG" />
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- ================================================================================ -->
+  <!-- Elements, types and attribute groups to specify DFDL Assert and Discriminator -->
+  <!-- ================================================================================ -->
+
+  <!-- The type that models element value as DFDL expression -->
+  <xsd:attributeGroup name="TestConditionAG">
+    <xsd:attribute name="test" type="dfdl:DFDLExpression" />
+    <xsd:attribute name="testKind" type="dfdl:TestKindEnum" />
+    <xsd:attribute name="testPattern" type="dfdl:DFDLRegularExpression" />
+    <xsd:attribute name="message" type="xsd:string" />
+  </xsd:attributeGroup>
+
+  <xsd:complexType name="TestCondition">
+    <xsd:simpleContent>
+      <xsd:extension base="dfdl:DFDLExpressionOrPatternOrNothing"> <!-- changed to accept regex -->
+        <xsd:attributeGroup ref="dfdl:TestConditionAG" />
+        <xsd:attributeGroup ref="dafint:daffodilAG" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:element name="assert">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="dfdl:TestCondition">
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="discriminator">
+    <xsd:complexType>
+      <xsd:simpleContent>
+        <xsd:extension base="dfdl:TestCondition">
+        </xsd:extension>
+      </xsd:simpleContent>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- ============================================================ -->
+  <!-- Specialized annotations element definitions -->
+  <!-- ============================================================ -->
+
+  <xsd:element name="element" type="dfdl:DFDLElementType" />
+  <xsd:element name="sequence" type="dfdl:DFDLSequenceType" />
+  <xsd:element name="choice" type="dfdl:DFDLChoiceType" />
+  <xsd:element name="group" type="dfdl:DFDLGroupType" />
+  <xsd:element name="simpleType" type="dfdl:DFDLSimpleType" />
+
+  <!-- ============================================================= -->
+  <!-- Specialized annotations types -->
+  <!-- ============================================================= -->
+
+  <xsd:complexType abstract="true" name="DFDLType">
+    <xsd:sequence>
+      <xsd:element maxOccurs="unbounded" minOccurs="0"
+        ref="dfdl:property" />
+      <xsd:element maxOccurs="unbounded" minOccurs="0"
+        ref="daf:property" />
+    </xsd:sequence>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/> 
+  </xsd:complexType>
+
+  <xsd:complexType abstract="true" name="DFDLBaseType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:BaseAG" />
+        <xsd:attributeGroup ref="dfdl:CommonAG" />
+        <xsd:attributeGroup ref="dfdl:AlignmentAG" />
+        <xsd:attributeGroup ref="dfdl:MarkupAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="DFDLElementType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:ElementAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="DFDLSequenceType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
+        <xsd:attributeGroup ref="dfdl:SequenceAG" />
+        <xsd:attributeGroup ref="dfdl:SeparatorAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="DFDLChoiceType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
+        <xsd:attributeGroup ref="dfdl:ChoiceAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="DFDLSimpleType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:SimpleTypeAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="DFDLGroupType">
+    <xsd:complexContent>
+      <xsd:extension base="dfdl:DFDLBaseType">
+        <xsd:sequence />
+        <xsd:attributeGroup ref="dfdl:GroupAG" />
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <!-- ======================================================== -->
+  <!-- Specialized annotations attribute groups -->
+  <!-- ======================================================== -->
+
+  <xsd:attributeGroup name="FormatAG">
+    <xsd:attributeGroup ref="dfdl:ElementFormatSubsetAG" />
+    <xsd:attributeGroup ref="dfdl:GroupAG" />
+    <xsd:attributeGroup ref="dfdl:DocumentPropertiesAG" />
+  </xsd:attributeGroup>
+
+  <xsd:attributeGroup name="ElementFormatSubsetAG">
+    <xsd:attributeGroup ref="dfdl:SimpleTypeAG" />
+    <xsd:attributeGroup ref="dfdl:FloatingAG" />
+    <xsd:attributeGroup ref="dfdl:NillableAG" />
+    <xsd:attributeGroup ref="dfdl:DefaultValueControlAG" />
+    <xsd:attributeGroup ref="dfdl:OccursAG" />
+  </xsd:attributeGroup>
+  
+   <xsd:attributeGroup name="ElementAG">
+    <xsd:attributeGroup ref="dfdl:ElementFormatSubsetAG" />
+    <xsd:attributeGroup ref="dfdl:CalculatedValueAG" />
+  </xsd:attributeGroup>
+
+  <!-- dfdl:group takes the union of dfdl:sequence and dfdl:choice properties -->
+  <xsd:attributeGroup name="GroupAG">
+    <xsd:attributeGroup ref="dfdl:GroupCommonAG" />
+    <xsd:attributeGroup ref="dfdl:SequenceAG" />
+    <xsd:attributeGroup ref="dfdl:ChoiceAG" />
+    <xsd:attributeGroup ref="dfdl:SeparatorAG" />
+  </xsd:attributeGroup>
+
+  <xsd:attributeGroup name="SimpleTypeAG">
+    <xsd:attributeGroup ref="dfdl:RepresentationAG" />
+    <xsd:attributeGroup ref="dfdl:NonGroupMarkupAG" />
+    <xsd:attributeGroup ref="dfdl:LengthAG" />
+    <xsd:attributeGroup ref="dfdl:SimpleTypesTextAG" />
+    <xsd:attributeGroup ref="dfdl:StringTextAG" />
+    <xsd:attributeGroup ref="dfdl:NumberAG" />
+    <xsd:attributeGroup ref="dfdl:NumberTextAG" />
+    <xsd:attributeGroup ref="dfdl:TextNumberFormatAG" />
+    <xsd:attributeGroup ref="dfdl:NumberBinaryAG" />
+    <xsd:attributeGroup ref="dfdl:FloatBinaryAG" />
+    <xsd:attributeGroup ref="dfdl:TextBidiSchemeAG" />
+    <xsd:attributeGroup ref="dfdl:CalendarTextAG" />
+    <xsd:attributeGroup ref="dfdl:CalendarBinaryAG" />
+    <xsd:attributeGroup ref="dfdl:CalendarFormatAG" />
+    <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
+    <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
+  </xsd:attributeGroup>
+
+</xsd:schema>

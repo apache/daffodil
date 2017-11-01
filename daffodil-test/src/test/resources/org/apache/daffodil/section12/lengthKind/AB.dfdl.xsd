@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <!-- <dfdl:format initiator="" terminator="" separator=""
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+        documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
+        representation="text" occursCountKind="parsed" /> -->
+      <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="utf-8"
+        byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+        fillByte="f" occursCountKind="implicit"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
+    </appinfo>
+  </annotation>
+  <!-- Parsing of CSV -->
+
+  <element name="matrix" type="tns:matrixType" dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType">
+    <sequence dfdl:separator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+  <element name="matrix_01" type="tns:matrixType_01"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_01">
+    <sequence dfdl:separator="%NL;" dfdl:terminator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <element name="matrix_02" type="tns:matrixType_02"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_02">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded" nillable="true"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" dfdl:nilKind="literalValue" dfdl:nilValue="%ES;"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+  
+  <element name="matrix_03" type="tns:matrixType_03"
+    dfdl:lengthKind="implicit" />
+
+  <complexType name="matrixType_03">
+    <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix" dfdl:terminator="%NL;">
+      <element name="row" maxOccurs="unbounded" dfdl:lengthKind="implicit">
+        <complexType>
+          <sequence dfdl:separator=",">
+            <element name="cell" type="xsd:int" maxOccurs="unbounded"
+              dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </complexType>
+
+</schema>

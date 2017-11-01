@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<!-- Note that in b· that middle dot is exactly that. Unicode 0xB7. -->
+<!-- This middle doc character is expressly allowed by XML 1.0 syntax for namespace prefixes. -->
+<имен:schema 
+xmlns:имен="http://www.w3.org/2001/XMLSchema" 
+xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+xmlns:b·="http://example.com" 
+targetNamespace="http://example.com">
+
+
+  <имен:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+      
+  <имен:annotation>
+    <имен:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="b·:daffodilTest1" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
+        trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </имен:appinfo>
+  </имен:annotation>
+  
+    <имен:simpleType name="simTyp" dfdl:lengthKind="delimited" dfdl:initiator="1:">
+      <имен:restriction base="имен:int"/>
+    </имен:simpleType>
+
+    <имен:element name="one" type="b·:simTyp"/>
+  
+</имен:schema>

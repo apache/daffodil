@@ -10,8 +10,8 @@
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/XMLSchema.dtd" />
 	<public publicId="datatypes"
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/datatypes.dtd" />
-	<uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	<uri name="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/dafext.xsd" />
-	<uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
+	<uri name="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:int"
 		uri="platform:/resource/daffodil-lib/src/main/resources/xsd/dafint.xsd" />
 </catalog>

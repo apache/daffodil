@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+	elementFormDefault="qualified" attributeFormDefault="unqualified" >
+
+	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+
+    <xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   ref="config" escapeSchemeRef="" emptyValueDelimiterPolicy="none"
+					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
+					lengthUnits="characters" 
+					textOutputMinLength="1"
+					alignment="1" alignmentUnits="bytes" fillByte="%NUL;" leadingSkip="0" trailingSkip="0"
+					ignoreCase="no" lengthKind="delimited" sequenceKind="ordered"
+					initiatedContent="no"	
+					outputNewLine="%CR;%LF;"
+					occursCountKind="implicit"
+                    bitOrder="mostSignificantBitFirst"
+                    representation="text"
+					/>
+				
+			</xs:appinfo>
+	</xs:annotation>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineFormat name="config">
+   <dfdl:format ref="daffodilNewProperties1" encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
+				textStringJustification="right"
+				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" documentFinalTerminatorCanBeMissing="yes"/>
+			</dfdl:defineFormat>
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:element name="Fixed_string_with_Pads_10_1" 
+	dfdl:representation="text" 
+	dfdl:lengthUnits="characters" 
+	dfdl:initiator="i"
+	dfdl:terminator="t"
+	
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"
+	dfdl:length="10" 
+	dfdl:lengthKind="explicit"
+	dfdl:ignoreCase="yes">
+	<xs:simpleType>
+			<xs:restriction base="xs:string">
+			
+<!-- xs:minLength value="10"/><xs:maxLength value="10"/> -->
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	
+	<xs:element name="Fixed_string_with_Pads_10_2" 
+	dfdl:representation="text" 
+	dfdl:lengthUnits="characters" 
+	dfdl:initiator="ST* i initiator :"
+	dfdl:terminator="*SE t terminator :"
+	
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"
+	dfdl:length="10" 
+	dfdl:lengthKind="explicit">
+	<xs:simpleType>
+			<xs:restriction base="xs:string">
+			
+<!-- xs:minLength value="10"/><xs:maxLength value="10"/> -->
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+
+<xs:element name="Fixed_text_sequence"  dfdl:lengthKind="implicit">
+  <xs:complexType>
+  
+  <xs:sequence  dfdl:sequenceKind="ordered" >
+  
+    <xs:element name="element1" 
+	minOccurs="1" maxOccurs="1" 
+	dfdl:representation="text"
+	dfdl:length="1" 
+	dfdl:lengthKind="explicit"
+	dfdl:lengthUnits="characters"
+	dfdl:initiator="%NL;"
+	dfdl:terminator=""
+	
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"> 
+	
+	    <xs:simpleType>
+			<xs:restriction base="xs:string">
+	
+			</xs:restriction>
+		</xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="element2" 
+	minOccurs="1" maxOccurs="1" 
+	dfdl:representation="text"
+	dfdl:length="1" 
+	dfdl:lengthKind="explicit"
+	dfdl:lengthUnits="characters"
+	dfdl:initiator=""
+	dfdl:terminator="%NL;"
+		
+	dfdl:nilValueDelimiterPolicy="both"
+	dfdl:nilKind="literalValue"
+	dfdl:nilValue="-"> 
+	
+	    <xs:simpleType>
+			<xs:restriction base="xs:string">
+			
+			</xs:restriction>
+		</xs:simpleType>
+    </xs:element>
+  </xs:sequence>
+  </xs:complexType>
+  </xs:element>
+  
+</xs:schema>

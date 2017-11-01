@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:a="http://complexSchema.com"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:tns="http://baseSchema.com" 
+	targetNamespace="http://baseSchema.com">
+	
+	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:format ref="tns:daffodilTest1" separator="" initiator="" terminator=""
+				leadingSkip='0' textTrimKind="none" initiatedContent="no"
+				ignoreCase="no" representation="text" textNumberRep="standard"
+				lengthKind="delimited" encoding="ASCII" />
+		</xs:appinfo>
+	</xs:annotation>
+
+	<xs:import namespace="http://complexSchema.com"
+		schemaLocation="./complex_types.dfdl.xsd" />
+
+	<xs:element name="elem" type="a:dfdl_913">
+	</xs:element>
+</xs:schema>

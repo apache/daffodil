@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="Array-OptionalElemTests"
+  description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2017:ext"
+  defaultRoundTrip="true">
+  
+  <tdml:defineSchema name="s1">
+
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+      separator="" initiator="" terminator="" occursCountKind="implicit"
+      ignoreCase="no" textNumberRep="standard" representation="text" />
+    <dfdl:defineFormat name="root">
+      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
+        separator="" initiator="" terminator="" representation="text" />
+    </dfdl:defineFormat>
+    
+    <xs:element name="r4" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:string" minOccurs="0"
+            maxOccurs="3" />
+          <xs:element name="sca" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
+
+    <dfdl:format lengthKind="delimited" lengthUnits="bytes"
+      ref="ex:daffodilTest1" encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+      representation="text" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="anyEmpty">
+          <xs:element name="e1" type="xs:int" minOccurs="0" />
+          <xs:element name="e2" type="xs:float" minOccurs="0" />
+          <xs:element name="e3" type="xs:unsignedByte"
+            minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:element name="e1" type="xs:int" minOccurs="1" maxOccurs="10" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="postfix">
+          <xs:element name="e1" type="xs:int" minOccurs="1" maxOccurs="10" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="error01" root="root2"
+    model="array-optionalElem.dfdl.xsd"
+    description="Section 16 - Processing error if a separator is parsed successfully but subsequent element not found - DFDL-16-017R">
+
+    <tdml:document><![CDATA[3,4,5,]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="postfixNoErr" root="root3"
+    model="array-optionalElem.dfdl.xsd"
+    description="Section 16 - Processing error if a separator is parsed successfully but subsequent element not found - DFDL-16-017R">
+
+    <tdml:document><![CDATA[3,4,5,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root3>
+          <e1>3</e1>
+          <e1>4</e1>
+          <e1>5</e1>
+        </root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="optionalElem" root="root"
+    model="array-optionalElem.dfdl.xsd"
+    description="Section 16 - a sequence of optional elements, no data is consumed - DFDL-16-001R">
+
+    <tdml:document><![CDATA[abcde,127.9,-109]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error />
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="arrays1">
+
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit"
+      lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
+      separatorPosition="prefix" />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="$">
+          <xs:element name="a" type="xs:string" minOccurs="0"
+            dfdl:initiator="a:" dfdl:terminator=";" />
+          <xs:element name="b" type="xs:string"
+            dfdl:terminator=";" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="optionalWithSeparators"
+    model="arrays1" root="r" description="Section 16 - an optional element applied to a local element - DFDL-16-001R">
+    <tdml:document><![CDATA[$x;]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r>
+          <b>x</b>
+        </r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_optional_element"
+    description="optional element - DFDL-16-001R"
+    model="arrays_optional_elements.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_optional_element_01"
+    description="optional element - DFDL-16-001R"
+    model="arrays_optional_elements.dfdl.xsd" root="address">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_fixed_array"
+    description="occursCountKind 'fixed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address1">
+
+    <tdml:document><![CDATA[000118Ridgewood Circle    Main Street         Rochester           NYUSA                 ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address1> 
+            <houseNumber>000118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <street>Main Street</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address1>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array"
+    description="occursCountKind 'parsed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address2">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*street:Main Street*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address2> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <street>Main Street</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address2>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array_01"
+    description="occursCountKind 'parsed' - DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address2">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address2> 
+            <houseNumber>118</houseNumber>
+            <street>Ridgewood Circle</street>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address2>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="Lesson6_variable_array_02"
+    description="occursCountKind 'parsed' with different separator- DFDL-16-002R"
+    model="arrays_optional_elements.dfdl.xsd" root="address3">
+
+    <tdml:document><![CDATA[[house:118*street:Ridgewood Circle~street:Main Street*city:Rochester*state:NY*country:USA]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <address3> 
+            <houseNumber>118</houseNumber>
+            <streets>
+              <street>Ridgewood Circle</street>
+              <street>Main Street</street>
+            </streets>
+            <city>Rochester</city>
+            <state>NY</state>
+            <country>USA</country>
+          </address3>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="arrayExpressions">
+    <dfdl:format ref="ex:daffodilTest1" />
+    
+    <dfdl:defineVariable name="counter" type="xs:int" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="expression" test="{xs:int(.) eq dfdl:occursIndex()}" message="Assertion failed for expression 'xs:int(.) eq dfdl:occursIndex()'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="separatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{ xs:string(/ex:e2/ex:separatorArray[xs:int(dfdl:occursIndex())]) }">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="separator" type="xs:string" dfdl:lengthKind="explicit" minOccurs="1" maxOccurs="1" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{ /ex:e2b/ex:separator }">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2c">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="terminatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="num" type="xs:int" dfdl:terminator="{ /ex:e2c/ex:terminatorArray[dfdl:occursIndex()] }" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2d">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:initiator="{ xs:string(/ex:e2d/ex:initiatorArray[xs:int(dfdl:occursIndex())]) }" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="a2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=".">
+                <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
+                    maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (/ex:e3/ex:a1 eq b) then 'bigEndian' else 'littleEndian' }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="explicit" dfdl:length="1">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="expression" test="{ . eq (dfdl:occursIndex()+2) }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:initiator="{ xs:string(/ex:e5/ex:initiatorArray[xs:int(dfdl:occursIndex())]) }" dfdl:separator=",">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: arrayExpressions03
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case, the property is byteOrder
+-->
+
+  <tdml:parserTestCase name="arrayExpressions03" model="arrayExpressions" root="e3"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="byte">62|003A|6C|003A</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <a1>b</a1>
+          <num>58</num>
+          <a1>l</a1>
+          <num>14848</num>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions02
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions02" model="arrayExpressions" root="e2"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">;|-|#|1;2;3|1-2-3|3#9#1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <separatorArray>;</separatorArray>
+          <separatorArray>-</separatorArray>
+          <separatorArray>#</separatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02b
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that you can use an expression that references a previous element to set a separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02b" model="arrayExpressions" root="e2b"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">.|1.2.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2b>
+          <separator>.</separator>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+        </e2b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02c
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02c" model="arrayExpressions" root="e2c"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">.|,|#|1.2,3#</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2c>
+          <terminatorArray>.</terminatorArray>
+          <terminatorArray>,</terminatorArray>
+          <terminatorArray>#</terminatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+        </e2c>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02d
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02d" model="arrayExpressions" root="e2d"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2d>
+          <initiatorArray>;</initiatorArray>
+          <initiatorArray>-</initiatorArray>
+          <initiatorArray>#</initiatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
+        </e2d>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions01
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the expression is used in an assertion.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions01" model="arrayExpressions" root="e1"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">1.2.3.4.5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions04
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the expression is used with an assertion
+-->
+
+  <tdml:parserTestCase name="arrayExpressions04" model="arrayExpressions" root="e4"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">3|4|5|6</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+          <num>6</num>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions05
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:initiator.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions05" model="arrayExpressions" root="e5"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <initiatorArray>;</initiatorArray>
+          <initiatorArray>-</initiatorArray>
+          <initiatorArray>#</initiatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
