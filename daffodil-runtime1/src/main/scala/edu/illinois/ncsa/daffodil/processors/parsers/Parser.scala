@@ -32,10 +32,14 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
+import java.io.StringWriter
+import java.io.PrintWriter
+
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.Processor
@@ -189,76 +193,107 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
 
   def parse(pstate: PState): Unit = {
     var pBefore: PState.Mark = null
+    var markLeakCausedByException = false;
 
-    pstate.pushDiscriminator
-    var diagnostics: Seq[Diagnostic] = Nil
-    var i = 0
-    var parser: Parser = null
-    val limit = childParsers.length
-    var returnFlag = false
-    while (!returnFlag && i < limit) {
-      parser = childParsers(i)
-      i += 1
-      log(LogLevel.Debug, "Trying choice alternative: %s", parser)
-      pBefore = pstate.mark("AltCompParser1")
-      try {
-        parser.parse1(pstate)
-      } catch {
-        case d: SchemaDefinitionDiagnosticBase => {
-          pstate.discard(pBefore)
-          throw d
+    try {
+      pstate.pushDiscriminator
+      var diagnostics: Seq[Diagnostic] = Nil
+      var i = 0
+      var parser: Parser = null
+      val limit = childParsers.length
+      var returnFlag = false
+      while (!returnFlag && i < limit) {
+        parser = childParsers(i)
+        i += 1
+        log(LogLevel.Debug, "Trying choice alternative: %s", parser)
+        pBefore = pstate.mark("AltCompParser1")
+        try {
+          parser.parse1(pstate)
+        } catch {
+          case d: SchemaDefinitionDiagnosticBase => {
+            pstate.discard(pBefore)
+            pBefore = null
+            throw d
+          }
         }
-      }
-      if (pstate.processorStatus eq Success) {
-        log(LogLevel.Debug, "Choice alternative success: %s", parser)
-        pstate.discard(pBefore)
-        pBefore = null
-        returnFlag = true
-      } else {
-        // If we get here, then we had a failure
-        log(LogLevel.Debug, "Choice alternative failed: %s", parser)
-        //
-        // capture diagnostics
-        //
-        val diag = new ParseAlternativeFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
-        diagnostics = diag +: diagnostics
-        //
-        // check for discriminator evaluated to true.
-        //
-        if (pstate.discriminator == true) {
-          log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded.")
-          // If so, then we don't run the next alternative, we
-          // consume this discriminator status result (so it doesn't ripple upward)
-          // and return the failed state with all the diagnostics.
-          //
-          val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
-          pstate.discard(pBefore) // because disc set, we don't unwind side effects on input stream & infoset
+        if (pstate.processorStatus eq Success) {
+          log(LogLevel.Debug, "Choice alternative success: %s", parser)
+          pstate.discard(pBefore)
           pBefore = null
-          pstate.setFailed(allDiags)
           returnFlag = true
         } else {
+          // If we get here, then we had a failure
+          log(LogLevel.Debug, "Choice alternative failed: %s", parser)
           //
-          // Here we have a failure, but no discriminator was set, so we try the next alternative.
-          // Which means we just go around the loop
+          // capture diagnostics
           //
-          // But we have to unwind side-effects on input-stream, infoset, variables, etc.
-          pstate.reset(pBefore)
-          pBefore = null
-          returnFlag = false
+          val diag = new ParseAlternativeFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+          diagnostics = diag +: diagnostics
+          //
+          // check for discriminator evaluated to true.
+          //
+          if (pstate.discriminator == true) {
+            log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded.")
+            // If so, then we don't run the next alternative, we
+            // consume this discriminator status result (so it doesn't ripple upward)
+            // and return the failed state with all the diagnostics.
+            //
+            val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+            pstate.discard(pBefore) // because disc set, we don't unwind side effects on input stream & infoset
+            pBefore = null
+            pstate.setFailed(allDiags)
+            returnFlag = true
+          } else {
+            //
+            // Here we have a failure, but no discriminator was set, so we try the next alternative.
+            // Which means we just go around the loop
+            //
+            // But we have to unwind side-effects on input-stream, infoset, variables, etc.
+            pstate.reset(pBefore)
+            pBefore = null
+            returnFlag = false
+          }
         }
       }
-    }
-    Assert.invariant(i <= limit)
-    if (returnFlag == false) {
-      Assert.invariant(i == limit)
-      // Out of alternatives. All of them failed.
-      val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
-      pstate.setFailed(allDiags)
-      log(LogLevel.Debug, "All AltParser alternatives failed.")
-    }
+      Assert.invariant(i <= limit)
+      if (returnFlag == false) {
+        Assert.invariant(i == limit)
+        // Out of alternatives. All of them failed.
+        val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+        pstate.setFailed(allDiags)
+        log(LogLevel.Debug, "All AltParser alternatives failed.")
+      }
 
-    Assert.invariant(pBefore eq null)
-    pstate.popDiscriminator
+      pstate.popDiscriminator
+    } catch {
+      // Similar try/catch/finally logic for returning marks is also used in
+      // the RepAtMostTotalNParser and RepUnboundedParser. The logic isn't
+      // easily factored out so it is duplicated. Changes made here should also
+      // be made there. Only these parsers deal with taking marks, so this logic
+      // should not be needed elsewhere.
+      case t: Throwable => {
+        if (pBefore != null) {
+          markLeakCausedByException = true
+          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
+            val stackTrace = new StringWriter()
+            t.printStackTrace(new PrintWriter(stackTrace))
+            Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+          }
+        }
+        throw t
+      }
+    } finally {
+      var markLeak = false;
+      if (pBefore != null) {
+        pstate.discard(pBefore)
+        markLeak = true;
+      }
+
+      if (markLeak && !markLeakCausedByException) {
+        // likely a logic bug, throw assertion
+        Assert.invariantFailed("mark not returned, likely a logic bug")
+      }
+    }
   }
 
 }
