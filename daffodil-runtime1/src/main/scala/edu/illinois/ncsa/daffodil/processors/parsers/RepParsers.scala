@@ -33,10 +33,13 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import java.lang.{ Long => JLong }
+import java.io.StringWriter
+import java.io.PrintWriter
 
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.equality.ViewEqual
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Evaluatable
 import edu.illinois.ncsa.daffodil.processors.Failure
@@ -126,65 +129,113 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(n, rParser, erd, "AtMostTotalN") {
 
   def parseAllRepeats(initialState: PState): Unit = {
-    if (initialState.mpstate.arrayPos <= intN) {
-      val startState = initialState.mark("RepAtMostTotalNParser1")
-      var priorState = initialState.mark("RepAtMostTotalNParser2")
-      val pstate = initialState
-      var returnFlag = false
-      while (!returnFlag && (pstate.mpstate.arrayPos <= intN)) {
-        // Since each one could fail, each is a new point of uncertainty.
+    var startState: PState.Mark = null
+    var priorState: PState.Mark = null
+    var markLeakCausedByException = false
 
-        pstate.pushDiscriminator
+    try {
+      if (initialState.mpstate.arrayPos <= intN) {
+        startState = initialState.mark("RepAtMostTotalNParser1")
+        priorState = initialState.mark("RepAtMostTotalNParser2")
+        val pstate = initialState
+        var returnFlag = false
+        while (!returnFlag && (pstate.mpstate.arrayPos <= intN)) {
+          // Since each one could fail, each is a new point of uncertainty.
 
-        if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+          pstate.pushDiscriminator
 
-        try {
-          rParser.parse1(pstate)
-        } catch {
-          case sde: SchemaDefinitionDiagnosticBase => {
-            pstate.discard(startState)
-            throw sde
+          if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+
+          try {
+            rParser.parse1(pstate)
+          } catch {
+            case sde: SchemaDefinitionDiagnosticBase => {
+              pstate.discard(startState)
+              startState = null
+              priorState = null
+              throw sde
+            }
           }
-        }
 
-        if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
+          if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
-        if (pstate.processorStatus ne Success) {
-          //
-          // Did not succeed
-          //
-          // Was a discriminator set?
-          //
-          if (pstate.discriminator == true) {
-            // we fail the whole RepUnbounded, because there was a discriminator set
-            // before the failure.
-            pstate.reset(startState)
-            // no need discard priorState, that is implicitly discarded by resetting the startState
-            returnFlag = true
+          if (pstate.processorStatus ne Success) {
+            //
+            // Did not succeed
+            //
+            // Was a discriminator set?
+            //
+            if (pstate.discriminator == true) {
+              // we fail the whole RepUnbounded, because there was a discriminator set
+              // before the failure.
+              pstate.reset(startState)
+              startState = null
+              priorState = null
+
+              // no need discard priorState, that is implicitly discarded by resetting the startState
+              returnFlag = true
+            } else {
+              //
+              // backout any element appended as part of this attempt.
+              //
+              pstate.reset(priorState)
+              pstate.discard(startState)
+              priorState = null
+              startState = null
+
+              returnFlag = true // success at prior state.
+            }
           } else {
             //
-            // backout any element appended as part of this attempt.
+            // Success
             //
-            pstate.reset(priorState)
-            pstate.discard(startState)
-            returnFlag = true // success at prior state.
+            pstate.discard(priorState)
+            priorState = pstate.mark("RepAtMostTotalNParser3")
+            pstate.mpstate.moveOverOneArrayIndexOnly
+            returnFlag = false
           }
-        } else {
-          //
-          // Success
-          //
-          pstate.discard(priorState)
-          priorState = pstate.mark("RepAtMostTotalNParser3")
-          pstate.mpstate.moveOverOneArrayIndexOnly
-          returnFlag = false
-        }
 
-        pstate.popDiscriminator
+          pstate.popDiscriminator
+        }
+        if (returnFlag == false) {
+          // we exited the loop due to arrayPos hitting the upper limit
+          pstate.discard(priorState)
+          pstate.discard(startState)
+          priorState = null
+          startState = null
+        }
       }
-      if (returnFlag == false) {
-        // we exited the loop due to arrayPos hitting the upper limit
-        pstate.discard(priorState)
-        pstate.discard(startState)
+    } catch {
+      // Similar try/catch/finally logic for returning marks is also used in
+      // the AltCompParser and RepUnboundedParser. The logic isn't
+      // easily factored out so it is duplicated. Changes made here should also
+      // be made there. Only these parsers deal with taking marks, so this logic
+      // should not be needed elsewhere.
+      case t: Throwable => {
+        if (priorState != null || startState != null) {
+          markLeakCausedByException = true
+          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
+            val stackTrace = new StringWriter()
+            t.printStackTrace(new PrintWriter(stackTrace))
+            Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+          }
+        }
+        throw t
+      }
+    } finally {
+      var markLeak = false;
+      if (priorState != null) {
+        initialState.discard(priorState)
+        markLeak = true;
+      }
+      if (startState != null) {
+        initialState.discard(startState)
+        markLeak = true;
+      }
+
+      if (markLeak && !markLeakCausedByException) {
+        // likely a logic bug, throw assertion
+        Assert.invariantFailed("mark not returned, likely a logic bug")
       }
     }
   }
@@ -207,87 +258,134 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   extends RepParser(-1, rParser, erd, "Unbounded") {
 
   def parseAllRepeats(initialState: PState): Unit = {
+    var startState: PState.Mark = null
+    var priorState: PState.Mark = null
+    var markLeakCausedByException = false
+
     Assert.invariant(initialState.processorStatus eq Success)
-    val startState = initialState.mark("RepUnboundedParser1")
-    val pstate = initialState
-    var priorState = initialState.mark("RepUnboundedParser2")
-    var returnFlag = false
-    while (!returnFlag && (pstate.processorStatus eq Success)) {
 
-      //      erd.maxOccurs.foreach { maxOccurs =>
-      //        if ((occursCountKind == OccursCountKind.Implicit) &&
-      //          (maxOccurs == -1)) {
-      //          erd.minOccurs.foreach { minOccurs =>
-      //            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
-      //              // Is required element
-      //              // Need to trigger default value creation
-      //              // in right situations (like the element is defaultable)
-      //              // This is relatively easy for simple types
-      //              // for complex types, defaulting is trickier as one
-      //              // must recursively traverse the type, and then determine one
-      //              // has not advanced the data at all.
-      //            }
-      //          }
-      //        }
-      //      }
+    try {
+      val pstate = initialState
+      startState = initialState.mark("RepUnboundedParser1")
+      priorState = initialState.mark("RepUnboundedParser2")
+      var returnFlag = false
+      while (!returnFlag && (pstate.processorStatus eq Success)) {
 
-      //
-      // Every parse is a new point of uncertainty.
-      pstate.pushDiscriminator
-      if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+        //      erd.maxOccurs.foreach { maxOccurs =>
+        //        if ((occursCountKind == OccursCountKind.Implicit) &&
+        //          (maxOccurs == -1)) {
+        //          erd.minOccurs.foreach { minOccurs =>
+        //            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
+        //              // Is required element
+        //              // Need to trigger default value creation
+        //              // in right situations (like the element is defaultable)
+        //              // This is relatively easy for simple types
+        //              // for complex types, defaulting is trickier as one
+        //              // must recursively traverse the type, and then determine one
+        //              // has not advanced the data at all.
+        //            }
+        //          }
+        //        }
+        //      }
 
-      try {
-        rParser.parse1(pstate)
-      } catch {
-        case sde: SchemaDefinitionDiagnosticBase => {
-          pstate.discard(startState)
-          throw sde
+        //
+        // Every parse is a new point of uncertainty.
+        pstate.pushDiscriminator
+        if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
+
+        try {
+          rParser.parse1(pstate)
+        } catch {
+          case sde: SchemaDefinitionDiagnosticBase => {
+            pstate.discard(startState)
+            startState = null
+            priorState = null
+            throw sde
+          }
         }
-      }
 
-      if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
-      if (pstate.processorStatus ne Success) {
-        //
-        // Did not succeed
-        //
-        // Was a discriminator set?
-        //
-        if (pstate.discriminator == true) {
-          // we fail the whole RepUnbounded, because there was a discriminator set
-          // before the failure.
-          pstate.reset(startState)
-          // no need discard priorState, that is implicitly discarded by resetting the startState
-        } else {
+        if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
+        if (pstate.processorStatus ne Success) {
           //
-          // no discriminator, so suppress the failure. Loop terminated with prior element.
+          // Did not succeed
           //
+          // Was a discriminator set?
+          //
+          if (pstate.discriminator == true) {
+            // we fail the whole RepUnbounded, because there was a discriminator set
+            // before the failure.
+            pstate.reset(startState)
+            startState = null
+            priorState = null
+            // no need discard priorState, that is implicitly discarded by resetting the startState
+          } else {
+            //
+            // no discriminator, so suppress the failure. Loop terminated with prior element.
+            //
 
-          log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
-          pstate.reset(priorState)
-          pstate.discard(startState)
-        }
-        returnFlag = true
-      } else {
-        // Success
-        // Need to check for forward progress
-        if (pstate.bitPos =#= priorState.bitPos0b) {
-          pstate.discard(priorState) // didn't move, but might have assigned variables, have to undo those.
-          pstate.discard(startState)
-          PE(pstate,
-            "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
-              "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
-            pstate.bytePos, erd.diagnosticDebugName)
+            log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
+            pstate.reset(priorState)
+            pstate.discard(startState)
+            startState = null
+            priorState = null
+          }
           returnFlag = true
         } else {
-          pstate.discard(priorState)
-          priorState = pstate.mark("RepUnboundedParser3")
-          pstate.mpstate.moveOverOneArrayIndexOnly
-          returnFlag = false
+          // Success
+          // Need to check for forward progress
+          if (pstate.bitPos =#= priorState.bitPos0b) {
+            pstate.discard(priorState) // didn't move, but might have assigned variables, have to undo those.
+            pstate.discard(startState)
+            startState = null
+            priorState = null
+            PE(pstate,
+              "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
+                "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
+              pstate.bytePos, erd.diagnosticDebugName)
+            returnFlag = true
+          } else {
+            pstate.discard(priorState)
+            priorState = pstate.mark("RepUnboundedParser3")
+            pstate.mpstate.moveOverOneArrayIndexOnly
+            returnFlag = false
+          }
         }
+        pstate.popDiscriminator
       }
-      pstate.popDiscriminator
+      Assert.invariant(returnFlag == true)
+    } catch {
+      // Similar try/catch/finally logic for returning marks is also used in
+      // the AltCompParser and RepAtMostTotalNParser. The logic isn't
+      // easily factored out so it is duplicated. Changes made here should also
+      // be made there. Only these parsers deal with taking marks, so this logic
+      // should not be needed elsewhere.
+      case t: Throwable => {
+        if (priorState != null || startState != null) {
+          markLeakCausedByException = true
+          if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
+            val stackTrace = new StringWriter()
+            t.printStackTrace(new PrintWriter(stackTrace))
+            Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+          }
+        }
+        throw t
+      }
+    } finally {
+      var markLeak = false;
+      if (priorState != null) {
+        initialState.discard(priorState)
+        markLeak = true;
+      }
+      if (startState != null) {
+        initialState.discard(startState)
+        markLeak = true;
+      }
+
+      if (markLeak && !markLeakCausedByException) {
+        // likely a logic bug, throw assertion
+        Assert.invariantFailed("mark not returned, likely a logic bug")
+      }
     }
-    Assert.invariant(returnFlag == true)
   }
 }
 
