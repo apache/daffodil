@@ -152,7 +152,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       val res = summaryEncoding match {
         case Mixed => false
         case Binary => false
-        case NoText => false
+        case NoText => true
         case Runtime => false
         case _ => true
       }
@@ -170,14 +170,9 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     s2: EncodingLattice): EncodingLattice = {
     (s1, s2) match {
       case (x, y) if (x == y) => x
-      case (Mixed, _) => Mixed
-      case (_, Mixed) => Mixed
-      case (Binary, Binary) => Binary
-      case (Binary, _) => Mixed
-      case (_, Binary) => Mixed
       case (NoText, x) => x
       case (x, NoText) => x
-      case (x, y) => Mixed
+      case _ => Mixed
     }
   }
 

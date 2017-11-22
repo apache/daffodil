@@ -81,7 +81,10 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
 
   final lazy val alignmentValueInBits: JInt = {
     this.alignment match {
-      case AlignmentType.Implicit => 1
+      case AlignmentType.Implicit => this.alignmentUnits match {
+        case AlignmentUnits.Bits => 1
+        case AlignmentUnits.Bytes => 8
+      }
       case align: JInt => this.alignmentUnits match {
         case AlignmentUnits.Bits => align
         case AlignmentUnits.Bytes => 8 * align
