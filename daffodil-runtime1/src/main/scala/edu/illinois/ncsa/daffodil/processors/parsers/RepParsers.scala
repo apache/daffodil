@@ -271,24 +271,6 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       var returnFlag = false
       while (!returnFlag && (pstate.processorStatus eq Success)) {
 
-        //      erd.maxOccurs.foreach { maxOccurs =>
-        //        if ((occursCountKind == OccursCountKind.Implicit) &&
-        //          (maxOccurs == -1)) {
-        //          erd.minOccurs.foreach { minOccurs =>
-        //            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
-        //              // Is required element
-        //              // Need to trigger default value creation
-        //              // in right situations (like the element is defaultable)
-        //              // This is relatively easy for simple types
-        //              // for complex types, defaulting is trickier as one
-        //              // must recursively traverse the type, and then determine one
-        //              // has not advanced the data at all.
-        //            }
-        //          }
-        //        }
-        //      }
-
-        //
         // Every parse is a new point of uncertainty.
         pstate.pushDiscriminator
         if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
