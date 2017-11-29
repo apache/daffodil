@@ -151,7 +151,6 @@ class Registers() extends Poolable with Serializable {
     charIterator.peek()
   }
 
-  val charsReadUntilDelim: StringBuilder = new StringBuilder()
   val resultString: StringBuilder = new StringBuilder()
   val delimString: StringBuilder = new StringBuilder()
 
@@ -175,7 +174,6 @@ class Registers() extends Poolable with Serializable {
 
   def appendToField(c: Char): Unit = {
     commitOneChar
-    charsReadUntilDelim.append(c)
     resultString.append(c)
     incCharsRead()
     incCharsReadUntilDelim()
@@ -188,7 +186,6 @@ class Registers() extends Poolable with Serializable {
       i += 1
       commitOneChar
     }
-    charsReadUntilDelim.append(cs)
     resultString.append(cs)
     incCharsRead(nChars)
     incCharsReadUntilDelim(nChars)
@@ -202,7 +199,6 @@ class Registers() extends Poolable with Serializable {
 
   def dropChar(c: Char): Unit = {
     commitOneChar
-    charsReadUntilDelim.append(c)
     incCharsRead()
     incCharsReadUntilDelim()
     incCharsDropped()
