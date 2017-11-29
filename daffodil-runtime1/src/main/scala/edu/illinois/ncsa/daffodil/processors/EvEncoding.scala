@@ -98,7 +98,7 @@ class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
     val encString = encodingEv.evaluate(state)
     val cs = CharsetUtils.getCharset(encString)
     Assert.invariant(cs ne null)
-    new DFDLCharset(encString)
+    new DFDLCharset(cs.name.toUpperCase)
   }
 }
 
