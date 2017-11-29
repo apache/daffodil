@@ -66,6 +66,17 @@ object UpdateDaffodilClasspaths extends UpdateEclipseClasspaths with App {
 trait UpdateEclipseClasspaths {
 
   lazy val dafHome = {
+    //
+    // You must have DAFFODIL_HOME defined in your ~/.bash_aliases file
+    // and if running this from eclipse, you must invoke eclipse in a manner
+    // that has this shell env var defined.
+    //
+    // Surprisingly to me, standard login does not run the .bash_aliases file
+    // so the definitions in it are NOT by default part of the environment for
+    // programs that are launched without starting a shell first.
+    //
+    // I modified my ~/.profile to also load .bash_aliases to fix this.
+    //
     val s = System.getenv("DAFFODIL_HOME")
     assert(s ne null)
     s
@@ -93,7 +104,17 @@ trait UpdateEclipseClasspaths {
     val srcs = srcsDir.listFiles().flatMap { _.listFiles().flatMap { _.listFiles() } }
     val docs = docsDir.listFiles().flatMap { _.listFiles().flatMap { _.listFiles() } }
 
-    val triples = (bundles ++ jars).map { jar =>
+    //
+    // Remove duplicates between the bundles directory and jars directory
+    // (Not sure why sbt populates both, but many (all?) things found under
+    // the bundles directory are also found under jars.
+    //
+    // Prefer the jars directory if things are found in two places.
+    //
+    val jarsNames = jars.map { _.getName() }
+    val bundlesWithoutDups = bundles.filterNot { f => jarsNames.contains(f.getName()) }
+    val allJars = bundlesWithoutDups ++ jars
+    val triples = allJars.map { jar =>
       val src = srcs.find(_.getName.startsWith(jar.getName.split(".jar")(0)))
       val doc = docs.find(_.getName.startsWith(jar.getName.split(".jar")(0)))
       (jar, src, doc)
