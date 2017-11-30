@@ -25,13 +25,13 @@ To run all Daffodil tests:
 # run all unit tests
 $ sbt test 
 # run all command line tests
-$ sbt cli
+$ sbt daffodil-cli/test
 ```
 
 To build the Daffodil command line interface:
 
 ```bash 
-$ sbt stage
+$ sbt daffodil-cli/stage
 ```
 
 The above will create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://cwiki.apache.org/confluence/display/DAFFODIL/Command+Line+Interface) documentation for details on its usage.

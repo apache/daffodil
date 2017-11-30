@@ -77,16 +77,14 @@ object LineCounter extends App {
           List("src/main",
             "src/test/resources/test-suite/ibm-contributed",
             "src/test/scala",
-            "src/test/scala-debug",
-            "src/test/scala-new"),
+            "src/test/scala-debug"),
           fileSuffixesToInclude = List(".scala", ".java", ".tdml", ".sbt"), // not .xsd as we didn't write the schemas here.
           filesToExclude = List("TresysTests")),
         new LineCounter("daffodil 'ibm1' tresys-supplied tests", root + "daffodil", List("daffodil-test-ibm1"),
           List("src/main",
             "src/test/resources/test-suite/tresys-contributed",
             "src/test/scala",
-            "src/test/scala-debug",
-            "src/test/scala-new"),
+            "src/test/scala-debug"),
           filesToExclude = List("IBMTests",
             "AT.tdml")) // giant mostly data tdml file.
             )),
