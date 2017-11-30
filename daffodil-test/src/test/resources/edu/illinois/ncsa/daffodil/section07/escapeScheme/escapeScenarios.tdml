@@ -916,7 +916,23 @@
 
   </defineSchema>
   
-  
+  <defineSchema name="es5">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="es">
+      <dfdl:escapeScheme escapeCharacter='\'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="\" extraEscapedCharacters="" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="root" dfdl:initiator="START" dfdl:terminator="END END1 END2 END3 END4 END5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" type="xs:string" dfdl:escapeSchemeRef="tns:es"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+
   <parserTestCase name="scenario4_1" model="es4"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/;bar</document>
@@ -1122,4 +1138,29 @@
     </errors>
   </parserTestCase>
   
+  <!--
+       Test Name: scenario5
+          Schema: es5
+            Root: root
+         Purpose: This tests that if a character is found that could start a
+                  delimiter but does not, then that character is not escaped, but
+                  delimiters that do exist are escaped. The first 'E' in the
+                  data should look like a potential delimiter and force
+                  Daffodil to look at all potential delimiters for matches.
+                  Nothing should match, and E should just become part of the
+                  field.
+  -->
+
+  <parserTestCase name="scenario5_1" model="es5"
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="root">
+    <document><![CDATA[STARTfieldEcontents\ENDescaped\\contentEND]]></document>
+    <infoset>
+      <dfdlInfoset>
+        <root>
+          <field>fieldEcontentsENDescaped\content</field>
+        </root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
 </testSuite>

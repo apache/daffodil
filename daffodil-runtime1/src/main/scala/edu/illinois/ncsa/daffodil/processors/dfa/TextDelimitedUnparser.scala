@@ -192,18 +192,11 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 val delimStatus = delimReg.status
                 delimStatus match {
                   case StateKind.Succeeded => {
+                    // found a matching delmiter, we may need to escape it so add it to a list
                     successes += (d -> delimReg)
                   }
                   case _ => {
-                    // resume field parse
-                    //
-                    // FIXME: Is this correct? There could
-                    // be multiple delims being tested. This code is evaluated if ONE of them
-                    // does not parse successfully, but others might.
-                    //
-                    // Commenting out for now.
-                    // actionNum = dfaStatus.actionNum + 1 // goto next rule
-                    // stateNum = dfaStatus.currentStateNum
+                    // this delim did not match, discard its register
                     TLRegistersPool.returnToPool(delimReg)
                   }
                 }
@@ -212,8 +205,10 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               fieldReg.resetChars
               if (successes.isEmpty) {
-                fieldReg.actionNum = fieldReg.actionNum + 1 // goto next rule
+                // did not match any delimiters, go to the next rule, resuming the field parse
+                fieldReg.actionNum = fieldReg.actionNum + 1
               } else {
+                // matched a delimiter, need to handle escaping it
                 val (_, matchedReg) = longestMatch(successes).get
                 val delim = matchedReg.delimString
                 fieldReg.appendToField(delim) // the delim just becomes field content, because we already had an escape block start.
@@ -302,15 +297,22 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             d.run(delimReg)
             val delimStatus = delimReg.status
             delimStatus match {
-              case StateKind.Succeeded => successes += (d -> delimReg)
+              case StateKind.Succeeded => {
+                // found a matching delmiter, we may need to escape it so add it to a list
+                successes += (d -> delimReg)
+              }
               case _ => {
-                // resume field parse
-                fieldReg.actionNum = fieldReg.actionNum + 1 // goto next rule
+                // this delim did not match, discard its register
                 TLRegistersPool.returnToPool(delimReg)
               }
             }
           }
-          if (!successes.isEmpty) {
+
+          if (successes.isEmpty) {
+            // did not match any delimiters, go to the next rule, resuming the field parse
+            fieldReg.actionNum = fieldReg.actionNum + 1
+          } else {
+            // matched a delimiter, need to handle escaping it
             val (matchedDelim, matchedReg) = longestMatch(successes).get
             if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar) {
               if (hasEscCharAsDelimiter) { fieldReg.appendToField(escapeChar) }
