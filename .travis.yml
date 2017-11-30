@@ -30,8 +30,9 @@ script:
     compile
     test:compile
     debug:compile
+    daffodil-cli/compile
     test
-    cli:test
+    daffodil-cli/test
     daffodil-cli/universal:packageBin
     daffodil-cli/universal:packageZipTarball
     daffodil-cli/rpm:packageBin
