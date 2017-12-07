@@ -103,8 +103,8 @@ lazy val commonSettings = Seq(
   pomIncludeRepository in ThisBuild := { _ => false },
   scmInfo := Some(
     ScmInfo(
-      browseUrl = url("https://git-wip-us.apache.org/repos/asf?p=incubator-daffodil.git"),
-      connection = "scm:git:git://git.apache.org/incubator-daffodil.git"
+      browseUrl = url("https://gitbox.apache.org/repos/asf/incubator-daffodil.git"),
+      connection = "scm:git:https://gitbox.apache.org/repos/asf/incubator-daffodil.git"
     )
   ),
   licenses := Seq("University of Illinois/NCSA Open Source License" -> url("http://opensource.org/licenses/UoI-NCSA.php")),
