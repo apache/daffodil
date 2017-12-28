@@ -62,7 +62,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val erd = decl.elementRuntimeData
     val infosetRootElem = TestInfoset.elem2Infoset(erd, infosetAsXML)
     val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
-    val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
+    val exprCompiler = new DFDLPathExpressionParser[AnyRef](qn, NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false, sset)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = infosetRootElem.parent.asInstanceOf[DIDocument]
 

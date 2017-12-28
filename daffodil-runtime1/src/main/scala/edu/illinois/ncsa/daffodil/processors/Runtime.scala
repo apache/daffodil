@@ -354,6 +354,10 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.setFailed(new UnparseError(None, None, e))
         unparserState.unparseResult
       }
+      case ie: InfosetException => {
+        unparserState.setFailed(new UnparseError(None, None, ie))
+        unparserState.unparseResult
+      }
       case th: Throwable => throw th
     }
     res

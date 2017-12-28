@@ -339,6 +339,11 @@ class DPathElementCompileInfo(
    * value is determined during DPath compilation, which requires that the
    * DPathElementCompileInfo already exists. So this must be a mutable value
    * that can be flipped during schema compilation.
+   *
+   * Note that in the case of multiple child element decls with the same name,
+   * we must make sure ALL of them get this var set.
+   *
+   * This is done on the Seq returned when findNameMatches is called.
    */
   var isReferencedByExpressions = false
 
@@ -358,16 +363,44 @@ class DPathElementCompileInfo(
   }
 
   /**
+   * Marks compile info that element is referenced by an expression    //
+   *
+   * We must indicate for all children having this path step as their name
+   * that they are referenced by expression. Expressions that end in such
+   * a path step are considered "query style" expressions as they may
+   * return more than one node, which DFDL v1.0 doesn't allow. (They also may
+   * not return multiple, as the different path step children could be in
+   * different choice branches. Either way, we have to indicate that they are
+   * ALL referenced by this path step.
+   */
+  private def indicateReferencedByExpression(matches: Seq[DPathElementCompileInfo]): Unit = {
+    matches.foreach { info =>
+      info.isReferencedByExpressions = true
+    }
+  }
+  /**
    * Finds a child ERD that matches a StepQName. This is for matching up
    * path steps (for example) to their corresponding ERD.
+   *
+   * TODO: Must eventually change to support query-style expressions where there
+   * can be more than one such child.
    */
-  final def findNamedChild(step: StepQName): DPathElementCompileInfo =
-    findNamedMatch(step, elementChildrenCompileInfo)
+  final def findNamedChild(step: StepQName,
+    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
+    val matches = findNamedMatches(step, elementChildrenCompileInfo, expr)
+    indicateReferencedByExpression(matches)
+    matches(0)
+  }
 
-  final def findRoot(step: StepQName): DPathElementCompileInfo =
-    findNamedMatch(step, Seq(this))
+  final def findRoot(step: StepQName,
+    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
+    val matches = findNamedMatches(step, Seq(this), expr)
+    indicateReferencedByExpression(matches)
+    matches(0)
+  }
 
-  private def findNamedMatch(step: StepQName, possibles: Seq[DPathElementCompileInfo]): DPathElementCompileInfo = {
+  private def findNamedMatches(step: StepQName, possibles: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE): Seq[DPathElementCompileInfo] = {
     val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
 
     val retryMatchesERD =
@@ -385,11 +418,45 @@ class DPathElementCompileInfo(
 
     retryMatchesERD.length match {
       case 0 => noMatchError(step, possibles)
-      case 1 => retryMatchesERD(0)
-      case _ => queryMatchError(step, matchesERD)
+      case 1 => // ok
+      case _ => queryMatchWarning(step, retryMatchesERD, expr)
     }
+    retryMatchesERD
   }
 
+  /**
+   * Returns a subset of the possibles which are truly ambiguous siblings.
+   * Does not find all such, but if any exist, it finds some ambiguous
+   * Siblings. Only returns empty Seq if there are no ambiguous siblings.
+   */
+  //      private def ambiguousModelGroupSiblings(possibles: Seq[DPathElementCompileInfo]) : Seq[DPathElementCompileInfo] = {
+  //        val ambiguityLists: Seq[Seq[DPathElementCompileInfo]] = possibles.tails.toSeq.map{
+  //          possiblesList =>
+  //          if (possiblesList.isEmpty) Nil
+  //          else {
+  //            val one = possiblesList.head
+  //            val rest = possiblesList.tail
+  //            val ambiguousSiblings = modelGroupSiblings(one, rest)
+  //            val allAmbiguous =
+  //                if (ambiguousSiblings.isEmpty) Nil
+  //            else one +: ambiguousSiblings
+  //            allAmbiguous
+  //          }
+  //        }
+  //          val firstAmbiguous = ambiguityLists
+  //          ambiguityLists.head
+  //        }
+
+  /**
+   * Returns others that are direct siblings of a specific one.
+   *
+   * Direct siblings means they have the same parent, but that parent
+   * cannot be a choice.
+   */
+  //  private def modelGroupSiblings(one: DPathElementCompileInfo, rest: Seq[DPathElementCompileInfo]): Seq[DPathElementCompileInfo] = {
+  //    rest.filter(r => one.immediateEnclosingCompileInfo eq r.immediateEnclosingCompileInfo &&
+  //        one.immediateEnclosingCompileInfo
+  //  }
   /**
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.
@@ -444,8 +511,9 @@ class DPathElementCompileInfo(
     }
   }
 
-  final def queryMatchError(step: StepQName, matches: Seq[DPathElementCompileInfo]) = {
-    SDE("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+  private def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE) = {
+    expr.SDW("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
       step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
   }
 }

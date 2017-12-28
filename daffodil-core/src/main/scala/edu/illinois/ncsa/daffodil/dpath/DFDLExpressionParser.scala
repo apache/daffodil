@@ -37,9 +37,9 @@ import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
 import scala.util.parsing.input.CharSequenceReader
-import edu.illinois.ncsa.daffodil.oolag.ErrorsNotYetRecorded
 import scala.util.parsing.combinator.RegexParsers
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -59,14 +59,11 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean) extends RegexParsers {
+  isEvaluatedAbove: Boolean,
+  host: OOLAGHost) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression[T] = {
-    val tree = getExpressionTree(expr)
-
-    if (tree.isError) {
-      throw new ErrorsNotYetRecorded(tree.getDiagnostics)
-    }
+    val tree = getExpressionTree(expr, host)
 
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
@@ -131,7 +128,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
       r
     }
 
-  def getExpressionTree(expr: String): WholeExpression = {
+  def getExpressionTree(expr: String, host: OOLAGHost): WholeExpression = {
     // This wrapping of phrase() prevents a memory leak in the scala parser
     // combinators in scala 2.10. See the following bug for more information:
     //
@@ -212,7 +209,7 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   //
   // we don't care if it has braces around it or not.
   def TopLevel: Parser[WholeExpression] = ("{" ~> Expr <~ "}" | Expr) ^^ { xpr =>
-    WholeExpression(nodeInfoKind, xpr, namespaces, context)
+    WholeExpression(nodeInfoKind, xpr, namespaces, context, host)
   }
 
   val SuccessAtEnd = Parser { in => Success(in, new CharSequenceReader("")) }
