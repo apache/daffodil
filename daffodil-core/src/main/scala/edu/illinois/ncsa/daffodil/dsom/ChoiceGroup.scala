@@ -142,9 +142,7 @@ abstract class ChoiceTermBase( final override val xml: Node,
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")
-    val typeIfStaticallyKnown = NodeInfo.NonEmptyString
-    val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-    ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, choiceDispatchKeyRaw)
+    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, choiceDispatchKeyRaw, this)
   }
 
   final lazy val choiceDispatchKeyEv = {

@@ -40,9 +40,11 @@ object TestDFDLExpressionsNew {
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val runner2 = Runner(testDir2, "Functions.tdml")
-
+  val testDir5 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val runner5 = Runner(testDir5, "expressions.tdml")
   @AfterClass def shutdown = {
     runner2.reset
+    runner5.reset
 
   }
 }
@@ -53,4 +55,7 @@ class TestDFDLExpressionsNew {
   //DFDL-1076
   @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
 
+  // DFDL-1617 - should detect errors due to query-style expressions
+  @Test def test_query_style_01 { runner5.runOneTest("query_style_01") }
+  @Test def test_query_style_02 { runner5.runOneTest("query_style_02") }
 }

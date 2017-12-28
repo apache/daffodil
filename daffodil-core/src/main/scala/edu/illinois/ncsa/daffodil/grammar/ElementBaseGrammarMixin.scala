@@ -1060,8 +1060,8 @@ trait ElementBaseGrammarMixin
     val exprText = exprProp.value
     val exprNamespaces = exprProp.location.namespaces
     val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
-    val expr = ExpressionCompilers.AnyRef.compile(qn,
-      primType, exprText, exprNamespaces, dpathCompileInfo, false)
+    val expr = ExpressionCompilers.AnyRef.compileExpression(qn,
+      primType, exprText, exprNamespaces, dpathCompileInfo, false, self)
     expr
   }
 

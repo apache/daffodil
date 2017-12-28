@@ -933,11 +933,11 @@ final class VariableRuntimeData(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  private val state =
+  private lazy val state =
     if (!maybeDefaultValueExpr.isDefined) VariableUndefined
     else VariableDefined
 
-  private val maybeValue: Maybe[AnyRef] =
+  private lazy val maybeValue: Maybe[AnyRef] =
     if (maybeDefaultValueExpr.isEmpty) Nope
     else {
       val defaultValueExpr = maybeDefaultValueExpr.get

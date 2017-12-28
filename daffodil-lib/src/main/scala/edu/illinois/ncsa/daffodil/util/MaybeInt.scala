@@ -176,4 +176,7 @@ object MaybeBoolean {
   @inline final def apply(v: Boolean) = new MaybeBoolean(if (v) 1 else 0)
 
   val Nope = new MaybeBoolean(undefValue)
+  val True = MaybeBoolean(true)
+  val False = MaybeBoolean(false)
+  
 }

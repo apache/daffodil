@@ -55,6 +55,9 @@ object TestDFDLExpressionsDebug {
   val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
   val runner_fun = Runner(testDir, "functions.tdml")
 
+  val testDir5 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val runner5 = Runner(testDir5, "expressions.tdml")
+
   @AfterClass def shutDown() {
     runner4.reset
     runner.reset

@@ -110,13 +110,31 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="msgB" dfdl:ref="ex:complex">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="A" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+        <xs:element name="B" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" minOccurs="0"/>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator>{ ./AmbigElt eq '2' }</dfdl:discriminator>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+               
+
 </tdml:defineSchema>
 
   <tdml:parserTestCase name="choiceSlotAmbiguous1" root="msgA" model="s2" description="Choice branches with same element name inside.">
 
     <tdml:document><![CDATA[A1Y]]></tdml:document>
-<!--
-    This is the expected infoset when we resolve DFDL-1773 regarding statically ambiguous path expressions
+
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:msgA>
@@ -126,12 +144,6 @@
          </ex:msgA>
       </tdml:dfdlInfoset>
     </tdml:infoset>
--->
-    <tdml:errors>
-      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
-      <tdml:error>{}C</tdml:error>
-    </tdml:errors>
-
   </tdml:parserTestCase>
   
 
@@ -139,8 +151,6 @@
 
     <tdml:document><![CDATA[B2X]]></tdml:document>
 
-<!--
-    This is the expected infoset when we resolve DFDL-1773 regarding statically ambiguous path expressions
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:msgA>
@@ -150,13 +160,43 @@
          </ex:msgA>
       </tdml:dfdlInfoset>
     </tdml:infoset>
--->
+
+  </tdml:parserTestCase>
+  
+   <tdml:parserTestCase name="queryStyle1" root="msgB" model="s2" description="Query style expression gives warning and runtime SDE.">
+
+    <tdml:document><![CDATA[1234]]></tdml:document>
 
     <tdml:errors>
-      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
-      <tdml:error>{}C</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>query-style</tdml:error>
+      <tdml:error>AmbigElt</tdml:error>
     </tdml:errors>
+    
+    <tdml:warnings>
+      <tdml:warning>Warning</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>   
+  
+  <tdml:parserTestCase name="queryStyle2" root="msgB" model="s2" description="Query style expression gives warning but not runtime SDE.">
 
+    <tdml:document><![CDATA[123]]></tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:msgB>
+         <A>1</A>
+         <AmbigElt>2</AmbigElt>
+         <B>3</B>
+        </ex:msgB>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:warnings>
+      <tdml:warning>Warning</tdml:warning>
+      <tdml:warning>query-style</tdml:warning>
+      <tdml:warning>AmbigElt</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
   
 

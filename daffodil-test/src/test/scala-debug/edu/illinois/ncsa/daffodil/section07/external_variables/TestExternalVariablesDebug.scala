@@ -52,6 +52,6 @@ class TestExternalVariablesDebug {
   // TODO: When Daffodil-1846 is fixed this test could be enabled.
   @Test
   def test_testNoRootUnnecessaryBinding(): Unit = {
-    runner.trace.runOneTest("testNoRootUnnecessaryBinding")
+    runner.runOneTest("testNoRootUnnecessaryBinding")
   }
 }

@@ -60,11 +60,11 @@ class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
 // Misc.getSomeMessage(e).get
 
 final class RuntimeExpressionDPath[T <: AnyRef](qn: NamedQName, tt: NodeInfo.Kind, recipe: CompiledDPath,
-                                                dpathText: String,
-                                                ci: DPathCompileInfo,
-                                                isEvaluatedAbove: Boolean,
-                                                override val contentReferencedElementInfos: Set[DPathElementCompileInfo],
-                                                override val valueReferencedElementInfos: Set[DPathElementCompileInfo])
+  dpathText: String,
+  ci: DPathCompileInfo,
+  isEvaluatedAbove: Boolean,
+  override val contentReferencedElementInfos: Set[DPathElementCompileInfo],
+  override val valueReferencedElementInfos: Set[DPathElementCompileInfo])
   extends CompiledExpression[T](qn, dpathText) with DoSDEMixin {
 
   override def targetType = tt
