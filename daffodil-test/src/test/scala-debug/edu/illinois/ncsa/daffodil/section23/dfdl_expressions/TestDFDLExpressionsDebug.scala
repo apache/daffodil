@@ -55,6 +55,9 @@ object TestDFDLExpressionsDebug {
   val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
   val runner_fun = Runner(testDir, "functions.tdml")
 
+  val testDir5 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val runner5 = Runner(testDir5, "expressions.tdml")
+
   @AfterClass def shutDown() {
     runner4.reset
     runner.reset
@@ -177,4 +180,8 @@ class TestDFDLExpressionsDebug {
   @Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
 
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
+
+  // DFDL-1617 - should detect errors due to query-style expressions
+  @Test def test_query_style_01 { runner5.runOneTest("query_style_01") }
+  @Test def test_query_style_02 { runner5.runOneTest("query_style_02") }
 }
