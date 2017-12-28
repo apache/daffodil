@@ -377,10 +377,59 @@ class DPathElementCompileInfo(
     retryMatchesERD.length match {
       case 0 => noMatchError(step, possibles)
       case 1 => retryMatchesERD(0)
-      case _ => queryMatchError(step, matchesERD)
+      case _ => {
+        // it's ok if all the names are the same, so long as they are
+        // in separate choices, or otherwise cannot co-exist.
+        //
+        // For now we just check if they are siblings, i.e., have the
+        // same model group as parent.
+        //
+        //        val ambiguousSiblings = ambiguousModelGroupSiblings(retryMatchesERD)
+        //        if (ambiguousSiblings.isEmpty)
+        // BUG
+        // This results in multiple siblings with same name, path that is ambiguous
+        // just gets first one.
+        //
+        retryMatchesERD(0)
+        //        else
+        //          queryMatchError(step, ambiguousSiblings)
+      }
     }
   }
 
+  /**
+   * Returns a subset of the possibles which are truly ambiguous siblings.
+   * Does not find all such, but if any exist, it finds some ambiguous
+   * Siblings. Only returns empty Seq if there are no ambiguous siblings.
+   */
+  //      private def ambiguousModelGroupSiblings(possibles: Seq[DPathElementCompileInfo]) : Seq[DPathElementCompileInfo] = {
+  //        val ambiguityLists: Seq[Seq[DPathElementCompileInfo]] = possibles.tails.toSeq.map{
+  //          possiblesList =>
+  //          if (possiblesList.isEmpty) Nil
+  //          else {
+  //            val one = possiblesList.head
+  //            val rest = possiblesList.tail
+  //            val ambiguousSiblings = modelGroupSiblings(one, rest)
+  //            val allAmbiguous =
+  //                if (ambiguousSiblings.isEmpty) Nil
+  //            else one +: ambiguousSiblings
+  //            allAmbiguous
+  //          }
+  //        }
+  //          val firstAmbiguous = ambiguityLists
+  //          ambiguityLists.head
+  //        }
+
+  /**
+   * Returns others that are direct siblings of a specific one.
+   *
+   * Direct siblings means they have the same parent, but that parent
+   * cannot be a choice.
+   */
+  //  private def modelGroupSiblings(one: DPathElementCompileInfo, rest: Seq[DPathElementCompileInfo]): Seq[DPathElementCompileInfo] = {
+  //    rest.filter(r => one.immediateEnclosingCompileInfo eq r.immediateEnclosingCompileInfo &&
+  //        one.immediateEnclosingCompileInfo
+  //  }
   /**
    * Issues a good diagnostic with suggestions about near-misses on names
    * like missing prefixes.
@@ -435,8 +484,8 @@ class DPathElementCompileInfo(
     }
   }
 
-  final def queryMatchError(step: StepQName, matches: Seq[DPathElementCompileInfo]) = {
-    SDE("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
-      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
-  }
+  //  private def queryMatchError(step: StepQName, matches: Seq[DPathElementCompileInfo]) = {
+  //    SDE("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+  //      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
+  //  }
 }
