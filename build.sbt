@@ -130,8 +130,8 @@ lazy val debugTestSettings = inConfig(TestDebug)(Defaults.testSettings ++ Seq(
 lazy val nopublish = Seq(
   publish := {},
   publishLocal := {},
-  packagedArtifacts := Map.empty,
-  publishArtifact := false,
+  publishM2 := {},
+  skip in publish := true
 )
 
 lazy val usesMacros = Seq(
