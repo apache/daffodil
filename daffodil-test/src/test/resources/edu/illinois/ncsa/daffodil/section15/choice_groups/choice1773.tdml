@@ -115,8 +115,7 @@
   <tdml:parserTestCase name="choiceSlotAmbiguous1" root="msgA" model="s2" description="Choice branches with same element name inside.">
 
     <tdml:document><![CDATA[A1Y]]></tdml:document>
-<!--
-    This is the expected infoset when we resolve DFDL-1773 regarding statically ambiguous path expressions
+
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:msgA>
@@ -126,12 +125,12 @@
          </ex:msgA>
       </tdml:dfdlInfoset>
     </tdml:infoset>
--->
+ <!-- 
     <tdml:errors>
       <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
       <tdml:error>{}C</tdml:error>
     </tdml:errors>
-
+  -->
   </tdml:parserTestCase>
   
 
@@ -139,8 +138,6 @@
 
     <tdml:document><![CDATA[B2X]]></tdml:document>
 
-<!--
-    This is the expected infoset when we resolve DFDL-1773 regarding statically ambiguous path expressions
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:msgA>
@@ -150,14 +147,13 @@
          </ex:msgA>
       </tdml:dfdlInfoset>
     </tdml:infoset>
--->
 
+   <!-- 
     <tdml:errors>
       <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
       <tdml:error>{}C</tdml:error>
     </tdml:errors>
-
+  -->
   </tdml:parserTestCase>
-  
 
 </tdml:testSuite>
