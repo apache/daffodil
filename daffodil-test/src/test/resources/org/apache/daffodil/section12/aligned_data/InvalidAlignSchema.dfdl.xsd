@@ -34,6 +34,6 @@
     </appinfo>
   </annotation>
     
-  <element name="e_invalid" type="unsignedInt" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+  <element name="e_invalid" type="unsignedInt" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
             dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="characters" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
 </schema>
