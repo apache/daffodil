@@ -1,4 +1,0 @@
-The CLI module doesn't have scala-debug directory like the other modules.
-This is due to the way the sbt build works. 
-
-(Probably could be fixed with sufficent sbt hacking, but not worth the effort.)
