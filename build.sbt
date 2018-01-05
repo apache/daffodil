@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
@@ -107,7 +124,9 @@ lazy val commonSettings = Seq(
       connection = "scm:git:https://gitbox.apache.org/repos/asf/incubator-daffodil.git"
     )
   ),
-  licenses := Seq("University of Illinois/NCSA Open Source License" -> url("http://opensource.org/licenses/UoI-NCSA.php")),
+  licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "LICENSE" -> "META-INF/LICENSE",
+  mappings in (Compile, packageBin) += baseDirectory.value / ".." / "NOTICE" -> "META-INF/NOTICE",
   homepage := Some(url("https://daffodil.apache.org")),
   initialize := {
     val _ = initialize.value
@@ -135,7 +154,11 @@ lazy val nopublish = Seq(
 )
 
 lazy val usesMacros = Seq(
-  mappings in (Compile, packageBin) ++= mappings.in(macroLib, Compile, packageBin).value,
+  // copies classe and source files into the project that uses macros. Note
+  // that for packageBin, we only copy directories and class files--this
+  // ignores files such a META-INFA/LICENSE and NOTICE that are duplicated and
+  // would otherwise cause a conflict
+  mappings in (Compile, packageBin) ++= mappings.in(macroLib, Compile, packageBin).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
   mappings in (Compile, packageSrc) ++= mappings.in(macroLib, Compile, packageSrc).value
 )
 
