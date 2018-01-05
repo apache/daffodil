@@ -1,9 +1,0 @@
-
-Schema Escaping
-  AW.xsd
-  AX.xsd
-  AY.xsd
-  AZ.xsd
-  BA.xsd
-
-
