@@ -15,14 +15,6 @@
  * limitations under the License.
  */
 
-import com.typesafe.sbt.SbtLicenseReport.autoImportImpl._
-import com.typesafe.sbt.license.LicenseCategory
-import com.typesafe.sbt.license.LicenseInfo
-import com.typesafe.sbt.license.DepModuleInfo
-import com.typesafe.sbt.license.DepLicense
-import com.typesafe.sbt.license.DepModuleInfo
-import com.typesafe.sbt.license.Html
-
 enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 
@@ -30,38 +22,6 @@ enablePlugins(RpmPlugin)
 (test in Test) := (test in Test).dependsOn(stage in Compile).value
 (testOnly in Test) := (testOnly in Test).dependsOn(stage in Compile).evaluated
 (testQuick in Test) := (testQuick in Test).dependsOn(stage in Compile).evaluated
-
-licenseReportTitle := "Daffodil_Licenses"  // has an underscore since this is used to create the output file
-
-licenseConfigurations := Set("compile")
-
-licenseSelection := Seq(LicenseCategory("NCSA"), LicenseCategory("ICU")) ++ LicenseCategory.all
-
-licenseOverrides := {
-  case DepModuleInfo("commons-io", "commons-io", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-  case DepModuleInfo("xml-resolver", "xml-resolver", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-  case DepModuleInfo("org.fusesource.jansi", "jansi", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-  case DepModuleInfo("com.fasterxml.jackson.core", "jackson-core" , _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-  case DepModuleInfo("com.ibm.icu", "icu4j" , "51.1") => LicenseInfo(LicenseCategory("ICU"), "ICU License", "https://ssl.icu-project.org/repos/icu/tags/release-51-2/icu4j/main/shared/licenses/license.html")
-}
-
-licenseFilter := {
-  case LicenseCategory("NCSA", _) => false
-  case _ => true
-}
-
-licenseReportMakeHeader := {
-  case Html => Html.header1(licenseReportTitle.value.replace("_", " ")) + "<p>Daffodil is licensed under the <a href='http://opensource.org/licenses/NCSA'>University of Illinois/NCSA Open Source License</a>.</p><p>Below are the libraries that Daffodil depends on and their licenses.<br></p>"
-  case l => l.header1(licenseReportTitle.value.replace("_", " "))
-}
-
-updateLicenses := {
-  val report = updateLicenses.value
-  val unmanaged_licenses = Seq(
-    DepLicense(DepModuleInfo("passera", "passera", "0.1"), LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/nystrom/scala-unsigned/blob/master/BSD-LICENSE.txt"), Set("runtime"))
-  )
-  report.copy(licenses = report.licenses ++ unmanaged_licenses)
-}
 
 executableScriptName := "daffodil"
 
@@ -72,7 +32,8 @@ packageName in Linux := executableScriptName.value
 packageName in Rpm := executableScriptName.value
 
 mappings in Universal ++= Seq(
-  dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
+  baseDirectory.value / "LICENSE" -> "LICENSE",
+  baseDirectory.value / "NOTICE" -> "NOTICE",
   baseDirectory.value / ".." / "DISCLAIMER" -> "DISCLAIMER",
   baseDirectory.value / "README.md" -> "README.md",
 )

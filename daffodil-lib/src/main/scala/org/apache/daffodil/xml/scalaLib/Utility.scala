@@ -1,12 +1,3 @@
-/**
- * Adapted from Scala libraries so their copyright is preserved here.
- *
- * Copyright (C) 2014, Tresys Technology. All rights reserved.
- *
- * This file exists to overcome a bug in the original scala libarary pretty printer
- * which is illustrated in unit test test_scala_xml_pretty_printer_normalizes_whitespace_inside_cdata_bug.
- */
-
 /*                     __                                               *\
 **     ________ ___   / /  ___     Scala API                            **
 **    / __/ __// _ | / /  / _ |    (c) 2003-2013, LAMP/EPFL             **
@@ -20,6 +11,14 @@ package org.apache.daffodil.xml.scalaLib
 import scala.xml._
 import scala.collection.mutable
 import scala.language.implicitConversions
+
+
+/**
+ * Adapted from Scala libraries so their copyright is preserved here.
+ *
+ * This file exists to overcome a bug in the original scala libarary pretty printer
+ * which is illustrated in unit test test_scala_xml_pretty_printer_normalizes_whitespace_inside_cdata_bug.
+ */
 
 /**
  * The `Utility` object provides utility functions for processing instances
