@@ -333,6 +333,15 @@ class DPathElementCompileInfo(
     elementChildrenCompileInfo
   }
 
+  /**
+   * Stores whether or not this element is used in any path step expressions
+   * during schema compilation. Note that this needs to be a var since its
+   * value is determined during DPath compilation, which requires that the
+   * DPathElementCompileInfo already exists. So this must be a mutable value
+   * that can be flipped during schema compilation.
+   */
+  var isReferencedByExpressions = false
+
   override def toString = "DPathElementCompileInfo(%s)".format(name)
 
   @throws(classOf[java.io.IOException])

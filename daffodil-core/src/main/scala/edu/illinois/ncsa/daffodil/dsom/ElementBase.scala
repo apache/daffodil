@@ -557,7 +557,6 @@ trait ElementBase
       //
       // unparser specific items
       //
-      false, // !isReferencedByExpressions, // assume it is always to be referenced by expressions
       optTruncateSpecifiedLengthString,
       if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
       maybeBinaryFloatRepEv,

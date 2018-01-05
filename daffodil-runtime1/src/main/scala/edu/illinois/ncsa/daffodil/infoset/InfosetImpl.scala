@@ -1323,7 +1323,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     }
   }
 
-  lazy val childNodes = new ArrayBuffer[DINode]
+  val childNodes = new ArrayBuffer[DINode]
   lazy val nameToChildNodeLookup = new HashMap[NamedQName, ArrayBuffer[DINode]]
 
   override lazy val contents: IndexedSeq[DINode] = childNodes
@@ -1335,8 +1335,9 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
   }
 
   final def getChild(info: DPathElementCompileInfo): InfosetElement = {
-    if (nameToChildNodeLookup.containsKey(info.namedQName))
-      nameToChildNodeLookup.get(info.namedQName)(0).asInstanceOf[InfosetElement]
+    val maybeNode = findChild(info.namedQName)
+    if (maybeNode.isDefined)
+      maybeNode.get.asInstanceOf[InfosetElement]
     else
       throw new InfosetNoSuchChildElementException(this, info)
   }
@@ -1349,48 +1350,12 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
   final def getChildArray(info: DPathElementCompileInfo): InfosetArray = {
     Assert.usage(info.isArray)
-
-    val name = info.namedQName
-
-    val array = if (nameToChildNodeLookup.containsKey(name)) {
-      val seq = nameToChildNodeLookup.get(name)
-      // Don't support query expressions yet, so should only have
-      // one item in the list
-      //
-      seq(0).asInstanceOf[InfosetArray] //.find(node => node.isInstanceOf[DIArray]).getOrElse(Assert.usageError("not an array")).asInstanceOf[InfosetArray]
-    } else
+    val maybeNode = findChild(info.namedQName)
+    if (maybeNode.isDefined) {
+      maybeNode.get.asInstanceOf[InfosetArray]
+    } else {
       throw new InfosetNoSuchChildElementException(this, info)
-
-    array
-  }
-
-  /**
-   * Used to prune parts of the array away to allow streaming. It allows us
-   * to not keep all of the children of the array in the infoset tree for the
-   * duration of the parse/unparse, once they are no longer needed.
-   */
-  final def resetChildArray(slot: Int) {
-    val numChildrenToRemove = numChildren - slot
-
-    var i = numChildrenToRemove
-
-    while (i > 0) {
-      val childToRemove = childNodes(i)
-      if (nameToChildNodeLookup.containsKey(childToRemove.namedQName)) {
-        val fastSeq = nameToChildNodeLookup.get(childToRemove.namedQName)
-        if (fastSeq.length == 1)
-          // last one, remove the whole key entry
-          nameToChildNodeLookup.remove(childToRemove.namedQName)
-        else
-          // not the last one, just drop the end
-          fastSeq.dropRight(1)
-      } else { /* Does not exist, nothing to do? */ }
-
-      i -= 1
     }
-
-    childNodes.dropRight(numChildrenToRemove)
-    _numChildren = childNodes.length
   }
 
   override def addChild(e: InfosetElement): Unit = {
@@ -1400,16 +1365,20 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
         // no children, or last child is not a DIArray for
         // this element, create the DIArray
         val ia = new DIArray(childERD, this)
-        addChildToFastLookup(ia)
-        childNodes.append(ia)
+        if (childERD.dpathElementCompileInfo.isReferencedByExpressions) {
+          addChildToFastLookup(ia)
+        }
+        childNodes += ia
         _numChildren = childNodes.length
         ia
       }
       // Array is now always last, add the new child to it
       childNodes.last.asInstanceOf[DIArray].append(e)
     } else {
-      childNodes.append(e.asInstanceOf[DINode])
-      addChildToFastLookup(e.asInstanceOf[DINode])
+      if (e.runtimeData.dpathElementCompileInfo.isReferencedByExpressions) {
+        addChildToFastLookup(e.asInstanceOf[DINode])
+      }
+      childNodes += e.asInstanceOf[DINode]
       _numChildren = childNodes.length
     }
     e.setParent(this)
@@ -1417,11 +1386,39 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
   def addChildToFastLookup(node: DINode): Unit = {
     val name = node.namedQName
-
-    if (nameToChildNodeLookup.containsKey(name)) {
-      nameToChildNodeLookup.get(name).append(node)
+    val fastSeq = nameToChildNodeLookup.get(name)
+    if (fastSeq != null) {
+      fastSeq += node
     } else {
-      nameToChildNodeLookup.put(name, ArrayBuffer(node))
+      val ab = new ArrayBuffer[DINode]()
+      ab += node
+      nameToChildNodeLookup.put(name, ab)
+    }
+  }
+
+  def findChild(qname: NamedQName): Maybe[DINode] = {
+    val fastSeq = nameToChildNodeLookup.get(qname)
+    if (fastSeq != null) {
+      // Daffodil does not support query expressions yet, so there should only
+      // be one item in the list
+      Assert.invariant(fastSeq.length == 1)
+      One(fastSeq(0))
+    } else if (tunable.allowExternalPathExpressions) {
+      // Only DINodes used in expressions defined in the schema are added to
+      // the nameToChildNodeLookup hashmap. If an expression defined outside of
+      // the schema (like via the debugger) attempts to access an element that
+      // was never used in a schema expression, it will never be found. If the
+      // appropriate tunable is set, we will do a linear search to find the
+      // element. Due to the slowness of this, this should only be enabled
+      // during debugging or testing.
+      val found = childNodes.filter(_.erd.namedQName == qname)
+
+      // Daffodil does not support query expressions yet, so there should be at
+      // most one item found
+      Assert.invariant(found.length <= 1)
+      Maybe.toMaybe(found.headOption)
+    } else {
+      Nope
     }
   }
 
@@ -1444,15 +1441,17 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     // this should always be the last element in the hashmap seq
     while (i >= cs._numChildren) {
       val childToRemove = childNodes(i)
-      if (nameToChildNodeLookup.containsKey(childToRemove.namedQName)) {
+      if (childToRemove.erd.dpathElementCompileInfo.isReferencedByExpressions) {
         val fastSeq = nameToChildNodeLookup.get(childToRemove.namedQName)
-        if (fastSeq.length == 1)
+        Assert.invariant(fastSeq != null)
+        if (fastSeq.length == 1) {
           // last one, remove the whole key entry
           nameToChildNodeLookup.remove(childToRemove.namedQName)
-        else
+        } else {
           // not the last one, just drop the end
-          fastSeq.dropRight(1)
-      } else { /* Nothing to do? Doesn't exist. */ }
+          fastSeq.reduceToSize(fastSeq.length - 1)
+        }
+      }
 
       i -= 1
     }
@@ -1507,8 +1506,12 @@ final class DIDocument(erd: ElementRuntimeData, tunable: DaffodilTunables)
     //
     Assert.invariant(childNodes.length == 0)
     val node = child.asInstanceOf[DINode]
-    childNodes.append(node)
-    nameToChildNodeLookup.put(node.namedQName, ArrayBuffer(node))
+    childNodes += node
+    if (node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
+      val ab = new ArrayBuffer[DINode]()
+      ab += node
+      nameToChildNodeLookup.put(node.namedQName, ab)
+    }
     child.setParent(this)
     root = child.asInstanceOf[DIElement]
   }
