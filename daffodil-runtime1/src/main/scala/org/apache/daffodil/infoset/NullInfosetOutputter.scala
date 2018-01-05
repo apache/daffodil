@@ -29,7 +29,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
 
 /**

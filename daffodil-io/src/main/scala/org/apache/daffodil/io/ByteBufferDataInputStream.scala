@@ -30,33 +30,33 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.charset.CodingErrorAction
 import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.nio.CharBuffer
 import java.nio.channels.FileChannel
 import java.nio.channels.Channels
-import edu.illinois.ncsa.daffodil.util.Bits
+import org.apache.daffodil.util.Bits
 import passera.unsigned.ULong
 import java.io.InputStream
 import java.nio.charset.CoderResult
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.util.MStackOf
-import edu.illinois.ncsa.daffodil.api.DataStreamLimits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetDecoder
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
-import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.Pool
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.api.DataStreamLimits
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.StandardBitsCharsets
 
 /**
  * Factory for creating this type of DataInputStream

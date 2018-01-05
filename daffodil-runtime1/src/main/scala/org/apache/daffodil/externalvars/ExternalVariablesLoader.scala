@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
 import scala.xml.parsing.ConstructingParser
 import java.io.File
 import java.net.URI
 import scala.xml.Node
 import scala.io.Codec.string2codec
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.VariableUtils
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.VariableUtils
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc._
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * The purpose of this object is to be able to take

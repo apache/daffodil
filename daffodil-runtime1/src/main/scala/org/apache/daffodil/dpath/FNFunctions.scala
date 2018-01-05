@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors._; import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.processors._; import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.util.Maybe
 import Maybe._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.calendar.DFDLDate
 import java.lang.{ Number => JNumber, Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 

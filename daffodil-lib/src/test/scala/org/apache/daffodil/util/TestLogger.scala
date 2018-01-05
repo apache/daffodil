@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.exceptions._
 import org.junit.Test
 
 class MyClass extends Logging {

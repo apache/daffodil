@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.usertests
+package org.apache.daffodil.usertests
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestUserSubmittedTests {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+  val testDir = "/org/apache/daffodil/usertests/"
   val runner = Runner(testDir, "UserSubmittedTests.tdml")
 
   @AfterClass def shutDown {

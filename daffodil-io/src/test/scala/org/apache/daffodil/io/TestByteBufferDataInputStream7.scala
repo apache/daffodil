@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -39,11 +39,11 @@ import java.nio.charset.CoderResult
 import org.junit.Assert._
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.charset.USASCII7BitPackedCharset
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
 
 /**
  * Helper class for creating example data that is unaligned.

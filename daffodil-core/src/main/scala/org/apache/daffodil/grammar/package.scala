@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 /**
  * Grammar Mixins for Schema Compilation
@@ -24,7 +24,7 @@ package edu.illinois.ncsa.daffodil
  * operators for expressing the rules. The concrete classes are the
  * terminals of the grammar (instances of [[Terminal]]) and these
  * are either primitives or combinators. The primitves and combinators are
- * defined in the [[edu.illinois.ncsa.daffodil.grammar.primitives]] package.
+ * defined in the [[org.apache.daffodil.grammar.primitives]] package.
  *
  * This all works very much like Scala's `scala.util.parsing.combinator` library,
  * which is described in the [[http://www.artima.com/pins1ed/ Programming in Scala]] book
@@ -78,8 +78,8 @@ package edu.illinois.ncsa.daffodil
  * method (`parser()` or `unparser()`) on the grammar object.
  * Recursively each combinator constructs an instance of
  * a class that implements
- * `edu.illinois.ncsa.daffodil.processors.parsers.Parser` (or
- * `edu.illinois.ncsa.daffodil.processors.unparsers.Unparser`)
+ * `org.apache.daffodil.processors.parsers.Parser` (or
+ * `org.apache.daffodil.processors.unparsers.Unparser`)
  * and that instance recursively calls the parsers (or unparsers) generated
  * from the parts of the grammar which did not optimize themselves away.
  * Primitves construct atomic primitive parsers (and unparsers) for things like

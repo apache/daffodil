@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.dfa.CreateFieldDFA
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.processors.dfa.CreateDelimiterDFA
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.processors.parsers.DelimiterTextType
 
 sealed abstract class EscapeSchemeParserHelper
 case class EscapeSchemeCharParserHelper(val ec: Char, val eec: MaybeChar)

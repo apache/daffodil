@@ -72,7 +72,7 @@ lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLay
 
 
 lazy val commonSettings = Seq(
-  organization := "edu.illinois.ncsa",
+  organization := "org.apache.daffodil",
   version := "2.1.0-SNAPSHOT",
   scalaVersion := "2.11.8",
   scalacOptions ++= Seq(
@@ -152,7 +152,7 @@ lazy val libManagedSettings = Seq(
     val outdir = (sourceManaged in Compile).value
     val filesToWatch = (inSrc ++ inRSrc).toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { (in: Set[File]) =>
-      val mainClass = "edu.illinois.ncsa.daffodil.propGen.PropertyGenerator"
+      val mainClass = "org.apache.daffodil.propGen.PropertyGenerator"
       val out = new java.io.ByteArrayOutputStream()
       val forkOpts = ForkOptions()
                        .withOutputStrategy(Some(CustomOutput(out)))
@@ -180,7 +180,7 @@ lazy val libManagedSettings = Seq(
     val filesToWatch = inRSrc.filter{_.isFile}.toSet
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "schemasgen") { (schemas: Set[File]) =>
       schemas.map { schema =>
-        val out = outdir / "edu" / "illinois" / "ncsa" / "daffodil" / "xsd" / schema.getName
+        val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
         IO.copyFile(schema, out)
         stream.log.info("Generated %s".format(out))
         out

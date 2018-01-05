@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.SimpleNilOrEmptyOrValueParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleNilOrEmptyOrValueUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.SimpleNilOrValueParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleNilOrValueUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.SimpleEmptyOrValueParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleEmptyOrValueUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.ComplexNilOrContentParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexNilOrContentUnparser
-import edu.illinois.ncsa.daffodil.grammar.Terminal
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.SimpleNilOrEmptyOrValueParser
+import org.apache.daffodil.processors.unparsers.SimpleNilOrEmptyOrValueUnparser
+import org.apache.daffodil.processors.parsers.SimpleNilOrValueParser
+import org.apache.daffodil.processors.unparsers.SimpleNilOrValueUnparser
+import org.apache.daffodil.processors.parsers.SimpleEmptyOrValueParser
+import org.apache.daffodil.processors.unparsers.SimpleEmptyOrValueUnparser
+import org.apache.daffodil.processors.parsers.ComplexNilOrContentParser
+import org.apache.daffodil.processors.unparsers.ComplexNilOrContentUnparser
+import org.apache.daffodil.grammar.Terminal
 
 case class SimpleNilOrEmptyOrValue(ctxt: ElementBase, nilGram: Gram, emptyGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
   Assert.invariant(!nilGram.isEmpty)

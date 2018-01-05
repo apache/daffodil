@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.MaybeInt
 
 /**
  * Some encodings are not byte-oriented.

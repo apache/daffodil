@@ -30,32 +30,32 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.processors._
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.grammar.ElementBaseGrammarMixin
+import org.apache.daffodil.equality._
 
-import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.processors.UseNilForDefault
+import org.apache.daffodil.util.MaybeULong
 import java.lang.{ Integer => JInt }
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.infoset.SiblingResolver
-import edu.illinois.ncsa.daffodil.infoset.ResolverType
-import edu.illinois.ncsa.daffodil.infoset.SeveralPossibilitiesForNextElement
-import edu.illinois.ncsa.daffodil.infoset.NoNextElement
-import edu.illinois.ncsa.daffodil.infoset.OnlyOnePossibilityForNextElement
-import edu.illinois.ncsa.daffodil.infoset.NextElementResolver
-import edu.illinois.ncsa.daffodil.infoset.ChildResolver
+import org.apache.daffodil.processors._
+import org.apache.daffodil.infoset.SiblingResolver
+import org.apache.daffodil.infoset.ResolverType
+import org.apache.daffodil.infoset.SeveralPossibilitiesForNextElement
+import org.apache.daffodil.infoset.NoNextElement
+import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
+import org.apache.daffodil.infoset.NextElementResolver
+import org.apache.daffodil.infoset.ChildResolver
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -875,7 +875,7 @@ trait ElementBase
     }
   }.value
 
-  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
+  import org.apache.daffodil.dsom.FacetTypes._
 
   private lazy val hasPattern: Boolean = typeDef.optRestriction.map { _.hasPattern }.getOrElse(false)
   private lazy val hasEnumeration: Boolean = typeDef.optRestriction.map { _.hasEnumeration }.getOrElse(false)

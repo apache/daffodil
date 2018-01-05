@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example
+package org.apache.daffodil.example
 
-import edu.illinois.ncsa.daffodil.sapi.debugger._
+import org.apache.daffodil.sapi.debugger._
 
 import scala.collection.mutable.ListBuffer
 

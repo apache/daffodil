@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
-import edu.illinois.ncsa.daffodil.cookers.TerminatorCookerNoES
-import edu.illinois.ncsa.daffodil.cookers.SeparatorCooker
-import edu.illinois.ncsa.daffodil.cookers.InitiatorCooker
-import edu.illinois.ncsa.daffodil.cookers.TerminatorCooker
-import edu.illinois.ncsa.daffodil.cookers.Converter
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.processors.dfa.CreateDelimiterDFA
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.cookers.TerminatorCookerNoES
+import org.apache.daffodil.cookers.SeparatorCooker
+import org.apache.daffodil.cookers.InitiatorCooker
+import org.apache.daffodil.cookers.TerminatorCooker
+import org.apache.daffodil.cookers.Converter
+import org.apache.daffodil.processors.parsers.PState
 
 trait DelimiterEvMixin[+T <: AnyRef]
   extends ExprEvalMixin[String] { self: Evaluatable[T] =>

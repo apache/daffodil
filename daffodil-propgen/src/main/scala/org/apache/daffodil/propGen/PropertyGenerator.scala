@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.propGen
+package org.apache.daffodil.propGen
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
@@ -631,12 +631,12 @@ object Currency {
 
 object PropertyGenerator {
   val dfdlSchemasForDFDLAnnotations = List(
-    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part1_simpletypes.xsd",
-    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part2_attributes.xsd",
-    "/edu/illinois/ncsa/daffodil/xsd/DFDL_part3_model.xsd",
-    "/edu/illinois/ncsa/daffodil/xsd/dafext.xsd")
+    "/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
+    "/org/apache/daffodil/xsd/DFDL_part2_attributes.xsd",
+    "/org/apache/daffodil/xsd/DFDL_part3_model.xsd",
+    "/org/apache/daffodil/xsd/dafext.xsd")
 
-  val daffodilExtensionsXML = getSchemaAsNode("/edu/illinois/ncsa/daffodil/xsd/dafext.xsd")
+  val daffodilExtensionsXML = getSchemaAsNode("/org/apache/daffodil/xsd/dafext.xsd")
 
   def getSchemaAsNode(name: String): Node = {
     val is = getResourceOrFileStream(name)
@@ -645,7 +645,7 @@ object PropertyGenerator {
   }
 
   def generatedCodeFilename = "GeneratedCode.scala"
-  def generatedCodePackage = "edu.illinois.ncsa.daffodil.schema.annotation.props.gen"
+  def generatedCodePackage = "org.apache.daffodil.schema.annotation.props.gen"
 
   def preamble = "package " + generatedCodePackage + """
 
@@ -660,8 +660,8 @@ object PropertyGenerator {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.exceptions.ThrowsSDE
 
 """
 

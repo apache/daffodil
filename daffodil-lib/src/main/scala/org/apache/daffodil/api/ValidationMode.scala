@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.util.Enum
+import org.apache.daffodil.util.Enum
 
 object ValidationMode extends Enum {
   sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {

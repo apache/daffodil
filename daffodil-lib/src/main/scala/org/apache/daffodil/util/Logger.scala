@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util._
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.UnsuppressableException
 
 /**
  * Simple logging system evolved from code found on Stack Overflow, on the web.

@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryBooleanParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryBooleanUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.BinaryBooleanParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.BinaryBooleanUnparser
 
 class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new BinaryBooleanParser(e.elementRuntimeData, e.binaryBooleanTrueRep, e.binaryBooleanFalseRep, e.lengthEv, e.lengthUnits, e.lengthKind)

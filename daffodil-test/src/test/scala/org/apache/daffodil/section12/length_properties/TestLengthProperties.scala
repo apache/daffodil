@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.length_properties
+package org.apache.daffodil.section12.length_properties
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestLengthProperties {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/length_properties/"
+  val testDir_01 = "/org/apache/daffodil/ibm-tests/"
+  val testDir_02 = "/org/apache/daffodil/section12/length_properties/"
 
   val runner_01 = Runner(testDir_01, "dpaext1.tdml")
   val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
@@ -109,7 +109,7 @@ class TestLengthProperties {
   @Test def test_lengthGreaterThanEight5() { runner_02.runOneTest("lengthGreaterThanEight5") }
 
   @Test def test_littleEndianBits1() = {
-    import edu.illinois.ncsa.daffodil.util._
+    import org.apache.daffodil.util._
     val b1 = BitsUtils.littleEndianBitValue(1, 10)
     val b2 = BitsUtils.littleEndianBitValue(10, 10)
     val res = b1 + b2

@@ -12,11 +12,11 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 import junit.framework.Assert.fail
 
 object TestTDMLRunnerWarnings {

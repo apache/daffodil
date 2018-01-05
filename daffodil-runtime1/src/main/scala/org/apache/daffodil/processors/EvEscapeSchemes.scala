@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.cookers.EscapeBlockEndCooker
-import edu.illinois.ncsa.daffodil.cookers.EscapeBlockStartCooker
-import edu.illinois.ncsa.daffodil.cookers.ExtraEscapedCharactersCooker
-import edu.illinois.ncsa.daffodil.cookers.EscapeEscapeCharacterCooker
-import edu.illinois.ncsa.daffodil.cookers.EscapeCharacterCooker
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.cookers.EscapeBlockEndCooker
+import org.apache.daffodil.cookers.EscapeBlockStartCooker
+import org.apache.daffodil.cookers.ExtraEscapedCharactersCooker
+import org.apache.daffodil.cookers.EscapeEscapeCharacterCooker
+import org.apache.daffodil.cookers.EscapeCharacterCooker
+import org.apache.daffodil.processors.parsers.PState
 
 class EscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
   extends EvaluatableConvertedExpression[String, String](

@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.xml.NamedQName
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.xml.NamedQName
 import scala.xml.NamespaceBinding
 import java.lang.{ Long => JLong, Boolean => JBoolean }
-import edu.illinois.ncsa.daffodil.oolag.OOLAG._
+import org.apache.daffodil.oolag.OOLAG._
 
 trait ExpressionCompilerBase[T <: AnyRef] {
 

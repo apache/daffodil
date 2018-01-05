@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCalendarUnparser
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
+import org.apache.daffodil.processors.unparsers.ConvertTextCalendarUnparser
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.processors.CalendarEv
-import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCalendarParser
-import edu.illinois.ncsa.daffodil.processors.parsers.TextCalendarConstants
+import org.apache.daffodil.processors.CalendarEv
+import org.apache.daffodil.processors.CalendarLanguageEv
+import org.apache.daffodil.processors.parsers.ConvertTextCalendarParser
+import org.apache.daffodil.processors.parsers.TextCalendarConstants
 import scala.Boolean
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)

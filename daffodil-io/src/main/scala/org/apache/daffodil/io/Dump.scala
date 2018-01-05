@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UProperty
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.equality._
 import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
 import java.nio.charset.{ Charset => JavaCharset }
 

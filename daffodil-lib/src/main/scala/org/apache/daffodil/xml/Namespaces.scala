@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import java.net.URI
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.UniquenessCache
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.UniquenessCache
+import org.apache.daffodil.util.Maybe._
 
 /**
  * Central factory for, and class to represent namespace URIs
  *
- * Import this object. I.e., import edu.illinois.ncsa.daffodil.xml.NS._
+ * Import this object. I.e., import org.apache.daffodil.xml.NS._
  */
 object NS extends UniquenessCache[URI, NS] {
 

@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.debugger
+package org.apache.daffodil.sapi.debugger
 
 /**
  * Abstract debugger runner, which can be implemented to create a custom debugger runner

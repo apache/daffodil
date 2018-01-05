@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.StepQName
-import edu.illinois.ncsa.daffodil.xml.QNameBase
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml.NamedQName
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.xml.StepQName
+import org.apache.daffodil.xml.QNameBase
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.xml.NamedQName
 
 /**
  * The schema compiler computes this for each element.

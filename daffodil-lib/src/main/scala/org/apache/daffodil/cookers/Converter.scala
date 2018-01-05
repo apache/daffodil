@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.cookers
+package org.apache.daffodil.cookers
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.ThrowsSDE
 
 /*
  * Quick tutorial on -Before +After.

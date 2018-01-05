@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import java.nio.CharBuffer
 import java.util.regex.Matcher
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Poolable
+import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Poolable
 
 /*
  * TODO:

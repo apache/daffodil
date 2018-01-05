@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi
+package org.apache.daffodil.sapi
 
 /**
  * Defines various classes used control the representation of the infoset for parse and unparse. 
- * Classes that extend [[InfosetOutputter]] are provided to the [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]
+ * Classes that extend [[InfosetOutputter]] are provided to the [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]
  * method to deteremine how to output an infoset. These classes are not
  * guaranteed to be thread-safe. Classes that extend [[InfosetInputter]] are
  * provided to the [[DataProcessor#unparse(input*]] method to determine how to read in

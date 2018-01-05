@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.events
+package org.apache.daffodil.events
 
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.Unparser
 
 /**
  * The Daffodil parser generates events as the parse is performed.

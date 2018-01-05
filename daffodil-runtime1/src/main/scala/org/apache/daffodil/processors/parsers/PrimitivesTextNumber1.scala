@@ -30,36 +30,36 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRounding
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import java.text.ParsePosition
 import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-import edu.illinois.ncsa.daffodil.util.MaybeDouble
-import edu.illinois.ncsa.daffodil.util.MaybeDouble
+import org.apache.daffodil.util.MaybeDouble
+import org.apache.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.processors.Delimiter
-import edu.illinois.ncsa.daffodil.processors.Dynamic
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.Success
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.processors.Dynamic
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Success
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.TermRuntimeData
 
 case class ConvertTextCombinatorParser(
   rd: TermRuntimeData,

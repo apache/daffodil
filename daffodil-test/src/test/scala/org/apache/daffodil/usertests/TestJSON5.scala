@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.usertests
+package org.apache.daffodil.usertests
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestJSON5 {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+  val testDir = "/org/apache/daffodil/usertests/"
 
   var runner = Runner(testDir, "json5.tdml", compileAllTopLevel = true)
   val runner2 = Runner(testDir, "testWSPStar.tdml")

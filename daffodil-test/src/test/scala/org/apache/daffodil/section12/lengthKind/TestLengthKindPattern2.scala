@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.lengthKind
+package org.apache.daffodil.section12.lengthKind
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestLengthKindPattern2 {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+  val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

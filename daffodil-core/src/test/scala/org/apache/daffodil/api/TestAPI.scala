@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.Implicits._; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.util.TestUtils
 
 class TestDFDLParser_New {
 

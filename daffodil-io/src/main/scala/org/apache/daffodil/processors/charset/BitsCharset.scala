@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
@@ -26,8 +26,8 @@ import java.nio.charset.{ StandardCharsets => JavaStandardCharsets }
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.CharBuffer
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.MaybeInt
 
 /**
  * Charset enhanced with features allowing it to work with Daffodil's Bit-wise

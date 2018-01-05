@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.compiler._
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.compiler._
 import scala.util.parsing.combinator.Parsers
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.xml.StepQName
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.xml.StepQName
+import org.apache.daffodil.Implicits._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 class TestDFDLExpressionTree extends Parsers {

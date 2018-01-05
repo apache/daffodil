@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.cookers
+package org.apache.daffodil.cookers
 
 object TextStandardInfinityRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 

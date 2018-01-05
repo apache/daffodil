@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.escapeScheme
+package org.apache.daffodil.section07.escapeScheme
 
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestEscapeScheme {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
+  val testDir = "/org/apache/daffodil/section07/escapeScheme/"
   val runner = Runner(testDir, "escapeScheme.tdml", validateTDMLFile = false)
   val runnerNeg = Runner(testDir, "escapeSchemeNeg.tdml", validateTDMLFile = false)
   val runner2 = Runner(testDir, "escapeScenarios.tdml", validateTDMLFile = false)

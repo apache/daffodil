@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Text
 import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.grammar.ModelGroupGrammarMixin
+import org.apache.daffodil.infoset.ChoiceBranchEvent
+import org.apache.daffodil.infoset.ChoiceBranchStartEvent
+import org.apache.daffodil.infoset.ChoiceBranchEndEvent
 import java.lang.{ Integer => JInt }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.schema.annotation.props.AlignmentType
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 
 /**
  * A factory for model groups.

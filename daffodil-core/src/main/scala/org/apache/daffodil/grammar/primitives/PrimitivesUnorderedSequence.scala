@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.SequenceTermBase
-import edu.illinois.ncsa.daffodil.grammar.UnaryGram
-import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.dsom.SequenceTermBase
+import org.apache.daffodil.grammar.UnaryGram
+import org.apache.daffodil.grammar.HasNoUnparser
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.parsers.Parser
 
 object UnorderedSequence {
   def apply(context: Term, eGram: => Gram) = {

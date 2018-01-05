@@ -2,7 +2,7 @@
 <xsd:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 xmlns:fn="http://www.w3.org/2005/xpath-functions"
-xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" >
+xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" >
 
     <!--
         NOTICE: This software was produced for the U. S. Government under contract W15P7T-12-C-F600 

@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.section16.array_optional_elem
+package org.apache.daffodil.section16.array_optional_elem
 
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,13 +32,13 @@ package edu.illinois.ncsa.daffodil.section16.array_optional_elem
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 import org.junit.AfterClass
 
 object TestArrayOptionalElemNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
+  val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
   //  val aa_fixed = testDir + "UnparseArrayFixedOptionalElem.tdml"
   //  var runner_fixed = new DFDLTestSuite(Misc.getRequiredResource(aa_fixed))
   //

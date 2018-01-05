@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi
+package org.apache.daffodil.sapi
 
 /**
  * Provides the classes necessary to perform parse tracing or create a custom debugger

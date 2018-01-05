@@ -34,7 +34,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -44,8 +44,8 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://a01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_01.dfdl.xsd"/>
-  <xs:import namespace="http://b01.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
+  <xs:import namespace="http://a01.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_01.dfdl.xsd"/>
+  <xs:import namespace="http://b01.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_01.dfdl.xsd"/>
   
   <xs:element name="choice01"> 
     <xs:complexType> 

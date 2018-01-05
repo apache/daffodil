@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.util.Numbers
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.util.Numbers
 import java.lang.{ Long => JLong }
 
 trait HasVariableLength { self: PrimParser =>

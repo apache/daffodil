@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
-import edu.illinois.ncsa.daffodil.processors.CalendarEv
-import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Processor
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.calendar.DFDLDate
+import org.apache.daffodil.processors.CalendarEv
+import org.apache.daffodil.processors.CalendarLanguageEv
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Processor
 
 abstract class ConvertTextCalendarProcessorBase(
   override val context: ElementRuntimeData,

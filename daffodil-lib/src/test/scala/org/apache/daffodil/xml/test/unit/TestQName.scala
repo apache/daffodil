@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package org.apache.daffodil.xml.test.unit
 
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml.QNameRegex
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import org.apache.daffodil.xml.QNameRegex
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.xml.NoNamespace
 import scala.util.Success
-import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
-import edu.illinois.ncsa.daffodil.xml.ExtendedQNameSyntaxException
+import org.apache.daffodil.xml.UnspecifiedNamespace
+import org.apache.daffodil.xml.ExtendedQNameSyntaxException
 import scala.util.Failure
 import java.net.URISyntaxException
 

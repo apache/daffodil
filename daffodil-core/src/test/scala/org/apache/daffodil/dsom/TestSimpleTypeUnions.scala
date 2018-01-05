@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo._
+import org.apache.daffodil.util._
+import org.apache.daffodil.dpath.NodeInfo._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.infoset.DIDocument
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DIDocument
+import org.apache.daffodil.processors.parsers.PState
 
 class TestSimpleTypeUnions {
   val xsd = XMLUtils.XSD_NAMESPACE

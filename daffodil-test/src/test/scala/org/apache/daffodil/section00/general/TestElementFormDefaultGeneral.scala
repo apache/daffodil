@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 import org.junit.Test
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestElementFormDefaultGeneral {
   
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testElementFormDefault.tdml")
 
   @AfterClass def shutDown() { 

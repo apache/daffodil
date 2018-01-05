@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section17.calc_value_properties
+package org.apache.daffodil.section17.calc_value_properties
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestInputValueCalcDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
+  val testDir = "/org/apache/daffodil/section17/calc_value_properties/"
 
   val runner = Runner(testDir, "inputValueCalc.tdml", validateTDMLFile = false)
   val runnerAR = Runner(testDir, "AR.tdml")

@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.grammar.primitives.UnicodeByteOrderMark
-import edu.illinois.ncsa.daffodil.dsom.Root
+import org.apache.daffodil.grammar.primitives.UnicodeByteOrderMark
+import org.apache.daffodil.dsom.Root
 
 trait RootGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root

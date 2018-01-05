@@ -30,29 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.schema.annotation.props
+package org.apache.daffodil.schema.annotation.props
 
 // Copyright (C) 2012 Michael J. Beckerle. All Rights Reserved.
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.equality._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.oolag.OOLAG.OOLAGHost
 import java.lang.{ Integer => JInt }
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.cookers.TextStringPadCharacterCooker
-import edu.illinois.ncsa.daffodil.cookers.TextStandardZeroRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextStandardNaNRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextStandardInfinityRepCooker
-import edu.illinois.ncsa.daffodil.cookers.TextCalendarPadCharacterCooker
-import edu.illinois.ncsa.daffodil.cookers.TextBooleanPadCharacterCooker
-import edu.illinois.ncsa.daffodil.cookers.NilValueRawListCooker
-import edu.illinois.ncsa.daffodil.cookers.NilValueLogicalValueCooker
-import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralValueTextCooker
-import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralValueBinaryCooker
-import edu.illinois.ncsa.daffodil.cookers.NilValueLiteralCharacterCooker
-import edu.illinois.ncsa.daffodil.cookers.TextNumberPadCharacterCooker
+import org.apache.daffodil.cookers.TextStringPadCharacterCooker
+import org.apache.daffodil.cookers.TextStandardZeroRepCooker
+import org.apache.daffodil.cookers.TextStandardNaNRepCooker
+import org.apache.daffodil.cookers.TextStandardInfinityRepCooker
+import org.apache.daffodil.cookers.TextCalendarPadCharacterCooker
+import org.apache.daffodil.cookers.TextBooleanPadCharacterCooker
+import org.apache.daffodil.cookers.NilValueRawListCooker
+import org.apache.daffodil.cookers.NilValueLogicalValueCooker
+import org.apache.daffodil.cookers.NilValueLiteralValueTextCooker
+import org.apache.daffodil.cookers.NilValueLiteralValueBinaryCooker
+import org.apache.daffodil.cookers.NilValueLiteralCharacterCooker
+import org.apache.daffodil.cookers.TextNumberPadCharacterCooker
 
 /**
  * We don't want to make the code generator so sophisticated as to be

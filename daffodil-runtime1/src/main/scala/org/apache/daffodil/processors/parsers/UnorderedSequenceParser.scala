@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 
 class UnorderedSequenceParser(
   override val context: ModelGroupRuntimeData,

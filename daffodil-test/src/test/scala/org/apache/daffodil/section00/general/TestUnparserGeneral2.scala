@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestUnparserGeneral2 {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val testDir = "/org/apache/daffodil/section00/general/"
   val runner2 = Runner(testDir, "testUnparserBitOrderOVC.tdml")
 
   @AfterClass def shutDown {

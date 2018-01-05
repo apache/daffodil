@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section11.content_framing_properties
+package org.apache.daffodil.section11.content_framing_properties
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestContentFramingPropertiesDebug {
-  private val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  private val testDir_01 = "/org/apache/daffodil/ibm-tests/"
   lazy val runner1 = Runner(testDir_01, "dpaext1.tdml")
 
-  private val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
+  private val testDir_02 = "/org/apache/daffodil/section11/content_framing_properties/"
   lazy val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
 
   @AfterClass def shutdown {

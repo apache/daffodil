@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.delimiter_properties
+package org.apache.daffodil.section12.delimiter_properties
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 object TestDelimiterPropertiesUnparseDebug {
 
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
+  val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
   val tdml_02 = testDir_02 + "DelimiterPropertiesUnparse.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 

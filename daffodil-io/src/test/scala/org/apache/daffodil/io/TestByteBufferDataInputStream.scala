@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -45,16 +45,16 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.Implicits.intercept
-import edu.illinois.ncsa.daffodil.equality.TypeEqual
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.equality.TypeEqual
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Misc
 import passera.unsigned.ULong
 import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.processors.charset.StandardBitsCharsets
 
 class TestByteBufferDataInputStream {
   val tenDigits = "1234567890"

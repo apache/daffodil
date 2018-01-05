@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.processors.unparsers.SeqCompUnparser
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
-import edu.illinois.ncsa.daffodil.processors.parsers.SeqCompParser
-import edu.illinois.ncsa.daffodil.processors.parsers.AltCompParser
-import edu.illinois.ncsa.daffodil.compiler.ForUnparser
-import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.NadaParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.EmptyGramUnparser
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.processors.unparsers.SeqCompUnparser
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.grammar.primitives.Nada
+import org.apache.daffodil.processors.parsers.SeqCompParser
+import org.apache.daffodil.processors.parsers.AltCompParser
+import org.apache.daffodil.compiler.ForUnparser
+import org.apache.daffodil.compiler.ForParser
+import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.processors.parsers.NadaParser
+import org.apache.daffodil.processors.unparsers.EmptyGramUnparser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr

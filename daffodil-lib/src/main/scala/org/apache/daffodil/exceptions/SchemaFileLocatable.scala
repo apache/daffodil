@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.exceptions
+package org.apache.daffodil.exceptions
 
 import java.net.URLDecoder
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.util.TransientParam
+import org.apache.daffodil.api.LocationInSchemaFile
+import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.TransientParam
 
 trait HasSchemaFileLocation extends LookupLocation {
   override def schemaFileLocation: SchemaFileLocation

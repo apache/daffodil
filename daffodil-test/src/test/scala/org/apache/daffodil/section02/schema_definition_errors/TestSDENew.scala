@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section02.schema_definition_errors
+package org.apache.daffodil.section02.schema_definition_errors
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestSDENew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
+  val testDir = "/org/apache/daffodil/section02/schema_definition_errors/"
   val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

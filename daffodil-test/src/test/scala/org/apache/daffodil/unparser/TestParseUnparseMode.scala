@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.unparser
+package org.apache.daffodil.unparser
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestParseUnparseMode {
-  val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
+  val testDir = "/org/apache/daffodil/unparser/"
   val runner = Runner(testDir, "parseUnparseModeTest.tdml",
     validateDFDLSchemas = false) // there are UPA errors in some test schemas
 

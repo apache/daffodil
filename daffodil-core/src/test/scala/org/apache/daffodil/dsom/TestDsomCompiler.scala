@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
+import org.apache.daffodil.compiler._
+import org.apache.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
-import edu.illinois.ncsa.daffodil.util.{ Misc, Logging }
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.schema.annotation.props.AlignmentType
+import org.apache.daffodil.util.{ Misc, Logging }
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.SchemaUtils
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.Found
 
 class TestDsomCompiler extends Logging {
 

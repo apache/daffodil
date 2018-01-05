@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import scala.reflect.macros.blackbox.Context
 
@@ -57,7 +57,7 @@ object IOMacros {
     val selfExp = c.prefix
 
     q"""{
-    import edu.illinois.ncsa.daffodil.util.MaybeULong
+    import org.apache.daffodil.util.MaybeULong
 
     val $dStream = $selfExp
     val $newLengthLimit = $lengthLimitInBits
@@ -96,8 +96,8 @@ object IOMacros {
   //    val selfExp = c.prefix
   //
   //    q"""{
-  //    import edu.illinois.ncsa.daffodil.util.MaybeULong
-  //    import edu.illinois.ncsa.daffodil.io.DataOutputStream
+  //    import org.apache.daffodil.util.MaybeULong
+  //    import org.apache.daffodil.io.DataOutputStream
   //
   //    val $dStream: DataOutputStream = $selfExp
   //    val $newLengthLimit = $lengthLimitInBits

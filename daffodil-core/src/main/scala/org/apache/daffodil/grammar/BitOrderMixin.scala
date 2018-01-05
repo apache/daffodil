@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.equality.TypeEqual
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.processors.CheckByteAndBitOrderEv
-import edu.illinois.ncsa.daffodil.processors.CheckBitOrderAndCharsetEv
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dsom.{ Binary, NoText }
+package org.apache.daffodil.grammar
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.equality.TypeEqual
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.processors.CheckByteAndBitOrderEv
+import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.dsom.{ Binary, NoText }
 
 trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Term =>
 

@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.util.MaybeChar
+import org.apache.daffodil.util.MaybeChar
 
 /**
  * (12:12:21 PM) Mike Beckerle: I think I understand this. Let me explain why the 'backtrack" is ok.

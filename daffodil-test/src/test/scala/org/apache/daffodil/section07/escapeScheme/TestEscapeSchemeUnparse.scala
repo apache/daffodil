@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.escapeScheme
+package org.apache.daffodil.section07.escapeScheme
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestEscapeSchemeUnparse {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
+  val testDir = "/org/apache/daffodil/section07/escapeScheme/"
   val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
 
   @AfterClass def tearDown() {

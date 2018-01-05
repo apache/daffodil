@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.util.UniquenessCache
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.util.UniquenessCache
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc
 
 object ChoiceBranchEvent extends UniquenessCache[NamedQName, (ChoiceBranchStartEvent, ChoiceBranchEndEvent)] {
 

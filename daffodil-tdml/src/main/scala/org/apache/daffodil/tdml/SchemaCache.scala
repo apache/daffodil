@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarnTDML { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.equality._; object ENoWarnTDML { EqualitySuppressUnusedImportWarning() }
 import scala.collection.mutable
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Cache that saves the compiled data processor objects (memory structures, not files

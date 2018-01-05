@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section06.entities
+package org.apache.daffodil.section06.entities
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestEntitiesNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
+  val testDir = "/org/apache/daffodil/section06/entities/"
 
   val tdml_01 = testDir + "InvalidEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))

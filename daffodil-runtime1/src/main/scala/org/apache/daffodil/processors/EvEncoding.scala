@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.cookers.FillByteCooker
-import edu.illinois.ncsa.daffodil.cookers.EncodingCooker
-import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharset
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.processors.charset.BitsCharset
+import org.apache.daffodil.processors.charset.CharsetUtils
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.cookers.FillByteCooker
+import org.apache.daffodil.cookers.EncodingCooker
+import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharset
+import org.apache.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
 
 /*
  * The way encoding works, is if a EncodingChangeParser or Unparser is

@@ -3,7 +3,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:tns="http://complexSchema.com"
 	targetNamespace="http://complexSchema.com">
 
-	<xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format ref="tns:daffodilTest1" separator=""

@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.debugger
+package org.apache.daffodil.debugger
 
-import edu.illinois.ncsa.daffodil.events.EventHandler
+import org.apache.daffodil.events.EventHandler
 
 trait Debugger extends EventHandler
 

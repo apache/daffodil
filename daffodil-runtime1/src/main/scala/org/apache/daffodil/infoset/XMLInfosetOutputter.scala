@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.equality._
 
 
 trait XMLInfosetOutputter {

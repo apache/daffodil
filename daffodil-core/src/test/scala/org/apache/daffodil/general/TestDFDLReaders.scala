@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.general
+package org.apache.daffodil.general
 
 class TestDFDLReaders {
 

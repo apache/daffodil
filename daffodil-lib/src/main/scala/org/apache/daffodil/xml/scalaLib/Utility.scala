@@ -15,7 +15,7 @@
 **                          |/                                          **
 \*                                                                      */
 
-package edu.illinois.ncsa.daffodil.xml.scalaLib
+package org.apache.daffodil.xml.scalaLib
 
 import scala.xml._
 import scala.collection.mutable

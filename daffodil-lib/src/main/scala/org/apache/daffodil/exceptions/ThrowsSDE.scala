@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.exceptions
+package org.apache.daffodil.exceptions
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.WarnID
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This

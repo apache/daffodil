@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 import scala.xml._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnAPI1 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.Implicits._; object INoWarnAPI1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.util.TestUtils
 
 class TestForMemLeak {
 

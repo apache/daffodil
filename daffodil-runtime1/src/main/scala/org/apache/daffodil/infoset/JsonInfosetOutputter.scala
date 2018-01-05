@@ -29,12 +29,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.MStackOfBoolean
-import edu.illinois.ncsa.daffodil.util.Indentable
+import org.apache.daffodil.util.MStackOfBoolean
+import org.apache.daffodil.util.Indentable
 import com.fasterxml.jackson.core.io.JsonStringEncoder
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dpath.NodeInfo
 
 class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   extends InfosetOutputter with Indentable {

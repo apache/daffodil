@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import java.io.{ ByteArrayInputStream, BufferedInputStream }
 
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.exceptions.Assert
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
 import scala.language.{ implicitConversions, reflectiveCalls } // silences scala 2.10 warnings

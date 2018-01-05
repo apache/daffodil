@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.TestUtils
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util.IteratorFromCursor
+import org.apache.daffodil.xml._
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.TestUtils
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.util.IteratorFromCursor
 
 /**
  * All these tests were written for iterator style.

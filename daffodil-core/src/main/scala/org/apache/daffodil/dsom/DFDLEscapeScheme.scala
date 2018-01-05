@@ -30,26 +30,26 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.Utility
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
-import edu.illinois.ncsa.daffodil.dpath._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeCharEv
-import edu.illinois.ncsa.daffodil.processors.EscapeEscapeCharEv
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import org.apache.daffodil.dpath._
+import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.processors.EscapeSchemeParseEv
+import org.apache.daffodil.processors.EscapeSchemeBlockParseEv
+import org.apache.daffodil.processors.EscapeSchemeCharParseEv
+import org.apache.daffodil.processors.EscapeSchemeUnparseEv
+import org.apache.daffodil.processors.EscapeSchemeBlockUnparseEv
+import org.apache.daffodil.processors.EscapeSchemeCharUnparseEv
+import org.apache.daffodil.processors.EscapeCharEv
+import org.apache.daffodil.processors.EscapeEscapeCharEv
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.schema.annotation.props.Found
 
 final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)

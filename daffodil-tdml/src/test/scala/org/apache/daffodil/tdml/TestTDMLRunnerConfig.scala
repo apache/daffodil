@@ -12,12 +12,12 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertTrue
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 /**
  * Tests for bug DAFFODIL-1868
@@ -29,7 +29,7 @@ class TestTDMLRunnerConfig {
   val xsi = XMLUtils.XSI_NAMESPACE
   val xsd = XMLUtils.XSD_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
-  val daf = XMLUtils.EXT_NS.toString
+  val daf = XMLUtils.EXT_NS_APACHE.toString
   val tns = example
 
   @Test def testNonsenseDefaultConfig() = {

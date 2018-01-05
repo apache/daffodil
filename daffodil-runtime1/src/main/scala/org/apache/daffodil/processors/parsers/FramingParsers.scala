@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.TextProcessor
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.TextProcessor
+import org.apache.daffodil.processors.TermRuntimeData
 
 class SkipRegionParser(
   skipInBits: Int,

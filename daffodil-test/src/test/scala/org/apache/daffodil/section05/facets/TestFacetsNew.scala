@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.facets
+package org.apache.daffodil.section05.facets
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestFacetsNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
+  val testDir = "/org/apache/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

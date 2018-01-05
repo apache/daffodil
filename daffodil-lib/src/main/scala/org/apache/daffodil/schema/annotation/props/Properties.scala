@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.schema.annotation.props
+package org.apache.daffodil.schema.annotation.props
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.Misc._
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.cookers.Converter
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.util.Misc._
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util._
+import org.apache.daffodil.cookers.Converter
 import scala.collection.mutable
 
 /**

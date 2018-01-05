@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.CLI
+package org.apache.daffodil.CLI
 
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.filter.Filters.replaceInString
 import java.nio.file.Paths
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 
 object Util {
 
-  //val testDir = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
-  val testDir = "/edu/illinois/ncsa/daffodil/CLI/"
+  //val testDir = "daffodil-cli/src/test/resources/org/apache/daffodil/CLI/"
+  val testDir = "/org/apache/daffodil/CLI/"
   val outputDir = testDir + "output/"
 
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")

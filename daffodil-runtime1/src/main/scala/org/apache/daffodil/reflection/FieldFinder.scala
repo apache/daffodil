@@ -37,13 +37,13 @@
 // and in other sitautions we may want to use these techniques.
 //
 
-//package edu.illinois.ncsa.daffodil.reflection
+//package org.apache.daffodil.reflection
 //
 //import scala.reflect.runtime.{ universe => ru }
 //import ru._
 //import scala.reflect.ClassTag
-//import edu.illinois.ncsa.daffodil.util.Maybe
-//import edu.illinois.ncsa.daffodil.exceptions.Assert
+//import org.apache.daffodil.util.Maybe
+//import org.apache.daffodil.exceptions.Assert
 //
 ///**
 // * Uses reflection to find all members of a class having a particular type.

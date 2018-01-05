@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.lengthKind
+package org.apache.daffodil.section12.lengthKind
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestLengthKindDelimitedDebug {
-  private val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+  private val testDir = "/org/apache/daffodil/section12/lengthKind/"
 
   val runner = Runner(testDir, "DelimitedTests.tdml")
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
-  val runner_01 = Runner("/edu/illinois/ncsa/daffodil/ibm-tests/", "dpaext1.tdml")
+  val runner_01 = Runner("/org/apache/daffodil/ibm-tests/", "dpaext1.tdml")
 
   @AfterClass def shutDown {
     runner.reset

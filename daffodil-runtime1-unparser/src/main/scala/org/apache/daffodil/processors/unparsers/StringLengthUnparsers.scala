@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextTruncationType
-import edu.illinois.ncsa.daffodil.processors.CharsetEv
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.util.MaybeJULong
-import edu.illinois.ncsa.daffodil.processors.LengthEv
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.TextTruncationType
+import org.apache.daffodil.processors.CharsetEv
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.util.MaybeJULong
+import org.apache.daffodil.processors.LengthEv
+import org.apache.daffodil.processors.Evaluatable
 
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException

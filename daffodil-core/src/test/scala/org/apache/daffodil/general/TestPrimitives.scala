@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.general
+package org.apache.daffodil.general
 
 import scala.xml._
 
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.util.TestUtils
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import org.apache.daffodil.Implicits._; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.util.SchemaUtils
 
 class TestPrimitives {
 

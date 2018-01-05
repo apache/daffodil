@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
 import java.util.regex.PatternSyntaxException
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.parsers._
-import edu.illinois.ncsa.daffodil.processors.unparsers._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitImplicitUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthExplicitParser
-import edu.illinois.ncsa.daffodil.processors.parsers.SpecifiedLengthImplicitParser
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.parsers._
+import org.apache.daffodil.processors.unparsers._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.unparsers.SpecifiedLengthExplicitImplicitUnparser
+import org.apache.daffodil.processors.parsers.SpecifiedLengthExplicitParser
+import org.apache.daffodil.processors.parsers.SpecifiedLengthImplicitParser
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.processors.parsers.Parser
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {

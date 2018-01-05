@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.EncodingLattice
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
-import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.util.TransientParam
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import org.apache.daffodil.dsom.EncodingLattice
+import org.apache.daffodil.dsom.ImplementsThrowsSDE
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.processors.charset.BitsCharset
+import org.apache.daffodil.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.processors.charset.CharsetUtils
 
 /**
  * To eliminate circularities between RuntimeData objects and the

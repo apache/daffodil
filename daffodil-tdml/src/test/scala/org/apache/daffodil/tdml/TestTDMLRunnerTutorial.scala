@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,9 +32,9 @@ package edu.illinois.ncsa.daffodil.tdml
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
+import org.apache.daffodil.xml.NS.implicitNStoString
 
 class TestTDMLRunnerTutorial {
 
@@ -79,7 +79,7 @@ class TestTDMLRunnerTutorial {
         <p>6</p>
       </tdml:tutorial>
       <tdml:defineSchema name="s">
-        <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+        <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
         <dfdl:format ref="ex:daffodilTest1"/>
         <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
       </tdml:defineSchema>

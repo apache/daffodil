@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.ProcessingError
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.LocationInSchemaFile
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ProcessingError
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
 
 class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], causedBy: Maybe[Throwable], kind: Maybe[String], args: Any*)
   extends ProcessingError("Parse", rd, loc, causedBy, kind, args: _*) {

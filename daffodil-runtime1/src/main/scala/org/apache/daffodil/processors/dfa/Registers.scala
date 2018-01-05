@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.equality.ViewEqual
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.processors.DelimiterIterator
-import edu.illinois.ncsa.daffodil.util.Pool
-import edu.illinois.ncsa.daffodil.util.Poolable
-import edu.illinois.ncsa.daffodil.io.FormatInfo
+import org.apache.daffodil.equality.ViewEqual
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.processors.DelimiterIterator
+import org.apache.daffodil.util.Pool
+import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.io.FormatInfo
 
 private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
   override def initialValue = new RegistersPool()

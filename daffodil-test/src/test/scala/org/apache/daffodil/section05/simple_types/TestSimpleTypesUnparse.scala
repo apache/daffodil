@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.simple_types
+package org.apache.daffodil.section05.simple_types
 
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit._
 
 object TestSimpleTypesUnparse {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  val testDir = "/org/apache/daffodil/section05/simple_types/"
 
   val runner = Runner(testDir, "SimpleTypesUnparse.tdml")
 

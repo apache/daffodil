@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryIntegerRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryIntegerKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryDecimalRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryDecimalKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryFloatParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BinaryDoubleParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryIntegerKnownLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryIntegerRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryDecimalRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryDecimalKnownLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryDoubleUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BinaryFloatUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.BinaryIntegerRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.BinaryIntegerKnownLengthParser
+import org.apache.daffodil.processors.parsers.BinaryDecimalRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.BinaryDecimalKnownLengthParser
+import org.apache.daffodil.processors.parsers.BinaryFloatParser
+import org.apache.daffodil.processors.parsers.BinaryDoubleParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.BinaryIntegerKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryIntegerRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryDecimalKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryDoubleUnparser
+import org.apache.daffodil.processors.unparsers.BinaryFloatUnparser
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
 

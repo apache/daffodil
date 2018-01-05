@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml._
+import org.apache.daffodil.xml._
 import scala.util.Success
 
 class TestExternalVariablesNew extends Logging {

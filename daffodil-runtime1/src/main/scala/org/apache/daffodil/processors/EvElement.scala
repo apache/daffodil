@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
+import org.apache.daffodil.dsom._
 import java.lang.{ Long => JLong }
-import edu.illinois.ncsa.daffodil.util.MaybeJULong
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dpath.UnparserBlocking
-import edu.illinois.ncsa.daffodil.dpath.EvalMode
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.cookers.OutputNewLineCooker
-import edu.illinois.ncsa.daffodil.cookers.ChoiceDispatchKeyCooker
+import org.apache.daffodil.util.MaybeJULong
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.dpath.UnparserBlocking
+import org.apache.daffodil.dpath.EvalMode
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.cookers.OutputNewLineCooker
+import org.apache.daffodil.cookers.ChoiceDispatchKeyCooker
 
 sealed trait LengthEv extends Evaluatable[JLong]
 

@@ -35,9 +35,9 @@
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:home="http://home.com" xmlns:second="http://second.com" targetNamespace="http://home.com" xmlns:first="http://first.com">
   
-  <xs:import namespace="http://first.com" schemaLocation="edu/illinois/ncsa/daffodil/section23/dfdl_functions/first_schema.dfdl.xsd"/>
+  <xs:import namespace="http://first.com" schemaLocation="org/apache/daffodil/section23/dfdl_functions/first_schema.dfdl.xsd"/>
 
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
          
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/"> 

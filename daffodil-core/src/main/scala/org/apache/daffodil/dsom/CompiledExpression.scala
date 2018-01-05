@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.dpath._
+import org.apache.daffodil.dpath._
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.oolag.OOLAG._
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.oolag.OOLAG._
 
 object ExpressionCompilers extends ExpressionCompilerClass {
   override val String = new ExpressionCompiler[String]

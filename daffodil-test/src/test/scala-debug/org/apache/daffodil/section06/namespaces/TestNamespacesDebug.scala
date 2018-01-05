@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section06.namespaces
+package org.apache.daffodil.section06.namespaces
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestNamespacesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
+  val testDir = "/org/apache/daffodil/section06/namespaces/"
 
   val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
   val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)

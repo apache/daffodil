@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util._
 import scala.xml._
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.dsom.SchemaSet
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.Implicits._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import org.apache.daffodil.dsom.SchemaDefinitionError
 import scala.util.Success
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.api.DaffodilTunables
 
 class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE

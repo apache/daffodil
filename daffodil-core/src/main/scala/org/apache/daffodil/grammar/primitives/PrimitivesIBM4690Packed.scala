@@ -13,19 +13,19 @@
  */
 
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedIntegerRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedIntegerKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedDecimalRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedDecimalKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedIntegerRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedIntegerKnownLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedDecimalRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedDecimalKnownLengthUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.IBM4690PackedIntegerRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.IBM4690PackedIntegerKnownLengthParser
+import org.apache.daffodil.processors.parsers.IBM4690PackedDecimalRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.IBM4690PackedDecimalKnownLengthParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.IBM4690PackedDecimalKnownLengthUnparser
 
 class IBM4690PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean) extends Terminal(e, true) {
   override lazy val parser = new IBM4690PackedIntegerRuntimeLengthParser(e.elementRuntimeData, signed, e.lengthEv, e.lengthUnits)

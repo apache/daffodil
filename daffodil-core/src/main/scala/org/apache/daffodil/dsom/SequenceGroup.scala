@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Attribute
 import scala.xml.Elem
@@ -39,17 +39,17 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Null
 import scala.xml.Text
 import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
-import edu.illinois.ncsa.daffodil.Implicits.ns2String
-import edu.illinois.ncsa.daffodil.grammar.SequenceGrammarMixin
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.SequenceRuntimeData
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
+import org.apache.daffodil.Implicits.ns2String
+import org.apache.daffodil.grammar.SequenceGrammarMixin
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.SequenceRuntimeData
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 
 abstract class SequenceTermBase(
   final override val xml: Node,

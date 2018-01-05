@@ -30,29 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
 import java.io.StringWriter
 import java.io.PrintWriter
 
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Processor
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.CombinatorProcessor
-import edu.illinois.ncsa.daffodil.processors.PrimProcessor
-import edu.illinois.ncsa.daffodil.processors.TextProcessor
-import edu.illinois.ncsa.daffodil.processors.PrimProcessorNoData
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.CombinatorProcessor
+import org.apache.daffodil.processors.PrimProcessor
+import org.apache.daffodil.processors.TextProcessor
+import org.apache.daffodil.processors.PrimProcessorNoData
 
 /**
  * Encapsulates lower-level parsing with a uniform interface

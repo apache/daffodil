@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.grammar.primitives.StopValue
-import edu.illinois.ncsa.daffodil.grammar.primitives.NotStopValue
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepUnbounded
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyTotalOccursCount
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyTotalN
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepExactlyN
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepAtMostTotalN
-import edu.illinois.ncsa.daffodil.grammar.primitives.RepAtMostOccursCount
-import edu.illinois.ncsa.daffodil.grammar.primitives.OccursCountExpression
-import edu.illinois.ncsa.daffodil.grammar.primitives.OptionalCombinator
-import edu.illinois.ncsa.daffodil.grammar.primitives.ArrayCombinator
+package org.apache.daffodil.grammar
+import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.grammar.primitives.StopValue
+import org.apache.daffodil.grammar.primitives.NotStopValue
+import org.apache.daffodil.grammar.primitives.RepUnbounded
+import org.apache.daffodil.grammar.primitives.RepExactlyTotalOccursCount
+import org.apache.daffodil.grammar.primitives.RepExactlyTotalN
+import org.apache.daffodil.grammar.primitives.RepExactlyN
+import org.apache.daffodil.grammar.primitives.RepAtMostTotalN
+import org.apache.daffodil.grammar.primitives.RepAtMostOccursCount
+import org.apache.daffodil.grammar.primitives.OccursCountExpression
+import org.apache.daffodil.grammar.primitives.OptionalCombinator
+import org.apache.daffodil.grammar.primitives.ArrayCombinator
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
 

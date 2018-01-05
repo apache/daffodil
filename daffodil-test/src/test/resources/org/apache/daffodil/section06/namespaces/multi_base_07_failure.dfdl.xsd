@@ -41,7 +41,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://b00.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_06.dfdl.xsd"/>
+  <xs:import namespace="http://b00.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_06.dfdl.xsd"/>
 
   <xs:element name="elem" type="xs:int"/>
  

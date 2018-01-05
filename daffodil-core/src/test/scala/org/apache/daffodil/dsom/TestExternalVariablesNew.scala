@@ -30,25 +30,25 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits.ns2String
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.Implicits.ns2String
+import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.NS
+import org.apache.daffodil.xml.NS
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.UnitTestSchemaSource
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.util.Misc
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

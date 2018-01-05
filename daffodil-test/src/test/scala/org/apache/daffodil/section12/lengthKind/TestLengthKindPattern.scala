@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.lengthKind
+package org.apache.daffodil.section12.lengthKind
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestLengthKindPattern {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+  val testDir = "/org/apache/daffodil/section12/lengthKind/"
 
   val runner = Runner(testDir, "PatternTests.tdml")
 

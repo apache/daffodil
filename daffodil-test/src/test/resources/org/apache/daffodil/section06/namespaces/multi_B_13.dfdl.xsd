@@ -42,7 +42,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://c13.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_13.dfdl.xsd"/>
+  <xs:import namespace="http://c13.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_13.dfdl.xsd"/>
 
   <xs:element name="nest" type="c13:nestType" dfdl:textNumberJustification="center"/>
 

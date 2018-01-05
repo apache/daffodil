@@ -30,36 +30,36 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.dpath._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceStartParser
-import edu.illinois.ncsa.daffodil.processors.parsers.AssertExpressionEvaluationParser
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.AssertPatternParser
-import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternParser
-import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParser
-import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
-import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
-import edu.illinois.ncsa.daffodil.compiler.ForParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
-import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
-import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.dpath._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.processors.parsers.NewVariableInstanceStartParser
+import org.apache.daffodil.processors.parsers.AssertExpressionEvaluationParser
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.AssertPatternParser
+import org.apache.daffodil.processors.parsers.DiscriminatorPatternParser
+import org.apache.daffodil.processors.parsers.NewVariableInstanceEndParser
+import org.apache.daffodil.processors.parsers.SetVariableParser
+import org.apache.daffodil.processors.parsers.IVCParser
+import org.apache.daffodil.processors.unparsers.SetVariableUnparser
+import org.apache.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
+import org.apache.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
+import org.apache.daffodil.compiler.ForParser
+import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.DFDLSetVariable
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.dsom.DFDLNewVariableInstance
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,

@@ -30,25 +30,25 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import scala.xml.NodeSeq.seqToNodeSeq
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.infoset.DINode
-import edu.illinois.ncsa.daffodil.infoset.InfosetException
-import edu.illinois.ncsa.daffodil.processors.CompileState
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.processors.ProcessingError
-import edu.illinois.ncsa.daffodil.processors.VariableException
-import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.dsom.SchemaDefinitionError
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.infoset.DINode
+import org.apache.daffodil.infoset.InfosetException
+import org.apache.daffodil.processors.CompileState
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ProcessingError
+import org.apache.daffodil.processors.VariableException
+import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.util.Misc
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 

@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.OutputNewLineEv
-import edu.illinois.ncsa.daffodil.processors.InfosetCachedEvaluatable
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.OutputNewLineEv
+import org.apache.daffodil.processors.InfosetCachedEvaluatable
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.cookers.EntityReplacer
 
 class NilStringLiteralForUnparserEv(trd: TermRuntimeData,
   maybeOutputNewLineEv: Maybe[OutputNewLineEv],

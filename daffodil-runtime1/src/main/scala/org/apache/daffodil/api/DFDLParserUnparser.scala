@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.processors.ProcessorResult
-import edu.illinois.ncsa.daffodil.processors.Success
+import org.apache.daffodil.processors.ProcessorResult
+import org.apache.daffodil.processors.Success
 import java.io.File
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetOutputter
-import edu.illinois.ncsa.daffodil.processors.Failure
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.infoset.InfosetOutputter
+import org.apache.daffodil.processors.Failure
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor

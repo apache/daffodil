@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
  */
 
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestParseUnparsePolicy {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "parseUnparsePolicy.tdml")
 
   @AfterClass def shutDown() {

@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import scala.collection.mutable.ListBuffer
 import scala.xml.NodeSeq.seqToNodeSeq
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.lang.{ Integer => JInt, Long => JLong, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 

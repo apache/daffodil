@@ -40,7 +40,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_temp.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_temp.dfdl.xsd"/>
 
   <xs:element name="baseSeq2">
     <xs:complexType>

@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.grammar.ElementReferenceGrammarMixin
+import org.apache.daffodil.dpath.NodeInfo
 
 /**
  * There are 3 first-class concrete children of ElementBase.

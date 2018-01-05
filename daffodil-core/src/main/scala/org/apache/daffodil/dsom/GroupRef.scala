@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.HasRefMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.xml.HasRefMixin
+import org.apache.daffodil.schema.annotation.props.NotFound
 
 trait GroupRef { self: ModelGroup =>
 

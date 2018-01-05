@@ -12,20 +12,20 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.util.PackedSignCodes
-import edu.illinois.ncsa.daffodil.processors.parsers.PackedIntegerRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.PackedIntegerKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.PackedDecimalRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.PackedDecimalKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalKnownLengthUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.util.PackedSignCodes
+import org.apache.daffodil.processors.parsers.PackedIntegerRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.PackedIntegerKnownLengthParser
+import org.apache.daffodil.processors.parsers.PackedDecimalRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.PackedDecimalKnownLengthParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.PackedDecimalKnownLengthUnparser
 
 class PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
   override lazy val parser = new PackedIntegerRuntimeLengthParser(e.elementRuntimeData, signed, packedSignCodes, e.lengthEv, e.lengthUnits)

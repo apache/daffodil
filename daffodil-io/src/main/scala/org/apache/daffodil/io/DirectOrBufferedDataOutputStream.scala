@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.equality._
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Bits
+import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.
@@ -749,7 +749,7 @@ object DirectOrBufferedDataOutputStream {
     // fragment byte on directDOS, fragment byte on bufDOS, or both.
 
     {
-      import edu.illinois.ncsa.daffodil.util.MaybeULong
+      import org.apache.daffodil.util.MaybeULong
 
       val dStream = directDOS
       val newLengthLimit = bufferNBits.toLong

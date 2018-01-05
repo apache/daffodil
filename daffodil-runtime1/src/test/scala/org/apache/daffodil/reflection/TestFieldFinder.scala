@@ -36,10 +36,10 @@
 // and in other sitautions we may want to use these techniques.
 //
 
-//package edu.illinois.ncsa.daffodil.reflection
+//package org.apache.daffodil.reflection
 //
-//import edu.illinois.ncsa.daffodil.util.Maybe
-//import edu.illinois.ncsa.daffodil.exceptions.Assert
+//import org.apache.daffodil.util.Maybe
+//import org.apache.daffodil.exceptions.Assert
 //import org.junit.Test
 //import org.junit.Assert._
 //

@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.variables
+package org.apache.daffodil.section07.variables
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.tdml.DFDLTestSuite
 import scala.math.Pi
-import edu.illinois.ncsa.daffodil.util.Fakes
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.util.Fakes
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestVariables {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
+  val testDir = "/org/apache/daffodil/section07/variables/"
   val runner = Runner(testDir, "variables.tdml")
   val runner_01 = Runner(testDir, "variables_01.tdml")
 

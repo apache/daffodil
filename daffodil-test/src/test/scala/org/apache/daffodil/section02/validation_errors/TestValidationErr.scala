@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section02.validation_errors
+package org.apache.daffodil.section02.validation_errors
 
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestValidationErr {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
+  val testDir = "/org/apache/daffodil/section02/validation_errors/"
   val runner = Runner(testDir, "Validation.tdml")
 
   @AfterClass def shutDown() {

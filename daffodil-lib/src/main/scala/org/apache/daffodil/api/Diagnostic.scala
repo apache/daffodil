@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.ThinThrowableWithCause
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.exceptions.ThinThrowableWithCause
 
 /**
  * Base class for all error, warning, info, and other sorts of objects

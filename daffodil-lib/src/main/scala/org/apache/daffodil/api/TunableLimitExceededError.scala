@@ -1,7 +1,7 @@
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe
 
 /**
  * Exceeding these limits is not a back-trackable parse error. It's more severe

@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.calendar.DFDLDate
+import org.apache.daffodil.calendar.DFDLTime
 
 case class XSInt(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {

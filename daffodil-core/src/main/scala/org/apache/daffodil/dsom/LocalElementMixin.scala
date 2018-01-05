@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.grammar.LocalElementGrammarMixin
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.grammar.LocalElementGrammarMixin
+import org.apache.daffodil.equality._
 import java.math.{ BigInteger => JBigInt }
 
 /**

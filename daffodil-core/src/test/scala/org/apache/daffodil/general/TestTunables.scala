@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.general
+package org.apache.daffodil.general
 
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
-import edu.illinois.ncsa.daffodil.compiler.Compiler; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
+import org.apache.daffodil.compiler.Compiler; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
-import edu.illinois.ncsa.daffodil.util.Fakes
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.Fakes
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DaffodilTunables
 
 class TestTunables extends Logging {
 

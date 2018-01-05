@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.japi;
+package org.apache.daffodil.japi;
 
 /**
  * Validation modes for validating the resulting infoset against the DFDL schema

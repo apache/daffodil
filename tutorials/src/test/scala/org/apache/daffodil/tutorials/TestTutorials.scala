@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.tutorials
+package org.apache.daffodil.tutorials
 
 /* Copyright (c) 2012-2016 Tresys Technology, LLC. All rights reserved.
  *
@@ -33,7 +33,7 @@ package edu.illinois.ncsa.daffodil.tutorials
  */
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestTutorials {

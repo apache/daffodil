@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
-import edu.illinois.ncsa.daffodil.processors.DelimiterParseEv
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParseEv
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.processors.ChoiceDispatchKeyEv
+import org.apache.daffodil.processors.DelimiterParseEv
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.EscapeSchemeParseEv
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.processors.TermRuntimeData
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {

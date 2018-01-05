@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.cookers
+package org.apache.daffodil.cookers
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import java.lang.Byte
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Maybe
 import scala.collection.mutable.ListBuffer
 import scala.util.matching.Regex
 import java.lang.{ Character => JChar }
@@ -440,7 +440,7 @@ final class EntityReplacer {
 
 }
 
-import edu.illinois.ncsa.daffodil.util.OnStack
+import org.apache.daffodil.util.OnStack
 
 object EntityReplacer extends OnStack(new EntityReplacer)
 

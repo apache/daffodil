@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.util.Misc
 import java.math.{ BigInteger => JBigInt }
 
 case object NumericToString extends ToString

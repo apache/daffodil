@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.exceptions.Abort
-import edu.illinois.ncsa.daffodil.util.MaybeULong
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.util.MaybeULong
 
 class TestByteBufferDataInputStream2 {
   val tenDigits = "1234567890"

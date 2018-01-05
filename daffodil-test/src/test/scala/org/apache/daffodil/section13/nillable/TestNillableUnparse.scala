@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section13.nillable
+package org.apache.daffodil.section13.nillable
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit._
 
 object TestNillableUnparse {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
+  val testDir = "/org/apache/daffodil/section13/nillable/"
   val runnerLN = Runner(testDir, "literal-value-nils-unparse.tdml")
   val runnerLC = Runner(testDir, "literal-character-nils-unparse.tdml")
 

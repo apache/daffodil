@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.cookers.EntityReplacer
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {

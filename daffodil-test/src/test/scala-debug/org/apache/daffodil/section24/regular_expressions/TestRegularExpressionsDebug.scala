@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section24.regular_expressions
+package org.apache.daffodil.section24.regular_expressions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestRegularExpressionsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section24/regular_expressions/"
+  val testDir = "/org/apache/daffodil/section24/regular_expressions/"
   val runner = Runner(testDir, "RegularExpressions.tdml")
 
   @AfterClass def shutDown {

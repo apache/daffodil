@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 

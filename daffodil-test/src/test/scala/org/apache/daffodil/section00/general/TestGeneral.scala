@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
@@ -38,12 +38,12 @@ package edu.illinois.ncsa.daffodil.section00.general
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits.intercept
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestGeneral {
-  lazy val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  lazy val testDir = "/org/apache/daffodil/section00/general/"
   lazy val runner = Runner(testDir, "general.tdml")
 
   lazy val runner1 = Runner(testDir, "largeInput.tdml")

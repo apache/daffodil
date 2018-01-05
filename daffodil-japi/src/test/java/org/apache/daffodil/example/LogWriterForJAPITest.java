@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example;
+package org.apache.daffodil.example;
 
-import edu.illinois.ncsa.daffodil.japi.logger.*;
+import org.apache.daffodil.japi.logger.*;
 
 import java.util.List;
 import java.util.ArrayList;

@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.grammar.HasNoUnparser
 
 abstract class Primitive(e: Term, guard: Boolean = false)
   extends Terminal(e, guard) {

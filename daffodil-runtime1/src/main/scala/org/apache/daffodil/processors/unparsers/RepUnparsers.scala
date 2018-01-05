@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.processors.TermRuntimeData
 
 abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData, baseName: String)
   extends CombinatorUnparser(context) {

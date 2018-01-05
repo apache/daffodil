@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 
 /**
  * Takes a compiled expression and a conversion, and if the expression is a constant,

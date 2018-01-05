@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Misc
 
 class TestDump {
 

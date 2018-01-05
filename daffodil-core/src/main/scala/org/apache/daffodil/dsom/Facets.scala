@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import java.math.BigInteger
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 
 trait Facets { self: Restriction =>
-  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
+  import org.apache.daffodil.dsom.FacetTypes._
 
   requiredEvaluations(if (hasPattern) patternValues)
   requiredEvaluations(if (hasEnumeration) enumerationValues)

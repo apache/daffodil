@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.processors.Delimiter
-import edu.illinois.ncsa.daffodil.util.OnStack
+import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.util.OnStack
 import java.util.regex.Matcher
 
 trait NilMatcherMixin {

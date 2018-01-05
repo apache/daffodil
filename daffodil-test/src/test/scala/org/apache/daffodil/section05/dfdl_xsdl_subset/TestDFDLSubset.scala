@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.dfdl_xsdl_subset
+package org.apache.daffodil.section05.dfdl_xsdl_subset
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestDFDLSubset {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/dfdl_xsdl_subset/"
+  val testDir = "/org/apache/daffodil/section05/dfdl_xsdl_subset/"
   val runner = Runner(testDir, "DFDLSubset.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
 
   @AfterClass def tearDown() {

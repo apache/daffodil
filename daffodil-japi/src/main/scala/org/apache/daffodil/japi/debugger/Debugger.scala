@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.japi.debugger
+package org.apache.daffodil.japi.debugger
 
 /**
  * Abstract debugger runner, which can be implemented to create a custom debugger runner

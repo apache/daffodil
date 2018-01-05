@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.testEquality
+package org.apache.daffodil.testEquality
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.equality._
 
 class TestEqualityOperators {
 

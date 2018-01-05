@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.Implicits._;
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.Implicits._;
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.ElementRuntimeData
 
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 

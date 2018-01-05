@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 /**
  * Compare MStack performance to ArrayStack. It should be faster for primitives

@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.processors.PrimProcessor
-import edu.illinois.ncsa.daffodil.processors.ToBriefXMLImpl
-import edu.illinois.ncsa.daffodil.processors.Processor
+package org.apache.daffodil.processors.unparsers
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors._
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.processors.PrimProcessor
+import org.apache.daffodil.processors.ToBriefXMLImpl
+import org.apache.daffodil.processors.Processor
 
 sealed trait Unparser
   extends Processor {

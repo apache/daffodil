@@ -41,7 +41,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://c08_cp.com" schemaLocation="daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_08_classpath.dfdl.xsd"/>
+  <xs:import namespace="http://c08_cp.com" schemaLocation="daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_C_08_classpath.dfdl.xsd"/>
 
   <xs:element name="bElem" type="c08_cp:cString">
     <xs:annotation>

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.external_variables
+package org.apache.daffodil.section07.external_variables
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestExternalVariables {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
+  val testDir = "/org/apache/daffodil/section07/external_variables/"
   val runner = Runner(testDir, "external_variables.tdml")
 
   @AfterClass def tearDown() {

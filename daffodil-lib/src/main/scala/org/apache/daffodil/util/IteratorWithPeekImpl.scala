@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 trait IteratorWithPeek[+T] extends Iterator[T] {
   def peek: T

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.infoset
+package org.apache.daffodil.infoset
 
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe
 import scala.xml.Null
 import scala.collection.mutable.ListBuffer
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.MStackOf
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dpath.NodeInfo
 
 class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputter
     with XMLInfosetOutputter {

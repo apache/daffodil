@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.TermRuntimeData
 
 class OptionalInfixSepUnparser(contextArg: TermRuntimeData,
   sepUnparser: Unparser)

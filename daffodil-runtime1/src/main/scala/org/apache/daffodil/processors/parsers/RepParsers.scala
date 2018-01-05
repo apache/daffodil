@@ -30,24 +30,24 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
 import java.lang.{ Long => JLong }
 import java.io.StringWriter
 import java.io.PrintWriter
 
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
-import edu.illinois.ncsa.daffodil.equality.ViewEqual
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.processors.Failure
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Numbers
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.equality.ViewEqual
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.processors.TermRuntimeData
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends CombinatorParser(context) {
