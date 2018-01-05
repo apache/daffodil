@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
-import edu.illinois.ncsa.daffodil.dsom.ModelGroup
-import edu.illinois.ncsa.daffodil.grammar.primitives.TrailingSkipRegion
-import edu.illinois.ncsa.daffodil.grammar.primitives.LeadingSkipRegion
-import edu.illinois.ncsa.daffodil.grammar.primitives.AlignmentFill
-import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
-import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
-import edu.illinois.ncsa.daffodil.dsom.SequenceTermBase
-import edu.illinois.ncsa.daffodil.dsom.ChoiceTermBase
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom.InitiatedTerminatedMixin
+import org.apache.daffodil.dsom.ModelGroup
+import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
+import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
+import org.apache.daffodil.grammar.primitives.AlignmentFill
+import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorSequence
+import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorChoice
+import org.apache.daffodil.dsom.SequenceTermBase
+import org.apache.daffodil.dsom.ChoiceTermBase
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin

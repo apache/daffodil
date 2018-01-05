@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.calendar
+package org.apache.daffodil.calendar
 
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar;
@@ -38,9 +38,9 @@ import com.ibm.icu.util.TimeZone;
 
 import java.math.{ BigDecimal => JBigDecimal }
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import scala.collection.mutable.ArraySeq
-import edu.illinois.ncsa.daffodil.processors.parsers.TextCalendarConstants
+import org.apache.daffodil.processors.parsers.TextCalendarConstants
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value

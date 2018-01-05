@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
 trait DataStreamLimits {
   def maximumSimpleElementSizeInBytes: Long

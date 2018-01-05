@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.external_variables
+package org.apache.daffodil.section07.external_variables
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 
 class TestExternalVariablesNew {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
+  val testDir = "/org/apache/daffodil/section07/external_variables/"
   val tdml = testDir + "external_variables.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))

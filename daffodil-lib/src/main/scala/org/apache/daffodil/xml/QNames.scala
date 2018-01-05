@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThrowsSDE
 
 /**
  * Element references and Group References use this.

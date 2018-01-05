@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.processors.parsers.DelimiterTextType
 
 /**
  * In order to be very fast, a DFA should run without allocating

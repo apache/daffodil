@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.length_properties
+package org.apache.daffodil.section12.length_properties
 
 //import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestLengthPropertiesNew {
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/length_properties/"
+  val testDir_02 = "/org/apache/daffodil/section12/length_properties/"
 
   val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
 

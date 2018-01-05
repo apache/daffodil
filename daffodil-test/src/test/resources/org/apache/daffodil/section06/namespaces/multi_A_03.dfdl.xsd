@@ -45,7 +45,7 @@
      only contains new properties introduced since these tests were created.
  -->
 
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -56,7 +56,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://b03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
+  <xs:import namespace="http://b03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
 
   <xs:element name="nestSequence" dfdl:terminator="">
     <xs:complexType>

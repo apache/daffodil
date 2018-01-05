@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.input
+package org.apache.daffodil.processors.input
 
 import junit.framework.Assert._
 import org.junit.Test
@@ -38,7 +38,7 @@ import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.parsers.TextCalendarConstants
+import org.apache.daffodil.processors.parsers.TextCalendarConstants
 
 class TestICU {
 

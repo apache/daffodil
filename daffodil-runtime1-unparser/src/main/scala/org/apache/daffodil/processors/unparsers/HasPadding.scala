@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.util.MaybeChar
+import org.apache.daffodil.util.MaybeChar
 
 /**
  * When dfdl:lengthKind is 'explicit' (and dfdl:length is an expression),

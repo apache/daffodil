@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section06.namespaces
+package org.apache.daffodil.section06.namespaces
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestNamespacesNew extends Logging {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
+  val testDir = "/org/apache/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

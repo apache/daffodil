@@ -38,7 +38,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <import namespace="urn:example2" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/test02sch2.dfdl.xsd" />
+  <import namespace="urn:example2" schemaLocation="org/apache/daffodil/section06/namespaces/test02sch2.dfdl.xsd" />
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">

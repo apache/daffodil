@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 /**
  * Uses a Long to store the bits of a Double so that we can compare

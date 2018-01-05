@@ -6,7 +6,7 @@
 **                          |/                                          **
 \*                                                                      */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 /**
  * The following code was taken from the scala tree:

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropTypes
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.util._
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.PropTypes
+import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.schema.annotation.props.Found
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.

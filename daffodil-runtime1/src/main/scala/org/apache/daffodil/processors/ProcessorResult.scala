@@ -66,10 +66,10 @@
  * Date: 2010
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.Diagnostic
 
 /**
  * The resulting state after invoking a Processor

@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import scala.reflect.macros.blackbox.Context
 

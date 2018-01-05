@@ -42,7 +42,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/subfolder/multi_C_06_nons_valid.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/subfolder/multi_C_06_nons_valid.dfdl.xsd"/>
 
   <xs:element name="date" type="xs:date" dfdl:ref="b06:dateNoTZ" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarPatternKind="explicit"/>
   <xs:element name="date2" type="xs:date" dfdl:ref="b06:dateTZtypo" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarPatternKind="explicit"/>

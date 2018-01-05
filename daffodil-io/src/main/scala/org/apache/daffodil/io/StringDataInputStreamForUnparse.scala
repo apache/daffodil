@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within

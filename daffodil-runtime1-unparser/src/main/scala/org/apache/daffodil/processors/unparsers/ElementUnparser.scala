@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,17 +31,17 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.infoset.DIComplex
-import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.infoset.RetryableException
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.dpath.SuspendableExpression
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.infoset.RetryableException
 
 /**
  * Elements that, when unparsing, have no length specified.

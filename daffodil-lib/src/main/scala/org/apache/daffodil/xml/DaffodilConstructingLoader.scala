@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import scala.xml.parsing.ConstructingParser
 import scala.xml._
 import java.net.URI
 import scala.io.Source
 import org.apache.commons.io.input.XmlStreamReader
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Scala 2.11 deprecated the Position object so it is no longer public.

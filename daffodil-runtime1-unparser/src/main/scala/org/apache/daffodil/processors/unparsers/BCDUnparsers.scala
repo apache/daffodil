@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.parsers.HasKnownLengthInBits
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.util.DecimalUtils
+import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.util.DecimalUtils
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
-import edu.illinois.ncsa.daffodil.processors.parsers.HasRuntimeExplicitLength
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 
 abstract class BCDIntegerBaseUnparser(
   e: ElementRuntimeData)

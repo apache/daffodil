@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.infoset.DIArray
-import edu.illinois.ncsa.daffodil.infoset.DIElement
-import edu.illinois.ncsa.daffodil.infoset.InfosetNoSuchChildElementException
+import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIArray
+import org.apache.daffodil.infoset.DIElement
+import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
 
 /**
  * Moves to above the root element so that an absolute path

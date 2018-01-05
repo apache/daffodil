@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.grammar.Gram
+import org.apache.daffodil.grammar.Gram
 
 /**
  * Base class for assertions, variable assignments, etc

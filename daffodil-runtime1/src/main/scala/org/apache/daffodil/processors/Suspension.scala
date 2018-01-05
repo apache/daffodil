@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.UStateMain
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.UStateMain
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.io.BitOrderChangeException
 
 /**
  * The suspension object keeps track of the state of the task, i.e., whether it

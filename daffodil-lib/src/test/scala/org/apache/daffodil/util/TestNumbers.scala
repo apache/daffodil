@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.RoundingMode
 

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section02.validation_errors
+package org.apache.daffodil.section02.validation_errors
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestValidationErrDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
+  val testDir = "/org/apache/daffodil/section02/validation_errors/"
   val aa = testDir + "Validation.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

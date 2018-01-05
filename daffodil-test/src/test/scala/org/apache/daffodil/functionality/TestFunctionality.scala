@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.functionality
+package org.apache.daffodil.functionality
 
 import java.util.Locale
 

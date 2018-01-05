@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory

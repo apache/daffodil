@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.dsom._
+import org.apache.daffodil.oolag.OOLAG._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.dsom._
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.xml.RefQName
+import org.apache.daffodil.xml._
+import org.apache.daffodil.processors._
+import org.apache.daffodil.xml.RefQName
 import scala.util.{ Success, Failure }
-import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.dsom.RelativePathPastRootError
+import org.apache.daffodil.equality._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.util.Numbers
+import org.apache.daffodil.util.Numbers
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1303,13 +1303,22 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     val FUNC = XMLUtils.XPATH_FUNCTION_NAMESPACE
     val MATH = XMLUtils.XPATH_MATH_NAMESPACE
     val XSD = XMLUtils.XSD_NAMESPACE
-    val DAF = XMLUtils.EXT_NS
+    val DAF_NCSA = XMLUtils.EXT_NS_NCSA
+    val DAF_APACHE = XMLUtils.EXT_NS_APACHE
     val funcObj = (functionQName, expressions) match {
 
-      case (RefQName(_, "trace", DAF), args) =>
+      case (RefQName(_, "trace", DAF_NCSA), args) =>
         DAFTraceExpr(functionQNameString, functionQName, args)
 
-      case (RefQName(_, "error", DAF), args) => {
+      case (RefQName(_, "trace", DAF_APACHE), args) =>
+        DAFTraceExpr(functionQNameString, functionQName, args)
+
+      case (RefQName(_, "error", DAF_NCSA), args) => {
+        SDW("Expression daf:error is deprecated. Use fn:error instead")
+        DAFErrorExpr(functionQNameString, functionQName, args)
+      }
+
+      case (RefQName(_, "error", DAF_APACHE), args) => {
         SDW("Expression daf:error is deprecated. Use fn:error instead")
         DAFErrorExpr(functionQNameString, functionQName, args)
       }

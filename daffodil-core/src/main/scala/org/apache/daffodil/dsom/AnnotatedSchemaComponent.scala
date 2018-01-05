@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.equality._
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)

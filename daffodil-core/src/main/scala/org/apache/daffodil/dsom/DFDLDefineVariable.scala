@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import edu.illinois.ncsa.daffodil.grammar.EmptyGram
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.grammar.primitives.SetVariable
-import edu.illinois.ncsa.daffodil.grammar.primitives.NewVariableInstanceStart
-import edu.illinois.ncsa.daffodil.grammar.primitives.NewVariableInstanceEnd
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.grammar.EmptyGram
+import org.apache.daffodil.grammar.Gram
+import org.apache.daffodil.processors._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.grammar.primitives.SetVariable
+import org.apache.daffodil.grammar.primitives.NewVariableInstanceStart
+import org.apache.daffodil.grammar.primitives.NewVariableInstanceEnd
+import org.apache.daffodil.schema.annotation.props.Found
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {

@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import org.apache.daffodil.util.SchemaUtils
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.util.TestUtils
 
 class TestMiddleEndAttributes2 {
 

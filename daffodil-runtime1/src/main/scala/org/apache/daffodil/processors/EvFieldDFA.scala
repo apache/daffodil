@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.dfa.DFAField
+import org.apache.daffodil.processors.dfa.CreateFieldDFA
 
 
 class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], rd: RuntimeData)

@@ -30,27 +30,27 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.Implicits._;
-import edu.illinois.ncsa.daffodil.dsom._
+import org.apache.daffodil.grammar._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.Implicits._;
+import org.apache.daffodil.dsom._
 import RepPrims._
-import edu.illinois.ncsa.daffodil.processors.parsers.RepAtMostTotalNParser
-import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyTotalNParser
-import edu.illinois.ncsa.daffodil.processors.parsers.RepUnboundedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.OccursCountExpressionParser
-import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyNParser
-import edu.illinois.ncsa.daffodil.processors.parsers.RepAtMostOccursCountParser
-import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyTotalOccursCountParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RepExactlyNUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RepAtMostOccursCountUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RepUnboundedUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RepExactlyTotalNUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.RepAtMostTotalNUnparser
-import edu.illinois.ncsa.daffodil.equality._;
-import edu.illinois.ncsa.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.processors.parsers.RepAtMostTotalNParser
+import org.apache.daffodil.processors.parsers.RepExactlyTotalNParser
+import org.apache.daffodil.processors.parsers.RepUnboundedParser
+import org.apache.daffodil.processors.parsers.OccursCountExpressionParser
+import org.apache.daffodil.processors.parsers.RepExactlyNParser
+import org.apache.daffodil.processors.parsers.RepAtMostOccursCountParser
+import org.apache.daffodil.processors.parsers.RepExactlyTotalOccursCountParser
+import org.apache.daffodil.processors.unparsers.RepExactlyNUnparser
+import org.apache.daffodil.processors.unparsers.RepAtMostOccursCountUnparser
+import org.apache.daffodil.processors.unparsers.RepUnboundedUnparser
+import org.apache.daffodil.processors.unparsers.RepExactlyTotalNUnparser
+import org.apache.daffodil.processors.unparsers.RepAtMostTotalNUnparser
+import org.apache.daffodil.equality._;
+import org.apache.daffodil.processors.unparsers.NadaUnparser
 
 object INoWarn6 { ImplicitsSuppressUnusedImportWarning() }
 

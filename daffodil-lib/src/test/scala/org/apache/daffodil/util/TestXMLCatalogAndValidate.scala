@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import java.io.File
 import scala.xml.{ SAXParseException, InputSource }
@@ -44,13 +44,13 @@ import javax.xml.parsers.{ SAXParserFactory, SAXParser }
 import junit.framework.Assert.{ fail, assertTrue }
 import scala.xml.NamespaceBinding
 import scala.xml.MetaData
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text
 import scala.language.reflectiveCalls
-import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.NS.implicitNStoString
+import org.apache.daffodil.xml.XMLUtils
 import scala.collection.mutable
 import javax.xml.XMLConstants
 

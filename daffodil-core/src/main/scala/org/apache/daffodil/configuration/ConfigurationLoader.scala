@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.configuration
+package org.apache.daffodil.configuration
 
 import java.io.File
 import java.net.URI
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.api.URISchemaSource
 
 /**
  * TODO: This is all overkill. ConfigurationLoader doesn't need its own validator,

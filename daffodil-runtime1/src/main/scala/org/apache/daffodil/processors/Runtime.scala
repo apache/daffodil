@@ -30,48 +30,48 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.api.DFDL
-import edu.illinois.ncsa.daffodil.util.Validator
+import org.apache.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.WithDiagnostics
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.util.Validator
 import org.xml.sax.SAXParseException
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import java.io.File
-import edu.illinois.ncsa.daffodil.externalvars.Binding
+import org.apache.daffodil.externalvars.Binding
 import java.nio.channels.Channels
 import java.nio.channels.FileChannel
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import java.io.ObjectOutputStream
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputter
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.oolag.ErrorAlreadyHandled
-import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
-import edu.illinois.ncsa.daffodil.io.DirectOrBufferedDataOutputStream
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.oolag.ErrorAlreadyHandled
+import org.apache.daffodil.events.MultipleEventHandler
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
-import edu.illinois.ncsa.daffodil.io.BitOrderChangeException
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.api.TunableLimitExceededError
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.parsers.ParseError
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.parsers.PState
+import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.api.TunableLimitExceededError
+import org.apache.daffodil.api.DaffodilTunables
 
 /**
  * Implementation mixin - provides simple helper methods

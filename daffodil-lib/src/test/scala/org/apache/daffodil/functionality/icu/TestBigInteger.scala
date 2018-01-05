@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.functionality.icu
+package org.apache.daffodil.functionality.icu
 
 import org.junit.Test
 import junit.framework.Assert._

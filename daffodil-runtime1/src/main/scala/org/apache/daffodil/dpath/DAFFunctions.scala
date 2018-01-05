@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
-import edu.illinois.ncsa.daffodil.infoset.InfosetCommon
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.infoset.InfosetCommon
 
 case class DAFTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {

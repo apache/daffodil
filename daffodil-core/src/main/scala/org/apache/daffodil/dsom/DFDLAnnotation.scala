@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyLookupResult
-import edu.illinois.ncsa.daffodil.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 
 /**
  * Base class for any DFDL annotation

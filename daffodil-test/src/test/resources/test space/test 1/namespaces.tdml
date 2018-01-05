@@ -59,9 +59,9 @@
       textNumberRep="standard" lengthKind="delimited" encoding="ASCII" />
 
     <xs:import namespace="http://a01.com"
-      schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_01.dfdl.xsd" />
+      schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_01.dfdl.xsd" />
     <xs:import namespace="http://b01.com"
-      schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_01.dfdl.xsd" />
+      schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_01.dfdl.xsd" />
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
       schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
 

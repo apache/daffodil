@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import java.io.File
 import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.exceptions._
 import scala.collection.mutable.ArrayBuilder
 import org.apache.commons.io.IOUtils
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.schema.annotation.props.LookupLocation
 
 /**
  * Utilities for handling XML
@@ -360,19 +360,23 @@ object XMLUtils {
    *
    * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
-  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
-  private val DAFFODIL_EXTENSION_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext")
-  private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int")
-  val EXT_PREFIX = "daf"
-  val EXT_NS = NS(DAFFODIL_EXTENSION_NAMESPACE.uri)
-  val INT_PREFIX = "dafint"
+  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012"
+  private val DAFFODIL_EXTENSION_NAMESPACE_NCSA = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext")
+  val EXT_PREFIX_NCSA = "daf"
+  val EXT_NS_NCSA = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
+
+  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE = "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018"
+  private val DAFFODIL_EXTENSION_NAMESPACE_APACHE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE + ":ext")
+  val EXT_PREFIX_APACHE = "daf"
+  val EXT_NS_APACHE = NS(DAFFODIL_EXTENSION_NAMESPACE_APACHE.uri)
+
+  private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE + ":int")
+  val INT_PREFIX= "dafint"
   val INT_NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
   val COLUMN_ATTRIBUTE_NAME = "col"
-
-  val CONFIG_NAMESPACE = EXT_NS
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.
   val xsdURI = XSD_NAMESPACE
@@ -425,11 +429,18 @@ object XMLUtils {
   /**
    * We don't want to be sensitive to which prefix people bind
    */
-  def attributesInNamespace(ns: String, n: Node) = n.attributes filter { _.getNamespace(n) == ns }
+  def dfdlAttributes(n: Node) = {
+    n.attributes filter {
+      _.getNamespace(n) == DFDL_NAMESPACE.toString
+    }
+  }
 
-  def dfdlAttributes(n: Node) = attributesInNamespace(DFDL_NAMESPACE.toString, n)
-
-  def dafAttributes(n: Node) = attributesInNamespace(EXT_NS.toString, n)
+  def dafAttributes(n: Node) = {
+    n.attributes.filter { a =>
+      a.getNamespace(n) == XMLUtils.EXT_NS_NCSA.toString ||
+      a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
+    }
+  }
 
   /**
    * Used to collapse the excessive xmlns proliferation.
@@ -878,7 +889,7 @@ Differences were (path, expected, actual):
     // Note: we use our own pretty printer here because
     // Scala library one doesn't preserve/print CDATA properly.
     //
-    val pp = new edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter(2)
+    val pp = new org.apache.daffodil.xml.scalaLib.PrettyPrinter(2)
     val xmlString = pp.format(xml)
     val fos = new java.io.FileOutputStream(tmpSchemaFile)
     val fw = new java.io.OutputStreamWriter(fos, "utf-8")
@@ -944,9 +955,8 @@ trait GetAttributesMixin extends ThrowsSDE {
   /**
    * For picking off the short-form annotations.
    */
-  def attributesInNamespace(ns: String, n: Node) = n.attributes.filter { _.getNamespace(n) == ns }
-  def dfdlAttributes(n: Node) = attributesInNamespace(XMLUtils.DFDL_NAMESPACE.toString, n)
-  def dafAttributes(n: Node) = attributesInNamespace(XMLUtils.EXT_NS.toString, n)
+  def dfdlAttributes(n: Node) = XMLUtils.dfdlAttributes(n)
+  def dafAttributes(n: Node) = XMLUtils.dafAttributes(n)
 
 }
 

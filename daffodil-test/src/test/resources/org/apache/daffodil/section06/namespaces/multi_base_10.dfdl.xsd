@@ -34,7 +34,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a10="http://a10.com" xmlns:c10="http://c10.com">
 
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
     
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -45,9 +45,9 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://a10.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_10.dfdl.xsd"/>
-  <xs:import namespace="http://c10.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_10.dfdl.xsd"/>
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_10.dfdl.xsd"/>
+  <xs:import namespace="http://a10.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_10.dfdl.xsd"/>
+  <xs:import namespace="http://c10.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_10.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_10.dfdl.xsd"/>
 
   <xs:element name="root">
     <xs:complexType>

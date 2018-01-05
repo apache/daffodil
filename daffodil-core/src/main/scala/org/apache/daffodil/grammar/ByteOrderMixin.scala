@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.schema.annotation.props.Found
 
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
 

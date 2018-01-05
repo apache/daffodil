@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.externalvars
+package org.apache.daffodil.externalvars
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.xml._
+import org.apache.daffodil.api.DaffodilTunables
 
 class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
 

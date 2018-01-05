@@ -12,15 +12,15 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.compiler._
+import org.apache.daffodil.compiler._
 
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.xml.XMLUtils
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import org.apache.daffodil.util.SchemaUtils
 import org.junit.Test
 
 class TestIsScannable extends Logging {

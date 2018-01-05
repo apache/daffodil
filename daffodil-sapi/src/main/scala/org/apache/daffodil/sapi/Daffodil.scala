@@ -30,40 +30,40 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi
+package org.apache.daffodil.sapi
 
-import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
-import edu.illinois.ncsa.daffodil.sapi.debugger._
-import edu.illinois.ncsa.daffodil.sapi.logger._
-import edu.illinois.ncsa.daffodil.sapi.packageprivate._
-import edu.illinois.ncsa.daffodil.sapi.infoset._
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.compiler.{ Compiler => SCompiler }
+import org.apache.daffodil.sapi.debugger._
+import org.apache.daffodil.sapi.logger._
+import org.apache.daffodil.sapi.packageprivate._
+import org.apache.daffodil.sapi.infoset._
+import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
+import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import java.io.File
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
-import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
-import edu.illinois.ncsa.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
-import edu.illinois.ncsa.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
-import edu.illinois.ncsa.daffodil.processors.{ DataProcessor => SDataProcessor }
-import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
-import edu.illinois.ncsa.daffodil.processors.{ UnparseResult => SUnparseResult }
-import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
-import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
-import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
-import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
-import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
-import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
+import org.apache.daffodil.api.{ DataLocation => SDataLocation }
+import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
+import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
+import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.processors.{ ParseResult => SParseResult }
+import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
+import org.apache.daffodil.util.{ ConsoleWriter => SConsoleWriter }
+import org.apache.daffodil.util.{ FileWriter => SFileWriter }
+import org.apache.daffodil.util.{ LogWriter => SLogWriter }
+import org.apache.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
+import org.apache.daffodil.util.{ NullLogWriter => SNullLogWriter }
+import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.dsom.ExpressionCompilers
+import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
+import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import java.net.URI
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 
 private class Daffodil private {
   // Having this empty but private companion class removes the constructor from
@@ -530,7 +530,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    *
    * Use this when you don't know how big the data is. Note that the isAtEnd()
    * does not work properly and will always return -1. If you need isAtEnd() to
-   * work, you must use [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method that accepts a long and
+   * work, you must use [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method that accepts a long and
    * specify the length of the data.
    *
    * @param input data to be parsed
@@ -566,7 +566,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
 }
 
 /**
- * Result of calling [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]], containing
+ * Result of calling [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]], containing
  * any diagnostic information, and the final data location
  */
 class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[ScalaXMLInfosetOutputter])
@@ -588,7 +588,7 @@ class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[Scala
     if (deprecatedOutput.isDefined) {
       deprecatedOutput.get.getResult()
     } else {
-      val ex = new edu.illinois.ncsa.daffodil.processors.InvalidUsageException(
+      val ex = new org.apache.daffodil.processors.InvalidUsageException(
         "When passing an InfosetOutputter to parse(), you must get the infoset result from the InfosetOutputter instead of the ParseResult.")
       throw new InvalidUsageException(ex)
     }
@@ -633,9 +633,9 @@ class UnparseResult private[sapi] (ur: SUnparseResult)
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-class InvalidParserException(cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidParserException(cause: org.apache.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
-class InvalidUsageException(cause: edu.illinois.ncsa.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidUsageException(cause: org.apache.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.delimiter_properties
+package org.apache.daffodil.section12.delimiter_properties
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestDelimiterPropertiesUnparse {
 
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
+  val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
   val runner = Runner(testDir_02, "DelimiterPropertiesUnparse.tdml")
 
   @AfterClass def shutDown {

@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.performance
+package org.apache.daffodil.performance
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.CLI.Util
+import org.apache.daffodil.CLI.Util
 import net.sf.expectit.ExpectIOException
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.matcher.Matchers.anyString
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 class TestCLIPerformance {
 
   @Test def test_3393_CLI_Performance_2_Threads_2_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -83,8 +83,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3394_CLI_Performance_3_Threads_20_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input1.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -126,8 +126,8 @@ class TestCLIPerformance {
   @Test def test_3395_CLI_Performance_5_Threads_50_Times_tdml() { runner.runOneTest("test_3395_CLI_Performance_5_Threads_50_Times") }
 
   @Test def test_3395_CLI_Performance_5_Threads_50_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input5.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -166,8 +166,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3396_CLI_Performance_2_Threads_2_Times_Negative() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input5.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -198,8 +198,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3641_CLI_Performance_Unparse_2_Threads_2_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input14.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -237,8 +237,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3643_CLI_Performance_Unparse_3_Threads_20_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input14.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -276,8 +276,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3644_CLI_Performance_Unparse_5_Threads_50_Times() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input14.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")
@@ -315,8 +315,8 @@ class TestCLIPerformance {
   }
 
   @Test def test_3642_CLI_Performance_Unparse_2_Threads_2_Times_Negative() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input16.txt")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input16.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
     val shell = Util.startIncludeErrors("")

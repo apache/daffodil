@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section05.simple_types
+package org.apache.daffodil.section05.simple_types
 
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestRuntimeCalendarLanguageNew {
-  private val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  private val testDir = "/org/apache/daffodil/section05/simple_types/"
 
   val runner = Runner(testDir, "RuntimeCalendarLanguage.tdml")
 

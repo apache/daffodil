@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 object JDOMUtils {
 

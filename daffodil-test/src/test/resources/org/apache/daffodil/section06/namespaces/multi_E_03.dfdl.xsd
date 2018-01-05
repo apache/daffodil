@@ -40,7 +40,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://f03.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_F_03.dfdl.xsd"/>
+  <xs:import namespace="http://f03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_F_03.dfdl.xsd"/>
 
   <xs:simpleType name="subNestBase" dfdl:ref="f03:format_01" dfdl:terminator="(e)" >
     <xs:restriction base="xs:int"/>

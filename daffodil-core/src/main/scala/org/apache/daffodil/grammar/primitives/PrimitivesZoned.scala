@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.ElementBase
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends UnimplementedPrimitive(e, guard) {
   // lazy val parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)

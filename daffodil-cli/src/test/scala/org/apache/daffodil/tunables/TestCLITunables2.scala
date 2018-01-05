@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tunables
+package org.apache.daffodil.tunables
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.CLI.Util
+import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 
@@ -43,7 +43,7 @@ class TestCLITunables2 {
    * Suppresses SDW messages.
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings1() {
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/suppressWarnTest.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/suppressWarnTest.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 
@@ -67,7 +67,7 @@ class TestCLITunables2 {
    * Will display SDW warnings. Does not set the tunable that suppresses them.
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings2() {
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/suppressWarnTest.dfdl.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/suppressWarnTest.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 

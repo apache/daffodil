@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.CalendarEv
-import edu.illinois.ncsa.daffodil.processors.CalendarLanguageEv
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.CalendarEv
+import org.apache.daffodil.processors.CalendarLanguageEv
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
 
 case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   xsdType: String,

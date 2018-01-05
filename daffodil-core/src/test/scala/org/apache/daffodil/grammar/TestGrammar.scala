@@ -31,15 +31,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
+import org.apache.daffodil.Implicits._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.parsers.Parser
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.Fakes
+import org.apache.daffodil.util.Fakes
 
 class TestGrammar extends GrammarMixin {
 

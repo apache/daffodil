@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import scala.xml.Text
 import scala.xml.Comment
 

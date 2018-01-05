@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section15.choice_groups
+package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestChoiceGroupInitiatedContent {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val testDir_01 = "/org/apache/daffodil/section15/choice_groups/"
   val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
 
   @AfterClass def shutDown {

@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * This implements a CharsetProvider that implements Daffodil's support

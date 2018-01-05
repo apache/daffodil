@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example
+package org.apache.daffodil.example
 
-import edu.illinois.ncsa.daffodil.sapi.logger._
+import org.apache.daffodil.sapi.logger._
 import scala.collection.mutable.ListBuffer
 
 class LogWriterForSAPITest extends LogWriter {

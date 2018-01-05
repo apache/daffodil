@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe
 
 case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {

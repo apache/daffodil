@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
 import junit.framework.Assert.assertEquals
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.tdml.Document
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.tdml.Document
 
 class TestLSBFirstAndUSASCII7BitPacked {
 

@@ -12,17 +12,17 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 
 /**
  * Abstract interface to obtain format properties or values derived from

@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Numbers._
+import org.apache.daffodil.util.Numbers._
 import java.lang.{ Double => JDouble }
 
 case class MATHPow(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {

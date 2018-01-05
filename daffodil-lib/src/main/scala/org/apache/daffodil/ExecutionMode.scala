@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import scala.util.DynamicVariable
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * This uses a scala DynamicVariable to create a dynamically scoped binding of

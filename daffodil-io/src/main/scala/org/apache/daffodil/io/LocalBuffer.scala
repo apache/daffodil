@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 import java.nio.CharBuffer
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.util.LocalStack
+import org.apache.daffodil.util.LocalStack
 
 abstract class LocalBuffer[T <: java.nio.Buffer] {
   protected def allocate(length: Long): T

@@ -30,25 +30,25 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import junit.framework.Assert._
 import org.junit.Test
 import org.junit.After
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.ByteBuffer
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.io.FormatInfo
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import edu.illinois.ncsa.daffodil.util.MaybeInt
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
-import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 

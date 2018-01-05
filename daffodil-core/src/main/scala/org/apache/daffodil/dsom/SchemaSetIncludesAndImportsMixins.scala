@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.collection.immutable.ListMap
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.util._
 import IIUtils._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.Delay
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.Delay
 
 /**
  * Mixin for SchemaSet

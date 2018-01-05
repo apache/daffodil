@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import junit.framework.Assert._
-import edu.illinois.ncsa.daffodil.exceptions._
+import org.apache.daffodil.exceptions._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 class TestUtil {
 
   @Test def testGetRequiredResourceSucceeds() {
-    val res = Misc.getRequiredResource("edu/illinois/ncsa/daffodil/xsd/XMLSchema.xsd")
+    val res = Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema.xsd")
     assertNotNull(res)
   }
 
   @Test def testGetRequiredResourceFails() {
     val e = intercept[Exception] {
-      Misc.getRequiredResource("edu/illinois/ncsa/daffodil/xsd/NotAResourceName.foo")
+      Misc.getRequiredResource("org/apache/daffodil/xsd/NotAResourceName.foo")
     }
     assertTrue(e.getMessage().contains("NotAResourceName"))
   }

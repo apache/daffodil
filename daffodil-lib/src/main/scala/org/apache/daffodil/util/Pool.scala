@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
 import scala.collection.mutable
 
 /**

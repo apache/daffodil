@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import java.io.InputStream
 import java.io.File
@@ -46,7 +46,7 @@ import java.nio.CharBuffer
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CodingErrorAction
 import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.equality._
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.

@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.scalaLib
+package org.apache.daffodil.xml.scalaLib
 
 import Utility.sbToString
 import scala.xml._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Trivial pretty printer.

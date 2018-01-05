@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.processors.Delimiter
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.TermRuntimeData
 
 object CreatePaddingDFA {
 

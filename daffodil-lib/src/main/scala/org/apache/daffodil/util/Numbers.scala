@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import java.lang.{ Boolean => JBoolean }
 import java.lang.{ Byte => JByte }
@@ -42,7 +42,7 @@ import java.lang.{ Number => JNumber }
 import java.lang.{ Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 object Numbers {
 

@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.MaybeChar
+import org.apache.daffodil.processors.TextJustificationType
+import org.apache.daffodil.util.MaybeChar
 
 trait PaddingRuntimeMixin {
   protected def justificationTrim: TextJustificationType.Type

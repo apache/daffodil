@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.parser
+package org.apache.daffodil.parser
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import org.apache.daffodil.processors.charset.CharsetUtils
 
 class TestCharsetDecoder2 {
 

@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory

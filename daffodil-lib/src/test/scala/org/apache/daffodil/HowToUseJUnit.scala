@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 /**
  * Scala Unit Testing Notes:

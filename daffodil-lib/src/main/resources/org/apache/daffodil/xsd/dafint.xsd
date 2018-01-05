@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
-  targetNamespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
-  xmlns:dafint="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
+  targetNamespace="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
+  xmlns:dafint="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <!--
     This schema is for daffodil-specific internal use attribute definitions.
@@ -18,8 +18,8 @@
       attributes -->
     <xsd:anyAttribute
       namespace="http://www.w3.org/XML/1998/namespace 
-    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int 
-    urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" />
+    urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:int 
+    urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" />
   </xsd:attributeGroup>
 
   <xsd:element name="testElement">

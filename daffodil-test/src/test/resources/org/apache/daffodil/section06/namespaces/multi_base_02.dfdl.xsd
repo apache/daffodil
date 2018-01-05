@@ -34,7 +34,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:a02="http://a02.com" xmlns:b02="http://b02.com">
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -45,8 +45,8 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://a02.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_02.dfdl.xsd"/>
-  <xs:import namespace="http://b02.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_02.dfdl.xsd"/>
+  <xs:import namespace="http://a02.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_02.dfdl.xsd"/>
+  <xs:import namespace="http://b02.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_02.dfdl.xsd"/>
 
   <xs:element name="super_seq">
     <xs:complexType>

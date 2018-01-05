@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 /**
  * DSOM - DFDL Schema Object Model
@@ -76,13 +76,13 @@ package edu.illinois.ncsa.daffodil
  *
  * Many attributes (in the attribute grammar sense, nothing to do with XML attributes)
  * are simply Scala lazy val definitions, but some are declared as OOLAG
- * attributes (using `edu.illinois.ncsa.daffodil.oolag.OOLAG.OOLAGHost.LV`) which
+ * attributes (using `org.apache.daffodil.oolag.OOLAG.OOLAGHost.LV`) which
  * provides for gathering of multiple diagnostic messages (`SchemaDefinitionError`)
  * before abandoning compilation.
  *
  * DFDL schema compilation largely occurs by evaluating lazy val members of DSOM
  * objects. These include the members of the grammar traits
- * (@see [[edu.illinois.ncsa.daffodil.grammar]] package), which are mixed
+ * (@see [[org.apache.daffodil.grammar]] package), which are mixed
  * in to the appropriate DSOM traits/classes.
  *
  * ===FAQ===

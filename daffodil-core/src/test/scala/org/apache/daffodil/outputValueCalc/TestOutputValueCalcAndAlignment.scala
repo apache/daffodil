@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.outputValueCalc
+package org.apache.daffodil.outputValueCalc
 
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.Implicits.ns2String
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.util.TestUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.Implicits.ns2String
+import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.util.TestUtils
+import org.apache.daffodil.xml.XMLUtils
 
 /*
  * These are all tests of OVC and alignment interactions

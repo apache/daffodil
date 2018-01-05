@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.TermRuntimeData
 
 class OptionalInfixSepParser(ctxt: TermRuntimeData, sepParser: Parser)
   extends CombinatorParser(ctxt) {

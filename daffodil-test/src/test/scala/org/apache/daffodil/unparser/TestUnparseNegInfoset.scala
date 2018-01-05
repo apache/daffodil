@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.unparser
+package org.apache.daffodil.unparser
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 object TestUnparseNegInfoset {
-  val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
+  val testDir = "/org/apache/daffodil/unparser/"
   val aa = testDir + "unparseNegInfosetTest.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 

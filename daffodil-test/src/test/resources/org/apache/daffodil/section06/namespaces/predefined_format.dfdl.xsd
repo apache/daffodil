@@ -34,7 +34,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tns="http://www.ogf.org/dfdl/dfdl-1.0/examples/" >
 
-  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/DFDLGeneralFormatDefinition.xsd"/>
+  <xs:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/examples/" schemaLocation="org/apache/daffodil/section06/namespaces/DFDLGeneralFormatDefinition.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

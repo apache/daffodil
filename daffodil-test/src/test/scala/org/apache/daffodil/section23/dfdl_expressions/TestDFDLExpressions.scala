@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
+package org.apache.daffodil.section23.dfdl_expressions
 
 import org.junit._
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestDFDLExpressions {
-  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val testDir = "/org/apache/daffodil/section23/dfdl_expressions/"
+  val testDir2 = "/org/apache/daffodil/section23/dfdl_functions/"
 
   // I'm not sure these belong in section23, but there is no section of the spec that
   // is about all these properties together, yet, since there is common mechanism here
   // I really think their tests should not be scattered all over to the sections where each
   // property is defined.
 
-  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
+  val testDir4 = "/org/apache/daffodil/section23/runtime_properties/"
 
   val runner = Runner(testDir, "expressions.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner2 = Runner(testDir2, "Functions.tdml")

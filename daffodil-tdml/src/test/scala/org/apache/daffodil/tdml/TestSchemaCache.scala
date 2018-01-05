@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
 import java.io.File
 import junit.framework.Assert.assertEquals
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarnTDML2 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits._; object INoWarnTDML2 { ImplicitsSuppressUnusedImportWarning() }
 import java.io.FileOutputStream
-import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import org.apache.daffodil.api.URISchemaSource
 import org.junit.Before
 
 class TestSchemaCache {

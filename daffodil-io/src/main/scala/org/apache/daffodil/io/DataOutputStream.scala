@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import passera.unsigned.ULong
 import java.nio.CharBuffer
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.util.Logging
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Logging
 
 /**
  * There is an asymmetry between DataInputStream and DataOutputStream with respect to the

@@ -35,7 +35,7 @@
  *
  * It might be useful in the future so we should keep it around like this.
  */
-//package edu.illinois.ncsa.daffodil.api
+//package org.apache.daffodil.api
 //
 //import junit.framework.Assert._
 //import org.junit.Test

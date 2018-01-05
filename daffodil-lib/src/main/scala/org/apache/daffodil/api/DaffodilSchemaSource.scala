@@ -30,17 +30,17 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 import org.xml.sax.InputSource
 import java.net.URI
 import scala.xml.Node
 import java.io.FileInputStream
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
 import java.io.File
 import java.nio.file.Paths
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.equality._
 import java.nio.file.FileSystemNotFoundException
 
 /**

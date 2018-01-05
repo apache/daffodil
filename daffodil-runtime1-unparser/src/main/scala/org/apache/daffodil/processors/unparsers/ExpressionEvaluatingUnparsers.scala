@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.VariableRuntimeData
-import edu.illinois.ncsa.daffodil.dpath.SuspendableExpression
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.processors.NonTermRuntimeData
+import org.apache.daffodil.processors.VariableRuntimeData
+import org.apache.daffodil.dpath.SuspendableExpression
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.processors.RuntimeData
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],

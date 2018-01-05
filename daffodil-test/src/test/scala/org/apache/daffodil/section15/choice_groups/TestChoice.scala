@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section15.choice_groups
+package org.apache.daffodil.section15.choice_groups
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestChoice {
-  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val testDir = "/org/apache/daffodil/section15/choice_groups/"
+  val testDir1 = "/org/apache/daffodil/ibm-tests/"
 
   val runnerCH = Runner(testDir, "choice.tdml")
   val runner = Runner(testDir1, "dpaext2.tdml")

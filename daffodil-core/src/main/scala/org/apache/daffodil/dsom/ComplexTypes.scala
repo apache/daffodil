@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.xml.QName
+import org.apache.daffodil.grammar.ComplexTypeBaseGrammarMixin
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.xml.QName
 
 abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)

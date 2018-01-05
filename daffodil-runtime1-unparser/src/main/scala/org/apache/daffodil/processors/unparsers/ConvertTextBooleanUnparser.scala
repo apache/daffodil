@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors._
 import java.lang.Boolean.{ TRUE => JTrue, FALSE => JFalse }
 
 case class ConvertTextBooleanUnparser(erd: ElementRuntimeData,

@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.property_syntax
+package org.apache.daffodil.section07.property_syntax
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestPropertySyntax2 {
 
-  val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
+  val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
   val runner = Runner(testDir1, "PropertySyntax.tdml", false, false)
 
   @AfterClass def shutDown {

@@ -39,9 +39,9 @@ problems that a CLI-test is getting. -->
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
 
-  <tdml:parserTestCase name="test_3395_CLI_Performance_5_Threads_50_Times" root="Item2" model="edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd">
+  <tdml:parserTestCase name="test_3395_CLI_Performance_5_Threads_50_Times" root="Item2" model="org/apache/daffodil/CLI/cli_schema.dfdl.xsd">
     <tdml:document>
-      <tdml:documentPart type="file">edu/illinois/ncsa/daffodil/CLI/input/input5.txt</tdml:documentPart>
+      <tdml:documentPart type="file">org/apache/daffodil/CLI/input/input5.txt</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

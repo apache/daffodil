@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 

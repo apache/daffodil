@@ -23,7 +23,7 @@
 <tdml:testSuite suiteName="Tunables" description="Section 00 - Tunables tests"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
 	defaultConfig="tunables.xml">
 
 	<tdml:defineConfig name="cfg_noNamespace">
@@ -48,7 +48,7 @@
 	</tdml:defineConfig>
 
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
-		<xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
 
 		<dfdl:format ref="ex:daffodilTest1" />
 

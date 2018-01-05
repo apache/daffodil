@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.grammar.primitives.OptionalInfixSep
-import edu.illinois.ncsa.daffodil.grammar.primitives.Nada
-import edu.illinois.ncsa.daffodil.grammar.primitives.MandatoryTextAlignment
-import edu.illinois.ncsa.daffodil.grammar.primitives.Separator
+package org.apache.daffodil.grammar
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.grammar.primitives.OptionalInfixSep
+import org.apache.daffodil.grammar.primitives.Nada
+import org.apache.daffodil.grammar.primitives.MandatoryTextAlignment
+import org.apache.daffodil.grammar.primitives.Separator
 
 /////////////////////////////////////////////////////////////////
 // Groups System

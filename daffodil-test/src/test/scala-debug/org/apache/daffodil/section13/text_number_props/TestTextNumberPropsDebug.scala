@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section13.text_number_props
+package org.apache.daffodil.section13.text_number_props
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestTextNumberPropsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
+  val testDir = "/org/apache/daffodil/section13/text_number_props/"
   val runner = Runner(testDir, "TextNumberProps.tdml")
 
   @AfterClass def shutDown() {

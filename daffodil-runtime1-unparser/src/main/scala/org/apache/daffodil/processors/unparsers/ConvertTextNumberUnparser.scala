@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.parsers.NumberFormatFactoryBase
-import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
+import org.apache.daffodil.processors._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.cookers.EntityReplacer
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
+import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
 
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,

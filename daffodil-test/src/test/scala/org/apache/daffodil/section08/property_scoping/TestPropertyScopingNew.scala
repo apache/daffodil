@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section08.property_scoping
+package org.apache.daffodil.section08.property_scoping
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestPropertyScopingNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
+  val testDir = "/org/apache/daffodil/section08/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 

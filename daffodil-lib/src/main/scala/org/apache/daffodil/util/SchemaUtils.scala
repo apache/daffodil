@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 import scala.xml._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.Implicits._
 
 /*
  * This is not a file of tests.
@@ -107,7 +107,7 @@ object SchemaUtils {
 
     val schemaNode =
       <xs:schema elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
-        <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+        <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
         <xs:annotation>
           <xs:appinfo source={ XMLUtils.dfdlAppinfoSource }>
             { topLevelAnnotations }

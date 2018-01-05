@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
@@ -69,17 +69,17 @@ package edu.illinois.ncsa.daffodil.processors
  * Extensively modified - little of the original remains. - Mike Beckerle 2012.
  */
 
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.infoset.RetryableException
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.NamedQName
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.NamedQName
 
 sealed abstract class VariableState extends Serializable
 

@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import java.lang.{ Boolean => JBoolean }
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.calendar.DFDLDate
 
 case object EQ_Compare extends CompareOpBase {
   def operate(v1: AnyRef, v2: AnyRef): JBoolean = {

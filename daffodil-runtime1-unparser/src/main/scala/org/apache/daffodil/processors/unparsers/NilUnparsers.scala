@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
 
 class LiteralValueNilOfSpecifiedLengthUnparser(
   override val erd: ElementRuntimeData,

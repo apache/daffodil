@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.exceptions
+package org.apache.daffodil.exceptions
 
 import org.junit.Test
 
-import edu.illinois.ncsa.daffodil.Implicits._
+import org.apache.daffodil.Implicits._
 
 class TestExceptions {
 

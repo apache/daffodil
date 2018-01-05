@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil
+package org.apache.daffodil
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util.Misc
 import org.junit.Test
 
 /**

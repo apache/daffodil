@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.io
+package org.apache.daffodil.io
 
 import org.junit.Test
 import org.junit.Assert._

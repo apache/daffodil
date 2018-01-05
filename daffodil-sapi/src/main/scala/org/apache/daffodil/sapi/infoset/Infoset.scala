@@ -30,29 +30,29 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.infoset
+package org.apache.daffodil.sapi.infoset
 
-import edu.illinois.ncsa.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ InfosetInputter => SInfosetInputter }
-import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
-import edu.illinois.ncsa.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
-import edu.illinois.ncsa.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
-import edu.illinois.ncsa.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
-import edu.illinois.ncsa.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
-import edu.illinois.ncsa.daffodil.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
-import edu.illinois.ncsa.daffodil.util.MaybeBoolean
-import edu.illinois.ncsa.daffodil.infoset.InfosetInputterEventType
+import org.apache.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
+import org.apache.daffodil.infoset.{ InfosetInputter => SInfosetInputter }
+import org.apache.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
+import org.apache.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
+import org.apache.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
+import org.apache.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
+import org.apache.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
+import org.apache.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
+import org.apache.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
+import org.apache.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
+import org.apache.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
+import org.apache.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
+import org.apache.daffodil.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
+import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.infoset.InfosetInputterEventType
 // TODO: Not sure about the access to internal infoset implementation details.
 // Should API users have this deep access to our internal infoset?
-import edu.illinois.ncsa.daffodil.infoset.DISimple
-import edu.illinois.ncsa.daffodil.infoset.DIComplex
-import edu.illinois.ncsa.daffodil.infoset.DIArray
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.infoset.DIArray
+import org.apache.daffodil.dpath.NodeInfo
 
 /**
  * Abstract class used to determine how the infoset representation should be
@@ -113,7 +113,7 @@ abstract class InfosetInputter extends SInfosetInputter {
 
 /**
  * Abstract class used to determine how the infoset representation should be
- * output from a call to [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:edu\.illinois\.ncsa\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]. The Daffodil core will call
+ * output from a call to [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]. The Daffodil core will call
  * the various methods of this class in an order appropriate to create an
  * infoset representation.
  *

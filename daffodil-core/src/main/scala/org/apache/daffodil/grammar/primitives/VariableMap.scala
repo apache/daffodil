@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
 /*
  * Note. None of the original NCSA-written code remains, so banner and such removed.
  */
 
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.VariableMap
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.processors.VariableMap
 
 object VariableMapFactory {
 

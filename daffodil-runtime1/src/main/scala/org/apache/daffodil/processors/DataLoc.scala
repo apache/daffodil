@@ -30,23 +30,23 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.io.Utils
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.io.DataDumper
-import edu.illinois.ncsa.daffodil.util.MaybeULong
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.util._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.io.Utils
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.io.DataDumper
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.processors.parsers.PState
 
 class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[DataOutputStream, DataInputStream],
   val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {

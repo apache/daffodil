@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.NodeSeq
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.NamedQName
 
 final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)

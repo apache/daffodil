@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.charset
+package org.apache.daffodil.processors.charset
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import edu.illinois.ncsa.daffodil.util.MaybeInt
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.io.LocalBufferMixin
+import org.apache.daffodil.util.MaybeInt
 
 object CharsetUtils {
 

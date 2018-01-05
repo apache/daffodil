@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.sapi.logger
+package org.apache.daffodil.sapi.logger
 
 import java.io.File
 

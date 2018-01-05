@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.infoset.InfosetNoInfosetException
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.InfosetNoInfosetException
+import org.apache.daffodil.util.Maybe.Nope
 
 case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe)

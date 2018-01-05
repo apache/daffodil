@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.ParseOrUnparseState
 
 class BinaryFloatParser(override val context: ElementRuntimeData)
   extends PrimParser {

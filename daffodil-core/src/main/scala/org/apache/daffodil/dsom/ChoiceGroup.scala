@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
-import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.ChoiceRuntimeData
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEvent
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchStartEvent
-import edu.illinois.ncsa.daffodil.infoset.ChoiceBranchEndEvent
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.processors.ChoiceDispatchKeyEv
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
+import org.apache.daffodil.grammar.ChoiceGrammarMixin
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.ChoiceRuntimeData
+import org.apache.daffodil.infoset.ChoiceBranchEvent
+import org.apache.daffodil.infoset.ChoiceBranchStartEvent
+import org.apache.daffodil.infoset.ChoiceBranchEndEvent
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.processors.ChoiceDispatchKeyEv
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.api.WarnID
 
 /**
  *

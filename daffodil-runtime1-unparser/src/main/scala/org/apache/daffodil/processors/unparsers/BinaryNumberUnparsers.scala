@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.parsers.HasKnownLengthInBits
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.util.Maybe._
 import java.lang.{ Number => JNumber, Long => JLong }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.parsers.HasRuntimeExplicitLength
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.io.DataOutputStream
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.io.FormatInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.io.FormatInfo
 
 abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {

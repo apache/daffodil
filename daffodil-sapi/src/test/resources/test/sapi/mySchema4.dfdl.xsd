@@ -10,7 +10,7 @@
     </appinfo>
   </annotation>
 
-  <include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
 
   <element name="e1">
     <complexType>

@@ -30,21 +30,21 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
-import edu.illinois.ncsa.daffodil.processors.parsers.MandatoryTextAlignmentParser
-import edu.illinois.ncsa.daffodil.processors.parsers.Parser
-import edu.illinois.ncsa.daffodil.processors.parsers.SkipRegionParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.AlignmentFillUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.processors.parsers.AlignmentFillParser
+import org.apache.daffodil.processors.parsers.MandatoryTextAlignmentParser
+import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.parsers.SkipRegionParser
+import org.apache.daffodil.processors.unparsers.AlignmentFillUnparser
+import org.apache.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
+import org.apache.daffodil.processors.unparsers.SkipRegionUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 

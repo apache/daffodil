@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.variables
+package org.apache.daffodil.section07.variables
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestVariablesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
+  val testDir = "/org/apache/daffodil/section07/variables/"
   val runner = Runner(testDir, "variables.tdml")
   val runner_01 = Runner(testDir, "variables_01.tdml")
 

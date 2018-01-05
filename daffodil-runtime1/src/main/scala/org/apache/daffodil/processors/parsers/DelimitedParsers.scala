@@ -30,26 +30,26 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
-import edu.illinois.ncsa.daffodil.processors.dfa
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.PackedSignCodes
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.TextJustificationType
+import org.apache.daffodil.processors.FieldDFAParseEv
+import org.apache.daffodil.processors.EscapeSchemeBlockParserHelper
+import org.apache.daffodil.processors.dfa
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.PackedSignCodes
+import org.apache.daffodil.processors.dfa.TextDelimitedParserBase
+import org.apache.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.nio.charset.StandardCharsets
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.util.DecimalUtils
-import edu.illinois.ncsa.daffodil.processors.AllTerminatingMarkupDelimiterIterator
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.util.DecimalUtils
+import org.apache.daffodil.processors.AllTerminatingMarkupDelimiterIterator
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.processors.charset.StandardBitsCharsets
 
 class StringDelimitedParser(
   override val context: ElementRuntimeData,

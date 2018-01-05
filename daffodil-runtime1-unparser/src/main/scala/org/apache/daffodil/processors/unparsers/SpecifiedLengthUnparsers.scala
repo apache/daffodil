@@ -30,22 +30,22 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.unparsers
+package org.apache.daffodil.processors.unparsers
 
-//import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
-import edu.illinois.ncsa.daffodil.processors.CharsetEv
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.util.MaybeJULong
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInCharactersEv
-import edu.illinois.ncsa.daffodil.processors.Evaluatable
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.infoset.RetryableException
+//import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.processors.CharsetEv
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.util.MaybeJULong
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.processors.UnparseTargetLengthInCharactersEv
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.infoset.RetryableException
 
 /**
  * Restricts the bits available for unparsing to just those within

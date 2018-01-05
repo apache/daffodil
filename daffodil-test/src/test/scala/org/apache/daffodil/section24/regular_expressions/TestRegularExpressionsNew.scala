@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section24.regular_expressions
+package org.apache.daffodil.section24.regular_expressions
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 object TestRegularExpressionsNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section24/regular_expressions/"
+  val testDir = "/org/apache/daffodil/section24/regular_expressions/"
   val tdml = testDir + "RegularExpressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 }

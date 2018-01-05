@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
-import edu.illinois.ncsa.daffodil.processors.parsers.NadaParser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.grammar.HasNoUnparser
+import org.apache.daffodil.processors.parsers.NadaParser
 
 case class Nada(sc: Term) extends Terminal(sc, true) with HasNoUnparser {
   // cannot optimize this out! It is used as an alternative to things

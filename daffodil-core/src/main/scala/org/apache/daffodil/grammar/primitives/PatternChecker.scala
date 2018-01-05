@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.util.Misc
 import java.util.regex.PatternSyntaxException
 
 /**

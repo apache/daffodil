@@ -35,7 +35,7 @@
    targetNamespace="http://myCustomer.com" xmlns:addr="http://myAddress.com"  
    xmlns:cust="http://myCustomer.com">
 
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -45,7 +45,7 @@
     </xs:appinfo>
   </xs:annotation>
    
-  <xs:import namespace="http://myAddress.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/address_namespace.dfdl.xsd"/>
+  <xs:import namespace="http://myAddress.com" schemaLocation="org/apache/daffodil/section06/namespaces/address_namespace.dfdl.xsd"/>
   
   <xs:element name="customer"> 
     <xs:complexType> 

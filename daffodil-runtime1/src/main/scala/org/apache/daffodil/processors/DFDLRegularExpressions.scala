@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
+import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification
 
 object DFDLRegularExpressions {
 

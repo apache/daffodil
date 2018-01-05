@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.parser
+package org.apache.daffodil.parser
 
 import junit.framework.Assert._
 import java.io._
@@ -38,9 +38,9 @@ import java.nio._
 import java.nio.charset._
 import Converter._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.Misc
 
 
 /**

@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.calendar.DFDLTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.calendar.DFDLTime
+import org.apache.daffodil.calendar.DFDLDate
 
 case object AnyAtomicToString extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = {

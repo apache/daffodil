@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.util
+package org.apache.daffodil.util
 
 //
 // Copyright (C) 2011, 2012 by Michael J. Beckerle, All rights Reserved.
@@ -45,7 +45,7 @@ import javax.xml.validation.SchemaFactory
 import scala.xml.parsing.NoBindingFactoryAdapter
 import java.io.StringReader
 import java.net.URI
-import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
+import org.apache.daffodil.xml.DFDLCatalogResolver
 import scala.collection.mutable
 import org.xml.sax.ErrorHandler
 

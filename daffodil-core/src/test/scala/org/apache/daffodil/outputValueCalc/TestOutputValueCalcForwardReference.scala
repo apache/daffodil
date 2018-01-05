@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.outputValueCalc
+package org.apache.daffodil.outputValueCalc
 
 import org.junit.Test
 import org.junit.Assert._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.TestUtils
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.util.SchemaUtils
+import org.apache.daffodil.xml._
+import org.apache.daffodil.util.TestUtils
 
 /*
  * These are all tests of OVC expressions that forward reference

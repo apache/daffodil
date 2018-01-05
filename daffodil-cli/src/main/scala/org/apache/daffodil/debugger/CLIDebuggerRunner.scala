@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.debugger
+package org.apache.daffodil.debugger
 
 import java.io.File
 import scala.io.Source

@@ -42,7 +42,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_C_05_nons.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/section06/namespaces/multi_C_05_nons.dfdl.xsd"/>
 
   <xs:element name="bSeq">
     <xs:complexType>

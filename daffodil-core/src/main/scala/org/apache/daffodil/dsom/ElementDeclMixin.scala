@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.xml._
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.equality._
 import scala.xml.Node
 
 trait ElementLikeMixin

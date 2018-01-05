@@ -30,26 +30,26 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.Suspension
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dpath._
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.util.TransientParam
-import edu.illinois.ncsa.daffodil.util.Maybe
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.processors.VariableMap
+import org.apache.daffodil.processors.Suspension
+import org.apache.daffodil.util._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.dpath._
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.util.Maybe
 import scala.runtime.ScalaRunTime.stringOf // for printing arrays properly.
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
-import edu.illinois.ncsa.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.exceptions.HasSchemaFileLocation
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.UnqualifiedPathStepPolicy
 
 trait ContentValueReferencedElementInfoMixin {
 

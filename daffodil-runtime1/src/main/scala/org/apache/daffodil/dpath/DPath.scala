@@ -30,25 +30,25 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.util._
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.processors._
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.equality._; object EqualityNoWarn { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.processors.parsers.DoSDEMixin
+import org.apache.daffodil.processors.parsers.PState
 
 class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
   extends ProcessingError("Expression Evaluation",

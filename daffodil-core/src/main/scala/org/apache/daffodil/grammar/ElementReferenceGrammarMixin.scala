@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.grammar
+package org.apache.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.AbstractElementRef
+import org.apache.daffodil.dsom.AbstractElementRef
 
 trait ElementReferenceGrammarMixin { self: AbstractElementRef =>
 

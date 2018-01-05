@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import org.apache.daffodil.schema.annotation.props.PropertyMixin
 
 trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {

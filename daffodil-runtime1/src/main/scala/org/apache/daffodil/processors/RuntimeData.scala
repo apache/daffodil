@@ -30,46 +30,46 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
-import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.ConstantExpression
-import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.util.TransientParam
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.dsom.FacetTypes
+import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.dsom.ImplementsThrowsSDE
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.dsom.ConstantExpression
+import org.apache.daffodil.exceptions.HasSchemaFileLocation
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.util.PreSerialization
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.RefQName
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.xml.NS
+import org.apache.daffodil.dsom.FacetTypes
 import scala.xml.NamespaceBinding
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.infoset.NextElementResolver
-import edu.illinois.ncsa.daffodil.util.TransientParam
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.Implicits._; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.util.OKOrError
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.xml._
+import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.infoset.NextElementResolver
+import org.apache.daffodil.util.TransientParam
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.Implicits._; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.util.OKOrError
 import java.util.regex.Matcher
-import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.DaffodilTunables
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.

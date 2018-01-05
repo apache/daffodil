@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import java.math.BigInteger
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.UnsuppressableException
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml.QName
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import org.apache.daffodil.xml.QName
+import org.apache.daffodil.dpath.NodeInfo
 import com.ibm.icu.text.SimpleDateFormat
 import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 
 /**
  * A schema component for simple type restrictions
@@ -56,7 +56,7 @@ final class Restriction(xmlArg: Node, val simpleType: SimpleTypeDefBase)
 
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "restriction")
 
-  import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
+  import org.apache.daffodil.dsom.FacetTypes._
 
   final lazy val primType: PrimType = {
     optDirectPrimType.getOrElse(optBaseType.get.primType)

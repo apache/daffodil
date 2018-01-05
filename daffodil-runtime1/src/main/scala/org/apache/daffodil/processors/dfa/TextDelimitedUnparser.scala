@@ -30,18 +30,18 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.io.DataInputStream
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.processors.AllDelimiterIterator
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.equality._
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.processors.AllDelimiterIterator
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data

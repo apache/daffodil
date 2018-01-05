@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package org.apache.daffodil.section00.general
 
 import org.junit.Test
 import org.junit.AfterClass
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 
 object TestUnparserGeneral {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testUnparserGeneral.tdml")
 
   @AfterClass def shutDown {

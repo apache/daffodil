@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.example
+package org.apache.daffodil.example
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -41,13 +41,13 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.channels.Channels
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.sapi.Daffodil
-import edu.illinois.ncsa.daffodil.sapi.logger.ConsoleLogWriter
-import edu.illinois.ncsa.daffodil.sapi.logger.LogLevel
-import edu.illinois.ncsa.daffodil.sapi.ValidationMode
-import edu.illinois.ncsa.daffodil.sapi.InvalidUsageException
-import edu.illinois.ncsa.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
-import edu.illinois.ncsa.daffodil.sapi.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.sapi.Daffodil
+import org.apache.daffodil.sapi.logger.ConsoleLogWriter
+import org.apache.daffodil.sapi.logger.LogLevel
+import org.apache.daffodil.sapi.ValidationMode
+import org.apache.daffodil.sapi.InvalidUsageException
+import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
 
 class TestScalaAPI {
 

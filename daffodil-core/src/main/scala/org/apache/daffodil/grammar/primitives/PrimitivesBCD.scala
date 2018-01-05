@@ -12,19 +12,19 @@
  * limitations under the License.
  */
 
-package edu.illinois.ncsa.daffodil.grammar.primitives
+package org.apache.daffodil.grammar.primitives
 
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.parsers.BCDIntegerRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BCDIntegerKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BCDDecimalRuntimeLengthParser
-import edu.illinois.ncsa.daffodil.processors.parsers.BCDDecimalKnownLengthParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDIntegerRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDIntegerKnownLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDDecimalRuntimeLengthUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDDecimalKnownLengthUnparser
+import org.apache.daffodil.grammar.Terminal
+import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.processors.parsers.BCDIntegerRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.BCDIntegerKnownLengthParser
+import org.apache.daffodil.processors.parsers.BCDDecimalRuntimeLengthParser
+import org.apache.daffodil.processors.parsers.BCDDecimalKnownLengthParser
+import org.apache.daffodil.processors.unparsers.Unparser
+import org.apache.daffodil.processors.unparsers.BCDIntegerRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.BCDIntegerKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.BCDDecimalRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.BCDDecimalKnownLengthUnparser
 
 class BCDIntegerRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new BCDIntegerRuntimeLengthParser(e.elementRuntimeData, e.lengthEv, e.lengthUnits)

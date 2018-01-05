@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.Nope
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.processors.dfa.DFADelimiter
 
 object EmptyDelimiterStackUnparseNode {
   val node = new DelimiterStackUnparseNode(Nope, Nope, Nope)

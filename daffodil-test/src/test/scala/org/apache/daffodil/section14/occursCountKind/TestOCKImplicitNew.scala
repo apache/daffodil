@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.occursCountKind
+package org.apache.daffodil.section14.occursCountKind
 
 //import org.junit.Test
-//import edu.illinois.ncsa.daffodil.util._
-//import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+//import org.apache.daffodil.util._
+//import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestOCKImplicitNew {
-//  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
+//  val testDir = "/org/apache/daffodil/section14/occursCountKind/"
 //  val aa = testDir + "ockImplicit.tdml"
 //  val res = Misc.getRequiredResource(aa)
 //  lazy val runner = new DFDLTestSuite(res)

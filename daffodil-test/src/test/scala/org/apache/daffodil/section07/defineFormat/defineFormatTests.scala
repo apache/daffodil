@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.defineFormat
+package org.apache.daffodil.section07.defineFormat
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object defineFormatTests {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
+  val testDir = "/org/apache/daffodil/section07/defineFormat/"
   val runner = Runner(testDir, "defineFormat.tdml")
 
   @AfterClass def tearDown() {

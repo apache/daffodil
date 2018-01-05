@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.input
+package org.apache.daffodil.processors.input
 
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.Assert
 
 class TestRegex extends RegexParsers {
 

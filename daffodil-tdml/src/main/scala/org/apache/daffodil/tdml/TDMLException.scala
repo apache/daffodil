@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.tdml
+package org.apache.daffodil.tdml
 
 class TDMLException(msg: String, val causes: Seq[Throwable])
   extends Exception(msg, if (causes.length > 0) causes(0) else null) {

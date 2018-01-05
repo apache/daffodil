@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section12.lengthKind
+package org.apache.daffodil.section12.lengthKind
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestLengthKindImplicit {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+  val testDir = "/org/apache/daffodil/section12/lengthKind/"
   val runner_01 = Runner(testDir, "implicit.tdml")
 
   @AfterClass def shutDown {

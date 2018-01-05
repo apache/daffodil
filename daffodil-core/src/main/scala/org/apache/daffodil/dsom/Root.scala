@@ -1,8 +1,8 @@
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.grammar.RootGrammarMixin
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.grammar.RootGrammarMixin
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.XMLUtils
 import scala.xml.Node
 import scala.xml.UnprefixedAttribute
 

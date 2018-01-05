@@ -30,11 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.api.WarnID
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.NotFound
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**

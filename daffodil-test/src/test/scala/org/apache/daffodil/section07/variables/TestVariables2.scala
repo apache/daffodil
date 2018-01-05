@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section07.variables
+package org.apache.daffodil.section07.variables
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import edu.illinois.ncsa.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
 
 class TestVariables2 {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
+  val testDir = "/org/apache/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

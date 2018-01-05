@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.exceptions
+package org.apache.daffodil.exceptions
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 

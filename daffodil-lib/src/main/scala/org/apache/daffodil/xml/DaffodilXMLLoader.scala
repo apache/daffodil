@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml
+package org.apache.daffodil.xml
 
 /**
  * Adapted from a question/answer on the Stack Overflow web site.
@@ -52,11 +52,11 @@ import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 import org.w3c.dom.ls.LSInput
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.api.DaffodilSchemaSource
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.SchemaFactory

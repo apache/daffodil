@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section14.unordered_sequences
+package org.apache.daffodil.section14.unordered_sequences
 
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestUnorderedSequencesNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/unordered_sequences/"
+  val testDir = "/org/apache/daffodil/section14/unordered_sequences/"
   val uos = testDir + "UnorderedSequences.tdml"
   val res = Misc.getRequiredResource(uos)
   lazy val runner = new DFDLTestSuite(res)

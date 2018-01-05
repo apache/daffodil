@@ -30,30 +30,30 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.cookers.Converter
-import edu.illinois.ncsa.daffodil.xml.NamedQName
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.cookers.Converter
+import org.apache.daffodil.xml.NamedQName
+import org.apache.daffodil.xml.GlobalQName
+import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.exceptions.Assert
 import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.xml.scalaLib
-import edu.illinois.ncsa.daffodil.dpath.ExpressionEvaluationException
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.dpath.EvalMode
-import edu.illinois.ncsa.daffodil.dpath.UnparserNonBlocking
-import edu.illinois.ncsa.daffodil.util.MStackOfMaybe
-import edu.illinois.ncsa.daffodil.dsom.ContentValueReferencedElementInfoMixin
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.processors.parsers.DoSDEMixin
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import org.apache.daffodil.xml.scalaLib
+import org.apache.daffodil.dpath.ExpressionEvaluationException
+import org.apache.daffodil.xml._
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.processors.unparsers.UState
+import org.apache.daffodil.dpath.EvalMode
+import org.apache.daffodil.dpath.UnparserNonBlocking
+import org.apache.daffodil.util.MStackOfMaybe
+import org.apache.daffodil.dsom.ContentValueReferencedElementInfoMixin
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.processors.parsers.DoSDEMixin
+import org.apache.daffodil.processors.parsers.PState
 
 /**
  * Generates unique int for use as key into EvalCache

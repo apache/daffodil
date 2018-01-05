@@ -30,13 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section16.array_optional_elem
+package org.apache.daffodil.section16.array_optional_elem
 
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.apache.daffodil.util._
+import org.apache.daffodil.tdml.DFDLTestSuite
 
 class TestUnparseArrayImplicitOptionalElemNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
+  val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
   val aa = testDir + "UnparseArrayImplicitOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))

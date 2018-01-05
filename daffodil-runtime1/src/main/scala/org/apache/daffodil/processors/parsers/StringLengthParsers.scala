@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.util.MaybeChar
-import edu.illinois.ncsa.daffodil.util.Misc
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.TextJustificationType
+import org.apache.daffodil.util.MaybeChar
+import org.apache.daffodil.util.Misc
 import passera.unsigned.ULong
-import edu.illinois.ncsa.daffodil.processors.CharsetEv
+import org.apache.daffodil.processors.CharsetEv
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.

@@ -30,16 +30,16 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
 import java.util.UUID
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.grammar.TermGrammarMixin
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Integer => JInt }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.schema.annotation.props.gen.NilKind
 
 /**
  * Term, and what is and isn't a Term, is a key concept in DSOM.
@@ -282,7 +282,7 @@ trait Term
 
   final lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
 
-  import edu.illinois.ncsa.daffodil.util.ListUtils
+  import org.apache.daffodil.util.ListUtils
 
   final lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>

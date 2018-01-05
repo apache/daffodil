@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.util.Numbers._
-import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
-import edu.illinois.ncsa.daffodil.calendar.DFDLDate
+import org.apache.daffodil.util.Numbers._
+import org.apache.daffodil.calendar.DFDLDateTime
+import org.apache.daffodil.calendar.DFDLDate
 import java.lang.{ Byte => JByte, Short => JShort, Integer => JInt, Long => JLong, Float => JFloat, Double => JDouble, Boolean => JBoolean }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JLong(if (asBoolean(a) == true) 1L else 0L)

@@ -1,8 +1,8 @@
-package edu.illinois.ncsa.daffodil.api
+package org.apache.daffodil.api
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.{ Enum => PropsEnum }
+import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.schema.annotation.props.{ Enum => PropsEnum }
 
   sealed trait WarnID extends WarnID.Value
 

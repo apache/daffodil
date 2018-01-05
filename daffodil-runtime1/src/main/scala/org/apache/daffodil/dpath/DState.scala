@@ -30,15 +30,15 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dpath
+package org.apache.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors._ ; import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
-import edu.illinois.ncsa.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
-import edu.illinois.ncsa.daffodil.api.DataLocation
+import org.apache.daffodil.processors._ ; import org.apache.daffodil.infoset._
+import org.apache.daffodil.exceptions._
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.calendar.DFDLCalendar
+import org.apache.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.api.DataLocation
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 /**
@@ -110,7 +110,7 @@ case object UnparserNonBlocking extends EvalMode
  * becomes available.
  */
 case class DState() {
-  import edu.illinois.ncsa.daffodil.util.Numbers._
+  import org.apache.daffodil.util.Numbers._
 
   var isCompile = false
 

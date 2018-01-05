@@ -30,20 +30,20 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.parsers
+package org.apache.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.infoset._
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.Processor
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.infoset._
+import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
+import org.apache.daffodil.api.ValidationMode
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.TermRuntimeData
 
 abstract class ElementParserBase(
   rd: TermRuntimeData,

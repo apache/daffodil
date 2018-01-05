@@ -30,12 +30,12 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.input
+package org.apache.daffodil.processors.input
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.DFDLRegularExpressions
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextStringJustification
+import org.apache.daffodil.processors.DFDLRegularExpressions
+import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification
 
 /**
  * The purpose of this class is to verify that the configurable

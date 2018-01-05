@@ -30,9 +30,9 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package org.apache.daffodil.dsom
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.XMLUtils
 
 class TextCompileExpressionExecution {
   val xsd = XMLUtils.XSD_NAMESPACE

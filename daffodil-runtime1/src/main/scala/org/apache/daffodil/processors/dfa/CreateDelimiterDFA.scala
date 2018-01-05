@@ -30,19 +30,19 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors.dfa
+package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 
-import edu.illinois.ncsa.daffodil.processors.CharDelim
-import edu.illinois.ncsa.daffodil.processors.DelimBase
-import edu.illinois.ncsa.daffodil.processors.Delimiter
-import edu.illinois.ncsa.daffodil.processors.NLDelim
-import edu.illinois.ncsa.daffodil.processors.WSPDelim
-import edu.illinois.ncsa.daffodil.processors.WSPPlusDelim
-import edu.illinois.ncsa.daffodil.processors.WSPStarDelim
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import org.apache.daffodil.processors.CharDelim
+import org.apache.daffodil.processors.DelimBase
+import org.apache.daffodil.processors.Delimiter
+import org.apache.daffodil.processors.NLDelim
+import org.apache.daffodil.processors.WSPDelim
+import org.apache.daffodil.processors.WSPPlusDelim
+import org.apache.daffodil.processors.WSPStarDelim
+import org.apache.daffodil.processors.RuntimeData
+import org.apache.daffodil.processors.parsers.DelimiterTextType
 
 object CreateDelimiterDFA {
 

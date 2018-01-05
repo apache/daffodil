@@ -30,10 +30,10 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom._
+import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.dsom._
 
 class BinaryFloatRepEv(expr: CompiledExpression[String], erd: ElementRuntimeData)
   extends EvaluatableConvertedExpression[String, BinaryFloatRep](

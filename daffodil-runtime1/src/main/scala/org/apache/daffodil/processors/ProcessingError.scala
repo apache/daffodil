@@ -30,14 +30,14 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
+package org.apache.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.processors.parsers.ParseError
+import org.apache.daffodil.api.DataLocation
+import org.apache.daffodil.processors.unparsers.UnparseError
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.processors.parsers.ParseError
 
 abstract class ProcessingError protected (
   override val modeName: String,
