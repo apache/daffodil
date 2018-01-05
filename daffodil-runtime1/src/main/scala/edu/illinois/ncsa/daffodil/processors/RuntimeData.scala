@@ -662,12 +662,6 @@ final class ElementRuntimeData(
   //
   // Unparser-specific arguments
   //
-  /**
-   * pass true for this if the corresponding infoset element is never
-   * accessed by way of expressions. Enables the element to be dropped
-   * from the infoset immediately after unparsing is complete.
-   */
-  @TransientParam notReferencedByExpressionsArg: => Boolean,
   @TransientParam optTruncateSpecifiedLengthStringArg: => Option[Boolean],
   @TransientParam outputValueCalcExprArg: => Option[CompiledExpression[AnyRef]],
   @TransientParam maybeBinaryFloatRepEvArg: => Maybe[BinaryFloatRepEv],
@@ -710,13 +704,10 @@ final class ElementRuntimeData(
   lazy val namedQName = namedQNameArg
   lazy val impliedRepresentation = impliedRepresentationArg
   lazy val optDefaultValue = optDefaultValueArg
-  lazy val notReferencedByExpressions = notReferencedByExpressionsArg
   lazy val optTruncateSpecifiedLengthString = optTruncateSpecifiedLengthStringArg
   lazy val outputValueCalcExpr = outputValueCalcExprArg
   lazy val maybeBinaryFloatRepEv = maybeBinaryFloatRepEvArg
   lazy val maybeByteOrderEv = maybeByteOrderEvArg
-
-  def isReferencedByExpressions = !notReferencedByExpressions
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -750,7 +741,6 @@ final class ElementRuntimeData(
     namedQName
     impliedRepresentation
     optDefaultValue
-    notReferencedByExpressions
     optTruncateSpecifiedLengthString
     outputValueCalcExpr
     maybeBinaryFloatRepEv

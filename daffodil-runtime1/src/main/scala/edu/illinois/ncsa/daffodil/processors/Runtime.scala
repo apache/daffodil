@@ -141,6 +141,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def setDebugging(flag: Boolean) {
     areDebugging_ = flag
+    setTunable("allowExternalPathExpressions", flag.toString)
   }
 
   def setExternalVariables(extVars: Map[String, String]): Unit = {

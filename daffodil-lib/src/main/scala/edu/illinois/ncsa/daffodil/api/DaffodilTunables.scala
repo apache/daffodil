@@ -111,7 +111,16 @@ case class DaffodilTunables(
   //
   val initialElementOccurrencesHint: Long = 10,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy.Type = UnqualifiedPathStepPolicy.NoNamespace,
-  val suppressSchemaDefinitionWarnings: List[WarnID] = Nil)
+  val suppressSchemaDefinitionWarnings: List[WarnID] = Nil,
+
+  // By default, path expressions in Daffodil will only work correctly if path
+  // steps are used in an expression defined in the schema when compiled. To
+  // enable the use of other expressions (e.g. during debugging, where not all
+  // expressions are known at schema compile time), set this tunable to true.
+  // This may cause a degredation of performance in path expression evaluation,
+  // so this should be avoided when in production. This flag is automatically
+  // enabled when debugging is enabled.
+  val allowExternalPathExpressions: Boolean = false)
   extends Serializable
   with Logging
   with DataStreamLimits {
@@ -211,6 +220,7 @@ case class DaffodilTunables(
         }
         this.copy(suppressSchemaDefinitionWarnings = warningsList)
       }
+      case "allowexternalpathexpressions" => this.copy(allowExternalPathExpressions = java.lang.Boolean.valueOf(value))
       case _ => {
         log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
         this

@@ -138,7 +138,6 @@ class TestInfosetInputterFromReader2 {
       val arr = bar_s.getChildArray(foo_1_s.runtimeData)
       if (arr.length % 100L =#= 0L) {
         // println("array length is " + arr.length)
-        bar_s.resetChildArray(0)
         foo_arr_s.reduceToSize(0)
       }
       arr.asInstanceOf[DIArray].children

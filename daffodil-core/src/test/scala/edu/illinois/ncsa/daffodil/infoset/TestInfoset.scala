@@ -56,9 +56,11 @@ object TestInfoset {
    * classes.
    */
 
-  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node, tunable: DaffodilTunables = DaffodilTunables()): InfosetElement = {
+  private val tunableForTests = DaffodilTunables("allowExternalPathExpressions", "true")
+
+  def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
     val ic = new ScalaXMLInfosetInputter(xmlElem)
-    ic.initialize(erd, tunable)
+    ic.initialize(erd, tunableForTests)
     val aacc = ic.advanceAccessor
     Assert.invariant(ic.advance == true)
     val infosetRootNode = aacc.node
