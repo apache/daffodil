@@ -85,7 +85,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final def escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
-    val expr = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, escapeCharacterRaw)
+    val expr = ExpressionCompilers.String.compile(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this)
     val ev = new EscapeCharEv(expr, runtimeData)
     ev.compile()
     ev
@@ -98,7 +98,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
       case found @ Found(v, loc, _, _) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        val expr = ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found)
+        val expr = ExpressionCompilers.String.compile(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this)
         val ev = new EscapeEscapeCharEv(expr, runtimeData)
         ev.compile()
         One(ev)

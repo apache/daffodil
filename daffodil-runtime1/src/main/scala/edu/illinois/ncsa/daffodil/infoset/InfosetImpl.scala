@@ -1334,10 +1334,29 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
     getChild(erd.dpathElementCompileInfo)
   }
 
+  private def noQuerySupportCheck(nodes: Seq[DINode], info: DPathElementCompileInfo) = {
+    if (nodes.length > 1) {
+      // might be more than one result
+      // but we have to rule out there being an empty DIArray
+      val withoutEmptyArrays = nodes.filter { node =>
+        node match {
+          case a: DIArray if a.length == 0 => false
+          case _ => true
+        }
+      }
+      if (withoutEmptyArrays.length > 1)
+        info.SDE("Path step '%s' ambiguous. More than one infoset node corresponds to this name.\n" +
+          "Query-style expressions are not supported.", info.namedQName.toExtendedSyntax)
+    }
+  }
+
   final def getChild(info: DPathElementCompileInfo): InfosetElement = {
-    if (nameToChildNodeLookup.containsKey(info.namedQName))
-      nameToChildNodeLookup.get(info.namedQName)(0).asInstanceOf[InfosetElement]
-    else
+    if (nameToChildNodeLookup.containsKey(info.namedQName)) {
+      val nodes = nameToChildNodeLookup.get(info.namedQName)
+      noQuerySupportCheck(nodes, info)
+      val node = nodes(0).asInstanceOf[InfosetElement]
+      node
+    } else
       throw new InfosetNoSuchChildElementException(this, info)
   }
 
@@ -1354,9 +1373,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
     val array = if (nameToChildNodeLookup.containsKey(name)) {
       val seq = nameToChildNodeLookup.get(name)
-      // Don't support query expressions yet, so should only have
-      // one item in the list
-      //
+      noQuerySupportCheck(seq, info)
       seq(0).asInstanceOf[InfosetArray] //.find(node => node.isInstanceOf[DIArray]).getOrElse(Assert.usageError("not an array")).asInstanceOf[InfosetArray]
     } else
       throw new InfosetNoSuchChildElementException(this, info)
@@ -1451,7 +1468,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
           nameToChildNodeLookup.remove(childToRemove.namedQName)
         else
           // not the last one, just drop the end
-          fastSeq.dropRight(1)
+          fastSeq.remove(fastSeq.length - 1)
       } else { /* Nothing to do? Doesn't exist. */ }
 
       i -= 1

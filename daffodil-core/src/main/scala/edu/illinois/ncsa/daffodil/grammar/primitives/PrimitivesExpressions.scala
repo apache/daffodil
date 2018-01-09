@@ -183,7 +183,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   lazy val expr = LV('expr) {
     ExpressionCompilers.AnyRef.compile(qn,
-      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false)
+      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false, this)
   }.value
 }
 

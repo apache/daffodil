@@ -651,7 +651,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     roundTrip: Boolean,
     tracer: Option[Debugger]) = {
 
-    val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
+    val useSerializedProcessor =
+      if (validationMode == ValidationMode.Full) false
+      else if (optWarnings.isDefined) false
+      else true
     val nBits = optLengthLimitInBits.get
     val dataToParse = optDataToParse.get
 
@@ -697,37 +700,44 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) {
-
-    val diagnostics = {
-      if (processor.isError) processor.getDiagnostics
+    lazy val sw = new StringWriter()
+    val (diagnostics, isError: Boolean) = {
+      if (processor.isError) (processor.getDiagnostics, true)
       else {
-        val sw = new StringWriter()
+
         val out = new XMLTextInfosetOutputter(sw)
         val actual = processor.parse(dataToParse, out, lengthLimitInBits)
-        if (actual.isError) actual
-        else {
-          val loc: DataLocation = actual.resultState.currentLocation
+        val isErr: Boolean =
+          if (actual.isError) true
+          else {
+            //
+            // didn't get an error.
+            // If we're not at the end of data, synthesize an error for left-over-data
+            //
+            val loc: DataLocation = actual.resultState.currentLocation
 
-          if (!loc.isAtEnd) {
-            val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
-            actual.addDiagnostic(new GeneralParseFailure(leftOverMsg))
-            actual
-          } else {
-            // We did not get an error!!
-            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new TDMLException("Expected error. Didn't get one. Actual result was\n" + sw.toString)
+            if (!loc.isAtEnd) {
+              val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
+              actual.addDiagnostic(new GeneralParseFailure(leftOverMsg))
+              true
+            } else {
+              false
+            }
           }
-        }
-        processor.getDiagnostics ++ actual.getDiagnostics
+
+        val diagnostics = processor.getDiagnostics ++ actual.getDiagnostics
+        (diagnostics, isErr)
       }
     }
-
-    // check for any test-specified errors
-    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors))
-
     // check for any test-specified warnings
     VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings)
-
+    if (isError) {
+      // good we expected an error
+      // check for any test-specified errors
+      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors))
+    } else {
+      throw new TDMLException("Expected error. Didn't get one. Actual result was\n" + sw.toString)
+    }
   }
 
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
@@ -789,10 +799,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
 
       leftOverException.map { throw _ } // if we get here, throw the left over data exception.
-
-      // TODO: Implement Warnings
-      // check for any test-specified warnings
-      //verifyAllDiagnosticsFound(actual, warnings)
 
       val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
       VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)

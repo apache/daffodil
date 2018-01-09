@@ -61,4 +61,8 @@ class TestChoice2 {
   // DFDL-1773
   @Test def test_choiceSlotAmbiguous1(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous1") }
   @Test def test_choiceSlotAmbiguous2(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous2") }
+
+  // DAFFODIL-1773
+  @Test def test_queryStyle1(): Unit = { runner1773.runOneTest("queryStyle1") }
+  @Test def test_queryStyle2(): Unit = { runner1773.trace.runOneTest("queryStyle2") }
 }

@@ -352,13 +352,16 @@ class DPathElementCompileInfo(
    * Finds a child ERD that matches a StepQName. This is for matching up
    * path steps (for example) to their corresponding ERD.
    */
-  final def findNamedChild(step: StepQName): DPathElementCompileInfo =
-    findNamedMatch(step, elementChildrenCompileInfo)
+  final def findNamedChild(step: StepQName,
+    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo =
+    findNamedMatch(step, elementChildrenCompileInfo, expr)
 
-  final def findRoot(step: StepQName): DPathElementCompileInfo =
-    findNamedMatch(step, Seq(this))
+  final def findRoot(step: StepQName,
+    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo =
+    findNamedMatch(step, Seq(this), expr)
 
-  private def findNamedMatch(step: StepQName, possibles: Seq[DPathElementCompileInfo]): DPathElementCompileInfo = {
+  private def findNamedMatch(step: StepQName, possibles: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
     val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
 
     val retryMatchesERD =
@@ -378,21 +381,8 @@ class DPathElementCompileInfo(
       case 0 => noMatchError(step, possibles)
       case 1 => retryMatchesERD(0)
       case _ => {
-        // it's ok if all the names are the same, so long as they are
-        // in separate choices, or otherwise cannot co-exist.
-        //
-        // For now we just check if they are siblings, i.e., have the
-        // same model group as parent.
-        //
-        //        val ambiguousSiblings = ambiguousModelGroupSiblings(retryMatchesERD)
-        //        if (ambiguousSiblings.isEmpty)
-        // BUG
-        // This results in multiple siblings with same name, path that is ambiguous
-        // just gets first one.
-        //
+        queryMatchWarning(step, retryMatchesERD, expr)
         retryMatchesERD(0)
-        //        else
-        //          queryMatchError(step, ambiguousSiblings)
       }
     }
   }
@@ -484,8 +474,9 @@ class DPathElementCompileInfo(
     }
   }
 
-  //  private def queryMatchError(step: StepQName, matches: Seq[DPathElementCompileInfo]) = {
-  //    SDE("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
-  //      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
-  //  }
+  private def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE) = {
+    expr.SDW("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
+  }
 }

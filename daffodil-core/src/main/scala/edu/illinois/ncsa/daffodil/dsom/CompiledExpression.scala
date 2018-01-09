@@ -37,6 +37,7 @@ import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import java.lang.{ Long => JLong, Boolean => JBoolean }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.Found
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 
 object ExpressionCompilers extends ExpressionCompilerClass {
   override val String = new ExpressionCompiler[String]
@@ -64,8 +65,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
   /*
    * This form for most properties
    */
-  def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean = false): CompiledExpression[T] =
-    compile(qn, nodeInfoKind, nodeInfoKind, property, isEvaluatedAbove)
+  def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, property: Found, host: OOLAGHost, isEvaluatedAbove: Boolean = false): CompiledExpression[T] =
+    compile(qn, nodeInfoKind, nodeInfoKind, property, isEvaluatedAbove, host)
 
   /*
      * This form for delimiters and escapeEscapeCharacter since they
@@ -82,11 +83,12 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
      * We don't want to allow turning on/off whether a format is delimited or
      * not based on runtime expressions, only what the delimiters are.
      */
-  def compile(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found): CompiledExpression[T] =
-    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, property, false)
+  def compile(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found,
+    host: OOLAGHost): CompiledExpression[T] =
+    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, property, false, host)
 
   private def compile(qn: NamedQName, staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind,
-    property: Found, isEvaluatedAbove: Boolean): CompiledExpression[T] = {
+    property: Found, isEvaluatedAbove: Boolean, host: OOLAGHost): CompiledExpression[T] = {
     val expr: String = property.value
     val namespacesForNamespaceResolution = property.location.namespaces
     val compileInfoWherePropertyWasLocated = {
@@ -96,7 +98,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       }
     }
 
-    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+    compile(qn, staticNodeInfoKind, runtimeNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated, isEvaluatedAbove, host)
   }
 
   /**
@@ -108,9 +110,10 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     expr: String,
     namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T] = {
     val compiled1 = compile(qn, staticNodeInfoKind, expr, namespaces, compileInfoWherePropertyWasLocated,
-      isEvaluatedAbove)
+      isEvaluatedAbove, host)
     if (compiled1.isConstant) return compiled1
     if (staticNodeInfoKind == runtimeNodeInfoKind) return compiled1
     //
@@ -120,7 +123,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     // This is, this nodeInfo.Kind is used as the target type in the DPath expression compiler, and
     //
     val compiled2 = compile(qn, runtimeNodeInfoKind, expr, namespaces, compileInfoWherePropertyWasLocated,
-      isEvaluatedAbove)
+      isEvaluatedAbove, host)
     compiled2
   }
 
@@ -134,7 +137,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
    */
   def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean) = {
+    isEvaluatedAbove: Boolean, host: OOLAGHost) = {
     var compile: Boolean = true
     val expr = exprWithBracesMaybe
     //
@@ -163,8 +166,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       }
     // If we get here then now it's something we can compile. It might be trivial
     // to compile (e.g, '5' compiles to Literal(5)) but we no longer uniformly
-    // compile everything.  Due to the performance optimization (DFDL-1775), 
-    // we will NOT compile constant strings (constant values whose target type 
+    // compile everything.  Due to the performance optimization (DFDL-1775),
+    // we will NOT compile constant strings (constant values whose target type
     // is String).
 
     /* Question: If something starts with {{, e.g.
@@ -183,7 +186,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
      */
     val res = if (compile) {
       compileExpression(qn, nodeInfoKind, exprForCompiling, namespaces,
-        compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+        compileInfoWherePropertyWasLocated, isEvaluatedAbove, host)
     } else {
       // Don't compile, meaning this is a constant string
       val res = new ConstantExpression[T](qn, nodeInfoKind, exprForCompiling.asInstanceOf[T])
@@ -208,14 +211,15 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     // next argument provides? Ans: Point of use versus point of definition.
     namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T] = {
     // This is important. The namespace bindings we use must be
     // those from the object where the property carrying the expression
     // was written, not those of the edecl object where the property
     // value is being used/compiled. JIRA DFDL-407
     //
     val compiler = new DFDLPathExpressionParser[T](qn,
-      nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
+      nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove, host)
     val compiledDPath = compiler.compile(expr)
     compiledDPath
   }

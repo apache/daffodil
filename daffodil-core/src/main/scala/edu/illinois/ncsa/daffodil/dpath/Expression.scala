@@ -576,11 +576,12 @@ case class WholeExpression(
   nodeInfoKind: NodeInfo.Kind,
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
-  ci: DPathCompileInfo)
+  ci: DPathCompileInfo,
+  host: OOLAGHost)
   extends Expression {
 
   def init() {
-    this.setOOLAGContext(null) // we are the root.
+    this.setOOLAGContext(host) // we are the root of expression, but we propagate diagnostics further.
     this.setContextsForChildren()
   }
 
@@ -1102,14 +1103,14 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     val stepElem = if (isFirstStep) {
       if (isAbsolutePath) {
         // has to be the root element, but we have to make sure the name matches.
-        rootElement.findRoot(stepQName)
+        rootElement.findRoot(stepQName, this)
         rootElement
       } else {
         // since we're first we start from the element, or nearest enclosing
         val nc = compileInfo.elementCompileInfo.getOrElse {
           // happens for example if you have defaultValue="false" since false looks like a path step, but is really illegal. should be fn:false().
           compileInfo.SDE("The expression path step '%s' has no defined enclosing element.", s)
-        }.findNamedChild(stepQName)
+        }.findNamedChild(stepQName, this)
         nc
       }
     } else {
@@ -1118,7 +1119,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         val psse = ps.stepElement
         psse
       }.map { se =>
-        val nc = se.findNamedChild(stepQName)
+        val nc = se.findNamedChild(stepQName, this)
         nc
       }.getOrElse(die)
       e

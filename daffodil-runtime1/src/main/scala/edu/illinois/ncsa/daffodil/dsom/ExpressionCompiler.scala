@@ -36,12 +36,14 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import scala.xml.NamespaceBinding
 import java.lang.{ Long => JLong, Boolean => JBoolean }
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 
 trait ExpressionCompilerBase[T <: AnyRef] {
 
   def compile(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression[T]
+    isEvaluatedAbove: Boolean,
+    host: OOLAGHost): CompiledExpression[T]
 
 }
 

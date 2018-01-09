@@ -64,6 +64,7 @@ import edu.illinois.ncsa.daffodil.infoset.InfosetItem
 import edu.illinois.ncsa.daffodil.infoset.InfosetElement
 import edu.illinois.ncsa.daffodil.infoset.XMLTextInfosetOutputter
 import edu.illinois.ncsa.daffodil.processors.parsers.ConvertTextCombinatorParser
+import edu.illinois.ncsa.daffodil.oolag.OOLAG._
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -312,8 +313,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       // compile the expression
       //
       val compiledExpr = try {
-        eCompilers.JBoolean.compile(debuggerQName,
-          NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false)
+        val hostForDiags = new DebuggerHost()
+        val ce = eCompilers.JBoolean.compile(debuggerQName,
+          NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false,
+          hostForDiags)
+        val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
+        warnings.foreach {
+          debugPrintln(_)
+        }
+        ce
       } catch {
         //
         // These are compile-time errors for the expression compilation
@@ -1046,10 +1054,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           else adjustedExpression
         val isEvaluatedAbove = false
         try {
+          val hostForDiags = new DebuggerHost()
           val compiledExpression = eCompilers.AnyRef.compile(debuggerQName,
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
-            isEvaluatedAbove)
+            isEvaluatedAbove, hostForDiags)
           val res = compiledExpression.evaluate(state)
+          val warnings = hostForDiags.getDiagnostics.filterNot(_.isError)
+          warnings.foreach {
+            debugPrintln(_)
+          }
           res match {
             case ie: InfosetElement => debugPrettyPrintXML(ie)
             case nodeSeq: Seq[Any] => nodeSeq.foreach { a =>
@@ -1805,3 +1818,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 }
+
+/**
+ * A stub OOLAGHost is needed to accumulate warnings that may be created
+ * during expression compilation in the debugger.
+ */
+class DebuggerHost extends OOLAGHostImpl(null) // null means this is the root OOLAG Host
