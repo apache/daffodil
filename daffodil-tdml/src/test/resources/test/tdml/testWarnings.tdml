@@ -47,6 +47,19 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  
+    <xs:element name="errUnparsing" dfdl:lengthKind="implicit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="A" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+        <xs:element name="B" type="xs:string" dfdl:length="1" />
+        <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" minOccurs="0" />
+        <xs:element name="UnparseFails" type="xs:string" dfdl:length="1"
+           dfdl:outputValueCalc="{ ../AmbigElt }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </tdml:defineSchema>
 
@@ -66,6 +79,34 @@
     <tdml:warning>query-style</tdml:warning>
   </tdml:warnings>
 </tdml:parserTestCase>
+
+<tdml:unparserTestCase name="unparserWarningWhenExpectingError" root="errUnparsing" model="causesWarnings" description="TDML runner verifies warnings and errors.">
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:errUnparsing>
+        <A>1</A>
+        <AmbigElt>2</AmbigElt>
+        <B>3</B>
+        <AmbigElt>4</AmbigElt>
+      </ex:errUnparsing>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+  
+  <tdml:document><![CDATA[12344]]></tdml:document>
+
+  <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>query-style</tdml:error>
+    <tdml:error>AmbigElt</tdml:error>
+  </tdml:errors>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+  </tdml:warnings>
+</tdml:unparserTestCase>
+
 
 <tdml:parserTestCase name="warningWhenExpectingSuccess" root="causesWarnings" model="causesWarnings" description="TDML runner verifies warnings and infoset.">
 
@@ -87,5 +128,27 @@
     <tdml:warning>AmbigElt</tdml:warning>
   </tdml:warnings>
 </tdml:parserTestCase>
+
+<tdml:unparserTestCase name="unparserWarningWhenExpectingSuccess" root="causesWarnings" model="causesWarnings" description="TDML runner verifies warnings and infoset.">
+
+  <tdml:document><![CDATA[123]]></tdml:document>
+
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:causesWarnings>
+        <A>1</A>
+        <AmbigElt>2</AmbigElt>
+        <B>3</B>
+      </ex:causesWarnings>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>query-style</tdml:warning>
+    <tdml:warning>AmbigElt</tdml:warning>
+  </tdml:warnings>
+</tdml:unparserTestCase>
+
 
 </tdml:testSuite>

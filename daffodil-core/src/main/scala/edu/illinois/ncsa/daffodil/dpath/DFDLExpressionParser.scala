@@ -65,10 +65,6 @@ class DFDLPathExpressionParser[T <: AnyRef](qn: NamedQName,
   def compile(expr: String): CompiledExpression[T] = {
     val tree = getExpressionTree(expr, host)
 
-    //    if (tree.isError) {
-    //      context.toss(new ErrorsNotYetRecorded(tree.getDiagnostics))
-    //    }
-
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
     val value = recipe.runExpressionForConstant(context.schemaFileLocation)

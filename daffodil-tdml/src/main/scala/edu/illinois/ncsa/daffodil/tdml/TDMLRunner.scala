@@ -882,12 +882,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val processor = getProcessor(schemaSource, useSerializedProcessor)
     processor.right.foreach {
       case (warnings, proc) =>
-        //
-        // Print out the warnings
-        // (JIRA DFDL-1583 is implementation of expected warnings checking.)
-        //
-        warnings.foreach { System.err.println(_) }
-
         setupDebugOrTrace(proc)
     }
 
@@ -903,6 +897,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case (_, Some(errors)) => {
         processor.left.foreach { diags =>
           VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors))
+          // check warnings even if there are errors expected.
+          VerifyTestCase.verifyAllDiagnosticsFound(diags, optWarnings)
         }
         processor.right.foreach {
           case (warnings, processor) =>
@@ -948,9 +944,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       // we will need to treat as Hex bytes as well.
       VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream)
     }
-
-    // TODO: Implement Warnings - check for any test-specified warnings
-    // verifyAllDiagnosticsFound(actual, warnings)
+    val allDiags = actual.getDiagnostics ++ processor.getDiagnostics
+    VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)
 
     if (roundTrip) {
       val out = new ScalaXMLInfosetOutputter()
@@ -973,6 +968,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       val xmlNode = out.getResult
       VerifyTestCase.verifyParserTestData(xmlNode, inputInfoset)
+      VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, warnings)
 
       (shouldValidate, expectsValidationError) match {
         case (true, true) => {
@@ -1036,8 +1032,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
     }
 
-    // check for any test-specified errors
+    // check for any test-specified errors or warnings
     VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors))
+    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings)
   }
 }
 
