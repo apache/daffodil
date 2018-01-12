@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
  */
 
 object DFDL5BitPackedLSBFCharset
-  extends NBitsWidthCharset("X-DFDL-5-BIT-PACKED-LSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-5-BIT-PACKED-LSBF",
     "01234567ABCDEFGHJKLMNPQRSTUVWXYZ",
     5, // width
     BitOrder.LeastSignificantBitFirst,

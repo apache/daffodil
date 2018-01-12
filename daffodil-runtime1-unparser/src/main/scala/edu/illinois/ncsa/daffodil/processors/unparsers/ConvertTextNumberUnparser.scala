@@ -44,7 +44,9 @@ case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
-  extends UnparserObject(rd) {
+  extends CombinatorUnparser(rd) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
 
@@ -60,9 +62,11 @@ case class ConvertTextCombinatorUnparser(
 case class ConvertTextNumberUnparser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
-  erd: ElementRuntimeData)
-  extends TermUnparser(erd)
+  override val context: ElementRuntimeData)
+  extends PrimUnparser
   with ToBriefXMLImpl {
+
+  override lazy val runtimeDependencies = Nil
 
   override def toString = "to(xs:" + helper.xsdType + ")"
   override lazy val childProcessors = Nil

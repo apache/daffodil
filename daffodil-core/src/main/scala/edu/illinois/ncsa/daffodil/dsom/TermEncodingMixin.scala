@@ -36,7 +36,6 @@ import edu.illinois.ncsa.daffodil.processors.EncodingRuntimeData
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.processors.KnownEncodingMixin
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /**
  * Captures concepts around dfdl:encoding property and Terms.
@@ -90,15 +89,12 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
           "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
       val cs = charsetEv.optConstant.get
-      cs.charset match {
-        case nbs: NonByteSizeCharset => 1
-        case _ => 8
-      }
+      cs.mandatoryBitAlignment
     } else 8 // unknown encodings always assumed to be 8-bit aligned.
   }
 
   lazy val encodingInfo =
-    new EncodingRuntimeData(termRuntimeData, charsetEv, checkEncodingEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
+    new EncodingRuntimeData(termRuntimeData, charsetEv, schemaFileLocation, optionUTF16Width, defaultEncodingErrorPolicy,
       summaryEncoding, isKnownEncoding, isScannable, knownEncodingAlignmentInBits)
 
   /**

@@ -63,6 +63,8 @@ class ElementUnspecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
+  override lazy val runtimeDependencies = Nil
+
 }
 
 trait RepMoveMixin {
@@ -94,6 +96,8 @@ class ElementUnparserNoRep(
     Nope)
   with RegularElementUnparserStartEndStrategy {
 
+  override lazy val runtimeDependencies = Nil
+
   /**
    * Move over in the element children, but not in the group.
    * This avoids separators for this IVC element.
@@ -119,6 +123,8 @@ class ElementOVCUnspecifiedLengthUnparser(
   with OVCStartEndStrategy
   with RepMoveMixin {
 
+  override lazy val runtimeDependencies = Nil
+
 }
 
 /**
@@ -134,7 +140,7 @@ sealed abstract class ElementUnparserBase(
   val eBeforeUnparser: Maybe[Unparser],
   val eUnparser: Maybe[Unparser],
   val eAfterUnparser: Maybe[Unparser])
-  extends TermUnparser(erd)
+  extends CombinatorUnparser(erd)
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
@@ -186,7 +192,6 @@ sealed abstract class ElementUnparserBase(
     if (state.dataProc.isDefined) state.dataProc.value.startElement(state, this)
 
     unparseBegin(state)
-    UnparserBitOrderChecks.checkUnparseBitOrder(state)
 
     captureRuntimeValuedExpressionValues(state)
 
@@ -374,7 +379,7 @@ sealed trait ElementUnparserStartEndStrategy {
 
   protected def erd: ElementRuntimeData
 
-  protected def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 }
 
 sealed trait RegularElementUnparserStartEndStrategy

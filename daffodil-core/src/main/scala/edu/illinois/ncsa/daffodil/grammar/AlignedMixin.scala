@@ -39,8 +39,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Math
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.dsom.Root
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharset
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -69,7 +69,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     if (!isRepresented) {
       true
     } else {
-      (priorAlignmentWithLeadingSkipApprox % alignmentApprox) == 0
+      val pa = priorAlignmentWithLeadingSkipApprox
+      val aa = alignmentApprox
+      val res = (pa % aa) == 0
+      res
     }
   }.value
 
@@ -225,7 +228,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
               } else {
                 // this only occurs when lengthUnits="characters", but the
                 // charset does not have a fixed width. In that case, we know
-                // it's not a NonByteSizeCharset, so the length must be a
+                // it's not a NBitsWidth charset, so the length must be a
                 // multiple of 8
                 LengthMultipleOf(8)
               }
@@ -263,7 +266,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       val isByteLength = this match {
         case mg: ModelGroup => mg.groupMembers.forall { _.isKnownToBeByteAlignedAndByteLength }
         case eb: ElementBase => {
-          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map { !_.charset.isInstanceOf[NonByteSizeCharset] }.getOrElse(false)
+          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map {
+            !_.isInstanceOf[NBitsWidth_BitsCharset]
+          }.getOrElse(false)
           val isSelfByteLength =
             if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
               eb.complexType.group.isKnownToBeByteAlignedAndByteLength

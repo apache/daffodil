@@ -33,13 +33,8 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import java.io.ByteArrayOutputStream
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
-
 import scala.Left
 import scala.collection.mutable
-
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.Diagnostic
@@ -79,6 +74,9 @@ import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
@@ -184,6 +182,10 @@ abstract class UState(
     diagnostics = ue :: diagnostics
     _processorStatus = new Failure(ue)
   }
+
+  final override protected def checkBitOrder(): Unit = {
+    UnparserBitOrderChecks.checkUnparseBitOrder(this)
+  }
 }
 
 /**
@@ -214,8 +216,8 @@ class UStateForSuspension(
 
   private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
 
-  override def getDecoder(cs: Charset): CharsetDecoder = mainUState.getDecoder(cs)
-  override def getEncoder(cs: Charset): CharsetEncoder = mainUState.getEncoder(cs)
+  override def getDecoder(cs: BitsCharset): BitsCharsetDecoder = mainUState.getDecoder(cs)
+  override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
 
   // override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream

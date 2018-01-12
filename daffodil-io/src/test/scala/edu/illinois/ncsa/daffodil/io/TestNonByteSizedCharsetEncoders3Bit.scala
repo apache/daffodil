@@ -58,11 +58,7 @@ class TestNonByteSizedCharsetEncoders3Bit {
 
   @Test def test3BitMSBF_02(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-MSBF")
-    val encoder = cs.newEncoder() match {
-      case nbs: NonByteSizeCharsetEncoder => nbs
-      case _ => null
-    }
-    assertNotNull(encoder)
+    val encoder = cs.newEncoder()
     val cb = CharBuffer.wrap("012345677")
     val expectedBytes = Misc.bits2Bytes("000 001 010 011 100 101 110 111").toList
     val bb = ByteBuffer.allocate(3) // not enough space for last digit
@@ -88,10 +84,7 @@ class TestNonByteSizedCharsetEncoders3Bit {
 
   @Test def test3BitLSBF_02(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
-    val encoder = cs.newEncoder() match {
-      case nbs: NonByteSizeCharsetEncoder => nbs
-      case _ => null
-    }
+    val encoder = cs.newEncoder()
     assertNotNull(encoder)
     val cb = CharBuffer.wrap("012345677")
     val expectedBytes = Misc.bits2Bytes("10 001 000  1 100 011 0  111 110 10").toList

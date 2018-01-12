@@ -114,7 +114,7 @@ trait Dynamic {
   // during runtime.
   def cacheConstantExpression[A <: AnyRef, B <: AnyRef](e: Evaluatable[A])(conv: (A) => B): CachedDynamic[A, B] = {
     if (e.isConstant) {
-      val v: A = e.optConstant.get
+      val v: A = e.maybeConstant.get
       Right(conv(v))
     } else {
       Left(e)

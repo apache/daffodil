@@ -42,7 +42,8 @@
   <tdml:defineSchema name="s">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
-      byteOrder='littleEndian' alignmentUnits='bits' alignment='1'/>
+      byteOrder='littleEndian' alignmentUnits='bits' alignment='1'
+      encoding="X-DFDL-US-ASCII-7-BIT-PACKED"/>
 
     <xs:element name="tabBI" dfdl:lengthKind='implicit' >
       <xs:complexType>
@@ -57,7 +58,7 @@
           <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24" />
           <xs:element name="FPI_UnitName" type="xs:unsignedInt"
             dfdl:length="1" />
-          <xs:element name="UnitName" type="xs:string" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
+          <xs:element name="UnitName" type="xs:string" 
             dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;" />
           <xs:element name="GPI_RecipAddrGroup" type="xs:unsignedInt"
             dfdl:length="1" />

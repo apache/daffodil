@@ -68,7 +68,7 @@
       <documentPart type="bits" bitOrder="MSBFirst" >011 01010100</documentPart>
     </document>
     <tdml:errors>
-      <tdml:error></tdml:error>
+      <tdml:error>bitOrder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

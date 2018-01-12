@@ -39,8 +39,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
-class BinaryFloatParser(e: ElementRuntimeData)
-  extends PrimParserObject(e) {
+class BinaryFloatParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+  override lazy val runtimeDependencies = Nil
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -55,8 +56,9 @@ class BinaryFloatParser(e: ElementRuntimeData)
   }
 }
 
-class BinaryDoubleParser(e: ElementRuntimeData)
-  extends PrimParserObject(e) {
+class BinaryDoubleParser(override val context: ElementRuntimeData)
+  extends PrimParser {
+  override lazy val runtimeDependencies = Nil
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -81,8 +83,9 @@ class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo,
   with HasRuntimeExplicitLength {
 }
 
-abstract class BinaryDecimalParserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
-  extends PrimParserObject(e) {
+abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
+  extends PrimParser {
+  override lazy val runtimeDependencies = Nil
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -113,8 +116,9 @@ class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val
   with HasKnownLengthInBits {
 }
 
-abstract class BinaryIntegerBaseParser(e: ElementRuntimeData, signed: Boolean)
-  extends PrimParserObject(e) {
+abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData, signed: Boolean)
+  extends PrimParser {
+  override lazy val runtimeDependencies = Nil
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 

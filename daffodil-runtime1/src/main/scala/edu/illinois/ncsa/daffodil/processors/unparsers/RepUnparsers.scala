@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData, baseName: String)
-  extends UnparserObject(context) {
+  extends CombinatorUnparser(context) {
 
   override lazy val childProcessors = Seq(rUnparser)
 
@@ -89,6 +89,8 @@ object Rep {
 class RepExactlyNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, context, "ExactlyN") {
 
+  override lazy val runtimeDependencies = Nil
+
   def unparseAllRepeats(ustate: UState) {
     1 to intN foreach { _ =>
       {
@@ -104,6 +106,8 @@ class RepExactlyNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeD
 class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, erd, "AtMostTotalN") {
 
+  override lazy val runtimeDependencies = Nil
+
   def unparseAllRepeats(ustate: UState): Unit = {
     while (ustate.arrayPos <= intN && !ustate.isInspectArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
@@ -117,6 +121,8 @@ class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeD
 
 class RepExactlyTotalNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, context, "ExactlyTotalN") {
+
+  override lazy val runtimeDependencies = Nil
 
   def unparseAllRepeats(ustate: UState) {
     Rep.loopExactlyTotalN(intN, rUnparser, ustate, context, this)
@@ -137,6 +143,8 @@ class RepExactlyTotalNUnparser(n: Long, rUnparser: Unparser, context: ElementRun
 class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Unparser, erd: ElementRuntimeData)
   extends RepUnparser(-1, rUnparser, erd, "Unbounded") {
 
+  override lazy val runtimeDependencies = Nil
+
   def unparseAllRepeats(ustate: UState) {
     Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
     while (!ustate.isInspectArrayEnd) {
@@ -155,6 +163,9 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
 
 class RepAtMostOccursCountUnparser(rUnparser: Unparser, intN: Long, erd: ElementRuntimeData)
   extends RepUnparser(intN, rUnparser, erd, "AtMostOccursCount") {
+
+  override lazy val runtimeDependencies = Nil
+
   def unparseAllRepeats(ustate: UState) {
     // repeat either n times, or occursCount times if that's less than n.
     // val n = math.min(ustate.occursBounds, erd.minOccurs.get)

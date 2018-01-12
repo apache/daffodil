@@ -41,12 +41,7 @@ import edu.illinois.ncsa.daffodil.processors.PrimProcessor
 import edu.illinois.ncsa.daffodil.processors.ToBriefXMLImpl
 import edu.illinois.ncsa.daffodil.processors.Processor
 
-/**
- * Vast majority of unparsers are actually Term unparsers. (The ones that are not are expression related e.g., SetVar)
- */
-abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends UnparserObject(termRuntimeData)
-
-trait Unparser
+sealed trait Unparser
   extends Processor {
 
   def isEmpty = false
@@ -67,14 +62,11 @@ trait Unparser
     //
     // ?? TODO: Should this be after the split below ??
     if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
-
-    ustate.processor.context match {
-      case mgrd: ModelGroupRuntimeData =>
-        UnparserBitOrderChecks.checkUnparseBitOrder(ustate)
-      case _ => // ok. Elements are checked elsewhere.
+    try {
+      unparse(ustate)
+    } finally {
+      ustate.resetFormatInfoCaches()
     }
-
-    unparse(ustate)
     if (ustate.dataProc.isDefined) ustate.dataProc.get.after(ustate, this)
     ustate.setMaybeProcessor(savedProc)
   }
@@ -99,32 +91,41 @@ trait PrimUnparser
   extends Unparser
   with PrimProcessor
 
+/**
+ * An unparser that is primitive (no sub-unparsers), but doesn't write anything
+ * to a data stream (buffered or real), so alignment, bitOrder, etc. cannot
+ * apply to it.
+ */
+trait PrimUnparserNoData
+  extends Unparser
+  with PrimProcessorNoData
+
+/**
+ * Text primitive unparsers - primitive and textual only.
+ */
 trait TextPrimUnparser
   extends PrimUnparser
   with TextProcessor
 
-// Deprecated and to be phased out. Use the trait Unparser instead.
-abstract class UnparserObject(override val context: RuntimeData)
-  extends Unparser {
+abstract class CombinatorUnparser(override val context: RuntimeData)
+  extends Unparser with CombinatorProcessor
 
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
-
-}
-
-// Deprecated and to be phased out. Use the trait PrimUnparser instead.
-abstract class PrimUnparserObject(override val context: TermRuntimeData)
+trait SuspendableUnparser
   extends PrimUnparser {
-  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
-}
 
-abstract class TextPrimUnparserObject(ctxt: TermRuntimeData)
-  extends PrimUnparserObject(ctxt)
-  with TextProcessor
+  protected def suspendableOperation: SuspendableOperation
+
+  override final def unparse(state: UState): Unit = {
+    suspendableOperation.run(state)
+  }
+}
 
 // No-op, in case an optimization lets one of these sneak thru.
 // TODO: make this fail, and test optimizer sufficiently to know these
 // do NOT get through.
-class EmptyGramUnparser(context: TermRuntimeData = null) extends UnparserObject(context) {
+final class EmptyGramUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
+
+  override lazy val runtimeDependencies = Nil
 
   def unparse(ustate: UState) {
     Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
@@ -138,7 +139,10 @@ class EmptyGramUnparser(context: TermRuntimeData = null) extends UnparserObject(
   override def toString = toBriefXML()
 }
 
-class ErrorUnparser(context: TermRuntimeData = null) extends UnparserObject(context) {
+final class ErrorUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
+
+  override lazy val runtimeDependencies = Nil
+
   def unparse(ustate: UState) {
     Assert.abort("Error Unparser")
   }
@@ -148,9 +152,11 @@ class ErrorUnparser(context: TermRuntimeData = null) extends UnparserObject(cont
   override def toString = "Error Unparser"
 }
 
-class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
-  extends UnparserObject(context)
+final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
+  extends CombinatorUnparser(context)
   with ToBriefXMLImpl {
+
+  override lazy val runtimeDependencies = Nil
 
   override val childProcessors = childUnparsers.toSeq
 
@@ -171,7 +177,11 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
   }
 }
 
-case class DummyUnparser(primitiveName: String) extends UnparserObject(null) {
+case class DummyUnparser(primitiveName: String) extends PrimUnparserNoData {
+
+  override def context = null
+
+  override lazy val runtimeDependencies = Nil
 
   override def isEmpty = true
 
@@ -182,7 +192,7 @@ case class DummyUnparser(primitiveName: String) extends UnparserObject(null) {
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
 
-case class NotUnparsableUnparser(context: ElementRuntimeData) extends Unparser {
+case class NotUnparsableUnparser(override val context: ElementRuntimeData) extends PrimUnparserNoData {
 
   def unparse(state: UState): Unit = {
     // We can't use state.SDE because that needs the infoset to determine the

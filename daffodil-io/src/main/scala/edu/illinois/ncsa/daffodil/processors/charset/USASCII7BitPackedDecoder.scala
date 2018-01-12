@@ -46,7 +46,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object USASCII7BitPackedCharset
-  extends NBitsWidthCharset("X-DFDL-US-ASCII-7-BIT-PACKED",
+  extends NBitsWidth_BitsCharset("X-DFDL-US-ASCII-7-BIT-PACKED",
     (0 to 127).map { _.toChar }.mkString,
     7,
     BitOrder.LeastSignificantBitFirst,

@@ -32,9 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.processors.charset
 
-import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.spi.CharsetProvider
 
 /**
  * This implements a CharsetProvider that implements Daffodil's support
@@ -43,10 +41,14 @@ import java.nio.charset.spi.CharsetProvider
  * extension mechanism was really intended for JVM maintainers to use, but
  * not for end-user jar libraries to use.
  *
+ * Also, we have to have a proxy class BitsCharset, and we have to produce
+ * those for all charsets, rather than being able to extend
+ * java.nio.charset.Charset - because that's full of final methods.
+ *
  * Rather than contort to try to get this working, We simply call this
  * directly from a CharsetUtils method that we use instead of Charset.forName.
  */
-object DaffodilCharsetProvider extends CharsetProvider {
+object DaffodilCharsetProvider {
   import collection.JavaConverters._
 
   /**
@@ -56,7 +58,7 @@ object DaffodilCharsetProvider extends CharsetProvider {
    *
    * @return  The new iterator
    */
-  override def charsets(): java.util.Iterator[Charset] = {
+  def charsets(): java.util.Iterator[BitsCharset] = {
     addedCharsets.toIterator.asJava
   }
 
@@ -65,7 +67,7 @@ object DaffodilCharsetProvider extends CharsetProvider {
 
   private lazy val addedCharsets = addedCharsetsMap.map { _._2 }
 
-  private val addedCharsetsMap: Map[String, Charset] =
+  private val addedCharsetsMap: Map[String, BitsCharset] =
     Map(
       "X-DFDL-US-ASCII-7-BIT-PACKED" -> USASCII7BitPackedCharset, // DFDL v1.0
       "X-DFDL-US-ASCII-6-BIT-PACKED" -> USASCII6BitPackedCharset, // DFDL v1.0
@@ -93,7 +95,7 @@ object DaffodilCharsetProvider extends CharsetProvider {
    *          or <tt>null</tt> if the named charset
    *          is not supported by this provider
    */
-  override def charsetForName(charsetName: String): Charset = {
+  def charsetForName(charsetName: String): BitsCharset = {
     Assert.usage(charsetName != null);
     //    {
     //      // TODO: expensive check, remove if unnecessary
@@ -104,7 +106,7 @@ object DaffodilCharsetProvider extends CharsetProvider {
     //      Assert.usage(m.matches)
     //    }
     val lookupResult = addedCharsetsMap.get(charsetName)
-    val cs: Charset = lookupResult.getOrElse(null)
+    val cs = lookupResult.getOrElse(null)
     cs
   }
 

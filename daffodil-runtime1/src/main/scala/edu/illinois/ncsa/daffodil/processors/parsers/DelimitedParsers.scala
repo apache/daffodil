@@ -49,24 +49,25 @@ import edu.illinois.ncsa.daffodil.util.MaybeChar
 import edu.illinois.ncsa.daffodil.util.DecimalUtils
 import edu.illinois.ncsa.daffodil.processors.AllTerminatingMarkupDelimiterIterator
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
 
 class StringDelimitedParser(
-  erd: ElementRuntimeData,
+  override val context: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
   pad: MaybeChar,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean)
-  extends TextPrimParserObject(erd)
+  extends TextPrimParser
   with CaptureParsingValueLength {
 
-  override val runtimeDependencies = List(fieldDFAEv, erd.encInfo.charsetEv)
+  override val runtimeDependencies = List(fieldDFAEv, context.encInfo.charsetEv)
 
-  override val charsetEv = erd.encInfo.charsetEv
+  override val charsetEv = context.encInfo.charsetEv
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), context.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = if (result.field.isDefined) result.field.get else ""
@@ -172,7 +173,7 @@ class HexBinaryDelimitedParser(
    */
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
+    Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
 
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
@@ -186,7 +187,6 @@ class HexBinaryDelimitedParser(
     }
   }
 }
-
 
 class PackedIntegerDelimitedParser(
   erd: ElementRuntimeData,

@@ -36,7 +36,9 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class OptionalInfixSepUnparser(contextArg: TermRuntimeData,
   sepUnparser: Unparser)
-  extends UnparserObject(contextArg) {
+  extends CombinatorUnparser(contextArg) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = List(sepUnparser)
 

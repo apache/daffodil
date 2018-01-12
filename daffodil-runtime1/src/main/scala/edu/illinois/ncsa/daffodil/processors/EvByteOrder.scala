@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.
@@ -93,15 +92,24 @@ class CheckBitOrderAndCharsetEv(t: TermRuntimeData, bitOrder: BitOrder, charsetE
   override lazy val runtimeDependencies = List(charsetEv)
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
-    val dfdlCS = charsetEv.evaluate(state)
-    dfdlCS.charset match {
-      case nbsc: NonByteSizeCharset =>
-        if (nbsc.requiredBitOrder !=:= bitOrder) {
-          t.schemaDefinitionError("Encoding '%s' requires bit order '%s', but bit order was '%s'.", dfdlCS.charsetName, nbsc.requiredBitOrder, bitOrder)
-        }
-      case _ => // do nothing
+    val bitsCharset = charsetEv.evaluate(state)
+    //
+    // If the encoding is byte aligned then bit order doesn't matter
+    // but otherwise it does.
+    //
+    // This is checking for the situation where we are within a byte,
+    // and the character encoding uses say, MSBF, but we were left
+    // off at a LSBF bit position. Or vice versa.
+    //
+    if (bitsCharset.mandatoryBitAlignment != 8
+      && (bitsCharset.requiredBitOrder !=:= bitOrder)
+      && state.bitPos1b % 8 != 1 // real runtime check
+      // we check that last because the others might fail at compile time for this Ev
+      // which would mean no possible error message at runtime, and
+      // therefore faster speed for this Ev.
+      ) {
+      t.schemaDefinitionError("Encoding '%s' requires bit order '%s', but bit order was '%s'.", bitsCharset.name, bitsCharset.requiredBitOrder, bitOrder)
     }
-
     Ok
   }
 }

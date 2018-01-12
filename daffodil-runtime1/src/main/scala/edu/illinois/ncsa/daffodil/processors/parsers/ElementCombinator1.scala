@@ -56,7 +56,9 @@ abstract class ElementParserBase(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser])
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
+
+  override lazy val runtimeDependencies = Nil
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseBegin(pstate: PState): Unit
@@ -136,7 +138,6 @@ abstract class ElementParserBase(
     }
 
     parseBegin(pstate)
-    ParserBitOrderChecks.checkParseBitOrder(pstate)
 
     try {
       // TODO: Performance/Maintainability - get rid of use of return statements.

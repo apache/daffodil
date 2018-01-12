@@ -43,8 +43,10 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
   override def nom = "ComplexType"
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -64,8 +66,8 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the internal/body parser has completed.
  */
 class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
-  override val context: RuntimeData, bodyParser: Parser)
-  extends Parser {
+  ctxt: RuntimeData, bodyParser: Parser)
+  extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = List(bodyParser)
 
@@ -110,8 +112,8 @@ class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
  * cached, so upon exiting scope the cache must be invalidated.
  */
 class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
-  override val context: TermRuntimeData, bodyParser: Parser)
-  extends Parser {
+  ctxt: TermRuntimeData, bodyParser: Parser)
+  extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -133,8 +135,10 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
 }
 
 class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
   override def nom = "Sequence"
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -155,8 +159,10 @@ class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
  * which has a more complicated unparser that differs from an AltCompUnparser.
  */
 class ChoiceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
   override def nom = "Choice"
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(bodyParser)
 
@@ -166,8 +172,10 @@ class ChoiceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
 }
 
 class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = dispatchBranchKeyMap.values.toSeq
 
@@ -203,9 +211,12 @@ class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceD
   }
 }
 
-class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends ParserObject(erd) {
+class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser)
+  extends CombinatorParser(erd) {
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyParser)
+
+  override lazy val runtimeDependencies = Nil
 
   def parse(start: PState): Unit = {
 

@@ -32,18 +32,19 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.dsom.EncodingLattice
+import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.util.TransientParam
-import java.nio.charset.StandardCharsets
-import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -66,19 +67,17 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
   def charsetEv: CharsetEv
   def knownEncodingAlignmentInBits: Int
 
-  def optionUTF16Width: Option[UTF16Width]
-
   /**
    * Note that the canonical form for encoding names is all upper case.
    */
   final lazy val knownEncodingName = {
     Assert.invariant(isKnownEncoding)
-    val res = charsetEv.optConstant.get.charsetName
+    val res = charsetEv.optConstant.get.name
     res
   }
 
   final lazy val knownEncodingCharset = {
-    new DFDLCharset(knownEncodingName)
+    CharsetUtils.getCharset(knownEncodingName)
   }
 
   /**
@@ -98,9 +97,9 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
   final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(knownEncodingCharset)
 
-  final def encodingMinimumCodePointWidthInBits(cs: DFDLCharset) = {
-    val res = cs.charset match {
-      case StandardCharsets.UTF_8 => 8
+  final def encodingMinimumCodePointWidthInBits(cs: BitsCharset) = {
+    val res = cs match {
+      case StandardBitsCharsets.UTF_8 => 8
       case _ => cs.maybeFixedWidth.get
     }
     res
@@ -139,7 +138,6 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 final class EncodingRuntimeData(
   @TransientParam termRuntimeDataArg: => TermRuntimeData,
   @TransientParam charsetEvArg: => CharsetEv,
-  @TransientParam checkEncodingEvArg: => CheckEncodingEv,
   override val schemaFileLocation: SchemaFileLocation,
   optionUTF16WidthArg: Option[UTF16Width],
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
@@ -149,41 +147,33 @@ final class EncodingRuntimeData(
   override val knownEncodingAlignmentInBits: Int)
   extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
 
-  private val optionUTF16Width_ = optionUTF16WidthArg
   private val maybeUTF16Width_ = Maybe.toMaybe[UTF16Width](optionUTF16WidthArg)
 
-  @deprecated("20170530", "Use maybeUTF16Width instead.")
-  def optionUTF16Width = optionUTF16Width_
   def maybeUTF16Width = maybeUTF16Width_
 
   lazy val termRuntimeData = termRuntimeDataArg
   lazy val charsetEv = charsetEvArg
-  lazy val checkEncodingEv = checkEncodingEvArg
 
-  lazy val runtimeDependencies = List(charsetEv, checkEncodingEv)
+  lazy val runtimeDependencies = List(charsetEv)
 
   def getDecoderInfo(state: ParseOrUnparseState) = {
-    checkEncodingEv.evaluate(state)
     val cs = charsetEv.evaluate(state)
-    val dec = state.getDecoderInfo(cs.charset)
+    val dec = state.getDecoderInfo(cs)
     dec
   }
 
   def getEncoderInfo(state: ParseOrUnparseState) = {
-    checkEncodingEv.evaluate(state)
     val cs = charsetEv.evaluate(state)
-    val enc = state.getEncoderInfo(cs.charset)
+    val enc = state.getEncoderInfo(cs)
     enc
   }
 
-  def getEncoder(state: ParseOrUnparseState, dcs: DFDLCharset) = {
-    checkEncodingEv.evaluate(state)
-    val enc = state.getEncoder(dcs.charset)
+  def getEncoder(state: ParseOrUnparseState, cs: BitsCharset) = {
+    val enc = state.getEncoder(cs)
     enc
   }
 
-  def getDFDLCharset(state: ParseOrUnparseState): DFDLCharset = {
-    checkEncodingEv.evaluate(state)
+  def getDFDLCharset(state: ParseOrUnparseState): BitsCharset = {
     val cs = charsetEv.evaluate(state)
     cs
   }
@@ -192,7 +182,6 @@ final class EncodingRuntimeData(
     super.preSerialization
     termRuntimeData
     charsetEv
-    checkEncodingEv
   }
 
   @throws(classOf[java.io.IOException])

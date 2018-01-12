@@ -75,7 +75,6 @@ import java.nio.CharBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.io.ByteArrayInputStream
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoder
 import scala.language.postfixOps
 import java.nio.file.Paths
 import java.nio.file.Files
@@ -86,12 +85,14 @@ import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.cookers.EntityReplacer
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.infoset._
 import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.api.DaffodilTunables
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharset
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import java.nio.charset.{ Charset => JavaCharset }
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -1185,7 +1186,7 @@ object VerifyTestCase {
     }
   }
 
-  private val cs8859 = java.nio.charset.Charset.forName("iso-8859-1")
+  private val cs8859 = JavaCharset.forName("iso-8859-1")
 
   def verifyBinaryOrMixedData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
@@ -1498,7 +1499,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val upperName = encodingName.toUpperCase
     val cs = CharsetUtils.getCharset(upperName)
     cs match {
-      case bitEnc: NonByteSizeCharset => {
+      case bitEnc: NBitsWidth_BitsCharset => {
         (bitEnc.requiredBitOrder, partBitOrder) match {
           case (BitOrder.LeastSignificantBitFirst, LSBFirst) => //ok
           case (BitOrder.MostSignificantBitFirst, MSBFirst) => //ok
@@ -1547,8 +1548,8 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoder]
-    val nBits = s.length * enc.bitWidthOfACodeUnit
+    val enc = encoder.asInstanceOf[NBitsWidth_BitsCharsetEncoder]
+    val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
     val bitChunks = allBits.reverse.sliding(byteSize, byteSize).map { _.reverse }.toList
@@ -1571,8 +1572,8 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 
   lazy val dataBits = {
     val bytesAsStrings =
-      encoder.charset() match {
-        case nbs: NonByteSizeCharset =>
+      encoder.bitsCharset match {
+        case nbs: NBitsWidth_BitsCharset =>
           encodeWithNonByteSizeEncoder(textContentWithoutEntities, nbs.bitWidthOfACodeUnit)
         case _ =>
           encodeWith8BitEncoder(textContentWithoutEntities)

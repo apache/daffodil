@@ -41,8 +41,12 @@ import java.nio.charset.UnmappableCharacterException
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-class DelimiterTextUnparser(erd: TermRuntimeData, delimiterType: DelimiterTextType.Type)
-  extends TextPrimUnparserObject(erd) {
+class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType: DelimiterTextType.Type)
+  extends TextPrimUnparser {
+
+  private def erd = context
+  
+  override lazy val runtimeDependencies = Nil
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"

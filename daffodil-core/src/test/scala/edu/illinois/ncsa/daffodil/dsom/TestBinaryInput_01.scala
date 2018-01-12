@@ -42,23 +42,23 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.FormatInfo
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
 class TestBinaryInput_01 {
 
   class FakeFormatInfo(val bitOrder: BitOrder, val byteOrder: ByteOrder) extends FormatInfo {
-    def encoder: CharsetEncoder = ???
-    def decoder: CharsetDecoder = ???
-    def reportingDecoder: CharsetDecoder = ???
-    def replacingDecoder: CharsetDecoder = ???
+    def encoder: BitsCharsetEncoder = ???
+    def decoder: BitsCharsetDecoder = ???
+    def reportingDecoder: BitsCharsetDecoder = ???
+    def replacingDecoder: BitsCharsetDecoder = ???
     def fillByte: Byte = ???
 
     def binaryFloatRep: BinaryFloatRep = ???

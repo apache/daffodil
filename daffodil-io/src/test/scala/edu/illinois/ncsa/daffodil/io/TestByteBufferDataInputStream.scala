@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.MalformedInputException
-import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
 
 import scala.BigInt
@@ -55,6 +54,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import passera.unsigned.ULong
 import java.nio.charset.CodingErrorAction
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
 
 class TestByteBufferDataInputStream {
   val tenDigits = "1234567890"
@@ -704,7 +704,7 @@ class TestByteBufferDataInputStream {
     val data = data1 ++ badByte ++ data3
     val dis = ByteBufferDataInputStream(data)
     val finfo = FormatInfoForUnitTest()
-    finfo.reset(StandardCharsets.UTF_16BE)
+    finfo.reset(StandardBitsCharsets.UTF_16BE)
     val pattern = Pattern.compile(".{1,13}")
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher, finfo)

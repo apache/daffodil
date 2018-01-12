@@ -45,7 +45,7 @@ class IBM4690PackedIntegerRuntimeLengthUnparser(
   extends IBM4690PackedIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = List(lengthEv)
 }
 
 final class IBM4690PackedIntegerMinLengthInBytesUnparser(
@@ -84,7 +84,7 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
   extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = List(lengthEv)
 }
 
 final class IBM4690PackedDecimalMinLengthInBytesUnparser(

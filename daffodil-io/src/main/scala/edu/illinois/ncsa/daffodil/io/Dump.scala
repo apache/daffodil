@@ -34,14 +34,14 @@ package edu.illinois.ncsa.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.charset.CharsetDecoder
 import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UProperty
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.equality._
+import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
+import java.nio.charset.{ Charset => JavaCharset }
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.
@@ -156,7 +156,7 @@ class DataDumper {
   var nPadBytesFromPriorLine = 0
 
   private def textDump(addr: Long, rowStart0b: Int, txtsb: StringBuilder,
-    limit0b: Int, endByteAddress0b: Long, byteSource: ByteSource, decoder: Option[CharsetDecoder],
+    limit0b: Int, endByteAddress0b: Long, byteSource: ByteSource, decoder: Option[JavaCharsetDecoder],
     textByteWidth: Int) {
     var i = rowStart0b + nPadBytesFromPriorLine
     txtsb ++= paddingFromPriorLine
@@ -451,8 +451,8 @@ class DataDumper {
     }
   }
 
-  private def getReplacingDecoder(optEncodingName: Option[String]): Option[CharsetDecoder] = {
-    val cs = optEncodingName.map { Charset.forName(_) }
+  private def getReplacingDecoder(optEncodingName: Option[String]): Option[JavaCharsetDecoder] = {
+    val cs = optEncodingName.map { JavaCharset.forName(_) }
     lazy val decoder = cs.map { _.newDecoder() }
     decoder foreach { d =>
       d.onMalformedInput(CodingErrorAction.REPLACE)
@@ -467,7 +467,7 @@ class DataDumper {
   private def convertToChar(startingBytePos0b: Long,
     endingBytePos0b: Long,
     bs: ByteSource,
-    decoder: Option[CharsetDecoder]): (Char, Int, Int) = {
+    decoder: Option[JavaCharsetDecoder]): (Char, Int, Int) = {
 
     Assert.invariant(decoder.map { d => Misc.isAsciiBased(d.charset()) }.getOrElse(true))
     decoder match {

@@ -48,13 +48,15 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 
-sealed class StringDelimitedUnparser(erd: ElementRuntimeData,
+sealed class StringDelimitedUnparser(override val context: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
   isDelimRequired: Boolean)
-  extends TextPrimUnparserObject(erd) {
+  extends TextPrimUnparser {
+
+  override lazy val runtimeDependencies = Nil
 
   val fieldDFA = CreateFieldDFA()
-  val textUnparser = new TextDelimitedUnparser(erd)
+  val textUnparser = new TextDelimitedUnparser(context)
 
   protected def theString(state: UState) =
     state.currentInfosetNode.asSimple.dataValueAsString

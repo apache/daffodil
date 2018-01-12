@@ -34,43 +34,12 @@ package edu.illinois.ncsa.daffodil.processors.charset
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
+import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
-
-/*
- * These are needed because the ordinary java/scala Charset, Encoder, and Decoder objects
- * are not serializable. So we must go back to the string from which they can be created
- * in order to serialize these.
- */
-
-/**
- * Serializable Charset
- */
-case class DFDLCharset(val charsetName: String) extends Serializable {
-  import java.nio.charset.StandardCharsets
-
-  charset // Force charset to be evaluted to ensure it's valid at compile time.  It's a lazy val so it will be evaluated when de-serialized
-  @transient lazy val charset = CharsetUtils.getCharset(charsetName)
-  @transient lazy val maybeFixedWidth = CharsetUtils.maybeEncodingFixedWidth(charset)
-
-  def padCharWidthInBits = {
-    if (maybeFixedWidth.isDefined)
-      maybeFixedWidth.get
-    else {
-      charset match {
-        case StandardCharsets.UTF_8 => 8
-        case _ => Assert.invariantFailed("unsupported charset: " + charset)
-      }
-    }
-  }
-}
 
 object CharsetUtils {
 
@@ -78,11 +47,11 @@ object CharsetUtils {
    * Call instead of Charset.forName to obtain Daffodil's less-than-byte-sized
    * encodings as well as the standard ones.
    */
-  def getCharset(name: String) = {
+  def getCharset(name: String): BitsCharset = {
     val dcs = DaffodilCharsetProvider.charsetForName(name)
     val cs =
       if (dcs ne null) dcs
-      else Charset.forName(name)
+      else new BitsCharsetWrappingJavaCharset(name)
     cs
   }
 
@@ -95,7 +64,7 @@ object CharsetUtils {
    * Java 7 at some point in the future.
    */
   lazy val hasJava7DecoderBug = {
-    val decoder = Charset.forName("utf-8").newDecoder()
+    val decoder = JavaCharset.forName("utf-8").newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val bb = ByteBuffer.allocate(6)
@@ -121,9 +90,9 @@ object CharsetUtils {
    * Tells us the encoding's fixed width if it is fixed.
    * Nope if not fixed width
    */
-  final def maybeEncodingFixedWidth(charset: Charset): MaybeInt = {
+  final def maybeEncodingFixedWidth(charset: BitsCharset): MaybeInt = {
     val res: Int = charset match {
-      case nbs: NonByteSizeCharset => nbs.bitWidthOfACodeUnit
+      case nbs: NBitsWidth_BitsCharset => nbs.bitWidthOfACodeUnit
       case _ => {
         val enc = charset.newEncoder()
         val avg = enc.averageBytesPerChar()
@@ -140,11 +109,11 @@ object CharsetUtils {
 
 sealed abstract class CoderInfo(val encodingMandatoryAlignmentInBits: Int, val maybeCharWidthInBits: MaybeInt)
 
-case class DecoderInfo(coder: CharsetDecoder, replacingCoder: CharsetDecoder, reportingCoder: CharsetDecoder,
+case class DecoderInfo(coder: BitsCharsetDecoder, replacingCoder: BitsCharsetDecoder, reportingCoder: BitsCharsetDecoder,
   encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
   extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
-case class EncoderInfo(coder: CharsetEncoder, replacingCoder: CharsetEncoder, reportingCoder: CharsetEncoder,
+case class EncoderInfo(coder: BitsCharsetEncoder, replacingCoder: BitsCharsetEncoder, reportingCoder: BitsCharsetEncoder,
   encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
   extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
@@ -161,12 +130,12 @@ trait EncoderDecoderMixin
    * except when adding a new not-seen-before encoder or decoder.
    */
 
-  private lazy val decoderCache = new java.util.HashMap[Charset, DecoderInfo]
-  private lazy val encoderCache = new java.util.HashMap[Charset, EncoderInfo]
+  private lazy val decoderCache = new java.util.HashMap[BitsCharset, DecoderInfo]
+  private lazy val encoderCache = new java.util.HashMap[BitsCharset, EncoderInfo]
 
-  private def derivations(charset: Charset) = {
+  private def derivations(charset: BitsCharset) = {
     val tuple = charset match {
-      case nbsc: NonByteSizeCharset => {
+      case nbsc: NBitsWidth_BitsCharset => {
         val encodingMandatoryAlignmentInBits = 1
         val maybeCharWidthInBits = MaybeInt(nbsc.bitWidthOfACodeUnit)
         (encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
@@ -187,8 +156,8 @@ trait EncoderDecoderMixin
     tuple
   }
 
-  def getDecoder(charset: Charset) = getDecoderInfo(charset).coder
-  def getDecoderInfo(charset: Charset) = {
+  def getDecoder(charset: BitsCharset) = getDecoderInfo(charset).coder
+  def getDecoderInfo(charset: BitsCharset) = {
     // threadCheck()
     var entry = decoderCache.get(charset)
     if (entry eq null) {
@@ -206,8 +175,8 @@ trait EncoderDecoderMixin
     entry
   }
 
-  def getEncoder(charset: Charset) = getEncoderInfo(charset).coder
-  def getEncoderInfo(charset: Charset) = {
+  def getEncoder(charset: BitsCharset) = getEncoderInfo(charset).coder
+  def getEncoderInfo(charset: BitsCharset) = {
     // threadCheck()
     var entry = encoderCache.get(charset)
     if (entry eq null) {
@@ -231,9 +200,9 @@ trait EncoderDecoderMixin
    * This only has to scan the string if the charset is a variable-width
    * encoding. Otherwise this is just constant time.
    */
-  final def lengthInBits(str: String, dcharset: DFDLCharset): Long = {
+  final def lengthInBits(str: String, bitsCharset: BitsCharset): Long = {
     if (str.length == 0) return 0
-    val mew = dcharset.maybeFixedWidth
+    val mew = bitsCharset.maybeFixedWidth
     if (mew.isDefined) {
       val w = mew.get
       w * str.length
@@ -255,14 +224,12 @@ trait EncoderDecoderMixin
       // replaced by something. And just take the resulting length.
       //
       // in a mode where the errors are ignored
-      val cs = dcharset.charset
-
       withLocalByteBuffer { lbb =>
         withLocalCharBuffer { cbb =>
           val cb = cbb.getBuf(str.length)
           cb.append(str)
           cb.flip()
-          val encoder = getEncoder(cs)
+          val encoder = getEncoder(bitsCharset)
 
           // it is assumed here that the encoder's behavior with respect to
           // dfdl:encodingErrorPolicy is already set up.
@@ -297,11 +264,11 @@ trait EncoderDecoderMixin
    *
    * That unused space is supposed to get filled by the RightFillUnparser with fillbyte
    */
-  final def truncateToBits(str: String, dcharset: DFDLCharset, nBits: Long): String = {
+  final def truncateToBits(str: String, bitsCharset: BitsCharset, nBits: Long): String = {
     Assert.usage(nBits >= 0)
     if (str.length == 0) return str
     if (nBits == 0) return ""
-    val mew = dcharset.maybeFixedWidth
+    val mew = bitsCharset.maybeFixedWidth
     if (mew.isDefined) {
       val w = mew.get
       val nChars = nBits / w
@@ -313,8 +280,6 @@ trait EncoderDecoderMixin
       // charset is variable width encoding
       //
       // We want to get a byteBuffer
-      val cs = dcharset.charset
-
       withLocalByteBuffer { lbb =>
         val nBytes = nBits / 8
         val bb = lbb.getBuf(nBytes)
@@ -322,7 +287,7 @@ trait EncoderDecoderMixin
           val cb = cbb.getBuf(str.length)
           cb.append(str)
           cb.flip()
-          val encoder = getEncoder(cs)
+          val encoder = getEncoder(bitsCharset)
           //
           // it is assumed here that the encoder's behavior with respect to
           // dfdl:encodingErrorPolicy is already set up.

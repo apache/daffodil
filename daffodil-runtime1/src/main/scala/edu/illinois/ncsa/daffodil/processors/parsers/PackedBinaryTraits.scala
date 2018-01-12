@@ -32,18 +32,21 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInteger }
+import java.nio.charset.StandardCharsets
+
+import edu.illinois.ncsa.daffodil.equality.TypeEqual
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
+import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserBase
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.equality._
-import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.util.MaybeChar
-import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
-import java.nio.charset.StandardCharsets
 import passera.unsigned.ULong
 
 trait PackedBinaryConversion {
@@ -52,10 +55,11 @@ trait PackedBinaryConversion {
 }
 
 abstract class PackedBinaryDecimalBaseParser(
-  e: ElementRuntimeData,
+  override val context: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int)
-  extends PrimParserObject(e)
+  extends PrimParser
   with PackedBinaryConversion {
+  override lazy val runtimeDependencies = Nil
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -79,10 +83,11 @@ abstract class PackedBinaryDecimalBaseParser(
 }
 
 abstract class PackedBinaryIntegerBaseParser(
-  e: ElementRuntimeData,
+  override val context: ElementRuntimeData,
   signed: Boolean = false)
-  extends PrimParserObject(e)
+  extends PrimParser
   with PackedBinaryConversion {
+  override lazy val runtimeDependencies = Nil
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -117,7 +122,7 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
   with PackedBinaryConversion {
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
+    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
 
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
     else {
@@ -143,7 +148,6 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
   }
 }
 
-
 abstract class PackedBinaryDecimalDelimitedBaseParser(
   e: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
@@ -166,7 +170,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
    */
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
+    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
 
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
     else {

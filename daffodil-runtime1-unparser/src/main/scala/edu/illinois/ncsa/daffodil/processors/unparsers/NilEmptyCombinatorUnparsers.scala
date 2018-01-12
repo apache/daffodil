@@ -37,7 +37,9 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 
 case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
+  nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(nilUnparser, emptyUnparser, valueUnparser)
 
@@ -58,7 +60,9 @@ case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
 }
 
 case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
+  nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
 
@@ -72,7 +76,9 @@ case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
 }
 
 case class SimpleEmptyOrValueUnparser(ctxt: ElementRuntimeData,
-  emptyUnparser: Unparser, valueUnparser: Unparser) extends UnparserObject(ctxt) {
+  emptyUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(emptyUnparser, valueUnparser)
 
@@ -85,7 +91,9 @@ case class SimpleEmptyOrValueUnparser(ctxt: ElementRuntimeData,
 }
 
 case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, contentUnparser: Unparser) extends UnparserObject(ctxt) {
+  nilUnparser: Unparser, contentUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(nilUnparser, contentUnparser)
 

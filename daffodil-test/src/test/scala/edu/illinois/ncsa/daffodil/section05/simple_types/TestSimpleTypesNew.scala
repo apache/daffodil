@@ -40,9 +40,10 @@ object TestSimpleTypesNew {
   private val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
 
   val runner = Runner(testDir, "SimpleTypes.tdml")
-
+  val runner1 = Runner(testDir, "BitOrder.tdml")
   @AfterClass def shutdown {
     runner.reset
+    runner1.reset
   }
 }
 
@@ -57,4 +58,7 @@ class TestSimpleTypesNew {
   @Test def test_dateTime_calendarTimeZone_EST() { runner.runOneTest("dateTime_calendarTimeZone_EST") }
 
   @Test def test_hexBinary_specifiedLengthUnaligned() { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
+
+  // DAFFODIL-1001 fixed.
+  @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
 }

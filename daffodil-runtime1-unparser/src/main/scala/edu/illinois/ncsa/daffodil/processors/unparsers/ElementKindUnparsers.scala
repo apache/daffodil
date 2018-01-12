@@ -43,7 +43,9 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
-  extends UnparserObject(rd) {
+  extends CombinatorUnparser(rd) {
+
+  override lazy val runtimeDependencies = Nil
 
   override def nom = "ComplexType"
 
@@ -58,9 +60,12 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
-  extends TermUnparser(rdArg)
+class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
+  extends CombinatorUnparser(ctxt)
   with ToBriefXMLImpl {
+
+  override lazy val runtimeDependencies = Nil
+
   override def nom = "Sequence"
 
   // Sequences of nothing (no initiator, no terminator, nothing at all) should
@@ -70,7 +75,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
   // Since some of the grammar terms might have folded away to EmptyGram,
   // the number of unparsers here may be different from the number of
   // children of the sequence group.
-  Assert.invariant(rdArg.groupMembers.length >= childUnparsers.length)
+  Assert.invariant(ctxt.groupMembers.length >= childUnparsers.length)
 
   override lazy val childProcessors: Seq[Processor] = childUnparsers
 
@@ -102,7 +107,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
               val c = ev.asComplex
               //ok. We've peeked ahead and found the end of the complex element
               //that this sequence is the model group of.
-              val optParentRD = termRuntimeData.immediateEnclosingElementRuntimeData
+              val optParentRD = ctxt.immediateEnclosingElementRuntimeData
               optParentRD match {
                 case Some(e: ElementRuntimeData) =>
                   Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
@@ -139,9 +144,11 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
 }
 
 class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Map[ChoiceBranchEvent, Unparser])
-  extends TermUnparser(mgrd)
+  extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors: Seq[Processor] = eventUnparserMap.map { case (k, v) => v }.toSeq
 
@@ -175,9 +182,10 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
 // statically at compile time. That logic is in ChoiceCombinator, and the
 // branch to take is passed into this HiddenChoiceCombinatorUnparser.
 class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser: Unparser)
-  extends TermUnparser(mgrd)
+  extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "HiddenChoice"
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors: Seq[Processor] = Seq(branchUnparser)
 
@@ -189,9 +197,9 @@ class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser
 class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
-  override val context: TermRuntimeData,
+  ctxt: TermRuntimeData,
   bodyUnparser: Unparser)
-  extends Unparser {
+  extends CombinatorUnparser(ctxt) {
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -223,8 +231,8 @@ class DelimiterStackUnparser(initiatorOpt: Maybe[InitiatorUnparseEv],
   }
 }
 
-class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override val context: TermRuntimeData, bodyUnparser: Unparser)
-  extends Unparser {
+class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, ctxt: TermRuntimeData, bodyUnparser: Unparser)
+  extends CombinatorUnparser(ctxt) {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
@@ -248,8 +256,9 @@ class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, override 
 }
 
 class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
-  extends TermUnparser(erd) {
+  extends CombinatorUnparser(erd) {
   override def nom = "Array"
+  override lazy val runtimeDependencies = Nil
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(state: UState) {
@@ -292,9 +301,12 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) extends UnparserObject(erd) {
+class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
+  extends CombinatorUnparser(erd) {
   override def nom = "Optional"
   override lazy val childProcessors = Seq(bodyUnparser)
+
+  override lazy val runtimeDependencies = Nil
 
   def unparse(state: UState) {
 

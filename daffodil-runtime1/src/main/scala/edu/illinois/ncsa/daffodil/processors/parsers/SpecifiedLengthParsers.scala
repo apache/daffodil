@@ -45,9 +45,11 @@ import edu.illinois.ncsa.daffodil.equality._
 import java.lang.{ Long => JLong }
 
 sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
-                                                erd: ElementRuntimeData)
-  extends ParserObject(erd)
+  erd: ElementRuntimeData)
+  extends CombinatorParser(erd)
   with CaptureParsingValueLength {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(eParser)
 

@@ -46,8 +46,8 @@ import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.util.Numbers._
 import edu.illinois.ncsa.daffodil.io.FormatInfo
 
-abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
-  extends PrimUnparserObject(e) {
+abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData)
+  extends PrimUnparser {
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -69,7 +69,7 @@ abstract class BinaryNumberBaseUnparser(e: ElementRuntimeData)
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
       UnparseError(One(state.schemaFileLocation), One(state.currentLocation), "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
-        e.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
+        context.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
     }
   }
 
@@ -90,6 +90,9 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
 class BinaryIntegerKnownLengthUnparser(e: ElementRuntimeData, signed: Boolean, override val lengthInBits: Int)
   extends BinaryIntegerBaseUnparser(e, signed)
   with HasKnownLengthInBits {
+
+  override lazy val runtimeDependencies = Nil
+
 }
 
 class BinaryIntegerRuntimeLengthUnparser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
@@ -102,9 +105,11 @@ class BinaryIntegerRuntimeLengthUnparser(val e: ElementRuntimeData, signed: Bool
 class BinaryFloatUnparser(e: ElementRuntimeData)
   extends BinaryNumberBaseUnparser(e) {
 
+  override lazy val runtimeDependencies = Nil
+
   override def getBitLength(s: ParseOrUnparseState) = 32
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo:FormatInfo): Boolean = {
+  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
     dos.putBinaryFloat(asFloat(value), finfo)
   }
 
@@ -112,6 +117,8 @@ class BinaryFloatUnparser(e: ElementRuntimeData)
 
 class BinaryDoubleUnparser(e: ElementRuntimeData)
   extends BinaryNumberBaseUnparser(e) {
+
+  override lazy val runtimeDependencies = Nil
 
   override def getBitLength(s: ParseOrUnparseState) = 64
 
@@ -123,6 +130,9 @@ class BinaryDoubleUnparser(e: ElementRuntimeData)
 class BinaryDecimalKnownLengthUnparser(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthInBits: Int)
   extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
+
+  override lazy val runtimeDependencies = Nil
+
 }
 
 class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
