@@ -68,8 +68,12 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.processors.charset.CoderInfo
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import java.nio.charset.CharsetDecoder
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.parsers.ParserBitOrderChecks
+import edu.illinois.ncsa.daffodil.processors.parsers.PState
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparserBitOrderChecks
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -154,63 +158,110 @@ abstract class ParseOrUnparseState protected (
   /*
    * Implement the FormatInfo trait needed by the I/O layer.
    */
-  final def replacingDecoder: CharsetDecoder = decoderEntry.replacingCoder
-  final def reportingDecoder: CharsetDecoder = decoderEntry.reportingCoder
-  final def binaryFloatRep: BinaryFloatRep = simpleElement.erd.maybeBinaryFloatRepEv.get.evaluate(this)
+
+  /*
+   * Slots that cache the value of these FormatInfo members so that
+   * they are recomputed only once per call to parse() or unparse() method.
+   */
+  private var binaryFloatRepCache: BinaryFloatRep = null
+  private var bitOrderCache: BitOrder = null
+  private var byteOrderCache: ByteOrder = null
+  private var maybeCachedFillByte: MaybeInt = MaybeInt.Nope
+  private var decoderCache: BitsCharsetDecoder = null
+  private var encoderCache: BitsCharsetEncoder = null
+  private var decoderCacheEntry_ : DecoderInfo = null
+  private var encoderCacheEntry_ : EncoderInfo = null
+
+  /**
+   * Must call after all processors so as to recompute the formatInfo slots
+   * for the next parser - since the values could change.
+   */
+  final def resetFormatInfoCaches(): Unit = {
+    binaryFloatRepCache = null
+    bitOrderCache = null
+    byteOrderCache = null
+    maybeCachedFillByte = MaybeInt.Nope
+    decoderCache = null
+    encoderCache = null
+    decoderCacheEntry_ = null
+    encoderCacheEntry_ = null
+  }
+
+  final def replacingDecoder: BitsCharsetDecoder = decoderEntry.replacingCoder
+  final def reportingDecoder: BitsCharsetDecoder = decoderEntry.reportingCoder
+
+  final def binaryFloatRep: BinaryFloatRep = {
+    if (binaryFloatRepCache eq null) {
+      binaryFloatRepCache = simpleElement.erd.maybeBinaryFloatRepEv.get.evaluate(this)
+    }
+    binaryFloatRepCache
+  }
 
   private def runtimeData = processor.context
   private def termRuntimeData = runtimeData.asInstanceOf[TermRuntimeData]
+
+  protected def checkBitOrder(): Unit
 
   /**
    * Returns bit order. If text, this is the bit order for the character set
    * encoding. If binary, this is the bitOrder property value.
    */
   final def bitOrder: BitOrder = {
-    val res = processor match {
-      case txtProc: TextProcessor =>
-        encoder.charset() match {
-          case nbs: NonByteSizeCharset => nbs.requiredBitOrder
-          case _ => BitOrder.MostSignificantBitFirst
+    if (bitOrderCache eq null) {
+      val res = processor match {
+        case txtProc: TextProcessor =>
+          encoder.bitsCharset.requiredBitOrder
+        case _ => processor.context match {
+          case trd: TermRuntimeData => trd.defaultBitOrder
+          case ntrd: NonTermRuntimeData =>
+            Assert.usageError("Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd)
         }
-      case _ => processor.context match {
-        case trd: TermRuntimeData => trd.defaultBitOrder
-        case ntrd: NonTermRuntimeData =>
-          Assert.usageError("Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd)
       }
+      bitOrderCache = res
+      checkBitOrder()
     }
-    res
+    bitOrderCache
   }
 
   final def byteOrder: ByteOrder = {
-    runtimeData match {
-      case erd: ElementRuntimeData => erd.maybeByteOrderEv.get.evaluate(this)
-      case mgrd: ModelGroupRuntimeData => {
-        //
-        // Model Groups can't have byte order.
-        // However, I/O layer still requests it because alignment regions
-        // use skip, which ultimately uses getLong/putLong, which asks for
-        // byteOrder.
-        //
-        // A model group DOES care about bit order for its alignment regions,
-        // and for the charset encoding of say, initiators or prefix separators.
-        // A bitOrder change requires that we check the new bitOrder against the
-        // byte order to insure compatibility. (byteOrder can be an expression),
-        // so of necessity, we also need byte order. However, if byte order isn't defined
-        // we can assume littleEndian since that works with all bit orders.
-        // (Big endian only allows MSBF bit order)
-        //
-        ByteOrder.LittleEndian
+    if (byteOrderCache eq null) {
+      val bo = runtimeData match {
+        case erd: ElementRuntimeData => erd.maybeByteOrderEv.get.evaluate(this)
+        case mgrd: ModelGroupRuntimeData => {
+          //
+          // Model Groups can't have byte order.
+          // However, I/O layer still requests it because alignment regions
+          // use skip, which ultimately uses getLong/putLong, which asks for
+          // byteOrder.
+          //
+          // A model group DOES care about bit order for its alignment regions,
+          // and for the charset encoding of say, initiators or prefix separators.
+          // A bitOrder change requires that we check the new bitOrder against the
+          // byte order to insure compatibility. (byteOrder can be an expression),
+          // so of necessity, we also need byte order. However, if byte order isn't defined
+          // we can assume littleEndian since that works with all bit orders.
+          // (Big endian only allows MSBF bit order)
+          //
+          ByteOrder.LittleEndian
+        }
+        case _ => Assert.usageError("byte order of non term: " + runtimeData)
       }
-      case _ => Assert.usageError("byte order of non term: " + runtimeData)
+      byteOrderCache = bo
     }
+    byteOrderCache
   }
 
-  final def maybeCharWidthInBits: MaybeInt = { coderCacheEntry_.maybeCharWidthInBits }
-  final def encodingMandatoryAlignmentInBits: Int = { decoder; coderCacheEntry_.encodingMandatoryAlignmentInBits }
+  final def maybeCharWidthInBits: MaybeInt = { coderEntry.maybeCharWidthInBits }
+  final def encodingMandatoryAlignmentInBits: Int = { coderEntry.encodingMandatoryAlignmentInBits }
   final def maybeUTF16Width: Maybe[UTF16Width] = termRuntimeData.encodingInfo.maybeUTF16Width
-  final def fillByte: Byte = termRuntimeData.maybeFillByteEv.get.evaluate(this).toByte
 
-  final def decoder = {
+  final def fillByte: Byte = {
+    if (maybeCachedFillByte.isEmpty)
+      maybeCachedFillByte = MaybeInt(termRuntimeData.maybeFillByteEv.get.evaluate(this).toInt)
+    maybeCachedFillByte.get.toByte
+  }
+
+  private def getDecoder() = {
     val de = decoderEntry
     if (encodingErrorPolicy eq EncodingErrorPolicy.Error)
       de.reportingCoder
@@ -218,7 +269,13 @@ abstract class ParseOrUnparseState protected (
       de.replacingCoder
   }
 
-  final def encoder = {
+  final def decoder = {
+    if (decoderCache eq null)
+      decoderCache = getDecoder()
+    decoderCache
+  }
+
+  private def getEncoder() = {
     val ee = encoderEntry
     if (encodingErrorPolicy eq EncodingErrorPolicy.Error)
       ee.reportingCoder
@@ -226,28 +283,45 @@ abstract class ParseOrUnparseState protected (
       ee.replacingCoder
   }
 
+  final def encoder = {
+    if (encoderCache eq null)
+      encoderCache = getEncoder()
+    encoderCache
+  }
+
   final def encodingErrorPolicy: EncodingErrorPolicy = {
     val eep = termRuntimeData.encodingInfo.defaultEncodingErrorPolicy
     eep
   }
 
+  private def coderEntry: CoderInfo = {
+    if (this.isInstanceOf[UState]) encoderEntry
+    else decoderEntry
+  }
+
   private def decoderEntry = {
-    val nextEntry = termRuntimeData.encodingInfo.getDecoderInfo(this)
-    if (coderCacheEntry_ == null || coderCacheEntry_ != nextEntry) {
-      coderCacheEntry_ = nextEntry
+    if (decoderCacheEntry_ eq null) {
+      val nextEntry = termRuntimeData.encodingInfo.getDecoderInfo(this)
+      decoderCacheEntry_ = nextEntry
+      if (this.processor.isPrimitive)
+        if (decoderCacheEntry_.encodingMandatoryAlignmentInBitsArg != 1)
+          if (this.bitPos1b % 8 != 1)
+            ParserBitOrderChecks.checkParseBitOrder(this.asInstanceOf[PState])
     }
-    coderCacheEntry_.asInstanceOf[DecoderInfo]
+    decoderCacheEntry_
   }
 
   private def encoderEntry = {
-    val nextEntry = termRuntimeData.encodingInfo.getEncoderInfo(this)
-    if (coderCacheEntry_ == null || coderCacheEntry_ != nextEntry) {
-      coderCacheEntry_ = nextEntry
+    if (encoderCacheEntry_ eq null) {
+      val nextEntry = termRuntimeData.encodingInfo.getEncoderInfo(this)
+      encoderCacheEntry_ = nextEntry
+      if (this.processor.isPrimitive)
+        if (encoderCacheEntry_.encodingMandatoryAlignmentInBitsArg != 1)
+          if (this.bitPos1b % 8 != 1)
+            UnparserBitOrderChecks.checkUnparseBitOrder(this.asInstanceOf[UState])
     }
-    coderCacheEntry_.asInstanceOf[EncoderInfo]
+    encoderCacheEntry_
   }
-
-  private var coderCacheEntry_ : CoderInfo = _
 
   /**
    * Variable map provides access to variable bindings.
@@ -295,14 +369,14 @@ abstract class ParseOrUnparseState protected (
   def setSuccess() {
     _processorStatus = Success
   }
-  
+
   /**
    * Used when errors are caught by interactive debugger expression evaluation.
    * We don't want to accumulate the diagnostics that we're suppressing.
    */
   final def suppressDiagnosticAndSucceed(d: Diagnostic) {
     Assert.usage(diagnostics.contains(d))
-    diagnostics = diagnostics.filterNot{ _ eq d}
+    diagnostics = diagnostics.filterNot { _ eq d }
     setSuccess()
   }
 
@@ -457,4 +531,6 @@ final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
 
   // Members declared in edu.illinois.ncsa.daffodil.processors.StateForDebugger
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
+
+  protected def checkBitOrder(): Unit = {}
 }

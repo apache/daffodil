@@ -33,13 +33,14 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.cookers.FillByteCooker
 import edu.illinois.ncsa.daffodil.cookers.EncodingCooker
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharset
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
 
 /*
  * The way encoding works, is if a EncodingChangeParser or Unparser is
@@ -62,7 +63,7 @@ import edu.illinois.ncsa.daffodil.cookers.EncodingCooker
 /**
  * Encoding is a string, so there is no converter.
  */
-class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+class EncodingEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
@@ -88,17 +89,29 @@ class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
   }
 }
 
-class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
-  extends Evaluatable[DFDLCharset](trd)
-  with InfosetCachedEvaluatable[DFDLCharset] {
+final class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
+  extends Evaluatable[BitsCharset](trd)
+  with InfosetCachedEvaluatable[BitsCharset] {
 
   override lazy val runtimeDependencies = Seq(encodingEv)
+
+  private def checkCharset(state: ParseOrUnparseState, bitsCharset: BitsCharset) {
+    bitsCharset match {
+      case nbsc: NBitsWidth_BitsCharset =>
+        trd.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
+          "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +
+          "The encoding found was '%s'.", bitsCharset.name)
+      case _ => // do nothing
+    }
+  }
 
   override def compute(state: ParseOrUnparseState) = {
     val encString = encodingEv.evaluate(state)
     val cs = CharsetUtils.getCharset(encString)
     Assert.invariant(cs ne null)
-    new DFDLCharset(cs.name.toUpperCase)
+    val dcs = CharsetUtils.getCharset(cs.name.toUpperCase)
+    if (!encodingEv.isConstant) checkCharset(state, dcs)
+    dcs
   }
 }
 
@@ -128,20 +141,20 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
         val cookedFillByte = FillByteCooker.cook(fillByteRaw, trd, true)
         Assert.invariant(cookedFillByte.length == 1)
 
-        val dfdlCharset = charsetEv.evaluate(state)
-        dfdlCharset.charset match {
-          case _: NonByteSizeCharset => {
+        val bitsCharset = charsetEv.evaluate(state)
+        bitsCharset match {
+          case _: NBitsWidth_BitsCharset => {
             state.SDE("The fillByte property cannot be specified as a" +
               " character ('%s') when the dfdl:encoding property is '%s' because that" +
-              " encoding is not a single-byte character set.", fillByteRaw, dfdlCharset.charsetName)
+              " encoding is not a single-byte character set.", fillByteRaw, bitsCharset.name)
           }
-          case cs => {
-            val bytes = cookedFillByte.getBytes(cs)
+          case cs: BitsCharsetWrappingJavaCharset => {
+            val bytes = cookedFillByte.getBytes(cs.javaCharset)
             Assert.invariant(bytes.length > 0)
             if (bytes.length > 1) {
               state.SDE("The fillByte property must be a single-byte" +
                 " character, but for encoding '%s' the specified character '%s'" +
-                " occupies %d bytes", dfdlCharset.charsetName, cookedFillByte, bytes.length)
+                " occupies %d bytes", bitsCharset.name, cookedFillByte, bytes.length)
             }
             bytes(0).toInt
           }
@@ -152,25 +165,3 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntime
 
 }
 
-class CheckEncodingEv(t: TermRuntimeData, alignmentInBits: Integer, charsetEv: CharsetEv)
-  extends Evaluatable[Ok](t)
-  with InfosetCachedEvaluatable[Ok] {
-
-  override lazy val runtimeDependencies = List(charsetEv)
-
-  final protected def compute(state: ParseOrUnparseState): Ok = {
-
-    if (!charsetEv.isConstant) {
-      val dfdlCS = charsetEv.evaluate(state)
-      dfdlCS.charset match {
-        case nbsc: NonByteSizeCharset =>
-          t.schemaDefinitionError("Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
-            "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +
-            "The encoding found was '%s'.", dfdlCS.charsetName)
-        case _ => // do nothing
-      }
-    }
-
-    Ok
-  }
-}

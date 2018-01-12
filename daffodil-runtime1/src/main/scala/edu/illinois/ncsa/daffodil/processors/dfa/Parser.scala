@@ -39,7 +39,7 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 /**
  * Parent class of all DFA text parsers.
  */
-abstract class Parser extends Serializable {
+abstract class DFAParser extends Serializable {
   def name: String
   def info: String
 

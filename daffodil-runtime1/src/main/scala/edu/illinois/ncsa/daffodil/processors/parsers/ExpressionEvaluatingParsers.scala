@@ -51,8 +51,10 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
  */
 abstract class ExpressionEvaluationParser(
   expr: CompiledExpression[AnyRef],
-  rd: RuntimeData)
-  extends ParserObject(rd) {
+  override val context: RuntimeData)
+  extends PrimParserNoData {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Nil
 
@@ -95,20 +97,24 @@ class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeD
 }
 
 class NewVariableInstanceStartParser(
-  decl: RuntimeData)
-  extends PrimParserObject(decl) {
-  decl.notYetImplemented("newVariableInstance")
+  override val context: RuntimeData)
+  extends PrimParser {
+  context.notYetImplemented("newVariableInstance")
+  override lazy val runtimeDependencies = Nil
+
   def parse(pstate: PState) = {
-    decl.notYetImplemented("newVariableInstance")
+    context.notYetImplemented("newVariableInstance")
   }
 }
 
 class NewVariableInstanceEndParser(
-  decl: RuntimeData)
-  extends PrimParserObject(decl) {
-  decl.notYetImplemented("newVariableInstance")
+  override val context: RuntimeData)
+  extends PrimParser {
+  context.notYetImplemented("newVariableInstance")
+  override lazy val runtimeDependencies = Nil
+
   def parse(pstate: PState) = {
-    decl.notYetImplemented("newVariableInstance")
+    context.notYetImplemented("newVariableInstance")
   }
 }
 

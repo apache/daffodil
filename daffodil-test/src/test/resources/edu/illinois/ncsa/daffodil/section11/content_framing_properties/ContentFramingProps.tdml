@@ -80,9 +80,9 @@
           <xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited"
             dfdl:terminator=";" />
           <xs:element name="e2" type="xs:string" dfdl:lengthKind="explicit"
-            dfdl:length="2" dfdl:encoding="{ ../ex:e1 }" dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian" />
+            dfdl:length="2" dfdl:encoding="{ ../ex:e1 }" dfdl:bitOrder="mostSignificantBitFirst" dfdl:byteOrder="littleEndian" />
           <xs:element name="e3" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bits"
-            dfdl:bitOrder="leastSignificantBitFirst" dfdl:byteOrder="littleEndian"/>
+             dfdl:byteOrder="littleEndian"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1000,7 +1000,23 @@
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="string7Bit" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" />
-                <xs:element name="string8Bit" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:encoding="US-ASCII" dfdl:alignment="8" />
+                
+                <xs:sequence dfdl:alignment="8"/><!-- align to 8 bit boundary so we can change bit order -->
+                
+                <!-- 
+                  Interesting. The above element leaves us at bit 7, and bitOrder LSBF.
+                  But the next thing below has bitOrder MSBF and encoding US-ASCII which has mandatory bit
+                  alignment of 8. 
+                  
+                  So we should automatically move over to a byte boundary (the mandatory byte alignment)
+                  but we do so filling with the fill byte according to the bitOrder of the preceding thing.
+                  
+                  Daffodil doesn't do this currently. Bug DAFFODIL-1888
+                 -->
+                <xs:element name="string8Bit" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" 
+                dfdl:encoding="US-ASCII" 
+                dfdl:bitOrder="mostSignificantBitFirst"
+                dfdl:alignment="8" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -1250,8 +1266,18 @@
     <xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit"
       dfdl:length="9" />
 
-    <xs:element name="e4" type="xs:string" dfdl:lengthKind="explicit"
-      dfdl:length="2" dfdl:bitOrder="mostSignificantBitFirst" />
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence>
+          <!-- single bit field leaves us after first bit, and in MSBF bit order -->
+          <xs:element name="bit" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+             dfdl:representation="binary" dfdl:lengthUnits="bits" dfdl:bitOrder="mostSignificantBitFirst"/>
+          <!-- this encoding can go on any bit boundary, but requires LSBF -->
+          <xs:element name="s" type="xs:string" dfdl:lengthKind="explicit"
+              dfdl:length="2" dfdl:alignmentUnits="bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="e6" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
@@ -1378,11 +1404,12 @@
     model="packed5Bit">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
-      00000 11101
+      00000 11101 1
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>requires bit order 'leastSignificantBitFirst'</tdml:error>
+      <tdml:error>bitOrder on a byte boundary</tdml:error>
+      <tdml:error>2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

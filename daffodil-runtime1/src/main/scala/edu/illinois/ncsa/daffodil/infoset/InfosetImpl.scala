@@ -646,11 +646,21 @@ sealed trait DIElementSharedMembersMixin {
   /*
    * Initialized on demand
    */
+  protected final def clearContentLength() = {
+    if (_contentLength eq null) ()
+    else _contentLength.clear()
+  }
+
   final def contentLength = {
     if (_contentLength eq null) {
       _contentLength = allocContentLength
     }
     _contentLength
+  }
+
+  protected final def clearValueLength() = {
+    if (_valueLength eq null) ()
+    else _valueLength.clear()
   }
 
   final def valueLength = {
@@ -694,8 +704,8 @@ sealed trait DIElementSharedImplMixin
   override def clear() {
     this._isNilled = false
     this._validity = MaybeBoolean.Nope
-    contentLength.clear()
-    valueLength.clear()
+    clearContentLength()
+    clearValueLength()
   }
 
 }

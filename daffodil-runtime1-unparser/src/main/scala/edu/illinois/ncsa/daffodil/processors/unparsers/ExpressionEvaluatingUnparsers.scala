@@ -57,25 +57,27 @@ final class SetVariableSuspendableExpression(
 
 /**
  * Used when unparsing to evaluate dfdl:setVariable statements.
- * 
+ *
  * TODO: Possible bug. This will allow expressions to forward reference, even
  * when the variables are being referenced from expressions that are NOT
- * allowed to forward reference - e.g., property value expressions such 
- * as delimiters and byte order. 
- * 
+ * allowed to forward reference - e.g., property value expressions such
+ * as delimiters and byte order.
+ *
  * This forward suspension is only supposed to be allowed for dfdl:outputValueCalc.
  */
 final class SetVariableUnparser(
   val expr: CompiledExpression[AnyRef],
-  val rd: VariableRuntimeData,
+  override val context: VariableRuntimeData,
   referencingContext: NonTermRuntimeData)
-  extends UnparserObject(rd) {
+  extends PrimUnparserNoData {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Nil
 
   def suspendableExpression =
     new SetVariableSuspendableExpression(
-      expr, rd, referencingContext)
+      expr, context, referencingContext)
 
   override def unparse(state: UState): Unit = {
     suspendableExpression.run(state)
@@ -85,26 +87,30 @@ final class SetVariableUnparser(
 
 // When implemented this almost certainly wants to be a combinator
 // Not two separate unparsers.
-class NewVariableInstanceStartUnparser(vrd: RuntimeData)
-  extends UnparserObject(vrd) {
+class NewVariableInstanceStartUnparser(override val context: RuntimeData)
+  extends PrimUnparserNoData {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Nil
 
-  vrd.notYetImplemented("newVariableInstance")
+  context.notYetImplemented("newVariableInstance")
 
   override def unparse(ustate: UState) = {
-    vrd.notYetImplemented("newVariableInstance")
+    context.notYetImplemented("newVariableInstance")
   }
 }
 
-class NewVariableInstanceEndUnparser(vrd: RuntimeData)
-  extends UnparserObject(vrd) {
+class NewVariableInstanceEndUnparser(override val context: RuntimeData)
+  extends PrimUnparserNoData {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Nil
 
-  vrd.notYetImplemented("newVariableInstance")
+  context.notYetImplemented("newVariableInstance")
 
   override def unparse(ustate: UState) = {
-    vrd.notYetImplemented("newVariableInstance")
+    context.notYetImplemented("newVariableInstance")
   }
 }

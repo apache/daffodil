@@ -78,7 +78,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextTrimKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.processors.CheckEncodingEv
 
 /*
  * These are the DFDL properties which can have their values come
@@ -130,12 +129,6 @@ trait TermRuntimeValuedPropertiesMixin
       One(ev)
     } else
       Nope
-
-  final lazy val checkEncodingEv = {
-    val ev = new CheckEncodingEv(termRuntimeData, alignmentValueInBits, charsetEv)
-    ev.compile()
-    ev
-  }
 
   final lazy val maybeFillByteEv = {
     if (optionFillByteRaw.isDefined) {

@@ -14,8 +14,6 @@
 
 package edu.illinois.ncsa.daffodil.io
 
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.CharsetEncoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
@@ -23,6 +21,8 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
 
 /**
  * Abstract interface to obtain format properties or values derived from
@@ -41,26 +41,26 @@ trait FormatInfo {
    * `dfdl:encodingErrorPolicy`. This is the same as either the `reportingEncoder`
    * or the `replacingEncoder`.
    */
-  def encoder: CharsetEncoder
+  def encoder: BitsCharsetEncoder
 
   /**
    * Returns a charset decoder for this encoding configured for the
    * `dfdl:encodingErrorPolicy`. This is the same as either the `reportingDecoder`
    * or the `replacingDecoder`.
    */
-  def decoder: CharsetDecoder
+  def decoder: BitsCharsetDecoder
 
   /**
    * Returns a decoder configured for `dfdl:encodingErrorPolicy="report"`
    * regardless of the value of that property.
    */
-  def reportingDecoder: CharsetDecoder
+  def reportingDecoder: BitsCharsetDecoder
 
   /**
    * Returns decoder configured for `dfdl:encodingErrorPolicy="replace"`
    * regardless of the value of that property.
    */
-  def replacingDecoder: CharsetDecoder
+  def replacingDecoder: BitsCharsetDecoder
 
   /**
    * Returns true if encoding is fixed width meaning has the

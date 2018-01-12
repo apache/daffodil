@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object USASCII6BitPackedCharset
-  extends NBitsWidthCharset("X-DFDL-US-ASCII-6-BIT-PACKED",
+  extends NBitsWidth_BitsCharset("X-DFDL-US-ASCII-6-BIT-PACKED",
     """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?""",
     6, // width
     BitOrder.LeastSignificantBitFirst,

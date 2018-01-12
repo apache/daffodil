@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.infoset.RetryableException
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -103,16 +102,6 @@ trait SuspendableOperation
       log(LogLevel.Debug, "continuation() of %s done!", this)
 
     }
-  }
-}
-
-trait SuspendableUnparser
-  extends Unparser {
-
-  protected def suspendableOperation: SuspendableOperation
-
-  final def unparse(state: UState): Unit = {
-    suspendableOperation.run(state)
   }
 }
 

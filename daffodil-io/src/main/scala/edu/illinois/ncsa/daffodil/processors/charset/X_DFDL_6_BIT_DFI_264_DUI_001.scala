@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object X_DFDL_6_BIT_DFI_264_DUI_001
-  extends NBitsWidthCharset("X-DFDL-6-BIT-DFI-264-DUI-001",
+  extends NBitsWidth_BitsCharset("X-DFDL-6-BIT-DFI-264-DUI-001",
     " 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0",
     6, // width
     BitOrder.LeastSignificantBitFirst,

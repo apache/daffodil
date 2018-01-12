@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
 
 sealed trait DOSState
 private[io] case object Active extends DOSState
@@ -667,7 +668,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       bb.flip
 
       val bitsToWrite = finfo.encoder match {
-        case encoderWithBits: NonByteSizeCharsetEncoder => encoderWithBits.bitWidthOfACodeUnit * nToTransfer
+        case encoderWithBits: NBitsWidth_BitsCharsetEncoder =>
+          encoderWithBits.bitsCharset.bitWidthOfACodeUnit * nToTransfer
         case _ => bb.remaining * 8
       }
       if (putBitBuffer(bb, bitsToWrite, finfo) == 0) 0 else nToTransfer

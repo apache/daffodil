@@ -35,7 +35,7 @@
 //
 package edu.illinois.ncsa.daffodil.io
 //
-import java.nio.charset.Charset
+import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -81,7 +81,7 @@ class TestDecoder {
    * checked for enough room for a surrogate pair.
    */
   @Test def testDecoder1 {
-    val originalDecoder = Charset.forName("utf-8").newDecoder()
+    val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val decoder = originalDecoder
@@ -148,7 +148,7 @@ class TestDecoder {
   }
 
   @Test def testDecoderWorkaround1 {
-    val originalDecoder = Charset.forName("utf-8").newDecoder()
+    val originalDecoder = JavaCharset.forName("utf-8").newDecoder()
     originalDecoder.onMalformedInput(CodingErrorAction.REPORT)
     originalDecoder.onUnmappableCharacter(CodingErrorAction.REPORT)
     val decoder = originalDecoder

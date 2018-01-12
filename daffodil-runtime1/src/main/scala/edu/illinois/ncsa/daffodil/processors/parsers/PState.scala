@@ -283,6 +283,10 @@ final class PState private (
     // threadCheck()
     dataInputStream.setDebugging(flag)
   }
+
+  final override protected def checkBitOrder(): Unit = {
+    ParserBitOrderChecks.checkParseBitOrder(this)
+  }
 }
 
 object PState {

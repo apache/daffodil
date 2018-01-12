@@ -65,7 +65,9 @@ case class ConvertTextCombinatorParser(
   rd: TermRuntimeData,
   valueParser: Parser,
   converterParser: Parser)
-  extends ParserObject(rd) {
+  extends CombinatorParser(rd) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(valueParser, converterParser)
 
@@ -81,7 +83,9 @@ case class ConvertTextCombinatorParser(
 case class ConvertTextNumberParser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
-  e: ElementRuntimeData) extends TextPrimParserObject(e) {
+  override val context: ElementRuntimeData) extends TextPrimParser {
+  override lazy val runtimeDependencies = Nil
+
   override def toString = "to(xs:" + helper.xsdType + ")"
 
   def parse(start: PState): Unit = {
@@ -583,19 +587,19 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
   val decSep =
     if (decimalSepExpEv.isEmpty) Nope else One {
-      val dse = decimalSepExpEv.get.optConstant.get
+      val dse = decimalSepExpEv.get.maybeConstant.get
       getDecimalSepList(dse, context)
     }
 
   val groupSep =
     if (groupingSepExpEv.isEmpty) Nope else One {
-      val gse = groupingSepExpEv.get.optConstant.get
+      val gse = groupingSepExpEv.get.maybeConstant.get
       getGroupingSep(gse, context)
     }
 
   val expRep = {
     Assert.invariant(exponentRepExpEv.isConstant)
-    getExponentRep(exponentRepExpEv.optConstant.get, context)
+    getExponentRep(exponentRepExpEv.maybeConstant.get, context)
   }
 
   val roundingInc: MaybeDouble = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, context) }

@@ -1,9 +1,6 @@
 package edu.illinois.ncsa.daffodil.io
 
-import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
-import java.nio.charset.CharsetEncoder
-import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
@@ -11,6 +8,11 @@ import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharset
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharset
 
 object FormatInfoForUnitTest {
   def apply() = {
@@ -22,13 +24,13 @@ object FormatInfoForUnitTest {
 
 class FormatInfoForUnitTest private ()
   extends FormatInfo {
-  var priorEncoding: Charset = java.nio.charset.StandardCharsets.UTF_8
+  var priorEncoding: BitsCharset = StandardBitsCharsets.UTF_8
 
-  var encoder: CharsetEncoder = priorEncoding.newEncoder()
-  var decoder: CharsetDecoder = priorEncoding.newDecoder()
-  var reportingDecoder: CharsetDecoder = _
+  var encoder: BitsCharsetEncoder = priorEncoding.newEncoder()
+  var decoder: BitsCharsetDecoder = priorEncoding.newDecoder()
+  var reportingDecoder: BitsCharsetDecoder = _
 
-  var replacingDecoder: CharsetDecoder = _
+  var replacingDecoder: BitsCharsetDecoder = _
 
   var byteOrder: ByteOrder = ByteOrder.BigEndian
   var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
@@ -39,7 +41,7 @@ class FormatInfoForUnitTest private ()
   var encodingMandatoryAlignmentInBits: Int = 8
   var encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
 
-  def reset(cs: Charset): Unit = {
+  def reset(cs: BitsCharset): Unit = {
     priorEncoding = cs
     init()
   }
@@ -64,7 +66,7 @@ class FormatInfoForUnitTest private ()
       d
     }
     priorEncoding match {
-      case decoderWithBits: NonByteSizeCharset => {
+      case decoderWithBits: NBitsWidth_BitsCharset => {
         encodingMandatoryAlignmentInBits = 1
         maybeCharWidthInBits = MaybeInt(decoderWithBits.bitWidthOfACodeUnit)
       }

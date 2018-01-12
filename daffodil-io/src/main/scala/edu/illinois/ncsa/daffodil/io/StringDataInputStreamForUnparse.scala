@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.io
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within
@@ -52,7 +53,7 @@ final class StringDataInputStreamForUnparse
 
   def reset(str: String, finfo: FormatInfo) {
     this.str = str
-    val ba = str.getBytes(finfo.decoder.charset())
+    val ba = str.getBytes(finfo.decoder.bitsCharset.asInstanceOf[BitsCharsetWrappingJavaCharset].javaCharset)
     dis = ByteBufferDataInputStream(ba)
   }
 

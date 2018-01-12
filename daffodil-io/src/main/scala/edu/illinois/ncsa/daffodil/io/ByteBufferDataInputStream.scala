@@ -37,8 +37,6 @@ import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
-import java.nio.charset.CharsetDecoder
-import java.nio.charset.StandardCharsets
 import java.nio.charset.CodingErrorAction
 import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
@@ -56,6 +54,9 @@ import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.util.MStackOf
 import edu.illinois.ncsa.daffodil.api.DataStreamLimits
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.charset.StandardBitsCharsets
 
 /**
  * Factory for creating this type of DataInputStream
@@ -278,9 +279,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   override final def cst = st
 
-  private def bytePos0b_ = data.position
+  @inline private def bytePos0b_ = data.position
 
-  def bitPos0b: Long = (bytePos0b_ << 3) + st.bitOffset0b
+  @inline final def bitPos0b: Long = (bytePos0b_ << 3) + st.bitOffset0b
 
   def setBitPos0b(newBitPos0b: Long) {
     // threadCheck()
@@ -407,7 +408,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     var priorByte = Bits.asUnsignedByte(data.get())
     var i = 0
 
-    @inline
+    @inline // see comment below as to why this giant method is marked inline.
     def addFragmentByte() = {
       // This function is used at either the beginning or end of this function
       // to read a fragement byte and store it in the correct location in the
@@ -738,7 +739,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     }
   }
 
-  def decodeIt(decoder: CharsetDecoder, cb: java.nio.CharBuffer, finfo: FormatInfo): CoderResult = {
+  private def decodeIt(decoder: BitsCharsetDecoder, cb: java.nio.CharBuffer, finfo: FormatInfo): CoderResult = {
     var cr: CoderResult = null
     var nCharsTransferred: Int = 0
     var nBytesConsumed: Int = 0
@@ -746,7 +747,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val bbRemainingBefore = data.remaining()
 
     Assert.usage(cbRemainingBefore > 0)
-
     cr = decoder.decode(data, cb, true)
     nCharsTransferred = cbRemainingBefore - cb.remaining()
     nBytesConsumed = bbRemainingBefore - data.remaining()
@@ -758,7 +758,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     //
     if (cbRemainingBefore == 1 && nCharsTransferred == 0 && nBytesConsumed == 0 && cr.isOverflow()) {
       Assert.invariant(bbRemainingBefore >= 4)
-      Assert.invariant(finfo.decoder.charset() == StandardCharsets.UTF_8)
+      Assert.invariant(finfo.decoder.bitsCharset == StandardBitsCharsets.UTF_8)
       val firstByte = data.get(data.position())
       Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
       //
@@ -820,12 +820,16 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def fillCharBuffer(cb: java.nio.CharBuffer, finfo: FormatInfo): MaybeULong = {
     // threadCheck()
-    if (!align(finfo.encodingMandatoryAlignmentInBits, finfo)) return MaybeULong.Nope
-
+    val dec = finfo.reportingDecoder
+    if (dec.isReset) {
+      // checks we can do once per reset
+      if (!align(finfo.encodingMandatoryAlignmentInBits, finfo)) return MaybeULong.Nope
+      finfo.bitOrder // just asking for the bit order does checking that it's ok.
+    }
     //
     // Corner case stuff for utf-8 and surrogate pairs.
     //
-    if (finfo.decoder.charset() == StandardCharsets.UTF_8) {
+    if (finfo.decoder.bitsCharset == StandardBitsCharsets.UTF_8) {
       if (st.maybeTrailingSurrogateForUTF8.isDefined &&
         st.priorBitPos == bitPos0b) {
         // We're utf-8, the prior character was a leading surrogate,
@@ -846,8 +850,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     var nCharsTransferred: Int = 0
     var nBytesConsumed: Int = 0
     finfo.reportingDecoder.reset()
-    val decoder = finfo.reportingDecoder match {
-      case decoderWithBits: NonByteSizeCharsetDecoder => {
+    val decoder = dec match {
+      case decoderWithBits: NBitsWidth_BitsCharsetDecoder => {
         decoderWithBits.setInitialBitOffset(st.bitOffset0b)
         decoderWithBits.setFinalByteBitLimitOffset0b(st.maybeBitLimitOffset0b)
         decoderWithBits

@@ -58,11 +58,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitMSBF_02(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-MSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(7) // not enough space for last digit
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("1111 000 001 010 011 100 101 110 111"))
     decoder.setInitialBitOffset(4)
@@ -75,11 +71,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitMSBF_03(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-MSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("101 010 11"))
     bb.limit(bb.limit - 1)
@@ -93,11 +85,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitMSBF_04(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-MSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("1111 000 0|01 010 011| 100 101 11|0 111 1111"))
     bb.limit(bb.limit - 1)
@@ -124,11 +112,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitLSBF_02(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(8)
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
     decoder.setInitialBitOffset(4)
@@ -141,11 +125,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitLSBF_03(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("00 111 101"))
     bb.limit(bb.limit - 1)
@@ -159,11 +139,7 @@ class TestNonByteSizedCharsetDecoders3Bit {
 
   @Test def test3BitLSBF_04(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
-    val decoder = cs.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
     bb.limit(bb.limit - 1)

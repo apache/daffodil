@@ -40,16 +40,17 @@ import edu.illinois.ncsa.daffodil.util.OnStack
 abstract class AssertPatternParserBase(
   eName: String,
   kindString: String,
-  rd: TermRuntimeData,
+  override val context: TermRuntimeData,
   testPattern: String,
   message: String)
-  extends PrimParserObject(rd) {
+  extends PrimParser {
+  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
   }
 
-  // private lazy val compiledPattern = ScalaPatternParser.compilePattern(testPattern, rd)
+  // private lazy val compiledPattern = ScalaPatternParser.compilePattern(testPattern, context)
 
   lazy val pattern = ("(?s)" + testPattern).r.pattern // imagine a really big expensive pattern to compile.
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))

@@ -52,12 +52,15 @@ object Processor {
     }
   }
 
-  private def ensureCompiled(ev: EvaluatableBase[AnyRef]) {
+  private def ensureCompiled(ev: Evaluatable[AnyRef]) {
     ev.ensureCompiled
     ev.runtimeDependencies.foreach { ensureCompiled }
   }
 }
 
+/**
+ * Captures common members for any processor, parser or unparser.
+ */
 trait Processor
   extends ToBriefXMLImpl
   with Logging
@@ -68,10 +71,69 @@ trait Processor
   def runtimeDependencies: Seq[Evaluatable[AnyRef]]
 
   var isInitialized: Boolean = false
+
+  /**
+   * True if alignment, bit/byte order, and other aspects of real data on the data stream
+   * are relevant.
+   *
+   * True for primitive processors that actually touch the data stream, false
+   * for NoData, and for combinators.
+   *
+   * This enables an optimization in the runtime that doesn't evaluate
+   * expensive expressions for values or checking of encoding, byteOrder, bitOrder
+   * and so forth except for processors where it matters because they actually
+   * interact with the data stream.
+   */
+  def isPrimitive: Boolean
 }
 
+/**
+ * A Prim or Primitive processor does not orchestrate the operation of
+ * other processors, it actually does the work of parsing/unparsing.
+ *
+ * Most PrimProcessor actually manipulate data to/from the data stream.
+ * Some (NoData) do not.
+ */
 trait PrimProcessor extends Processor {
   override def childProcessors: Seq[Processor] = Nil
+
+  /**
+   * True if alignment, bit/byte order, and other aspects of real data on the data stream
+   * are relevant.
+   *
+   * True for primitive processors that actually touch the data stream, false
+   * otherwise.
+   */
+  override def isPrimitive = true
+}
+
+/**
+ * A PrimProcessor which does other work than manipulating the data, such
+ * as evaluating DPath expressions.
+ */
+trait PrimProcessorNoData extends Processor {
+  override def childProcessors: Seq[Processor] = Nil
+
+  /**
+   * False because NoData processors don't touch the data stream.
+   */
+  override def isPrimitive = false
+}
+
+/**
+ * A combinator is a processor that orchestrates the operation of
+ * other processors.
+ *
+ * Combinators must be pure. They cannot both touch the data stream directly and
+ * also orchestrate other processors.
+ */
+trait CombinatorProcessor extends Processor {
+
+  /**
+   * False because combinators don't touch the data stream themselves. The
+   * processors they call do that work.
+   */
+  override final def isPrimitive = false
 }
 
 /** must mixin to all processors that deal with text */

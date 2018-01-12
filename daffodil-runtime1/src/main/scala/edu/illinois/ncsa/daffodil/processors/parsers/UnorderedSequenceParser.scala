@@ -39,7 +39,9 @@ class UnorderedSequenceParser(
   sortOrder: Seq[(String, org.jdom2.Namespace)],
   scalarMembers: Seq[(String, String, org.jdom2.Namespace)],
   uoSeqParser: Parser)
-  extends ParserObject(context) {
+  extends CombinatorParser(context) {
+
+  override lazy val runtimeDependencies = Nil
 
   override def nom = "UnorderedSequence"
   override lazy val childProcessors = Seq(uoSeqParser)

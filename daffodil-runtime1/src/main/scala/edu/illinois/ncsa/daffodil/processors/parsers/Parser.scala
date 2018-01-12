@@ -48,17 +48,19 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
+import edu.illinois.ncsa.daffodil.processors.Evaluatable
+import edu.illinois.ncsa.daffodil.processors.CombinatorProcessor
+import edu.illinois.ncsa.daffodil.processors.PrimProcessor
+import edu.illinois.ncsa.daffodil.processors.TextProcessor
+import edu.illinois.ncsa.daffodil.processors.PrimProcessorNoData
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
  *
- * A parser can have sub-parsers. See also PrimParser which is a parser with no sub-parsers.
- *
- * This trait is preferred (and PrimParser) over the ParserObject because this requires one to
- * explicitly manage runtimeDependencies, whereas ParserObject hides that detail, which isn't helpful.
+ * A parser can have sub-parsers. See also PrimParser which is a parser with no sub-parsers,
+ * and CombinatorParser, which is a parser with sub parsers.
  */
-trait Parser
+sealed trait Parser
   extends Processor {
 
   protected def parserName = Misc.getNameFromClass(this)
@@ -78,11 +80,6 @@ trait Parser
     pstate.setProcessor(this)
     if (pstate.dataProc.isDefined) pstate.dataProc.get.before(pstate, this)
     try {
-      pstate.processor.context match {
-        case mgrd: ModelGroupRuntimeData =>
-          ParserBitOrderChecks.checkParseBitOrder(pstate)
-        case _ => // ok. Elements are checked elsewhere.
-      }
       parse(pstate)
     } catch {
       /*
@@ -110,22 +107,64 @@ trait Parser
        * ProcessingError it throws a new SDE.
        * */
       case pe: ParseError => pstate.setFailed(pe)
+    } finally {
+      pstate.resetFormatInfoCaches()
     }
     if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
     pstate.setMaybeProcessor(savedParser)
   }
 }
 
-// Deprecated and to be phased out. Use the trait Parser instead.
-abstract class ParserObject(override val context: RuntimeData)
-  extends Parser {
+/**
+ * A PrimParser is a parser that contains no child parsers.
+ * Combinators are NOT PrimParser
+ */
+trait PrimParser
+  extends PrimProcessor
+  with Parser
 
-  override lazy val runtimeDependencies = Nil
+/**
+ * A parser which is "primitive" no sub-parsers, but which doesn't
+ * parses any data. Evaluates expressions, binds variables, evaluates
+ * asserts, etc.
+ */
+trait PrimParserNoData
+  extends PrimProcessorNoData
+  with Parser
+
+/**
+ * Mixed in as a marker for parsers that only operate on text.
+ */
+trait TextPrimParser
+  extends PrimParser
+  with TextProcessor
+
+/**
+ * Parser which does "Nada" (Nothing in Spanish)
+ *
+ * Used for optitonality in some cases, but is usually recognized and
+ * optimized out.
+ */
+final class NadaParser(override val context: RuntimeData)
+  extends PrimParserNoData {
+  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+
+  override def toString = "Nada"
+
+  override def parse(start: PState): Unit = {
+    // do nothing
+  }
 }
 
-class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
-  extends ParserObject(context) {
+abstract class CombinatorParser(override val context: RuntimeData)
+  extends Parser with CombinatorProcessor {
 
+  // override lazy val runtimeDependencies = Nil
+}
+
+final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
+  extends CombinatorParser(context) {
+  override lazy val runtimeDependencies = Nil
   override def childProcessors = childParsers
 
   override def nom = "seq"
@@ -146,8 +185,8 @@ class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 }
 
 class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
-  extends ParserObject(ctxt) {
-
+  extends CombinatorParser(ctxt) {
+  override lazy val runtimeDependencies = Nil
   override lazy val childProcessors = childParsers
 
   override def nom = "alt"
@@ -259,15 +298,18 @@ class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
 
 }
 
-case class DummyParser(rd: TermRuntimeData) extends ParserObject(null) {
-  def parse(pstate: PState): Unit = pstate.SDE("Parser for " + rd + " is not yet implemented.")
+case class DummyParser(override val context: TermRuntimeData)
+  extends PrimParserNoData {
+  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+
+  def parse(pstate: PState): Unit = pstate.SDE("Parser for " + context + " is not yet implemented.")
 
   override def childProcessors = Nil
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
+  override def toString = if (context == null) "Dummy[null]" else "Dummy[" + context + "]"
 }
 
-case class NotParsableParser(context: ElementRuntimeData) extends Parser {
+case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoData {
 
   def parse(state: PState): Unit = {
     // We can't use state.SDE because that needs the infoset to determine the

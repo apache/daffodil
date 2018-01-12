@@ -49,7 +49,7 @@ abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
   override val parsingPadChar: MaybeChar,
   override val context: TermRuntimeData)
-  extends Parser with PaddingRuntimeMixin {
+  extends DFAParser with PaddingRuntimeMixin {
 
   private lazy val padCharInfo = if (parsingPadChar.isDefined) parsingPadChar.toString else "NONE"
   lazy val info: String = "justification='" + justificationTrim + "', padChar='" + padCharInfo + "'"

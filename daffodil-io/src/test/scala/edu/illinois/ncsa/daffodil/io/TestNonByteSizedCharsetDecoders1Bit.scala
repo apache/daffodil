@@ -41,6 +41,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetDecoder
 
 class TestNonByteSizedCharsetDecoders1Bit {
 
@@ -59,10 +60,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitMSBF_02(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
+    val decoder = cs1Bit.newDecoder().asInstanceOf[NBitsWidth_BitsCharsetDecoder]
     assertNotNull(decoder)
     val cb = CharBuffer.allocate(32)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
@@ -77,11 +75,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitMSBF_03(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("57"))
     bb.limit(bb.limit - 1)
@@ -96,11 +90,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitMSBF_04(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
     bb.limit(bb.limit - 1)
@@ -130,10 +120,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitLSBF_02(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-LSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
+    val decoder = cs1Bit.newDecoder()
     assertNotNull(decoder)
     val cb = CharBuffer.allocate(32)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
@@ -154,11 +141,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitLSBF_03(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-LSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("57"))
     bb.limit(bb.limit - 1)
@@ -173,11 +156,7 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitLSBF_04(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-LSBF")
-    val decoder = cs1Bit.newDecoder() match {
-      case nbs: NonByteSizeCharsetDecoder => nbs
-      case _ => null
-    }
-    assertNotNull(decoder)
+    val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
     bb.limit(bb.limit - 1)

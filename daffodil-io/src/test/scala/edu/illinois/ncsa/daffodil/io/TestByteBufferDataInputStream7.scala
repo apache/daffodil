@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.util.MaybeULong
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
 
 /**
  * Helper class for creating example data that is unaligned.
@@ -75,8 +76,8 @@ object Bitte {
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = Misc.bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoder]
-    val nBits = s.length * enc.bitWidthOfACodeUnit
+    val enc = encoder.asInstanceOf[NBitsWidth_BitsCharsetEncoder]
+    val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
     val sevenBitChunks = allBits.reverse.sliding(7, 7).map { _.reverse }.toList.reverse.mkString

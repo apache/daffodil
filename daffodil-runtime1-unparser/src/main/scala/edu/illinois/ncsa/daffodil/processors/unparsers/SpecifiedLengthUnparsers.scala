@@ -65,7 +65,9 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   erd: ElementRuntimeData,
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
   maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv])
-  extends UnparserObject(erd) {
+  extends CombinatorUnparser(erd) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(eUnparser)
 
@@ -167,7 +169,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     //
     state.schemaDefinitionUnless(erd.isSimpleType,
       "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
-      getCharset(state).charsetName, lengthKind.toString, lengthUnits.toString)
+      getCharset(state).name, lengthKind.toString, lengthUnits.toString)
 
     Assert.invariant(erd.isSimpleType)
     Assert.invariant(this.maybeTargetLengthInCharactersEv.isDefined)

@@ -33,15 +33,14 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.processors.SuspendableOperation
-import edu.illinois.ncsa.daffodil.processors.SuspendableUnparser
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.TextProcessor
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class SkipRegionUnparser(
   skipInBits: Int,
-  e: TermRuntimeData)
-  extends PrimUnparserObject(e) {
+  override val context: TermRuntimeData)
+  extends PrimUnparser {
 
   override def runtimeDependencies = Nil
 
@@ -80,15 +79,15 @@ class AlignmentFillUnparserSuspendableOperation(
 
 class AlignmentFillUnparser(
   alignmentInBits: Int,
-  val rd: TermRuntimeData)
-  extends PrimUnparserObject(rd)
+  override val context: TermRuntimeData)
+  extends PrimUnparser
   with SuspendableUnparser {
 
   override def runtimeDependencies = Nil
 
   override def suspendableOperation =
     new AlignmentFillUnparserSuspendableOperation(
-      alignmentInBits, rd)
+      alignmentInBits, context)
 }
 
 class MandatoryTextAlignmentUnparser(

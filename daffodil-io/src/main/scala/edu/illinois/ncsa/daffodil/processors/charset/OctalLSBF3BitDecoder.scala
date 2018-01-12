@@ -43,14 +43,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object OctalLSBF3BitCharset
-  extends NBitsWidthCharset("X-DFDL-OCTAL-LSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-OCTAL-LSBF",
     "01234567",
     3, // width
     BitOrder.LeastSignificantBitFirst,
     0) // replacement charCode for encoding of unmapped chars.
 
 object OctalMSBF3BitCharset
-  extends NBitsWidthCharset("X-DFDL-OCTAL-MSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-OCTAL-MSBF",
     "01234567",
     3, // width
     BitOrder.MostSignificantBitFirst,

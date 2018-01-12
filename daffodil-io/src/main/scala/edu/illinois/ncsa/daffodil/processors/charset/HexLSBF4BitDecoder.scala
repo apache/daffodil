@@ -43,14 +43,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object HexLSBF4BitCharset
-  extends NBitsWidthCharset("X-DFDL-HEX-LSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-HEX-LSBF",
     "0123456789ABCDEF",
     4, // width
     BitOrder.LeastSignificantBitFirst,
     0) // replacement charCode for encoding of unmapped chars.
 
 object HexMSBF4BitCharset
-  extends NBitsWidthCharset("X-DFDL-HEX-MSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-HEX-MSBF",
     "0123456789ABCDEF",
     4, // width
     BitOrder.MostSignificantBitFirst,

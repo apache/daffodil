@@ -76,129 +76,6 @@ object EvalCache {
   }
 }
 
-/**
- * Potentially runtime-evaluated things are instances of this base.
- */
-
-trait EvaluatableBase[+T <: AnyRef] extends Serializable {
-
-  protected def rd: RuntimeData
-
-  /**
-   * Please override this.
-   */
-  def toBriefXML(depth: Int = -1) = toString
-
-  /**
-   * QName to be associated with this evaluatable.
-   *
-   * If the Evaluatable is for a DFDL property this should be dfdl:propertyName e.g., dfdl:terminator, with
-   * the prefix DFDL being the prefix associated with the DFDL namespace.
-   *
-   * If the Evaluatable is for some other computation, e.g., for the CharsetEncoder. Then daf:encoder or other
-   * useful identifier.
-   *
-   * This QName is used in the XML representation of these Evaluatables, if they are to be displayed, which is
-   * mostly for various debug purposes.
-   */
-  lazy val qName: NamedQName = {
-    val local = Misc.toInitialLowerCaseUnlessAllUpperCase(
-      Misc.stripSuffix(Misc.getNameFromClass(this), "Ev"))
-    GlobalQName(None, local, NoNamespace)
-  }
-
-  type State = ParseOrUnparseState
-
-  /**
-   * Important - Evalutables MUST declare all evaluatables they depend on. But only those
-   * they directly depend on. (Not the dependents of the dependents...)
-   */
-  def runtimeDependencies: Seq[EvaluatableBase[AnyRef]]
-
-  /**
-   * The compute method is called at compilation time to determine if a static value can be returned.
-   * If so the Ev will store and return that value every time evaluate is called. If not then this
-   * will get called at runtime to compute the value.
-   */
-  protected def compute(state: State): T
-
-  /**
-   * The "apply" method is the "evaluate" routine. This and isConstant are the public operations on
-   * this class.
-   */
-  def apply(state: State): T
-
-  /**
-   * The apply method is the "evaluate" function.
-   */
-  final def evaluate(state: State): T = apply(state)
-
-  /**
-   * If the object has been compiled, was it a constant or not?
-   */
-  def isConstant: Boolean
-
-  def compile(): Option[T] = {
-    val compState = new CompileState(rd, Nope)
-    compile(compState)
-  }
-  /**
-   * Been compiled yet?
-   */
-  var isCompiled = false
-  final def ensureCompiled {
-    if (!isCompiled)
-      Assert.invariantFailed("not compiled Ev: " + this.qName)
-  }
-
-  /**
-   * returns None if the value is not constant at compile time,
-   * otherwise returns the constant value.
-   */
-  def compile(state: CompileState): Option[T] = {
-    if (isCompiled) throw new IllegalStateException("already compiled")
-
-    // must assign before call to apply since that requires it to be compiled
-    // (the first evaluation is compilation)
-    isCompiled = true
-
-    //
-    // detonation chamber. Evaluate it. Did it blow up because it needs
-    // data, not just static information, to succeed?
-    //
-    val result = try {
-      val v = apply(state)
-      Some(v)
-    } catch {
-      //
-      // Really what this should be catching are the special-purpose exceptions thrown
-      // by the Infoset data-accessing API to indicate no data being found.
-      //
-      // However, for unparsing outputValueCalc this needs to distinguish whether we've determined
-      // that the OVC expression is non-constant, from a failure at runtime.
-      //
-      // So non-constant is detected based on it failing by accessing either data or the infoset
-      // when evaluated with a fake state that has neither. But SDE means there is something wrong
-      // with the expression, so we can't absorb those.
-      //
-      // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
-      // or there is no data, etc.
-      case e: ExpressionEvaluationException => None
-      case e: InfosetException => None
-      case e: VariableException => None
-    }
-    result
-  }
-
-  /**
-   * Convenience method
-   *
-   * Use by way of
-   *      override lazy val qName = dafName("foobar")
-   */
-  protected def dafName(local: String) = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
-}
-
 trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
 
   protected def getCachedOrComputeAndCache(state: State): T = {
@@ -298,8 +175,75 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
  */
-abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg: NamedQName = null) extends EvaluatableBase[T] {
+abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg: NamedQName = null)
+  extends Serializable {
 
+  type State = ParseOrUnparseState
+
+  /**
+   * Important - Evalutables MUST declare all evaluatables they depend on. But only those
+   * they directly depend on. (Not the dependents of the dependents...)
+   */
+  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+
+  /**
+   * Been compiled yet?
+   */
+  private var isCompiled_ = false
+
+  @inline final def isCompiled = isCompiled_
+
+  @inline final def ensureCompiled {
+    if (!isCompiled)
+      Assert.invariantFailed("not compiled Ev: " + this.qName)
+  }
+
+  /**
+   * returns None if the value is not constant at compile time,
+   * otherwise returns the constant value.
+   */
+  private def compileTimeEvaluate(state: CompileState): Maybe[T] = {
+    if (isCompiled) throw new IllegalStateException("already compiled")
+
+    // must assign before call to apply since that requires it to be compiled
+    // (the first evaluation is compilation)
+    isCompiled_ = true
+
+    //
+    // detonation chamber. Evaluate it. Did it blow up because it needs
+    // data, not just static information, to succeed?
+    //
+    val result = try {
+      val v = evaluate(state)
+      One(v)
+    } catch {
+      //
+      // Really what this should be catching are the special-purpose exceptions thrown
+      // by the Infoset data-accessing API to indicate no data being found.
+      //
+      // However, for unparsing outputValueCalc this needs to distinguish whether we've determined
+      // that the OVC expression is non-constant, from a failure at runtime.
+      //
+      // So non-constant is detected based on it failing by accessing either data or the infoset
+      // when evaluated with a fake state that has neither. But SDE means there is something wrong
+      // with the expression, so we can't absorb those.
+      //
+      // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
+      // or there is no data, etc.
+      case e: ExpressionEvaluationException => Nope
+      case e: InfosetException => Nope
+      case e: VariableException => Nope
+    }
+    result
+  }
+
+  /**
+   * Convenience method
+   *
+   * Use by way of
+   *      override lazy val qName = dafName("foobar")
+   */
+  protected def dafName(local: String) = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
   /**
    * Override if this evaluatable needs to use a different evaluate mode
    * for unparsing.
@@ -308,18 +252,30 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
    */
   protected def maybeUseUnparserMode: Maybe[EvalMode] = Maybe(UnparserNonBlocking)
 
-  override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (constValue.isDefined) "constant: " + constValue.value else "runtime"))
+  override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (isConstant) "constant: " + constValue else "runtime"))
 
-  override def toBriefXML(depth: Int = -1): String = if (constValue.isDefined) constValue.value.toString else super.toString
+  def toBriefXML(depth: Int = -1): String = if (isConstant) constValue.toString else toString
 
-  override lazy val qName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
+  /**
+   * QName to be associated with this evaluatable.
+   *
+   * If the Evaluatable is for a DFDL property this should be dfdl:propertyName e.g., dfdl:terminator, with
+   * the prefix DFDL being the prefix associated with the DFDL namespace.
+   *
+   * If the Evaluatable is for some other computation, e.g., for the CharsetEncoder. Then daf:encoder or other
+   * useful identifier.
+   *
+   * This QName is used in the XML representation of these Evaluatables, if they are to be displayed, which is
+   * mostly for various debug purposes.
+   */
+  lazy val qName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
 
   protected def getCachedOrComputeAndCache(state: State): T
 
-  final override def apply(state: State): T = {
-    ensureCompiled
+  protected def compute(state: State): T
 
-    if (isConstant) constValue.get
+  final def evaluate(state: State): T = {
+    if (isConstant) constValue
     else {
       state match {
         case _: CompileState => {
@@ -336,17 +292,21 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
     }
   }
 
-  private var constValue_ : Option[AnyRef] = None
-  protected def constValue = constValue_.asInstanceOf[Option[T]]
+  private var constValue_ : Maybe[AnyRef] = Nope
 
-  def optConstant = {
-    ensureCompiled
-    constValue
-  }
+  /**
+   * Preferred for use in the runtime.
+   */
+  @inline final def maybeConstant = constValue_.asInstanceOf[Maybe[T]]
+  @inline final def isConstant = constValue_.isDefined
+  @inline final def constValue = maybeConstant.get
 
-  def isConstant = {
-    ensureCompiled
-    constValue.isDefined
+  /**
+   * Schema compiler wants to use map call, so we need a scala option type
+   * for that. So this variant supplies that.
+   */
+  @inline final def optConstant = {
+    maybeConstant.toScalaOption
   }
 
   /**
@@ -354,10 +314,16 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
    * This is determined by actually evaluating it, passing a special CompileState
    * that errors out when data access to runtime-valued data is attempted.
    */
-  final override def compile(state: CompileState) = {
-    val y = super.compile(state)
+  final def compile(state: CompileState): Maybe[T] = {
+    val y = compileTimeEvaluate(state)
+    // just by getting here - and not throwing, we know it's a constant.
     constValue_ = y
     y
+  }
+
+  final def compile(): Maybe[T] = {
+    val compState = new CompileState(rd, Nope)
+    compile(compState)
   }
 
   /**
@@ -400,7 +366,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
  * even considered as a possibility for a constant.
  */
 
-//abstract class Rv[+T <: AnyRef](rd: RuntimeData) extends EvaluatableBase[T](rd) {
+//abstract class Rv[+T <: AnyRef](rd: RuntimeData) extends Evaluatable[T](rd) {
 //
 //  final override def isConstant = false // this is always to be computed
 //

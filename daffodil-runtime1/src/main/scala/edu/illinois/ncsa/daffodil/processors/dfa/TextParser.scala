@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.io.FormatInfo
 
 class TextParser(
   override val context: TermRuntimeData)
-  extends Parser {
+  extends DFAParser {
 
   override lazy val name: String = "TextParser"
   override lazy val info: String = "" // Nothing additional to add here

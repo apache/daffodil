@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
-class OptionalInfixSepParser(override val context: TermRuntimeData, sepParser: Parser)
-  extends Parser {
+class OptionalInfixSepParser(ctxt: TermRuntimeData, sepParser: Parser)
+  extends CombinatorParser(ctxt) {
 
   override lazy val nom = "OptionalInfixSep"
   override lazy val childProcessors = Seq(sepParser)

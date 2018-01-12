@@ -43,7 +43,7 @@ import java.io.ByteArrayOutputStream
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.Charset
+import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CodingErrorAction
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.equality._
@@ -386,7 +386,7 @@ object Misc {
     code.toChar
   }
 
-  private val bytesCharset = Charset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
+  private val bytesCharset = JavaCharset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
   private val bytesDecoder = {
     val decoder = bytesCharset.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPLACE)
@@ -492,9 +492,9 @@ object Misc {
    * True if this charset encoding is suitable for display using the
    * all-visible-glyph stuff above.
    */
-  def isAsciiBased(csName: String): Boolean = isAsciiBased(Charset.forName(csName))
+  def isAsciiBased(csName: String): Boolean = isAsciiBased(JavaCharset.forName(csName))
 
-  def isAsciiBased(cs: Charset): Boolean = {
+  def isAsciiBased(cs: JavaCharset): Boolean = {
     val aliases: Seq[String] = cs.aliases().toSeq.map { _.toUpperCase }
     val byName =
       aliases.exists { s =>

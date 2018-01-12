@@ -41,14 +41,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 object X_DFDL_BITS_LSBF
-  extends NBitsWidthCharset("X-DFDL-BITS-LSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-BITS-LSBF",
     "01",
     1,
     BitOrder.LeastSignificantBitFirst,
     0)
 
 object X_DFDL_BITS_MSBF
-  extends NBitsWidthCharset("X-DFDL-BITS-MSBF",
+  extends NBitsWidth_BitsCharset("X-DFDL-BITS-MSBF",
     "01",
     1,
     BitOrder.MostSignificantBitFirst,

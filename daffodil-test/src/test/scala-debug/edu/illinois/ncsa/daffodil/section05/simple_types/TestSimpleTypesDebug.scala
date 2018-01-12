@@ -51,6 +51,7 @@ object TestSimpleTypesDebug {
   val runner1 = Runner(testDir, "BitOrder.tdml")
   val runnerST = Runner(testDir, "simple-type-bases.tdml")
   val runner_01 = Runner(testDir_01, "dpaext1.tdml")
+  val runner3 = Runner(testDir, "BitOrderInvalid.tdml")
 
   @AfterClass def shutDown() {
     runner.reset
@@ -115,11 +116,10 @@ class TestSimpleTypesDebug {
   @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
 
-  @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
   @Test def test_bitOrderChange() { runner1.runOneTest("bitOrderChange") }
   @Test def test_bitOrderDocument() { runner1.runOneTest("bitOrderDocument") }
   @Test def test_bitOrderTypeByte() { runner1.runOneTest("bitOrderTypeByte") }
   @Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
 
-  @Test def test_bitOrderChangeInvalid() { runner1.runOneTest("bitOrderChangeInvalid") }
+  @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
 }

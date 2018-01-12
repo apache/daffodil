@@ -38,13 +38,14 @@ import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 abstract class LiteralNilOfSpecifiedLengthParserBase(
   erd: ElementRuntimeData)
-  extends TextPrimParserObject(erd)
+  extends TextPrimParser
   with StringOfSpecifiedLengthMixin
   with NilMatcherMixin {
 
   private val eName = erd.name
 
   override val runtimeDependencies = List(erd.encInfo.charsetEv)
+  override val context = erd
 
   override val charsetEv = erd.encInfo.charsetEv
 

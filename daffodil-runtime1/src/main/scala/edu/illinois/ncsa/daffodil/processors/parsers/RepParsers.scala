@@ -50,7 +50,9 @@ import edu.illinois.ncsa.daffodil.util.Numbers
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
-  extends ParserObject(context) {
+  extends CombinatorParser(context) {
+
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Seq(rParser)
 
@@ -371,8 +373,10 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
   }
 }
 
-class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong], erd: ElementRuntimeData)
-  extends ParserObject(erd) {
+class OccursCountExpressionParser(occursCountEv: Evaluatable[JLong],
+  override val context: ElementRuntimeData)
+  extends PrimParserNoData {
+  override lazy val runtimeDependencies = Nil
 
   override lazy val childProcessors = Nil
 

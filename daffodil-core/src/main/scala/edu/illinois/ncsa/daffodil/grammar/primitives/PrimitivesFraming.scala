@@ -72,7 +72,7 @@ case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkipInBit
 
 case class AlignmentFill(e: Term) extends Terminal(e, !e.isKnownToBeAligned) {
 
-  private val alignment = e.alignmentValueInBits
+  private lazy val alignment = e.alignmentValueInBits // must be lazy, else guard can't "leave out" this term and then checks that are irrelevant will be done.
 
   lazy val parser: Parser = new AlignmentFillParser(alignment, e.termRuntimeData)
   lazy val unparser: Unparser = new AlignmentFillUnparser(alignment, e.termRuntimeData)

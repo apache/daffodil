@@ -38,8 +38,10 @@ import edu.illinois.ncsa.daffodil.infoset.RetryableException
 import edu.illinois.ncsa.daffodil.processors.UnparseTargetLengthInBitsEv
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-abstract class HexBinaryUnparserBase(erd: ElementRuntimeData)
-  extends PrimUnparserObject(erd) {
+abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
+  extends PrimUnparser {
+
+  override lazy val runtimeDependencies = Nil
 
   protected def getLengthInBits(state: UState): Long
 
@@ -51,7 +53,7 @@ abstract class HexBinaryUnparserBase(erd: ElementRuntimeData)
 
     val lengthInBytes = (lengthInBits + 7) / 8
     if (value.length > lengthInBytes) {
-      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Data length %d bits exceeds explicit length value: %d bits", value.length * 8, lengthInBits)
+      UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Data length %d bits exceeds explicit length value: %d bits", value.length * 8, lengthInBits)
     }
 
     val bitsFromValueToPut =
@@ -72,7 +74,7 @@ abstract class HexBinaryUnparserBase(erd: ElementRuntimeData)
     if (bitsFromValueToPut > 0) {
       val ret = dos.putByteArray(value, bitsFromValueToPut.toInt, state)
       if (!ret) {
-        UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
+        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
       }
     }
 

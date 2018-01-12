@@ -58,11 +58,7 @@ class TestNonByteSizedCharsetEncoders1Bit {
 
   @Test def test1BitMSBF_02(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
-    val encoder = cs1Bit.newEncoder() match {
-      case nbs: NonByteSizeCharsetEncoder => nbs
-      case _ => null
-    }
-    assertNotNull(encoder)
+    val encoder = cs1Bit.newEncoder()
     val cb = CharBuffer.wrap(Misc.hex2Bits("DEADBEEF57"))
     val bb = ByteBuffer.allocate(4)
     val expectedBytes = Misc.hex2Bytes("DEADBEEF").toList
@@ -88,11 +84,7 @@ class TestNonByteSizedCharsetEncoders1Bit {
 
   @Test def test1BitLSBF_02(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-LSBF")
-    val encoder = cs1Bit.newEncoder() match {
-      case nbs: NonByteSizeCharsetEncoder => nbs
-      case _ => null
-    }
-    assertNotNull(encoder)
+    val encoder = cs1Bit.newEncoder()
     val cb = CharBuffer.wrap(Misc.hex2Bits("7BB57DF757"))
     val bb = ByteBuffer.allocate(4)
     val expectedBytes = Misc.hex2Bytes("DEADBEEF").toList
