@@ -167,7 +167,7 @@ object OOLAG extends Logging {
         Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Some(oolagContextArg)
       if (oolagContext != OOLAGRoot) {
-        oolagRoot.requiredEvalFunctions ++= this.requiredEvalFunctions
+        oolagRoot.requiredEvalFunctions = this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
         this.requiredEvalFunctions = Nil
       }
     }
