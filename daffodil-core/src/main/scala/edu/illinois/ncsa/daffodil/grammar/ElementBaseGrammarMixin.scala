@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilers
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.PackedSignCodes
 import edu.illinois.ncsa.daffodil.grammar.primitives.InputValueCalc
 import edu.illinois.ncsa.daffodil.grammar.primitives.ZonedTextIntPrim
 import edu.illinois.ncsa.daffodil.grammar.primitives.PaddingInfoMixin
@@ -106,6 +107,24 @@ import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryFloat
 import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDouble
 import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDecimalRuntimeLength
 import edu.illinois.ncsa.daffodil.grammar.primitives.BinaryDecimalKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedIntegerRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedIntegerKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedIntegerDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedDecimalDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedDecimalRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.PackedDecimalKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedIntegerRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedIntegerKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedIntegerDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedDecimalDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedDecimalRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.IBM4690PackedDecimalKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDIntegerRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDIntegerKnownLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDIntegerDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDDecimalDelimitedEndOfData
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDDecimalRuntimeLength
+import edu.illinois.ncsa.daffodil.grammar.primitives.BCDDecimalKnownLength
 import edu.illinois.ncsa.daffodil.grammar.primitives.DynamicEscapeSchemeCombinatorElement
 import edu.illinois.ncsa.daffodil.grammar.primitives.DelimiterStackCombinatorElement
 import edu.illinois.ncsa.daffodil.grammar.primitives.LogicalNilValue
@@ -300,7 +319,10 @@ trait ElementBaseGrammarMixin
           case Float => true
           case Double => true;
           case n: Numeric.Kind =>
-            binaryNumberRep eq BinaryNumberRep.Binary
+            binaryNumberRep match {
+              case BinaryNumberRep.Binary => true
+              case _ => false
+            }
           case _ => true
         }
       } &&
@@ -475,11 +497,21 @@ trait ElementBaseGrammarMixin
     case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
+  /**
+   * Property consistency check for called for all binary numbers
+   *
+   * Returns -1 if the binary number is not of known length,or is of a
+   * lengthKind inconsistent with knowing the length.
+   *
+   * SDE if the lengthKind is inconsistent with binary numbers, not yet implemented
+   * for binary numbers, or not supported by Daffodil.
+   */
   private lazy val binaryNumberKnownLengthInBits: Long = lengthKind match {
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
-    case LengthKind.Delimited => subsetError("lengthKind='delimited' not yet supported.")
+    case LengthKind.Delimited if (binaryNumberRep == BinaryNumberRep.Binary) => subsetError("lengthKind='delimited' only supported for packed binary formats.")
+    case LengthKind.Delimited => -1 // only for packed binary data, length must be computed at runtime.
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
     case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
@@ -675,20 +707,15 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  // This is the right name that the DFDL property should have had!
-  private lazy val binaryIntRep = {
-    subset(binaryNumberRep == BinaryNumberRep.Binary, "binaryNumberRep='%s' is unsupported. Only 'binary' is supported.", binaryNumberRep.toString)
-    binaryNumberRep
-  }
-
   private lazy val staticBinaryFloatRep = {
     subset(binaryFloatRepEv.isConstant, "Dynamic binaryFloatRep is not supported.")
     binaryFloatRepEv.optConstant.get
   }
 
-  val bin = BinaryNumberRep.Binary // shorthands for table dispatch
   val ieee = BinaryFloatRep.Ieee
   type BO = java.nio.ByteOrder
+
+  private lazy val packedSignCodes = PackedSignCodes(binaryPackedSignCodes, binaryNumberCheckPolicy)
 
   private def binaryIntegerValue(isSigned: Boolean) = {
     //
@@ -699,10 +726,26 @@ trait ElementBaseGrammarMixin
         binaryNumberKnownLengthInBits > 8)) {
       byteOrderRaw // must be defined or SDE
     }
-    Assert.invariant(binaryIntRep == bin)
-    binaryNumberKnownLengthInBits match {
-      case -1 => new BinaryIntegerRuntimeLength(this, isSigned)
-      case _ => new BinaryIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+    (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+      case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this, isSigned)
+      case (BinaryNumberRep.Binary, _, _) => new BinaryIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+      case (_, LengthKind.Implicit, _) => SDE("lengthKind='implicit' is not allowed with packed binary formats")
+      case (_, _, _) if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
+        SDE("The given length (%s bits) must be a multiple of 4 when using packed binary formats", binaryNumberKnownLengthInBits)
+      case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) => new PackedIntegerDelimitedEndOfData(this, isSigned, packedSignCodes)
+      case (BinaryNumberRep.Packed, _, -1) => new PackedIntegerRuntimeLength(this, isSigned, packedSignCodes)
+      case (BinaryNumberRep.Packed, _, _) => new PackedIntegerKnownLength(this, isSigned, packedSignCodes, binaryNumberKnownLengthInBits)
+      case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) => new IBM4690PackedIntegerDelimitedEndOfData(this, isSigned)
+      case (BinaryNumberRep.Ibm4690Packed, _, -1) => new IBM4690PackedIntegerRuntimeLength(this, isSigned)
+      case (BinaryNumberRep.Ibm4690Packed, _, _) => new IBM4690PackedIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+      case (BinaryNumberRep.Bcd, _, _) => primType match {
+        case PrimType.Long | PrimType.Int | PrimType.Short | PrimType.Byte => SDE("%s is not an allowed type for bcd binary values", primType.name)
+        case _ => (lengthKind, binaryNumberKnownLengthInBits) match {
+          case (LengthKind.Delimited, -1) => new BCDIntegerDelimitedEndOfData(this)
+          case (_,  -1) => new BCDIntegerRuntimeLength(this)
+          case (_, _) => new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits)
+        }
+      }
     }
   }
 
@@ -738,16 +781,28 @@ trait ElementBaseGrammarMixin
       }
 
       case PrimType.Decimal => {
-        Assert.invariant(binaryIntRep == bin)
         if (binaryDecimalVirtualPoint > tunable.maxBinaryDecimalVirtualPoint)
           SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, tunable.maxBinaryDecimalVirtualPoint)
         if (binaryDecimalVirtualPoint < tunable.minBinaryDecimalVirtualPoint)
           SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, tunable.minBinaryDecimalVirtualPoint)
         if (binaryNumberKnownLengthInBits == -1 ||
           binaryNumberKnownLengthInBits > 8) byteOrderRaw // must have or SDE
-        binaryNumberKnownLengthInBits match {
-          case -1 => new BinaryDecimalRuntimeLength(this)
-          case _ => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
+
+        (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+          case (BinaryNumberRep.Binary, _, -1) => new BinaryDecimalRuntimeLength(this)
+          case (BinaryNumberRep.Binary, _, _) => new BinaryDecimalKnownLength(this, binaryNumberKnownLengthInBits)
+          case (_, LengthKind.Implicit, _) => SDE("lengthKind='implicit' is not allowed with packed binary formats")
+          case (_, _, _) if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
+            SDE("The given length (%s bits) must be a multiple of 4 when using packed binary formats", binaryNumberKnownLengthInBits)
+          case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) => new PackedDecimalDelimitedEndOfData(this, packedSignCodes)
+          case (BinaryNumberRep.Packed, _, -1) => new PackedDecimalRuntimeLength(this, packedSignCodes)
+          case (BinaryNumberRep.Packed, _, _) => new PackedDecimalKnownLength(this, packedSignCodes, binaryNumberKnownLengthInBits)
+          case (BinaryNumberRep.Bcd, LengthKind.Delimited, -1) => new BCDDecimalDelimitedEndOfData(this)
+          case (BinaryNumberRep.Bcd, _, -1) => new BCDDecimalRuntimeLength(this)
+          case (BinaryNumberRep.Bcd, _, _) => new BCDDecimalKnownLength(this, binaryNumberKnownLengthInBits)
+          case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) => new IBM4690PackedDecimalDelimitedEndOfData(this)
+          case (BinaryNumberRep.Ibm4690Packed, _, -1) => new IBM4690PackedDecimalRuntimeLength(this)
+          case (BinaryNumberRep.Ibm4690Packed, _, _) => new IBM4690PackedDecimalKnownLength(this, binaryNumberKnownLengthInBits)
         }
       }
 

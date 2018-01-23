@@ -73,6 +73,8 @@ class IBMTestsThatPass {
   // Used to work, but now we get NYI for attributeFormDefault='qualified'
   // @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
   // @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
+  @Test def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") } //DFDL-565 - attributeFormDefault='qualified', packed
+  @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") } //DFDL-565 - attributeFormDefault='qualified', packed
 
   @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
 
@@ -87,6 +89,7 @@ class IBMTestsThatPass {
 
   @Test def test_simple_type_properties_text_number_13_02() { runner2.runOneTest("simple_type_properties_text_number_13_02") }
 
+  @Test def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") }
   @Test def test_simple_type_properties_binary_number_13_02() { runner2.runOneTest("simple_type_properties_binary_number_13_02") }
 
   @Test def test_sequences_separated_14_01() { runner2.runOneTest("sequences_separated_14_01") }

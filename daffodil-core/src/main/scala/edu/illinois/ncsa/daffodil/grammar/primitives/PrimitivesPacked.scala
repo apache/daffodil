@@ -1,37 +1,54 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Developed by: Tresys Technology, LLC
- *               http://www.tresys.com
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal with
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so, subject to the following conditions:
- *
- *  1. Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimers.
- *
- *  2. Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimers in the
- *     documentation and/or other materials provided with the distribution.
- *
- *  3. Neither the names of Tresys Technology, nor the names of its contributors
- *     may be used to endorse or promote products derived from this Software
- *     without specific prior written permission.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package edu.illinois.ncsa.daffodil.grammar.primitives
 
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.util.PackedSignCodes
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedIntegerRuntimeLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedIntegerKnownLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedDecimalRuntimeLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedDecimalKnownLengthParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerRuntimeLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerKnownLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalRuntimeLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalKnownLengthUnparser
 
-case class PackedIntPrim(e: ElementBase) extends UnimplementedPrimitive(e, false)
+class PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
+  override lazy val parser = new PackedIntegerRuntimeLengthParser(e.elementRuntimeData, signed, packedSignCodes, e.lengthEv, e.lengthUnits)
+
+  override lazy val unparser: Unparser = new PackedIntegerRuntimeLengthUnparser(e.elementRuntimeData, packedSignCodes, e.lengthEv, e.lengthUnits)
+}
+
+class PackedIntegerKnownLength(val e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes, lengthInBits: Long) extends Terminal(e, true) {
+
+  override lazy val parser = new PackedIntegerKnownLengthParser(e.elementRuntimeData, signed, packedSignCodes, lengthInBits.toInt)
+
+  override lazy val unparser: Unparser = new PackedIntegerKnownLengthUnparser(e.elementRuntimeData, packedSignCodes, lengthInBits.toInt)
+}
+
+class PackedDecimalRuntimeLength(val e: ElementBase, packedSignCodes: PackedSignCodes) extends Terminal(e, true) {
+  override lazy val parser = new PackedDecimalRuntimeLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, e.lengthEv, e.lengthUnits)
+
+  override lazy val unparser: Unparser = new PackedDecimalRuntimeLengthUnparser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, e.lengthEv, e.lengthUnits)
+
+}
+
+class PackedDecimalKnownLength(val e: ElementBase, packedSignCodes: PackedSignCodes, lengthInBits: Long) extends Terminal(e, true) {
+  override lazy val parser = new PackedDecimalKnownLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, lengthInBits.toInt)
+
+  override lazy val unparser: Unparser = new PackedDecimalKnownLengthUnparser(e.elementRuntimeData, e.binaryDecimalVirtualPoint, packedSignCodes, lengthInBits.toInt)
+}

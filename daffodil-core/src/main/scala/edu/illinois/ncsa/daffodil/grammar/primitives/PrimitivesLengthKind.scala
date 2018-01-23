@@ -43,12 +43,24 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryEndOfBitLimitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinarySpecifiedLengthParser
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedIntegerDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.PackedDecimalDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.BCDIntegerDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.BCDDecimalDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedIntegerDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.parsers.IBM4690PackedDecimalDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.BCDIntegerMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.BCDDecimalMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedIntegerMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedDecimalMinLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
@@ -62,6 +74,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.PackedSignCodes
 import edu.illinois.ncsa.daffodil.processors.FieldDFAParseEv
 import edu.illinois.ncsa.daffodil.processors.TextTruncationType
 
@@ -192,6 +205,130 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
   override lazy val unparser: DaffodilUnparser = new HexBinaryMinLengthInBytesUnparser(
     e.minLength.longValue,
     e.elementRuntimeData)
+}
+
+abstract class PackedIntegerDelimited(e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new PackedIntegerDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired,
+    packedSignCodes)
+
+  override lazy val unparser: DaffodilUnparser = new PackedIntegerMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData,
+    packedSignCodes)
+}
+
+case class PackedIntegerDelimitedEndOfData(e: ElementBase, signed: Boolean, packedSignCodes: PackedSignCodes)
+  extends PackedIntegerDelimited(e, signed, packedSignCodes) {
+  val isDelimRequired: Boolean = false
+}
+
+abstract class PackedDecimalDelimited(e: ElementBase, packedSignCodes: PackedSignCodes)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new PackedDecimalDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes)
+
+  override lazy val unparser: DaffodilUnparser = new PackedDecimalMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes)
+}
+
+case class PackedDecimalDelimitedEndOfData(e: ElementBase, packedSignCodes: PackedSignCodes)
+  extends PackedDecimalDelimited(e, packedSignCodes) {
+  val isDelimRequired: Boolean = false
+}
+
+abstract class BCDIntegerDelimited(e: ElementBase)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new BCDIntegerDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired)
+
+  override lazy val unparser: DaffodilUnparser = new BCDIntegerMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData)
+}
+
+case class BCDIntegerDelimitedEndOfData(e: ElementBase)
+  extends BCDIntegerDelimited(e) {
+  val isDelimRequired: Boolean = false
+}
+
+abstract class BCDDecimalDelimited(e: ElementBase)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new BCDDecimalDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired,
+    e.binaryDecimalVirtualPoint)
+
+  override lazy val unparser: DaffodilUnparser = new BCDDecimalMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData,
+    e.binaryDecimalVirtualPoint)
+}
+
+case class BCDDecimalDelimitedEndOfData(e: ElementBase)
+  extends BCDDecimalDelimited(e) {
+  val isDelimRequired: Boolean = false
+}
+
+abstract class IBM4690PackedIntegerDelimited(e: ElementBase, signed: Boolean)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new IBM4690PackedIntegerDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired)
+
+  override lazy val unparser: DaffodilUnparser = new IBM4690PackedIntegerMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData)
+}
+
+case class IBM4690PackedIntegerDelimitedEndOfData(e: ElementBase, signed: Boolean)
+  extends IBM4690PackedIntegerDelimited(e, signed) {
+  val isDelimRequired: Boolean = false
+}
+
+abstract class IBM4690PackedDecimalDelimited(e: ElementBase)
+  extends StringDelimited(e) {
+
+  override lazy val parser: DaffodilParser = new IBM4690PackedDecimalDelimitedParser(
+    e.elementRuntimeData,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired,
+    e.binaryDecimalVirtualPoint)
+
+  override lazy val unparser: DaffodilUnparser = new IBM4690PackedDecimalMinLengthInBytesUnparser(
+    e.minLength.intValue,
+    e.elementRuntimeData,
+    e.binaryDecimalVirtualPoint)
+}
+
+case class IBM4690PackedDecimalDelimitedEndOfData(e: ElementBase)
+  extends IBM4690PackedDecimalDelimited(e) {
+  val isDelimRequired: Boolean = false
 }
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
