@@ -137,12 +137,13 @@ class XMLTextInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   }
 
   override def startDocument(): Boolean = {
-    // do nothing
+    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>")
+    if (pretty) writer.write(System.lineSeparator())
     true
   }
 
   override def endDocument(): Boolean = {
-    // do nothing
+    writer.flush()
     true
   }
 }
