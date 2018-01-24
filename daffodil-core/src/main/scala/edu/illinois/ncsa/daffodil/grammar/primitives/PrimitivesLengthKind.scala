@@ -55,12 +55,12 @@ import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import edu.illinois.ncsa.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDIntegerMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.BCDDecimalMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedIntegerMinLengthInBytesUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedDecimalMinLengthInBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedIntegerDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.PackedDecimalDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.BCDIntegerDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.BCDDecimalDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedIntegerDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.IBM4690PackedDecimalDelimitedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
@@ -217,8 +217,7 @@ abstract class PackedIntegerDelimited(e: ElementBase, signed: Boolean, packedSig
     isDelimRequired,
     packedSignCodes)
 
-  override lazy val unparser: DaffodilUnparser = new PackedIntegerMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new PackedIntegerDelimitedUnparser(
     e.elementRuntimeData,
     packedSignCodes)
 }
@@ -239,8 +238,7 @@ abstract class PackedDecimalDelimited(e: ElementBase, packedSignCodes: PackedSig
     e.binaryDecimalVirtualPoint,
     packedSignCodes)
 
-  override lazy val unparser: DaffodilUnparser = new PackedDecimalMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new PackedDecimalDelimitedUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     packedSignCodes)
@@ -260,8 +258,7 @@ abstract class BCDIntegerDelimited(e: ElementBase)
     fieldDFAParseEv,
     isDelimRequired)
 
-  override lazy val unparser: DaffodilUnparser = new BCDIntegerMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new BCDIntegerDelimitedUnparser(
     e.elementRuntimeData)
 }
 
@@ -280,8 +277,7 @@ abstract class BCDDecimalDelimited(e: ElementBase)
     isDelimRequired,
     e.binaryDecimalVirtualPoint)
 
-  override lazy val unparser: DaffodilUnparser = new BCDDecimalMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new BCDDecimalDelimitedUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint)
 }
@@ -300,8 +296,7 @@ abstract class IBM4690PackedIntegerDelimited(e: ElementBase, signed: Boolean)
     fieldDFAParseEv,
     isDelimRequired)
 
-  override lazy val unparser: DaffodilUnparser = new IBM4690PackedIntegerMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new IBM4690PackedIntegerDelimitedUnparser(
     e.elementRuntimeData)
 }
 
@@ -320,8 +315,7 @@ abstract class IBM4690PackedDecimalDelimited(e: ElementBase)
     isDelimRequired,
     e.binaryDecimalVirtualPoint)
 
-  override lazy val unparser: DaffodilUnparser = new IBM4690PackedDecimalMinLengthInBytesUnparser(
-    e.minLength.intValue,
+  override lazy val unparser: DaffodilUnparser = new IBM4690PackedDecimalDelimitedUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint)
 }

@@ -49,6 +49,9 @@ object TresysTests3 {
   lazy val runnerAM = Runner(testDir, "AM.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
     compileAllTopLevel = true)
 
+  lazy val runnerAU = Runner(testDir, "AU.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
+    compileAllTopLevel = true)
+
   lazy val runnerBC = Runner(testDir, "BC.tdml")
   lazy val runnerBD = Runner(testDir, "BD.tdml")
 }
@@ -82,5 +85,7 @@ class TresysTests3 {
 
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
+
+  @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd
 
 }

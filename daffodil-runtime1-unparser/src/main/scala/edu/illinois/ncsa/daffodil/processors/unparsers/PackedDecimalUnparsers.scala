@@ -51,17 +51,12 @@ class PackedIntegerRuntimeLengthUnparser(
   override lazy val runtimeDependencies = List(lengthEv)
 }
 
-final class PackedIntegerMinLengthInBytesUnparser(
-  minLengthInBytes: Int,
+final class PackedIntegerDelimitedUnparser(
   e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes)
   extends PackedIntegerBaseUnparser(e, packedSignCodes) {
 
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
-    val min = minLengthInBytes *  8
-    scala.math.max(len, min)
-  }
+  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
 
@@ -95,16 +90,11 @@ class PackedDecimalRuntimeLengthUnparser(
   override lazy val runtimeDependencies = List(lengthEv)
 }
 
-final class PackedDecimalMinLengthInBytesUnparser(
-  minLengthInBytes: Int,
+final class PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes)
   extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
 
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
-    val min = minLengthInBytes *  8
-    scala.math.max(len, min)
-  }
+  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }

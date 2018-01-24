@@ -7,20 +7,20 @@
     description="Binary values packed and bsd">
     <document>
       <documentPart type="byte"><![CDATA[
-    1700 2300 2700 4119 8c01 8b01 1c72 1b72 7542 636e 2068 666f 4e20 6d75 6562 7372
+    0017 0023 0027 1941 018c 018b 721c 721b 4275 6e63 6820 6f66 204e 756d 6265 7273
     ]]></documentPart>
     </document>
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <bcd xsi:type="xsd:int">0017</bcd>
-          <bcd xsi:type="xsd:int">0023</bcd>
-          <bcd xsi:type="xsd:int">0027</bcd>
-          <bcd xsi:type="xsd:int">1941</bcd>
-          <packed xsi:type="xsd:int">018</packed>
-          <packed xsi:type="xsd:int">-018</packed>
-          <packed xsi:type="xsd:int">721</packed>
-          <packed xsi:type="xsd:int">-721</packed>
+          <bcd>17</bcd>
+          <bcd>23</bcd>
+          <bcd>27</bcd>
+          <bcd>1941</bcd>
+          <packed>18</packed>
+          <packed>-18</packed>
+          <packed>721</packed>
+          <packed>-721</packed>
           <string>Bunch of Numbers</string>
         </list>
       </dfdlInfoset>

@@ -45,12 +45,7 @@ abstract class PackedBinaryBaseUnparser(
     val value = node.dataValue.asInstanceOf[JNumber]
     val dos = state.dataOutputStream
 
-    val res =
-      if (nBits > 0) {
-        putNumber(dos, value, nBits, state)
-      } else {
-        true
-      }
+    val res = putNumber(dos, value, nBits, state)
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
@@ -72,11 +67,9 @@ abstract class PackedBinaryDecimalBaseUnparser(
     if (bigDec.movePointRight(binaryDecimalVirtualPoint).scale != 0)
       e.schemaDefinitionError("Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d", bigDec, binaryDecimalVirtualPoint)
 
-    dos.putByteArray(
-      fromBigInteger(bigDec.unscaledValue, nBits),
-      nBits,
-      finfo)
-  }
+      val packedNum = fromBigInteger(bigDec.unscaledValue, nBits)
+      dos.putByteArray(packedNum, packedNum.length * 8, finfo)
+    }
 }
 
 abstract class PackedBinaryIntegerBaseUnparser(
@@ -85,14 +78,12 @@ abstract class PackedBinaryIntegerBaseUnparser(
 
   override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
 
-    val bigInt = number.isInstanceOf[JBigInteger] match {
-      case true => number.asInstanceOf[JBigInteger]
-      case false => new JBigInteger(number.toString)
-    }
+      val bigInt = number.isInstanceOf[JBigInteger] match {
+        case true => number.asInstanceOf[JBigInteger]
+        case false => new JBigInteger(number.toString)
+      }
 
-    dos.putByteArray(
-      fromBigInteger(bigInt, nBits),
-      nBits,
-      finfo)
+      val packedNum = fromBigInteger(bigInt, nBits)
+      dos.putByteArray(packedNum, packedNum.length * 8, finfo)
   }
 }
