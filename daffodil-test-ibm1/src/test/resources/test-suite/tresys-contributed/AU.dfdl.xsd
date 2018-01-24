@@ -3,6 +3,8 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
+  <include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
+
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format lengthKind="delimited" separator=""
@@ -11,7 +13,8 @@
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
         binaryNumberRep='binary' representation="text" occursCountKind='parsed'
-        lengthUnits="bytes" textTrimKind='none' escapeSchemeRef='' />
+        lengthUnits="bytes" textTrimKind='none' escapeSchemeRef=''
+        ref="tns:daffodilTest1" />
     </appinfo>
   </annotation>
 
@@ -21,11 +24,12 @@
 
   <complexType name="example1">
     <sequence>
-      <element name="bcd" type="xsd:int" minOccurs="4"
+      <element name="bcd" type="xsd:unsignedInt" minOccurs="4"
         maxOccurs="4" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"
         dfdl:lengthKind="explicit" dfdl:length="2" />
       <element name="packed" type="xsd:int" minOccurs="4"
         maxOccurs="4" dfdl:representation="binary" dfdl:binaryNumberRep="packed"
+        dfdl:binaryPackedSignCodes="C B F C" dfdl:binaryNumberCheckPolicy="strict"
         dfdl:lengthKind="explicit" dfdl:length="2" />
       <element name="string" type="xsd:string"
         dfdl:representation="text" dfdl:lengthKind="explicit"

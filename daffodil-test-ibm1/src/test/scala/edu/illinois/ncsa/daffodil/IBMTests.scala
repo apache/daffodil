@@ -56,8 +56,6 @@ class IBMTestsThatPass {
   @Test def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") }
   @Test def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") }
 
-  @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }
-
   @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
   @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
 
@@ -72,9 +70,10 @@ class IBMTestsThatPass {
 
   // Used to work, but now we get NYI for attributeFormDefault='qualified'
   // @Test def test_scoping_default_format_8_01() { runner1.runOneTest("scoping_default_format_8_01") }
-  // @Test def test_scoping_define_format_8_01() { runner1.runOneTest("scoping_define_format_8_01") }
-  @Test def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") } //DFDL-565 - attributeFormDefault='qualified', packed
-  @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") } //DFDL-565 - attributeFormDefault='qualified', packed
+  @Test def test_scoping_define_format_8_02() { runner1.runOneTest("scoping_define_format_8_02") }
+  @Test def test_scoping_define_format_8_03() { runner1.runOneTest("scoping_define_format_8_03") }
+  @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }
+
 
   @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
 

@@ -186,6 +186,68 @@
 
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="s14">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" encoding="ISO-8859-1" occursCountKind="implicit"
+    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    lengthUnits="bytes" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
+    binaryDecimalVirtualPoint="2"/>
+
+  <xs:element name="packedIntSeq" dfdl:lengthKind="delimited">
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="*" dfdl:terminator=";">
+        <xs:element name="num" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="packed" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="packedDecSeq" dfdl:lengthKind="delimited" >
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="*" dfdl:terminator=";">
+        <xs:element name="num" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="packed" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="bcdIntSeq" dfdl:lengthKind="delimited" >
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:terminator=";">
+        <xs:element name="num" type="xs:unsignedInt" dfdl:representation="binary" dfdl:binaryNumberRep="bcd" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="bcdDecSeq" dfdl:lengthKind="delimited" >
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:terminator=";">
+        <xs:element name="num" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="bcd" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ibmIntSeq" dfdl:lengthKind="delimited" >
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:terminator=";">
+        <xs:element name="num" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ibmDecSeq" dfdl:lengthKind="delimited" >
+    <xs:complexType>
+      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
+        dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:terminator=";">
+        <xs:element name="num" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
 
   <tdml:parserTestCase name="hexCharset01" root="int01" model="s1"
     description="hex works as a charset encoding">
@@ -648,5 +710,204 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="DelimitedPackedIntSeq" root="packedIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various packed formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 2A 123D 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedIntSeq>
+          <num>3</num>
+          <num>-123</num>
+        </packedIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DelimitedPackedDecSeq" root="packedDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various packed formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 2A 123D 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedDecSeq>
+          <num>0.03</num>
+          <num>-1.23</num>
+        </packedDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedPackedIntSeqUnparser" root="packedIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various packed formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedIntSeq>
+          <num>3</num>
+          <num>-123</num>
+        </packedIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">3C 2A 123D 3B</tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedPackedDecSeqUnparser" root="packedDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various packed formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedDecSeq>
+          <num>0.03</num>
+          <num>-1.23</num>
+        </packedDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">3C 2A 123D 3B</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="DelimitedBCDIntSeq" root="bcdIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various bcd formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 2C 0123 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdIntSeq>
+          <num>3</num>
+          <num>123</num>
+        </bcdIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DelimitedBCDDecSeq" root="bcdDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various bcd formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 2C 0123 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdDecSeq>
+          <num>0.03</num>
+          <num>1.23</num>
+        </bcdDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedBCDIntSeqUnparser" root="bcdIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various bcd formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdIntSeq>
+          <num>3</num>
+          <num>123</num>
+        </bcdIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">03 2C 0123 3B</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedBCDDecSeqUnparser" root="bcdDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various bcd formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdDecSeq>
+          <num>0.03</num>
+          <num>1.23</num>
+        </bcdDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">03 2C 0123 3B</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+
+  <tdml:parserTestCase name="DelimitedIBM4690IntSeq" root="ibmIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various ibm formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 2C D123 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmIntSeq>
+          <num>3</num>
+          <num>-123</num>
+        </ibmIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DelimitedIBM4690DecSeq" root="ibmDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various ibm formats">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 2C D123 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmDecSeq>
+          <num>0.03</num>
+          <num>-1.23</num>
+        </ibmDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedIBM4690IntSeqUnparser" root="ibmIntSeq" model="s14"
+    description="Parsing a delimited sequence of the various ibm formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmIntSeq>
+          <num>3</num>
+          <num>-123</num>
+        </ibmIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">F3 2C D123 3B</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="DelimitedIBM4690DecSeqUnparser" root="ibmDecSeq" model="s14"
+    description="Parsing a delimited sequence of the various ibm formats">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmDecSeq>
+          <num>0.03</num>
+          <num>-1.23</num>
+        </ibmDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">F3 2C D123 3B</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

@@ -89,4 +89,17 @@ class TestPacked {
   @Test def testIBM4690Charset08(): Unit = { runner.runOneTest("IBM4690Charset08") }
   @Test def testIBM4690Charset09(): Unit = { runner.runOneTest("IBM4690Charset09") }
   @Test def testIBM4690Charset10(): Unit = { runner.runOneTest("IBM4690Charset10") }
+
+  @Test def testDelimitedPackedIntSeq(): Unit = { runner.runOneTest("DelimitedPackedIntSeq") }
+  @Test def testDelimitedPackedDecSeq(): Unit = { runner.runOneTest("DelimitedPackedDecSeq") }
+  @Test def testDelimitedPackedIntSeqUnparser(): Unit = { runner.runOneTest("DelimitedPackedIntSeqUnparser") }
+  @Test def testDelimitedPackedDecSeqUnparser(): Unit = { runner.runOneTest("DelimitedPackedDecSeqUnparser") }
+  @Test def testDelimitedBCDIntSeq(): Unit = { runner.runOneTest("DelimitedBCDIntSeq") }
+  @Test def testDelimitedBCDDecSeq(): Unit = { runner.runOneTest("DelimitedBCDDecSeq") }
+  @Test def testDelimitedBCDIntSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDIntSeqUnparser") }
+  @Test def testDelimitedBCDDecSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDDecSeqUnparser") }
+  @Test def testDelimitedIBM4690IntSeq(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeq") }
+  @Test def testDelimitedIBM4690DecSeq(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeq") }
+  @Test def testDelimitedIBM4690IntSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeqUnparser") }
+  @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeqUnparser") }
 }

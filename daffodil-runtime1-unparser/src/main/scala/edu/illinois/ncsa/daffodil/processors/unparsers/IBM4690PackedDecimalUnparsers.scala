@@ -48,16 +48,11 @@ class IBM4690PackedIntegerRuntimeLengthUnparser(
   override lazy val runtimeDependencies = List(lengthEv)
 }
 
-final class IBM4690PackedIntegerMinLengthInBytesUnparser(
-  minLengthInBytes: Int,
+final class IBM4690PackedIntegerDelimitedUnparser(
   e: ElementRuntimeData)
   extends IBM4690PackedIntegerBaseUnparser(e) {
 
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
-    val min = minLengthInBytes *  8
-    scala.math.max(len, min)
-  }
+  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
 abstract class IBM4690PackedDecimalBaseUnparser(
@@ -87,15 +82,10 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
   override lazy val runtimeDependencies = List(lengthEv)
 }
 
-final class IBM4690PackedDecimalMinLengthInBytesUnparser(
-  minLengthInBytes: Int,
+final class IBM4690PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int)
   extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    val len = state.currentNode.get.asSimple.dataValue.asInstanceOf[Array[Byte]].length * 8
-    val min = minLengthInBytes *  8
-    scala.math.max(len, min)
-  }
+  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
