@@ -1,0 +1,89 @@
+This file contains the GPG keys of Apache Daffodil developers.
+
+Users:    gpg --import KEYS
+
+Developers:
+  Create a key:
+    gpg --gen-key
+
+  Adding you key to this file:
+    (gpg --list-sigs <key id> && gpg --armor --export <key id>) >> this file.
+
+  Publish the key:
+    gpg --keyserver pgp.mit.edu --send-keys <key id>
+
+  Signing another developers key:
+    gpg --keyserver pgp.mit.edu --search-keys <name or email>
+    gpg --keyserver pgp.mit.edu --recv-keys <key id>
+    gpg --sign-key <key id>
+    gpg --keyserver pgp.mit.edu --send-keys <key id>
+
+  Additional Information:
+    http://www.apache.org/dev/openpgp.html#generate-key
+
+********************************* PLEASE NOTE **********************************
+
+  Releases will be signed using one of the keys in this file. This file will
+  be available with the distributed Apache Daffodil releases at:
+
+      https://dist.apache.org/repos/dist/release/incubator/daffodil/KEYS
+
+********************************************************************************
+
+pub   4096R/033AE661 2018-01-22
+uid                  Steve Lawrence <slawrence@apache.org>
+sig 3        033AE661 2018-01-22  Steve Lawrence <slawrence@apache.org>
+sub   4096R/66058329 2018-01-22
+sig          033AE661 2018-01-22  Steve Lawrence <slawrence@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+xb/W
+=cYZZ
+-----END PGP PUBLIC KEY BLOCK-----

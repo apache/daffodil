@@ -59,7 +59,7 @@ and validation.
 
 version in Rpm := {
   val parts = version.value.split("-", 2)
-  parts(0) + ".incubating" // removes snapshot/beta/rc/etc, that should only be in the rpmRelease
+  parts(0) // removes snapshot/beta/rc/etc, that should only be in the rpmRelease
 }
 
 rpmRelease := {
