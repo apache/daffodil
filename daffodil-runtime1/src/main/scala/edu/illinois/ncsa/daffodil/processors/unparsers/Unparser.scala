@@ -64,6 +64,24 @@ sealed trait Unparser
     if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
     try {
       unparse(ustate)
+
+      // TODO: Remove this call to ustate.bitOrder below.
+      // Figure out where this is needed elsewhere in unparser code.
+      //
+      // Clearly calling this here is overkilling the problem.
+      //
+      // In theory some places in the unparser code dealing with splitting/suspending
+      // or outputValueCalc elemetns are missing proper checking of bitOrder, or
+      // keeping track of prior bit order. Finding those has been problematic. 
+      //
+      // So this is a temporary fix, until we can figure out where else to do this.
+      //
+      this.context match {
+        case trd: TermRuntimeData => 
+          ustate.bitOrder // asking for bitOrder checks bit order changes.
+          // this splits DOS on bitOrder changes if absoluteBitPos not known
+        case _ => //ok
+      }
     } finally {
       ustate.resetFormatInfoCaches()
     }
@@ -116,6 +134,8 @@ trait SuspendableUnparser
   protected def suspendableOperation: SuspendableOperation
 
   override final def unparse(state: UState): Unit = {
+    state.bitOrder // force checking of bitOrder changes on non-byte boundaries
+    // also forces capture of bitOrder value in case of suspension.
     suspendableOperation.run(state)
   }
 }

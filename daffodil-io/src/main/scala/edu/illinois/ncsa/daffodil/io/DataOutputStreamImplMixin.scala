@@ -247,15 +247,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   private var fragmentLastByteLimit_ : Int = 0
   def fragmentLastByteLimit = fragmentLastByteLimit_
 
-  private var maybeFragmentBitOrder: Maybe[BitOrder] = Nope
-  def fragmentBitOrder = {
-    Assert.usage(maybeFragmentBitOrder.isDefined)
-    this.maybeFragmentBitOrder.value
-  }
-  def setFragmentBitOrder(bo: BitOrder) {
-    maybeFragmentBitOrder = One(bo)
-  }
-
   def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int) {
     Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
     Assert.usage(newFragmentByte >= 0 && newFragmentByte <= 255) // no bits above first byte are in use.

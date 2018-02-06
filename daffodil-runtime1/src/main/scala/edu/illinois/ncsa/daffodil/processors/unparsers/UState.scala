@@ -183,8 +183,152 @@ abstract class UState(
     _processorStatus = new Failure(ue)
   }
 
+  /**
+   * Checks for legal bitOrder change (byte boundary required), or splits the
+   * DOS so that the check will occur later when they are collapsed back together.
+   *
+   * If you think about it, the only way we could not have the absoluteBitPos is
+   * because something variable-length preceded us, and couldn't be computed due
+   * to suspended computation (forward referencing expression somewhere prior).
+   *
+   * At some point, that suspension will get resolved, and forward collapsing of
+   * the DataOutputStreams will occur. When it encounters a split created here,
+   * we already know that the bit orders are different (or we wouldn't have put in
+   * the split), so we just have to see if we're on a byte boundary. That could happen
+   * if the original DOS ended in a frag byte, but previous to it, was something
+   * that was variable bits wide (all bits shift such that original DOS's frag byte
+   * becomes a whole byte.)
+   *
+   * The invariant here is that the original DOS will get collapsed together with
+   * DOS preceding it. After that collapsing, it has to end at a byte boundary (no
+   * frag byte). If it doesn't then it's a bit order-change error. Otherwise
+   * we're ok.
+   *
+   * This is why we can always proceed with a new buffered DOS, knowing we're
+   * going to be on a byte boundary with the bit order needed.
+   */
   final override protected def checkBitOrder(): Unit = {
-    UnparserBitOrderChecks.checkUnparseBitOrder(this)
+    //
+    // Check for bitOrder change. If yes, then unless we know we're byte aligned
+    // we must split the DOS until we find out. That way the new buffered DOS
+    // can be assumed to be byte aligned (which will be checked on combining),
+    // and the bytes in it will actually start out byte aligned.
+    //
+    val dos = this.dataOutputStream
+    val isChanging = isUnparseBitOrderChanging(dos)
+    if (isChanging) {
+      //
+      // the bit order is changing. Let's be sure
+      // that it's legal to do so w.r.t. other properties
+      // These checks will have been evaluated at compile time if
+      // all the properties are static, so this is really just
+      // in case the charset or byteOrder are runtime-valued.
+      //
+      this.processor.context match {
+        case trd: TermRuntimeData => {
+          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
+          val mcbbo = trd.maybeCheckByteAndBitOrderEv
+          if (mcboc.isDefined) mcboc.get.evaluate(this)
+          if (mcbbo.isDefined) mcbbo.get.evaluate(this)
+        }
+        case _ => // ok
+      }
+
+      // TODO: Figure out why this setPriorBitOrder is needed here.
+      // If we remove it, then test_ep2 (an envelope-payload test with
+      // bigEndian MSBF envelope and littleEndian LSBF payload)
+      // fails with Assert.invariant(isWritable)
+      // when writing a long. The buffered DOS it is writing to is finished.
+      //
+      // It's unclear why setting the prior bit order here affects whether
+      // a DOS is active or finished elsewhere, but it does.
+      //
+      val bo = this.bitOrder // will NOT recurse back to here. It *will* hit cache.
+      dos.setPriorBitOrder(bo)
+
+      // If we can't check right now because we don't have absolute bit position
+      // then split the DOS so it gets checked later.
+      //
+      splitOnUknownByteAlignmentBitOrderChange(dos)
+    }
+  }
+
+  private def isUnparseBitOrderChanging(dos: DirectOrBufferedDataOutputStream): Boolean = {
+    val ctxt = this.processor.context
+    ctxt match {
+      case ntrd: NonTermRuntimeData => false
+      case _ => {
+        val priorBitOrder = dos.priorBitOrder
+        val newBitOrder = this.bitOrder
+        priorBitOrder ne newBitOrder
+      }
+    }
+  }
+
+  /**
+   *  If necessary, split DOS so bitOrder proper byte boundary is checked later.
+   *
+   *  If we can't check because of unknown absolute bit position,
+   *  then we split the DOS, start a new buffering one (assumed to be
+   *  byte aligned, with the new bitOrder).
+   *
+   *  The bit order would not be unknown except that something of
+   *  variable length precedes us and is suspended.
+   *  When that eventually is resolved, then the DOS will collapse forward
+   *  and the boundary between the original (dos here), and the buffered
+   *  one will be checked as part of the collapsing logic.
+   *
+   *  That is, this split does NOT queue a suspension object, it
+   *  Just inserts a split in the DOS. This gets put together later when
+   *  the DOS are collapsed together, and the check for byte boundary occurs
+   *  at that time.
+   */
+  private def splitOnUknownByteAlignmentBitOrderChange(dos: DirectOrBufferedDataOutputStream): Unit = {
+    val mabp = dos.maybeAbsBitPos0b
+    val mabpDefined = mabp.isDefined
+    val isSplitNeeded: Boolean = {
+      if (mabpDefined && dos.isAligned(8)) {
+        //
+        // Not only do we have to be logically aligned, we also have
+        // to be physically aligned in the buffered stream, otherwise we
+        // cannot switch bit orders, and we have to split off a new
+        // stream to start the accumulation of the new bit-order material.
+        //
+        // fragmentLastByteLimit == 0 means there is no fragment byte,
+        // which only happens if we're on a byte boundary in the implementation.
+        //
+        if (dos.fragmentLastByteLimit == 0) false
+        else true
+      } else if (!mabpDefined) true
+      else {
+        // mabp is defined, and we're not on a byte boundary
+        // and the bit order is changing.
+        // Error: bit order change on non-byte boundary
+        val bp1b = mabp.get + 1
+        SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s. Should be 1 mod 8, was %s (mod 8)", bp1b, bp1b % 8)
+      }
+    }
+    if (isSplitNeeded) {
+      Assert.invariant(dos.isBuffering) // Direct DOS always has absolute position, so has to be buffering.
+      val newDOS = dos.addBuffered
+      dataOutputStream = newDOS
+      //
+      // Just splitting to start a new bitOrder on a byte boundary in a new
+      // buffered DOS
+      // So the prior DOS can be finished. Nothing else will be added to it.
+      //
+      // Note: unlike a suspension, in this case, we're not going to write anything
+      // more to the end of that DOS. A bitOrder change occurs before we get to
+      // any such content being unparsed, or suspended. So after a bitOrder change,
+      // the unparsing occurs, possibly buffered, and works as if the
+      // bitOrder change was legal and happened, even though we cannot know yet
+      // if that is the case, and it will get checked later.
+      //
+      // Finished means you won't add data to the end of it any more.
+      // It does NOT prevent information like the absoluteBitPos to
+      // propagate.
+      dos.setFinished(this)
+    }
   }
 }
 
@@ -319,7 +463,7 @@ final class UStateMain private (
       suspendedDOS,
       variableBox,
       currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
-      arrayIndexStack.top, // only need the to of the stack, not the whole thing
+      arrayIndexStack.top, // only need the top of the stack, not the whole thing
       es,
       ds,
       prior,
@@ -494,86 +638,3 @@ object UState {
   }
 }
 
-object UnparserBitOrderChecks {
-
-  final def checkUnparseBitOrder(ustate: UState) = {
-    //
-    // Check for bitOrder change. If yes, then unless we know we're byte aligned
-    // we must split the DOS until we find out. That way the new buffered DOS
-    // can be assumed to be byte aligned (which will be checked on combining),
-    // and the bytes in it will actually start out byte aligned.
-    //
-    val dos = ustate.dataOutputStream
-    val isChanging = isUnparseBitOrderChanging(dos, ustate)
-    if (isChanging) {
-      //
-      // the bit order is changing. Let's be sure
-      // that it's legal to do so w.r.t. other properties
-      // These checks will have been evaluated at compile time if
-      // all the properties are static, so this is really just
-      // in case the charset or byteOrder are runtime-valued.
-      //
-      ustate.processor.context match {
-        case trd: TermRuntimeData => {
-          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
-          val mcbbo = trd.maybeCheckByteAndBitOrderEv
-          if (mcboc.isDefined) mcboc.get.evaluate(ustate)
-          if (mcbbo.isDefined) mcbbo.get.evaluate(ustate)
-        }
-        case _ => // ok
-      }
-
-      dos.setPriorBitOrder(ustate.bitOrder)
-      splitOnUnalignedBitOrderChange(dos, ustate)
-    }
-  }
-
-  private def isUnparseBitOrderChanging(dos: DirectOrBufferedDataOutputStream, ustate: UState): Boolean = {
-    val ctxt = ustate.processor.context
-    ctxt match {
-      case ntrd: NonTermRuntimeData => false
-      case _ => {
-        val priorBitOrder = dos.priorBitOrder
-        val newBitOrder = ustate.bitOrder
-        priorBitOrder ne newBitOrder
-      }
-    }
-  }
-
-  private def splitOnUnalignedBitOrderChange(dos: DirectOrBufferedDataOutputStream, ustate: UState): Unit = {
-    val mabp = dos.maybeAbsBitPos0b
-    val mabpDefined = mabp.isDefined
-    val isSplitNeeded: Boolean = {
-      if (mabpDefined && dos.isAligned(8)) {
-        //
-        // Not only do we have to be logically aligned, we also have
-        // to be physically aligned in the buffered stream, otherwise we
-        // cannot switch bit orders, and we have to split off a new
-        // stream to start the accumulation of the new bit-order material.
-        //
-        // fragmentLastByteLimit == 0 means there is no fragment byte,
-        // which only happens if we're on a byte boundary in the implementation.
-        //
-        if (dos.fragmentLastByteLimit == 0) false
-        else true
-      } else if (!mabpDefined) true
-      else {
-        // mabp is defined, and we're not on a byte boundary
-        // and the bit order is changing.
-        // Error: bit order change on non-byte boundary
-        val bp1b = mabp.get + 1
-        ustate.SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", bp1b)
-      }
-    }
-    if (isSplitNeeded) {
-      val newDOS = dos.addBuffered
-      ustate.dataOutputStream = newDOS
-      //
-      // Just splitting to start a new bitOrder on a byte boundary in a new
-      // buffered DOS
-      // So the prior DOS can be finished. Nothing else will be added to it.
-      //
-      dos.setFinished(ustate)
-    }
-  }
-}

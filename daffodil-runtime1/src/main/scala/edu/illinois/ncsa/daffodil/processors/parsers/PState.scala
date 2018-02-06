@@ -284,8 +284,53 @@ final class PState private (
     dataInputStream.setDebugging(flag)
   }
 
+  /**
+   * Checks for bit order change. If the bit order is changing, checks if we're
+   * on a proper byte boundary.
+   */
   final override protected def checkBitOrder(): Unit = {
-    ParserBitOrderChecks.checkParseBitOrder(this)
+
+    //
+    // TODO: This looks like a lot of overhead for every single parse call.
+    //
+    // We need to check for bitOrder change. If it is changing, we
+    // need to know if it is on a proper byte boundary.
+    //
+    val dis = this.dataInputStream
+    val isChanging = isParseBitOrderChanging(dis)
+    if (isChanging) {
+      //
+      // the bit order is changing. Let's be sure
+      // that it's legal to do so w.r.t. other properties
+      // These checks will have been evaluated at compile time if
+      // all the properties are static, so this is really just
+      // in case the charset or byteOrder are runtime-valued.
+      //
+      this.processor.context match {
+        case trd: TermRuntimeData => {
+          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
+          val mcbbo = trd.maybeCheckByteAndBitOrderEv
+          if (mcboc.isDefined) mcboc.get.evaluate(this) // Expressions must be evaluated on the element, not before it is created.
+          if (mcbbo.isDefined) mcbbo.get.evaluate(this)
+        }
+        case _ => // ok
+      }
+
+      dis.st.setPriorBitOrder(this.bitOrder)
+      if (!dis.isAligned(8))
+        SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", dis.bitPos1b)
+    }
+  }
+
+  private def isParseBitOrderChanging(dis: ByteBufferDataInputStream): Boolean = {
+    this.processor.context match {
+      case ntrd: NonTermRuntimeData => false
+      case _ => {
+        val priorBitOrder = dis.st.priorBitOrder
+        val newBitOrder = this.bitOrder
+        priorBitOrder ne newBitOrder
+      }
+    }
   }
 }
 
@@ -424,55 +469,5 @@ object PState {
       ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit)
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     createInitialPState(root, dis, output, dataProc)
-  }
-}
-
-object ParserBitOrderChecks {
-  /**
-   * Checks for bit order change. If the bit order is changing, checks if we're
-   * on a proper byte boundary.
-   */
-  final def checkParseBitOrder(pstate: PState) = {
-    //
-    // TODO: This looks like a lot of overhead for every single parse call.
-    //
-    // We need to check for bitOrder change. If it is changing, we
-    // need to know if it is on a proper byte boundary.
-    //
-    val dis = pstate.dataInputStream
-    val isChanging = isParseBitOrderChanging(dis, pstate)
-    if (isChanging) {
-      //
-      // the bit order is changing. Let's be sure
-      // that it's legal to do so w.r.t. other properties
-      // These checks will have been evaluated at compile time if
-      // all the properties are static, so this is really just
-      // in case the charset or byteOrder are runtime-valued.
-      //
-      pstate.processor.context match {
-        case trd: TermRuntimeData => {
-          val mcboc = trd.maybeCheckBitOrderAndCharsetEv
-          val mcbbo = trd.maybeCheckByteAndBitOrderEv
-          if (mcboc.isDefined) mcboc.get.evaluate(pstate) // Expressions must be evaluated on the element, not before it is created.
-          if (mcbbo.isDefined) mcbbo.get.evaluate(pstate)
-        }
-        case _ => // ok
-      }
-
-      dis.st.setPriorBitOrder(pstate.bitOrder)
-      if (!dis.isAligned(8))
-        pstate.SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", dis.bitPos1b)
-    }
-  }
-
-  private def isParseBitOrderChanging(dis: ByteBufferDataInputStream, pstate: PState): Boolean = {
-    pstate.processor.context match {
-      case ntrd: NonTermRuntimeData => false
-      case _ => {
-        val priorBitOrder = dis.st.priorBitOrder
-        val newBitOrder = pstate.bitOrder
-        priorBitOrder ne newBitOrder
-      }
-    }
   }
 }

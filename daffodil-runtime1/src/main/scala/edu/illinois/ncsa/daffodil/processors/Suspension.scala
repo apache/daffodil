@@ -167,6 +167,7 @@ trait Suspension
 
         val mkl = maybeKnownLengthInBits.getULong
         buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
+        buffered.setPriorBitOrder(ustate.bitOrder)
 
       }
     } else {
