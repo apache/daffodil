@@ -179,7 +179,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    */
   private var _javaOutputStream: java.io.OutputStream = bufferingJOS
 
-  private[io] final def isBuffering: Boolean = {
+  final def isBuffering: Boolean = {
     val res = getJavaOutputStream() _eq_ bufferingJOS
     res
   }

@@ -71,9 +71,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetDecoder
 import edu.illinois.ncsa.daffodil.processors.charset.BitsCharsetEncoder
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.parsers.ParserBitOrderChecks
-import edu.illinois.ncsa.daffodil.processors.parsers.PState
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparserBitOrderChecks
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -200,6 +197,23 @@ abstract class ParseOrUnparseState protected (
   private def runtimeData = processor.context
   private def termRuntimeData = runtimeData.asInstanceOf[TermRuntimeData]
 
+  /**
+   * Checks if the bit order change is legal.
+   *
+   * For parsing we know the bitPos, so we can determine if we're at a byte boundary.
+   *
+   * For unparsing we may not know the absolute bitPos, so we cannot necessarily
+   * determine if the boundary is legal or not.
+   *
+   * If we know the absoluteBitPos we do the check (as for parsing).
+   *
+   * If we do not know the absoluteBitPos, then in that case, we split the
+   * DataOutputStream into original and buffered. The "check" then occurs
+   * when these DataOutputStreams are collapsed back together.
+   *
+   * So this "check" call, can have an important side effect when unparsing that
+   * queues up the check to be done in the future.
+   */
   protected def checkBitOrder(): Unit
 
   /**
@@ -306,7 +320,7 @@ abstract class ParseOrUnparseState protected (
       if (this.processor.isPrimitive)
         if (decoderCacheEntry_.encodingMandatoryAlignmentInBitsArg != 1)
           if (this.bitPos1b % 8 != 1)
-            ParserBitOrderChecks.checkParseBitOrder(this.asInstanceOf[PState])
+            checkBitOrder()
     }
     decoderCacheEntry_
   }
@@ -318,7 +332,7 @@ abstract class ParseOrUnparseState protected (
       if (this.processor.isPrimitive)
         if (encoderCacheEntry_.encodingMandatoryAlignmentInBitsArg != 1)
           if (this.bitPos1b % 8 != 1)
-            UnparserBitOrderChecks.checkUnparseBitOrder(this.asInstanceOf[UState])
+            checkBitOrder()
     }
     encoderCacheEntry_
   }
