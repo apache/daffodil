@@ -1278,7 +1278,7 @@ object Main extends Logging {
                           |
                           | Please report this bug and help us fix it:
                           |
-                          |  https://cwiki.apache.org/confluence/display/DAFFODIL/Report+a+Bug
+                          |  https://daffodil.apache.org/community/#issue-tracker
                           |
                           | Please include the following exception, the command you
                           | ran, and any input, schema, or tdml files used that led

@@ -220,7 +220,7 @@ class Compiler private[sapi] () {
   /**
    * Read external variables from a Daffodil configuration file
    *
-   * @see <a target="_blank" href='https://cwiki.apache.org/confluence/display/DAFFODIL/Configuration+File'>Daffodil Configuration File</a> - Daffodil configuration file format
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    *
    * @param extVarsFile file to read DFDL variables from.
    */
@@ -238,7 +238,7 @@ class Compiler private[sapi] () {
   /**
    * Set a Daffodil tunable parameter
    *
-   * @see <a target="_blank" href='https://cwiki.apache.org/confluence/display/DAFFODIL/Configuration+File#ConfigurationFile-TunableParameters'>Tunable Parameters</a> - list of tunables names of default values
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
    *
    * @param tunable name of the tunable parameter to set.
    * @param value value of the tunable parameter to set
@@ -250,7 +250,7 @@ class Compiler private[sapi] () {
   /**
    * Set the value of multiple tunable parameters
    *
-   * @see <a target="_blank" href='https://cwiki.apache.org/confluence/display/DAFFODIL/Configuration+File#ConfigurationFile-TunableParameters'>Tunable Parameters</a> - list of tunables names of default values
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
    *
    * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value to set it to
    */
@@ -452,7 +452,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   /**
    * Read external variables from a Daffodil configuration file
    *
-   * @see <a target="_blank" href='https://cwiki.apache.org/confluence/display/DAFFODIL/Configuration+File'>Daffodil Configuration File</a> - Daffodil configuration file format
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    *
    * @param extVars file to read DFDL variables from.
    */
