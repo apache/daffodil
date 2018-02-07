@@ -25,7 +25,7 @@ To execute Daffodil on Windows:
 $ .\bin\daffodil.bat [options]
 ```
 
-Use the `--help` option or see the [Command Line Interface](https://cwiki.apache.org/confluence/display/DAFFODIL/Command+Line+Interface) documentation for details on its usage.
+Use the `--help` option or see the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
 
 ### Debugging
 
@@ -37,7 +37,7 @@ $ ./bin/daffodil -d parse --schema <path/to/schema.dfdl.xsd> input-file
 
 When running the debugger, the user is provided with a command prompt, at which point the user can execute debugger commands to control the debugger and inspect state. Type `help` at the command prompt to get information on the debugger commands, or `help <command>` to get information about a specific command.
 
-See the [Interactive Debugger](https://cwiki.apache.org/confluence/display/DAFFODIL/Interactive+Debugger) page for its detailed usage.
+See the [Interactive Debugger](https://daffodil.apache.org/debugger/) page for its detailed usage.
 
 ## Getting Help
 

@@ -34,7 +34,7 @@ To build the Daffodil command line interface:
 $ sbt daffodil-cli/stage
 ```
 
-The above will create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://cwiki.apache.org/confluence/display/DAFFODIL/Command+Line+Interface) documentation for details on its usage.
+The above will create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
 
 ## Getting Help
 
