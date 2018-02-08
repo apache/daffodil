@@ -340,7 +340,108 @@ looking at DFDL schemas for some complex formats like STANAG 5516 with NACT wrap
     </tdml:document>
   </tdml:parserTestCase>
 
- 
+  <tdml:defineSchema name="model3" elementFormDefault="unqualified">
+    <dfdl:format ref="be" />
+    <dfdl:defineFormat name="be">
+      <dfdl:format ref="ex:daffodilTest1" representation="binary" 
+        encoding="ascii" lengthUnits="bits" alignmentUnits="bits"
+        alignment="1" fillByte="X" binaryNumberRep="binary" lengthKind="explicit" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="le">
+      <dfdl:format ref="be" byteOrder="littleEndian" bitOrder="leastSignificantBitFirst" />
+    </dfdl:defineFormat>
+
+  <xs:element name="records" dfdl:lengthKind="implicit">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="record" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit"
+          dfdl:alignmentUnits="bytes" dfdl:alignment="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="n" type="xs:int" dfdl:length="16" />
+              <xs:element name="len" type="xs:int" dfdl:length="16"
+                dfdl:outputValueCalc='{ dfdl:valueLength(../payload, "bits") }' />
+              <!-- 
+                   The payload has a different byte order and bit order than the surrounding envelope and is not 
+                   a multiple of 8 bits long.
+                -->
+              <xs:element name="payload" dfdl:lengthKind="explicit" dfdl:length="{ ../len }" dfdl:ref="le">
+                <xs:complexType>
+                  <xs:sequence dfdl:ref="le">
+                    <xs:element name="kind" type="xs:int" dfdl:length="3" dfdl:ref="le">
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:discriminator>{ . eq 1 }</dfdl:discriminator>
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="w" type="xs:int" dfdl:length="16" dfdl:ref="le" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:sequence dfdl:alignment="1" dfdl:alignmentUnits="bytes"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="ep3" root="records" model="model3"
+      description="Envelope/payload adds complexity of repeating MSBF/BE envelope and non-byte-length LSBF/LE payload."
+    roundTrip="false">
+    <tdml:infoset>
+  <tdml:dfdlInfoset xmlns:ex="http://example.com">
+    <ex:records>
+      <record>
+        <n>255</n><!-- 00FF -->
+        <len>19</len><!-- 0013 -->
+        <payload>
+          <kind>1</kind>
+          <w>7</w>
+        </payload>
+      </record>
+      <record>
+        <n>255</n><!-- 00FF -->
+        <len>19</len><!-- 0013 -->
+        <payload>
+          <kind>1</kind>
+          <w>15</w>
+        </payload>
+      </record>
+    </ex:records>
+  </tdml:dfdlInfoset>
+    </tdml:infoset>
+       <document bitOrder="MSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+         <documentPart type="byte">00FF 0013 3900 F8 00FF 0013 7900 F8 </documentPart>
+         <!-- 
+         Note TDML Runner not assembling mixtures of bitOrder/byteOrder correctly. The 
+         above hex should be the same as what is below, but is not. 
+         A unit test that shows the problem is testMixedBigEndianMSBFWithLittleEndianLSBF 
+         
+         See bug DAFFODIL-1898
+        -->
+       <!-- Record 1 -->
+       <!-- 
+        <documentPart type="byte" bitOrder="MSBFirst" byteOrder="LTR">00FF 0013                                   </documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">iWord Kind                         XXXX X001</documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">iWord w             X000 0000 0000 0011 1XXX</documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">alignmentFill  1111 1XXX XXXX XXXX XXXX XXXX</documentPart>
+        -->
+        <!-- 00FF 0013 3900 F8 -->
+        <!-- Record 2 -->
+        <!-- 
+        <documentPart type="byte" bitOrder="MSBFirst" byteOrder="LTR">00FF 0013                                   </documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">iWord Kind                         XXXX X001</documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">iWord w             X000 0000 0000 0111 1XXX</documentPart>
+        <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">alignmentFill  1111 1XXX XXXX XXXX XXXX XXXX</documentPart>
+        -->
+        <!-- 00FF 0013 7900 F8 -->
+      </document>
+     
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
 
