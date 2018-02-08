@@ -41,33 +41,36 @@ sealed trait Unparser
     val savedProc = ustate.maybeProcessor
     ustate.setProcessor(this)
 
-    //
-    // Since the state is being overwritten (in most case) now,
-    // we must explicitly make a copy when debugging so we can compute a delta
-    // after
-    //
     // ?? TODO: Should this be after the split below ??
     if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
+
+    // TODO: Remove this call to ustate.bitOrder below.
+    // Figure out where this is needed elsewhere in unparser code.
+    //
+    // Clearly calling this here is overkilling the problem.
+    //
+    // In theory some places in the unparser code dealing with splitting/suspending
+    // or outputValueCalc elements are missing proper checking of bitOrder, or
+    // keeping track of prior bit order. Finding those has been problematic.
+    //
+    // So this is a temporary fix, until we can figure out where else to do this.
+    //
+    this match {
+      // bit order only applies to primitives, not combinators, nor "noData" unparsers.
+      case af: AlignmentPrimUnparser => // ok. Don't check bitOrder before Aligning.
+      case u: PrimUnparser => {
+        u.context match {
+          case trd: TermRuntimeData =>
+            ustate.bitOrder // asking for bitOrder checks bit order changes.
+          // this splits DOS on bitOrder changes if absoluteBitPos not known
+          case rd: RuntimeData => Assert.invariantFailed("Primitive unparser " + u + " has non-Term runtime data: " + rd)
+        }
+      }
+      case _ => // ok
+    }
     try {
       unparse(ustate)
 
-      // TODO: Remove this call to ustate.bitOrder below.
-      // Figure out where this is needed elsewhere in unparser code.
-      //
-      // Clearly calling this here is overkilling the problem.
-      //
-      // In theory some places in the unparser code dealing with splitting/suspending
-      // or outputValueCalc elemetns are missing proper checking of bitOrder, or
-      // keeping track of prior bit order. Finding those has been problematic. 
-      //
-      // So this is a temporary fix, until we can figure out where else to do this.
-      //
-      this.context match {
-        case trd: TermRuntimeData => 
-          ustate.bitOrder // asking for bitOrder checks bit order changes.
-          // this splits DOS on bitOrder changes if absoluteBitPos not known
-        case _ => //ok
-      }
     } finally {
       ustate.resetFormatInfoCaches()
     }
@@ -94,6 +97,17 @@ sealed trait Unparser
 trait PrimUnparser
   extends Unparser
   with PrimProcessor
+
+/**
+ * A marker trait for the unparsers that perform alignment.
+ *
+ * Needed to distinguish alignment operations from regular primitives so that
+ * we can inspect for bitOrder changes on most primitives, but not
+ * alignments - since their purpose may be to align so that the bitOrder change
+ * is on the right boundary. Checking bit order before them defeats the purpose
+ * of alignment.
+ */
+trait AlignmentPrimUnparser extends PrimUnparser
 
 /**
  * An unparser that is primitive (no sub-unparsers), but doesn't write anything

@@ -34,5 +34,6 @@ class TestEnvelopePayload {
 
   @Test def test_ep1() { runner.runOneTest("ep1") }
   @Test def test_ep2() { runner.runOneTest("ep2") }
+  @Test def test_ep3() { runner.runOneTest("ep3") }
 
 }

@@ -25,7 +25,7 @@ import org.apache.daffodil.processors.TermRuntimeData
 class SkipRegionUnparser(
   skipInBits: Int,
   override val context: TermRuntimeData)
-  extends PrimUnparser {
+  extends AlignmentPrimUnparser {
 
   override def runtimeDependencies = Nil
 
@@ -65,7 +65,7 @@ class AlignmentFillUnparserSuspendableOperation(
 class AlignmentFillUnparser(
   alignmentInBits: Int,
   override val context: TermRuntimeData)
-  extends PrimUnparser
+  extends AlignmentPrimUnparser
   with SuspendableUnparser {
 
   override def runtimeDependencies = Nil
