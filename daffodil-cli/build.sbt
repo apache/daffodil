@@ -25,11 +25,11 @@ enablePlugins(RpmPlugin)
 
 executableScriptName := "daffodil"
 
-packageName in Universal := "daffodil-" + version.value + "-bin" //tarball name
+packageName in Universal := "apache-daffodil-" + version.value + "-incubating-bin" //tarball name
 
 packageName in Linux := executableScriptName.value
 
-packageName in Rpm := executableScriptName.value
+packageName in Rpm := "apache-" + executableScriptName.value
 
 mappings in Universal ++= Seq(
   baseDirectory.value / "LICENSE" -> "LICENSE",
@@ -59,11 +59,12 @@ and validation.
 
 version in Rpm := {
   val parts = version.value.split("-", 2)
-  parts(0) // removes snapshot/beta/rc/etc, that should only be in the rpmRelease
+  val ver = parts(0) // removes snapshot if it exists
+  ver + ".incubating"
 }
 
 rpmRelease := {
-  val parts = version.value.split("-", 2) // parts(0) is the version, parse(1) is snapshot/beta/rc/etc if it exists
+  val parts = version.value.split("-", 2) // parts(0) is the version, parse(1) is snapshot if it exists
   if (parts.length > 1) "0." + parts(1).toLowerCase else "1"
 }
 
