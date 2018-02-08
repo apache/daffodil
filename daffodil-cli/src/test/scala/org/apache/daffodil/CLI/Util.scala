@@ -84,7 +84,9 @@ object Util {
   }
 
   def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
-    val newEnv = System.getenv().asScala ++ envp
+    // combine existing environment with envp and daffodil-lib test resources (needed for built-in-formats.xsd)
+    val newEnv = System.getenv().asScala ++ envp + (("DAFFODIL_CLASSPATH", daffodilPath("daffodil-lib/src/test/resources/")))
+
     val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
     val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val inputStream = if (expectErr) {
@@ -111,7 +113,9 @@ object Util {
   // The inputStream will be at index 0
   // The errorStream will be at index 1
   def getShellWithErrors(cmd: String, spawnCmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
-    val newEnv = System.getenv().asScala ++ envp
+    // combine existing environment with envp and daffodil-lib test resources (needed for built-in-formats.xsd)
+    val newEnv = System.getenv().asScala ++ envp + (("DAFFODIL_CLASSPATH", daffodilPath("daffodil-lib/src/test/resources/")))
+
     val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
     val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val shell = new ExpectBuilder()
