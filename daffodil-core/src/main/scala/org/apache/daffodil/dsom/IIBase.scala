@@ -165,17 +165,7 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
     res
   }.value
 
-  final lazy val schemaLocationProperty = {
-    val prop = getAttributeOption("schemaLocation")
-    prop.map { text =>
-      if (text.contains("edu/illinois/ncsa/daffodil")) {
-        SDW("schemaLocation property uses deprecated edu/illinois/ncsa/daffodil path instead of org/apache/daffodil. Converting to new path.")
-        text.replace("edu/illinois/ncsa/daffodil", "org/apache/daffodil")
-      } else {
-        text
-      }
-    }
-  }
+  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
   protected final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) } catch { case ex: URISyntaxException => return false }

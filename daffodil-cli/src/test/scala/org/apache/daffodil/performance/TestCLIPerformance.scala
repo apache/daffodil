@@ -24,7 +24,6 @@ import net.sf.expectit.ExpectIOException
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.matcher.Matchers.anyString
-import org.apache.daffodil.tdml.Runner
 
 class TestCLIPerformance {
 
@@ -105,10 +104,6 @@ class TestCLIPerformance {
       shell.close()
     }
   }
-
-  val runner = Runner("/", "clitests.tdml")
-
-  @Test def test_3395_CLI_Performance_5_Threads_50_Times_tdml() { runner.runOneTest("test_3395_CLI_Performance_5_Threads_50_Times") }
 
   @Test def test_3395_CLI_Performance_5_Threads_50_Times() {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")

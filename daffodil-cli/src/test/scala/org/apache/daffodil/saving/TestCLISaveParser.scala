@@ -21,12 +21,10 @@ import junit.framework.Assert._
 import org.junit.Test
 import org.junit.Before
 import org.junit.After
-import scala.sys.process._
 import org.apache.daffodil.CLI.Util
 import java.io.File
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
-import scala.language.postfixOps
 
 class TestCLISaveParser {
 
@@ -50,7 +48,8 @@ class TestCLISaveParser {
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
@@ -101,7 +100,9 @@ class TestCLISaveParser {
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r row2 -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r row2 -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
+
       val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
       shell.expect(contains(output12))
@@ -122,7 +123,8 @@ class TestCLISaveParser {
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("%s parse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
@@ -136,13 +138,13 @@ class TestCLISaveParser {
   }
 
   @Test def test_3021_CLI_Saving_SaveParser_path() {
-
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r matrix -p / %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r matrix -p / %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
@@ -221,7 +223,8 @@ class TestCLISaveParser {
     val shell = Util.startNoConvert("")
 
     try {
-      String.format("%s save-parser -s %s -r {}matrix -p / %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r {}matrix -p / %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
@@ -243,7 +246,8 @@ class TestCLISaveParser {
     val shell = Util.start("", true)
 
     try {
-      String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("%s parse --parser %s --validate %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
@@ -371,7 +375,8 @@ class TestCLISaveParser {
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
@@ -393,7 +398,8 @@ class TestCLISaveParser {
     val shell = Util.start("")
 
     try {
-      String.format("%s save-parser -s %s -r e1 %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r e1 %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
@@ -415,7 +421,8 @@ class TestCLISaveParser {
     val shell = Util.start("", true)
 
     try {
-      String.format("%s save-parser -s %s -r e1 -T parseUnparsePolicy=parseOnly %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+      val saveCmd = String.format("%s save-parser -s %s -r e1 -T parseUnparsePolicy=parseOnly %s", Util.binPath, testSchemaFile, savedParserFile.getName())
+      shell.sendLine(saveCmd)
 
       val cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
