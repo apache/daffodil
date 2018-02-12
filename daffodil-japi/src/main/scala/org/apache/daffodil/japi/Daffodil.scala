@@ -461,7 +461,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
   /**
    * Read external variables from a Daffodil configuration file
    *
-   * @see <a target="_blank" href='https://daffodil.apche.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
+   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    *
    * @param extVars file to read DFDL variables from.
    */
