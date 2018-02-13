@@ -211,9 +211,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
   This product bundles source from 'Passera'. The source is available under a BSD
   LICENSE.
 
-    Copyright (c) 2011-2013, Nate Nystrom
-    All rights reserved.
-
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
 
@@ -237,11 +234,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles source from 'Scala'. Specifically 'Utility.scala' and
   'UniquenessCache.scala' The source is available under a BSD LICENSE.
-
-    Copyright (c) 2002-  EPFL
-    Copyright (c) 2011-  Lightbend, Inc.
-
-    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -347,9 +339,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
     Full Copyright Notice
 
-    * Copyright (C) Open Grid Forum (insert applicable years). Some Rights
-    * Reserved. *
-
     This document and translations of it may be copied and furnished to others,
     and derivative works that comment on or otherwise explain it or assist in
     its implementation may be prepared, copied, published and distributed, in
@@ -371,10 +360,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles 'ICU4J' which is available under a "ICU" License. For
   details, see https://ssl.icu-project.org/repos/icu/icu4j/tags/release-51-2/main/shared/licenses/license.html
-
-    Copyright (c) 1995-2013 International Business Machines Corporation and others
-
-    All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"),
@@ -401,10 +386,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
   This product bundles 'JDOM2' which is available under an Apache style License:
 
-    Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
-
-    All rights reserved.
-     
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
     are met:
@@ -457,9 +438,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
   This product bundles 'JLine' which is available under a BSD license. For
   details, see https://github.com/jline/jline2/blob/master/LICENSE.txt
 
-    Copyright (c) 2002-2016, the original author or authors.
-    All rights reserved.
-
     http://www.opensource.org/licenses/bsd-license.php
 
     Redistribution and use in source and binary forms, with or
@@ -495,8 +473,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
   This product bundles 'Scallop' which is available under an MIT License. For
   details, see https://github.com/scallop/scallop/blob/develop/license.txt
 
-    Copyright (C) 2012 Platon Pronko and Chris Hodapp
-
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
     the Software without restriction, including without limitation the rights to
@@ -516,8 +492,6 @@ subcomponents is subject to the terms and conditions of the following licenses.
     SOFTWARE. scallop_2.11-0.9.5.jar
 
   This product product bundles 'Stax 2 API' which is licensed under a BSD license:
-
-    Copyright 2010- FasterXML.com
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
