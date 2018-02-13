@@ -1,4 +1,9 @@
 <?xml version='1.0'?>
+<!--
+ Copyright © 2018 World Wide Web Consortium, (MIT, ERCIM, Keio, Beihang). All Rights Reserved.
+ http://www.w3.org/Consortium/Legal/2002/copyright-documents-20021231
+-->
+
 <xs:schema targetNamespace="http://www.w3.org/XML/1998/namespace"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

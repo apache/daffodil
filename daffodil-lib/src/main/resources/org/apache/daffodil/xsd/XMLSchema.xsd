@@ -1,5 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
+<!--
+ Copyright © 2018 World Wide Web Consortium, (MIT, ERCIM, Keio, Beihang). All Rights Reserved.
+ http://www.w3.org/Consortium/Legal/2002/copyright-documents-20021231
+-->
+
 <!-- XML Schema schema for XML Schemas: Part 1: Structures -->
 <!-- Note this schema is NOT the normative structures schema. -->
 <!-- The prose copy in the structures REC is the normative -->

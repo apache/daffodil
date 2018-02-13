@@ -13,20 +13,6 @@ src_managed
 .jupiter
 .ensime
 
-# passera is 3-clause BSD
-passera
-
-# copyright Scala BSD license
-Utility.scala
-UniquenessCache.scala
-
-# copyright w3c with permissive license
-XMLSchema.dtd
-XMLSchema.xsd
-XMLSchema_for_DFDL.xsd
-datatypes.dtd
-xml.xsd
-
 # UTF-16BE, Apache Rat thinks it is a binary and cannot tell it includes the Apache v2 license
 multi_base_09.dfdl.xsd
 

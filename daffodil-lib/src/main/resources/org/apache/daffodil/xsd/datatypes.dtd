@@ -1,4 +1,9 @@
 <!--
+ Copyright © 2018 World Wide Web Consortium, (MIT, ERCIM, Keio, Beihang). All Rights Reserved.
+ http://www.w3.org/Consortium/Legal/2002/copyright-documents-20021231
+-->
+
+<!--
         DTD for XML Schemas: Part 2: Datatypes
         $Id: datatypes.dtd,v 1.23 2001/03/16 17:36:30 ht Exp $
         Note this DTD is NOT normative, or even definitive. - - the
