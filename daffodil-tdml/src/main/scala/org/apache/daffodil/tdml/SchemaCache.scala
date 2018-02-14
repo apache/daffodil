@@ -43,9 +43,9 @@ object SchemaDataProcessorCache extends SchemaCache[(Seq[Diagnostic], DFDL.DataP
 class SchemaCache[CachedType, DiagnosticType] {
 
   private class Cache
-    extends mutable.HashMap[(URISchemaSource, Boolean), (URISchemaSource, CachedType)] {
+    extends mutable.HashMap[(URISchemaSource, Boolean, Boolean, String, String), (URISchemaSource, CachedType)] {
 
-    override def getOrElseUpdate(key: (URISchemaSource, Boolean), body: => (URISchemaSource, CachedType)) = synchronized {
+    override def getOrElseUpdate(key: (URISchemaSource, Boolean, Boolean, String, String), body: => (URISchemaSource, CachedType)) = synchronized {
       super.getOrElseUpdate(key, body)
     }
 
@@ -78,10 +78,20 @@ class SchemaCache[CachedType, DiagnosticType] {
    * If the same URI is used, and it identifies a file, then if the modification time
    * is such that the file is newer then when last compiled, the newer file will
    * be compiled and cached.
+   * 
+   * If compileAllTopLevels is true, then all elements are compiled. If false, and
+   * no rootElementName is null, then the first element of the first schema file 
+   * is used as the single root element. Otherwise the rootElementName must be 
+   * provided. If ambiguous, the rootElementNamespace must also be supplied but this 
+   * can be null if the name alone is unambiguous.
+   *  
    */
-  def compileAndCache(uss: URISchemaSource, useSerializedProcessor: Boolean)(doCompileByName: => CompileResult): CompileResult = {
+  def compileAndCache(uss: URISchemaSource, useSerializedProcessor: Boolean,
+      compileAllTopLevels: Boolean,
+      rootElementName: String,
+      rootElementNamespace: String)(doCompileByName: => CompileResult): CompileResult = {
     lazy val doCompile = doCompileByName // exactly once
-    val key = (uss, useSerializedProcessor)
+    val key = (uss, useSerializedProcessor, compileAllTopLevels, rootElementName, rootElementNamespace)
     synchronized {
       // if the file is newer then when last compiled, drop from the cache.
       val optExistingEntry = compiledSchemaCache.get(key)
