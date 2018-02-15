@@ -49,7 +49,7 @@ class TestInfosetDefaultingInUnparser {
 
   @Test def testDefaultable = {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">

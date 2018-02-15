@@ -26,7 +26,7 @@ class TestDFDLParser_New {
 
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
         <xs:complexType>
           <xs:sequence dfdl:separator=";" dfdl:terminator=";">

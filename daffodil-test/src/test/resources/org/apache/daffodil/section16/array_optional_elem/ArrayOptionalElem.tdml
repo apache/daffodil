@@ -26,11 +26,11 @@
   
   <tdml:defineSchema name="s1">
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
+      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormat"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
     
@@ -49,7 +49,7 @@
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:daffodilTest1" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -125,7 +125,7 @@
   
   <tdml:defineSchema name="arrays1">
 
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"
       lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
       separatorPosition="prefix" />
 
@@ -267,7 +267,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arrayExpressions">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <dfdl:defineVariable name="counter" type="xs:int" />
 

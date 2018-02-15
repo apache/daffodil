@@ -24,7 +24,7 @@
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData xsd/tdml.xsd">
 
 	<tdml:defineSchema name="nestedGroupRefs">
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
 		<xs:element name="root">
 			<xs:complexType>

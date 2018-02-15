@@ -19,11 +19,11 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://a02.com" xmlns:a02="http://a02.com">
   
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="a02:daffodilTest1" separator="." lengthKind="delimited" ignoreCase="no" separatorPosition="infix" 
+      <dfdl:format ref="a02:GeneralFormat" separator="." lengthKind="delimited" ignoreCase="no" separatorPosition="infix" 
       separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="" occursCountKind="parsed" 
       initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
       alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>

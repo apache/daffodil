@@ -25,7 +25,7 @@
            xmlns:u="USMTF"
            targetNamespace="USMTF">
            
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <xs:element name="e1" dfdl:terminator="/">
         <xs:complexType>
@@ -44,7 +44,7 @@
     
     <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="u:daffodilTest1" initiator="" terminator="" leadingSkip="0"
+      <dfdl:format ref="u:GeneralFormat" initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
         fillByte="f" occursCountKind="implicit"

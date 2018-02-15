@@ -24,7 +24,7 @@
 
   <tdml:defineSchema name="Lax.dfdl.xsd">
 
-    <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
+    <dfdl:format ref="GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax"
         textPadKind="padChar" />
@@ -70,7 +70,7 @@
 <!-- STRICT -->
   <tdml:defineSchema name="strict.dfdl.xsd">
 
-    <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
+    <dfdl:format ref="GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict" />
 
@@ -110,19 +110,19 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="redefine.dfdl.xsd">
-    <dfdl:defineFormat name="daffodilTest1">
+    <dfdl:defineFormat name="GeneralFormat">
       <dfdl:format lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict"/>
     </dfdl:defineFormat>
-    <dfdl:format ref="daffodilTest1" />
+    <dfdl:format ref="GeneralFormat" />
 
     <xs:element name="uS_02" type="xs:unsignedShort"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
 
   </tdml:defineSchema>
 
-  <!-- This test should get an error for having daffodilTest1 redefined. The newly defined
+  <!-- This test should get an error for having GeneralFormat redefined. The newly defined
   format is ignored. -->
   <tdml:parserTestCase name="redefinedFormat"
     root="uS_02" model="redefine.dfdl.xsd"

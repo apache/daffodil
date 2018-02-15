@@ -24,7 +24,7 @@
 
   <tdml:defineSchema name="PropertySyntax">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
@@ -224,7 +224,7 @@
 
   <tdml:defineSchema name="PropertySyntaxInvalid">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />

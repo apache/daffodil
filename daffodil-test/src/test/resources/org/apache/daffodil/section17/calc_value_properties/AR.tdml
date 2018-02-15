@@ -25,7 +25,7 @@
   <tdml:defineSchema name="AR.dfdl.xsd"
     xmlns="http://www.w3.org/2001/XMLSchema">
 
-    <dfdl:format ref="ex:daffodilTest1" separator=""
+    <dfdl:format ref="ex:GeneralFormat" separator=""
       initiator="" terminator="" emptyValueDelimiterPolicy="none"
       lengthKind="implicit" textNumberRep="standard" binaryNumberRep="binary"
       binaryFloatRep="ieee" byteOrder="bigEndian" representation="text"

@@ -27,7 +27,7 @@ class TestSchemaUtils {
    * Just some random TDML-like DFDL fragments.
    */
   val test1 = <surround xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
-                <dfdl:format ref="ex:daffodilTest1"/>
+                <dfdl:format ref="ex:GeneralFormat"/>
                 <xs:element dfdl:lengthKind="delimited" name="intRestrict">
                   <xs:simpleType>
                     <xs:restriction base="xs:int">

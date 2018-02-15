@@ -66,7 +66,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetInputterFromSimpleValue1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
     val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
     val ic = infosetInputter(sch, infosetXML)
@@ -92,7 +92,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetInputterFromTreeNil() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
     val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
     val ic = infosetInputter(sch, infosetXML)
@@ -118,7 +118,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetInputterFromTreeComplex1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -162,7 +162,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetComplex2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -191,7 +191,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetComplex3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="quux">
         <xs:complexType>
           <xs:sequence>
@@ -252,7 +252,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetArray1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -284,7 +284,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetArray2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -322,7 +322,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetArray3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -361,7 +361,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetArray4() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -402,7 +402,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetComplexPeek1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -436,7 +436,7 @@ class TestInfosetInputter {
 
   @Test def testInfosetArrayComplex1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>

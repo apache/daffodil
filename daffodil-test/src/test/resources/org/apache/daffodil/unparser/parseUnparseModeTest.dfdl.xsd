@@ -26,12 +26,12 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   elementFormDefault="unqualified">
 
-   <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
    <xs:import namespace="urn:parseUnparseMode" schemaLocation="parseUnparseMode.dfdl.xsd"/>
    
    <xs:annotation>
      <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:format ref="tns:daffodilTest1" truncateSpecifiedLengthString="yes"/>
+        <dfdl:format ref="tns:GeneralFormat" truncateSpecifiedLengthString="yes"/>
       </xs:appinfo>
    </xs:annotation>
    

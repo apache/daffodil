@@ -48,7 +48,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testHasProps() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -72,7 +72,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSchemaValidationSubset() {
     val sch: Node = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence maxOccurs="2">
@@ -99,7 +99,7 @@ class TestDsomCompiler extends Logging {
   @Test def testTypeReferentialError() {
     // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val sch: Node = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
     val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
@@ -125,7 +125,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSchemaValidationPropertyChecking() {
     val s: Node = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence>
@@ -146,7 +146,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def test2() {
     val sc = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
@@ -176,7 +176,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testSequence1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
@@ -638,7 +638,7 @@ class TestDsomCompiler extends Logging {
 
   @Test def testPathWithIndexes() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="tns:myType"/>
       <xs:complexType name="myType">
         <xs:sequence>

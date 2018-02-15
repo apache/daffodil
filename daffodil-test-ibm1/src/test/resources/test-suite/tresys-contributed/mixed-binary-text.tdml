@@ -26,7 +26,7 @@
 
   <tdml:defineSchema name="v">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       encoding="utf-8" lengthUnits='characters'/>
 
     <xs:element name="c">

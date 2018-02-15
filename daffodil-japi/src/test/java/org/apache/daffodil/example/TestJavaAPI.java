@@ -428,7 +428,7 @@ public class TestJavaAPI {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
-        java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
+        java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         c.setDistinguishedRootNode("TopLevel", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
@@ -471,7 +471,7 @@ public class TestJavaAPI {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
-        java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
+        java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         c.setDistinguishedRootNode("TopLevel2", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");
@@ -510,7 +510,7 @@ public class TestJavaAPI {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         c.setValidateDFDLSchemas(false);
-        java.io.File schemaFile = getResource("/test/japi/TopLevel.xsd");
+        java.io.File schemaFile = getResource("/test/japi/TopLevel.dfdl.xsd");
         c.setDistinguishedRootNode("TopLevel2", null);
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");

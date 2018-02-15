@@ -38,7 +38,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -54,7 +54,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" textTrimKind="padChar" textStringPadCharacter="%SP;"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" textTrimKind="padChar" textStringPadCharacter="%SP;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -71,7 +71,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcForwardReference3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -88,7 +88,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcDeadlock() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -116,7 +116,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcConstant() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -132,7 +132,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testOutputValueCalcAfterOptional() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator=",%#x20;">
@@ -149,7 +149,7 @@ class TestOutputValueCalcForwardReference {
 
   @Test def testMultipleOutputValueCalcAndDefaultablePresent() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bar" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator=",%#x20;">

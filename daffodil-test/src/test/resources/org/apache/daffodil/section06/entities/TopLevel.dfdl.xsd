@@ -22,11 +22,9 @@
 	xmlns:tns="http://example.com">
 
 	<!-- include the default properties -->
-	<!-- <xsd:include schemaLocation="DefaultProperties.xsd"/> -->
-	<xsd:include
-		schemaLocation="/test/sapi/DefaultProperties.xsd"/>
+	<xsd:include schemaLocation="DefaultProperties.dfdl.xsd"/>
 	<xsd:annotation>
-		<xsd:appinfo source="http://www.ogf.org/dfdl/">
+    <xsd:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format ref="tns:DefaultPropertiesFormat" separator=""/>
 		</xsd:appinfo>
 	</xsd:annotation>

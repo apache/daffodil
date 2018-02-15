@@ -26,7 +26,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="cl1" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" />
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
 
     <!--  this lives in a hidden group for a reason. That way the len element doesn't appear
     in the infoset, and that means the test can round-trip. If we didn't hide len, then to unparse we 

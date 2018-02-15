@@ -25,7 +25,7 @@
   <tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" textNumberRep="standard" representation="text" />
     <xs:element name="regExpr_01" type="xs:string"

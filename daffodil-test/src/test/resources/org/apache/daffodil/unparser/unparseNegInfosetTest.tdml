@@ -23,7 +23,7 @@
   xmlns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="model1">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" nilKind="literalValue" nilValue="%ES;" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" nilKind="literalValue" nilValue="%ES;" />
 
     <xs:element name="root1">
       <xs:complexType>

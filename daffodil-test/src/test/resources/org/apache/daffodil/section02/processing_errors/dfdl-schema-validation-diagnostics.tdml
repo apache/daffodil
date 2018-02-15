@@ -25,13 +25,13 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="withValidationErrors">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" length="1"/>
     <xs:element name="err1" type="xs:int" anAttributeThisIsNot="noise"/>
     <xs:element name="err2" type="xs:int" notAnAttribute="randomness" />
   </tdml:defineSchema>
   
   <tdml:defineSchema name="withValidationErrors2">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" length="1"/>
     <xs:element name="err1" type="xs:int" dfdl:byteOrder="anAttributeThisIsNot"/>
     <xs:element name="err2" type="something"  dfdl:occursCountKind="notAnAttribute"/>
   </tdml:defineSchema>
@@ -46,7 +46,7 @@
   
   We need 5 validation errors. 
    -->
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" length="1"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" length="1"/>
     <xs:element name="err1" type="xs:int" anAttributeThisIsNot="blah"/>
     <xs:element name="something:bar" type="something" />
     <xs:element name="err3" type="xs:int" stillNotValid="blah"/>

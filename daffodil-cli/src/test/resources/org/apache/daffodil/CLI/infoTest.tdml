@@ -22,7 +22,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1" dfdl:lengthKind="explicit"
       dfdl:length="2" type="xs:int" />

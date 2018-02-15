@@ -24,12 +24,12 @@
     
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilTest1" />
+      <dfdl:format ref="tns:GeneralFormat" />
       <dfdl:defineVariable name="var1" external="true">defaultValue</dfdl:defineVariable>
     </appinfo>
   </annotation>
   
-  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <include schemaLocation="mySchema2.dfdl.xsd"/>
 

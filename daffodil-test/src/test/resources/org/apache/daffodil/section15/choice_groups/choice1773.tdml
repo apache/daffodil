@@ -29,7 +29,7 @@
 <tdml:defineSchema name="s2" elementFormDefault="unqualified">
 
   <dfdl:defineFormat name="base">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthKind="explicit" occursCountKind="parsed" byteOrder="bigEndian" />
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthKind="explicit" occursCountKind="parsed" byteOrder="bigEndian" />
   </dfdl:defineFormat>
 
   <dfdl:defineFormat name="complex">

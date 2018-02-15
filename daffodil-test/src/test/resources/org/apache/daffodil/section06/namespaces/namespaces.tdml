@@ -32,8 +32,8 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="embeddedWithInclude">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
-    <dfdl:format ref="daffodilTest1" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="GeneralFormat" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
@@ -161,7 +161,7 @@
   -->
 
   <tdml:parserTestCase name="ibm_format_compat_02"
-    root="ABC" model="ABC_IBM.xsd" description="">
+    root="ABC" model="ABC_IBM.dfdl.xsd" description="">
     <tdml:document><![CDATA[a
 ]]></tdml:document>
     <tdml:infoset>
@@ -177,14 +177,14 @@
 
   <!--
     Test name: ibm_format_compat_03
-    Schema: ibm_format_compat_2.xsd
+    Schema: ibm_format_compat_2.dfdl.xsd
     Root: RNAChain
     Purpose: This test demonstrates the ability to use IBM schemas that reference 
     GeneralPurposeFormat without issue
   -->
 
   <tdml:parserTestCase name="ibm_format_compat_03"
-    root="RNAChain" model="ibm_format_compat_2.xsd" description="">
+    root="RNAChain" model="ibm_format_compat_2.dfdl.xsd" description="">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[4|]]></tdml:documentPart>
       <tdml:documentPart type="bits">00011011</tdml:documentPart>
@@ -1737,14 +1737,14 @@
 
   <!--
     Test name: nonsense_namespace_01
-    Schema: ABC_invalid.xsd
+    Schema: ABC_invalid.dfdl.xsd
     Root: ABC
     Purpose: This test demonstrates that attributes in unknown (yet properly 
     defined) namespaces will be ignored.
   -->
 
   <tdml:parserTestCase name="nonsense_namespace_01"
-    root="ABC" model="ABC_invalid.xsd" description="">
+    root="ABC" model="ABC_invalid.dfdl.xsd" description="">
     <tdml:document><![CDATA[a
 ]]></tdml:document>
     <tdml:infoset>
@@ -1759,7 +1759,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nonsense_namespace_02"
-    root="ABC" model="ABC_invalid.xsd" description="">
+    root="ABC" model="ABC_invalid.dfdl.xsd" description="">
     <tdml:document><![CDATA[d
 ]]></tdml:document>
     <tdml:infoset>
@@ -1774,7 +1774,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nonsense_namespace_03"
-    root="ABC_fail" model="ABC_invalid.xsd" description="">
+    root="ABC_fail" model="ABC_invalid.dfdl.xsd" description="">
     <tdml:document><![CDATA[e
 ]]></tdml:document>
     <tdml:errors>
@@ -1786,12 +1786,12 @@
   
   <!--
     Test name: nonsense_namespace_04
-    Schema: ABC_invalid_2.xsd
+    Schema: ABC_invalid_2.dfdl.xsd
     Root: a
     Purpose: This test demonstrates that you cannot put non-native attributes on DFDL annotation elements.
   -->
 
-  <tdml:parserTestCase name="nonsense_namespace_04" root="a" model="ABC_invalid_2.xsd" description="">
+  <tdml:parserTestCase name="nonsense_namespace_04" root="a" model="ABC_invalid_2.dfdl.xsd" description="">
     <tdml:document><![CDATA[a]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>

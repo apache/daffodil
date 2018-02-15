@@ -29,7 +29,7 @@
 
 <tdml:defineSchema name="causesWarnings" elementFormDefault="unqualified">
 
-  <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" occursCountKind="implicit"/>
+  <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
 
   <xs:element name="causesWarnings" dfdl:lengthKind="implicit">
     <xs:complexType>

@@ -17,13 +17,13 @@
 -->
 
 <xs:schema xmlns:a="ns_a" xmlns:b="ns_b" xmlns:d="ns_d"
-    comment:note="there is also C.xsd which explicitly has no target namespace" xmlns:comment="comments"
+    comment:note="there is also C.dfdl.xsd which explicitly has no target namespace" xmlns:comment="comments"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="ns_a"
 	elementFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:import namespace="ns_b" schemaLocation="B.xsd" />
-	<xs:import  schemaLocation="C.xsd" />
-	<xs:import namespace="ns_d" schemaLocation="D.xsd" />
+	<xs:import namespace="ns_b" schemaLocation="B.dfdl.xsd" />
+	<xs:import  schemaLocation="C.dfdl.xsd" />
+	<xs:import namespace="ns_d" schemaLocation="D.dfdl.xsd" />
 
 	<xs:element name="rootA">
 		<xs:complexType>
@@ -43,7 +43,7 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element ref="sally"/> <!-- reference to C.xsd's definition of sally which is in no namespace -->
+				<xs:element ref="sally"/> <!-- reference to C.dfdl.xsd's definition of sally which is in no namespace -->
 				<xs:element ref="d:sally"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -91,7 +91,7 @@
 		<xs:key name="key6">
 			<xs:selector xpath="./d:sally"/>
 			<xs:field xpath="d:ntnqjane" />  <!-- xmlns would be ignored. d:sally must be qualified even though its
-			definition is included into a schema which has elementFormDefault="unqualified" (D.xsd), because C.xsd itself has
+			definition is included into a schema which has elementFormDefault="unqualified" (D.dfdl.xsd), because C.dfdl.xsd itself has
 			elementFormDefault="qualified" -->
 		</xs:key>
 	</xs:element>

@@ -25,10 +25,10 @@
 
   <tdml:defineSchema name="s">
 
-    <xsd:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+    <xsd:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <!-- Must be utf-8, or it chooses the other backend which does more copying and so doesn't show up the bug. -->
-    <dfdl:format ref="ex:daffodilTest1" encoding="UTF-8" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" encoding="UTF-8" lengthKind="delimited" />
 
     <xsd:element name="A">
       <xsd:complexType>

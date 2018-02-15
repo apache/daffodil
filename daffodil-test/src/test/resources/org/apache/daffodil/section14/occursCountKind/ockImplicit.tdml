@@ -22,7 +22,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions" defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
       <xs:complexType>

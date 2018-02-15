@@ -35,14 +35,14 @@
     </dfdl:defineFormat>
 
     <dfdl:defineFormat name="def3">
-      <dfdl:format ref="tns:daffodilTest1" representation="binary" />
+      <dfdl:format ref="tns:GeneralFormat" representation="binary" />
     </dfdl:defineFormat>
 
     <dfdl:defineFormat name="def1">
       <dfdl:format ref="tns:def2" />
     </dfdl:defineFormat>
 
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"
       lengthUnits="characters" length="3" />
 
 </appinfo></annotation>

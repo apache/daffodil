@@ -32,7 +32,7 @@
 
   <tdml:defineSchema name="SDE">
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="matrix">
       <xs:complexType>
@@ -67,9 +67,34 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="missingLeadingSkip">
-    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" alignment="1" alignmentUnits="bits" terminator="" separator="" initiator=""
-      encoding="utf-8" representation="text"/>
-
+    <dfdl:format 
+      alignment="1" alignmentUnits="bits" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no"
+      emptyValueDelimiterPolicy="both" encodingErrorPolicy="replace"
+      encoding="utf-8" escapeSchemeRef="" fillByte="%#r20;" ignoreCase="no"
+      initiatedContent="no" initiator="" lengthKind="delimited"
+      lengthUnits="bytes" occursCountKind="parsed" outputNewLine="%LF;"
+      representation="text" separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRep="standard"
+      textNumberRounding="explicit" textNumberRoundingIncrement="0"
+      textNumberRoundingMode="roundUnnecessary" textOutputMinLength="0"
+      textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardExponentRep="E"
+      textStandardGroupingSeparator="," textStandardInfinityRep="Inf"
+      textStandardNaNRep="NaN" textStandardZeroRep="0"
+      textStringJustification="left" textStringPadCharacter="%SP;"
+      textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
     <xs:element name="elem">
       <xs:complexType>
         <xs:sequence>
@@ -113,7 +138,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="warning">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" encoding="utf-8" representation="text"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="utf-8" representation="text"/>
     <xs:element name="elem" type="xs:string">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />

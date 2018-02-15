@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes"/>
 
@@ -39,7 +39,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="s2">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -54,7 +54,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s3">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="bcd" binaryNumberCheckPolicy="strict"/>
 
@@ -73,7 +73,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s4">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -88,7 +88,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s5">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -97,7 +97,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s6">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -106,7 +106,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s7">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -115,7 +115,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s8">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -124,7 +124,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s9">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -133,7 +133,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s10">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
@@ -142,7 +142,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s11">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
@@ -152,7 +152,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s12">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="bcd" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
@@ -162,7 +162,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s13">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="ibm4690Packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     alignmentUnits="bits" alignment="1"/>
@@ -172,7 +172,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s14">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" encoding="ISO-8859-1" occursCountKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="ISO-8859-1" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
     binaryDecimalVirtualPoint="2"/>

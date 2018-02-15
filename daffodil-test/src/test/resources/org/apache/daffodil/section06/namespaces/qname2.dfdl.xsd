@@ -20,7 +20,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:what="http://example.com/3" xmlns:foo="http://example.com/2">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:import namespace="http://example.com/3"
     schemaLocation="org/apache/daffodil/section06/namespaces/qname3.dfdl.xsd" />
@@ -28,7 +28,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="myFmt" xmlns:d="http://www.ogf.org/dfdl/dfdl-1.0/">
-        <d:format xmlns:ex="http://example.com/2" ref="ex:daffodilTest1" initiator=""
+        <d:format xmlns:ex="http://example.com/2" ref="ex:GeneralFormat" initiator=""
           terminator="" separator="" encoding="utf-8" ignoreCase="no"
           representation="text" lengthUnits="characters" textNumberRep="standard" />
       </dfdl:defineFormat>

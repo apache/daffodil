@@ -27,7 +27,7 @@ class TestMiddleEndAttributes2 {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = SchemaUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" encoding="US-ASCII"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
 
       <xs:element name="e1">
         <xs:complexType>

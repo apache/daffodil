@@ -22,8 +22,8 @@
   suiteName="generalUnparserTests">
 
   <tdml:defineSchema name="fixedLengthStrings">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
-    <dfdl:format ref="ex:daffodilTest1" textPadKind='padChar' />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" textPadKind='padChar' />
     <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes"/>
     <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
     <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:textPadKind='none'/>
@@ -40,8 +40,8 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="illegalChars">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string"/>
 
@@ -368,9 +368,9 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="delimitedStrings">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-      <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
+      <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
 
       <xs:element name="e1" dfdl:lengthKind="implicit">
@@ -562,9 +562,9 @@
 
 
   <tdml:defineSchema name="alignmentPaddingOVC">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-      <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
+      <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes"
         textNumberPadCharacter="x" textPadKind="padChar" textTrimKind="padChar"
         fillByte="%NUL;"/>

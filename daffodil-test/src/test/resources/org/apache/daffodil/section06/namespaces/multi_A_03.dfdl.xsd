@@ -20,24 +20,31 @@
    targetNamespace="http://a03.com" xmlns:a03="http://a03.com" xmlns:b03="http://b03.com" xmlns:f03="http://f03.com">
 
 <!-- 
-	 Tests that use this schema rely on having certain elements not defined.
+	 Tests that use this schema rely on having the lengthKind property not defined.
 	 Because of this we can not use the standard technique of including
-	 built-in-formats.xsd and referencing daffodilTest1. Instead, all necessary
+	 DFDLGeneralFormat.dfdl.xsd and referencing GeneralFormat. Instead, all necessary
 	 properties must be explicitly defined
 -->
-<!-- 
-     Amend that: we can include built-in-formats and ref daffodilNewProperties1 which
-     only contains new properties introduced since these tests were created.
- -->
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="a03:daffodilNewProperties1" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
-      leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" 
-      textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
-      alignment="1" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered" escapeSchemeRef="" byteOrder="littleEndian"/>
+      <dfdl:format 
+        alignment="1" alignmentUnits="bytes" bitOrder="mostSignificantBitFirst"
+        byteOrder="littleEndian" calendarCheckPolicy='strict'
+        calendarDaysInFirstWeek='4' calendarFirstDayOfWeek='Sunday'
+        calendarLanguage='en' calendarPatternKind='implicit' calendarTimeZone='UTC'
+        encoding="ASCII" encodingErrorPolicy="replace" escapeSchemeRef=""
+        fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
+        leadingSkip='0' occursCountKind="parsed" outputNewLine="%LF;"
+        representation="text" separator="" separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+        textBooleanPadCharacter="%SP;" textCalendarJustification="left"
+        textCalendarPadCharacter="%SP;" textNumberJustification="right"
+        textNumberPadCharacter="%SP;" textNumberRep="standard" textOutputMinLength="0"
+        textPadKind="none" textStringPadCharacter="%SP;" textTrimKind="none"
+        trailingSkip="0" truncateSpecifiedLengthString="no" />
     </xs:appinfo>
   </xs:annotation>
   

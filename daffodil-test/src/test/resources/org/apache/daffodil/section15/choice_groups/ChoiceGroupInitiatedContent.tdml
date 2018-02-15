@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <dfdl:defineFormat name="def">
       <dfdl:format initiatedContent="yes"/>
     </dfdl:defineFormat>
@@ -378,7 +378,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s2">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="e" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="%WSP+;"
@@ -486,7 +486,7 @@
 
   <tdml:defineSchema name="nestedDiscriminator1">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e">
       <xs:complexType>

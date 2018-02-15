@@ -27,7 +27,7 @@
   defaultValidation="limited">
 
   <tdml:defineSchema name="u1">
-    <dfdl:format ref="ex:daffodilTest1"
+    <dfdl:format ref="ex:GeneralFormat"
     lengthKind="delimited" />
 
 <xs:element name="uOf1">

@@ -24,11 +24,11 @@
 
   <tdml:defineSchema name="s1">
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" separatorSuppressionPolicy="anyEmpty" textPadKind="padChar" textStringPadCharacter="."/>
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1" separatorSuppressionPolicy="anyEmpty"
+      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat" separatorSuppressionPolicy="anyEmpty"
         separator="," initiator="" terminator="" representation="text" separatorPosition="infix" textPadKind="padChar" textStringPadCharacter="."/>
     </dfdl:defineFormat>
 

@@ -25,7 +25,7 @@
   <tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" />
 
     <xs:element name="CFP_01" type="tns:cfp_01" />
@@ -260,7 +260,7 @@
 
   <tdml:defineSchema name="packed7BitASCII">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -802,7 +802,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="iso-8859-1">
-    <dfdl:format ref="daffodilTest1" representation="text" encoding="iso-8859-1"
+    <dfdl:format ref="GeneralFormat" representation="text" encoding="iso-8859-1"
       separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
       initiator="" initiatedContent="no" terminator="" />
 
@@ -952,7 +952,7 @@
 
   <tdml:defineSchema name="mixedEncoding">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" 
       lengthKind="implicit" alignmentUnits="bits" alignment="1" />
 
@@ -1079,7 +1079,7 @@
 
   <tdml:defineSchema name="packed6BitASCII">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-US-ASCII-6-BIT-PACKED" alignmentUnits="bits"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-6-BIT-PACKED" alignmentUnits="bits"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -1239,7 +1239,7 @@
 
   <tdml:defineSchema name="packed5Bit">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-5-BIT-PACKED-LSBF"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-5-BIT-PACKED-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -1463,7 +1463,7 @@
 
   <tdml:defineSchema name="octalLSBF">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-OCTAL-LSBF"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-OCTAL-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
@@ -1589,7 +1589,7 @@
 
   <tdml:defineSchema name="hexLSBF">
 
-    <dfdl:format ref="ex:daffodilTest1" encoding="X-DFDL-HEX-LSBF"
+    <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-HEX-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"

@@ -28,7 +28,7 @@
 
 <t:defineSchema name="s1" xmlns="http://www.w3.org/2001/XMLSchema">
 
-<dfdl:format ref="ex:daffodilTest1"/>
+<dfdl:format ref="ex:GeneralFormat"/>
 
 <element name="e1" type="string" dfdl:lengthKind="explicit" dfdl:length="9"/>
 

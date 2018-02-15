@@ -35,7 +35,7 @@ class TestIsScannable extends Logging {
 
   @Test def testIsScannableAllText1() {
     val sc = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="utf-8"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
 
       <xs:element name="list">
         <xs:complexType>
@@ -66,7 +66,7 @@ class TestIsScannable extends Logging {
 
   @Test def testIsScannableHasBinary1() {
     val sc = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
 
       <xs:element name="list">
         <xs:complexType>
@@ -101,7 +101,7 @@ class TestIsScannable extends Logging {
 
   @Test def testIsScannableDifferentEncodings1() {
     val sc = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="utf-8"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence dfdl:separator="">

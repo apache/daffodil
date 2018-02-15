@@ -73,7 +73,7 @@
 
   <tdml:defineSchema name="facets-min0max0.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -113,7 +113,7 @@
 
   <tdml:defineSchema name="facets-min1max1-scalar.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -152,7 +152,7 @@
 
   <tdml:defineSchema name="facets-min2max20-array.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
@@ -185,7 +185,7 @@
 
   <tdml:defineSchema name="arrays-min0max5.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -222,7 +222,7 @@
 
   <tdml:defineSchema name="arrays-min1max5.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -259,7 +259,7 @@
 
   <tdml:defineSchema name="arrays-min3max5.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -298,7 +298,7 @@
 
   <tdml:defineSchema name="facets-min5max10.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
@@ -331,7 +331,7 @@
 
   <tdml:defineSchema name="facets-min5max10-2.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -382,7 +382,7 @@
 
   <tdml:defineSchema name="facets-min2max3-schemaErr.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="fixed"
@@ -424,7 +424,7 @@
 
   <tdml:defineSchema name="facets-fixedUnboundedMax-schemaErr.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="fixed"
@@ -469,7 +469,7 @@
   <tdml:defineSchema name="facets-cell-min1max1.dfdl.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -509,7 +509,7 @@
   <tdml:defineSchema name="facets-rowcell-min2maxUnbounded.dfdl.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -2762,7 +2762,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="pattern">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -3179,7 +3179,7 @@
   
 
   <tdml:defineSchema name="lengthFacets">
-    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -3291,7 +3291,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="lengthFacetsIsolate">
-    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e7" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -3309,7 +3309,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="lengthFacetsIsolate2">
-    <dfdl:format ref="ex:daffodilTest1" representation="text"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text"/>
     <xs:element name="e8" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -3521,7 +3521,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="checkConstraints">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1">
       <xs:complexType>
         <xs:sequence>
@@ -3875,7 +3875,7 @@
   </tdml:parserTestCase>  
   
   <tdml:defineSchema name="TestFacets">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -4829,7 +4829,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="enumSchema">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="enum_st1">
       <xs:restriction base="xs:string">
@@ -5358,7 +5358,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="minMaxInExSchema">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="mImE_st1">
       <xs:restriction base="xs:int">
@@ -6236,7 +6236,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="totalDigitsSchema">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st1">
       <xs:restriction base="xs:decimal">
@@ -6312,7 +6312,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="totalDigitsSchemaIsolate">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st2">
       <xs:restriction>
@@ -6335,7 +6335,7 @@
   </tdml:defineSchema>
  
   <tdml:defineSchema name="totalDigitsSchemaIsolate2">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st3">
       <xs:restriction>
@@ -6358,7 +6358,7 @@
   </tdml:defineSchema>    
 
   <tdml:defineSchema name="totalDigitsSchemaIsolate3">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="tD_st6">
       <xs:restriction>
@@ -6548,7 +6548,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="fractionDigitsSchema">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="fD_st1">
       <xs:restriction base="xs:decimal">

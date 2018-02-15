@@ -459,7 +459,7 @@
 	 -->
 	 
 	<parserTestCase name="choices_basic_15_01"
- model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ model="./fvt/ext/dpa/dpadelmulcho_01.dfdl.xsd"
  root="Choice_Outer"
  description="Section 15 Choice Groups - nested choices - first branch of outer choice, first branch of inner choice in data - DFDL-15-005R">
  <document>iTest1:1+*Test2:amb=*Test3:3!t</document>
@@ -480,7 +480,7 @@
 
  
  <parserTestCase name="choices_basic_15_02"
- model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ model="./fvt/ext/dpa/dpadelmulcho_01.dfdl.xsd"
  root="Choice_Outer"
   description="Section 15 Choice Groups - nested choices - first branch of outer choice, second branch of inner choice in data - DFDL-15-005R">
   <document>iTest1:1+*Test2:cmd=*Test3:3!t</document>
@@ -501,7 +501,7 @@
  
  <!-- second choice branch of outer choice -->
   <parserTestCase name="choices_basic_15_03"
- model="./fvt/ext/dpa/dpadelmulcho_01.xsd"
+ model="./fvt/ext/dpa/dpadelmulcho_01.dfdl.xsd"
  root="Choice_Outer"
  description="Section 15 Choice Groups - nested choices - second branch of outer choice in data - DFDL-15-005R">
  <document>xmy</document>
@@ -522,7 +522,7 @@
 	 
   
  <parserTestCase name="arrays_16_01"
- model="./fvt/ext/dpa/dpadelonearr_12.xsd"
+ model="./fvt/ext/dpa/dpadelonearr_12.dfdl.xsd"
  root="groupElem"
   description="Section 16 Arrays and optional elements - arrays with occursCountKind of fixed and implicit.  DFDL-16-002R">
  <document>~A:a~A:b~B:a~B:b~C:a~C:b</document>

@@ -24,11 +24,11 @@
   xmlns:tns="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
 
-<include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+<include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilTest1" alignment="implicit" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0" 
+      <dfdl:format ref="tns:GeneralFormat" alignment="implicit" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0" 
         lengthKind="delimited" separator="" representation="text"
         encoding="US-ASCII" ignoreCase='no' initiator="" lengthUnits="bytes"
         terminator="" initiatedContent="no" textNumberRep="standard"

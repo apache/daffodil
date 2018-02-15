@@ -24,7 +24,7 @@
 
   <tdml:defineSchema name="s1">
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:leadingSkip="3" />
@@ -55,7 +55,7 @@
   
   <tdml:defineSchema name="alignmentSchema">
     
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"/>
     
     <xs:element name="string32be" dfdl:representation="text" type="xs:string" dfdl:encoding="utf-32be" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes"
       dfdl:alignment="2" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0"/>
@@ -480,7 +480,7 @@
   
   <tdml:defineSchema name="implicitAlignmentSchema">
 
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" encoding="ascii" 
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="ascii" 
       lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary" textNumberPattern="###0.###;-###0.###"/>
 
     <xs:element name="string" dfdl:lengthKind="implicit" dfdl:encoding="ascii" 
@@ -524,10 +524,10 @@
     dfdl:representation="text"/>
   
     <dfdl:defineFormat name="textImp">
-      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bytes" />
+      <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bytes" />
     </dfdl:defineFormat>
     <dfdl:defineFormat name="textImpBitAlign">
-      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bits" />
+      <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthKind="delimited" representation="text" alignment="implicit" alignmentUnits="bits" />
     </dfdl:defineFormat>
   
     <xs:element name="uIntT" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
@@ -563,7 +563,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentBitOrder">
-      <dfdl:format ref="ex:daffodilTest1" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
+      <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
       binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'
       byteOrder="littleEndian"/>
 

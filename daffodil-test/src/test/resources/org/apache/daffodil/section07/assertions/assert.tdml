@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
@@ -472,7 +472,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
         <xs:sequence>
@@ -644,7 +644,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="literalTextMatch">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="/"
@@ -759,7 +759,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="s2">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
@@ -1048,7 +1048,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s3">
-    <dfdl:format ref="ex:daffodilTest1" initiator="+"
+    <dfdl:format ref="ex:GeneralFormat" initiator="+"
       terminator=";" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
@@ -1175,7 +1175,7 @@
 
  <tdml:defineSchema name="s4">
   <dfdl:format
-   ref="ex:daffodilTest1"
+   ref="ex:GeneralFormat"
    lengthKind="delimited" />
    
   <xs:element name="e1">

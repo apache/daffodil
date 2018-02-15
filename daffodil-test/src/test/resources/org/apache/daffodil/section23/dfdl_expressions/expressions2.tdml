@@ -32,7 +32,7 @@
  elementFormDefault="unqualified"
  >
   <dfdl:format
-   ref="ex:daffodilTest1"
+   ref="ex:GeneralFormat"
    lengthKind="explicit" 
    representation="binary" lengthUnits="bits"/>
 
@@ -110,7 +110,7 @@
 
 <tdml:defineSchema name="s2" elementFormDefault="unqualified">
   
-  <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+  <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
    
   <!-- This for reproducing the diagnostic about upward paths past root -->
   
@@ -224,7 +224,7 @@
 
   <tdml:defineSchema name="traceComplex" elementFormDefault="unqualified">
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e">
       <xs:complexType>

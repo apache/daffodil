@@ -30,7 +30,7 @@
 		Schemas ======================================================================= -->
 
 	<tdml:defineSchema name="pattern">
-		<dfdl:format ref="ex:daffodilTest1" />
+		<dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="e1" dfdl:lengthKind="delimited">
 			<xs:simpleType>
@@ -253,7 +253,7 @@
 
 	<tdml:defineSchema name="min2max5">
 
-		<dfdl:format ref="ex:daffodilTest1" initiator=""
+		<dfdl:format ref="ex:GeneralFormat" initiator=""
 			terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
 			floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
 			alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
@@ -372,7 +372,7 @@
 	</tdml:parserTestCase>
   
   <tdml:defineSchema name="inputValueCalc">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
   
     <xs:element name="e1" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 5-3 }">
       <xs:simpleType>
@@ -401,7 +401,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="TestFacets">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e2_2" dfdl:lengthKind="delimited">
       <xs:simpleType>
@@ -948,7 +948,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="facetCombos">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit" />
 
     <xs:element name="intRestrict" dfdl:lengthKind="delimited">
       <xs:simpleType>
@@ -1215,7 +1215,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="assertValidation">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -1324,7 +1324,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceValidation">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="maxInc3">
      <xs:restriction base="xs:int">

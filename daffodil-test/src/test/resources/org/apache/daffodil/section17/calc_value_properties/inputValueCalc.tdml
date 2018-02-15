@@ -23,7 +23,7 @@
   <tdml:defineSchema name="inputValueCalc-Embedded.dfdl.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
@@ -628,7 +628,7 @@
 
   <tdml:defineSchema name="inputValueCalc-invalid.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       occursCountKind="parsed" ignoreCase="no" inputValueCalc="{ 5 }"
       textNumberRep="standard" representation="text" />

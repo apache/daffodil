@@ -22,7 +22,7 @@
   suiteName="escapeSchemeUnparse">
 
   <tdml:defineSchema name="delimitedStringsEscapeScheme">
-    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#'
           escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
@@ -398,7 +398,7 @@
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="foo">
-    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
         <dfdl:defineEscapeScheme name='quoteSlash'>
           <dfdl:escapeScheme escapeBlockStart='"'
             escapeBlockEnd='"' escapeKind="escapeBlock"

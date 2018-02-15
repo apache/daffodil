@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="DelimiterProperties-Embedded.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" separator=""
       encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
       textNumberRep="standard" ignoreCase="no" representation="text"
@@ -114,7 +114,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="DelimiterProperties-Embedded2.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" />
 
     <xs:element dfdl:lengthKind="implicit" name="e1">
       <xs:complexType>
@@ -357,7 +357,7 @@
   <tdml:defineSchema name="basic">
 
     <dfdl:format separatorSuppressionPolicy="never"
-      separatorPosition="infix" ref="ex:daffodilTest1" />
+      separatorPosition="infix" ref="ex:GeneralFormat" />
 
     <xs:element name="e2" dfdl:initiator="[" dfdl:terminator="]">
       <xs:complexType>
@@ -436,7 +436,7 @@
     </tdml:parserTestCase> -->
 
   <tdml:defineSchema name="initiatedContentSchema">
-    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" leadingSkip="0"
+    <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" leadingSkip="0"
     alignment="1" alignmentUnits="bytes" trailingSkip="0"
     separator="" encoding="utf-8" occursCountKind="parsed"
       separatorSuppressionPolicy="anyEmpty" textNumberRep="standard" ignoreCase="no"
@@ -526,7 +526,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="initiatedContentSimple1">
-    <dfdl:format ref="ex:daffodilTest1" encoding="utf-8"
+    <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"
       representation="text" lengthUnits="characters" lengthKind="delimited" />
 
     <xs:element name="e" dfdl:lengthKind="implicit">
@@ -559,7 +559,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="AssertsOnSimpleTypes">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="EI">
       <xs:complexType>
@@ -597,7 +597,7 @@
   </tdml:parserTestCase>
 
  <tdml:defineSchema name="ReqFieldMissingAndSepIsPrefixOfTerminator">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="E1" dfdl:terminator="$$">
       <xs:complexType>
@@ -658,7 +658,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="Lesson4_initiators_terminators"> 
-        <dfdl:format ref="ex:daffodilTest1" representation="text"   
+        <dfdl:format ref="ex:GeneralFormat" representation="text"   
                      lengthKind="delimited" 
                      encoding="ASCII" /> 
   
@@ -699,7 +699,7 @@
 
   <tdml:defineSchema name="ignoreCase">
 
-    <dfdl:format separatorPosition="infix" ref="ex:daffodilTest1" ignoreCase="yes" />
+    <dfdl:format separatorPosition="infix" ref="ex:GeneralFormat" ignoreCase="yes" />
 
     <xs:element name="e1" dfdl:initiator="II" dfdl:terminator="TT">
       <xs:complexType>

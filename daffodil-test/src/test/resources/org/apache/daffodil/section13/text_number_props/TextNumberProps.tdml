@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="textNumberPattern">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" occursCountKind="implicit"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
 
     <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
     <xs:element name="tnp02" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern=";0000" />
@@ -292,20 +292,34 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2">
-    <dfdl:format ref="tns:daffodilNewProperties1" initiator=""
-      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
-      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
-      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
-      lengthKind="delimited" nilValueDelimiterPolicy="both"
-      emptyValueDelimiterPolicy="none" textStandardZeroRep="0"
-      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorSuppressionPolicy="never" separatorPosition="infix"
-      textTrimKind="none" textNumberRounding="explicit"
-      textNumberRoundingIncrement="0.0" textNumberRoundingMode="roundUp"
+    <dfdl:format
+      alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
+      fillByte="f" floating="no" ignoreCase="no" initiatedContent="no"
+      initiator="" leadingSkip="0" lengthKind="delimited" lengthUnits="bytes"
+      nilValueDelimiterPolicy="both" occursCountKind="implicit"
+      outputNewLine="%LF;" representation="text" separator=""
+      separatorPosition="infix" separatorSuppressionPolicy="anyEmpty"
+      sequenceKind="ordered" terminator="" textBidi="no"
+      textBooleanPadCharacter="%SP;" textCalendarJustification="left"
+      textCalendarPadCharacter="%SP;" textNumberCheckPolicy="lax"
+      textNumberJustification="right" textNumberPadCharacter="%SP;"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRep="standard"
+      textNumberRounding="explicit" textNumberRoundingIncrement="0"
+      textNumberRoundingMode="roundUnnecessary" textOutputMinLength="0"
+      textPadKind="none" textStandardBase="10"
+      textStandardExponentRep="^"
       textStandardInfinityRep="inf" textStandardNaNRep="NaN"
-      escapeSchemeRef=''
-      textStandardExponentRep="^" textNumberCheckPolicy="lax" />
+      textStandardZeroRep="0" textStringJustification="left"
+      textStringPadCharacter="%SP;" textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
+
     
     <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
     <xs:element name="tnp01" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@###E0" />
@@ -3277,7 +3291,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -3431,31 +3445,63 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="textpropsInvalid">
-    <dfdl:format ref="tns:daffodilNewProperties1" initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
-      textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
-      terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
-      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"
-      textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"
-      encoding="ASCII" representation="text" occursCountKind="parsed"
-      utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
-      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
-      textNumberPattern="#,##0.###;-#,##0.###" textPadKind="none" byteOrder="littleEndian" />
-
+    <dfdl:format
+      alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
+      fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
+      leadingSkip="0" lengthKind="implicit" lengthUnits="bytes"
+      occursCountKind="parsed" outputNewLine="%LF;" representation="text"
+      separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;" textNumberPattern="#,##0.###;-#,##0.###"
+      textNumberRep="standard" textNumberRounding="explicit"
+      textNumberRoundingIncrement="0" textNumberRoundingMode="roundUnnecessary"
+      textOutputMinLength="0" textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardGroupingSeparator=","
+      textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+      textStandardZeroRep="0" textStringJustification="left"
+      textStringPadCharacter="%SP;" textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"/>
 
   </tdml:defineSchema>
 
   <tdml:defineSchema name="textpropsInvalid2">
-    <dfdl:format ref="tns:daffodilNewProperties1" initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
-      textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
-      terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
-      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"
-      textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"
-      encoding="ASCII" representation="text" occursCountKind="parsed"
-      utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
-      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
-      textNumberPattern="#,##0.###;-#,##0.###"  textPadKind="none" byteOrder="littleEndian" />
-
+    <dfdl:format
+      alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
+      fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
+      leadingSkip="0" lengthKind="implicit" lengthUnits="bytes"
+      occursCountKind="parsed" outputNewLine="%LF;" representation="text"
+      separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;" textNumberPattern="#,##0.###;-#,##0.###"
+      textNumberRep="standard" textNumberRounding="explicit"
+      textNumberRoundingIncrement="0" textNumberRoundingMode="roundUnnecessary"
+      textOutputMinLength="0" textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardGroupingSeparator=","
+      textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+      textStandardZeroRep="0" textStringJustification="left"
+      textStringPadCharacter="%SP;" textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:float"/>
 
   </tdml:defineSchema>

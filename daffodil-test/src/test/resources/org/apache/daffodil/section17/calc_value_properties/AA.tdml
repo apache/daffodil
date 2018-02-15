@@ -25,7 +25,7 @@
   <tdml:defineSchema name="AA.dfdl.xsd">
     <dfdl:defineVariable name="x" type="xsd:int"
       defaultValue="0" />
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
       length="{ 0 }" lengthUnits="bytes" encoding="US-ASCII" />
     <xs:element name="list" type="example1" />
 
@@ -64,7 +64,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="err1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence>
@@ -90,7 +90,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="err2">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence>
@@ -116,7 +116,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="ivc.absolute">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence>

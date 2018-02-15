@@ -65,7 +65,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
-          <dfdl:format ref="tns:daffodilTest1"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
           <xs:element name="dummy" type="xs:string" dfdl:lengthKind="delimited"/>
         </tdml:defineSchema>
         <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema" config="nonsense">
@@ -92,7 +92,7 @@ class TestTDMLRunnerConfig {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="nonsense">
         <tdml:defineSchema name="mySchema">
-          <dfdl:format ref="tns:daffodilTest1"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
           <xs:element name="dummy" type="xs:string" dfdl:lengthKind="delimited"/>
         </tdml:defineSchema>
         <tdml:defineConfig name="myConfig">

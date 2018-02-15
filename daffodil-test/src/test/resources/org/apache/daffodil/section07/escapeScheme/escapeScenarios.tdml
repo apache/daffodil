@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <defineSchema name="es1">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario1">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -51,7 +51,7 @@
   </defineSchema>
   
   <defineSchema name="es1-2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario1">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -299,7 +299,7 @@
   </parserTestCase>
   
   <defineSchema name="es2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario2">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -327,7 +327,7 @@
   </defineSchema>
   
   <defineSchema name="es2-2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario2">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -580,7 +580,7 @@
   </parserTestCase>
 
   <defineSchema name="es3">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario3">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -608,7 +608,7 @@
   </defineSchema>
   
   <defineSchema name="es3-2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario3">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -855,7 +855,7 @@
   </parserTestCase>
 
   <defineSchema name="es4">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="scenario4">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -883,7 +883,7 @@
   </defineSchema>
   
   <defineSchema name="es4-2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" documentFinalTerminatorCanBeMissing="no"/>
 
     <dfdl:defineEscapeScheme name="scenario4">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -902,7 +902,7 @@
   </defineSchema>
   
   <defineSchema name="es5">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="es">
       <dfdl:escapeScheme escapeCharacter='\'

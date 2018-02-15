@@ -33,7 +33,7 @@ class TestDFDLExpressionTree extends Parsers {
   val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
 
   val dummySchema = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="tns:daffodilTest1"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="title" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
 
   def testExpr(testSchema: scala.xml.Elem, expr: String)(body: Expression => Unit) {
@@ -64,7 +64,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <dfdl:format ref="tns:daffodilTest1"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="bookstore">
       <xs:complexType>
         <xs:sequence>
@@ -80,7 +80,7 @@ class TestDFDLExpressionTree extends Parsers {
     </xs:element>)
 
   val aSchema = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="tns:daffodilTest1"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
 
   @Test def test_a() = {
@@ -98,7 +98,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   val bSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <dfdl:format ref="tns:daffodilTest1"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="b">
       <xs:complexType>
         <xs:sequence>

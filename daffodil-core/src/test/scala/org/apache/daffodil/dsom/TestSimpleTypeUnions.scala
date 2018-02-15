@@ -33,7 +33,7 @@ class TestSimpleTypeUnions {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   val testSchema1 = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="daffodilTest1"/>,
+    <dfdl:format ref="GeneralFormat"/>,
 
     <xs:simpleType name="int1Type">
       <xs:restriction base="xs:int">
@@ -130,7 +130,7 @@ class TestSimpleTypeUnions {
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="daffodilTest1"/>,
+    <dfdl:format ref="GeneralFormat"/>,
 
     <xs:simpleType name="int19Type">
       <xs:restriction base="xs:int">
@@ -236,7 +236,7 @@ class TestSimpleTypeUnions {
   }
 
   val testSchema3 = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="daffodilTest1"/>,
+    <dfdl:format ref="GeneralFormat"/>,
 
     <xs:simpleType name="fooXbar">
       <xs:restriction base="xs:string">

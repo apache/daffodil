@@ -377,7 +377,7 @@ class TestScalaAPI {
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
-    val schemaFile = getResource("/test/sapi/TopLevel.xsd")
+    val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel", null)
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
@@ -420,7 +420,7 @@ class TestScalaAPI {
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
-    val schemaFile = getResource("/test/sapi/TopLevel.xsd")
+    val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel2", null)
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
@@ -459,7 +459,7 @@ class TestScalaAPI {
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
-    val schemaFile = getResource("/test/sapi/TopLevel.xsd")
+    val schemaFile = getResource("/test/sapi/TopLevel.dfdl.xsd")
     c.setDistinguishedRootNode("TopLevel2", null)
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")

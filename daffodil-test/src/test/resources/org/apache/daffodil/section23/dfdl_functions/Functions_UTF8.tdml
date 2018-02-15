@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="Functions.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
       alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"

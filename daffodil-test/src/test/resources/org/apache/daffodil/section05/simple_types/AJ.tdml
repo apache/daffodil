@@ -24,7 +24,7 @@
 
 
   <tdml:defineSchema name="AJ">
-    <dfdl:format ref="tns:daffodilTest1" binaryNumberRep="binary"
+    <dfdl:format ref="tns:GeneralFormat" binaryNumberRep="binary"
       byteOrder="bigEndian" />
 
     <element name="list" xmlns="http://www.w3.org/2001/XMLSchema">

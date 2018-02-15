@@ -26,7 +26,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="diagnostics">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -76,7 +76,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="paths">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -228,7 +228,7 @@
 
 
   <tdml:defineSchema name="hiddenElem">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     
     <xs:group name="hiddenData">
       <xs:sequence dfdl:separator="|">
@@ -275,7 +275,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="asterisk">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -325,7 +325,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="attributeAxis">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -357,7 +357,7 @@
   </tdml:defineSchema>  
 
   <tdml:defineSchema name="comparisonOperators">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="e1">
       <xs:complexType>
@@ -840,7 +840,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <xs:simpleType name="st1">
       <xs:restriction base="xs:string">
@@ -901,7 +901,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="lke1_rel">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -937,7 +937,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="lke1_abs">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -974,7 +974,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="ocke1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -1020,7 +1020,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="ocke2">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -1086,7 +1086,7 @@
 
   <tdml:defineSchema name="ArrayOptionalElem-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bytes"
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
       encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
       representation="text" byteOrder="bigEndian" binaryNumberRep="binary" />
@@ -1159,7 +1159,7 @@
 
   <tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
@@ -1714,7 +1714,7 @@ c]]></value>
 
   <tdml:defineSchema name="expression-type-errors.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
@@ -1817,7 +1817,7 @@ c]]></value>
   
   <tdml:defineSchema name="elementFormWithWhitespace">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="US-ASCII" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text">
@@ -1859,7 +1859,7 @@ c]]></value>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="unknown-prefix">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="theElementName" type="xs:int"
       dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
   </tdml:defineSchema>
@@ -1878,7 +1878,7 @@ c]]></value>
   <!--- begin ssustrich's test -->
 
   <tdml:defineSchema name="expresion_path_error">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -1922,7 +1922,7 @@ c]]></value>
   <!--- end ssustrich's test -->
 
   <tdml:defineSchema name="v">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence>
@@ -2200,7 +2200,7 @@ c]]></value>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="checkConstraints">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1">
       <xs:complexType>
         <xs:sequence>
@@ -2366,7 +2366,7 @@ c]]></value>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="repeatFlags">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
@@ -2553,7 +2553,7 @@ c]]></value>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="repeatBitFlags">
-    <dfdl:format ref="ex:daffodilTest1" lengthUnits="bits"
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="bits"
       lengthKind="implicit" alignment="1" alignmentUnits="bits"
       representation="binary" byteOrder="bigEndian" />
 
@@ -2881,7 +2881,7 @@ c]]></value>
   
   <tdml:defineSchema name="expressionRules">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" />
@@ -3184,7 +3184,7 @@ c]]></value>
 
   <tdml:defineSchema name="trueFalseTypeCorrect">
   
-     <dfdl:format ref="ex:daffodilTest1"/>
+     <dfdl:format ref="ex:GeneralFormat"/>
      
      <xs:element name="e">
      <xs:complexType>
@@ -3824,7 +3824,7 @@ c]]></value>
 
   <tdml:defineSchema name="predicates">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -4133,7 +4133,7 @@ c]]></value>
 
   <tdml:defineSchema name="and_or_schema">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -4894,7 +4894,7 @@ c]]></value>
 
   <tdml:defineSchema name="axes">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -5392,7 +5392,7 @@ c]]></value>
   
   <tdml:defineSchema name="array_index">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="e1">
       <xs:complexType>
@@ -6892,7 +6892,7 @@ c]]></value>
 
 
   <tdml:defineSchema name="XPathDiv">
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="div01" type="xs:string" dfdl:inputValueCalc="{ xs:double(5) div xs:double(2) }" />
     <xs:element name="div02" type="xs:string" dfdl:inputValueCalc="{ xs:float(5) div xs:float(2) }" />

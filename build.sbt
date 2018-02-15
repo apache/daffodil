@@ -54,11 +54,11 @@ lazy val core             = Project("daffodil-core", file("daffodil-core")).conf
                               .settings(commonSettings)
 
 lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(TestDebug)
-                              .dependsOn(core, core % "test->test")
+                              .dependsOn(core)
                               .settings(commonSettings)
 
 lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).configs(TestDebug)
-                              .dependsOn(core, core % "test->test")
+                              .dependsOn(core)
                               .settings(commonSettings)
 
 lazy val tdml             = Project("daffodil-tdml", file("daffodil-tdml")).configs(TestDebug)
@@ -75,15 +75,15 @@ lazy val test             = Project("daffodil-test", file("daffodil-test")).conf
                               .settings(commonSettings, nopublish)
 
 lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(TestDebug)
-                              .dependsOn(tdml, core % "test->test")
+                              .dependsOn(tdml)
                               .settings(commonSettings, nopublish)
 
 lazy val tutorials        = Project("daffodil-tutorials", file("tutorials")).configs(TestDebug)
-                              .dependsOn(tdml, core % "test->test")
+                              .dependsOn(tdml)
                               .settings(commonSettings, nopublish)
 
 lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLayout")).configs(TestDebug)
-                              .dependsOn(tdml, core % "test->test")
+                              .dependsOn(tdml)
                               .settings(commonSettings, nopublish)
 
 

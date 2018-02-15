@@ -23,7 +23,7 @@
   xmlns:tns="http://example.com">
 
   <tdml:defineSchema name="s2">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 

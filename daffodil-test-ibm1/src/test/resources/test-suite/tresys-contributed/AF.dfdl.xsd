@@ -21,11 +21,11 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
-  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilTest1" separator="" initiator="" terminator=""
+      <dfdl:format ref="tns:GeneralFormat" separator="" initiator="" terminator=""
         emptyValueDelimiterPolicy="none" lengthKind="delimited"
         textNumberRep="standard" representation="text" occursStopValue="-1" ignoreCase='no'
         occursCountKind="parsed" initiatedContent="no" leadingSkip='0' encoding="US-ASCII"

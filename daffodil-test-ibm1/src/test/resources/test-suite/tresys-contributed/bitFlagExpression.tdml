@@ -29,7 +29,7 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="sch1">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       alignment="1" alignmentUnits="bits" byteOrder="bigEndian"
       lengthUnits="bits" initiatedContent="no" />
 

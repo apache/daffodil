@@ -32,7 +32,7 @@
 			emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
 
 		<dfdl:defineFormat name="rdefFormat">
-			<dfdl:format ref="tns:daffodilNewProperties1" initiator="" terminator="" leadingSkip="0"
+			<dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0"
 				trailingSkip="0" separator="" textBidi="no" floating="no" encoding="ascii"
 				byteOrder="bigEndian" ignoreCase="no" outputNewLine="%LF;"
 				truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
