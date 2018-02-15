@@ -23,7 +23,7 @@
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="AQ.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" separator=""
+    <dfdl:format ref="ex:GeneralFormat" separator=""
       initiator="" terminator="" emptyValueDelimiterPolicy="none"
       textNumberRep="standard" representation="text" occursStopValue="-1"
       occursCountKind="parsed" lengthKind="delimited" lengthUnits="bytes"
@@ -74,7 +74,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="AQ_neg.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" separator=""
+    <dfdl:format ref="ex:GeneralFormat" separator=""
       initiator="" terminator="" emptyValueDelimiterPolicy="none"
       textNumberRep="standard" representation="text"
       occursCountKind="stopValue" lengthKind="delimited" lengthUnits="bytes"

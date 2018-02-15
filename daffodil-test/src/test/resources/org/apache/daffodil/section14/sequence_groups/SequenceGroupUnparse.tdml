@@ -27,7 +27,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="e1" dfdl:initiator="[" dfdl:terminator="]">
       <xs:complexType>

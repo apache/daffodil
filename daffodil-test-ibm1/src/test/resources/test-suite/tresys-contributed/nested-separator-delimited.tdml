@@ -25,7 +25,7 @@
 
 
   <tdml:defineSchema name="baseline">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">
@@ -61,7 +61,7 @@
 
 
   <tdml:defineSchema name="basicNest">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">
@@ -108,7 +108,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="basicNest2">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
       dfdl:terminator=".">
@@ -156,7 +156,7 @@
 
 
   <tdml:defineSchema name="nest1">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="nest1" dfdl:lengthKind="implicit"
       dfdl:terminator="!">
@@ -201,7 +201,7 @@
 
 
   <tdml:defineSchema name="nest2">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
     <!-- test the issue of ambiguous delimiters, which requires the parser
       to keep track of what's got priority over what else. (i.e., that inner
       wins) -->
@@ -262,7 +262,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nest3">
-    <dfdl:format ref="ex:daffodilTest1" occursCountKind="parsed" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
     <!-- test the issue of shared prefixes among the delimiters. This makes
       it challenging to determine longest match, as several contenders must
       be

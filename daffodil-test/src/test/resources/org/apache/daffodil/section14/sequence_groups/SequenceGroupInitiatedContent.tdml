@@ -22,7 +22,7 @@
   xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>

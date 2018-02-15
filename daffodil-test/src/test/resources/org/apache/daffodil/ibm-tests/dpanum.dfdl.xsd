@@ -21,7 +21,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	>
-	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <!--  all schema number types with simple formatting  -->
     
@@ -44,7 +44,7 @@
    <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="numberStandardText">
-				<dfdl:format ref="daffodilNewProperties1" 
+				<dfdl:format ref="GeneralFormat" 
 				    textNumberRep="standard" representation="text"
 					textNumberJustification="right" textTrimKind="padChar" textPadKind="padChar"
 					textNumberPadCharacter="0" textStandardBase="10"

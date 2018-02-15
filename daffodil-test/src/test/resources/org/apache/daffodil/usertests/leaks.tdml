@@ -24,7 +24,7 @@
   >
 
   <tdml:defineSchema name="s">
-    <dfdl:format ref="tns:daffodilTest1"/>
+    <dfdl:format ref="tns:GeneralFormat"/>
     <xs:element name="e1" type="xs:int" 
         dfdl:inputValueCalc="{ 42 }"/>
     <xs:element name="e2" type="xs:int" 

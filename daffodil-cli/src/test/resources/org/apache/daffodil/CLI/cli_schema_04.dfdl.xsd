@@ -19,25 +19,39 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://example.com"
   xmlns:ex="http://example.com"> 
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"/>
 
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/" >
-      <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" separator=""
+      <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator=""
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         alignment="implicit" alignmentUnits="bits" trailingSkip="0"
         lengthKind="delimited" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
         leadingSkip="0" textTrimKind="none" representation="text" occursCountKind="parsed"
-        textNumberRep="standard" ignoreCase="no" initiatedContent="no" separatorPosition="infix" 
-        separatorSuppressionPolicy="anyEmpty" />
+        textNumberRep="standard" ignoreCase="no" initiatedContent="no" />
     </xs:appinfo>
   </xs:annotation>
+    
+  <xs:group name="hgNested">
+    <xs:sequence>
+      <xs:element name="sneaky" type="xs:int" dfdl:outputValueCalc="{ 5 }"/>
+    </xs:sequence>
+  </xs:group>
 
-  <xs:element name="elem">
+  <xs:group name="hg">
+    <xs:sequence dfdl:separator="/">
+      <xs:sequence dfdl:hiddenGroupRef="ex:hgNested" />
+      <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{ 42 }"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:element name="e" dfdl:lengthKind="delimited">
     <xs:complexType>
       <xs:sequence dfdl:separator=",">
-        <xs:element name='a' type='xs:int' default="0" minOccurs="0" maxOccurs="20" dfdl:occursCountKind="implicit"/>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+        <xs:element name="g" type="xs:int" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-
+    
 </xs:schema>

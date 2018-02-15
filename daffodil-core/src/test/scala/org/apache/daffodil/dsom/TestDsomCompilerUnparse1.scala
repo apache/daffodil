@@ -31,7 +31,7 @@ class TestDsomCompilerUnparse1 {
 
   @Test def testUnparse1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -50,7 +50,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
@@ -68,7 +68,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
@@ -86,7 +86,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse4() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" truncateSpecifiedLengthString="no"/>,
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" truncateSpecifiedLengthString="no"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">
@@ -111,7 +111,7 @@ class TestDsomCompilerUnparse1 {
    */
   @Test def testUnparse5() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
       </dfdl:defineEscapeScheme>

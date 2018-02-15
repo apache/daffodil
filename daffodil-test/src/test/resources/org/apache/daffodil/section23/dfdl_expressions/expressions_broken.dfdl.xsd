@@ -21,7 +21,7 @@
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="ex:daffodilTest1" />
+      <dfdl:format ref="ex:GeneralFormat" />
     </xs:appinfo>
   </xs:annotation>
 

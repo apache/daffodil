@@ -219,7 +219,7 @@ object Fakes {
 
 class Fakes private () {
   lazy val sch = SchemaUtils.dfdlTestSchema(
-    <dfdl:format ref="tns:daffodilTest1"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
     <xs:element name="fake2" type="tns:fakeCT"/>
     <xs:complexType name="fakeCT">

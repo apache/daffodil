@@ -22,7 +22,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" calendarPatternKind="explicit"/>
+    <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
     <xs:element name="r">
       <xs:complexType>
@@ -78,7 +78,7 @@
 
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" calendarPatternKind="explicit"/>
+    <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
     <xs:element name="r">
       <xs:complexType>
@@ -136,7 +136,7 @@
     </tdml:tutorial>
 
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" calendarPatternKind="explicit"/>
+    <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
      <xs:element name="r">
       <xs:complexType>

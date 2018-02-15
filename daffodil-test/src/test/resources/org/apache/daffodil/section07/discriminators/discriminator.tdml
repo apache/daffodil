@@ -29,7 +29,7 @@
   defaultValidation="on">
 
   <tdml:defineSchema name="s0">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
@@ -209,7 +209,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
         <xs:sequence>
@@ -255,7 +255,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice2">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
         <xs:sequence>
@@ -290,7 +290,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -497,7 +497,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="invalid">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -519,7 +519,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="discrimExpression">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -605,7 +605,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice3">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
         <xs:sequence>
@@ -662,7 +662,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice4">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
         <xs:sequence>
@@ -766,7 +766,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="discrimWithVariable">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <dfdl:defineVariable name="var"/>
 
     <xs:element name="r1">
@@ -837,7 +837,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="iSetNotFound" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">
       <xs:complexType>

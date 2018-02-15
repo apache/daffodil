@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="XPathFunctions">
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
     <xs:element xmlns:fn="http://www.w3.org/2005/xpath-functions" name="foo" type="xs:int" dfdl:inputValueCalc="{ fn:foo(-9) }"/>

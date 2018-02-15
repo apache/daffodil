@@ -27,7 +27,7 @@ class TestDFDLParser {
 
   @Test def testParseSimple1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
     val (_, actual) = TestUtils.testString(sch, "5678")
     val expected: Node = <e1>5678</e1>
@@ -36,7 +36,7 @@ class TestDFDLParser {
 
   @Test def testParseSequenceOfJustOneScalar() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="">
@@ -51,7 +51,7 @@ class TestDFDLParser {
 
   @Test def testParseSequence1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -67,7 +67,7 @@ class TestDFDLParser {
 
   @Test def testParseSequence2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1">
         <xs:complexType>
           <xs:sequence>
@@ -82,7 +82,7 @@ class TestDFDLParser {
 
   @Test def testParseSequence3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
       <xs:element name="e1">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">
@@ -97,7 +97,7 @@ class TestDFDLParser {
 
   @Test def testInt1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -112,7 +112,7 @@ class TestDFDLParser {
 
   @Test def testInt2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -129,7 +129,7 @@ class TestDFDLParser {
 
   @Test def testShort1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -144,7 +144,7 @@ class TestDFDLParser {
 
   @Test def testShort2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -161,7 +161,7 @@ class TestDFDLParser {
 
   @Test def testByte1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -176,7 +176,7 @@ class TestDFDLParser {
 
   @Test def testNumber1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -193,7 +193,7 @@ class TestDFDLParser {
 
   @Test def testNumber2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="mersenne" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
     val (_, actual) = TestUtils.testString(sch, "-127")
     TestUtils.assertEqualsXMLElements(<mersenne>-127</mersenne>, actual)
@@ -201,7 +201,7 @@ class TestDFDLParser {
 
   @Test def testNumber3() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="perfect" type="xs:byte" dfdl:textNumberPattern="+0" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val (_, actual) = TestUtils.testString(sch, "+3")
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
@@ -209,7 +209,7 @@ class TestDFDLParser {
 
   @Test def testUnsignedLong1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="needs-square-root" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val e = intercept[Exception] {
       TestUtils.testString(sch, "-3")
@@ -219,7 +219,7 @@ class TestDFDLParser {
 
   @Test def testUnsignedInt1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="world-population" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 13 }"/>)
     val e = intercept[Exception] {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
@@ -230,7 +230,7 @@ class TestDFDLParser {
 
   @Test def testUnsignedShort1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="last-element-indicator" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val e = intercept[Exception] {
       TestUtils.testString(sch, "-1")
@@ -240,7 +240,7 @@ class TestDFDLParser {
 
   @Test def testUnsignedByte1() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="bits" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:length="{ 3 }"/>)
     val e = intercept[Exception] {
       TestUtils.testString(sch, "256")
@@ -250,7 +250,7 @@ class TestDFDLParser {
 
   @Test def testIntTooLong() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -266,7 +266,7 @@ class TestDFDLParser {
 
   @Test def testParseSequenceInt() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
         <xs:complexType>
           <xs:sequence dfdl:separator=",," dfdl:initiator="{{{" dfdl:terminator="}}">
@@ -281,7 +281,7 @@ class TestDFDLParser {
 
   @Test def testParseSequenceInt3Operands() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
         <xs:complexType>
           <xs:sequence dfdl:separator=",," dfdl:initiator="{{{" dfdl:terminator="}}">
@@ -296,7 +296,7 @@ class TestDFDLParser {
 
   @Test def testBadInt() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>)
     val e = intercept[Exception] {
       TestUtils.testString(sch, "A")
@@ -306,7 +306,7 @@ class TestDFDLParser {
 
   @Test def testParseOccursCountKindOfParsed() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -322,7 +322,7 @@ class TestDFDLParser {
 
   @Test def testParseOccursCountKindOfParsedWithTerminator() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -338,7 +338,7 @@ class TestDFDLParser {
 
   @Test def testParseOccursCountKindOfParsedDelimitedByTerminator() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -355,7 +355,7 @@ class TestDFDLParser {
 
   @Test def testParseOccursCountKindOfParsedDelimitedByTerminator2() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
         <xs:complexType>
           <xs:sequence>
@@ -371,7 +371,7 @@ class TestDFDLParser {
 
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
         <xs:complexType>
           <xs:sequence dfdl:separator=";" dfdl:terminator=";">
@@ -388,7 +388,7 @@ class TestDFDLParser {
 
   @Test def testBinaryIntMinusOne() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -403,7 +403,7 @@ class TestDFDLParser {
 
   @Test def testBinaryInts() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -420,7 +420,7 @@ class TestDFDLParser {
 
   @Test def testBinaryDoubleOne() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
     val (_, actual) = TestUtils.testBinary(sch, "3FF0000000000000")
     val expected = <e1>1.0</e1>
@@ -429,7 +429,7 @@ class TestDFDLParser {
 
   @Test def testBinaryDoubleMinusOne() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
     val (_, actual) = TestUtils.testBinary(sch, "BFF0000000000000")
     val expected = <e1>-1.0</e1>
@@ -438,7 +438,7 @@ class TestDFDLParser {
 
   @Test def testBinaryDoubleLSB() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="xs:double" dfdl:lengthKind="implicit"/>)
     val (_, actual) = TestUtils.testBinary(sch, "0000000000000001")
     val expected = <e1>4.9E-324</e1>
@@ -447,7 +447,7 @@ class TestDFDLParser {
 
   @Test def testBinaryDoubles() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -463,7 +463,7 @@ class TestDFDLParser {
 
   @Test def testTextDoubles() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -480,7 +480,7 @@ class TestDFDLParser {
 
   @Test def testBinaryFloats() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:daffodilTest1"/>,
+      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" binaryFloatRep="ieee" ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
@@ -496,7 +496,7 @@ class TestDFDLParser {
 
   @Test def testTextFloats() {
     val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>

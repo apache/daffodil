@@ -26,7 +26,7 @@
 
   <tdml:defineSchema name="generalSchema">
     <dfdl:defineFormat name="generalSchema">
-      <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" representation="text"
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />
     </dfdl:defineFormat>
@@ -58,7 +58,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -175,7 +175,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="referentialIntegrity" root="foo"
-    model="ref_integrity.xsd" description="Same as litNil1, but uses full file path">
+    model="ref_integrity.dfdl.xsd" description="Same as litNil1, but uses full file path">
 
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
@@ -188,7 +188,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="delim_distinct1">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
       <dfdl:escapeScheme escapeCharacter='#'

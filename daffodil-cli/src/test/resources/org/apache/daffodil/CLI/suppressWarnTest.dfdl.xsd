@@ -23,16 +23,16 @@
   xmlns:ex="http://example.com"
   elementFormDefault="unqualified"> 
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/" >
-     <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
+     <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
         lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
       <!-- Generates a warning unless it is suppressed by way of the tunable -->
       <xs:element name="e1" dfdl:lengthKind="implicit">

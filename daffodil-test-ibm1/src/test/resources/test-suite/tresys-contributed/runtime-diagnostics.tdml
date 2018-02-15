@@ -24,7 +24,7 @@
   xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="PE1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="err1" type="xs:int" dfdl:lengthKind="delimited" />
 

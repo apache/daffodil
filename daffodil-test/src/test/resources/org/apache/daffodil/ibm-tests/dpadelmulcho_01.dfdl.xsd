@@ -21,10 +21,10 @@
 	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="daffodilNewProperties1" initiator=""
+			<dfdl:format ref="GeneralFormat" initiator=""
 				terminator="" leadingSkip="0" trailingSkip="0"
 				truncateSpecifiedLengthString="no" textBidi="no" floating="no"
 				encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"

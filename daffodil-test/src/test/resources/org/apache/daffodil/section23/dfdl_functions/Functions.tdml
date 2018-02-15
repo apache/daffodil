@@ -25,7 +25,7 @@
   defaultRoundTrip="true">
     
   <tdml:defineSchema name="Functions.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
       alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -873,7 +873,7 @@
 </tdml:defineSchema>
   
   <tdml:defineSchema name="Functions-binary.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="" terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
       alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -4081,7 +4081,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathFunctions">
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
 
@@ -6235,7 +6235,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="constructorSchema">
-    <dfdl:format ref="daffodilTest1" />
+    <dfdl:format ref="GeneralFormat" />
 
     <xs:element name="integer01" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(45.4) }"/>
     <xs:element name="integer02">
@@ -8917,7 +8917,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="booleanFunctions">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
       textBidi="no" floating="no" byteOrder="bigEndian"
       alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -13261,7 +13261,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="XPathMathFunctions">
-    <dfdl:format ref="ex:daffodilTest1"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
     <!-- These pow test were taken from the math:pow examples at https://www.w3.org/TR/xpath-functions-31/#func-math-pow -->
     <xs:element name="pow01" type="xs:double" dfdl:inputValueCalc="{ math:pow(2, 3) }" />

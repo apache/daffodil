@@ -25,7 +25,7 @@
        to any specific requirements. /!-->
 
   <tdml:defineSchema name="parseUnparsePolicy">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" representation="text"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />
 

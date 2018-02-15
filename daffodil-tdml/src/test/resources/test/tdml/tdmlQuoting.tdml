@@ -24,7 +24,7 @@
 	
 		<tdml:defineSchema name="quote">
 
-		<dfdl:format ref="ex:daffodilTest1" initiator=""
+		<dfdl:format ref="ex:GeneralFormat" initiator=""
 			terminator="" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian"
 			alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"

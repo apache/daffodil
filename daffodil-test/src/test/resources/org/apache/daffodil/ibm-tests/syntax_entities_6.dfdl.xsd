@@ -20,7 +20,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	>
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 	
 
 	<xs:annotation>
@@ -38,7 +38,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="rdefFormat">
-				<dfdl:format ref="daffodilNewProperties1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
+				<dfdl:format ref="GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
 					ignoreCase="no" outputNewLine="%LF;"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""

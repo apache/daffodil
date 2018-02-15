@@ -46,7 +46,7 @@ class TestExternalVariablesNew {
 
   val dummyGroupRef = null // just because otherwise we have to construct too many things.
 
-  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:daffodilTest1"/>) = {
+  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:GeneralFormat"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -147,14 +147,14 @@ class TestExternalVariablesNew {
     // out what it should be if there is no ambiguity.
     //
     val tla_no_ns = {
-      <dfdl:format ref="daffodilTest1"/>
+      <dfdl:format ref="GeneralFormat"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
     }
     val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
     val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_success_no_ns")
 
     val tla = {
-      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3"/>
     }
@@ -201,14 +201,14 @@ class TestExternalVariablesNew {
     // set the correct one.
     //
     val tla_no_ns = {
-      <dfdl:format ref="daffodilTest1"/>
+      <dfdl:format ref="GeneralFormat"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.2"/>
     }
     val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
     val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_no_namespace_success_no_ns")
 
     val tla = {
-      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.1"/>
     }
@@ -246,7 +246,7 @@ class TestExternalVariablesNew {
     // stating that var3 is ambiguous.
     //
     val tla_no_ns = {
-      <dfdl:format ref="daffodilTest1"/>
+      <dfdl:format ref="GeneralFormat"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.2"/>
     }
@@ -254,7 +254,7 @@ class TestExternalVariablesNew {
     val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_failure_no_ns")
 
     val tla = {
-      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
     }

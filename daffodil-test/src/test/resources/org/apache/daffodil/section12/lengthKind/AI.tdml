@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="AI.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii" 
                  truncateSpecifiedLengthString="no"/>
 
     <!-- Patterned length and fixed length -->

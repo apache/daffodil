@@ -24,11 +24,11 @@
 
   <tdml:defineSchema name="qualified" elementFormDefault="qualified">
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1"
+      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"
         separator="," initiator="" terminator="" representation="text" separatorPosition="infix" />
     </dfdl:defineFormat>
 
@@ -45,11 +45,11 @@
   
   <tdml:defineSchema name="unqualified" elementFormDefault="unqualified">
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1"
+      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"
         separator="," initiator="" terminator="" representation="text" separatorPosition="infix" />
     </dfdl:defineFormat>
 
@@ -66,11 +66,11 @@
   
   <tdml:defineSchema name="missing" >
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1"
+      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"
         separator="," initiator="" terminator="" representation="text" separatorPosition="infix" />
     </dfdl:defineFormat>
 

@@ -21,11 +21,11 @@
    xmlns:tns="http://myAddress.com"
    xmlns:addr="http://myAddress.com">
       
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+      <dfdl:format ref="tns:GeneralFormat" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=''/>
     </xs:appinfo>

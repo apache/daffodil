@@ -25,7 +25,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" separator=""
       encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
       textNumberRep="standard" ignoreCase="no" representation="text"
@@ -195,7 +195,7 @@
 
   <tdml:defineSchema name="dfdlPrefix.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
@@ -301,7 +301,7 @@
   <tdml:defineSchema name="groupRefInheritProps.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
@@ -368,7 +368,7 @@
 
   <tdml:defineSchema name="sequenceWithinSequence.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
@@ -432,7 +432,7 @@
   
   <tdml:defineSchema name="nextInitNotDelim">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard"
@@ -470,7 +470,7 @@
 
   <tdml:defineSchema name="lastElts">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="implicit" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" initiatedContent="no"

@@ -25,7 +25,7 @@ import org.apache.daffodil.util.TestUtils
 class TestDPath {
 
   val testSchemaNoRef = SchemaUtils.dfdlTestSchemaUnqualified(
-    <dfdl:format ref="tns:daffodilTest1" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
+    <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
         <xs:sequence>
@@ -46,7 +46,7 @@ class TestDPath {
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <dfdl:format ref="tns:daffodilTest1" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
+    <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
         <xs:sequence>
@@ -68,7 +68,7 @@ class TestDPath {
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchemaUnqualified(
-    <dfdl:format ref="tns:daffodilTest1" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
+    <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
         <xs:sequence>

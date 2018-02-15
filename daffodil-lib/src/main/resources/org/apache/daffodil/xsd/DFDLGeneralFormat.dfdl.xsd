@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!-- Intended for inclusion into other schemas. Has no targetNamespace on purpose -->
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+
+      <dfdl:defineFormat name="GeneralFormat">
+        <dfdl:format
+          alignment="1"
+          alignmentUnits="bytes"
+          binaryFloatRep="ieee"
+          binaryNumberRep="binary"
+          bitOrder="mostSignificantBitFirst"
+          byteOrder="bigEndian"
+          calendarCheckPolicy="strict"
+          calendarDaysInFirstWeek="4"
+          calendarFirstDayOfWeek="Sunday"
+          calendarLanguage="en"
+          calendarPatternKind="implicit"
+          calendarTimeZone="UTC"
+          decimalSigned="yes"
+          documentFinalTerminatorCanBeMissing="no"
+          emptyValueDelimiterPolicy="both"
+          encodingErrorPolicy="replace"
+          encoding="US-ASCII"
+          escapeSchemeRef=""
+          fillByte="%#r20;"
+          ignoreCase="no"
+          initiatedContent="no"
+          initiator=""
+          leadingSkip="0"
+          lengthKind="implicit"
+          lengthUnits="bytes"
+          occursCountKind="parsed"
+          outputNewLine="%LF;"
+          representation="text"
+          separator=""
+          separatorPosition="infix"
+          separatorSuppressionPolicy="anyEmpty"
+          sequenceKind="ordered"
+          terminator=""
+          textBooleanPadCharacter="%SP;"
+          textCalendarJustification="left"
+          textCalendarPadCharacter="%SP;"
+          textNumberCheckPolicy="lax"
+          textNumberJustification="right"
+          textNumberPadCharacter="%SP;"
+          textNumberPattern="#,##0.###;-#,##0.###"
+          textNumberRep="standard"
+          textNumberRounding="explicit"
+          textNumberRoundingIncrement="0"
+          textNumberRoundingMode="roundUnnecessary"
+          textOutputMinLength="0"
+          textPadKind="none"
+          textStandardBase="10"
+          textStandardDecimalSeparator="."
+          textStandardExponentRep="E"
+          textStandardGroupingSeparator=","
+          textStandardInfinityRep="Inf"
+          textStandardNaNRep="NaN"
+          textStandardZeroRep="0"
+          textStringJustification="left"
+          textStringPadCharacter="%SP;"
+          textTrimKind="none"
+          trailingSkip="0"
+          truncateSpecifiedLengthString="no"
+          utf16Width="fixed"
+        />
+      </dfdl:defineFormat>
+
+    </xs:appinfo>
+  </xs:annotation>
+
+</xs:schema>

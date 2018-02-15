@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-binary">
-    <dfdl:format ref="ex:daffodilTest1" fillByte="%#r20;" representation="binary" lengthUnits="bytes" />
+    <dfdl:format ref="ex:GeneralFormat" fillByte="%#r20;" representation="binary" lengthUnits="bytes" />
     <dfdl:defineVariable name="FOUR" type="xs:int" defaultValue="4" external="false" />
 
     <xs:element name="hb_01" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4" />

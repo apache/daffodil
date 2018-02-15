@@ -24,7 +24,7 @@
 
   <tdml:defineSchema name="implicit_tests_embedded">
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <xs:element name="timeImp" type="xs:time"
       dfdl:lengthKind="implicit" dfdl:representation="text"/>

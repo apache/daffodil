@@ -20,7 +20,7 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" xmlns:fn="http://www.w3.org/2005/xpath-functions" defaultRoundTrip="false">
 
   <tdml:defineSchema name="ovc1" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:group name="IPSrcGrp">
       <xs:sequence>
@@ -212,7 +212,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="ovc2" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:group name="IPSrcGrp">
       <xs:sequence>
@@ -259,7 +259,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="ovc3" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"  lengthUnits="bytes"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"  lengthUnits="bytes"/>
 
     <xs:element name="root">
       <xs:complexType>
@@ -302,7 +302,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="ovc4" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:element name="e1">
       <xs:complexType>

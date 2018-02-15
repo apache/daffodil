@@ -165,7 +165,13 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
     res
   }.value
 
-  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
+  final lazy val schemaLocationProperty = {
+    val prop = getAttributeOption("schemaLocation")
+    if (prop.isDefined && prop.get == "edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd") {
+      SDW("schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".")
+    }
+    prop
+  }
 
   protected final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) } catch { case ex: URISyntaxException => return false }

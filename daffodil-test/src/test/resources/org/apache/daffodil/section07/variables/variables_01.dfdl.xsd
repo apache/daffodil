@@ -22,7 +22,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
@@ -32,11 +32,11 @@
     </xsd:appinfo>
   </xsd:annotation>
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilNewProperties1" representation="text" lengthUnits="bytes"
+      <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes"
         encoding="US-ASCII" alignment='1' alignmentUnits='bytes'
         textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
         byteOrder='bigEndian' calendarPatternKind='implicit'

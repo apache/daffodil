@@ -18,11 +18,11 @@
 
 <_-_-_:schema xmlns:_-_-_="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ψ="http://example.com" xmlns:ex="http://example.com" targetNamespace="http://example.com">
   
-  <_-_-_:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <_-_-_:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       
   <_-_-_:annotation>
     <_-_-_:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="ex:daffodilTest1" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
+      <dfdl:format ref="ex:GeneralFormat" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
     </_-_-_:appinfo>

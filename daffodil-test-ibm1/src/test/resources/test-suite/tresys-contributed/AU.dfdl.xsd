@@ -20,7 +20,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
-  <include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -31,7 +31,7 @@
         documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
         binaryNumberRep='binary' representation="text" occursCountKind='parsed'
         lengthUnits="bytes" textTrimKind='none' escapeSchemeRef=''
-        ref="tns:daffodilTest1" />
+        ref="tns:GeneralFormat" />
     </appinfo>
   </annotation>
 

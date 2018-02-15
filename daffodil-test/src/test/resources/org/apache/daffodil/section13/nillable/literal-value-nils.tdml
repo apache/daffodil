@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="text_nil_only1">
-    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
+    <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
       nilValue="nil %ES;" nilKind="literalValue" textNumberRep="standard" ignoreCase="no"/>
 
     <xs:element name="doc5" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%WSP*;"/>
@@ -33,7 +33,7 @@
 
 
   <tdml:defineSchema name="text_03">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -109,7 +109,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_04">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -152,7 +152,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_05">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -195,7 +195,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="text_06">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -248,7 +248,7 @@
       data as if it were text so as to be able to use features like literalValue 
       nilKind
       with binary data -->
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="iso-8859-1" representation="binary" occursCountKind="parsed"
@@ -289,7 +289,7 @@
   
   
     <tdml:defineSchema name="PaddedNils">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -333,7 +333,7 @@
 
 
   <tdml:defineSchema name="nillableComplex">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -399,7 +399,7 @@
 
 
   <tdml:defineSchema name="nillableOVC">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"

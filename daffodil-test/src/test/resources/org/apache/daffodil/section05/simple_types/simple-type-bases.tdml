@@ -25,7 +25,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="stb">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1" type="ex:ty" />
     <xs:simpleType name="ty" dfdl:lengthKind="explicit"

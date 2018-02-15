@@ -25,7 +25,7 @@
 Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	 -->
 
-	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 	 
 	<!--
 		"another example" of short form in section 7.1.4.3 dfdl spec v.39
@@ -35,7 +35,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	<xs:annotation>
 		<!-- Defaulted property values minimum needed for a text boolean-->
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="daffodilTest1" initiator="" terminator="" 
+			<dfdl:format ref="GeneralFormat" initiator="" terminator="" 
 				leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  
 				textBidi="no" floating="no"   encodingErrorPolicy="replace" 
 				encoding="utf-8" 

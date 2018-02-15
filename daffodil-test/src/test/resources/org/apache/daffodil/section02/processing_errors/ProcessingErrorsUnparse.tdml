@@ -33,7 +33,7 @@
 
   <tdml:defineSchema name="upaFailure">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" textBidi="no" floating="no" encoding="ascii"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
       fillByte="f" occursCountKind="implicit"
@@ -78,7 +78,7 @@
   
   <tdml:defineSchema name="okSchema">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" textBidi="no" floating="no" encoding="ascii"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
       fillByte="f" occursCountKind="implicit"
@@ -235,12 +235,12 @@
   </tdml:unparserTestCase>
   
   <tdml:defineSchema name="roundTripErr">
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="parsed"
       ignoreCase="no" textNumberRep="standard" representation="text"
       textPadKind='padChar' textStringPadCharacter="%SP;" textNumberJustification="center"/>
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1" textNumberJustification="center"
+      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormat" textNumberJustification="center"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
     

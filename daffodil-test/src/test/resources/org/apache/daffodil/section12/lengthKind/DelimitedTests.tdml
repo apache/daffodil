@@ -26,12 +26,12 @@
 
   <tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="ascii" separator="" initiator=""
       terminator="" occursCountKind="implicit" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
     <dfdl:defineFormat name="trimmed">
-       <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar" textPadKind="padChar"
+       <dfdl:format ref="ex:GeneralFormat" textTrimKind="padChar" textPadKind="padChar"
                       textStringPadCharacter="%SP;" textStringJustification="center"
                       truncateSpecifiedLengthString="no"/>
     </dfdl:defineFormat>
@@ -892,7 +892,7 @@ C</MessageHeaders>
 
   <tdml:defineSchema name="refInitiator.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
@@ -960,7 +960,7 @@ C</MessageHeaders>
   <tdml:defineSchema name="refInitiator2.xsd">
 
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="text"
       lengthKind="delimited" textNumberRep="standard" separatorSuppressionPolicy="anyEmpty"
@@ -1036,7 +1036,7 @@ C</MessageHeaders>
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="wspstar_nl">
-		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
 			lengthUnits="bytes" encoding="ascii" separator="" initiator=""
 			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
 			representation="text" initiatedContent="no" />
@@ -1059,7 +1059,7 @@ C</MessageHeaders>
   
   <tdml:defineSchema name="delimitedBinary">
 
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" encoding="utf-8" byteOrder="bigEndian"
       occursCountKind="parsed" ignoreCase="no" representation="binary"
       lengthKind="delimited" binaryNumberRep="binary" separatorSuppressionPolicy="anyEmpty"

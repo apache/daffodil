@@ -26,7 +26,7 @@
 
   <tdml:defineSchema name="generalSchema">
     <dfdl:defineFormat name="generalFormat">
-      <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" representation="text"
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />
     </dfdl:defineFormat>

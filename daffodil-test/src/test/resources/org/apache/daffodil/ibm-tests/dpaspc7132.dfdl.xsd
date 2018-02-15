@@ -20,7 +20,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
-	<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 	
 	<!--  Portions of this schema taken from example in 
 	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
@@ -35,7 +35,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	<!-- Defaulted property values from sample snippet-->
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="daffodilNewProperties1" representation="text">
+			<dfdl:format ref="GeneralFormat" representation="text">
 				<dfdl:property name="encoding">utf-8</dfdl:property>
 				<dfdl:property name='separator'>%NL;</dfdl:property>
 			</dfdl:format>

@@ -60,7 +60,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_a() = {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
 
     val data = <a xmlns="http://example.com">aaaaa</a>
@@ -71,7 +71,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_ba() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>
@@ -88,7 +88,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_arrayCount1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>
@@ -104,7 +104,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_arrayIndex1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>
@@ -120,7 +120,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_absPathWithArrayIndex1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>
@@ -136,7 +136,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   @Test def test_ivc1() {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>

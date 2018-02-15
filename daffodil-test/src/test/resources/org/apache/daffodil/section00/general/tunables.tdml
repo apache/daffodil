@@ -44,9 +44,9 @@
 	</tdml:defineConfig>
 
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd" />
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
-		<dfdl:format ref="ex:daffodilTest1" />
+		<dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="b" type="xs:string" dfdl:length="1"
 			dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" />

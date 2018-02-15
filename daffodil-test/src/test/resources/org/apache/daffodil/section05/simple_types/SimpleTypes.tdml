@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" representation="text"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
         textPadKind="padChar" textTrimKind="padChar"/>
@@ -194,7 +194,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="SimpleTypes-binary">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bytes"
       textPadKind="padChar" textTrimKind="padChar" />
 
@@ -3027,7 +3027,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="SimpleTypes-padding">
-    <dfdl:format ref="ex:daffodilTest1" representation="text"
+    <dfdl:format ref="ex:GeneralFormat" representation="text"
       lengthUnits="characters" encoding="utf-8" byteOrder="bigEndian" 
       textStringPadCharacter="X" textStringJustification="left" textTrimKind="padChar" textPadKind="padChar"
       textNumberJustification="left" textNumberPadCharacter="#" />
@@ -3497,7 +3497,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="dateTimeSchemaTNR">
-            <dfdl:format ref="tns:daffodilNewProperties1" initiator="" terminator="" leadingSkip="0" 
+            <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" 
                 trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" 
                 byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
                 occursCountKind="implicit" 
@@ -3523,7 +3523,7 @@
   
   <tdml:defineSchema name="dateTimeSchema">
   
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
 <!--
      xs:date      yyyy-MM-dd
@@ -5899,7 +5899,7 @@
   
   
   <tdml:defineSchema name="HexBinary">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="binary" initiatedContent="no"  />
@@ -6475,7 +6475,7 @@
   
   <tdml:defineSchema name="DFDL-307-one-octet.dfdl.xsd">
 
-        <dfdl:format ref="ex:daffodilTest1" representation="binary"
+        <dfdl:format ref="ex:GeneralFormat" representation="binary"
             binaryNumberRep="binary" lengthUnits="bits" byteOrder='bigEndian'
             alignment="1" alignmentUnits="bits" lengthKind='explicit' />
 

@@ -26,7 +26,7 @@ class TestMiddleEndAttributes3 {
   @Test def testNextParentElements() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" encoding="US-ASCII"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
 
       <xs:group name="IPSrcGrp">
         <xs:sequence>
@@ -81,7 +81,7 @@ class TestMiddleEndAttributes3 {
   @Test def testNextParentElements2() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" encoding="US-ASCII"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
 
       <xs:group name="IPSrcGrp">
         <xs:sequence>

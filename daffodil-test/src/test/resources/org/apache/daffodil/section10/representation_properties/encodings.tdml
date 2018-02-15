@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
   
 <tdml:defineSchema name="enc1">
-  <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>
+  <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
     
   <xs:element name="eString" type="xs:string" dfdl:encoding="ebcdic-cp-us"/>
   

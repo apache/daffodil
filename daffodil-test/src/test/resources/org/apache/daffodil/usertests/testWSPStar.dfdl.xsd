@@ -32,7 +32,7 @@ xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" >
       -->
 
     <!-- include the default properties -->
-  <xsd:include schemaLocation="DefaultProperties.xsd" />
+  <xsd:include schemaLocation="DefaultProperties2.dfdl.xsd" />
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="jsonBase">

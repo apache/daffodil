@@ -23,7 +23,7 @@
 
   <tdml:defineSchema name="EscapesSchema">
 
-    <dfdl:format ref="daffodilTest1" encoding="utf-8"
+    <dfdl:format ref="GeneralFormat" encoding="utf-8"
       byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
       textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
       documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"

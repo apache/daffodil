@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <defineSchema name="es1">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
       <dfdl:escapeScheme escapeCharacter='#'
@@ -56,17 +56,17 @@
   </defineSchema>
   
   <defineSchema name="es2">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
       <xs:element name="elem" dfdl:defineEscapeScheme=""/>
   </defineSchema>
 
   <defineSchema name="es4">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
       <xs:element name="elem"/>
   </defineSchema>
 
   <defineSchema name="es5">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     <dfdl:defineEscapeScheme>
       <dfdl:escapeScheme escapeCharacter='#'
         escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
@@ -75,7 +75,7 @@
   </defineSchema>
   
   <defineSchema name="es6">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineEscapeScheme name="pound">
       <dfdl:escapeScheme escapeCharacter='#'
@@ -109,7 +109,7 @@
   </defineSchema>
   
   <defineSchema name="emptyRef">
-  <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+  <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -123,7 +123,7 @@
   </defineSchema>
   
   <defineSchema name="unusedRef">
-  <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+  <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
@@ -136,7 +136,7 @@
   </defineSchema>
 
   <defineSchema name="nonUnique">
-    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     <dfdl:defineEscapeScheme name="escapeScheme">
       <dfdl:escapeScheme escapeCharacter='#'
         escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
@@ -276,7 +276,7 @@
   </parserTestCase>
   
   <defineSchema name="escapeSchemeExpressions">
-    <dfdl:format ref="tns:daffodilTest1" separatorPosition="infix" lengthKind="delimited"/> 
+    <dfdl:format ref="tns:GeneralFormat" separatorPosition="infix" lengthKind="delimited"/> 
 
     <dfdl:defineEscapeScheme name="fromData">
       <dfdl:escapeScheme escapeCharacter="{ /tns:e1/tns:escapeChar }"

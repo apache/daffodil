@@ -21,13 +21,11 @@
 	targetNamespace="http://example.com"
 	xmlns:tns="http://example.com">
 
-	<!-- include the default properties -->
-	<!-- <xsd:include schemaLocation="DefaultProperties.xsd"/> -->
-	<xsd:include
-		schemaLocation="/test/japi/DefaultProperties.xsd"/>
+	<xsd:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
 	<xsd:annotation>
 		<xsd:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="tns:DefaultPropertiesFormat" separator=""/>
+			<dfdl:format ref="tns:GeneralFormat" />
 		</xsd:appinfo>
 	</xsd:annotation>
 
@@ -36,7 +34,7 @@
 			<xsd:sequence dfdl:separator="%NL;%NL;">
 				<xsd:element name="MessageHeaders" dfdl:lengthKind="delimited"
 					 type="xsd:string"/>
-				<xsd:element name="Body" type="xsd:string"/>
+				<xsd:element name="Body" type="xsd:string" dfdl:lengthKind="delimited" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
@@ -46,7 +44,7 @@
 			<xsd:sequence>
 				<xsd:element name="MessageHeaders" dfdl:lengthKind="delimited"
 					 type="xsd:string" dfdl:terminator="%NL;%NL;"/>
-				<xsd:element name="Body" type="xsd:string"/>
+				<xsd:element name="Body" type="xsd:string" dfdl:lengthKind="delimited" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

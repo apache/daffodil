@@ -23,7 +23,7 @@
   xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData /xsd/tdml.xsd">
 
   <tdml:defineSchema name="seqDelim">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1" dfdl:lengthKind="delimited">
       <xs:complexType>

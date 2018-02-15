@@ -24,9 +24,35 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="neededRepProp">
-	<dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
-		alignment='implicit' alignmentUnits='bytes' trailingSkip='0' encoding="utf-8"
-		sequenceKind="ordered" initiator="" terminator="" separatorPosition="infix" ignoreCase="no" />
+    <dfdl:format 
+      alignment="1" alignmentUnits="bits" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no"
+      emptyValueDelimiterPolicy="both" encodingErrorPolicy="replace"
+      encoding="utf-8" escapeSchemeRef="" fillByte="%#r20;" ignoreCase="no"
+      initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+      lengthUnits="bytes" occursCountKind="parsed" outputNewLine="%LF;"
+      separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRep="standard"
+      textNumberRounding="explicit" textNumberRoundingIncrement="0"
+      textNumberRoundingMode="roundUnnecessary" textOutputMinLength="0"
+      textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardExponentRep="E"
+      textStandardGroupingSeparator="," textStandardInfinityRep="Inf"
+      textStandardNaNRep="NaN" textStandardZeroRep="0"
+      textStringJustification="left" textStringPadCharacter="%SP;"
+      textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
+
 	<xs:element name="root">
 		<xs:complexType>
 			<xs:sequence dfdl:separator=",">
@@ -39,9 +65,34 @@
 </tdml:defineSchema>
   
   <tdml:defineSchema name="neededRepProp2">
-    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
-      initiator="" terminator="" separatorPosition="infix" textTrimKind="none" ignoreCase="no"
-      encoding="utf-8" initiatedContent="no" alignment="implicit" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered"/>
+    <dfdl:format 
+      alignment="1" alignmentUnits="bits" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no"
+      emptyValueDelimiterPolicy="both" encodingErrorPolicy="replace"
+      encoding="utf-8" escapeSchemeRef="" fillByte="%#r20;" ignoreCase="no"
+      initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+      lengthUnits="bytes" occursCountKind="parsed" outputNewLine="%LF;"
+      separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRep="standard"
+      textNumberRounding="explicit" textNumberRoundingIncrement="0"
+      textNumberRoundingMode="roundUnnecessary" textOutputMinLength="0"
+      textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardExponentRep="E"
+      textStandardGroupingSeparator="," textStandardInfinityRep="Inf"
+      textStandardNaNRep="NaN" textStandardZeroRep="0"
+      textStringJustification="left" textStringPadCharacter="%SP;"
+      textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -53,10 +104,34 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="neededRepProp3">
-    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
-      initiator="" terminator="" separatorPosition="infix"
-      encoding="utf-8" initiatedContent="no" representation="text"
-      textNumberRep="standard" textTrimKind="none"/>
+    <dfdl:format 
+      alignment="1" alignmentUnits="bits" binaryFloatRep="ieee"
+      binaryNumberRep="binary" bitOrder="mostSignificantBitFirst"
+      byteOrder="bigEndian" calendarCheckPolicy="strict"
+      calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Sunday"
+      calendarLanguage="en" calendarPatternKind="implicit"
+      calendarTimeZone="UTC" decimalSigned="yes"
+      documentFinalTerminatorCanBeMissing="no"
+      emptyValueDelimiterPolicy="both" encodingErrorPolicy="replace"
+      encoding="utf-8" escapeSchemeRef="" fillByte="%#r20;" ignoreCase="no"
+      initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+      lengthUnits="bytes" occursCountKind="parsed" outputNewLine="%LF;"
+      separator="" separatorPosition="infix"
+      separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered"
+      terminator="" textBooleanPadCharacter="%SP;"
+      textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+      textNumberCheckPolicy="lax" textNumberJustification="right"
+      textNumberPadCharacter="%SP;"
+      textNumberPattern="#,##0.###;-#,##0.###" textNumberRep="standard"
+      textNumberRounding="explicit" textNumberRoundingIncrement="0"
+      textNumberRoundingMode="roundUnnecessary" textOutputMinLength="0"
+      textPadKind="none" textStandardBase="10"
+      textStandardDecimalSeparator="." textStandardExponentRep="E"
+      textStandardGroupingSeparator="," textStandardInfinityRep="Inf"
+      textStandardNaNRep="NaN" textStandardZeroRep="0"
+      textStringJustification="left" textStringPadCharacter="%SP;"
+      textTrimKind="none" trailingSkip="0"
+      truncateSpecifiedLengthString="no" utf16Width="fixed" />
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">

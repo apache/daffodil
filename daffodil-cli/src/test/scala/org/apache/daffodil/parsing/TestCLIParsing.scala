@@ -208,7 +208,7 @@ class TestCLIparsing {
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
     val file = new File(tmp_filename)
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/TopLevel.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/TopLevel.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/02nine_headers.txt")
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
@@ -282,7 +282,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/ABC_IBM.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/ABC_IBM.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("")
 
@@ -744,7 +744,7 @@ class TestCLIparsing {
 */
 
   @Test def test_1319_CLI_Parsing_invalidElementSDE() {
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/ABC_IBM_invalid.xsd")
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/ABC_IBM_invalid.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val shell = Util.start("", true)
 
@@ -907,5 +907,27 @@ class TestCLIparsing {
       shell.close()
     }
   }
+  
+  @Test def test_CLI_Parsing_built_in_formats() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_04.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input6.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -r e %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+
+      shell.expectIn(1, contains("Schema Definition Warning"))
+      shell.expectIn(1, contains("edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd"))
+      shell.expectIn(1, contains("org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"))
+
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
 
 }

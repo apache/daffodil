@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="lengthPatternsUnmatched">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="seq1">
       <xs:complexType>
@@ -58,7 +58,7 @@
 
   <tdml:defineSchema name="lengthKindPattern-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit"
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" textNumberRep="standard" representation="text" />
 
@@ -358,7 +358,7 @@
 
   <tdml:defineSchema name="DFDL-207-Embedded.dfdl.xsd">
 
-    <dfdl:format ref="ex:daffodilTest1" representation="text"
+    <dfdl:format ref="ex:GeneralFormat" representation="text"
       lengthUnits="bytes" encoding="US-ASCII" byteOrder='bigEndian'
       ignoreCase='no' initiatedContent='no' lengthKind='implicit'
       occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
@@ -770,7 +770,7 @@
   
   <tdml:defineSchema name="invalidPattern">
 
-    <dfdl:format ref="ex:daffodilTest1" representation="text"
+    <dfdl:format ref="ex:GeneralFormat" representation="text"
       lengthUnits="bytes" encoding="US-ASCII" byteOrder='bigEndian'
       ignoreCase='no' initiatedContent='no' lengthKind='implicit'
       occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'

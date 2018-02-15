@@ -23,7 +23,7 @@
   xmlns="http://example.com">
 
   <tdml:defineSchema name="choice">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="root">
       <xs:complexType>

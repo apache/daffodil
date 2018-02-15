@@ -443,12 +443,12 @@ jonesington,david,frederick,1986-02-19
   
   <!--
     Test Name: doubleNL2
-       Schema: TopLevel.xsd
+       Schema: TopLevel.dfdl.xsd
       Purpose: This test demonstrates a workaround for the bug in test doubleNL 
   -->
 
   <parserTestCase name="doubleNL2" root="TopLevel"
-    model="TopLevel.xsd"
+    model="TopLevel.dfdl.xsd"
     description="">
     <document>
       <documentPart type="file">02nine_headers.txt</documentPart>

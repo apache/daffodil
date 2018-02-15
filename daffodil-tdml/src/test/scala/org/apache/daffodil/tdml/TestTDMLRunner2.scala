@@ -35,7 +35,7 @@ class TestTDMLRunner2 {
   @Test def testTDMLUnparse() {
     val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
                       <ts:defineSchema name="unparseTestSchema1">
-                        <dfdl:format ref="tns:daffodilTest1"/>
+                        <dfdl:format ref="tns:GeneralFormat"/>
                         <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
                       </ts:defineSchema>
                       <ts:unparserTestCase ID="some identifier" name="testTDMLUnparse" root="data" model="unparseTestSchema1">

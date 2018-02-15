@@ -25,12 +25,12 @@
 
   <tdml:defineSchema name="s1">
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="parsed"
       ignoreCase="no" textNumberRep="standard" representation="text"
       textPadKind='padChar' textStringPadCharacter="%SP;" textNumberJustification="center"/>
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1" textNumberJustification="center"
+      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormat" textNumberJustification="center"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
 

@@ -33,7 +33,7 @@ class TestInfoset2 {
 
   @Test def testXMLToInfoset1() {
     val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="b">
         <xs:complexType>
           <xs:sequence>

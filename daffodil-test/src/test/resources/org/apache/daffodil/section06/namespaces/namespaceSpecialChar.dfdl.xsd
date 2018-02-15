@@ -23,11 +23,11 @@ xmlns:b·="http://example.com"
 targetNamespace="http://example.com">
 
 
-  <имен:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <имен:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       
   <имен:annotation>
     <имен:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="b·:daffodilTest1" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
+      <dfdl:format ref="b·:GeneralFormat" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
     </имен:appinfo>

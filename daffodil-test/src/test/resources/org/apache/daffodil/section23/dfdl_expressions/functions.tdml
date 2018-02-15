@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="dateTimeSchema">
-    <dfdl:format ref="daffodilTest1" />
+    <dfdl:format ref="GeneralFormat" />
 
 <!--
      xs:date      yyyy-MM-dd
@@ -301,7 +301,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="substringSchema">
-    <dfdl:format ref="daffodilTest1" />
+    <dfdl:format ref="GeneralFormat" />
     
     <!-- Examples from http://www.w3.org/TR/xpath-functions/#func-substring -->
     <xs:element name="substring01" type="xs:string" dfdl:inputValueCalc="{ fn:substring('motor car', 6) }"/>

@@ -41,7 +41,7 @@ class TestExternalVariablesLoader extends Logging {
   
   val tunable = DaffodilTunables()
 
-  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:daffodilTest1"/>) = {
+  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:GeneralFormat"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -75,7 +75,7 @@ class TestExternalVariablesLoader extends Logging {
     val extVarFile1 = Misc.getRequiredResource("/test/external_vars_1.xml")
 
     val topLevelAnnotations = {
-      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
       <dfdl:defineVariable name="v_no_default" type="xs:int" external="true"/>
       <dfdl:defineVariable name="v_with_default" type="xs:int" external="true" defaultValue="42"/>
     }

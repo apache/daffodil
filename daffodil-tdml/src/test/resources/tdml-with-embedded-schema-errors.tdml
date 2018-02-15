@@ -23,7 +23,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   <!-- This embedded schema has validation errors. -->
   <tdml:defineSchema name="mySchema">
-    <xs:format ref="tns:daffodilTest1" />
+    <xs:format ref="tns:GeneralFormat" />
     <xs:element name="data" type="fn:string" dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
   <tdml:parserTestCase name="test1" root="data"

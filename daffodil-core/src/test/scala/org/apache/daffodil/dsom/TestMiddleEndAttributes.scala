@@ -170,7 +170,7 @@ class TestMiddleEndAttributes {
   @Test def testNearestEnclosingSequenceElementRef() {
     val testSchema = SchemaUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
+      <dfdl:format ref="tns:GeneralFormat" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
 
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
@@ -204,7 +204,7 @@ class TestMiddleEndAttributes {
 
   @Test def testImmediatelyEnclosingModelGroup1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
 
       <xs:element name="doc">
         <xs:complexType>

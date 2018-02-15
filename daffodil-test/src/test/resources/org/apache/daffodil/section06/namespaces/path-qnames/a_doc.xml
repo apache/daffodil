@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <a:rootA xmlns:a="ns_a" xmlns:b="ns_b" xmlns:d="ns_d"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="ns_a ./A.xsd ns_b ./B.xsd ns_d ./D.xsd">
+	xsi:schemaLocation="ns_a ./A.dfdl.xsd ns_b ./B.dfdl.xsd ns_d ./D.dfdl.xsd">
 	<b:sally>
 		<bqjane xmlns="ns_b">6</bqjane>
 	</b:sally>

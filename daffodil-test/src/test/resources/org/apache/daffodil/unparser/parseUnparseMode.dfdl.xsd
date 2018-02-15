@@ -26,11 +26,11 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   elementFormDefault="qualified">
           
-   <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
    
    <xs:annotation>
      <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:format ref="tns:daffodilTest1" truncateSpecifiedLengthString="yes"/>
+        <dfdl:format ref="tns:GeneralFormat" truncateSpecifiedLengthString="yes"/>
         <dfdl:defineVariable name="mode" type="xs:string" />
       </xs:appinfo>
    </xs:annotation>

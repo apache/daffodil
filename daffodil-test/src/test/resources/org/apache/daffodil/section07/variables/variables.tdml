@@ -29,7 +29,7 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int"
       defaultValue="6" />
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
       <xs:complexType>
         <xs:sequence>
@@ -517,7 +517,7 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int" />
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
       <xs:complexType>
@@ -637,7 +637,7 @@
   
   <tdml:defineSchema name="absolutePath" elementFormDefault="qualified">
     
-  <dfdl:format ref="ex:daffodilTest1"/>
+  <dfdl:format ref="ex:GeneralFormat"/>
     
     <xs:element name="elem">
       <xs:complexType>
@@ -857,7 +857,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceInSequenceWithSeparators">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -872,7 +872,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="separatorAsVar">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineVariable name="v3_with_default" type="xs:string"
       defaultValue="ASDF" />
@@ -913,7 +913,7 @@
       defaultValue="" />
     <dfdl:defineVariable name="v_empty_default2" type="xs:string" >{ "" }</dfdl:defineVariable>
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
       <xs:complexType>
@@ -979,7 +979,7 @@
     <dfdl:defineVariable name="v_empty_default_invalid" type="xs:string"
       defaultValue="">{ "" }</dfdl:defineVariable>
 
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r2" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default_invalid }" dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
@@ -1002,7 +1002,7 @@
 
   <tdml:defineSchema name="variable_path">
     
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="var" defaultValue="e1" />
     <dfdl:defineVariable name="var2" defaultValue="r" />

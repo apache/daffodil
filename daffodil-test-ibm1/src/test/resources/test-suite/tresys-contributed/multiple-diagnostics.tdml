@@ -24,7 +24,7 @@
   xmlns="http://example.com" xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData xsd/tdml.xsd">
 
   <tdml:defineSchema name="twoMissingTypeDefs">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="err1" type="type_doesnt_exist" />
     <xs:element name="err2" type="another_type_doesnt_exist" />

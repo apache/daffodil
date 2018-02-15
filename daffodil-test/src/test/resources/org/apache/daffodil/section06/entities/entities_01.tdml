@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="sch1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=", %ES;">
@@ -52,7 +52,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch2" elementFormDefault="unqualified">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -80,7 +80,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch3">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="root" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -109,7 +109,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch4">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
@@ -140,7 +140,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch5">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="binary" occursCountKind="parsed"
@@ -216,7 +216,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sch6">
-    <dfdl:format ref="ex:daffodilTest1" initiator=""
+    <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="binary" occursCountKind="parsed"

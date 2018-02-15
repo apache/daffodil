@@ -24,7 +24,7 @@
   xmlns="http://example.com">
 
   <tdml:defineSchema name="basic">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="root">
       <xs:complexType>
@@ -72,7 +72,7 @@
 
 
   <tdml:defineSchema name="choice2">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
   
     <xs:group name="simpleGroup">
       <xs:sequence dfdl:separator=".">
@@ -273,7 +273,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceSch3">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="ch1" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -309,7 +309,7 @@
 
 
   <tdml:defineSchema name="choiceDelim">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="ctype">
       <xs:choice>
@@ -467,7 +467,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nestedChoice1">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="intFloatOrString">
       <xs:choice>
@@ -625,7 +625,7 @@
 
 
   <tdml:defineSchema name="nestedChoice2">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:complexType name="String">
       <xs:choice>
@@ -700,7 +700,7 @@
 
 
   <tdml:defineSchema name="choiceInSequenceWithSeparators">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -752,7 +752,7 @@
 
 
   <tdml:defineSchema name="sequenceInChoiceInSequenceWithSeparators">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="ch1">
       <xs:complexType>
         <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix">
@@ -807,7 +807,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="sequenceInChoiceInSequenceWithSameSeparators">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="ch1">
       <xs:complexType>
         <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix">
@@ -863,7 +863,7 @@
 
 
   <tdml:defineSchema name="choiceWithInitsAndTerms">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -1026,7 +1026,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithSequence">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -1090,7 +1090,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithChoice">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -1178,7 +1178,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceWithArray">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -1319,7 +1319,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="optionalChoices">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
       <xs:complexType name="redSeq">
         <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
@@ -1498,7 +1498,7 @@ it sure is/
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidChoices">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="ch1">
       <xs:complexType>
@@ -1534,7 +1534,7 @@ it sure is/
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="direct_dispatch_1">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="dd1">
       <xs:complexType>

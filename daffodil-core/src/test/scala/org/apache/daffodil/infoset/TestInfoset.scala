@@ -62,7 +62,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -93,7 +93,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset2() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -132,7 +132,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset2a() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -171,7 +171,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset3() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -217,7 +217,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfosetNil1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence>
@@ -253,7 +253,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset4() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -296,7 +296,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset5() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
@@ -347,7 +347,7 @@ class TestInfoset1 {
 
   @Test def testXMLToInfoset6() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>

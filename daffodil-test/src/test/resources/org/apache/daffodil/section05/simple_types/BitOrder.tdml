@@ -25,7 +25,7 @@
 
 
   <tdml:defineSchema name="s">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
       byteOrder='littleEndian' alignmentUnits='bits' alignment='1'
       encoding="X-DFDL-US-ASCII-7-BIT-PACKED"/>
@@ -147,7 +147,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s2">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
       byteOrder="littleEndian"/>
@@ -266,7 +266,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s3">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
@@ -349,7 +349,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s4">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bytes"
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
       <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian"
@@ -396,7 +396,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s5">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bytes"
       lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
 
       <xs:element name="bigLeast" type="xs:hexBinary" dfdl:byteOrder="bigEndian"
@@ -456,7 +456,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s6">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
@@ -565,7 +565,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s7">
-    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
       alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
       byteOrder="littleEndian"/>

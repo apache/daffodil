@@ -95,7 +95,7 @@ class TestVariables {
   val variables2 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
-        <dfdl:format ref="tns:daffodilTest1"/>
+        <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="pi" type="xs:double" defaultValue={ Pi.toString }/>
         <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
       </tdml:defineSchema>
@@ -118,7 +118,7 @@ class TestVariables {
   val variables3 =
     <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
-        <dfdl:format ref="tns:daffodilTest1"/>
+        <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="x" type="xs:double"/>
         <xs:element name="data">
           <xs:complexType>

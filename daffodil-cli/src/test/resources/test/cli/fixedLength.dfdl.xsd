@@ -24,11 +24,11 @@
        xmlns:tns="http://www.example.org/example1/"
        targetNamespace="http://www.example.org/example1/">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/built-in-formats.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:format ref="tns:GeneralFormat"/>
     </xs:appinfo>
   </xs:annotation>
 
