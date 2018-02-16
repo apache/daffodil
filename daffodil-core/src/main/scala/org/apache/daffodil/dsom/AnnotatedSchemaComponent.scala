@@ -278,10 +278,7 @@ trait AnnotatedMixin
     ann
   }
 
-  /**
-   * dais = Dfdl App Info nodeSeq
-   */
-  private lazy val dais = {
+  lazy val dfdlAppInfos = {
     val ais = (annotationNode \ "appinfo")
     val dais = ais.filter { ai =>
       {
@@ -324,8 +321,7 @@ trait AnnotatedMixin
    * that are subtypes of DFDLAnnotation.
    */
   final lazy val annotationObjs = {
-    // println(dais)
-    val objs = dais.flatMap { dai =>
+    val objs = dfdlAppInfos.flatMap { dai =>
       {
         val children = dai.child
         val res = children.filter { _.isInstanceOf[scala.xml.Elem] }.flatMap { child =>
