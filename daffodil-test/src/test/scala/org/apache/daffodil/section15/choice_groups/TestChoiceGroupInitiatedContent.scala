@@ -55,4 +55,6 @@ class TestChoiceGroupInitiatedContent {
   @Test def test_Lesson5_choice_province() { runner_01.runOneTest("Lesson5_choice_province") }
 
   @Test def test_unparse_initiatedContentChoice1() { runner_01.runOneTest("unparse_initiatedContentChoice1") }
+  @Test def test_initiatedContentNestedChoices1() { runner_01.runOneTest("initiatedContentNestedChoices1") }
+  @Test def test_initiatedContentNestedChoices2() { runner_01.runOneTest("initiatedContentNestedChoices2") }
 }

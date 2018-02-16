@@ -231,7 +231,7 @@ trait Term
         None
       }
       case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
-      case gdd: GlobalGroupDef => gdd.groupRef.asModelGroup.immediatelyEnclosingModelGroup
+      case gdd: GlobalGroupDef => Some(gdd.groupRef.asModelGroup)
       case ged: GlobalElementDecl => ged.elementRef.immediatelyEnclosingModelGroup
       case ct: ComplexTypeBase => {
         None
