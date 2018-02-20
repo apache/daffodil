@@ -373,7 +373,7 @@ trait SchemaAwareLoaderMixin {
 
   protected def doValidation: Boolean
 
-  lazy val resolver = DFDLCatalogResolver.get
+  def resolver = DFDLCatalogResolver.get
 
   override lazy val parser: SAXParser = {
 
@@ -501,7 +501,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  val xercesAdapter = new DFDLXercesAdapter(errorHandler)
+  def xercesAdapter = new DFDLXercesAdapter(errorHandler)
 
   //
   // Controls whether we setup Xerces for validation or not.
