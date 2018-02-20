@@ -16,21 +16,24 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:ex="http://example.com">
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:otherAnnotationLanguage" 
+  xmlns:tns="urn:otherAnnotationLanguage"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
-  <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format  />
-    </xs:appinfo>
-  </xs:annotation>
+  <element name="otherAnnotation">
+    <complexType>
+       <attribute ref="tns:otherAnnotationAttribute"/>
+    </complexType>
+  </element>
 
-    <xs:element name="e1" type="xs:int">
-        <xs:annotation> 
-          <xs:appinfo source="http://www.ogf.org/dfdl/" >
-           <dfdl:element representation="hieroglyphs" lengthKind="implicit" />
-          </xs:appinfo>
-        </xs:annotation>
-    </xs:element>
-    
-</xs:schema>
+  <!-- 
+  Some other annotation elements that are not DFDL annotations may also
+  have attributes. These attributes should be legal in DFDL, as they're not describing data, they're
+  just describing annotations on the schema that a DFDL processor should be ignoring.
+   -->
+  <attribute name="otherAnnotationAttribute" type="string"/>
+
+</schema>

@@ -62,6 +62,7 @@ object WarnID extends PropsEnum[WarnID] {
   case object EscapeSchemeRefUndefined extends WarnID; forceConstruction(EscapeSchemeRefUndefined)
   case object FacetExplicitLengthOutOfRange extends WarnID; forceConstruction(FacetExplicitLengthOutOfRange)
   case object InconsistentLengthKind extends WarnID; forceConstruction(InconsistentLengthKind)
+  case object IgnoreImport extends WarnID; forceConstruction(IgnoreImport)
   case object MultipleChoiceBranches extends WarnID; forceConstruction(MultipleChoiceBranches)
   case object NamespaceDifferencesOnly extends WarnID; forceConstruction(NamespaceDifferencesOnly)
   case object NoEmptyDefault extends WarnID; forceConstruction(NoEmptyDefault)

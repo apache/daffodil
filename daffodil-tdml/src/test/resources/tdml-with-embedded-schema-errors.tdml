@@ -32,8 +32,7 @@
       <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>xs:format</tdml:error>
-      <tdml:error>invalid dfdl annotation</tdml:error>
+      <tdml:error>'import' tag should be added to</tdml:error>
       <tdml:error>fn:string</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

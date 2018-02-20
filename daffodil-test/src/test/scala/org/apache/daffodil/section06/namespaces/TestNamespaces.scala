@@ -27,6 +27,8 @@ object TestNamespaces {
   val testDir = "/org/apache/daffodil/section06/namespaces/"
 
   val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runnerV = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+
   val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner3 = Runner(testDir, "includeImport.tdml")
   val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
@@ -61,7 +63,7 @@ class TestNamespaces {
       // Must turn off the Info logging messages, because those will have the filename in them
       // which would create a false positive in this test.
       LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("combinations_02")
+      runnerV.runOneTest("combinations_02")
     } finally {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
@@ -92,9 +94,9 @@ class TestNamespaces {
   // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name.
   // @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
-  @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }
+  @Test def test_namespaceSpecialChars2() { runnerV.runOneTest("namespaceSpecialChars2") }
   @Test def test_namespaceRules1() { runner.runOneTest("namespaceRules1") }
-  @Test def test_namespaceRules2() { runner.runOneTest("namespaceRules2") }
+  @Test def test_namespaceRules2() { runnerV.runOneTest("namespaceRules2") }
 
   @Test def testSimpleIncludeOfFormat() { runner2.runOneTest("simpleInclude") }
   @Test def testSimpleImportOfFormat() { runner2.runOneTest("simpleImport") }
@@ -162,10 +164,10 @@ class TestNamespaces {
   @Test def test_element_conflict_01() { runner.runOneTest("element_conflict_01") }
   @Test def test_element_conflict_02() { runner.runOneTest("element_conflict_02") }
 
-  @Test def test_no_namespace_temp() { runner.runOneTest("no_namespace_temp") }
+  @Test def test_no_namespace_temp() { runnerV.runOneTest("no_namespace_temp") }
 
   @Test def test_lion_eater_ambiguity_01() { runner.runOneTest("lion_eater_ambiguity_01") }
-  @Test def test_lion_eater_ambiguity_01b() { runner.runOneTest("lion_eater_ambiguity_01b") }
+  @Test def test_lion_eater_ambiguity_01b() { runnerV.runOneTest("lion_eater_ambiguity_01b") }
   @Test def test_lion_eater_ambiguity_02() { runner.runOneTest("lion_eater_ambiguity_02") }
   @Test def test_lion_eater_ambiguity_03() { runner.runOneTest("lion_eater_ambiguity_03") }
   @Test def test_lion_eater_ambiguity_04() { runner.runOneTest("lion_eater_ambiguity_04") }
@@ -183,7 +185,7 @@ class TestNamespaces {
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
-  @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
+  @Test def test_error_messages_01() { runnerV.runOneTest("error_messages_01") }
 
   @Test def test_ibm_format_compat_01() { runner.runOneTest("ibm_format_compat_01") }
   @Test def test_ibm_format_compat_02() { runner.runOneTest("ibm_format_compat_02") }
@@ -191,7 +193,7 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
   @Test def test_nonsense_namespace_02() { runner.runOneTest("nonsense_namespace_02") }
   @Test def test_nonsense_namespace_03() { runner.runOneTest("nonsense_namespace_03") }
-  @Test def test_nonsense_namespace_04() { runner.runOneTest("nonsense_namespace_04") }
+  @Test def test_nonsense_namespace_04() { runnerV.runOneTest("nonsense_namespace_04") }
 
   @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
 

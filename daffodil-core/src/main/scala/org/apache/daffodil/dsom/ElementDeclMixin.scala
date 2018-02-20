@@ -99,8 +99,8 @@ trait ElementDeclMixin
             // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
             // or other complex constraints like conflicting names.
             // So we check it here explicitly.
-            case (None, None) => schemaDefinitionError("No type definition found for '%s'.", namedTypeQName)
-            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for '%s'", namedTypeQName)
+            case (None, None) => schemaDefinitionError("No type definition found for '%s'.", qn.toPrettyString)
+            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for '%s'", qn.toPrettyString)
           }
           res
         }

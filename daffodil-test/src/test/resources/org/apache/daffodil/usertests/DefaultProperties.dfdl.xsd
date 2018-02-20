@@ -16,7 +16,7 @@
   limitations under the License.
 -->
 
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/"
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
     xmlns:fn="http://www.w3.org/2005/xpath-functions"
 >
 
@@ -54,7 +54,7 @@
 					textNumberPadCharacter="%SP;" textNumberRep="standard"
 					textNumberRounding="pattern" textNumberRoundingMode="roundUp" textPadKind="none"
 					textStandardBase="10" textStandardDecimalSeparator="."
-					textStandardExponentCharacter="E" textStandardGroupingSeparator=","
+					textStandardExponentRep="E" textStandardGroupingSeparator=","
 					textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textStandardZeroRep=""
 					textStringJustification="left" textStringPadCharacter="%SP;" textTrimKind="none"
 					textZonedSignStyle="asciiStandard" trailingSkip="0"

@@ -18,21 +18,19 @@
 package org.apache.daffodil.section02.processing_errors
 
 import org.junit.Test
-import org.apache.daffodil.util._
-import org.apache.daffodil.tdml.DFDLTestSuite
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestProcessingErrors {
   val testDir = "/org/apache/daffodil/section02/processing_errors/"
-  val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
+
+  val runner = Runner(testDir, "dfdl-schema-validation-diagnostics.tdml", validateTDMLFile = false)
 
   val runner02 = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner02Validate = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
 
   @AfterClass def shutDown {
-    runner = null
+    runner.reset
     runner02.reset
     runner02Validate.reset
   }
@@ -43,7 +41,6 @@ class TestProcessingErrors {
 
   import TestProcessingErrors._
 
-  runner.setCheckAllTopLevel(true) // check every top level construct. Not just the one under specific test.
   @Test def test_twoDFDLSchemaValidationErrors() { runner.runOneTest("twoDFDLSchemaValidationErrors") }
   @Test def test_twoDFDLSchemaValidationErrors2() { runner.runOneTest("twoDFDLSchemaValidationErrors2") }
   @Test def test_fiveDFDLSchemaValidationErrors() { runner.runOneTest("fiveDFDLSchemaValidationErrors") }

@@ -110,7 +110,7 @@ class TestDsomCompiler extends Logging {
 
   // FIXME - convert this test to TDML or drop if there is coverage other places.
   @Test def testTypeReferentialError2() {
-    val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com">
+    val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
                       <complexType name="bar">
                         <sequence/>

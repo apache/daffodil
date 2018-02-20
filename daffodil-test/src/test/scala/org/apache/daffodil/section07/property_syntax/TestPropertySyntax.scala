@@ -27,6 +27,7 @@ object TestPropertySyntax {
 
   val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
   val runner1 = Runner(testDir1, "PropertySyntax.tdml", false, false)
+  val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown {
     runner.reset
@@ -50,7 +51,7 @@ class TestPropertySyntax {
   @Test def test_Lesson3_attribute_form() { runner1.runOneTest("Lesson3_attribute_form") }
   @Test def test_Lesson3_element_form() { runner1.runOneTest("Lesson3_element_form") }
   @Test def test_Lesson3_short_form() { runner1.runOneTest("Lesson3_short_form") }
-  @Test def test_encodingEmptyFail() { runner1.runOneTest("encodingEmptyFail") }
+  @Test def test_encodingEmptyFail() { runner1V.runOneTest("encodingEmptyFail") }
 
   @Test def test_dafProperty1() { runner1.runOneTest("dafProperty1") }
   @Test def test_dafProperty2() { runner1.runOneTest("dafProperty2") }

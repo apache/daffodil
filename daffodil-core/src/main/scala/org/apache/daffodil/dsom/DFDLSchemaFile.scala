@@ -28,6 +28,7 @@ import org.apache.daffodil.oolag.OOLAG
 import org.xml.sax.SAXException
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Misc
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * represents one schema document file
@@ -101,18 +102,11 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     validationDiagnostics_ :+= sde
   }
 
-  def fatalError(exception: SAXParseException) = {
-    val sde = new SchemaDefinitionError(this.schemaFileLocation, "Fatal error loading schema due to %s", exception)
-    validationDiagnostics_ :+= sde
-    // parser throws out of fatalErrors.
-  }
-
-  private lazy val loader = {
-    val ldr = new DaffodilXMLLoader(this)
-    // val shouldValidate = sset.validateDFDLSchemas
-    // ldr.setValidation(shouldValidate) // TODO: Validation not occurring JIRA DFDL-1473. Fix later.
-    ldr
-  }
+  /**
+   * Called on a fatal exception. The parser/validator throws the exception after
+   * this call returns.
+   */
+  def fatalError(exception: SAXParseException) = error(exception) // same as non-fatal exception.
 
   private def loadedNode = LV('loadedNode) {
     def die(e: Throwable) = {
@@ -120,7 +114,14 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     }
     val node = try {
       log(LogLevel.Resolver, "Loading %s.", diagnosticDebugName)
-      val node = loader.load(schemaSource)
+      val ldr = new DaffodilXMLLoader(this)
+      //
+      // We do not want to validate here ever, because we have to examine the
+      // root xs:schema eleemnt of a schema to decide if it is a  DFDL schema
+      // at all that we're even supposed to compile.
+      //
+      ldr.setValidation(false)
+      val node = ldr.load(schemaSource)
       schemaDefinitionUnless(node != null, "No XML Node could be loaded from %s.", schemaSource)
       node
     } catch {
@@ -132,8 +133,29 @@ final class DFDLSchemaFile(val sset: SchemaSet,
 
   lazy val node = loadedNode
 
-  def iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
+  lazy val isDFDLSchemaFile = iiXMLSchemaDocument.isDFDLSchema
+
+  lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
     val res = loadXMLSchemaDocument(seenBefore, Some(this))
+    if (res.isDFDLSchema && sset.validateDFDLSchemas) {
+      //
+      // We validate DFDL schemas, only if validation is requested.
+      // Some things, tests generally, want to turn this validation off.
+      //
+
+      val ldr = new DaffodilXMLLoader(this)
+      ldr.setValidation(true)
+      try {
+        ldr.load(schemaSource) // validate as XML file with XML Schema for DFDL Schemas
+        ldr.validateSchema(schemaSource) // validate as XSD (catches UPA errors for example)
+      } catch {
+        case _: org.xml.sax.SAXParseException =>
+          // ok to absorb this. We have captured fatal exceptions in the
+          // error handler. 
+        case e: Exception =>
+          Assert.invariantFailed("Unexpected exception type " + e)
+      }
+    }
     res
   }.value
 
@@ -142,11 +164,9 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     res
   }.value
 
-  private def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
+  private def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]): XMLSchemaDocument = {
     val sd = node match {
       case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
-        // top level is a schema.
-
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd
       }

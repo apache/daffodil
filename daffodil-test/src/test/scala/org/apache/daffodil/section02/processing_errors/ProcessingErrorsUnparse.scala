@@ -25,7 +25,8 @@ object TestProcessingErrorsUnparse {
   val testDir = "/org/apache/daffodil/section02/processing_errors/"
 
   val runner02 = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
-  val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true,
+    compileAllTopLevel = true)
 
   @AfterClass def shutDown {
     runner02.reset

@@ -16,13 +16,15 @@
   limitations under the License.
 -->
 
-<имен:schema xmlns:имен="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:·b="http://example.com" targetNamespace="http://example.com">
+<имен:schema xmlns:имен="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns::b="http://example.com" targetNamespace="http://example.com">
+      
       
   <имен:annotation>
     <имен:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" alignment="1" alignmentUnits="bits" lengthUnits="bytes"
+      <dfdl:format separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
+        ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"
+        textPadKind="none"/>
     </имен:appinfo>
   </имен:annotation>
   
@@ -30,6 +32,6 @@
       <имен:restriction base="имен:int"/>
     </имен:simpleType>
 
-    <имен:element name="one" type="·b:simTyp"/>
+    <имен:element name="one" type=":b:simTyp"/>
   
 </имен:schema>

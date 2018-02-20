@@ -26,8 +26,12 @@ object TestFacets {
 
   val testDir = "/org/apache/daffodil/section05/facets/"
   val runner = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runnerV = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = true)
 
-  @AfterClass def tearDown() { runner.reset }
+  @AfterClass def tearDown() {
+    runner.reset
+    runnerV.reset
+  }
 
 }
 
@@ -46,8 +50,8 @@ class TestFacets {
   @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
 
   @Test def test_maxLength07() { runner.runOneTest("maxLength07") }
-  @Test def test_maxLength08() { runner.runOneTest("maxLength08") }
-  @Test def test_maxLength09() { runner.runOneTest("maxLength09") }
+  @Test def test_maxLength08() { runnerV.runOneTest("maxLength08") }
+  @Test def test_maxLength09() { runnerV.runOneTest("maxLength09") }
   @Test def test_maxLength10() { runner.runOneTest("maxLength10") }
   @Test def test_maxLength11() { runner.runOneTest("maxLength11") }
 
@@ -95,16 +99,16 @@ class TestFacets {
   @Test def test_maxLength05() { runner.runOneTest("maxLength05") }
   @Test def test_maxLength06() { runner.runOneTest("maxLength06") }
 
-  @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
-  @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
-  @Test def test_totalDigits05() { runner.runOneTest("totalDigits05") }
-  @Test def test_totalDigits06() { runner.runOneTest("totalDigits06") }
-  @Test def test_totalDigits07() { runner.runOneTest("totalDigits07") }
-  @Test def test_totalDigits08() { runner.runOneTest("totalDigits08") }
+  @Test def test_totalDigits03() { runnerV.runOneTest("totalDigits03") }
+  @Test def test_totalDigits04() { runnerV.runOneTest("totalDigits04") }
+  @Test def test_totalDigits05() { runnerV.runOneTest("totalDigits05") }
+  @Test def test_totalDigits06() { runnerV.runOneTest("totalDigits06") }
+  @Test def test_totalDigits07() { runnerV.runOneTest("totalDigits07") }
+  @Test def test_totalDigits08() { runnerV.runOneTest("totalDigits08") }
 
-  @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
+  @Test def test_fractionDigitsFailNeg() { runnerV.runOneTest("fractionDigitsFailNeg") }
   @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
-  @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
+  @Test def test_fractionDigitsFailNotInt() { runnerV.runOneTest("fractionDigitsFailNotInt") }
 
   @Test def test_arraysMinOccursZero() { runner.runOneTest("arraysMinOccursZero") }
   @Test def test_arraysOccursInRange_01() { runner.runOneTest("arraysOccursInRange_01") }
@@ -209,7 +213,7 @@ class TestFacets {
   @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
-  @Test def test_totalDigits09() { runner.runOneTest("totalDigits09") }
+  @Test def test_totalDigits09() { runnerV.runOneTest("totalDigits09") }
 
   @Test def test_patternRegexDFDL708_01() { runner.runOneTest("patternRegexDFDL708_01") }
   @Test def test_patternRegexDFDL708_02() { runner.runOneTest("patternRegexDFDL708_02") }

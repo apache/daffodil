@@ -31,7 +31,8 @@ object TestDFDLExpressions {
 
   val testDir4 = "/org/apache/daffodil/section23/runtime_properties/"
 
-  val runner = Runner(testDir, "expressions.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner = Runner(testDir, "expressions.tdml")
+  val runnerNV = Runner(testDir, "expressions.tdml", validateDFDLSchemas = false)
   val runner2 = Runner(testDir2, "Functions.tdml")
   val runner2_utf8 = Runner(testDir2, "Functions_UTF8.tdml")
   val runner2b = Runner(testDir2, "Functions-neg.tdml")
@@ -45,6 +46,7 @@ object TestDFDLExpressions {
   @AfterClass def shutDown() {
     runner4.reset
     runner.reset
+    runnerNV.reset
     runner_fun.reset
     runner2.reset
     runner2_utf8.reset
@@ -94,7 +96,7 @@ class TestDFDLExpressions {
   @Test def test_arrayIndexOutOfBounds_01() { runner.runOneTest("arrayIndexOutOfBounds_01") }
   @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
   @Test def test_arrayIndexOutOfBounds_03() { runner.runOneTest("arrayIndexOutOfBounds_03") }
-  
+
   // TODO: TBD DFDL-TICKET, should statically tell this is an invalid index (-1)
   //@Test def test_arrayIndexOutOfBounds_04() { runner.runOneTest("arrayIndexOutOfBounds_04") }
   @Test def test_arrayIndexOutOfBounds_05() { runner.runOneTest("arrayIndexOutOfBounds_05") }
@@ -196,9 +198,9 @@ class TestDFDLExpressions {
   @Test def test_comparison_operators_82() { runner.runOneTest("comparison_operators_82") }
   @Test def test_comparison_operators_83() { runner.runOneTest("comparison_operators_83") }
 
-  @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
-  @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
-  @Test def test_regexLookaheadFail2() { runner.runOneTest("regexLookaheadFail2") }
+  @Test def test_regexLookahead() { runnerNV.runOneTest("regexLookahead") }
+  @Test def test_regexLookaheadFail() { runnerNV.runOneTest("regexLookaheadFail") }
+  @Test def test_regexLookaheadFail2() { runnerNV.runOneTest("regexLookaheadFail2") }
   //  @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
 
   @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
@@ -250,13 +252,13 @@ class TestDFDLExpressions {
   // DFDL-1043
   // @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
 
-  @Test def test_nonFunctionIsDetected() = { runner.runOneTest("nonFunctionIsDetected") }
-  @Test def test_constantFunction1() { runner.runOneTest("constantFunction1") }
-  @Test def test_dfdlPosition1() { runner.runOneTest("dfdlPosition1") }
-  @Test def test_dfdlPosition2() { runner.runOneTest("dfdlPosition2") }
-  @Test def test_dfdlPosition3() { runner.runOneTest("dfdlPosition3") }
-  @Test def test_dfdlPosition4() { runner.runOneTest("dfdlPosition4") }
-  @Test def test_dfdlPosition5() { runner.runOneTest("dfdlPosition5") }
+  @Test def test_nonFunctionIsDetected() = { runnerNV.runOneTest("nonFunctionIsDetected") }
+  @Test def test_constantFunction1() { runnerNV.runOneTest("constantFunction1") }
+  @Test def test_dfdlPosition1() { runnerNV.runOneTest("dfdlPosition1") }
+  @Test def test_dfdlPosition2() { runnerNV.runOneTest("dfdlPosition2") }
+  @Test def test_dfdlPosition3() { runnerNV.runOneTest("dfdlPosition3") }
+  @Test def test_dfdlPosition4() { runnerNV.runOneTest("dfdlPosition4") }
+  @Test def test_dfdlPosition5() { runnerNV.runOneTest("dfdlPosition5") }
 
   @Test def test_repeatFlags1() { runner.runOneTest("repeatFlags1") }
   @Test def test_repeatFlags2() { runner.runOneTest("repeatFlags2") }

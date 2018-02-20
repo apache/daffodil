@@ -17,7 +17,12 @@
 -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-targetNamespace="http://example.com">
+  targetNamespace="http://example.com"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <!-- 
+      this schema doesn't need to use dfdl symbols, but to make Daffodil
+      even compile it we have to mention the DFDL namespace URI above.
+     -->
 	<element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
 	<complexType name="bar">
 		<sequence/>

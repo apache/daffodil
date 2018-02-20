@@ -24,6 +24,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import org.apache.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.xml.XMLUtils
 
 /**
  * A schema document corresponds to one file usually named with an ".xsd" extension.
@@ -125,6 +126,45 @@ final class XMLSchemaDocument(xmlArg: Node,
     res
   }.value
 
+  /**
+   *  True if root xs:schema element has an xmlns that uses the DFDL URI.
+   *
+   *  This could be a prefix definition (Most likely xmlns:dfdl='...' but could
+   *  be some other prefix.)
+   *
+   *  Or very very unlikely, it could be the default namespace.
+   */
+  private def hasDFDLNamespaceDefinition: Boolean = {
+    val scope = xml.scope
+    val pre = scope.getPrefix(XMLUtils.DFDL_NAMESPACE)
+    val hasSomePrefixForDFDLNamespace = pre ne null
+    lazy val hasDefaultNamespaceAsDFDLNamespace = {
+      val defaultNS = scope.getURI(null)
+      defaultNS == XMLUtils.DFDL_NAMESPACE.toString
+    }
+    val res = hasSomePrefixForDFDLNamespace || hasDefaultNamespaceAsDFDLNamespace
+    res
+  }
+
+  /**
+   * True if this is a DFDL schema that Daffodil should process.
+   * False if this schema should be ignored because it has no DFDL annotations.
+   *
+   * We will ignore this import/include if it does not use the DFDL namespace
+   * definition for a prefix (or the default) on the xs:schema element.
+   *
+   * We do this so that other annotation languages can co-exist with DFDL.
+   * That is, they can use all of XML Schema including things DFDL doesn't allow
+   * like attribute decls, but only when those schemas are only needed
+   * to process non-DFDL annotations. Since Daffodil ignores non-DFDL annotations
+   * entirely, Daffodil won't run into these non-DFDL allowed things like
+   * attribute decls. But validators like Xerces will see the regular
+   * import/include and process normally, which enables validation of
+   * all annotations, DFDL and otherwise.
+   *
+   * Further discussion - see the comments on JIRA ticket DAFFODIL-1909
+   */
+  lazy val isDFDLSchema = hasDFDLNamespaceDefinition
 }
 
 /**
