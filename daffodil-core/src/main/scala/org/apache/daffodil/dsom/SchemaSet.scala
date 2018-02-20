@@ -34,7 +34,6 @@ import java.io.File
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
 
@@ -78,7 +77,6 @@ final class SchemaSet(
     requiredEvaluations(checkForDuplicateTopLevels())
     requiredEvaluations(this.allTopLevels)
   }
-  requiredEvaluations(validateSchemaFiles)
   requiredEvaluations(variableMap)
 
   lazy val resolver = DFDLCatalogResolver.get
@@ -99,30 +97,6 @@ final class SchemaSet(
    * and as such, doesn't need to be a URL.  Can just be String.
    */
   override lazy val uriString: String = schemaSources(0).uriForLoading.toString
-
-  /**
-   * We need to use the loader here to validate the DFDL Schema.
-   */
-  private lazy val loader = new DaffodilXMLLoader(new ValidateSchemasErrorHandler(this))
-
-  /**
-   * Validates the DFDL Schema files present in the schemaFilesArg.
-   * Compiles a list of all errors and warnings before issuing them.
-   *
-   * Issues SchemaDefinitionWarnings for DFDLSchemaValidationWarnings.
-   * Issues SchemaDefinitionErrors for DFDLSchemaValidationErrors.
-   */
-  private def validateSchemaFiles = LV('validateSchemaFiles) {
-    // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
-    if (validateDFDLSchemas) {
-      schemaSources.foreach(f =>
-        try {
-          loader.validateSchema(f)
-        } catch {
-          case e: DFDLSchemaValidationException => SDE(Misc.getSomeMessage(e).get)
-        })
-    }
-  }.value
 
   lazy val checkAllTopLevel = checkAllTopLevelArg
 

@@ -22,6 +22,7 @@ import org.apache.daffodil.util._
 import IIUtils._
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util.Delay
+import org.apache.daffodil.api.WarnID
 
 /**
  * Mixin for SchemaSet
@@ -63,7 +64,15 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     val sfl = sa.value.flatMap {
       case (_, ii) => {
         val sf = ii.iiSchemaFileMaybe // maybe not if we've already seen this file for the same namespace.
-        sf
+        sf.filter { f =>
+          if (f.isDFDLSchemaFile)
+            true
+          else {
+            f.SDW(WarnID.IgnoreImport, "Non-DFDL Schema file ignored. Does not have DFDL namespace definition on schema root element.\n" +
+              "Add xmlns:dfdl='%s' to the root element if this file must be part of the DFDL schema.", XMLUtils.DFDL_NAMESPACE)
+            false
+          }
+        }
       }
     }.toList
     sfl

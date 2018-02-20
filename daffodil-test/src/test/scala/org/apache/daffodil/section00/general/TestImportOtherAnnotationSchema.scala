@@ -15,35 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.section05.dfdl_xsdl_subset
+package org.apache.daffodil.section00.general
 
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestDFDLSubset {
+object TestImportOtherAnnotationSchema {
+  val testDir = "/org/apache/daffodil/section00/general/"
+  val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml", validateDFDLSchemas = false)
 
-  val testDir = "/org/apache/daffodil/section05/dfdl_xsdl_subset/"
-  val runner = Runner(testDir, "DFDLSubset.tdml")
-  val runnerNV = Runner(testDir, "DFDLSubset.tdml", validateDFDLSchemas=false)
-
-  @AfterClass def tearDown() {
+  @AfterClass def shutDown {
     runner.reset
-    runnerNV.reset
   }
-
 }
 
-class TestDFDLSubset {
+class TestImportOtherAnnotationSchema {
 
-  import TestDFDLSubset._
+  import TestImportOtherAnnotationSchema._
 
-  @Test def test_groupRefGroupRef() { { runner.runOneTest("groupRefGroupRef") } }
-  @Test def test_refInitiator3() { { runner.runOneTest("refInitiator3") } }
-  @Test def test_groupRef() { { runnerNV.runOneTest("groupRef") } }
-  @Test def test_groupRefChoice() { runnerNV.runOneTest("groupRefChoice") }
-  @Test def test_badGroupRef() { { runner.runOneTest("badGroupRef") } }
-  @Test def test_badSeq() { { runner.runOneTest("badSeq") } }
+  //DFDL-1907
+  @Test def test_importOtherAnnotationSchema1() { runner.runOneTest("importOtherAnnotationSchema1") }
 
-  @Test def test_groupRefDFDL() { runner.runOneTest("groupRefDFDL") }
 }

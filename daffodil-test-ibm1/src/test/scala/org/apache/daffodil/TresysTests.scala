@@ -32,13 +32,10 @@ object TresysTests {
 
   val testDir = "/test-suite/tresys-contributed/"
 
-  val delimited = testDir + "dpaext1.tdml"
-  lazy val runnerDelimited = new DFDLTestSuite(Misc.getRequiredResource(delimited))
+  val runnerDelimited = Runner(testDir, "dpaext1.tdml")
 
-  val td = testDir + "multiple-diagnostics.tdml"
-  lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
-
-  runnerMD.setCheckAllTopLevel(true)
+  val runnerMD = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true)
+  val runnerMD_NV = Runner(testDir, "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
 
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
@@ -62,11 +59,7 @@ object TresysTests {
   //  val ab9 = testDir + "AB009.tdml"
   //  lazy val runnerAB9 = new DFDLTestSuite(Misc.getRequiredResource(ab9))
 
-  val rd = testDir + "runtime-diagnostics.tdml"
-  lazy val runnerRD = new DFDLTestSuite(Misc.getRequiredResource(rd),
-    validateTDMLFile = false)
-
-  runnerRD.setCheckAllTopLevel(true)
+  lazy val runnerRD = Runner(testDir, "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
 
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
@@ -109,13 +102,9 @@ class TresysTests {
 
   @Test def test_AV003() { runnerAV003.runOneTest("AV003") } // needs date
 
-  @Test def test_multiple_diagnostics1() {
-    runnerMD.runOneTest("twoMissingTypeDefErrors")
-  }
+  @Test def test_multiple_diagnostics1() { runnerMD.runOneTest("twoMissingTypeDefErrors") }
   @Test def test_multiple_diagnostics2() { runnerMD.runOneTest("manyErrors1") }
-  @Test def test_multiple_diagnostics3() { // LoggingDefaults.setLoggingLevel(LogLevel.Compile)
-    runnerMD.runOneTest("manyErrors2")
-  }
+  @Test def test_multiple_diagnostics3() { runnerMD_NV.runOneTest("manyErrors2") }
 
   // not found. Debug later.
   // @Test def test_duplicateDefineFormatsOneSchema() { runnerMD.runOneTest("duplicateDefineFormatsOneSchema") }

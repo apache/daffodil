@@ -518,7 +518,9 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
   def load(source: DaffodilSchemaSource): scala.xml.Node = {
     var xercesNode: Node = null
     if (doValidation) {
-      xercesNode = xercesAdapter.load(source.newInputSource()) // validates
+      xercesNode =
+        xercesAdapter.load(source.newInputSource()) // validates
+
       if (xercesNode == null) return null
       // Note: we don't call xercesAdapter.validateSchema(source)
       // here, because this is an XML loader, not necessarily

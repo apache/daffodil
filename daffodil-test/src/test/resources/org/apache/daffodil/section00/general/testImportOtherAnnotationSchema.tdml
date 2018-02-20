@@ -16,21 +16,25 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:ex="http://example.com">
+<tdml:testSuite suiteName="ImportOtherAnnotationSchema"
+  description="Tests for importing other annotation languages to determine if DFDL interacts with them." 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:oth="urn:otherAnnotationLanguage">
+  
 
-  <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format  />
-    </xs:appinfo>
-  </xs:annotation>
+  <tdml:parserTestCase name="importOtherAnnotationSchema1" root="r1" model="schemaWithOtherAnnotations.dfdl.xsd">
 
-    <xs:element name="e1" type="xs:int">
-        <xs:annotation> 
-          <xs:appinfo source="http://www.ogf.org/dfdl/" >
-           <dfdl:element representation="hieroglyphs" lengthKind="implicit" />
-          </xs:appinfo>
-        </xs:annotation>
-    </xs:element>
-    
-</xs:schema>
+  <tdml:document>foo</tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset>
+      <ex:r1>foo</ex:r1>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+
+</tdml:parserTestCase>
+
+</tdml:testSuite>
