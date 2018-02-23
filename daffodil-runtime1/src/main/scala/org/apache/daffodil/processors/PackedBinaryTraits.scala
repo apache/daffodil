@@ -54,7 +54,7 @@ abstract class PackedBinaryDecimalBaseParser(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      PENotEnoughBits(start, nBits, dis.remainingBits)
       return
     }
 
@@ -82,7 +82,7 @@ abstract class PackedBinaryIntegerBaseParser(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      PENotEnoughBits(start, nBits, dis.remainingBits)
       return
     }
 

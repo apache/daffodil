@@ -23,7 +23,7 @@ import org.apache.daffodil.Implicits._
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.util.MaybeULong
 
-class TestByteBufferDataInputStream2 {
+class TestInputSourceDataInputStream2 {
   val tenDigits = "1234567890"
   val ten = tenDigits.getBytes("utf-8")
   val twentyDigits = tenDigits * 2
@@ -31,29 +31,29 @@ class TestByteBufferDataInputStream2 {
   val finfo = FormatInfoForUnitTest()
 
   @Test def testMark1 {
-    val dis = ByteBufferDataInputStream(ten)
+    val dis = InputSourceDataInputStream(ten)
     val m1 = dis.mark("testMark1")
     var arr = dis.getByteArray(80, finfo)
     assertEquals(10, arr.size)
     assertEquals(0x31.toByte, arr(0))
     assertEquals(80, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
+    assertEquals(false, dis.bitLimit0b.isDefined)
     assertEquals(81, dis.bitPos1b)
-    assertEquals(81, dis.bitLimit1b.get)
+    assertEquals(false, dis.bitLimit1b.isDefined)
     assertEquals(10, dis.bytePos0b)
     dis.reset(m1)
     arr = dis.getByteArray(80, finfo)
     assertEquals(10, arr.size)
     assertEquals(0x30.toByte, arr(9))
     assertEquals(80, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
+    assertEquals(false, dis.bitLimit0b.isDefined)
     assertEquals(81, dis.bitPos1b)
-    assertEquals(81, dis.bitLimit1b.get)
+    assertEquals(false, dis.bitLimit1b.isDefined)
     assertEquals(10, dis.bytePos0b)
   }
 
   @Test def testMark2 {
-    val dis = ByteBufferDataInputStream(twenty)
+    val dis = InputSourceDataInputStream(twenty)
     var m1: DataInputStream.Mark = null
     dis.withBitLengthLimit(5 * 8) {
       val arr = dis.getByteArray(5 * 8, finfo)
@@ -75,7 +75,7 @@ class TestByteBufferDataInputStream2 {
     assertEquals(10, dis.bytePos0b)
     dis.reset(m1)
     assertFalse(dis.isDefinedForLength(1))
-    dis.asInstanceOf[ByteBufferDataInputStream].resetBitLimit0b(MaybeULong(10 * 8))
+    dis.asInstanceOf[InputSourceDataInputStream].resetBitLimit0b(MaybeULong(10 * 8))
     arr = dis.getByteArray(5 * 8, finfo)
     assertEquals(5, arr.size)
     assertEquals(0x30.toByte, arr(4))
@@ -87,7 +87,7 @@ class TestByteBufferDataInputStream2 {
   }
 
   @Test def testMark3 {
-    val dis = ByteBufferDataInputStream(twenty).asInstanceOf[ByteBufferDataInputStream]
+    val dis = InputSourceDataInputStream(twenty).asInstanceOf[InputSourceDataInputStream]
     dis.setBitLimit0b(MaybeULong(5 * 8))
     var arr = dis.getByteArray(5 * 8, finfo)
     assertEquals(5, arr.size)

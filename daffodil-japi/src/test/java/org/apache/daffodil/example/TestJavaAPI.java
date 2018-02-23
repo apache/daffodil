@@ -47,6 +47,7 @@ import org.apache.daffodil.japi.infoset.JDOMInfosetInputter;
 import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.japi.logger.ConsoleLogWriter;
 import org.apache.daffodil.japi.logger.LogLevel;
+import org.apache.daffodil.japi.io.InputSourceDataInputStream;
 
 public class TestJavaAPI {
 
@@ -75,9 +76,9 @@ public class TestJavaAPI {
         dp.setDebugging(true);
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -131,9 +132,9 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = parser.parse(rbc, outputter, 2 << 3);
+        ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -211,9 +212,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/myDataBroken.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
 
         // TODO: NEED a java friendly way to get the status of the outputter.
         // Scala enums don't work well
@@ -260,9 +261,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 16 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertFalse(res.location().isAtEnd());
@@ -301,9 +302,9 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = parser.parse(rbc, outputter, 16 << 3);
+        ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertFalse(res.location().isAtEnd());
@@ -329,9 +330,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/myData2.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 64 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertFalse(res.location().isAtEnd());
@@ -359,12 +360,12 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
                                                                    // bytes
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 4 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
-        assertTrue("Assertion failed: End of data not reached.", res.location().isAtEnd());
+        assertTrue(!res.location().isAtEnd());
         assertEquals(5, res.location().bytePos1b());
         assertEquals(33, res.location().bitPos1b());
 
@@ -434,9 +435,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -477,9 +478,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -516,9 +517,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -561,9 +562,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/myData4.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         org.jdom2.Document doc = outputter.getResult();
@@ -588,9 +589,9 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         org.jdom2.Document doc = outputter.getResult();
@@ -634,9 +635,9 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         assertTrue(res.location().isAtEnd());
@@ -675,9 +676,9 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         org.jdom2.Document doc = outputter.getResult();
@@ -716,9 +717,9 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
         org.jdom2.Document doc = outputter.getResult();
@@ -792,9 +793,9 @@ public class TestJavaAPI {
         dp.setValidationMode(ValidationMode.Limited);
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
         assertTrue(res.isValidationError());
@@ -818,9 +819,9 @@ public class TestJavaAPI {
         dp.setValidationMode(ValidationMode.Full);
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(fis);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(rbc, outputter, 2 << 3);
+        ParseResult res = dp.parse(dis, outputter);
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
         assertTrue(res.isValidationError());
@@ -843,6 +844,47 @@ public class TestJavaAPI {
         assertTrue(d2.getMessage().contains("maxInclusive"));
         assertTrue(d2.getMessage().contains("e2"));
         assertTrue(d2.getMessage().contains("20"));
+    }
+
+    @Test
+    public void testJavaAPI18() throws IOException {
+      // Demonstrate that we can use the API to continue a parse where we left off
+      org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+      c.setValidateDFDLSchemas(false);
+      java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
+      c.setDistinguishedRootNode("e4", null);
+      ProcessorFactory pf = c.compileFile(schemaFile);
+      DataProcessor dp = pf.onPath("/");
+      java.io.File file = getResource("/test/japi/myData2.dat");
+      java.io.FileInputStream fis = new java.io.FileInputStream(file);
+      InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
+
+      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+      ParseResult res = null;
+      boolean err = false;
+
+      res = dp.parse(input, outputter);
+      err = res.isError();
+      assertFalse(err);
+      assertFalse(res.location().isAtEnd());
+      assertEquals(5, res.location().bytePos1b());
+      assertEquals("data", outputter.getResult().getRootElement().getText());
+
+      outputter.reset();
+      res = dp.parse(input, outputter);
+      err = res.isError();
+      assertFalse(err);
+      assertFalse(res.location().isAtEnd());
+      assertEquals(9, res.location().bytePos1b());
+      assertEquals("left", outputter.getResult().getRootElement().getText());
+
+      outputter.reset();
+      res = dp.parse(input, outputter);
+      err = res.isError();
+      assertFalse(err);
+      assertTrue(res.location().isAtEnd());
+      assertEquals(13, res.location().bytePos1b());
+      assertEquals("over", outputter.getResult().getRootElement().getText());
     }
 
 }

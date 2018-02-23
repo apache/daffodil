@@ -94,6 +94,9 @@
         <xsd:element name="readerByteBufferSize" minOccurs="0" type="xsd:int" />
         <xsd:element name="maxLengthForVariableLengthDelimiterDisplay" minOccurs="0" type="xsd:int" />
         <xsd:element name="inputFileMemoryMapLowThreshold" minOccurs="0" type="xsd:int" />
+        <xsd:element name="maximumSimpleElementSizeInCharacters" minOccurs="0" type="xsd:int" />
+        <xsd:element name="initialRegexMatchLimitInCharacters" minOccurs="0" type="xsd:int" />
+        <xsd:element name="maximumRegexMatchLengthInCharacters" minOccurs="0" type="xsd:int" />
         <xsd:element name="parseUnparsePolicy" minOccurs="0">
           <xsd:simpleType>
             <xsd:restriction base="xsd:string">

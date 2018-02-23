@@ -20,14 +20,14 @@ package org.apache.daffodil.io
 import org.junit.Test
 import org.junit.Assert._
 
-class TestByteBufferDataInputStream3 {
+class TestInputSourceDataInputStream3 {
 
   val Dump = new DataDumper
 
   @Test def dumpVisible1 {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setDebugging(true)
     val fb = dis.futureData(48)
 
@@ -45,7 +45,7 @@ class TestByteBufferDataInputStream3 {
   @Test def dumpVisible2 {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setDebugging(true)
     val fb = dis.futureData(48)
 
@@ -64,7 +64,7 @@ class TestByteBufferDataInputStream3 {
   @Test def dumpVisible3 {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setDebugging(true)
     val fb = dis.futureData(bytes.length)
 

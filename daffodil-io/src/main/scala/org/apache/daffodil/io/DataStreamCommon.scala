@@ -20,7 +20,6 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.api.DataStreamLimits
 
 /**
  * This is an interface trait, and it defines methods shared by
@@ -30,21 +29,6 @@ import org.apache.daffodil.api.DataStreamLimits
  *
  */
 trait DataStreamCommon {
-
-  def limits: DataStreamLimits
-
-  /**
-   * Allow tuning of these thresholds and starting values. These could,
-   * in principle, be tuned differently for different elements, thereby
-   * keeping limits small when the schema component can be determined to
-   * only require small space, but enabling larger limits/starting values
-   * when a component has larger needs.
-   *
-   * These could be cached on, say,
-   * the ElementRuntimeData object for each element, or some other kind
-   * of dynamic cache.
-   */
-  def setLimits(newLimits: DataStreamLimits): Unit
 
   /**
    * Returns number of bits remaining (if a limit is defined). Nope if not defined.

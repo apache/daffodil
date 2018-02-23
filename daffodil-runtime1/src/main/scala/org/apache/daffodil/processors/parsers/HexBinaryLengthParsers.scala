@@ -34,7 +34,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
     if (nBits == 0) {
       currentElement.setDataValue(zeroLengthArray)
     } else if (!dis.isDefinedForLength(nBits)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      PENotEnoughBits(start, nBits, dis.remainingBits)
     } else {
       val array = start.dataInputStream.getByteArray(nBits, start)
       currentElement.setDataValue(array)

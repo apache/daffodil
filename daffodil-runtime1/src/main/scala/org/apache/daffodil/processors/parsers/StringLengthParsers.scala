@@ -82,7 +82,7 @@ trait StringOfSpecifiedLengthMixin
 
   protected final def parseString(start: PState): String = {
     val dis = start.dataInputStream
-    val maxLen = dis.limits.maximumSimpleElementSizeInCharacters
+    val maxLen = start.tunable.maximumSimpleElementSizeInCharacters
     val startBitPos0b = dis.bitPos0b
 
     val strOpt = dis.getSomeString(maxLen, start)

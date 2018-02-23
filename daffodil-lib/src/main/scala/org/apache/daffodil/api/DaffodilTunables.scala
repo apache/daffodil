@@ -140,10 +140,14 @@ case class DaffodilTunables(
   // understanding that it is not fully tested and behavior may not be well
   // defined. This boolean is experimental and should only be used by those
   // that fully understand the risks.
-  val errorOnUnsupportedJavaVersion: Boolean = true)
+  val errorOnUnsupportedJavaVersion: Boolean = true,
+
+  val maximumSimpleElementSizeInCharacters: Int = 1024 * 1024,
+  val initialRegexMatchLimitInCharacters: Int = 64,
+  val maximumRegexMatchLengthInCharacters: Int = 1024 * 1024)
+
   extends Serializable
-  with Logging
-  with DataStreamLimits {
+  with Logging {
 
   /* Appear to be Compile-Time as the tunable is obtained from:
    *  Term, SchemaComponent, Element, etc.
@@ -242,6 +246,9 @@ case class DaffodilTunables(
       }
       case "allowexternalpathexpressions" => this.copy(allowExternalPathExpressions = java.lang.Boolean.valueOf(value))
       case "erroronunsupportedjavaversion" => this.copy(errorOnUnsupportedJavaVersion = java.lang.Boolean.valueOf(value))
+      case "maximumsimpleelementsizeincharacters" => this.copy(maximumSimpleElementSizeInCharacters = java.lang.Integer.valueOf(value))
+      case "initialregexmatchlimitincharacters" => this.copy(initialRegexMatchLimitInCharacters = java.lang.Integer.valueOf(value))
+      case "maximumregexmatchlengthincharacters" => this.copy(maximumRegexMatchLengthInCharacters = java.lang.Integer.valueOf(value))
       case _ => {
         log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
         this
@@ -252,11 +259,5 @@ case class DaffodilTunables(
   def notSuppressedWarning(warnID: WarnID) =
     !suppressSchemaDefinitionWarnings.contains(warnID) &&
       !suppressSchemaDefinitionWarnings.contains(WarnID.All)
-
-  def maximumSimpleElementSizeInBytes: Long = this.maxFieldContentLengthInBytes
-  def maximumSimpleElementSizeInCharacters: Long = this.maxFieldContentLengthInBytes
-  def maximumForwardSpeculationLengthInBytes: Long = this.maxFieldContentLengthInBytes
-  def maximumRegexMatchLengthInCharacters: Long = this.maxFieldContentLengthInBytes
-  def defaultInitialRegexMatchLimitInChars: Long = this.defaultInitRegexMatchLimitInChars
 
 }

@@ -15,12 +15,19 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.japi.io
 
-trait DataStreamLimits {
-  def maximumSimpleElementSizeInBytes: Long
-  def maximumSimpleElementSizeInCharacters: Long
-  def maximumForwardSpeculationLengthInBytes: Long
-  def maximumRegexMatchLengthInCharacters: Long
-  def defaultInitialRegexMatchLimitInChars: Long
+import java.io.InputStream
+import java.nio.ByteBuffer
+
+import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataInputStream }
+
+/**
+ * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
+ * Array.
+ */
+class InputSourceDataInputStream private[japi] (private [japi] val dis: SInputSourceDataInputStream) {
+  def this(is: InputStream) = this(SInputSourceDataInputStream(is))
+  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb)) 
+  def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr)) 
 }

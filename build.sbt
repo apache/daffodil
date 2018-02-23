@@ -63,7 +63,7 @@ lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).conf
                               .settings(commonSettings)
 
 lazy val tdml             = Project("daffodil-tdml", file("daffodil-tdml")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
-                              .dependsOn(core, core % "test->test")
+                              .dependsOn(core, core % "test->test", io % "test->test")
                               .settings(commonSettings)
 
 lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)

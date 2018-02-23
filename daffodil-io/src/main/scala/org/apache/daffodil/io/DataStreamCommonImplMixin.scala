@@ -18,7 +18,6 @@
 package org.apache.daffodil.io
 import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.util.Logging
-import org.apache.daffodil.api.DataStreamLimits
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -42,7 +41,6 @@ trait DataStreamCommonState {
   }
 
   var debugging: Boolean = false
-  var limits_ : DataStreamLimits = BBSLimits
   //
   // These are for dealing with 4-byte UTF-8 codepoints
   // that require 2 16-bit charaters.
@@ -63,7 +61,6 @@ trait DataStreamCommonState {
 
   def assignFrom(other: DataStreamCommonState): Unit = {
     this.debugging = other.debugging
-    this.limits_ = other.limits_
     this.priorBitPos = other.priorBitPos
     this.maybePriorBitOrder_ = other.maybePriorBitOrder_
   }
@@ -76,12 +73,6 @@ trait DataStreamCommonState {
 trait DataStreamCommonImplMixin extends DataStreamCommon with Logging {
 
   protected def cst: DataStreamCommonState
-
-  final override def limits: DataStreamLimits = cst.limits_
-
-  final override def setLimits(newLimits: DataStreamLimits) {
-    cst.limits_ = newLimits
-  }
 
   /*
    * Debugger support

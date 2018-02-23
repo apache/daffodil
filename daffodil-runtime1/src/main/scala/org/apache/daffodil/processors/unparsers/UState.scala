@@ -18,8 +18,12 @@
 package org.apache.daffodil.processors.unparsers
 
 import java.io.ByteArrayOutputStream
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+
 import scala.Left
 import scala.collection.mutable
+
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
@@ -147,8 +151,9 @@ abstract class UState(
 
   def currentLocation: DataLocation = {
     val m = maybeCurrentInfosetElement
-    new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),
-      if (m.isDefined) Maybe(m.value.runtimeData) else Nope)
+    val mrd = if (m.isDefined) Maybe(m.value.runtimeData) else Nope
+    val isAtEnd = false // TODO: this isn't right, but what does it mean to be at the end? Nothing appears to use this value when unparsing
+    new DataLoc(bitPos1b, bitLimit1b, isAtEnd, Left(dataOutputStream), mrd)
   }
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
@@ -315,6 +320,9 @@ abstract class UState(
       dos.setFinished(this)
     }
   }
+
+  def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
+  def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
 }
 
 /**

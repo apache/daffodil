@@ -25,7 +25,6 @@ import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Math
 import org.apache.daffodil.dsom.Root
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharset
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -213,7 +212,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
               } else {
                 // this only occurs when lengthUnits="characters", but the
                 // charset does not have a fixed width. In that case, we know
-                // it's not a NBitsWidth charset, so the length must be a
+                // it's not a non-byte size charset, so the length must be a
                 // multiple of 8
                 LengthMultipleOf(8)
               }
@@ -252,7 +251,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         case mg: ModelGroup => mg.groupMembers.forall { _.isKnownToBeByteAlignedAndByteLength }
         case eb: ElementBase => {
           val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map {
-            !_.isInstanceOf[NBitsWidth_BitsCharset]
+            _.bitWidthOfACodeUnit == 8
           }.getOrElse(false)
           val isSelfByteLength =
             if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {

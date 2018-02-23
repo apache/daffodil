@@ -26,7 +26,7 @@
       <dfdl:format ref="ex:GeneralFormat" initiator="" terminator="" separator=""
         alignment="implicit" alignmentUnits="bits" trailingSkip="0"
         lengthKind="delimited" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"
-        leadingSkip="0" textTrimKind="none" representation="text" occursCountKind="parsed"
+        leadingSkip="0" textTrimKind="none" representation="text" occursCountKind="implicit"
         textNumberRep="standard" ignoreCase="no" initiatedContent="no" separatorPosition="infix" 
         separatorSuppressionPolicy="anyEmpty" />
     </xs:appinfo>
@@ -34,8 +34,8 @@
 
   <xs:element name="elem">
     <xs:complexType>
-      <xs:sequence dfdl:separator=",">
-        <xs:element name='a' type='xs:int' default="0" minOccurs="0" maxOccurs="20" dfdl:occursCountKind="implicit"/>
+      <xs:sequence>
+        <xs:element name="a" type="xs:int" minOccurs="0" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

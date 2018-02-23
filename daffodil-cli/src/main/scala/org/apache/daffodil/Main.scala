@@ -69,8 +69,8 @@ import org.apache.daffodil.xml.RefQName
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
 import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.HasSetDebugger
-import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.util.InvalidJavaVersionException
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
@@ -93,6 +93,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.TunableLimitExceededError
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.io.InputSourceDataInputStream
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -320,6 +321,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                      [--validate [mode]]
               |                      [-D[{namespace}]<variable>=<value>...] [-o <output>]
               |                      [-I <infoset_type>]
+              |                      [--stream]
               |                      [-c <file>] [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
@@ -339,6 +341,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
+    val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data", descrNo = "stop after the first parse, even if left over data exists")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -824,14 +827,14 @@ object Main extends Logging {
 
         val rc = processor match {
           case Some(processor) if (!processor.isError) => {
-            val (input, optDataSize) = parseOpts.infile.toOption match {
-              case Some("-") | None => (System.in, None)
+            val input = parseOpts.infile.toOption match {
+              case Some("-") | None => System.in
               case Some(file) => {
                 val f = new File(parseOpts.infile())
-                (new FileInputStream(f), Some(f.length()))
+                new FileInputStream(f)
               }
             }
-            val inChannel = java.nio.channels.Channels.newChannel(input);
+            val inStream = InputSourceDataInputStream(input)
 
             processor.setValidationMode(validate)
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
@@ -843,66 +846,83 @@ object Main extends Logging {
             val writer = new BufferedWriter(new OutputStreamWriter(output))
             val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, writer)
 
-            val parseResult = Timer.getResult("parsing",
-              optDataSize match {
-                case None => processor.parse(inChannel, outputter)
-                case Some(szInBytes) => processor.parse(inChannel, outputter, szInBytes * 8)
-              })
-            val loc = parseResult.resultState.currentLocation
-            displayDiagnostics(parseResult)
-            if (parseResult.isProcessingError) {
-              1
-            } else {
-              // only XMLTextInfosetOutputter and JsonInfosetOutputter write
-              // directly to the writer. Other InfosetOutputters must manually
-              // be converted to a string and written to the output
-              outputter match {
-                case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
-                case jdom: JDOMInfosetOutputter => writer.write(
-                  new org.jdom2.output.XMLOutputter().outputString(jdom.getResult))
-                case w3cdom: W3CDOMInfosetOutputter => {
-                  val tf = TransformerFactory.newInstance()
-                  val transformer = tf.newTransformer()
-                  val result = new StreamResult(writer)
-                  val source = new DOMSource(w3cdom.getResult)
-                  transformer.transform(source, result)
-                }
-                case _ => // do nothing
-              }
+            var lastParseBitPosition = 0L
+            var keepParsing = true
+            var error = false
 
-              writer.flush()
+            while (keepParsing) {
 
-              // check for left over data (if we know the size up front, like for a file)
-              optDataSize match {
-                case Some(sz) => {
-                  if (!loc.isAtEnd) {
-                    log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (sz * 8) - (loc.bitPos1b - 1))
-                    true
-                  } else false
+              outputter.reset() // reset in case we are streaming
+
+              val parseResult = Timer.getResult("parsing", processor.parse(inStream, outputter))
+              val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
+              displayDiagnostics(parseResult)
+
+              if (parseResult.isProcessingError || parseResult.isValidationError) {
+                keepParsing = false
+                error = true
+              } else {
+                // only XMLTextInfosetOutputter and JsonInfosetOutputter write
+                // directly to the writer. Other InfosetOutputters must manually
+                // be converted to a string and written to the output
+                outputter match {
+                  case sxml: ScalaXMLInfosetOutputter => writer.write(sxml.getResult.toString)
+                  case jdom: JDOMInfosetOutputter => writer.write(
+                    new org.jdom2.output.XMLOutputter().outputString(jdom.getResult))
+                  case w3cdom: W3CDOMInfosetOutputter => {
+                    val tf = TransformerFactory.newInstance()
+                    val transformer = tf.newTransformer()
+                    val result = new StreamResult(writer)
+                    val source = new DOMSource(w3cdom.getResult)
+                    transformer.transform(source, result)
+                  }
+                  case _ => // do nothing
                 }
-                case None => {
-                  // we need to look at the internal state of the parser inStream to
-                  // see how big it is. We do this after execution so as
-                  // not to traverse the data twice.
-                  val ps = parseResult.resultState.asInstanceOf[PState]
-                  val dis = ps.dataInputStream
-                  val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
-                  if (hasMoreData) {
-                    val maybeString = dis.getSomeString(processor.getTunables.maxFieldContentLengthInBytes, ps)
-                    val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
-                    if (lengthInBytes > 0)
-                      log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos1b - 1, (lengthInBytes * 8))
-                    else {
-                      // less than 1 byte is available
-                      log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with less than one byte remaining.", loc.bitPos1b - 1)
+
+                writer.flush()
+
+                if (loc.isAtEnd) {
+                  // do not try to keep parsing, nothing left to parse
+                  keepParsing = false
+                  error = false
+                } else {
+                  // remaining data exists
+
+                  if (parseOpts.stream.toOption.get) {
+                    if (lastParseBitPosition == loc.bitPos0b) {
+                      // this parse consumed no data, that means this would get
+                      // stuck in an infinite loop if we kept trying to stream,
+                      // so we need quit
+                      val remainingBits =
+                        if (loc.bitLimit0b.isDefined) {
+                          (loc.bitLimit0b.get - loc.bitPos0b).toString
+                        } else {
+                          "at least " + (inStream.inputSource.bytesAvailable * 8)
+                        }
+                      log(LogLevel.Warning, "Left over data after consuming 0 bits while streaming. Stopped after consuming %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
+                      keepParsing = false
+                      error = true
+                    } else {
+                      lastParseBitPosition = loc.bitPos0b
+                      keepParsing = true
+                      error = false
                     }
-                    true
-                  } else false
+                  } else {
+                    // not streaming, show left over data warning
+                    val remainingBits =
+                      if (loc.bitLimit0b.isDefined) {
+                        (loc.bitLimit0b.get - loc.bitPos0b).toString
+                      } else {
+                        "at least " + (inStream.inputSource.bytesAvailable * 8)
+                      }
+                    log(LogLevel.Warning, "Left over data. Consumed %s bit(s) with %s bit(s) remaining.", loc.bitPos0b, remainingBits)
+                    keepParsing = false
+                    error = true
+                  }
                 }
               }
-
-              if (parseResult.isValidationError) 1 else 0
             }
+            if (error) 1 else 0
           }
           case Some(processor) => 1
           case None => 1
@@ -957,23 +977,21 @@ object Main extends Logging {
                 case true => infosetDataToInputterData(infosetType, fileContent)
                 case false => fileContent
               }
-              (filePath, data, dataSize * 8)
+              data
             }
 
             val inputs = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
-              val (path, data, dataLen) = dataSeq(index)
+              val data = dataSeq(index)
               val inData = performanceOpts.unparse() match {
                 case true => {
                   Left(data)
                 }
                 case false => {
-                  val bais = new ByteArrayInputStream(data.asInstanceOf[Array[Byte]])
-                  val channel = java.nio.channels.Channels.newChannel(bais);
-                  Right(channel)
+                  Right(InputSourceDataInputStream(data.asInstanceOf[Array[Byte]]))
                 }
               }
-              (path, inData, dataLen)
+              inData
             }
             val inputsWithIndex = inputs.zipWithIndex
 
@@ -997,17 +1015,16 @@ object Main extends Logging {
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = inputsWithIndex.map {
-                case (c, n) =>
+                case (inData, n) =>
                   val task: Future[(Int, Long, Boolean)] = Future {
-                    val (_ /* path */ , inData, len) = c
                     val (time, result) = inData match {
                       case Left(anyRef) => Timer.getTimeResult({
                         val inputterForUnparse = getInfosetInputter(infosetType, anyRef)
                         processor.unparse(inputterForUnparse, nullChannelForUnparse)
                       })
-                      case Right(channel) => Timer.getTimeResult({
+                      case Right(dis) => Timer.getTimeResult({
                         val outputterForParse = getInfosetOutputter(infosetType, nullWriterForParse)
-                        processor.parse(channel, outputterForParse, len)
+                        processor.parse(dis, outputterForParse)
                       })
                     }
 

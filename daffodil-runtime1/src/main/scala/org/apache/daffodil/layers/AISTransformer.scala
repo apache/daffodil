@@ -17,16 +17,18 @@
 
 package org.apache.daffodil.layers
 
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.LayerLengthInBytesEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.processors.charset.AIS_PAYLOAD_ARMORING
+import org.apache.daffodil.processors.charset.BitsCharsetAISPayloadArmoring
 import java.nio._
 import java.nio.charset._
 import java.io._
@@ -34,6 +36,15 @@ import org.apache.commons.io.IOUtils
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 
 object AISPayloadArmoringTransformer {
   val iso8859 = StandardCharsets.ISO_8859_1
@@ -72,7 +83,7 @@ class AISPayloadArmoringInputStream(jis: InputStream)
   extends InputStream {
   import AISPayloadArmoringTransformer._
 
-  private lazy val enc = AIS_PAYLOAD_ARMORING.newEncoder()
+  private lazy val enc = BitsCharsetAISPayloadArmoring.newEncoder()
 
   private lazy val bais = {
     val armoredText = IOUtils.toString(jis, iso8859)
@@ -101,19 +112,41 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
   extends OutputStream {
   import AISPayloadArmoringTransformer._
 
-  private lazy val dec = AIS_PAYLOAD_ARMORING.newDecoder()
+  private lazy val dec = BitsCharsetAISPayloadArmoring.newDecoder()
 
   private val baos = new ByteArrayOutputStream()
 
   private var closed = false
 
+  class FormatInfoForAISDecode extends FormatInfo {
+    override def byteOrder: ByteOrder = ByteOrder.BigEndian
+    override def bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
+    override def encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
+
+    private def doNotUse = Assert.usageError("Should not be used")
+    override def encoder: BitsCharsetEncoder = doNotUse
+    override def decoder: BitsCharsetDecoder = doNotUse
+    override def fillByte: Byte = doNotUse
+    override def binaryFloatRep: BinaryFloatRep = doNotUse
+    override def maybeCharWidthInBits: MaybeInt = doNotUse
+    override def maybeUTF16Width: Maybe[UTF16Width] = doNotUse
+    override def encodingMandatoryAlignmentInBits: Int = doNotUse
+    override def tunable: DaffodilTunables = doNotUse
+    override def regexMatchBuffer: CharBuffer = doNotUse
+    override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
+  }
+
   override def close(): Unit = {
     if (!closed) {
       val ba = baos.toByteArray()
-      val bb = ByteBuffer.wrap(ba)
-      // must call our own decode. This is not a regular java CharsetDecoder, its Daffodil's BitsCharsetDecoder
-      val cb = dec.decode(bb)
-      IOUtils.write(cb.toString, jos, iso8859)
+      val dis = InputSourceDataInputStream(ba)
+      val finfo = new FormatInfoForAISDecode()
+      val cb = CharBuffer.allocate(256)
+      while( { val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 } ) {
+        cb.flip()
+        IOUtils.write(cb, jos, iso8859)
+        cb.clear()
+      }
       jos.close()
       closed = true
     }

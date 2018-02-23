@@ -26,24 +26,24 @@ class TestByteOrder {
 
   @Test def testLittleEndianBitValue = {
     var bsl = 13
-    assertEquals(0x80, BitsUtils.littleEndianBitValue(1, bsl))
-    assertEquals(0x40, BitsUtils.littleEndianBitValue(2, bsl))
-    assertEquals(0x20, BitsUtils.littleEndianBitValue(3, bsl))
-    assertEquals(0x10, BitsUtils.littleEndianBitValue(4, bsl))
-    assertEquals(0x08, BitsUtils.littleEndianBitValue(5, bsl))
-    assertEquals(0x04, BitsUtils.littleEndianBitValue(6, bsl))
-    assertEquals(0x02, BitsUtils.littleEndianBitValue(7, bsl))
-    assertEquals(0x01, BitsUtils.littleEndianBitValue(8, bsl))
-    assertEquals(0x1000, BitsUtils.littleEndianBitValue(9, bsl))
-    assertEquals(0x800, BitsUtils.littleEndianBitValue(10, bsl))
-    assertEquals(0x400, BitsUtils.littleEndianBitValue(11, bsl))
-    assertEquals(0x200, BitsUtils.littleEndianBitValue(12, bsl))
-    assertEquals(0x100, BitsUtils.littleEndianBitValue(13, bsl))
+    assertEquals(0x80, Bits.littleEndianBitValue(1, bsl))
+    assertEquals(0x40, Bits.littleEndianBitValue(2, bsl))
+    assertEquals(0x20, Bits.littleEndianBitValue(3, bsl))
+    assertEquals(0x10, Bits.littleEndianBitValue(4, bsl))
+    assertEquals(0x08, Bits.littleEndianBitValue(5, bsl))
+    assertEquals(0x04, Bits.littleEndianBitValue(6, bsl))
+    assertEquals(0x02, Bits.littleEndianBitValue(7, bsl))
+    assertEquals(0x01, Bits.littleEndianBitValue(8, bsl))
+    assertEquals(0x1000, Bits.littleEndianBitValue(9, bsl))
+    assertEquals(0x800, Bits.littleEndianBitValue(10, bsl))
+    assertEquals(0x400, Bits.littleEndianBitValue(11, bsl))
+    assertEquals(0x200, Bits.littleEndianBitValue(12, bsl))
+    assertEquals(0x100, Bits.littleEndianBitValue(13, bsl))
 
     bsl = 3
-    assertEquals(0x4, BitsUtils.littleEndianBitValue(1, bsl))
-    assertEquals(0x2, BitsUtils.littleEndianBitValue(2, bsl))
-    assertEquals(0x1, BitsUtils.littleEndianBitValue(3, bsl))
+    assertEquals(0x4, Bits.littleEndianBitValue(1, bsl))
+    assertEquals(0x2, Bits.littleEndianBitValue(2, bsl))
+    assertEquals(0x1, Bits.littleEndianBitValue(3, bsl))
   }
 }
 

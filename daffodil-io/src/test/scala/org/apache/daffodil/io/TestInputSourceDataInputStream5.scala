@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
-class TestByteBufferDataInputStream5 {
+class TestInputSourceDataInputStream5 {
   val leFinfo = FormatInfoForUnitTest()
   leFinfo.byteOrder = ByteOrder.LittleEndian
   leFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
@@ -36,7 +36,7 @@ class TestByteBufferDataInputStream5 {
     val expected = 0x0102030405060708L
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
@@ -50,7 +50,7 @@ class TestByteBufferDataInputStream5 {
     val expected = 0x01020304L
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(32, leFinfo)
     assertEquals(expected, md)
     assertEquals(32, dis.bitPos0b)
@@ -64,7 +64,7 @@ class TestByteBufferDataInputStream5 {
     val expected = 0x8070605040302010L // which is negative. Test is that we get sign right
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
@@ -78,7 +78,7 @@ class TestByteBufferDataInputStream5 {
     val data = 0x0000000080706050L // 50 is most significant byte. sign bit is 0.
     fb.put(data)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(32, leFinfo)
     assertEquals(0x80706050.toInt, md)
     assertEquals(32, dis.bitPos0b)
@@ -92,7 +92,7 @@ class TestByteBufferDataInputStream5 {
     val data = 0x0100000000000000L
     fb.put(data)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
 
     val md = dis.getSignedLong(1, leFinfo)
     assertEquals(1, md)

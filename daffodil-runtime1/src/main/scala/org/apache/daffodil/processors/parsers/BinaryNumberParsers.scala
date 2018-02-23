@@ -32,7 +32,7 @@ class BinaryFloatParser(override val context: ElementRuntimeData)
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(32)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", 32, dis.remainingBits.get)
+      PENotEnoughBits(start, 32, dis.remainingBits)
       return
     }
 
@@ -49,7 +49,7 @@ class BinaryDoubleParser(override val context: ElementRuntimeData)
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(64)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", 64, dis.remainingBits.get)
+      PENotEnoughBits(start, 64, dis.remainingBits)
       return
     }
 
@@ -78,7 +78,7 @@ abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData,
     val nBits = getBitLength(start)
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      PENotEnoughBits(start, nBits, dis.remainingBits)
       return
     }
 
@@ -112,7 +112,7 @@ abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData,
     if (nBits == 0) return // zero length is used for outputValueCalc often.
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
-      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      PENotEnoughBits(start, nBits, dis.remainingBits)
       return
     }
 

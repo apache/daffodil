@@ -26,17 +26,28 @@ import org.junit.Test
 import org.apache.daffodil.processors.charset.CharsetUtils
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeDecoder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestNonByteSizedCharsetDecoders1Bit {
+  
+  val lsbfFinfo = FormatInfoForUnitTest()
+  lsbfFinfo.byteOrder = ByteOrder.BigEndian
+  lsbfFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
+
+  val msbfFinfo = FormatInfoForUnitTest()
+  msbfFinfo.byteOrder = ByteOrder.BigEndian
+  msbfFinfo.bitOrder = BitOrder.MostSignificantBitFirst
 
   @Test def test1BitMSBF_01(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(64)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF"))
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val dis = InputSourceDataInputStream(bb)
+    val res = decoder.decode(dis, msbfFinfo, cb)
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -45,13 +56,14 @@ class TestNonByteSizedCharsetDecoders1Bit {
 
   @Test def test1BitMSBF_02(): Unit = {
     val cs1Bit = CharsetUtils.getCharset("X-DFDL-BITS-MSBF")
-    val decoder = cs1Bit.newDecoder().asInstanceOf[NBitsWidth_BitsCharsetDecoder]
+    val decoder = cs1Bit.newDecoder().asInstanceOf[BitsCharsetNonByteSizeDecoder]
     assertNotNull(decoder)
     val cb = CharBuffer.allocate(32)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
-    decoder.setInitialBitOffset(4)
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isOverflow())
+    val dis = InputSourceDataInputStream(bb)
+    dis.skip(4, msbfFinfo)
+    val res = decoder.decode(dis, msbfFinfo, cb)
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -63,10 +75,10 @@ class TestNonByteSizedCharsetDecoders1Bit {
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("57"))
-    bb.limit(bb.limit - 1)
-    decoder.setFinalByteBitLimitOffset0b(MaybeULong(4))
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val dis = InputSourceDataInputStream(bb)
+    dis.setBitLimit0b(MaybeULong(4))
+    val res = decoder.decode(dis, msbfFinfo, cb)
+    assertEquals(4, res)
     cb.flip()
     val bits = cb.toString() + "0000"
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -78,11 +90,11 @@ class TestNonByteSizedCharsetDecoders1Bit {
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
-    bb.limit(bb.limit - 1)
-    decoder.setInitialBitOffset(4)
-    decoder.setFinalByteBitLimitOffset0b(MaybeULong(4))
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val dis = InputSourceDataInputStream(bb)
+    dis.setBitLimit0b(MaybeULong(36))
+    dis.skip(4, msbfFinfo)
+    val res = decoder.decode(dis, msbfFinfo, cb)
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -94,9 +106,10 @@ class TestNonByteSizedCharsetDecoders1Bit {
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(64)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF"))
-    val res = decoder.decode(bb, cb, false)
+    val dis = InputSourceDataInputStream(bb)
+    val res = decoder.decode(dis, lsbfFinfo, cb)
     // DE => 0111 1011 AD => 1011 0101 BE => 0111 1101 EF => 1111 0111
-    assertTrue(res.isUnderflow())
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -109,14 +122,15 @@ class TestNonByteSizedCharsetDecoders1Bit {
     assertNotNull(decoder)
     val cb = CharBuffer.allocate(32)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
-    decoder.setInitialBitOffset(4)
+    val dis = InputSourceDataInputStream(bb)
+    dis.skip(4, lsbfFinfo)
     // skips the E of the DE byte
     // writing RTL => 7 EF BE AD D
     // regroup as: 7E FB EA DD
     // Bits LSBF for this starting from right advancing LSBF 1 bit at a time:
     // DD => 1011 1011 EA => 0101 0111 FB => 1101 1111 7E => 0111 1110
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isOverflow())
+    val res = decoder.decode(dis, lsbfFinfo, cb)
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -129,10 +143,10 @@ class TestNonByteSizedCharsetDecoders1Bit {
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(4)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("57"))
-    bb.limit(bb.limit - 1)
-    decoder.setFinalByteBitLimitOffset0b(MaybeULong(4))
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val dis = InputSourceDataInputStream(bb)
+    dis.setBitLimit0b(MaybeULong(4))
+    val res = decoder.decode(dis, lsbfFinfo, cb)
+    assertEquals(4, res)
     cb.flip()
     val bits = "0000" + cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))
@@ -144,14 +158,14 @@ class TestNonByteSizedCharsetDecoders1Bit {
     val decoder = cs1Bit.newDecoder()
     val cb = CharBuffer.allocate(40)
     val bb = ByteBuffer.wrap(Misc.hex2Bytes("DEADBEEF57"))
-    bb.limit(bb.limit - 1)
-    decoder.setInitialBitOffset(4)
-    decoder.setFinalByteBitLimitOffset0b(MaybeULong(4))
+    val dis = InputSourceDataInputStream(bb)
+    dis.setBitLimit0b(MaybeULong(36))
+    dis.skip(4, lsbfFinfo)
     // skips the E of the DE byte
     // writing RTL => 7 EF BE AD D
     // regroup as: 7E FB EA DD
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val res = decoder.decode(dis, lsbfFinfo, cb)
+    assertEquals(32, res)
     cb.flip()
     val bits = cb.toString()
     val hex = Misc.bytes2Hex(Misc.bits2Bytes(bits))

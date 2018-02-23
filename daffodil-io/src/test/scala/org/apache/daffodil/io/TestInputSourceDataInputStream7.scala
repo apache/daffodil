@@ -25,10 +25,11 @@ import org.junit.Assert._
 import org.junit.Test
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.charset.USASCII7BitPackedCharset
+import org.apache.daffodil.processors.charset.BitsCharsetUSASCII7BitPacked
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Helper class for creating example data that is unaligned.
@@ -53,7 +54,7 @@ object Bitte {
   }
 
   def encode7(s: String): Seq[String] = {
-    val encoder = USASCII7BitPackedCharset.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -61,7 +62,7 @@ object Bitte {
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = Misc.bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NBitsWidth_BitsCharsetEncoder]
+    val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
     val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
@@ -76,10 +77,11 @@ object Bitte {
 /**
  * tests of 7-bit characters
  */
-class TestByteBufferDataInputStream7 {
+class TestInputSourceDataInputStream7 {
 
   val finfo = FormatInfoForUnitTest()
-  finfo.reset(USASCII7BitPackedCharset)
+  finfo.reset(BitsCharsetUSASCII7BitPacked)
+  finfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
   /** Test the test rig */
   @Test def testBitteBits = {
@@ -118,8 +120,10 @@ class TestByteBufferDataInputStream7 {
    * The `getByteArray` call returns 3 bytes, but one is a fragment byte
    */
   @Test def testGetByteArrayLengthLimit1 {
-    val dis = ByteBufferDataInputStream(Bitte.enc("abc"))
+    val dis = InputSourceDataInputStream(Bitte.enc("abc"))
     dis.setBitLimit0b(MaybeULong(21))
+    val finfo = FormatInfoForUnitTest()
+    finfo.bitOrder = BitOrder.MostSignificantBitFirst
     val arr = dis.getByteArray(21, finfo)
     assertEquals(21, dis.bitLimit0b.get)
     assertEquals(21, dis.bitPos0b)
@@ -132,51 +136,47 @@ class TestByteBufferDataInputStream7 {
   /*
    * Tests of unaligned char buffers (ie., 7-bit characters)
    */
-  @Test def testFillCharBufferOne7BitChar {
-    val dis = ByteBufferDataInputStream(Bitte.enc("abcdefgh"))
-    val cb = CharBuffer.allocate(1)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
+  @Test def testGetSomeStringOne7BitChar {
+    val dis = InputSourceDataInputStream(Bitte.enc("abcdefgh"))
+    val ms = dis.getSomeString(1, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(1, s.length)
     assertEquals(7, dis.bitPos0b)
-    assertEquals('a', cb.get())
+    assertEquals('a', s(0))
   }
 
-  @Test def testFillCharBuffer7BitString {
-    val dis = ByteBufferDataInputStream(Bitte.enc("abcdefgh"))
-    val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(8, ml.get)
+  @Test def testGetSomeString7BitString {
+    val dis = InputSourceDataInputStream(Bitte.enc("abcdefgh"))
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(8, s.length)
     assertEquals(56, dis.bitPos0b)
-    assertEquals("abcdefgh", cb.toString())
+    assertEquals("abcdefgh", s)
   }
-  @Test def testFillCharBuffer7BitStringOffBy3 {
+  @Test def testGetSomeString7BitStringOffBy3 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
-    val dis = ByteBufferDataInputStream(bytes)
-    val cb = CharBuffer.allocate(8)
+    val dis = InputSourceDataInputStream(bytes)
     dis.skip(3, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(8, ml.get)
-    assertEquals("abcdefgh", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(8, s.length)
+    assertEquals("abcdefgh", s)
     assertEquals(59, dis.bitPos0b)
   }
 
-  @Test def testFillCharBufferDataEndsMidByte {
+  @Test def testGetSomeStringDataEndsMidByte {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setBitLimit0b(MaybeULong(25))
-    val cb = CharBuffer.allocate(8)
     dis.skip(3, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(3, ml.get)
-    assertEquals("abc", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(3, s.length)
+    assertEquals("abc", s)
     assertEquals(24, dis.bitPos0b)
   }
 
@@ -189,17 +189,16 @@ class TestByteBufferDataInputStream7 {
    * able to fetch another byte of source data (aka an "underflow"), yet there actually
    * are sufficient bits without that byte to decode a character.
    */
-  @Test def testFillCharBufferDataEndsMidByte2 {
+  @Test def testGetSomeStringDataEndsMidByte2 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setBitLimit0b(MaybeULong(20))
-    val cb = CharBuffer.allocate(8)
     dis.skip(3, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(2, ml.get)
-    assertEquals("ab", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(2, s.length)
+    assertEquals("ab", s)
     assertEquals(17, dis.bitPos0b)
   }
 
@@ -207,17 +206,16 @@ class TestByteBufferDataInputStream7 {
    * Similar to above test, except the remaining partial byte does not provide
    * enough bits to finish a character.
    */
-  @Test def testFillCharBufferDataEndsMidByte3 {
+  @Test def testGetSomeStringDataEndsMidByte3 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     dis.setBitLimit0b(MaybeULong(16))
-    val cb = CharBuffer.allocate(8)
     dis.skip(3, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
-    assertEquals("a", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(1, s.length)
+    assertEquals("a", s)
     assertEquals(10, dis.bitPos0b)
   }
 
@@ -230,7 +228,7 @@ class TestByteBufferDataInputStream7 {
    */
 
   @Test def testCharIteratorWithInterruptingBitSkips1 {
-    val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
+    val dis = InputSourceDataInputStream(Bitte.enc("0a1b2c"))
     dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     iter.setFormatInfo(finfo)
@@ -270,7 +268,7 @@ class TestByteBufferDataInputStream7 {
    * if it has to align to a mandatory character alignment boundary.
    */
   @Test def testCharIteratorWithInterruptingBitSkipsBetweenHasNextAndNext {
-    val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
+    val dis = InputSourceDataInputStream(Bitte.enc("0a1b2c"))
     dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     iter.setFormatInfo(finfo)
@@ -293,7 +291,7 @@ class TestByteBufferDataInputStream7 {
   }
 
   @Test def testUSASCII7BitEncoderOverflowError {
-    val encoder = USASCII7BitPackedCharset.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
     val bb = ByteBuffer.allocate(1) // only big enough for a single byte
     val cb = CharBuffer.wrap("ab") // two characters will cause overflow
     val coderResult = encoder.encode(cb, bb, true)
@@ -301,7 +299,7 @@ class TestByteBufferDataInputStream7 {
   }
 
   @Test def testUSASCII7BitEncoderMalformedError {
-    val encoder = USASCII7BitPackedCharset.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
     val bb = ByteBuffer.allocate(3)
     val cb = CharBuffer.wrap("ab" + 128.toChar) // 128 is not encodable in 7 bits
     val coderResult = encoder.encode(cb, bb, true)

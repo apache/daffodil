@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.io
 
-import java.nio.CharBuffer
 import java.util.regex.Matcher
-import org.apache.daffodil.util.Maybe
+
 import passera.unsigned.ULong
+
 import org.apache.daffodil.exceptions.ThinThrowable
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Poolable
 
@@ -376,65 +377,6 @@ trait DataInputStream
   def getBinaryDouble(finfo: FormatInfo): Double
 
   /**
-   * Fill a charBuffer with characters.
-   * <p>
-   * Returns the number of chars delivered. Nope if end of data stream.
-   * <p>
-   * The bit position is advanced to immediately after the representation of the
-   * delivered characters.
-   * <p>
-   * Set the position and limit of the char buffer if you want to retrieve only
-   * a small number of characters. For example, a single character can
-   * be retrieved if the char buffer has only one character remaining.
-   * <p>
-   * If the encodingErrorPolicy is 'error' and at least 1 character
-   * has been delivered into the char buffer, then this will return
-   * successfully, as if it stopped immediately before encountering a
-   * decoding error. If, however, zero characters have been delivered
-   * into the char buffer, then a decoding error will throw
-   * a CharacterCodingException or will be replaced by a Unicode replacement
-   * character.
-   * <p>
-   * Note that this is an exception to the way other methods of this API
-   * work in that an exception is thrown. It is generally expected that
-   * character decode errors are rare/exceptional situations.
-   * <p>
-   * If the encodingErrorPolicy is 'replace' then the result may contain
-   * Unicode replacement characters. The bit position is advanced to
-   * after the representation of all the characters, including after the
-   * non-decodable data bits that result in Unicode replacement character(s).
-   * <p>
-   * Note that the characters may be any width in bits including a variable
-   * width (such as for utf-8 which has from 1 to 4 bytes per character).
-   * <p>
-   * Retrieving text limited by size in bits or bytes can be achieved by
-   * setting the bitLimit to a position N bytes (or bits) greater than the current
-   * position, then calling this method with a charBuffer having sufficient
-   * capacity that the char buffer available size will not be reached before the
-   * bitLimit. Having performed the read, the bitLimit can then be restored to
-   * its prior value. See the withBitLengthLimit method.
-   * <p>
-   * In theory at least, this method can be used to do some parsing without
-   * ever allocating a string. E.g., checking for a specifc delimiter character.
-   * The pattern match can occur directly against the charbuffer to determine if
-   * the text matches the literal nil syntax. If so we set the nilled flag in the
-   * infoset element and never create a string.
-   * <p>
-   * The char buffer is not 'flipped' by this method. To read the characters
-   * that are placed into the char buffer by this method using relative getter calls
-   * the caller of this method must flip the char buffer.
-   * <p>
-   * When characters are not made up of complete bytes, but fragments of a byte, then
-   * when data ends in the middle of a byte, a character can be decoded from the
-   * partial-final byte, if enough bits are available from the prior byte and the
-   * partial final byte.
-   * <p>
-   * Implementation Note: a specialized 4-bit encoding which maps 4 bits to
-   * 0-9A-F can be used to treat packed decimal representations like text strings.
-   */
-  def fillCharBuffer(cb: CharBuffer, finfo: FormatInfo): MaybeULong
-
-  /**
    * Returns One(string) if nChars are available, Nope otherwise.
    *
    * Throws a CharacterCodingException if the encoding error policy is 'error'
@@ -499,17 +441,11 @@ trait DataInputStream
    * in the data stream. In the presence of backtracking this can result in large parts
    * of the data stream being decoded multiple times.
    * <p>
-   * A tuneable limit maximumRegexMatchLengthInCharacters can be set to limit
-   * the maximum size of a match. If this tunable maximum is hit, or an implementation
-   * specific absolute maximum is hit, then after return of this method the matcher will
-   * have the hitEnd and requireEnd values as if the end of the data stream had been
-   * reached.
-   * <p>
    * This API does not use a CharBuffer because there is no way to avoid allocation of
    * strings by the underlying Matcher and regular expression API upon which this is
    * built.
    */
-  def lookingAt(matcher: Matcher, finfo: FormatInfo, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean
+  def lookingAt(matcher: Matcher, finfo: FormatInfo): Boolean
 
   /**
    * As characters are iterated, the underlying bit position changes.

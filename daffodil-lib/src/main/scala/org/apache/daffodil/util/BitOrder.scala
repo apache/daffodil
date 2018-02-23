@@ -213,4 +213,60 @@ object Bits {
     String.format("%8s", unsignedByte.toBinaryString).replace(' ', '0')
   }
 
+  def signExtend(l: Long, bitLength: Int): Long = {
+    Assert.usage(bitLength > 0 && bitLength <= 64)
+    if (bitLength == 1) return l // a single bit has no sign to extend
+    val shift = 64 - bitLength
+    val res = ((l << shift) >> shift) // arithmetic shift right extends sign.
+    res
+  }
+
+  def unSignExtend(l: Long, bitLength: Int): Long = {
+    Assert.usage(bitLength > 0 && bitLength <= 64)
+    val mask = if (bitLength == 64) -1L else (1L << bitLength) - 1
+    l & mask
+  }
+
+  /**
+   * Round up the bitPosition to the nearest byte position.
+   *
+   * For example, say we want to read up to a bit position that is not a full
+   * byte. That will require reading the full byte, leaving the bytePosition
+   * past our bit position. This function can be used to determine where that
+   * byte position will be. Essentially, if bitPos0b is not a multiple of 8, we
+   * round up one byte.
+   */
+  def roundUpBitToBytePosition(bitPos0b: Long): Long = {
+    val bytePos0b = bitPos0b >> 3
+    if ((bitPos0b & 0x7) == 0) bytePos0b
+    else bytePos0b + 1
+  }
+
+
+  /**
+   * From DFDL Spec. Sept 2013 draft 1.0.4, Section 13.7.1.4
+   *
+   * The value of a bit does not depend on the alignment of that bit,
+   * but only where it appears in the bit string, and the byte order when
+   * the length of the bit string is greater than 1 byte.
+   *
+   * Implements 2^N exponentiation with shifting 1 << N.
+   */
+  def littleEndianBitValue(bitPosition: Int, bitStringLength: Int) = {
+    assert(bitPosition >= 1) // one based
+    assert(bitStringLength >= 1)
+    assert(bitStringLength >= bitPosition) // bit pos within the bit string length
+    val numBitsInFinalPartialByte = bitStringLength % 8
+    val numBitsInWholeBytes = bitStringLength - numBitsInFinalPartialByte
+    val bitPosInByte = ((bitPosition - 1) % 8) + 1
+    val widthOfActiveBitsInByte =
+      if (bitPosition <= numBitsInWholeBytes)
+        8 else numBitsInFinalPartialByte
+    val placeValueExponentOfBitInByte = widthOfActiveBitsInByte - bitPosInByte
+    val bitValueInByte = 1 << placeValueExponentOfBitInByte
+    val byteNumZeroBased = (bitPosition - 1) / 8
+    val scaleFactorForBytePosition = 1 << (8 * byteNumZeroBased)
+    val bitValue = bitValueInByte * scaleFactorForBytePosition
+    bitValue
+  }
 }

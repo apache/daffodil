@@ -22,12 +22,14 @@ import java.nio.CharBuffer
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.processors.charset.AIS_PAYLOAD_ARMORING
+import org.apache.daffodil.processors.charset.BitsCharsetAISPayloadArmoring
 
 class TestAISPayloadArmoringEncoder {
 
+  val finfo = FormatInfoForUnitTest()
+
   @Test def testAISArmoringDecoder_01(): Unit = {
-    val cs = AIS_PAYLOAD_ARMORING
+    val cs = BitsCharsetAISPayloadArmoring
     val decoder = cs.newDecoder()
     assertNotNull(decoder)
 
@@ -54,15 +56,16 @@ class TestAISPayloadArmoringEncoder {
           011101 110010 011111 101011
           110000 110101 010111 010000
           000000 001000 011000 011011"""))
-    val res = decoder.decode(bb, cb, false)
-    assertTrue(res.isUnderflow())
+    val dis = InputSourceDataInputStream(bb)
+    val res = decoder.decode(dis, finfo, cb)
+    assertEquals(expected.length, res)
     cb.flip()
     val actual = cb.toString()
     assertEquals(expected, actual)
   }
 
   @Test def testAISArmoringEncoder_01(): Unit = {
-    val cs = AIS_PAYLOAD_ARMORING
+    val cs = BitsCharsetAISPayloadArmoring
     val encoder = cs.newEncoder()
     assertNotNull(encoder)
 

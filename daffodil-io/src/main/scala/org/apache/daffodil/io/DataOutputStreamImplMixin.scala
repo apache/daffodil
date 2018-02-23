@@ -33,7 +33,7 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.equality._
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
 
 sealed trait DOSState
 private[io] case object Active extends DOSState
@@ -643,7 +643,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       bb.flip
 
       val bitsToWrite = finfo.encoder match {
-        case encoderWithBits: NBitsWidth_BitsCharsetEncoder =>
+        case encoderWithBits: BitsCharsetNonByteSizeEncoder =>
           encoderWithBits.bitsCharset.bitWidthOfACodeUnit * nToTransfer
         case _ => bb.remaining * 8
       }

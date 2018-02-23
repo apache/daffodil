@@ -19,7 +19,6 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.LayerTransformerEv
-import org.apache.daffodil.io.ByteBufferDataInputStream
 
 class LayeredSequenceParser(rd: TermRuntimeData,
   layerTransformerEv: LayerTransformerEv,
@@ -44,7 +43,7 @@ class LayeredSequenceParser(rd: TermRuntimeData,
     //
     // FIXME: Cast should not be needed
     //
-    state.dataInputStream = newDIS.asInstanceOf[ByteBufferDataInputStream]
+    state.dataInputStream = newDIS
 
     super.parse(state)
 

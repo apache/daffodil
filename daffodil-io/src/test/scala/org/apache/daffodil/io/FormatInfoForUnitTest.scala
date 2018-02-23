@@ -18,6 +18,10 @@
 package org.apache.daffodil.io
 
 import java.nio.charset.CodingErrorAction
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
@@ -28,8 +32,8 @@ import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.processors.charset.StandardBitsCharsets
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharset
 
 object FormatInfoForUnitTest {
   def apply() = {
@@ -45,9 +49,6 @@ class FormatInfoForUnitTest private ()
 
   var encoder: BitsCharsetEncoder = priorEncoding.newEncoder()
   var decoder: BitsCharsetDecoder = priorEncoding.newDecoder()
-  var reportingDecoder: BitsCharsetDecoder = _
-
-  var replacingDecoder: BitsCharsetDecoder = _
 
   var byteOrder: ByteOrder = ByteOrder.BigEndian
   var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
@@ -57,6 +58,9 @@ class FormatInfoForUnitTest private ()
   var maybeUTF16Width: Maybe[UTF16Width] = Maybe.Nope
   var encodingMandatoryAlignmentInBits: Int = 8
   var encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
+  var tunable: DaffodilTunables = DaffodilTunables()
+  var regexMatchBuffer = CharBuffer.allocate(1024)
+  var regexMatchBitPositionBuffer = LongBuffer.allocate(1024)
 
   def reset(cs: BitsCharset): Unit = {
     priorEncoding = cs
@@ -68,22 +72,8 @@ class FormatInfoForUnitTest private ()
     encoder.onMalformedInput(CodingErrorAction.REPLACE)
     encoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
     decoder = priorEncoding.newDecoder()
-    decoder.onMalformedInput(CodingErrorAction.REPLACE)
-    decoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
-    reportingDecoder = {
-      val d = priorEncoding.newDecoder()
-      d.onMalformedInput(CodingErrorAction.REPORT)
-      d.onUnmappableCharacter(CodingErrorAction.REPORT)
-      d
-    }
-    replacingDecoder = {
-      val d = priorEncoding.newDecoder()
-      d.onMalformedInput(CodingErrorAction.REPLACE)
-      d.onUnmappableCharacter(CodingErrorAction.REPLACE)
-      d
-    }
     priorEncoding match {
-      case decoderWithBits: NBitsWidth_BitsCharset => {
+      case decoderWithBits: BitsCharsetNonByteSize => {
         encodingMandatoryAlignmentInBits = 1
         maybeCharWidthInBits = MaybeInt(decoderWithBits.bitWidthOfACodeUnit)
       }

@@ -40,19 +40,20 @@
  *
  * <h4>Parse</h4>
  *
- * The {@link org.apache.daffodil.japi.DataProcessor#parse(java.nio.channels.ReadableByteChannel, org.apache.daffodil.japi.infoset.InfosetOutputter, long)} method accepts input data to parse in the form
- * of a {@link java.nio.channels.ReadableByteChannel} and an {@link org.apache.daffodil.japi.infoset.InfosetOutputter}
+ * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream, org.apache.daffodil.japi.infoset.InfosetOutputter)} method accepts input data to parse in the form
+ * of a {@link org.apache.daffodil.japi.io.InputSourceDataInputStream} and an {@link org.apache.daffodil.japi.infoset.InfosetOutputter}
  * to determine the output representation of the infoset (e.g. Scala XML Nodes,
  * JDOM2 Documents, etc.):
  *
  * <pre>
  * {@code
  * JDOMInfosetOutputter jdomOutputter= new JDOMInfosetOutputter();
- * ParseResult pr = dp.parse(data, jdomOutputter);
+ * InputSourceDataInputStream is = new InputSourceDataInputStream(data);
+ * ParseResult pr = dp.parse(is, jdomOutputter);
  * Document doc = jdomOutputter.getResult();
  * }</pre>
  *
- * The {@link org.apache.daffodil.japi.DataProcessor#parse(java.nio.channels.ReadableByteChannel, org.apache.daffodil.japi.infoset.InfosetOutputter, long)} method is thread-safe and may be called multiple
+ * The {@link org.apache.daffodil.japi.DataProcessor#parse(org.apache.daffodil.japi.io.InputSourceDataInputStream, org.apache.daffodil.japi.infoset.InfosetOutputter)} method is thread-safe and may be called multiple
  * times without the need to create other data processors. However,
  * {@link org.apache.daffodil.japi.infoset.InfosetOutputter}'s are not thread safe, requiring a unique instance per
  * thread. An {@link org.apache.daffodil.japi.infoset.InfosetOutputter} should call {@link org.apache.daffodil.japi.infoset.InfosetOutputter#reset()} before
@@ -63,8 +64,24 @@
  * JDOMInfosetOutputter jdomOutputter = new JDOMInfosetOutputter();
  * for (File f : inputFiles) {
  *   jdomOutputter.reset();
- *   ParseResult pr = dp.parse(f, jdomOutputter);
+ *   InputSourceDataInputStream is = new InputSourceDataInputStream(new FileInputStream(f)));
+ *   ParseResult pr = dp.parse(is, jdomOutputter);
  *   Document doc = jdomOutputter.getResult();
+ * }
+ * }</pre>
+ *
+ * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing where the previous parse ended. For example:
+ *
+ * <pre>
+ * {@code
+ * InputSourceDataInputStream is = new InputSourceDataInputStream(dataStream);
+ * JDOMInfosetOutputter jdomOutputter = new JDOMInfosetOutputter();
+ * boolean keepParsing = true;
+ * while (keepParsing) {
+ *   jdomOutputter.reset();
+ *   ParseResult pr = dp.parse(is, jdomOutputter);
+ *   ...
+ *   keepParsing = !pr.location().isAtEnd() && !pr.isError();
  * }
  * }</pre>
  *

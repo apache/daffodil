@@ -27,12 +27,14 @@ import java.io.File
 import java.nio.channels.Channels
 import org.junit.Test
 import org.apache.daffodil.sapi.Daffodil
+import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.logger.ConsoleLogWriter
 import org.apache.daffodil.sapi.logger.LogLevel
 import org.apache.daffodil.sapi.ValidationMode
 import org.apache.daffodil.sapi.InvalidUsageException
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 
 class TestScalaAPI {
 
@@ -62,9 +64,9 @@ class TestScalaAPI {
     dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertTrue(res.location().isAtEnd())
@@ -113,16 +115,16 @@ class TestScalaAPI {
     dp.save(output)
 
     val is = new ByteArrayInputStream(os.toByteArray())
-    val input = Channels.newChannel(is)
+    val savedParser = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
-    val parser = compiler.reload(input)
+    val parser = compiler.reload(savedParser)
     parser.setDebugger(debugger)
     parser.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = parser.parse(rbc, outputter, 2 << 3)
+    val res = parser.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertTrue(res.location().isAtEnd())
@@ -165,9 +167,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
 
     // TODO: Need scala API for status enum
     //assertFalse(outputter.getStatus == Status.Done)
@@ -207,9 +209,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 16 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
@@ -242,15 +244,15 @@ class TestScalaAPI {
     dp.save(output)
 
     val is = new ByteArrayInputStream(os.toByteArray())
-    val input = Channels.newChannel(is)
+    val savedParser = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
-    val parser = compiler.reload(input)
+    val parser = compiler.reload(savedParser)
 
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = parser.parse(rbc, outputter, 16 << 3)
+    val res = parser.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
@@ -276,9 +278,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myData2.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 64 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertFalse(res.location().isAtEnd())
@@ -306,13 +308,12 @@ class TestScalaAPI {
     val file = getResource("/test/sapi/myData3.dat"); // contains 5
     // bytes
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 4 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
-    assertTrue("Assertion failed: End of data not reached.", res.location()
-      .isAtEnd())
+    assertTrue(!res.location().isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
 
@@ -383,9 +384,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertTrue(res.location().isAtEnd())
@@ -426,9 +427,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertTrue(res.location().isAtEnd())
@@ -465,9 +466,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
 
@@ -509,9 +510,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myData4.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     val node = outputter.getResult
@@ -533,9 +534,9 @@ class TestScalaAPI {
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myData5.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     val rootNode = outputter.getResult
@@ -570,9 +571,9 @@ class TestScalaAPI {
     dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     assertTrue(res.location().isAtEnd())
@@ -614,9 +615,9 @@ class TestScalaAPI {
     dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     val node = outputter.getResult
@@ -653,9 +654,9 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     val err = res.isError()
     assertFalse(err)
     val rootNode = outputter.getResult
@@ -766,9 +767,9 @@ class TestScalaAPI {
     dp.setValidationMode(ValidationMode.Limited)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
     assertTrue(res.isValidationError())
@@ -792,9 +793,9 @@ class TestScalaAPI {
     dp.setValidationMode(ValidationMode.Full)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(fis)
+    val input = new InputSourceDataInputStream(fis)
     val outputter = new ScalaXMLInfosetOutputter()
-    val res = dp.parse(rbc, outputter, 2 << 3)
+    val res = dp.parse(input, outputter)
     assertTrue(res.isError())
     assertFalse(res.isProcessingError())
     assertTrue(res.isValidationError())
@@ -816,6 +817,47 @@ class TestScalaAPI {
     assertTrue(d2.getMessage().contains("maxInclusive"))
     assertTrue(d2.getMessage().contains("e2"))
     assertTrue(d2.getMessage().contains("20"))
+  }
+
+  @Test
+  def testScalaAPI18() {
+    // Demonstrate that we can use the API to continue a parse where we left off
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
+    c.setDistinguishedRootNode("e4", null)
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
+    val file = getResource("/test/sapi/myData2.dat")
+    val fis = new java.io.FileInputStream(file)
+    val input = new InputSourceDataInputStream(fis)
+
+    val outputter = new ScalaXMLInfosetOutputter()
+    var res: ParseResult = null
+    var err: Boolean = false
+
+    res = dp.parse(input, outputter)
+    err = res.isError()
+    assertFalse(err)
+    assertFalse(res.location().isAtEnd())
+    assertEquals(5, res.location().bytePos1b())
+    assertEquals("data", outputter.getResult.text)
+
+    outputter.reset()
+    res = dp.parse(input, outputter)
+    err = res.isError()
+    assertFalse(err)
+    assertFalse(res.location().isAtEnd())
+    assertEquals(9, res.location().bytePos1b())
+    assertEquals("left", outputter.getResult.text)
+
+    outputter.reset()
+    res = dp.parse(input, outputter)
+    err = res.isError()
+    assertFalse(err)
+    assertTrue(res.location().isAtEnd())
+    assertEquals(13, res.location().bytePos1b())
+    assertEquals("over", outputter.getResult.text)
   }
 
 }
