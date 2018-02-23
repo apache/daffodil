@@ -22,10 +22,12 @@ import org.apache.daffodil.sapi.debugger._
 import org.apache.daffodil.sapi.logger._
 import org.apache.daffodil.sapi.packageprivate._
 import org.apache.daffodil.sapi.infoset._
+import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import java.io.File
+import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import org.apache.daffodil.api.{ DataLocation => SDataLocation }
@@ -49,6 +51,7 @@ import java.net.URI
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeULong
 
 private class Daffodil private {
   // Having this empty but private companion class removes the constructor from
@@ -467,16 +470,18 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * Parse input data with a specified length
    *
    * @param input data to be parsed
-   * @param lengthLimitInBits the length of the input data in bits. This must
-   *                          be the actual length in bits if you want the
-   *                          location().isAtEnd() function to work. If value
-   *                          is -1, the isAtEnd() function will always return true.
+   * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter, long) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
   def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
+    val is = Channels.newInputStream(input)
+    val dis = new InputSourceDataInputStream(is)
+    if (lengthLimitInBits > 0) {
+      dis.dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    }
     val output = new ScalaXMLInfosetOutputter()
-    val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
+    val pr = dp.parse(dis.dis, output).asInstanceOf[SParseResult]
     new ParseResult(pr, Maybe(output))
   }
 
@@ -484,45 +489,54 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * Parse input data without specifying a length
    *
    * @param input data to be parsed
-   * @param lengthLimitInBits the length of the input data in bits. This must
-   *                          be the actual length in bits if you want the
-   *                          location().isAtEnd() function to work. If value
-   *                          is -1, the isAtEnd() function will always return true.
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(ReadableByteChannel, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.0.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
   def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
-
 
   /**
    * Parse input data with a specified length
    *
    * @param input data to be parsed
    * @param output the InfosetOutputter that will be used to output the infoset
-   * @param lengthLimitInBits the length of the input data in bits. This must
-   *                          be the actual length in bits if you want the
-   *                          location().isAtEnd() function to work. If value
-   *                          is -1, the isAtEnd() function will always return true.
+   * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
    * @return an object which contains the result, and/or diagnostic information.
    */
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
   def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
-    val pr = dp.parse(input, output, lengthLimitInBits).asInstanceOf[SParseResult]
+    val is = Channels.newInputStream(input)
+    val dis = new InputSourceDataInputStream(is)
+    if (lengthLimitInBits > 0) {
+      dis.dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    }
+    val pr = dp.parse(dis.dis, output).asInstanceOf[SParseResult]
     new ParseResult(pr, Nope)
   }
 
   /**
    * Parse input data without specifying a length
    *
-   * Use this when you don't know how big the data is. Note that the isAtEnd()
-   * does not work properly and will always return -1. If you need isAtEnd() to
-   * work, you must use [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method that accepts a long and
-   * specify the length of the data.
+   * Use this when you don't know how big the data is.
    *
    * @param input data to be parsed
    * @param output the InfosetOutputter that will be used to output the infoset
    * @return an object which contains the result, and/or diagnostic information.
    */
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
   def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
+
+  /**
+   * Parse input data from an InputSourceDataInputStream and output the infoset to an InfosetOutputter
+   *
+   *
+   * @param input data to be parsed
+   * @param output the InfosetOutputter that will be used to output the infoset
+   * @return an object which contains the result, and/or diagnostic information.
+   */
+  def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult = {
+    val pr = dp.parse(input.dis, output).asInstanceOf[SParseResult]
+    new ParseResult(pr, Nope)
+  }
 
   /**
    * Unparse an InfosetInputter

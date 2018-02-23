@@ -20,19 +20,25 @@ package org.apache.daffodil.processors.charset
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-US-ASCII-7-BIT-PACKED occupies only 7 bits with each
+ * X-DFDL-BITS-LSBF occupies only 1 bit with each
  * code unit.
- *
- * There are 6 bit and 5 bit encodings in use as well. (One can even think of hexadecimal as
- * a 4-bit encoding of 16 possible characters - might be a cool way to
- * implement packed decimals of various sorts.)
  */
+object BitsCharsetBinaryLSBF extends {
+  override val name = "X-DFDL-BITS-LSBF"
+  override val bitWidthOfACodeUnit = 1
+  override val decodeString = "01"
+  override val replacementCharCode = 0x0
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+} with BitsCharsetNonByteSize
 
-object USASCII7BitPackedCharset
-  extends NBitsWidth_BitsCharset("X-DFDL-US-ASCII-7-BIT-PACKED",
-    (0 to 127).map { _.toChar }.mkString,
-    7,
-    BitOrder.LeastSignificantBitFirst,
-    0x3F)
+/**
+ * X-DFDL-BITS-MSBF occupies only 1 bit with each
+ * code unit.
+ */
+object BitsCharsetBinaryMSBF extends {
+  override val name = "X-DFDL-BITS-MSBF"
+  override val bitWidthOfACodeUnit = 1
+  override val decodeString = "01"
+  override val replacementCharCode = 0x0
+  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+} with BitsCharsetNonByteSize

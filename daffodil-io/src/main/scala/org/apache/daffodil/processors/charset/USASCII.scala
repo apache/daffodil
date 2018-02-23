@@ -17,28 +17,25 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.FormatInfo
 
-/**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
- *
- */
+object BitsCharsetUSASCII extends {
+  override val name = "US-ASCII"
+  override val aliases = Seq("ASCII")
+} with BitsCharsetJava {
 
-object DFDL5BitPackedLSBFCharset
-  extends NBitsWidth_BitsCharset("X-DFDL-5-BIT-PACKED-LSBF",
-    "01234567ABCDEFGHJKLMNPQRSTUVWXYZ",
-    5, // width
-    BitOrder.LeastSignificantBitFirst,
-    0x1D) { // replacement
-
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
-  }
+  override def newDecoder() = new BitsCharsetDecoderUSASCII()
 }
 
+class BitsCharsetDecoderUSASCII
+  extends BitsCharsetDecoderByteSize {
+
+  override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+    val byte = getByte(dis, 0)
+    if (byte >= 128) {
+      throw new BitsCharsetDecoderMalformedException(8)
+    } 
+    byte.toChar
+  }
+}

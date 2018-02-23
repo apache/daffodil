@@ -22,7 +22,7 @@ import org.junit.Assert._
 import java.nio.ByteBuffer
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 
-class TestByteBufferDataInputStream4 {
+class TestInputSourceDataInputStream4 {
 
   val leFinfo = FormatInfoForUnitTest()
   leFinfo.byteOrder = ByteOrder.LittleEndian
@@ -34,7 +34,7 @@ class TestByteBufferDataInputStream4 {
     fb.position(0)
     fb.put(1.125.toFloat)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
 
     val expected = 1.125.toFloat
     val md = dis.getBinaryFloat(leFinfo)
@@ -49,7 +49,7 @@ class TestByteBufferDataInputStream4 {
     fb.position(0)
     fb.put(1.125)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val expected = 1.125
     val md = dis.getBinaryDouble(leFinfo)
     assertEquals(expected, md, 0.01)
@@ -64,7 +64,7 @@ class TestByteBufferDataInputStream4 {
     val expected = 0x0102030405060708L
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
@@ -78,7 +78,7 @@ class TestByteBufferDataInputStream4 {
     val expected = 0x01020304L
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(32, leFinfo)
     assertEquals(expected, md)
     assertEquals(32, dis.bitPos0b)
@@ -92,7 +92,7 @@ class TestByteBufferDataInputStream4 {
     val expected = 0x8070605040302010L
     fb.put(expected)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(64, leFinfo)
     assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
@@ -106,7 +106,7 @@ class TestByteBufferDataInputStream4 {
     val data = 0x0000000080706050L
     fb.put(data)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(32, leFinfo)
     assertEquals(0x80706050.toInt, md)
     assertEquals(32, dis.bitPos0b)
@@ -120,7 +120,7 @@ class TestByteBufferDataInputStream4 {
     val data = 0x8000000000000000L
     fb.put(data)
     val bytes = bb.array()
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val md = dis.getSignedLong(1, leFinfo)
     assertEquals(1, md)
     assertEquals(1, dis.bitPos0b)

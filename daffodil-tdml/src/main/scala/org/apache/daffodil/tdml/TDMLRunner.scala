@@ -57,12 +57,14 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.debugger._
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+import java.nio.LongBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.io.ByteArrayInputStream
 import scala.language.postfixOps
 import java.nio.file.Paths
 import java.nio.file.Files
+import java.io.InputStream
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.processors.UnparseResult
@@ -70,12 +72,23 @@ import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.configuration.ConfigurationLoader
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharset
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 import java.nio.charset.{ Charset => JavaCharset }
 import java.io.OutputStream
 
@@ -505,7 +518,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
 
   protected def runProcessor(schemaSource: DaffodilSchemaSource,
-    expectedData: Option[DFDL.Input],
+    expectedData: Option[InputStream],
     nBits: Option[Long],
     errors: Option[ExpectedErrors],
     warnings: Option[ExpectedWarnings],
@@ -661,7 +674,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
   override def runProcessor(schemaSource: DaffodilSchemaSource,
-    optDataToParse: Option[DFDL.Input],
+    optDataToParse: Option[InputStream],
     optLengthLimitInBits: Option[Long],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
@@ -713,7 +726,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runParseExpectErrors(processor: DFDL.DataProcessor,
-    dataToParse: DFDL.Input,
+    dataToParse: InputStream,
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
@@ -725,7 +738,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       else {
 
         val out = new XMLTextInfosetOutputter(sw)
-        val actual = processor.parse(dataToParse, out, lengthLimitInBits)
+        val dis = InputSourceDataInputStream(dataToParse)
+        if (lengthLimitInBits % 8 != 0) {
+          // Only set the bit limit if the length is not a multiple of 8. In that
+          // case, we aren't expected to consume all the data and need a bitLimit
+          // to prevent messages about left over bits.
+          dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+        }
+        val actual = processor.parse(dis, out)
         val isErr: Boolean =
           if (actual.isError) true
           else {
@@ -770,8 +790,15 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val testDataLength = lengthLimitInBits
     val outputter = new TDMLInfosetOutputter()
-
-    val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), outputter, testDataLength)
+    
+    val dis = InputSourceDataInputStream(new ByteArrayInputStream(testData))
+    if (testDataLength % 8 != 0) {
+      // Only set the bit limit if the length is not a multiple of 8. In that
+      // case, we aren't expected to consume all the data and need a bitLimit
+      // to prevent messages about left over bits.
+      dis.setBitLimit0b(MaybeULong(testDataLength))
+    }
+    val actual = processor.parse(dis, outputter)
 
     if (actual.isProcessingError) {
       // Means there was an error, not just warnings.
@@ -846,7 +873,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
-    dataToParse: DFDL.Input,
+    dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
@@ -862,10 +889,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
     processor.setValidationMode(validationMode)
 
-    val firstParseTestData = IOUtils.toByteArray(Channels.newInputStream(dataToParse))
+    val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
-
-    // First parse pass
 
     val (firstPassInfosetOutputter, actual) = doParseExpectSuccess(firstParseTestData, testInfoset, processor, lengthLimitInBits)
     verifyParseResults(processor, actual, testInfoset, firstPassInfosetOutputter)
@@ -886,7 +911,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           // It has to work, as this is one pass round trip. We expect it to unparse
           // directly back to the original input form.
 
-          VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(firstParseTestData)), outStream)
+          VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
         }
         case TwoPassRoundTrip => {
           //
@@ -901,7 +926,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
           val isUnparseOutputDataMatching =
             try {
-              VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(firstParseTestData)), outStream)
+              VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
               true
             } catch {
               case e: TDMLException => {
@@ -940,7 +965,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
   def runProcessor(schemaSource: DaffodilSchemaSource,
-    optExpectedData: Option[DFDL.Input],
+    optExpectedData: Option[InputStream],
     optNBits: Option[Long],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
@@ -982,7 +1007,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectSuccess(processor: DFDL.DataProcessor,
-    expectedData: DFDL.Input,
+    expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip) {
 
@@ -1022,7 +1047,14 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     if (roundTrip eq OnePassRoundTrip) {
       val out = new ScalaXMLInfosetOutputter()
-      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), out, testDataLength)
+      val dis = InputSourceDataInputStream(new ByteArrayInputStream(outStream.toByteArray))
+      if (testDataLength % 8 != 0) {
+        // Only set the bit limit if the length is not a multiple of 8. In that
+        // case, we aren't expected to consume all the data and need a bitLimit
+        // to prevent messages about left over bits.
+        dis.setBitLimit0b(MaybeULong(testDataLength))
+      }
+      val parseActual = processor.parse(dis, out)
 
       if (parseActual.isProcessingError) {
         // Means there was an error, not just warnings.
@@ -1061,7 +1093,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def runUnparserExpectErrors(processor: DFDL.DataProcessor,
-    optExpectedData: Option[DFDL.Input],
+    optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings]) {
 
@@ -1149,11 +1181,10 @@ object VerifyTestCase {
     XMLUtils.compareAndReport(expectedForCompare, actualForCompare)
   }
 
-  def verifyUnparserTestData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
+  def verifyUnparserTestData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
 
-    val expectedDataStream = Channels.newInputStream(expectedData)
-    val expectedBytes = IOUtils.toByteArray(expectedDataStream)
+    val expectedBytes = IOUtils.toByteArray(expectedData)
     // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
     if (expectedBytes.length == 0 && actualBytes.length > 0) {
       throw new TDMLException("Unexpected data was created.")
@@ -1216,16 +1247,58 @@ object VerifyTestCase {
     }
   }
 
-  def verifyTextData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
+  def decodeDataToString(decoder: BitsCharsetDecoder, bytes: Array[Byte]): String = {
+    class FormatInfoForTDMLDecode extends FormatInfo {
+      // Decoders don't actually need much of the formatinfo. Byte size
+      // decoders don't ever refernce byte/bitOrder, they just read raw bytes
+      // from the underlying data stream. And non-byte size encoders do care,
+      // but only support bigEndian/LSBF. There should never be encoding
+      // errors, so the error policy doesn't really matter.
+      override def byteOrder: ByteOrder = ByteOrder.BigEndian
+      override def bitOrder: BitOrder = BitOrder.LeastSignificantBitFirst
+      override def encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
+
+      private def doNotUse = Assert.usageError("Should not be used")
+      override def encoder: BitsCharsetEncoder = doNotUse
+      override def decoder: BitsCharsetDecoder = doNotUse
+      override def fillByte: Byte = doNotUse
+      override def binaryFloatRep: BinaryFloatRep = doNotUse
+      override def maybeCharWidthInBits: MaybeInt = doNotUse
+      override def maybeUTF16Width: Maybe[UTF16Width] = doNotUse
+      override def encodingMandatoryAlignmentInBits: Int = doNotUse
+      override def tunable: DaffodilTunables = doNotUse
+      override def regexMatchBuffer: CharBuffer = doNotUse
+      override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
+    }
+
+    val dis = InputSourceDataInputStream(bytes)
+    val finfo = new FormatInfoForTDMLDecode
+    val cb = CharBuffer.allocate(256)
+    val sb = new StringBuilder(256)
+    while( { val numDecoded = decoder.decode(dis, finfo, cb); numDecoded > 0 } ) {
+      cb.flip()
+      sb.append(cb)
+      cb.clear()
+    }
+    sb.toString
+  }
+
+  def verifyTextData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
     // Getting this decoder and decoding the bytes to text this way is
     // necessary, as opposed to toString(encodingName), because it is possible
     // that encodingName is a custom DFDL specific decoder (e.g. 7-bit ASCII)
     // that Java does not know about.
     val decoder = CharsetUtils.getCharset(encodingName).newDecoder()
     val actualBytes = actualOutStream.toByteArray
-    val expectedBytes = IOUtils.toByteArray(Channels.newInputStream(expectedData))
-    val actualText = decoder.decode(ByteBuffer.wrap(actualBytes)).toString
-    val expectedText = decoder.decode(ByteBuffer.wrap(expectedBytes)).toString
+    val expectedBytes = IOUtils.toByteArray(expectedData)
+
+    if (actualBytes == expectedBytes) {
+      return
+    }
+
+    // input and output weren't the same, decode the data for helpful output
+    val actualText = decodeDataToString(decoder, actualBytes)
+    val expectedText = decodeDataToString(decoder, expectedBytes)
     expectedData.close()
     if (expectedText.length == 0) {
       // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
@@ -1260,12 +1333,12 @@ object VerifyTestCase {
 
   private val cs8859 = JavaCharset.forName("iso-8859-1")
 
-  def verifyBinaryOrMixedData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
+  def verifyBinaryOrMixedData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
     lazy val actual8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
     lazy val displayableActual = Misc.remapControlsAndLineEndingsToVisibleGlyphs(actual8859String)
 
-    val expectedBytes = IOUtils.toByteArray(Channels.newInputStream(expectedData))
+    val expectedBytes = IOUtils.toByteArray(expectedData)
     lazy val expected8859String = cs8859.newDecoder().decode(ByteBuffer.wrap(expectedBytes)).toString()
     lazy val displayableExpected = Misc.remapControlsAndLineEndingsToVisibleGlyphs(expected8859String)
 
@@ -1541,9 +1614,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       // everything to bits.
       val bytes = documentBytes.toArray
       // println("data size is " + bytes.length)
-      val inputStream = new java.io.ByteArrayInputStream(bytes);
-      val rbc = java.nio.channels.Channels.newChannel(inputStream);
-      rbc.asInstanceOf[DFDL.Input]
+      new java.io.ByteArrayInputStream(bytes);
     }
   }
 
@@ -1571,7 +1642,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     val upperName = encodingName.toUpperCase
     val cs = CharsetUtils.getCharset(upperName)
     cs match {
-      case bitEnc: NBitsWidth_BitsCharset => {
+      case bitEnc: BitsCharsetNonByteSize => {
         (bitEnc.requiredBitOrder, partBitOrder) match {
           case (BitOrder.LeastSignificantBitFirst, LSBFirst) => //ok
           case (BitOrder.MostSignificantBitFirst, MSBFirst) => //ok
@@ -1579,7 +1650,8 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
           case _ => err(upperName, MSBFirst)
         }
       }
-      case _ => //ok
+      case null => Assert.usageError("Unsupported encoding: " + encodingName + ". Supported encodings: " + CharsetUtils.supportedEncodingsString)
+      case _ => // ok
     }
     val enc = cs.newEncoder()
     enc
@@ -1620,7 +1692,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bb.flip()
     val res = (0 to bb.limit() - 1).map { bb.get(_) }
     // val bitsAsString = bytes2Bits(res.toArray)
-    val enc = encoder.asInstanceOf[NBitsWidth_BitsCharsetEncoder]
+    val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
     val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
     val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
@@ -1645,7 +1717,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   lazy val dataBits = {
     val bytesAsStrings =
       encoder.bitsCharset match {
-        case nbs: NBitsWidth_BitsCharset =>
+        case nbs: BitsCharsetNonByteSize =>
           encodeWithNonByteSizeEncoder(textContentWithoutEntities, nbs.bitWidthOfACodeUnit)
         case _ =>
           encodeWith8BitEncoder(textContentWithoutEntities)
@@ -1722,8 +1794,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
 
   lazy val fileDataInput = {
     val is = url.openStream()
-    val rbc = Channels.newChannel(is)
-    rbc.asInstanceOf[DFDL.Input]
+    is
   }
 
 }

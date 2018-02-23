@@ -128,10 +128,9 @@ class TestTDMLRunner {
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
     doc.documentParts(0)
-    val bb = java.nio.ByteBuffer.allocate(11)
-    doc.data.read(bb)
-    val bytes = bb.array()
-    val actual = new String(bytes.toArray, "UTF8")
+    val bytes = new Array[Byte](11)
+    doc.data.read(bytes)
+    val actual = new String(bytes, "UTF8")
     assertEquals("test\n1\n2\n3\n", actual)
   }
 
@@ -152,9 +151,8 @@ class TestTDMLRunner {
     val ptc = ts.parserTestCases(0)
     val doc = ptc.document.get
     doc.documentParts(0)
-    val bb = java.nio.ByteBuffer.allocate(4)
-    doc.data.read(bb)
-    val bytes = bb.array()
+    val bytes = new Array[Byte](4)
+    doc.data.read(bytes)
     val actual = bytes.toList
     val expected = Vector(0xDE, 0xAD, 0xBE, 0xEF).map { _.toByte }.toList
     assertEquals(expected, actual)

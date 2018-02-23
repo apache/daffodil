@@ -26,7 +26,7 @@ import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
+import org.apache.daffodil.processors.charset.BitsCharsetJava
 import java.nio.charset.Charset
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.exceptions.Assert
@@ -45,7 +45,7 @@ class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv:
     val layerCharset: BitsCharset = layerCharsetEv.evaluate(state)
     val layerBoundaryMark = layerBoundaryMarkEv.evaluate(state)
     val javaCharset: Charset = layerCharset match {
-      case jbcs: BitsCharsetWrappingJavaCharset => jbcs.javaCharset
+      case jbcs: BitsCharsetJava => jbcs.javaCharset
       case _ => Assert.invariantFailed("Not a java-compatible charset: " + layerCharset)
     }
     val s = BoundaryMarkLimitingStream(jis, layerBoundaryMark, javaCharset)
@@ -61,7 +61,7 @@ class Base64MIMETransformer(layerCharsetEv: LayerCharsetEv, layerBoundaryMarkEv:
     val layerCharset: BitsCharset = layerCharsetEv.evaluate(state)
     val layerBoundaryMark = layerBoundaryMarkEv.evaluate(state)
     val javaCharset: Charset = layerCharset match {
-      case jbcs: BitsCharsetWrappingJavaCharset => jbcs.javaCharset
+      case jbcs: BitsCharsetJava => jbcs.javaCharset
       case _ => Assert.invariantFailed("Not a java-compatible charset: " + layerCharset)
     }
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, javaCharset)

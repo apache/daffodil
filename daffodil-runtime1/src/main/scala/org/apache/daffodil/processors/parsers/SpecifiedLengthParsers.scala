@@ -54,15 +54,17 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
     val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
+    if (!dis.isDefinedForLength(nBits)) {
+      PENotEnoughBits(pState, nBits, dis.remainingBits)
+      return
+    }
+
     val startingBitPos0b = dis.bitPos0b
     val isLimitOk: Boolean = dis.withBitLengthLimit(nBits) {
       eParser.parse1(pState)
     }
-    if (!isLimitOk) {
-      val availBits = if (dis.remainingBits.isDefined) dis.remainingBits.get.toString else "(unknown)"
-      PE(pState, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
-      return
-    }
+    Assert.invariant(isLimitOk)
+
     // at this point the recursive parse of the children is finished
     // so if we're still successful we need to advance the position
     // to skip past any bits that the recursive child parse did not

@@ -31,6 +31,7 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Evaluatable
@@ -52,6 +53,11 @@ sealed trait Parser
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*))
+  }
+
+  def PENotEnoughBits(pstate: PState, neededBits: Long, remainingBits: MaybeULong) = {
+    val remainingStr = if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
+    PE(pstate, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
   }
 
   def processingError(state: PState, str: String, args: Any*) =

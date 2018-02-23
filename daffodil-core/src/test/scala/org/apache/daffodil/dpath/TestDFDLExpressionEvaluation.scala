@@ -27,7 +27,7 @@ import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.Implicits._; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.util.TestUtils
-import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.infoset.DIDocument
 import org.apache.daffodil.infoset.NullInfosetOutputter
 import org.apache.daffodil.infoset.TestInfoset
@@ -51,7 +51,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val compiledExpr = exprCompiler.compile(expr)
     val doc = infosetRootElem.parent.asInstanceOf[DIDocument]
 
-    val dis = ByteBufferDataInputStream(java.nio.ByteBuffer.allocate(0), 0L) // fake. Zero bits available.
+    val dis = InputSourceDataInputStream(java.nio.ByteBuffer.allocate(0)) // fake. Zero bits available.
     val outputter = new NullInfosetOutputter()
     val pstate = PState.createInitialPState(doc, erd, dis, outputter, dp)
     val result = compiledExpr.evaluate(pstate)

@@ -821,7 +821,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with 40 bit(s) remaining."))
+      shell.expectIn(1, contains("Left over data. Consumed 56 bit(s) with at least 40 bit(s) remaining."))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -838,7 +838,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("Left over data. Consumed 56 bit(s) with 32 bit(s) remaining."))
+      shell.expect(contains("Left over data. Consumed 56 bit(s) with at least 32 bit(s) remaining."))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -957,5 +957,42 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_XXX_CLI_Parsing_Stream_01() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("echo -n 123 | %s parse --stream -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<a>1</a>"))
+      shell.expect(contains("<a>2</a>"))
+      shell.expect(contains("<a>3</a>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Parsing_Stream_02() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("echo -n 123ab | %s parse --stream -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<a>1</a>"))
+      shell.expect(contains("<a>2</a>"))
+      shell.expect(contains("<a>3</a>"))
+      shell.expectIn(1, contains("Left over data after consuming 0 bits while streaming."))
+      shell.expectIn(1, contains("Stopped after consuming 24 bit(s) with at least 16 bit(s) remaining."))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
 
 }

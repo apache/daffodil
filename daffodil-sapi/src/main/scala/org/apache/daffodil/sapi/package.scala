@@ -41,18 +41,19 @@ package org.apache.daffodil
  *
  * <h4>Parse</h4>
  *
- * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
- * of a java.nio.channels.ReadableByteChannel and an [[infoset.InfosetOutputter]]
+ * The [[DataProcessor#parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
+ * of a [[io.InputSourceDataInputStream]] and an [[infoset.InfosetOutputter]]
  * to determine the output representation of the infoset (e.g. Scala XML Nodes,
  * JDOM2 Documents, etc.):
  *
  * {{{
  * val scalaOutputter = new ScalaXMLInfosetOutputter()
- * val pr = dp.parse(data, scalaOutputter)
+ * val is = new InputSourceDataInputStream(data)
+ * val pr = dp.parse(is, scalaOutputter)
  * val node = scalaOutputter.getResult
  * }}}
  *
- * The [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
+ * The [[DataProcessor#parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
  * times without the need to create other data processors. However,
  * [[infoset.InfosetOutputter]]'s are not thread safe, requiring a unique instance per
  * thread. An [[infoset.InfosetOutputter]] should call [[infoset.InfosetOutputter#reset]] before
@@ -62,9 +63,23 @@ package org.apache.daffodil
  * val scalaOutputter = new ScalaXMLInfosetOutputter()
  * files.foreach { f => {
  *   outputter.reset
- *   val pr = dp.parse(f, scalaOutputter)
+ *   val is = new InputSourceDataInputStream(new FileInputStream(f))
+ *   val pr = dp.parse(is, scalaOutputter)
  *   val node = scalaOutputter.getResult
  * }}
+ * }}}
+ *
+ * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing where the previous parse ended. For example:
+ *
+ * {{{
+ * val is = new InputSourceDataInputStream(dataStream)
+ * val scalaOutputter = new ScalaXMLInfosetOutputter()
+ * val keepParsing = true
+ * while (keepParsing) {
+ *   scalaOutputter.reset()
+ *   val pr = dp.parse(is, jdomOutputter)
+ *   ...
+ *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
  * }}}
  *
  * <h4>Unparse</h4>

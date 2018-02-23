@@ -25,6 +25,7 @@ import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.io.InputSourceDataInputStream
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -56,7 +57,6 @@ import org.apache.daffodil.processors.Failure
  */
 object DFDL {
 
-  type Input = java.nio.channels.ReadableByteChannel // binary input stream/buffer
   type Output = java.nio.channels.WritableByteChannel // binary output stream/buffer
 
   trait Compiler {
@@ -153,21 +153,11 @@ object DFDL {
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
     def unparse(input: InfosetInputter, output: DFDL.Output): UnparseResult
-    /**
-     * Returns an object which contains the result, and/or diagnostic information.
-     *
-     * For testing purposes (mostly), you can restrict the number of bits to
-     * fewer than the entire input.
-     */
-    def parse(input: Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): ParseResult
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.
-     * <p>
-     * Use this rather than passing a channel/stream because it enables some
-     * I/O optimizations.
      */
-    def parse(file: File, output: InfosetOutputter): ParseResult
+    def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
   }
 
   trait ParseResult extends Result with WithDiagnostics {

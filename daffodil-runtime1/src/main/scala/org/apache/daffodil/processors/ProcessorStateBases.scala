@@ -17,6 +17,9 @@
 
 package org.apache.daffodil.processors
 
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -169,9 +172,6 @@ abstract class ParseOrUnparseState protected (
     encoderCacheEntry_ = null
   }
 
-  final def replacingDecoder: BitsCharsetDecoder = decoderEntry.replacingCoder
-  final def reportingDecoder: BitsCharsetDecoder = decoderEntry.reportingCoder
-
   final def binaryFloatRep: BinaryFloatRep = {
     if (binaryFloatRepCache eq null) {
       binaryFloatRepCache = simpleElement.erd.maybeBinaryFloatRepEv.get.evaluate(this)
@@ -271,11 +271,7 @@ abstract class ParseOrUnparseState protected (
   }
 
   private def getDecoder() = {
-    val de = decoderEntry
-    if (encodingErrorPolicy eq EncodingErrorPolicy.Error)
-      de.reportingCoder
-    else
-      de.replacingCoder
+    decoderEntry.coder
   }
 
   final def decoder = {
@@ -542,4 +538,7 @@ final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 
   protected def checkBitOrder(): Unit = {}
+
+  def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
+  def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
 }

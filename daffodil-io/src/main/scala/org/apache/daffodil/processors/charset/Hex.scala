@@ -20,21 +20,25 @@ package org.apache.daffodil.processors.charset
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
- * A 1-bit wide encoding so you can get down to the bits level
- * but use anything you'd normally use with text, such as regular expressions
- * initiators/terminators, etc.
+ * X-DFDL-HEX-LSBF occupies only 4 bits with each
+ * code unit.
  */
+object BitsCharsetHexLSBF extends {
+  override val name = "X-DFDL-HEX-LSBF"
+  override val bitWidthOfACodeUnit = 4
+  override val decodeString = """0123456789ABCDEF"""
+  override val replacementCharCode = 0x00
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+} with BitsCharsetNonByteSize
 
-object X_DFDL_BITS_LSBF
-  extends NBitsWidth_BitsCharset("X-DFDL-BITS-LSBF",
-    "01",
-    1,
-    BitOrder.LeastSignificantBitFirst,
-    0)
-
-object X_DFDL_BITS_MSBF
-  extends NBitsWidth_BitsCharset("X-DFDL-BITS-MSBF",
-    "01",
-    1,
-    BitOrder.MostSignificantBitFirst,
-    0)
+/**
+ * X-DFDL-HEX-MSBF occupies only 4 bits with each
+ * code unit.
+ */
+object BitsCharsetHexMSBF extends {
+  override val name = "X-DFDL-HEX-MSBF"
+  override val bitWidthOfACodeUnit = 4
+  override val decodeString = """0123456789ABCDEF"""
+  override val replacementCharCode = 0x00
+  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+} with BitsCharsetNonByteSize

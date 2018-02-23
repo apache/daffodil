@@ -33,12 +33,11 @@ object CharsetUtils {
    * encodings as well as the standard ones.
    */
   def getCharset(name: String): BitsCharset = {
-    val dcs = DaffodilCharsetProvider.charsetForName(name)
-    val cs =
-      if (dcs ne null) dcs
-      else new BitsCharsetWrappingJavaCharset(name)
+    val cs = DaffodilCharsetProvider.charsetForName(name)
     cs
   }
+  
+  def supportedEncodingsString = DaffodilCharsetProvider.charsets.map { _.name }.mkString(", ")
 
   /**
    * Subtle bug in decoders in Java 7 when there is room for only 1
@@ -70,31 +69,11 @@ object CharsetUtils {
   }
 
   val unicodeReplacementChar = '\uFFFD'
-
-  /**
-   * Tells us the encoding's fixed width if it is fixed.
-   * Nope if not fixed width
-   */
-  final def maybeEncodingFixedWidth(charset: BitsCharset): MaybeInt = {
-    val res: Int = charset match {
-      case nbs: NBitsWidth_BitsCharset => nbs.bitWidthOfACodeUnit
-      case _ => {
-        val enc = charset.newEncoder()
-        val avg = enc.averageBytesPerChar()
-        val max = enc.maxBytesPerChar()
-        if (avg == max) avg.toInt * 8 // bits
-        else 0 // variable width
-      }
-    }
-    if (res == 0) MaybeInt.Nope
-    else MaybeInt(res)
-  }
-
 }
 
 sealed abstract class CoderInfo(val encodingMandatoryAlignmentInBits: Int, val maybeCharWidthInBits: MaybeInt)
 
-case class DecoderInfo(coder: BitsCharsetDecoder, replacingCoder: BitsCharsetDecoder, reportingCoder: BitsCharsetDecoder,
+case class DecoderInfo(coder: BitsCharsetDecoder,
   encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
   extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
@@ -124,7 +103,7 @@ trait EncoderDecoderMixin
 
   private def derivations(charset: BitsCharset) = {
     val tuple = charset match {
-      case nbsc: NBitsWidth_BitsCharset => {
+      case nbsc: BitsCharsetNonByteSize => {
         val encodingMandatoryAlignmentInBits = 1
         val maybeCharWidthInBits = MaybeInt(nbsc.bitWidthOfACodeUnit)
         (encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
@@ -151,14 +130,8 @@ trait EncoderDecoderMixin
     var entry = decoderCache.get(charset)
     if (entry eq null) {
       val coder = charset.newDecoder()
-      val replacingCoder = charset.newDecoder()
-      val reportingCoder = charset.newDecoder()
-      replacingCoder.onMalformedInput(CodingErrorAction.REPLACE)
-      replacingCoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
-      reportingCoder.onMalformedInput(CodingErrorAction.REPORT)
-      reportingCoder.onUnmappableCharacter(CodingErrorAction.REPORT)
       val (encodingMandatoryAlignmentInBits, maybeCharWidthInBits) = derivations(charset)
-      entry = DecoderInfo(coder, replacingCoder, reportingCoder, encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+      entry = DecoderInfo(coder, encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
       decoderCache.put(charset, entry)
     }
     entry

@@ -33,7 +33,6 @@ import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import java.io.File
 import org.apache.daffodil.externalvars.Binding
 import java.nio.channels.Channels
-import java.nio.channels.FileChannel
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import java.io.ObjectOutputStream
@@ -46,6 +45,7 @@ import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.oolag.ErrorAlreadyHandled
 import org.apache.daffodil.events.MultipleEventHandler
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.util.LogLevel
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXException
@@ -162,31 +162,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
    * Here begins the parser runtime. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
    * runtime. Instead we deal with success and failure statuses.
    */
-  def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
+  def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
     val rootERD = ssrd.elementRuntimeData
-
-    val initialState =
-      PState.createInitialPState(rootERD,
-        input,
-        output,
-        this,
-        bitOffset = 0,
-        bitLengthLimit = lengthLimitInBits)
-    parse(initialState)
-  }
-
-  def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = {
-    Assert.usage(!this.isError)
-
-    val initialState =
-      PState.createInitialPState(ssrd.elementRuntimeData,
-        FileChannel.open(file.toPath),
-        output,
-        this,
-        bitOffset = 0,
-        bitLengthLimit = file.length * 8)
+    val initialState = PState.createInitialPState(rootERD, input, output, this)
     parse(initialState)
   }
 
@@ -223,7 +203,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   private def doParse(p: Parser, state: PState) {
     try {
-      state.dataInputStream.setLimits(state.tunable)
       this.startElement(state, p)
       p.parse1(state)
       this.endElement(state, p)
@@ -274,10 +253,15 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         state.setFailed(e)
       }
       case us: UnsuppressableException => throw us
-      case x: Throwable =>
-        Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
+      case x: Throwable => {
+        val sw = new java.io.StringWriter()
+        val pw = new java.io.PrintWriter(sw)
+        x.printStackTrace(pw)
+        Assert.invariantFailed("Runtime.scala - Leaked exception: " + x + "\n" + sw.toString)
+      }
     }
 
+    state.dataInputStream.inputSource.compact
     state.dataInputStream.validateFinalStreamState
   }
 

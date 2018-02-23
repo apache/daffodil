@@ -33,7 +33,7 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.processors.parsers.PState
 
-class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[DataOutputStream, DataInputStream],
+class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, val isAtEnd: Boolean, eitherStream: Either[DataOutputStream, DataInputStream],
   val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
@@ -150,12 +150,4 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[D
   }
 
   def aligned128BitsPos = (bitPos1b >> 7) << 7
-
-  /*
-   * We're at the end if the position is at the limit.
-   */
-  def isAtEnd: Boolean = {
-    Assert.invariant(bitLimit1b.isDefined)
-    bitPos1b >= bitLimit1b.get
-  }
 }

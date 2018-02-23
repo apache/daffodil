@@ -27,13 +27,14 @@ import org.junit.Test
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.processors.charset.OctalLSBF3BitCharset
-import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
+import org.apache.daffodil.processors.charset.BitsCharsetOctalLSBF
+import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * tests of 7-bit characters
  */
-class TestByteBufferDataInputStream3Bit {
+class TestInputSourceDataInputStream3Bit {
 
   val finfo = FormatInfoForUnitTest()
 
@@ -60,7 +61,7 @@ class TestByteBufferDataInputStream3Bit {
     }
 
     def encode3(s: String): Seq[String] = {
-      val encoder = OctalLSBF3BitCharset.newEncoder
+      val encoder = BitsCharsetOctalLSBF.newEncoder
       val bb = ByteBuffer.allocate(4 * s.length)
       val cb = CharBuffer.wrap(s)
       val coderResult = encoder.encode(cb, bb, true)
@@ -68,7 +69,7 @@ class TestByteBufferDataInputStream3Bit {
       bb.flip()
       val res = (0 to bb.limit() - 1).map { bb.get(_) }
       // val bitsAsString = Misc.bytes2Bits(res.toArray)
-      val enc = encoder.asInstanceOf[NBitsWidth_BitsCharsetEncoder]
+      val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
       val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
       val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
       val allBits = bitStrings.reverse.mkString.takeRight(nBits)
@@ -110,67 +111,67 @@ class TestByteBufferDataInputStream3Bit {
   /*
    * Tests of unaligned char buffers (ie., 3-bit characters)
    */
-  @Test def testFillCharBufferOne3BitChar {
-    val dis = ByteBufferDataInputStream(BitsBitte.enc("01234567"))
-    val cs = OctalLSBF3BitCharset
+  @Test def testGetSomeStringOne3BitChar {
+    val dis = InputSourceDataInputStream(BitsBitte.enc("01234567"))
+    val cs = BitsCharsetOctalLSBF
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
-    val cb = CharBuffer.allocate(1)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
+    val ms = dis.getSomeString(1, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(1, s.length)
     assertEquals(3, dis.bitPos0b)
-    assertEquals('0', cb.get())
+    assertEquals('0', s(0))
   }
 
-  @Test def testFillCharBuffer3BitString {
+  @Test def testGetSomeString3BitString {
     val dat = "01234567"
-    val cs = OctalLSBF3BitCharset
-    val dis = ByteBufferDataInputStream(BitsBitte.enc(dat))
+    val cs = BitsCharsetOctalLSBF
+    val dis = InputSourceDataInputStream(BitsBitte.enc(dat))
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
-    val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(8, ml.get)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(8, s.length)
     assertEquals(cs.bitWidthOfACodeUnit * 8, dis.bitPos0b)
-    assertEquals(dat, cb.toString())
+    assertEquals(dat, s)
   }
 
-  @Test def testFillCharBuffer3BitStringOffBy2 {
+  @Test def testGetSomeString3BitStringOffBy2 {
     val dat = "01234567"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("11"), BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
-    val cb = CharBuffer.allocate(8)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.skip(2, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(8, ml.get)
-    assertEquals(dat, cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(8, s.length)
+    assertEquals(dat, s)
     assertEquals(2 + (cs.bitWidthOfACodeUnit * 8), dis.bitPos0b)
   }
 
-  @Test def testFillCharBufferDataEndsMidByte {
+  @Test def testGetSomeStringDataEndsMidByte {
     val dat = "01234567"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("11"), BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(12))
-    val cb = CharBuffer.allocate(8)
     dis.skip(2, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(3, ml.get)
-    assertEquals("012", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(3, s.length)
+    assertEquals("012", s)
     assertEquals(11, dis.bitPos0b)
   }
 
@@ -183,21 +184,21 @@ class TestByteBufferDataInputStream3Bit {
    * able to fetch another byte of source data (aka an "underflow"), yet there actually
    * are sufficient bits without that byte to decode a character.
    */
-  @Test def testFillCharBufferDataEndsMidByte2 {
+  @Test def testGetSomeStringDataEndsMidByte2 {
     val dat = "01234567"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("1"), BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(8))
-    val cb = CharBuffer.allocate(8)
     dis.skip(1, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(2, ml.get)
-    assertEquals("01", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(2, s.length)
+    assertEquals("01", s)
     assertEquals(7, dis.bitPos0b)
   }
 
@@ -206,55 +207,55 @@ class TestByteBufferDataInputStream3Bit {
    * enough bits to finish a character.
    */
 
-  @Test def testFillCharBufferDataEndsMidByte3 {
+  @Test def testGetSomeStringrDataEndsMidByte3 {
     val dat = "56701234"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(5))
-    val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
-    assertEquals("5", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(1, s.length)
+    assertEquals("5", s)
     assertEquals(3, dis.bitPos0b)
   }
 
-  @Test def testFillCharBufferDataEndsMidByte3a {
+  @Test def testGetSomeStringDataEndsMidByte3a {
     val dat = "77756701234"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(14))
-    val cb = CharBuffer.allocate(8)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(4, ml.get)
-    assertEquals("7775", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(4, s.length)
+    assertEquals("7775", s)
     assertEquals(12, dis.bitPos0b)
   }
 
-  @Test def testFillCharBufferDataEndsMidByte3b {
+  @Test def testGetSomeStringDataEndsMidByte3b {
     val dat = "56701234"
-    val cs = OctalLSBF3BitCharset
+    val cs = BitsCharsetOctalLSBF
     val bytes = BitsBitte.toBytes(BitsBitte.rtl(BitsBitte.rtl("1"), BitsBitte.encode3(dat)))
-    val dis = ByteBufferDataInputStream(bytes)
+    val dis = InputSourceDataInputStream(bytes)
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(6))
-    val cb = CharBuffer.allocate(8)
     dis.skip(1, finfo)
-    val ml = dis.fillCharBuffer(cb, finfo)
-    cb.flip
-    assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
-    assertEquals("5", cb.toString())
+    val ms = dis.getSomeString(8, finfo)
+    assertTrue(ms.isDefined)
+    val s = ms.get
+    assertEquals(1, s.length)
+    assertEquals("5", s)
     assertEquals(4, dis.bitPos0b)
   }
 
@@ -269,12 +270,12 @@ class TestByteBufferDataInputStream3Bit {
    *
    * Also shows that hasNext() doesn't ever move the bitPos.
    */
-
   @Test def testCharIteratorWithInterruptingBitSkips1 {
-    val dis = ByteBufferDataInputStream(BitsBitte.enc("01234567"))
-    val cs = OctalLSBF3BitCharset
+    val dis = InputSourceDataInputStream(BitsBitte.enc("01234567"))
+    val cs = BitsCharsetOctalLSBF
     val finfo = FormatInfoForUnitTest()
     finfo.reset(cs)
+    finfo.bitOrder = BitOrder.LeastSignificantBitFirst
     dis.setBitLimit0b(MaybeULong(24))
     val iter = dis.asIteratorChar
     iter.setFormatInfo(finfo)
@@ -299,7 +300,7 @@ class TestByteBufferDataInputStream3Bit {
   }
 
   @Test def test3BitEncoderOverflowError {
-    val encoder = OctalLSBF3BitCharset.newEncoder
+    val encoder = BitsCharsetOctalLSBF.newEncoder
     val bb = ByteBuffer.allocate(1) // only big enough for a single byte
     val cb = CharBuffer.wrap("123") // 3 octal digits will cause overflow
     val coderResult = encoder.encode(cb, bb, true)
@@ -307,7 +308,7 @@ class TestByteBufferDataInputStream3Bit {
   }
 
   @Test def test3BitEncoderMalformedError {
-    val encoder = OctalLSBF3BitCharset.newEncoder
+    val encoder = BitsCharsetOctalLSBF.newEncoder
     val bb = ByteBuffer.allocate(3)
     val cb = CharBuffer.wrap("12?") // ? is not encodable in octal
     val coderResult = encoder.encode(cb, bb, true)

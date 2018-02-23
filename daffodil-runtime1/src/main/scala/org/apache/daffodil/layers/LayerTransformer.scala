@@ -26,9 +26,8 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import java.util.HashMap
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.util.NonAllocatingMap
-import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert
@@ -114,7 +113,7 @@ abstract class LayerTransformer()
 
   protected def wrapLimitingStream(jis: java.io.InputStream, state: PState): java.io.InputStream
 
-  def wrapJavaInputStream(s: DataInputStream, fInfo: FormatInfo): java.io.InputStream = {
+  def wrapJavaInputStream(s: InputSourceDataInputStream, fInfo: FormatInfo): java.io.InputStream = {
     new JavaIOInputStream(s, fInfo)
   }
 
@@ -132,7 +131,7 @@ abstract class LayerTransformer()
   val mandatoryLayerAlignmentInBits: Int = 8
   val mandatoryLengthUnit: LayerLengthUnits = LayerLengthUnits.Bytes
 
-  def addLayer(s: DataInputStream, state: PState): DataInputStream = {
+  def addLayer(s: InputSourceDataInputStream, state: PState): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, state)
     val limitedJIS = wrapLimitingStream(jis, state)
     val decodedInputStream = wrapLayerDecoder(limitedJIS)
@@ -140,13 +139,13 @@ abstract class LayerTransformer()
     //    println(str)
     //    val bais = new ByteArrayInputStream(str.getBytes("ascii"))
 
-    val newDIS = ByteBufferDataInputStream(decodedInputStream, 0L)
+    val newDIS = InputSourceDataInputStream(decodedInputStream)
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst) // must initialize priorBitOrder
     newDIS.setDebugging(s.areDebugging)
     newDIS
   }
 
-  def removeLayer(s: DataInputStream): Unit = {
+  def removeLayer(s: InputSourceDataInputStream): Unit = {
     // nothing for now
   }
 
@@ -191,7 +190,7 @@ abstract class LayerTransformer()
   //  def hexify(is: InputStream): String =
   //    Stream.continually(is.read).takeWhile(_ != -1).map(x => "%02x".format(x.toInt)).mkString(" ")
   //
-  //  def hexDumpLayer(is: DataInputStream, finfo: FormatInfo) {
+  //  def hexDumpLayer(is: InputSourceDataInputStream, finfo: FormatInfo) {
   //    val jis = new JavaIOInputStream(is, finfo)
   //    val str = hexify(jis)
   //    println("DIS hex dump = " + str)
@@ -199,7 +198,7 @@ abstract class LayerTransformer()
   //  }
 }
 
-class JavaIOInputStream(s: DataInputStream, finfo: FormatInfo)
+class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo)
   extends java.io.InputStream {
 
   private lazy val id = Misc.getNameFromClass(this)

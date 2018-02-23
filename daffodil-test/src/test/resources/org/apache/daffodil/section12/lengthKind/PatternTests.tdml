@@ -246,6 +246,23 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="lengthKindPattern-Embedded-2.dfdl.xsd">
+
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" textNumberRep="standard" representation="text"
+      encodingErrorPolicy="replace" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="pat" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="." />
+          <xs:element name="end" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -905,6 +922,35 @@
           <e1></e1>
           <leftover>three</leftover>
         </seq3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: lengthPatternEncodingErrorReplace
+         Schema: lengthKindPattern-Embedded-2.dfdl.xsd
+           Root: e1
+    Description: This test demonstrates that if there is an encoding error
+                 in a lengthKindPattern and multibytes are malformed, then
+                 they are all skipped appropriately. The first two bytes form
+                 a single UTF-8 space character but it is overlong so is malformed
+-->
+
+  <tdml:parserTestCase name="lengthPatternEncodingErrorReplace"
+    root="e1" model="lengthKindPattern-Embedded-2.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="twoPass">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11000000 10100000</tdml:documentPart>
+      <tdml:documentPart type="text">b</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <pat>�</pat>
+          <end>b</end>
+        </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

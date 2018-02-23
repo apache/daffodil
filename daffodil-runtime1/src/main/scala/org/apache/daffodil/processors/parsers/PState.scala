@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.processors.parsers
 
+import java.nio.channels.Channels
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+
 import scala.Right
 import scala.collection.mutable
 
@@ -33,7 +37,7 @@ import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
-import org.apache.daffodil.io.ByteBufferDataInputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
@@ -56,7 +60,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
 
@@ -138,7 +141,7 @@ class MPState private () {
 
 final class PState private (
   var infoset: DIElement,
-  var dataInputStream: ByteBufferDataInputStream,
+  var dataInputStream: InputSourceDataInputStream,
   val output: InfosetOutputter,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
@@ -200,9 +203,10 @@ final class PState private (
     "PState( bitPos=%s status=%s )".format(bitPos0b, processorStatus)
   }
 
-  def currentLocation: DataLocation =
-    new DataLoc(bitPos1b, bitLimit1b, Right(dataInputStream),
-      Maybe(thisElement.runtimeData))
+  def currentLocation: DataLocation = {
+    val isAtEnd = !dataInputStream.isDefinedForLength(1)
+    new DataLoc(bitPos1b, bitLimit1b, isAtEnd, Right(dataInputStream), Maybe(thisElement.runtimeData))
+  }
 
   override def discriminator = discriminatorStack.top
   def bitPos0b = dataInputStream.bitPos0b
@@ -301,22 +305,26 @@ final class PState private (
         case _ => // ok
       }
 
-      dis.st.setPriorBitOrder(this.bitOrder)
+      dis.cst.setPriorBitOrder(this.bitOrder)
       if (!dis.isAligned(8))
         SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", dis.bitPos1b)
     }
   }
 
-  private def isParseBitOrderChanging(dis: ByteBufferDataInputStream): Boolean = {
+  private def isParseBitOrderChanging(dis: InputSourceDataInputStream): Boolean = {
     this.processor.context match {
       case ntrd: NonTermRuntimeData => false
       case _ => {
-        val priorBitOrder = dis.st.priorBitOrder
+        val priorBitOrder = dis.cst.priorBitOrder
         val newBitOrder = this.bitOrder
         priorBitOrder ne newBitOrder
       }
     }
   }
+
+  // TODO: this should come from a thread safe pool or something so that we do not allocate it for every parse
+  override lazy val regexMatchBuffer = CharBuffer.allocate(tunable.maximumRegexMatchLengthInCharacters)
+  override lazy val regexMatchBitPositionBuffer = LongBuffer.allocate(tunable.maximumRegexMatchLengthInCharacters)
 }
 
 object PState {
@@ -393,19 +401,13 @@ object PState {
    */
   def createInitialPState(
     root: ElementRuntimeData,
-    dis: ByteBufferDataInputStream,
+    dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
     val tunables = dataProc.getTunables()
-
     val doc = Infoset.newDocument(root, tunables).asInstanceOf[DIElement]
-    val variables = dataProc.getVariables
-    val diagnostics = Nil
-    val mutablePState = MPState()
-    val newState = new PState(doc, dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope, tunables)
-    newState
+    createInitialPState(doc.asInstanceOf[InfosetDocument], root, dis, output, dataProc)
   }
 
   /**
@@ -414,16 +416,18 @@ object PState {
   def createInitialPState(
     doc: InfosetDocument,
     root: ElementRuntimeData,
-    dis: ByteBufferDataInputStream,
+    dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor): PState = {
 
     val variables = dataProc.getVariables
     val diagnostics = Nil
     val mutablePState = MPState()
-
+    val tunables = dataProc.getTunables()
+    
+    dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
-      dataProc.asInstanceOf[DataProcessor], Nope, dataProc.getTunables())
+      dataProc.asInstanceOf[DataProcessor], Nope, tunables)
     newState
   }
 
@@ -434,10 +438,9 @@ object PState {
     root: ElementRuntimeData,
     data: String,
     output: InfosetOutputter,
-    bitOffset: Long,
     dataProc: DFDL.DataProcessor): PState = {
-    val in = Misc.stringToReadableByteChannel(data)
-    createInitialPState(root, in, output, dataProc, data.length, bitOffset)
+    val in = InputSourceDataInputStream(data.getBytes("utf-8"))
+    createInitialPState(root, in, output, dataProc)
   }
 
   /**
@@ -445,14 +448,10 @@ object PState {
    */
   def createInitialPState(
     root: ElementRuntimeData,
-    input: DFDL.Input,
+    input: java.nio.channels.ReadableByteChannel,
     output: InfosetOutputter,
-    dataProc: DFDL.DataProcessor,
-    bitOffset: Long = 0,
-    bitLengthLimit: Long = -1): PState = {
-    val dis =
-      ByteBufferDataInputStream.fromByteChannel(input, bitOffset, bitLengthLimit)
-    dis.cst.setPriorBitOrder(root.defaultBitOrder)
+    dataProc: DFDL.DataProcessor): PState = {
+    val dis = InputSourceDataInputStream(Channels.newInputStream(input))
     createInitialPState(root, dis, output, dataProc)
   }
 }

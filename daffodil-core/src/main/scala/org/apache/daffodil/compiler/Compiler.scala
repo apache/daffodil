@@ -255,7 +255,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
 
   def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
 
-  def reload(savedParser: DFDL.Input): DFDL.DataProcessor = {
+  def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor = {
     try {
       val objInput = new ObjectInputStream(new GZIPInputStream(Channels.newInputStream(savedParser))) {
 

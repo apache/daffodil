@@ -39,6 +39,7 @@ import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.infoset.InfosetInputter
+import org.apache.daffodil.io.InputSourceDataInputStream
 
 /*
  * This is not a file of tests.
@@ -197,7 +198,6 @@ object TestUtils {
       val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
-    val d = data
     if (areTracing) {
       p.setDebugger(builtInTracer)
       p.setDebugging(true)
@@ -205,7 +205,8 @@ object TestUtils {
     p.setValidationMode(ValidationMode.Limited)
 
     val outputter = new ScalaXMLInfosetOutputter()
-    val actual = p.parse(d, outputter)
+    val input = InputSourceDataInputStream(Channels.newInputStream(data))
+    val actual = p.parse(input, outputter)
     if (actual.isProcessingError) {
       val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
@@ -276,8 +277,7 @@ class Fakes private () {
     def setExternalVariables(extVars: File): Unit = {}
     def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {}
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
-    def parse(input: DFDL.Input, output: InfosetOutputter, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
-    def parse(file: File, output: InfosetOutputter): DFDL.ParseResult = null
+    def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
     def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     def isError: Boolean = false

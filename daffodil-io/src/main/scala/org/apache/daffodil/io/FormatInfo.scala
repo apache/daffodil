@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.io
 
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
@@ -47,23 +51,9 @@ trait FormatInfo {
   def encoder: BitsCharsetEncoder
 
   /**
-   * Returns a charset decoder for this encoding configured for the
-   * `dfdl:encodingErrorPolicy`. This is the same as either the `reportingDecoder`
-   * or the `replacingDecoder`.
+   * Returns a charset decoder for this encoding
    */
   def decoder: BitsCharsetDecoder
-
-  /**
-   * Returns a decoder configured for `dfdl:encodingErrorPolicy="report"`
-   * regardless of the value of that property.
-   */
-  def reportingDecoder: BitsCharsetDecoder
-
-  /**
-   * Returns decoder configured for `dfdl:encodingErrorPolicy="replace"`
-   * regardless of the value of that property.
-   */
-  def replacingDecoder: BitsCharsetDecoder
 
   /**
    * Returns true if encoding is fixed width meaning has the
@@ -128,4 +118,15 @@ trait FormatInfo {
    * Provides the `dfdl:encodingErrorPolicy` as an EncodingErrorPolicy enum.
    */
   def encodingErrorPolicy: EncodingErrorPolicy
+
+  /**
+   * Provides tunable values
+   */
+  def tunable: DaffodilTunables
+
+  /**
+   * Buffers used for regex matching
+   */
+  def regexMatchBuffer: CharBuffer
+  def regexMatchBitPositionBuffer: LongBuffer
 }

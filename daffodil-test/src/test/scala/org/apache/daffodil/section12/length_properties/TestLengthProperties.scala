@@ -95,8 +95,8 @@ class TestLengthProperties {
 
   @Test def test_littleEndianBits1() = {
     import org.apache.daffodil.util._
-    val b1 = BitsUtils.littleEndianBitValue(1, 10)
-    val b2 = BitsUtils.littleEndianBitValue(10, 10)
+    val b1 = Bits.littleEndianBitValue(1, 10)
+    val b2 = Bits.littleEndianBitValue(10, 10)
     val res = b1 + b2
     assertEquals(384, res)
   }

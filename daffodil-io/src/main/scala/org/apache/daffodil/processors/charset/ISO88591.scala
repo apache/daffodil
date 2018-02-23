@@ -17,26 +17,23 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.FormatInfo
 
-/**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-OCTAL-LSBF occupies only 3 bits with each
- * code unit.
- *
- */
+object BitsCharsetISO88591 extends {
+  override val name = "ISO-8859-1"
+} with BitsCharsetJava {
 
-object OctalLSBF3BitCharset
-  extends NBitsWidth_BitsCharset("X-DFDL-OCTAL-LSBF",
-    "01234567",
-    3, // width
-    BitOrder.LeastSignificantBitFirst,
-    0) // replacement charCode for encoding of unmapped chars.
+  override def newDecoder() = new BitsCharsetDecoderISO88591()
+}
 
-object OctalMSBF3BitCharset
-  extends NBitsWidth_BitsCharset("X-DFDL-OCTAL-MSBF",
-    "01234567",
-    3, // width
-    BitOrder.MostSignificantBitFirst,
-    0) // replacement charCode for encoding of unmapped chars.
+
+class BitsCharsetDecoderISO88591
+  extends BitsCharsetDecoderByteSize {
+
+  protected override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+    val byte = getByte(dis, 0)
+    byte.toChar
+  }
+}
+

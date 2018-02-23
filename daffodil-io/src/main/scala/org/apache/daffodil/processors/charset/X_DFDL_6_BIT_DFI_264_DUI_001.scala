@@ -17,28 +17,15 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
- * Some encodings are not byte-oriented.
- *
- * X-DFDL-6-BIT-DFI-264-DUI-001
- *
+ * X-DFDL-6-BIT-DFI-264-DUI-001, special 6 bit encoding
  */
-
-object X_DFDL_6_BIT_DFI_264_DUI_001
-  extends NBitsWidth_BitsCharset("X-DFDL-6-BIT-DFI-264-DUI-001",
-    " 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0",
-    6, // width
-    BitOrder.LeastSignificantBitFirst,
-    0) {
-
-  override def checks() = {
-    super.checks()
-    Assert.invariant(this.charToCode('0').get == 63)
-    Assert.invariant(this.charToCode('1').get == 1)
-    Assert.invariant(this.charToCode(' ').get == 0) // space
-    Assert.invariant(this.charToCode('a').isEmpty) // unmapped
-  }
-}
+object BitsCharset6BitDFI264DUI001 extends {
+  override val name = "X-DFDL-6-BIT-DFI-264-DUI-001"
+  override val bitWidthOfACodeUnit = 6
+  override val decodeString = """ 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0"""
+  override val replacementCharCode = 0x0
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+} with BitsCharsetNonByteSize
