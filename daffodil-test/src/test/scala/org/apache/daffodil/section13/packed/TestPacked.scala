@@ -84,6 +84,8 @@ class TestPacked {
   @Test def testDelimitedBCDIntSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDIntSeqUnparser") }
   @Test def testDelimitedBCDDecSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDDecSeqUnparser") }
   @Test def testDelimitedIBM4690IntSeq(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeq") }
+  @Test def testDelimitedIBM4690IntOptSeq01(): Unit = { runner.runOneTest("DelimitedIBM4690IntOptSeq01") }
+  //@Test def testDelimitedIBM4690IntOptSeq02(): Unit = { runner.runOneTest("DelimitedIBM4690IntOptSeq02") } // Needs proper trailing suppression - DAFFODIL-1919
   @Test def testDelimitedIBM4690DecSeq(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeq") }
   @Test def testDelimitedIBM4690IntSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeqUnparser") }
   @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeqUnparser") }
