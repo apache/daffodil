@@ -25,6 +25,7 @@ import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.equality._; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DataLocation
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import org.apache.daffodil.api.WarnID
 
 /**
  * Modes for expression evaluation.
@@ -198,9 +199,9 @@ case class DState() {
     if (!currentNode.isInstanceOf[DIArray]) {
       Assert.invariant(errorOrWarn.isDefined)
       if (currentNode.isInstanceOf[DIElement]) {
-        errorOrWarn.get.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
+        errorOrWarn.get.SDW(WarnID.PathNotToArray, "The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
       } else {
-        errorOrWarn.get.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
+        errorOrWarn.get.SDW(WarnID.PathNotToArray, "The specified path is not to an array. Suggest using fn:exists instead.")
       }
       false
     } else {

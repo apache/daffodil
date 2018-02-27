@@ -169,7 +169,7 @@ trait ImplementsThrowsSDE
 
 trait ImplementsThrowsOrSavesSDE
   extends ImplementsThrowsSDE with SavesErrorsAndWarnings {
-  
+
   def tunable: DaffodilTunables
 
   def error(th: Diagnostic): Unit
@@ -182,19 +182,7 @@ trait ImplementsThrowsOrSavesSDE
   }
 
   /**
-   * This form allows All warnings to be suppressed centrally but not individually.
-   */
-  def SDW(id: String, args: Any*): Unit = {
-    if (tunable.notSuppressedWarning(WarnID.All)) {
-      ExecutionMode.requireCompilerMode
-      val sdw = new SchemaDefinitionWarning(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
-      warn(sdw)
-    }
-  }
-
-  /**
-   * Use this form if you need to be able to suppress the warning
-   * individually selectively.
+   * Issue a warning. The WarnID allows suppression of warning messages.
    */
   def SDW(warnID: WarnID, fmt: String, args: Any*): Unit = {
     if (tunable.notSuppressedWarning(warnID)) {

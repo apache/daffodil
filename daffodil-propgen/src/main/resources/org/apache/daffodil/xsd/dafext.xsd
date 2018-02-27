@@ -119,8 +119,30 @@
              <xsd:simpleType>
                <xsd:restriction base="xsd:token">
                  <xsd:enumeration value="all"/>
-                 <xsd:enumeration value="multipleChoiceBranches"/>
+                 <!-- 
+                    Please keep these in alphabetical order
+                     -->
+                 <xsd:enumeration value="alignmentNotSame"/>
+                 <xsd:enumeration value="appinfoDFDLSourceWrong"/>
+                 <xsd:enumeration value="appinfoNoSource"/>
+                 <xsd:enumeration value="choiceInsideHiddenGroup" />
+                 <xsd:enumeration value="deprecatedBuiltInFormats"/>
+                 <xsd:enumeration value="deprecatedEncodingNameUSASCII7BitPacked"/>
+                 <xsd:enumeration value="deprecatedFunctionDAFError"/>
+                 <xsd:enumeration value="deprecatedPropertySeparatorPolicy" />
                  <xsd:enumeration value="escapeSchemeRefUndefined"/>
+                 <xsd:enumeration value="facetExplicitLengthOutOfRange"/>
+                 <xsd:enumeration value="inconsistentLengthKind"/>
+                 <xsd:enumeration value="multipleChoiceBranches"/>
+                 <xsd:enumeration value="namespaceDifferencesOnly"/>
+                 <xsd:enumeration value="noEmptyDefault"/>
+                 <xsd:enumeration value="pathNotToArray" />
+                 <xsd:enumeration value="patternEncodingSlashW"/>
+                 <xsd:enumeration value="queryStylePathExpression"/>
+                 <xsd:enumeration value="regexPatternZeroLength" />
+                 <xsd:enumeration value="unsupportedAttributeBlockDefault" />
+                 <xsd:enumeration value="unsupportedAttributeFinalDefault" />
+                 <xsd:enumeration value="unsupportedAttributeSchemaLocation" />
                </xsd:restriction>
              </xsd:simpleType>
            </xsd:list>

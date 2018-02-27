@@ -29,6 +29,7 @@ import org.apache.daffodil.dsom.RelativePathPastRootError
 import org.apache.daffodil.equality._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.api.WarnID
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -1299,12 +1300,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DAFTraceExpr(functionQNameString, functionQName, args)
 
       case (RefQName(_, "error", DAF_NCSA), args) => {
-        SDW("Expression daf:error is deprecated. Use fn:error instead")
+        SDW(WarnID.DeprecatedFunctionDAFError, "Expression daf:error is deprecated. Use fn:error instead")
         DAFErrorExpr(functionQNameString, functionQName, args)
       }
 
       case (RefQName(_, "error", DAF_APACHE), args) => {
-        SDW("Expression daf:error is deprecated. Use fn:error instead")
+        SDW(WarnID.DeprecatedFunctionDAFError, "Expression daf:error is deprecated. Use fn:error instead")
         DAFErrorExpr(functionQNameString, functionQName, args)
       }
 

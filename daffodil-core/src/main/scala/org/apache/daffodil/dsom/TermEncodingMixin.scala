@@ -21,6 +21,7 @@ import org.apache.daffodil.processors.EncodingRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.KnownEncodingMixin
+import org.apache.daffodil.api.WarnID
 
 /**
  * Captures concepts around dfdl:encoding property and Terms.
@@ -70,7 +71,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
   override final lazy val knownEncodingAlignmentInBits = {
     if (isKnownEncoding) {
-      schemaDefinitionWarningWhen(knownEncodingName == "US-ASCII-7-BIT-PACKED",
+      schemaDefinitionWarningWhen(WarnID.DeprecatedEncodingNameUSASCII7BitPacked, knownEncodingName == "US-ASCII-7-BIT-PACKED",
         "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
           "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
       val cs = charsetEv.optConstant.get

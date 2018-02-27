@@ -57,7 +57,8 @@ trait ThrowsSDE {
 
   final def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 
-  /***
+  /**
+   * *
    * These functions are now macros as the original code:
    * final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: => String, args: => Any*) =  if (!testThatWillThrowIfFalse) SDE(str, args: _*)
    * would cause expensive object allocation, even when the
@@ -82,32 +83,29 @@ trait ThrowsSDE {
 trait SavesErrorsAndWarnings {
 
   def SDE(id: String, args: Any*): Nothing
-  def SDW(str: String, args: Any*): Unit
+
   /**
-   * Use this form if you need to be able to suppress the warning
+   * Issue a warning. The WarnID enables suppression of warning messages.
    */
   def SDW(warnID: WarnID, str: String, args: Any*): Unit
   def SDEButContinue(str: String, args: Any*): Unit
 
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
 
-  /***
+  /*
    * These functions are now macros as the original code:
-   * final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: => String, args: => Any*) =  if (!testThatWillThrowIfFalse) SDE(str, args: _*)
+   * final def schemaDefinitionUnless(warnID: WarnID, testThatWillThrowIfFalse: Boolean, str: => String, args: => Any*) =  if (!testThatWillThrowIfFalse) SDE(warnID, str, args: _*)
    * would cause expensive object allocation, even when the
    * test would be true and even when the function was inlined
    */
-  def schemaDefinitionWarningUnless(testThatWillWarnIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningUnlessMacro
 
   /**
-   * Use this form if you need to be able to suppress the warning
+   * Conditionally issue a warning. The WarnID allows warning suppression.
    */
   def schemaDefinitionWarningUnless(warnID: WarnID, testThatWillWarnIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningUnlessSuppressMacro
 
-  def schemaDefinitionWarningWhen(testThatWillWarnIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningWhenMacro
-
   /**
-   * Use this form if you need to be able to suppress the warning
+   * Conditionally issue a warning. The WarnID allows warning suppression.
    */
   def schemaDefinitionWarningWhen(warnID: WarnID, testThatWillWarnIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningWhenSuppressMacro
 

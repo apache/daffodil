@@ -35,6 +35,7 @@ import org.apache.daffodil.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.api.WarnID
 
 trait ContentValueReferencedElementInfoMixin {
 
@@ -498,7 +499,7 @@ class DPathElementCompileInfo(
 
   private def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
     expr: ImplementsThrowsOrSavesSDE) = {
-    expr.SDW("Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+    expr.SDW(WarnID.QueryStylePathExpression, "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
       step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
   }
 }
