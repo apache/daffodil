@@ -85,6 +85,10 @@ class TestUnparseArrayOptionalElem {
   @Test def test_impOptArrayThenScalar02() { runner_imp.runOneTest("impOptArrayThenScalar02") }
   @Test def test_impOptArrayThenScalar02parse() { runner_imp.runOneTest("impOptArrayThenScalar02parse") }
 
+  @Test def test_scalarThenImpOptArray01() { runner_imp.runOneTest("scalarThenImpOptArray01") }
+  @Test def test_scalarThenImpOptArray02() { runner_imp.runOneTest("scalarThenImpOptArray02") }
+  @Test def test_scalarThenImpOptArray03() { runner_imp.runOneTest("scalarThenImpOptArray03") }
+
   @Test def test_parsedOptPresent() { runner_parsed.runOneTest("parsedOptPresent") }
   @Test def test_parsedOptPresentArray() { runner_parsed.runOneTest("parsedOptPresentArray") }
   @Test def test_parsedOptAbsentArray() { runner_parsed.runOneTest("parsedOptAbsentArray") }

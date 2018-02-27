@@ -245,7 +245,7 @@ abstract class ModelGroup
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: ElementBase if e.isOptional => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase if !e.isRequired => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -356,7 +356,7 @@ abstract class ModelGroup
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
           case None => false
-          case Some(e: ElementBase) => !e.isOptional || e.isRequiredArrayElement
+          case Some(e: ElementBase) => e.isRequired
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
           case Some(_) => Assert.invariantFailed()
         }

@@ -82,6 +82,26 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="r5" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence>
+            <xs:sequence>
+              <xs:element name="sca1" type="xs:string" />
+            </xs:sequence>
+            <xs:element name="opt" type="xs:string" minOccurs="0" maxOccurs="3">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ xs:int(.) lt 6 }" />
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="sca2" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -382,6 +402,77 @@
       <tdml:error>received element start event</tdml:error>
     </tdml:errors>
 
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: scalarThenImpOptArray01
+     Schema: s1
+       Root: r5
+    Purpose: This test demonsrates unparsing a scalar with occursCountKind="implicit" followed
+             by an optional array with lots of nesting of sequences.
+-->
+
+  <tdml:unparserTestCase name="scalarThenImpOptArray01" root="r5"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r5>
+          <sca1>6</sca1>
+          <opt>1</opt>
+          <opt>2</opt>
+          <opt>3</opt>
+          <sca2>6</sca2>
+        </r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[61236]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: scalarThenImpOptArray02
+     Schema: s1
+       Root: r5
+    Purpose: This test demonsrates unparsing a scalar with occursCountKind="implicit" followed
+             by an optional array with lots of nesting of sequences.
+-->
+
+  <tdml:unparserTestCase name="scalarThenImpOptArray02" root="r5"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r5>
+          <sca1>6</sca1>
+          <opt>1</opt>
+          <sca2>6</sca2>
+        </r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[616]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: scalarThenImpOptArray03
+     Schema: s1
+       Root: r5
+    Purpose: This test demonsrates unparsing a scalar with occursCountKind="implicit" followed
+             by an optional array with lots of nesting of sequences.
+-->
+
+  <tdml:unparserTestCase name="scalarThenImpOptArray03" root="r5"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r5>
+          <sca1>6</sca1>
+          <sca2>6</sca2>
+        </r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[66]]></tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
