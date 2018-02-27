@@ -1124,7 +1124,7 @@ trait ElementBase
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
-          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case e: ElementBase => e.isRequired
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       }
