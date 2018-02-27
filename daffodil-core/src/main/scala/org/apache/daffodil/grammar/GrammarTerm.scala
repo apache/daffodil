@@ -26,6 +26,7 @@ import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.compiler.ParserOrUnparser
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.compiler.BothParserAndUnparser
+import org.apache.daffodil.api.WarnID
 
 trait HasNoUnparser {
   final lazy val unparser: Unparser = hasNoUnparser
@@ -43,7 +44,8 @@ abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHostImpl(contextArg) {
 
   final def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
-  final def SDW(str: String, args: Any*): Unit = context.SDW(str, args: _*)
+
+  final def SDW(warnID: WarnID, str: String, args: Any*): Unit = context.SDW(warnID, str, args: _*)
 
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 

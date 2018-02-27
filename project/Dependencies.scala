@@ -18,6 +18,7 @@
 import sbt._
 
 object Dependencies {
+
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
@@ -39,7 +40,7 @@ object Dependencies {
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.14",
     "org.rogach" %% "scallop" % "0.9.5", // new version avail. 2.0.5 requires code changes
-    "net.sf.expectit" % "expectit-core" % "0.8.1" % "test",
+    "net.sf.expectit" % "expectit-core" % "0.8.1" % "test"
   )
 
   lazy val test = Seq(

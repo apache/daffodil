@@ -31,6 +31,7 @@ import java.net.URLEncoder
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.URISchemaSource
 import java.net.URISyntaxException
+import org.apache.daffodil.api.WarnID
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -168,7 +169,7 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
   final lazy val schemaLocationProperty = {
     val prop = getAttributeOption("schemaLocation")
     if (prop.isDefined && prop.get == "edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd") {
-      SDW("schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".")
+      SDW(WarnID.DeprecatedBuiltInFormats, "schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".")
     }
     prop
   }

@@ -28,6 +28,7 @@ import org.apache.daffodil.grammar.primitives.DiscriminatorPatternPrim
 import org.apache.daffodil.grammar.primitives.DiscriminatorBooleanPrim
 import org.apache.daffodil.grammar.primitives.AssertPatternPrim
 import org.apache.daffodil.grammar.primitives.AssertBooleanPrim
+import org.apache.daffodil.api.WarnID
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
@@ -69,7 +70,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
         case term: Term => {
           val encInfo = term.termRuntimeData.encodingInfo
           if (encInfo.knownEncodingIsUnicode && hasWord)
-            SDW("The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
+            SDW(WarnID.PatternEncodingSlashW, "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
               encInfo.knownEncodingName, thePattern)
         }
         case _ => // ok

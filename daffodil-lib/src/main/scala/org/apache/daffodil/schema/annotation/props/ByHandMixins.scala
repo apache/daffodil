@@ -36,6 +36,7 @@ import org.apache.daffodil.cookers.NilValueLiteralValueTextCooker
 import org.apache.daffodil.cookers.NilValueLiteralValueBinaryCooker
 import org.apache.daffodil.cookers.NilValueLiteralCharacterCooker
 import org.apache.daffodil.cookers.TextNumberPadCharacterCooker
+import org.apache.daffodil.api.WarnID
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -126,13 +127,13 @@ trait SeparatorSuppressionPolicyMixin
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     (sp, ssp) match {
       case (Some(spValue), Some(sspStr)) => {
-        SDW("Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.")
+        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.")
         SeparatorSuppressionPolicy(sspStr, this)
       }
       case (None, Some(sspStr)) => SeparatorSuppressionPolicy(sspStr, this)
       case (None, None) => getProperty("separatorSuppressionPolicy") // which will SDE!
       case (Some(spString), None) => {
-        SDW("Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.")
+        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.")
         spString match {
           case "required" => SeparatorSuppressionPolicy.Never
           case "suppressed" => SeparatorSuppressionPolicy.AnyEmpty

@@ -23,6 +23,7 @@ import org.apache.daffodil.dsom.IIUtils.IIMap
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import org.apache.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
+import org.apache.daffodil.api.WarnID
 
 /**
  * A schema document corresponds to one file usually named with an ".xsd" extension.
@@ -116,9 +117,9 @@ final class XMLSchemaDocument(xmlArg: Node,
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
-    schemaDefinitionWarningUnless(!hasSchemaLocation, "schemaLocation is ignored.")
-    schemaDefinitionWarningUnless(!hasBlockDefault, "blockDefault is ignored")
-    schemaDefinitionWarningUnless(!hasFinalDefault, "finalDefault is ignored")
+    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeSchemaLocation, !hasSchemaLocation, "schemaLocation is ignored.")
+    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeBlockDefault, !hasBlockDefault, "blockDefault is ignored")
+    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeFinalDefault, !hasFinalDefault, "finalDefault is ignored")
     schemaDefinitionUnless(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
     res

@@ -41,6 +41,7 @@ import org.apache.daffodil.infoset.NoNextElement
 import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.NextElementResolver
 import org.apache.daffodil.infoset.ChildResolver
+import org.apache.daffodil.api.WarnID
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -432,7 +433,7 @@ trait ElementBase
         groupedByName.foreach {
           case (_, sameNamesEB) =>
             if (sameNamesEB.length > 1) {
-              SDW("Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
+              SDW(WarnID.NamespaceDifferencesOnly, "Neighboring QNames differ only by namespaces. Infoset representations that do not support namespacess cannot differentiate between these elements and may fail to unparse. QNames are: %s",
                 sameNamesEB.map(_.namedQName.toExtendedSyntax).mkString(", "))
               hasNamesDifferingOnlyByNS = true
             }
@@ -683,8 +684,8 @@ trait ElementBase
                 SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
-            case Representation.Binary =>  primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean=> /* Non textual data, no need to compare alignment to encoding's expected alignment */
+            case Representation.Binary => primType match {
+              case PrimType.Float | PrimType.Double | PrimType.Boolean => /* Non textual data, no need to compare alignment to encoding's expected alignment */
               case _ => binaryNumberRep match {
                 case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
                   if ((alignInBits % 4) != 0)
@@ -1083,7 +1084,7 @@ trait ElementBase
       else if (!hasDefaultValue) false
       else {
         if (!emptyIsAnObservableConcept)
-          SDW("Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
+          SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
         if (isArray && !isRequiredArrayElement) {
           (optMinOccurs, occursCountKind) match {
@@ -1192,7 +1193,7 @@ trait ElementBase
       this.possibleNextTerms.filterNot(m => m == this).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
         if (!isSame) {
-          this.SDW("%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
+          this.SDW(WarnID.AlignmentNotSame, "%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
             this.toString, this.alignmentValueInBits, that.toString, that.alignmentValueInBits)
         }
       }

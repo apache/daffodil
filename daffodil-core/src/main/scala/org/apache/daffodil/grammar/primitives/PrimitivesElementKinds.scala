@@ -44,6 +44,7 @@ import org.apache.daffodil.equality._;
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
+import org.apache.daffodil.api.WarnID
 
 object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 
@@ -223,7 +224,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram]) extends
       val defaultableBranches = ch.groupMembers.filter { _.childrenInHiddenGroupNotDefaultableOrOVC.length == 0 }
       Assert.invariant(defaultableBranches.length > 0)
       if (defaultableBranches.length > 1) {
-        SDW("xs:choice inside a hidden group has unparse ambiguity: multiple branches exist with all children either defaulable or have the dfdl:outputValueCalc property set. The first branch will be chosen during unparse. Defaultable branches are:\n%s",
+        SDW(WarnID.ChoiceInsideHiddenGroup, "xs:choice inside a hidden group has unparse ambiguity: multiple branches exist with all children either defaulable or have the dfdl:outputValueCalc property set. The first branch will be chosen during unparse. Defaultable branches are:\n%s",
           defaultableBranches.mkString("\n"))
       }
       val defaultableBranchRD = defaultableBranches(0).runtimeData

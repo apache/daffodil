@@ -27,6 +27,7 @@ import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.api.WarnID
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)
@@ -284,7 +285,7 @@ trait AnnotatedMixin
       {
         ai.attribute("source") match {
           case None => {
-            this.SDW("""xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""")
+            this.SDW(WarnID.AppinfoNoSource, """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""")
             false
           }
           case Some(n) => {
@@ -306,7 +307,7 @@ trait AnnotatedMixin
             //
             val hasRightSource = (sourceNS =:= officialAppinfoSourceAttributeNS)
             val isAcceptable = sourceNS.toString.contains("ogf") && sourceNS.toString.contains("dfdl")
-            schemaDefinitionWarningWhen(!hasRightSource && isAcceptable,
+            schemaDefinitionWarningWhen(WarnID.AppinfoDFDLSourceWrong, !hasRightSource && isAcceptable,
               "The xs:appinfo source attribute value '%s' should be '%s'.", sourceNS, officialAppinfoSourceAttributeNS)
             (hasRightSource || isAcceptable)
           }
