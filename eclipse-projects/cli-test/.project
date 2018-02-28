@@ -36,5 +36,10 @@
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/daffodil-cli/src/test</locationURI>
 		</link>
+		<link>
+			<name>src/it</name>
+			<type>2</type>
+			<locationURI>DAFFODIL_ROOT/daffodil-cli/src/it</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

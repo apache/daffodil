@@ -41,8 +41,8 @@ To run all Daffodil tests:
 ```bash
 # run all unit tests
 $ sbt test 
-# run all command line tests
-$ sbt daffodil-cli/test
+# run all integration tests
+$ sbt it:test
 ```
 
 To build the Daffodil command line interface:

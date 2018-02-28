@@ -18,10 +18,10 @@
 enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 
-// need 'sbt stage' to build the CLI for cli tests
-(test in Test) := (test in Test).dependsOn(stage in Compile).value
-(testOnly in Test) := (testOnly in Test).dependsOn(stage in Compile).evaluated
-(testQuick in Test) := (testQuick in Test).dependsOn(stage in Compile).evaluated
+// need 'sbt stage' to build the CLI for cli integration tests
+(test in IntegrationTest) := (test in IntegrationTest).dependsOn(stage in Compile).value
+(testOnly in IntegrationTest) := (testOnly in IntegrationTest).dependsOn(stage in Compile).evaluated
+(testQuick in IntegrationTest) := (testQuick in IntegrationTest).dependsOn(stage in Compile).evaluated
 
 executableScriptName := "daffodil"
 
