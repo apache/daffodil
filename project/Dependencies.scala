@@ -40,12 +40,12 @@ object Dependencies {
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.14",
     "org.rogach" %% "scallop" % "0.9.5", // new version avail. 2.0.5 requires code changes
-    "net.sf.expectit" % "expectit-core" % "0.8.1" % "test"
+    "net.sf.expectit" % "expectit-core" % "0.8.1" % "it,test"
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.11" % "test",
-    "com.novocode" % "junit-interface" % "0.11" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
+    "junit" % "junit" % "4.11" % "it,test",
+    "com.novocode" % "junit-interface" % "0.11" % "it,test",
+    "org.scalacheck" %% "scalacheck" % "1.13.4" % "it,test"
   )
 }

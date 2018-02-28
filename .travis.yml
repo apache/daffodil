@@ -29,10 +29,10 @@ script:
   - sbt -J-Xms4g -J-Xmx4g ++$TRAVIS_SCALA_VERSION
     compile
     test:compile
+    it:compile
     debug:compile
-    daffodil-cli/compile
     test
-    daffodil-cli/test
+    it:test
     daffodil-cli/universal:packageBin
     daffodil-cli/universal:packageZipTarball
     daffodil-cli/rpm:packageBin

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.CLI
 
-import org.apache.daffodil.util._
+import org.apache.daffodil.util.Misc
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.filter.Filters.replaceInString
@@ -28,7 +28,7 @@ import org.apache.daffodil.xml.XMLUtils
 
 object Util {
 
-  //val testDir = "daffodil-cli/src/test/resources/org/apache/daffodil/CLI/"
+  //val testDir = "daffodil-cli/src/it/resources/org/apache/daffodil/CLI/"
   val testDir = "/org/apache/daffodil/CLI/"
   val outputDir = testDir + "output/"
 
@@ -44,8 +44,8 @@ object Util {
 
   def getExpectedString(filename: String, convertToDos: Boolean = false): String = {
     val rsrc = Misc.getRequiredResource(outputDir + filename)
-    //val source = scala.io.Source.fromFile(outputDir + filename)
-    val source = scala.io.Source.fromFile(rsrc)
+    val is = rsrc.toURL.openStream()
+    val source = scala.io.Source.fromInputStream(is)
     val lines = source.mkString.trim()
     source.close()
     fileConvert(lines)
