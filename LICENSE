@@ -208,8 +208,14 @@ The Apache Daffodil (incubating) project contains subcomponents with separate
 copyright notices and license terms. Your use of the source code for the these
 subcomponents is subject to the terms and conditions of the following licenses.
 
-  This product bundles source from 'Passera'. The source is available under a BSD
-  LICENSE.
+  This product bundles source from 'Passera', including all files under the
+  following directories:
+    - daffodil-lib/src/test/scala/passera/
+    - daffodil-lib/src/main/scala/passera/
+  These files are available under the BSD-2-Clause license:
+
+    Copyright (c) 2011-2013, Nate Nystrom
+    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -232,8 +238,14 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles source from 'Scala'. Specifically 'Utility.scala' and
-  'UniquenessCache.scala' The source is available under a BSD LICENSE.
+  This product bundles source from 'Scala', including the following files:
+    - daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
+  These files are available under the BSD-3-Clause licnese:
+
+    Copyright (c) 2002-  EPFL
+    Copyright (c) 2011-  Lightbend, Inc.
+
+    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -261,14 +273,14 @@ subcomponents is subject to the terms and conditions of the following licenses.
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles material copied or derived from W3C. Specific files
-  include:
-    - XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
-    - XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
-    - xml.xsd (https://www.w3.org/2001/xml.xsd)
-    - datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
-    - XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
-  The source is available under the following license:
+  This product bundles material copied or derived from W3C, including the
+  following files:
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
+    - daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
+  These files are available under the W3C Software and Document Licnese:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
     read, understood, and will comply with the following terms and conditions.
@@ -306,9 +318,23 @@ subcomponents is subject to the terms and conditions of the following licenses.
     permission. Title to copyright in this work will at all times remain with
     copyright holders.
 
-  This product bundles source from the Open Grid Forum Data Format Description
-  Language (DFDL) v1.0 Specification. The source is available under the following
-  license:
+  This product bundles content from the Open Grid Forum Data Format Description
+  Language (DFDL) v1.0 Specification, including the following files:
+    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7132.dfdl.xsd
+    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7131.dfdl.xsd
+    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc121_02.dfdl.xsd
+    - daffodil-test/src/test/resources/org/apache/daffodil/ibm-tests/dpaspc7132_2.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_02.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_02.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc7133_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc81_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_02.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc_41_83_04_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc82_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc121_01.dfdl.xsd
+    - daffodil-test-ibm1/src/test/resources/test-suite/ibm-contributed/dpaspc83_03.dfdl.xsd
+  The content is available under the Open Grid Format license:
 
     Intellectual Property Statement
 
@@ -339,6 +365,8 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
     Full Copyright Notice
 
+    Copyright (C) Open Grid Forum (2005-2014).  Some Rights Reserved.
+
     This document and translations of it may be copied and furnished to others,
     and derivative works that comment on or otherwise explain it or assist in
     its implementation may be prepared, copied, published and distributed, in
@@ -357,3 +385,9 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
     The limited permissions granted above are perpetual and will not be revoked
     by the OGF or its successors or assignees.
+
+    ICU - Copyright (c) 1995-2014 International Business Machines Corporation
+    and others
+
+    XPATH - Copyright © 2007  W3C® (MIT, ERCIM, Keio), All Rights Reserved. W3C
+    liability, trademark and document use rules apply.

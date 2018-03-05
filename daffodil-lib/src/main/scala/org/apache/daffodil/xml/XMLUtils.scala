@@ -874,7 +874,7 @@ Differences were (path, expected, actual):
     // Note: we use our own pretty printer here because
     // Scala library one doesn't preserve/print CDATA properly.
     //
-    val pp = new org.apache.daffodil.xml.scalaLib.PrettyPrinter(2)
+    val pp = new org.apache.daffodil.xml.PrettyPrinter(2)
     val xmlString = pp.format(xml)
     val fos = new java.io.FileOutputStream(tmpSchemaFile)
     val fw = new java.io.OutputStreamWriter(fos, "utf-8")

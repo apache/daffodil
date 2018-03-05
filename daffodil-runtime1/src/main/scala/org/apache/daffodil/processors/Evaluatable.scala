@@ -27,7 +27,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.Assert
 import scala.collection.JavaConversions._
-import org.apache.daffodil.xml.scalaLib
 import org.apache.daffodil.dpath.ExpressionEvaluationException
 import org.apache.daffodil.xml._
 import org.apache.daffodil.api.Diagnostic
@@ -335,7 +334,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val rd: RuntimeData, qNameArg
         // looks like XML with child elements or other things that begin with "<", but no quotes
         "<![CDATA[" + stringValue + "]]>"
       } else {
-        scalaLib.Utility.escape(stringValue)
+        scala.xml.Utility.escape(stringValue)
       }
     val res = pseudoAttributeName + "=\"" + pseudoXMLStringValue + "\""
     res

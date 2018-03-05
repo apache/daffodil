@@ -15,6 +15,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<!--
+  Portions of this schema taken from examples in Data Format Description Language (DFDL) v1.0 Specification
+  Copyright (C) Open Grid Forum (2005-2014).  Some Rights Reserved.
+  https://www.ogf.org/ogf/doku.php/about/copyright
+-->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
@@ -22,11 +27,6 @@
 	attributeFormDefault="unqualified" >
 	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 	
-	<!--  Portions of this schema taken from example in 
-	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
-Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
-	 -->
-	 
 	<!--
 		7.1.3.2 Representation Property Binding Syntax: Element Form spec v.40
 	-->
