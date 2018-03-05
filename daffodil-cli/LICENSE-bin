@@ -208,8 +208,13 @@ The Apache Daffodil (incubating) project contains subcomponents with separate
 copyright notices and license terms. Your use of the source code for the these
 subcomponents is subject to the terms and conditions of the following licenses.
 
-  This product bundles source from 'Passera'. The source is available under a BSD
-  LICENSE.
+  This product bundles compiled source from 'Passera', including the following
+  files:
+    - passera/ directory in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+  These files are available under the BSD-2-Clause license:
+
+    Copyright (c) 2011-2013, Nate Nystrom
+    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -232,8 +237,18 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles source from 'Scala'. Specifically 'Utility.scala' and
-  'UniquenessCache.scala' The source is available under a BSD LICENSE.
+  This product bundles 'Scala', including the following files:
+    - lib/org.scala-lang.modules.scala-parser-combinators_2.11-1.0.4.jar
+    - lib/org.scala-lang.modules.scala-xml_2.11-1.0.6.jar
+    - lib/org.scala-lang.scala-library-2.11.8.jar
+    - lib/org.scala-lang.scala-reflect-2.11.8.jar
+    - org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+  These files are available under the BSD-3-Clause licnese:
+
+    Copyright (c) 2002-  EPFL
+    Copyright (c) 2011-  Lightbend, Inc.
+
+    All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:
@@ -261,14 +276,14 @@ subcomponents is subject to the terms and conditions of the following licenses.
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles material copied or derived from W3C. Specific files
-  include:
-    - XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
-    - XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
-    - xml.xsd (https://www.w3.org/2001/xml.xsd)
-    - datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
-    - XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
-  The source is available under the following license:
+  This product bundles material copied or derived from W3C, including the
+  following files:
+    - org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+    - org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+    - org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+    - org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+    - org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
+  These files are available under the W3C Software and Document Licnese:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
     read, understood, and will comply with the following terms and conditions.
@@ -306,60 +321,14 @@ subcomponents is subject to the terms and conditions of the following licenses.
     permission. Title to copyright in this work will at all times remain with
     copyright holders.
 
-  This product bundles source from the Open Grid Forum Data Format Description
-  Language (DFDL) v1.0 Specification. The source is available under the following
-  license:
+  This product bundles 'ICU4J', including the following files:
+    - lib/com.ibm.icu.icu4j-51.1.jar
+  These files are available under the ICU License. For details, see
+  https://ssl.icu-project.org/repos/icu/icu4j/tags/release-51-2/main/shared/licenses/license.html
 
-    Intellectual Property Statement
+    Copyright (c) 1995-2013 International Business Machines Corporation and others
 
-    The OGF takes no position regarding the validity or scope of any
-    intellectual property or other rights that might be claimed to pertain to
-    the implementation or use of the technology described in this document or
-    the extent to which any license under such rights might or might not be
-    available; neither does it represent that it has made any effort to
-    identify any such rights. Copies of claims of rights made available for
-    publication and any assurances of licenses to be made available, or the
-    result of an attempt made to obtain a general license or permission for the
-    use of such proprietary rights by implementers or users of this
-    specification can be obtained from the OGF Secretariat.
-
-    The OGF invites any interested party to bring to its attention any
-    copyrights, patents or patent applications, or other proprietary rights
-    which may cover technology that may be required to practice this
-    recommendation. Please address the information to the OGF Executive
-    Director.
-
-    Disclaimer
-
-    This document and the information contained herein is provided on an As Is
-    basis and the OGF disclaims all warranties, express or implied, including
-    but not limited to any warranty that the use of the information herein will
-    not infringe any rights or any implied warranties of merchantability or
-    fitness for a particular purpose.
-
-    Full Copyright Notice
-
-    This document and translations of it may be copied and furnished to others,
-    and derivative works that comment on or otherwise explain it or assist in
-    its implementation may be prepared, copied, published and distributed, in
-    whole or in part, without restriction of any kind, provided that the above
-    copyright notice and this paragraph are included as references to the
-    derived portions on all such copies and derivative works. The published OGF
-    document from which such works are derived, however, may not be modified in
-    any way, such as by removing the copyright notice or references to the OGF
-    or other organizations, except as needed for the purpose of developing new
-    or updated OGF documents in conformance with the procedures defined in the
-    OGF Document Process, or as required to translate it into languages other
-    than English. OGF, with the approval of its board, may remove this
-    restriction for inclusion of OGF document content for the purpose of
-    producing standards in cooperation with other international standards
-    bodies.
-
-    The limited permissions granted above are perpetual and will not be revoked
-    by the OGF or its successors or assignees.
-
-  This product bundles 'ICU4J' which is available under a "ICU" License. For
-  details, see https://ssl.icu-project.org/repos/icu/icu4j/tags/release-51-2/main/shared/licenses/license.html
+    All rights reserved.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"),
@@ -384,28 +353,30 @@ subcomponents is subject to the terms and conditions of the following licenses.
     used in advertising or otherwise to promote the sale, use or other dealings in
     this Software without prior written authorization of the copyright holder.
 
-  This product bundles 'JDOM2' which is available under an Apache style License:
+  This product bundles 'JDOM2', including the following files:
+    - lib/org.jdom.jdom2-2.0.6.jar
+  These files are available under an Apache style License:
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
     are met:
-     
+
     1. Redistributions of source code must retain the above copyright
        notice, this list of conditions, and the following disclaimer.
-     
+
     2. Redistributions in binary form must reproduce the above copyright
        notice, this list of conditions, and the disclaimer that follows 
        these conditions in the documentation and/or other materials 
        provided with the distribution.
-    
+
     3. The name "JDOM" must not be used to endorse or promote products
        derived from this software without prior written permission.  For
        written permission, please contact <request_AT_jdom_DOT_org>.
-     
+
     4. Products derived from this software may not be called "JDOM", nor
        may "JDOM" appear in their name, without prior written permission
        from the JDOM Project Management <request_AT_jdom_DOT_org>.
-     
+
     In addition, we request (but do not require) that you include in the 
     end-user documentation provided with the redistribution and/or in the 
     software itself an acknowledgement equivalent to the following:
@@ -415,7 +386,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
 
     Alternatively, the acknowledgment may be graphical using the logos 
     available at http://www.jdom.org/images/logos.
-    
+
     THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
     WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
     OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -428,15 +399,20 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
     OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
-    
+
     This software consists of voluntary contributions made by many 
     individuals on behalf of the JDOM Project and was originally 
     created by Jason Hunter <jhunter_AT_jdom_DOT_org> and
     Brett McLaughlin <brett_AT_jdom_DOT_org>.  For more information
     on the JDOM Project, please see <http://www.jdom.org/>. 
 
-  This product bundles 'JLine' which is available under a BSD license. For
-  details, see https://github.com/jline/jline2/blob/master/LICENSE.txt
+  This product bundles 'JLine', including the following files:
+    - lib/jline.jline-2.12.1.jar
+  These files are available under a BSD-3-Clause license. For details, see
+  https://github.com/jline/jline2/blob/master/LICENSE.txt
+
+    Copyright (c) 2002-2016, the original author or authors.
+    All rights reserved.
 
     http://www.opensource.org/licenses/bsd-license.php
 
@@ -470,8 +446,12 @@ subcomponents is subject to the terms and conditions of the following licenses.
     IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
     OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles 'Scallop' which is available under an MIT License. For
-  details, see https://github.com/scallop/scallop/blob/develop/license.txt
+  This product bundles 'Scallop', including the following files:
+    - lib/org.rogach.scallop_2.11-0.9.5.jar
+  These files are available under under an MIT License. For details, see
+  https://github.com/scallop/scallop/blob/develop/license.txt
+
+    Copyright (C) 2012 Platon Pronko and Chris Hodapp
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of
     this software and associated documentation files (the "Software"), to deal in
@@ -491,7 +471,11 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE. scallop_2.11-0.9.5.jar
 
-  This product product bundles 'Stax 2 API' which is licensed under a BSD license:
+  This product product bundles 'Stax 2 API', including the following files:
+    - lib/org.codehaus.woodstox.stax2-api-3.1.4.jar
+  These files are available under the BSD-2-Clause license:
+
+    Copyright 2010- FasterXML.com
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions are met:

@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.xml.scalaLib
+package org.apache.daffodil.xml
 
-import Utility.sbToString
 import scala.xml._
 import org.apache.daffodil.exceptions.Assert
 
@@ -168,7 +167,9 @@ class PrettyPrinter(step: Int) {
    */
   def format(n: Node): String = {
     val c = minimizeScopes(n)
-    sbToString(format(c, _, 0))
+    val sb = new StringBuilder
+    format(c, sb, 0)
+    sb.toString
   }
 
   /**
@@ -177,8 +178,11 @@ class PrettyPrinter(step: Int) {
    *  @param nodes  the sequence of nodes to be serialized
    *  @param pscope the namespace to prefix mapping
    */
-  def formatNodes(nodes: Seq[Node]): String =
-    sbToString(formatNodes(nodes, _))
+  def formatNodes(nodes: Seq[Node]): String = {
+    val sb = new StringBuilder
+    formatNodes(nodes, sb)
+    sb.toString
+  }
 
   /**
    * Appends a formatted string containing well-formed XML with
