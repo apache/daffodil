@@ -1,6 +1,6 @@
 <classpath>
         <!-- This file is updated by the UpdateEclipseClasspath app. -->
-        <classpathentry kind="src" path="src/main/scala"/><classpathentry kind="src" path="src/main/java"/><classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/><classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/><classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/><classpathentry kind="output" path="target/eclipse/classes"/><!--
+        <classpathentry path="src/main/scala" kind="src"/><classpathentry path="src/main/java" kind="src"/><classpathentry path="org.scala-ide.sdt.launching.SCALA_CONTAINER" kind="con"/><classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/><classpathentry path="/daffodil-tdml" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-lib" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-core" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-runtime1" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-io" kind="src" combineaccessrules="false"/><classpathentry path="/daffodil-macro-lib" kind="src" combineaccessrules="false"/><classpathentry path="target/eclipse/classes" kind="output"/><!--
 ***********
 *********** Entries below this comment are maintained using the UpdateEclipseClasspaths
 *********** Utility and should not be modified by hand or using the Eclipse
@@ -75,10 +75,6 @@
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar" exported="true" kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar">
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
-                </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/com.typesafe.genjavadoc/genjavadoc-plugin_2.11.8/genjavadoc-plugin_2.11.8-0.10-sources.jar" exported="true" kind="lib" path="lib_managed/jars/com.typesafe.genjavadoc/genjavadoc-plugin_2.11.8/genjavadoc-plugin_2.11.8-0.10.jar">
-            <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.typesafe.genjavadoc/genjavadoc-plugin_2.11.8/genjavadoc-plugin_2.11.8-0.10-javadoc.jar!/"/>
                 </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.rogach/scallop_2.11/scallop_2.11-0.9.5.jar">
             <attributes>
