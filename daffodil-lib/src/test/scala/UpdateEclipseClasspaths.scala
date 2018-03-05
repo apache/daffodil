@@ -83,9 +83,16 @@ trait UpdateEclipseClasspaths {
     // Exception for org.scala-lang as those are on the classpath because these
     // projects are "scala" projects. If we don't exclude this, then we get double-entry
     // complaints about the classpath
+
+    // Also exception for com.typesafe.genjavadoc which is needed by tools
+    // and as a "compiler plugin" sbt puts a dependency on this into lib_managed.
+    // This is tool only used when we generate javadoc.
     //
-    val jars = jarsDir.listFiles().filterNot { _.getName == "org.scala-lang" }.
+    val jars = jarsDir.listFiles().
+      filterNot { _.getName == "org.scala-lang" }. // remove scala-lang
+      filterNot { _.getName == "com.typesafe.genjavadoc" }. // remove genjavadoc
       flatMap { _.listFiles().flatMap { _.listFiles() } }
+
     val srcs = srcsDir.listFiles().flatMap { _.listFiles().flatMap { _.listFiles() } }
     val docs = docsDir.listFiles().flatMap { _.listFiles().flatMap { _.listFiles() } }
 
