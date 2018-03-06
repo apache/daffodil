@@ -19,24 +19,32 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.grammar.primitives.SequenceCombinator
 import org.apache.daffodil.dsom.SequenceTermBase
+import org.apache.daffodil.grammar.primitives.LayeredSequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
   final override lazy val groupContent = prod("groupContent") {
-    self.sequenceKind match {
-      case SequenceKind.Ordered => orderedSequenceContent
-      case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
+    if (isLayered) layeredSequenceContent
+    else {
+      self.sequenceKind match {
+        case SequenceKind.Ordered => orderedSequenceContent
+        case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
+      }
     }
+  }
+
+  private lazy val layeredSequenceContent = {
+    schemaDefinitionUnless(groupMembers.length == 1, "Layered sequence can have only 1 child term. %s were found: %s", groupMembers.length,
+      groupMembers.mkString(", "))
+    val term = groupMembers(0)
+    schemaDefinitionWhen(term.isArray, "Layered sequence body cannot be an array.")
+    val termGram = term.termContentBody
+    LayeredSequence(this, termGram)
   }
 
   private lazy val orderedSequenceContent = prod("sequenceContent") {
     SequenceCombinator(this, terms)
   }
-
-  //  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
-  //    val uoseq = self.unorderedSeq.get
-  //    UnorderedSequenceCombinator(this, uoseq.terms)
-  //  }
 
   protected lazy val terms = groupMembers.map { _.asTermInSequence }
 

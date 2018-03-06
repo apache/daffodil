@@ -31,8 +31,6 @@ import org.apache.daffodil.schema.annotation.props.LookupLocation
  */
 abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends DFDLAnnotation(nodeArg, annotatedSCArg)
-  //  with RawCommonRuntimeValuedPropertiesMixin
-  //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
   with LeafPropProvider {
 
   requiredEvaluations(hasConflictingPropertyError)

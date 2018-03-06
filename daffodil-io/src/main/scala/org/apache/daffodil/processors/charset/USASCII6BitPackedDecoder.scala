@@ -26,15 +26,26 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
  * code unit.
  *
  */
-
-object USASCII6BitPackedCharset
-  extends NBitsWidth_BitsCharset("X-DFDL-US-ASCII-6-BIT-PACKED",
+private[charset] class USASCII6BitPacked(bitOrder: BitOrder, override val name: String)
+  extends NBitsWidth_BitsCharset(name,
     """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?""",
     6, // width
-    BitOrder.LeastSignificantBitFirst,
+    bitOrder,
     0x1F) { // replacement charCode for encoding of unmapped chars.
   //
   // Note: formula for computing string above is
   // def decodeString = ((0 to 63).map { charCode => (if (charCode <= 31) charCode + 64 else charCode).toChar }).mkString
 }
+
+object USASCII6BitPackedLSBFirstCharset
+  extends USASCII6BitPacked(BitOrder.LeastSignificantBitFirst,
+    "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST")
+
+object USASCII6BitPackedCharset
+  extends USASCII6BitPacked(BitOrder.LeastSignificantBitFirst,
+    "X-DFDL-US-ASCII-6-BIT-PACKED") // just an alias for the the "LSB-FIRST variant.
+
+object USASCII6BitPackedMSBFirstCharset
+  extends USASCII6BitPacked(BitOrder.MostSignificantBitFirst,
+    "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST")
 

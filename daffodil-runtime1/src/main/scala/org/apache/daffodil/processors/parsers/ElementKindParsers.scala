@@ -26,6 +26,7 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.Evaluatable
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -123,7 +124,7 @@ class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
   override def nom = "Sequence"
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
   override lazy val childProcessors = Seq(bodyParser)
 

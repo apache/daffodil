@@ -1,0 +1,361 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.daffodil.layers
+
+import org.apache.daffodil.util._
+import org.junit.Test
+import org.junit.Assert._
+import org.apache.daffodil.util.TestUtils
+import java.io.ByteArrayOutputStream
+import org.apache.commons.io.IOUtils
+import java.nio.charset.StandardCharsets
+import java.io.ByteArrayInputStream
+import java.io.InputStreamReader
+import scala.collection.JavaConversions._
+import org.apache.daffodil.xml.XMLUtils
+
+class TestLayers {
+
+  val example = XMLUtils.EXAMPLE_NAMESPACE
+
+  val B64Layer1Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "unqualified")
+
+  @Test def testParseB64Layer1() {
+    val sch = B64Layer1Schema
+    val data = "cGxl!" // encoding of "ple" + "!"
+    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+
+  val B64Layer2Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+            <xs:element name="s1" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "unqualified")
+
+  @Test def testParseB64Layer2() {
+    val sch = B64Layer2Schema
+    val data = "cGxl!" // encoding of "ple" + "!"
+    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+
+  val B64Layer3Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark="!" dfdl:layerEncoding="iso-8859-1">
+              <xs:element name="s1" type="xs:string"/>
+            </xs:sequence>
+            <xs:element name="s2" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "unqualified")
+
+  @Test def testParseB64Layer3() {
+    val sch = B64Layer3Schema
+    val data = "cGxl" + "!" + "moreDataAfter"
+    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1><s2>moreDataAfter</s2></ex:e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+
+  def makeGZIPData(text: String) = {
+    val baos = new ByteArrayOutputStream()
+    val gzos = new java.util.zip.GZIPOutputStream(baos)
+    IOUtils.write(text, gzos, StandardCharsets.UTF_8)
+    gzos.close()
+    val data = baos.toByteArray()
+    data
+  }
+
+  val text = """This is just some made up text that is intended to be
+a few lines long. If this had been real text, it would not have been quite
+so boring to read. Use of famous quotes or song lyrics or anything like that
+introduces copyright notice issues, so it is easier to simply make up
+a few lines of pointless text like this.""".replace("\n", " ")
+
+  @Test def testGZIPRoundTrips() {
+    val bais = new ByteArrayInputStream(makeGZIPData(text))
+    val gzis = new java.util.zip.GZIPInputStream(bais)
+    val rdr = new InputStreamReader(gzis, StandardCharsets.UTF_8)
+    val lines = IOUtils.readLines(rdr)
+    val textBack = lines.head
+    assertEquals(text, textBack)
+  }
+
+  val GZIPLayer1Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:outputValueCalc="{ dfdl:contentLength(../x1, 'bytes') }"/>
+            <xs:element name="x1" dfdl:lengthKind="implicit">
+              <xs:complexType>
+                <xs:sequence dfdl:layerTransform="gzip" dfdl:layerLengthKind="explicit" dfdl:layerLength="{ ../len }">
+                  <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>,
+      elementFormDefault = "unqualified")
+
+  def makeGZIPLayer1Data() = {
+    val gzipData = makeGZIPData(text)
+    val dataLength = gzipData.length
+    val baos = new ByteArrayOutputStream()
+    val dos = new java.io.DataOutputStream(baos)
+    dos.writeInt(dataLength)
+    dos.write(gzipData)
+    dos.write("afterGzip".getBytes(StandardCharsets.UTF_8))
+    dos.close()
+    val data = baos.toByteArray()
+    (data, dataLength)
+  }
+
+  @Test def testGZIPLayer1() {
+    val sch = GZIPLayer1Schema
+    val (data, dataLength) = makeGZIPLayer1Data()
+    val infoset = <ex:e1 xmlns:ex={ example }><len>{ dataLength }</len><x1><s1>{ text }</s1></x1><s2>afterGzip</s2></ex:e1>
+    val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    TestUtils.testUnparsingBinary(sch, infoset, data)
+  }
+
+  def makeB64GZIPSchema(term: String, layerTerm: String) = SchemaUtils.dfdlTestSchema(
+    <dfdl:format ref="tns:GeneralFormat" layerLengthUnits="bytes" representation="binary" layerEncoding="iso-8859-1"/>,
+    <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator={ term }/>
+          <xs:sequence dfdl:layerTransform="base64_MIME" dfdl:layerLengthKind="boundaryMark" dfdl:layerBoundaryMark={ layerTerm }>
+            <xs:sequence>
+              <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1, 'bytes') }"/>
+              <xs:element name="x1" dfdl:lengthKind="implicit">
+                <xs:complexType>
+                  <xs:sequence dfdl:layerTransform="gzip" dfdl:layerLengthKind="explicit" dfdl:layerLength="{ ../len }">
+                    <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:sequence>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>,
+    elementFormDefault = "unqualified")
+
+  def toB64(bytes: Array[Byte]) =
+    java.util.Base64.getMimeEncoder.encodeToString(bytes)
+
+  def makeB64GZIPData(term: String, layerTerm: String, before: String, after: String, text: String) = {
+    val gzipData = makeGZIPData(text)
+    val dataLength = gzipData.length
+    val baos = new ByteArrayOutputStream()
+    val dos = new java.io.DataOutputStream(baos)
+    dos.writeInt(dataLength) // 4 byte length of gzipped data
+    dos.write(gzipData)
+    dos.close()
+    val gzBytes = baos.toByteArray()
+    val b64Text = toB64(gzBytes) // encoded as base6
+    val baos2 = new ByteArrayOutputStream()
+    val dos2 = new java.io.DataOutputStream(baos2)
+
+    dos2.write(before.getBytes(StandardCharsets.UTF_8))
+    dos2.write(term.getBytes(StandardCharsets.UTF_8))
+    dos2.write(b64Text.getBytes("ascii")) // b64 text is always ascii.
+    dos2.write(layerTerm.getBytes("ascii"))
+    dos2.write(after.getBytes(StandardCharsets.UTF_8))
+    dos2.close()
+    (baos2.toByteArray(), dataLength)
+  }
+
+  @Test def testParseB64GZIPLayer1() {
+    val term = ";"
+    val layerTerm = "=_END_="
+    val sch = makeB64GZIPSchema(term, layerTerm)
+    val before = "beforeB64GZip"
+    val after = "afterB64GZip"
+    val (data, dataLength) = makeB64GZIPData(term, layerTerm, before, after, text)
+    val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
+    val infoset = <ex:e1 xmlns:ex={ example }><s1>{ before }</s1><len>{ dataLength }</len><x1><s2>{ text }</s2></x1><s3>{ after }</s3></ex:e1>
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    TestUtils.testUnparsingBinary(sch, infoset, data)
+  }
+
+  val lineFoldLayer1Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="implicit">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "qualified")
+
+  /**
+   * Has lines folded using IMF conventions.
+   *
+   * Notice use of the s"""...""" string interpolation. This interprets
+   * the escape sequences even though triple quote doesn't.
+   */
+  val ipsumLorem1 = s"""Lorem ipsum\r\n dolor sit amet"""
+
+  val ipsumLorem1Unfolded = s"""Lorem ipsum dolor sit amet"""
+
+  @Test def testParseLineFoldIMF1() {
+    val sch = lineFoldLayer1Schema
+    val data = ipsumLorem1
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem1Unfolded }</s1></e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+  }
+
+  val ipsumLorem2 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
+  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////////////////////          1         2         3         4         5         6         7           8
+  val ipsumLorem2Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
+
+  @Test def testUnparseLineFoldIMF1() {
+    val sch = lineFoldLayer1Schema
+    val data = ipsumLorem2
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem2Unfolded }</s1></e1>
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+
+  val lineFoldLayer2Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="boundaryMark">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "qualified")
+
+  /**
+   * Has lines folded using IMF conventions.
+   *
+   * Notice use of the s"""...""" string interpolation. This interprets
+   * the escape sequences even though triple quote doesn't.
+   */
+  val ipsumLorem3 = s"""Lorem ipsum\r\n dolor sit amet,\r\nconsectetur adipiscing elit"""
+
+  val ipsumLorem3Unfolded = s"""Lorem ipsum dolor sit amet,"""
+
+  @Test def testParseLineFoldIMF2() {
+    val sch = lineFoldLayer2Schema
+    val data = ipsumLorem3
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem3Unfolded }</s1></e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+  }
+
+  val ipsumLorem4 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt\r\n"""
+  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////////////////////          1         2         3         4         5         6         7           8
+  val ipsumLorem4Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt"""
+
+  @Test def testUnparseLineFoldIMF2() {
+    val sch = lineFoldLayer2Schema
+    val data = ipsumLorem4
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem4Unfolded }</s1></e1>
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+
+  /**
+   * The length of the layer is constrained by surrounding explicit-length
+   * element.
+   */
+  val lineFoldLayer3Schema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100">
+        <xs:complexType>
+          <xs:sequence dfdl:layerTransform="lineFolded_IMF" dfdl:layerLengthKind="implicit">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "qualified")
+
+  val ipsumLorem5 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua."""
+  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////////////////////          1         2         3         4         5         6         7           8         9         A
+
+  val ipsumLorem5Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
+
+  @Test def testParseLineFoldIMF3() {
+    val sch = lineFoldLayer3Schema
+    val data = ipsumLorem5
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem5Unfolded }</s1></e1>
+    val (_, actual) = TestUtils.testString(sch, data)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+  }
+
+  val ipsumLorem6 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labor"""
+  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////////////////////          1         2         3         4         5         6         7           8         9         A
+
+  val ipsumLorem6Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
+
+  @Test def testUnparseLineFoldIMF3() {
+    val sch = lineFoldLayer3Schema
+    val data = ipsumLorem6
+    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem6Unfolded }</s1></e1>
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, data, areTracing)
+  }
+}

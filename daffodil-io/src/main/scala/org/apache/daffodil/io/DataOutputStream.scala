@@ -78,7 +78,7 @@ import org.apache.daffodil.util.Logging
 trait DataOutputStream extends DataStreamCommon
   with Logging {
 
-  def id: Int
+  def id: String
 
   def relBitPos0b: ULong
 

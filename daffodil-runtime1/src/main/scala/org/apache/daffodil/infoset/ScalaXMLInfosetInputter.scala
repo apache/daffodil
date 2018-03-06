@@ -27,6 +27,7 @@ import scala.xml.Text
 import scala.xml.Node
 import scala.xml.ProcInstr
 import scala.xml.Comment
+import scala.xml.Atom
 
 class ScalaXMLInfosetInputter(rootNode: Node)
   extends InfosetInputter {
@@ -46,7 +47,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
    * Start/EndDocument events.
    */
   private val stack = {
-    val s = new MStackOf[(Elem,Iterator[Node])]
+    val s = new MStackOf[(Elem, Iterator[Node])]
 
     val iter = rootNode match {
       case e: Elem => e.iterator
@@ -67,11 +68,11 @@ class ScalaXMLInfosetInputter(rootNode: Node)
   }
 
   override def getLocalName(): String = stack.top._1.label
-  
+
   override val supportsNamespaces = true
 
   override def getNamespaceURI(): String = stack.top._1.namespace
-  
+
   override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {
@@ -81,6 +82,18 @@ class ScalaXMLInfosetInputter(rootNode: Node)
         }
         val text = child match {
           case t: Text => t.data
+          //
+          // Note: may be a bug in scala.xml library, but sometimes we are
+          // getting Atom[String] here, not Text. Some kinds of things we think
+          // of as text, like PCData nodes, are not derived from Text, but from
+          // Atom[String], so perhaps that is why.
+          //
+          // The above issue may be related to our use of the
+          // scala.xml.parsing.ConstructingParser which preserves PCData nodes
+          // well, and doesn't coalesce them into Text nodes incorrectly like
+          // the regular XML loader (in scala.xml 1.0.6) does.
+          //
+          case a: Atom[_] => a.data.toString()
           case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.label)
         }
         if (primType.isInstanceOf[NodeInfo.String.Kind]) {
@@ -100,7 +113,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
     val nilAttrValueOpt = elem.attribute(XMLUtils.XSI_NAMESPACE, "nil")
     val res =
       if (nilAttrValueOpt.isEmpty) {
-        MaybeBoolean.Nope 
+        MaybeBoolean.Nope
       } else {
         val nilAttrValueSeq = nilAttrValueOpt.get
         if (nilAttrValueSeq.length > 1) {

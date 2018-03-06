@@ -651,7 +651,7 @@ object XMLUtils {
         val newChildren: NodeSeq = children.flatMap { removeAttributes1(_, ns, Some(newScope)) }
 
         // Important to merge adjacent text. Otherwise when comparing
-        // two structuers that print out the same, they might not be equal
+        // two structures that print out the same, they might not be equal
         // because they have different length lists of text nodes
         //
         // Ex: <foo>A&#xE000;</foo> creates an element containing TWO
@@ -660,6 +660,22 @@ object XMLUtils {
         // Similarly <foo>abc<![CDATA[def]]>ghi</foo> has 3 child nodes.
         // The middle one is PCData. The two around it are Text.
         // Both Text and PCData are Atom[String].
+
+        // Note: as of 2018-04-30, Mike Beckerle said: I am unable to reproduce the above.
+        // The first example: <foo>A&#xE000;</foo>.child returns an array buffer with 1 child in it
+        // which is a Text node. The <foo>abc<![CDATA[def]]>ghi</foo> also has only
+        // one Text node.  That said, this is from typing them at the scala shell.
+        //
+        // I suspect the above observations require that the scala.xml.parsing.ConstructingParser
+        // is used. We do use this, because while the regular XML loader coalesces
+        // text nodes well, but doesn't preserve whitespace for CDATA regions well. That's why we use the
+        // scala.xml.parser.ConstructingParser, which doesn't coalesce text nodes
+        // so well, and that's what motivates this explicit coalesce pass.
+        //
+        // See test test_scala_loader_cdata_bug - which characterizes the behavior
+        // that is problematic for us in the standard loader, and why we have to use
+        // the ConstructingParser.
+        //
         val textMergedChildren = coalesceAdjacentTextNodes(newChildren)
 
         val newPrefix = if (prefixInScope(prefix, newScope)) prefix else null

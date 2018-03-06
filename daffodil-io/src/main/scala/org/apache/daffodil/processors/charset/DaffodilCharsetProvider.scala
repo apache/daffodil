@@ -66,7 +66,10 @@ object DaffodilCharsetProvider {
       "X-DFDL-OCTAL-MSBF" -> OctalMSBF3BitCharset,
       "X-DFDL-BITS-LSBF" -> X_DFDL_BITS_LSBF,
       "X-DFDL-BITS-MSBF" -> X_DFDL_BITS_MSBF,
-      "X-DFDL-6-BIT-DFI-264-DUI-001" -> X_DFDL_6_BIT_DFI_264_DUI_001 // needed for STANAG 5516/Link16
+      "X-DFDL-6-BIT-DFI-264-DUI-001" -> X_DFDL_6_BIT_DFI_264_DUI_001, // needed for STANAG 5516/Link16
+
+      "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST" -> USASCII6BitPackedLSBFirstCharset, // name alias
+      "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST" -> USASCII6BitPackedMSBFirstCharset // new. Not in DFDL v1.0. Used in AIS aka ITU M.1371-2
       )
 
   /**

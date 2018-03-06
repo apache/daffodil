@@ -23,7 +23,6 @@ import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.charset.CodingErrorAction
-import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import org.apache.daffodil.exceptions.Assert
@@ -91,7 +90,13 @@ object ByteBufferDataInputStream {
       case _ => {
         // copy the contents of the stream into an array of bytes
         val bos = new ByteArrayOutputStream
-        IOUtils.copy(in, bos)
+        var b: Int = 0
+        while ({
+          b = in.read()
+          b != -1
+        }) {
+          bos.write(b)
+        }
         bos.flush()
         bos.close()
         in.close()
@@ -291,7 +296,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // threadCheck()
     // we always have a bitLimit in this implementation
     Assert.invariant(st.maybeBitLimitOffset0b.isDefined)
-    (data.limit << 3) + st.maybeBitLimitOffset0b.get
+    val dl = data.limit
+    val bitLimitOffset = st.maybeBitLimitOffset0b.get
+    val bitLimit = (dl << 3) + bitLimitOffset
+    bitLimit
   }
 
   override def setBitLimit0b(newBitLimit0b: MaybeULong): Boolean = {
@@ -359,7 +367,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val bytesToFill = bitLengthFrom1 / 8
     Assert.invariant(array.size >= bytesToFill)
 
-    if (finfo.byteOrder == ByteOrder.BigEndian && finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
+    if (bytesToFill == 1 || // 1 byte is super common case. We don't want to retrieve byteOrder nor bitOrder in this case
+      (finfo.byteOrder == ByteOrder.BigEndian && finfo.bitOrder == BitOrder.MostSignificantBitFirst)) {
       // bits & bytes are already in order, read them straight into the array
       data.get(array, 0, bytesToFill)
     } else {

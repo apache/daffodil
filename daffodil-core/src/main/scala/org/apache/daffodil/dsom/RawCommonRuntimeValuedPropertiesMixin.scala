@@ -60,6 +60,19 @@ trait RawSequenceRuntimeValuedPropertiesMixin
   protected final lazy val separatorRaw = requireProperty(optionSeparatorRaw)
 }
 
+trait RawLayeringRuntimeValuedPropertiesMixin
+  extends PropertyMixin {
+  protected final lazy val optionLayerTransformRaw = findPropertyOption("layerTransform")
+  protected final lazy val layerTransformRaw = requireProperty(optionLayerTransformRaw)
+  protected final lazy val optionLayerEncodingRaw = findPropertyOption("layerEncoding")
+  protected final lazy val layerEncodingRaw = requireProperty(optionLayerEncodingRaw)
+  protected final lazy val optionLayerLengthRaw = findPropertyOption("layerLength")
+  protected final lazy val layerLengthRaw = requireProperty(optionLayerLengthRaw)
+  protected final lazy val optionLayerBoundaryMarkRaw = findPropertyOption("layerBoundaryMark")
+  protected final lazy val layerBoundaryMarkRaw = requireProperty(optionLayerBoundaryMarkRaw)
+
+}
+
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 

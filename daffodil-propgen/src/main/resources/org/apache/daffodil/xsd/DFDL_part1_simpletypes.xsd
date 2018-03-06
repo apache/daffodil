@@ -671,4 +671,135 @@
     </xsd:union>
   </xsd:simpleType>
 
+  <xsd:simpleType name="LayerTransformType_Or_DFDLExpression">
+    <xsd:union>
+      <xsd:simpleType>
+        <xsd:restriction base="dfdl:DFDLExpression" />
+      </xsd:simpleType>
+      <xsd:simpleType>
+        <xsd:restriction base="dfdl:LayerTransformEnum" />
+      </xsd:simpleType>
+    </xsd:union>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="LayerTransformEnum">
+    <xsd:restriction base="xsd:token">
+       <xsd:enumeration value="base64_MIME">
+         <xsd:annotation>
+           <xsd:documentation>
+             IETF RFC 2045
+             
+             Max line length 76 characters.
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="base64">
+         <xsd:annotation>
+           <xsd:documentation>
+             IETF RFC 4648 - not the URL-SAFE version.
+             
+             Must be strict about what is accepted. 
+             Does not insert CRLFs. No line length limitation.
+             
+             Other specifications refer to this RFC and impose
+             their own rules (as MIME does) about line lengths, and
+             characters allowed. 
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="base64url">
+         <xsd:annotation>
+           <xsd:documentation>
+             IETF RFC 4648 - the URL-SAFE version. 
+             
+             The name base64url is suggested in the RFC as the name for this
+             encoding. 
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>      
+       <xsd:enumeration value="lineFolded_IMF">
+         <xsd:annotation>
+           <xsd:documentation><![CDATA[
+             IETF RFC 2822 Internet Message Format (IMF)
+             
+             Each line of characters MUST be no more than
+             998 characters, and SHOULD be no more than 78 characters, excluding
+             the CRLF.
+             
+             Though structured field bodies are defined in such a way that
+             folding can take place between many of the lexical tokens (and even
+             within some of the lexical tokens), folding SHOULD be limited to
+             placing the CRLF at higher-level syntactic breaks.  For instance, if
+             a field body is defined as comma-separated values, it is recommended
+             that folding occur after the comma separating the structured items in
+             preference to other places where the field could be folded, even if
+             it is allowed elsewhere.
+   
+             Unfolding is accomplished by simply removing any CRLF
+             that is immediately followed by WSP.
+             ]]>
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="lineFolded_iCalendar">
+         <xsd:annotation>
+           <xsd:documentation><![CDATA[
+             IETF RFC 5545 Internet Calendaring and Scheduling (iCalendar)
+             
+             Lines of text SHOULD NOT be longer than 75 octets, excluding the line
+             break.  Long content lines SHOULD be split into a multiple line
+             representations using a line "folding" technique.  That is, a long
+             line can be split between any two characters by inserting a CRLF
+             immediately followed by a single linear white-space character (i.e.,
+             SPACE or HTAB).  Any sequence of CRLF followed immediately by a
+             single linear white-space character is ignored (i.e., removed) when
+             processing the content type.
+             ]]>
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="quotedPrintable">
+         <xsd:annotation>
+           <xsd:documentation>
+             IETF RFC 2045 Quoted Printable Content Transfer Encoding
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>      
+       <xsd:enumeration value="ais">
+         <xsd:annotation>
+           <xsd:documentation>
+             Automatic Identification System - ITU-R M.1371-1
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="compress">
+         <xsd:annotation>
+           <xsd:documentation>
+             Lempel-Ziv-Welch compression per Unix 'compress' command.
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+       <xsd:enumeration value="gzip">
+         <xsd:annotation>
+           <xsd:documentation>
+             GZIP per https://www.ietf.org/rfc/rfc1952.txt
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="LayerLengthUnitsEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="bytes" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+    <xsd:simpleType name="LayerLengthKindEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="explicit" />
+      <xsd:enumeration value="boundaryMark" />
+      <xsd:enumeration value="implicit" />
+    </xsd:restriction>
+  </xsd:simpleType>
 </xsd:schema>

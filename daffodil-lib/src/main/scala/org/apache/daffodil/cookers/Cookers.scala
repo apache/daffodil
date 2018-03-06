@@ -80,3 +80,5 @@ object EncodingCooker extends UpperCaseToken()
 object ChoiceDispatchKeyCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object ChoiceBranchKeyCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+
+object UpperCaseTokenCooker extends UpperCaseToken

@@ -115,6 +115,10 @@ trait EncoderDecoderMixin
    * except when adding a new not-seen-before encoder or decoder.
    */
 
+  //
+  // TODO: Cleanup - change below to use NonAllocatingMap to improve code style.
+  // And fix comment above.
+  //
   private lazy val decoderCache = new java.util.HashMap[BitsCharset, DecoderInfo]
   private lazy val encoderCache = new java.util.HashMap[BitsCharset, EncoderInfo]
 
