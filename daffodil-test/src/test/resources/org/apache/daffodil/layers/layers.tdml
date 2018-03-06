@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="compressed">
+      <dfdl:format ref="ex:general" layerTransform="gzip" layerLengthKind="explicit" layerLengthUnits="bytes" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+    <xs:group name="compressedGroupContents">
+      <xs:sequence>
+        <xs:element name="text" type="xs:string" dfdl:lengthKind="delimited" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="compressedPayloadLength" type="xs:int" dfdl:representation="binary"
+            dfdl:outputValueCalc='{ dfdl:contentLength(../compressedPayload, "bytes") }' />
+
+          <xs:element name="compressedPayload">
+            <xs:complexType>
+              <xs:sequence dfdl:ref="tns:compressed" dfdl:layerLength="{ ../compressedPayloadLength }">
+                <xs:group ref="tns:compressedGroupContents" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ compressedPayloadLength eq dfdl:contentLength(compressedPayload, "bytes") }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+          <xs:element name="after" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+
+
+  <tdml:parserTestCase name="layers1" root="root" model="s1">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[
+      000000D41F8B08000000000000004D904176C3200C44AF3207C8F33DBA6F0F40CCD8568391
+      8B44D3DC3EC2C9A2EFB1013EF3357C6E6288F5DDCD61BA137BCA443FE0FC73F8967C5C4B75
+      D6CC0C575C8984857714A93414ADEB848F25D800B794036045632A67C605E2B86B2F19553D
+      805FBE889F2ECE70E2AA4DEA3AA2E3519EF065842E58D2AEDD02530F8DB640832A8F26F3B9
+      4DF511CA712437BE27ADDE34F739F8598F20D7CD875566460BEBB4CB10CAD989C9846D684D
+      F6A33CA2F9ED6CFEBF5DCC7168C4169ABDBEE46D139B9E8B9C8E093C010000616674657247
+      7A6970]]>
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <compressedPayloadLength>212</compressedPayloadLength>
+          <compressedPayload>
+            <text><![CDATA[This is just some made up text that is intended to be a few lines long. If this had been real text, it would not have been quite so boring to read. Use of famous quotes or song lyrics or anything like that introduces copyright notice issues, so it is easier to simply make up a few lines of pointless text like this.]]></text>
+          </compressedPayload>
+          <after>afterGzip</after>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="s2" elementFormDefault="unqualified">
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="base64">
+      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="folded">
+      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="folded">
+          <xs:sequence>
+            <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
+            <xs:element name="contents" dfdl:lengthKind="implicit" dfdl:initiator="{ fn:concat('--', ../marker, '%CR;%LF;') }">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="comment" dfdl:initiator="Comment:%SP;" type="xs:string" dfdl:terminator="%CR;%LF;" />
+                  <xs:element name="contentTransferEncoding" dfdl:initiator="Content-Transfer-Encoding:%SP;" type="xs:string"
+                    dfdl:terminator="%CR;%LF;" />
+                  <xs:element name="body" dfdl:lengthKind="implicit" dfdl:initiator="%CR;%LF;">
+                    <xs:complexType>
+                      <xs:choice dfdl:choiceDispatchKey="{ ../contentTransferEncoding }">
+                        <xs:sequence dfdl:choiceBranchKey="base64">
+                          <xs:sequence dfdl:ref="tns:base64"
+                            dfdl:layerBoundaryMark="{ 
+                              fn:concat(dfdl:decodeDFDLEntities('%CR;%LF;'),'--', ../../marker, '--')
+                             }">
+                            <xs:element name="value" type="xs:string" />
+                          </xs:sequence>
+                        </xs:sequence>
+                      <!--
+                      This is where other choice branches than base64 would go. 
+                       -->
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <!-- useful rulers 
+           1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+  -->
+
+  <tdml:unparserTestCase name="layers2" root="root" model="s2" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;
+--frontier%CR;
+Comment: This simulates a header field that is so long it will get folded%CR;
+ into multiple lines of text because it is too long and my job is at the%CR;
+ redundancy department is where I work.%CR;
+Content-Transfer-Encoding: base64%CR;
+%CR;
+TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg%CR;
+c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu%CR;
+YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;
+--frontier--]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <marker>frontier</marker>
+          <contents>
+            <comment><![CDATA[This simulates a header field that is so long it will get folded into multiple lines of text because it is too long and my job is at the redundancy department is where I work.]]></comment>
+            <contentTransferEncoding>base64</contentTransferEncoding>
+            <body>
+              <value><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad]]></value>
+            </body>
+          </contents>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="s3" elementFormDefault="unqualified">
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="base64">
+      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="folded">
+      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="folded" xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
+          <xs:sequence>
+            <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
+            <xs:element name="nothing" type="xs:string" dfdl:initiator="xxx" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="layers3" root="root" model="s3" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;
+xxx]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <marker>frontier</marker>
+          <nothing />
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="err1" elementFormDefault="unqualified">
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="folded">
+      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="folded" dfdl:separator="notAllowedInLayeredSequence"
+          xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
+          <xs:sequence>
+            <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
+            <xs:element name="nothing" type="xs:string" dfdl:initiator="xxx" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="layersErr1" root="root" model="err1" roundTrip="true">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>layerTransform</tdml:error>
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

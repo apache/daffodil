@@ -63,6 +63,11 @@ import org.apache.daffodil.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.schema.annotation.props.gen.TextTrimKind
 import org.apache.daffodil.schema.annotation.props.gen.TextPadKind
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.processors.LayerTransformEv
+import org.apache.daffodil.processors.LayerEncodingEv
+import org.apache.daffodil.processors.LayerLengthInBytesEv
+import org.apache.daffodil.processors.LayerBoundaryMarkEv
+import org.apache.daffodil.processors.LayerCharsetEv
 
 /*
  * These are the DFDL properties which can have their values come
@@ -557,6 +562,95 @@ trait SequenceRuntimeValuedPropertiesMixin
 
   final override protected def propertyValueReferencedElementInfos =
     myPropertyValueReferencedElementInfos
+
+}
+
+trait LayeringRuntimeValuedPropertiesMixin
+  extends RawLayeringRuntimeValuedPropertiesMixin { decl: SequenceTermBase =>
+
+  private lazy val layerTransformExpr = {
+    val qn = this.qNameForProperty("layerTransform")
+    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, layerTransformRaw, decl)
+  }
+
+  //  final lazy val layerTransformEv = {
+  //    if (maybeLayerTransformEv.isEmpty) layerTransformRaw // must be defined
+  //    maybeLayerTransformEv.get
+  //  }
+
+  final lazy val maybeLayerTransformEv = {
+    if (optionLayerTransformRaw.isDefined) {
+      val ev = new LayerTransformEv(layerTransformExpr, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
+
+  private lazy val layerEncodingExpr = {
+    val qn = this.qNameForProperty("layerEncoding")
+    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, layerEncodingRaw, decl)
+  }
+
+  private final lazy val layerEncodingEv = {
+    if (maybeLayerEncodingEv.isEmpty) layerEncodingRaw // must be defined
+    maybeLayerEncodingEv.get
+  }
+
+  private final lazy val maybeLayerEncodingEv = {
+    if (optionLayerEncodingRaw.isDefined) {
+      val ev = new LayerEncodingEv(layerEncodingExpr, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
+
+  final lazy val maybeLayerCharsetEv =
+    if (optionLayerEncodingRaw.isDefined) {
+      val ev = new LayerCharsetEv(layerEncodingEv, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else
+      Nope
+
+  private lazy val layerLengthExpr = {
+    val qn = this.qNameForProperty("layerLength")
+    ExpressionCompilers.JLong.compileProperty(qn, NodeInfo.Long, layerLengthRaw, decl)
+  }
+
+  final lazy val maybeLayerLengthInBytesEv = {
+    if (optionLayerLengthRaw.isDefined) {
+      layerLengthUnits
+      val ev = new LayerLengthInBytesEv(layerLengthExpr, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
+
+  private lazy val layerBoundaryMarkExpr = {
+    val qn = this.qNameForProperty("layerBoundaryMark")
+    ExpressionCompilers.String.compileProperty(qn, NodeInfo.String, layerBoundaryMarkRaw, decl)
+  }
+
+  //  final lazy val layerBoundaryMarkEv = {
+  //    if (maybeLayerBoundaryMarkEv.isEmpty) layerBoundaryMarkRaw // must be defined
+  //    maybeLayerBoundaryMarkEv.get
+  //  }
+
+  final lazy val maybeLayerBoundaryMarkEv = {
+    if (optionLayerBoundaryMarkRaw.isDefined) {
+      val ev = new LayerBoundaryMarkEv(layerBoundaryMarkExpr, termRuntimeData)
+      ev.compile()
+      One(ev)
+    } else {
+      Nope
+    }
+  }
 
 }
 

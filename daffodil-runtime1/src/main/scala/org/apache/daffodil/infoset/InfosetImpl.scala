@@ -1332,6 +1332,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
   }
 
   val childNodes = new ArrayBuffer[DINode]
+  //
+  // TODO: Cleanup - Change below to use NonAllocatingMap to improve code style.
   lazy val nameToChildNodeLookup = new HashMap[NamedQName, ArrayBuffer[DINode]]
 
   override lazy val contents: IndexedSeq[DINode] = childNodes

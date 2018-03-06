@@ -48,7 +48,7 @@ import org.apache.daffodil.processors.charset.BitsCharsetWrappingJavaCharset
 /**
  * Encoding is a string, so there is no converter.
  */
-class EncodingEv(override val expr: CompiledExpression[String], trd: TermRuntimeData)
+abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd: TermRuntimeData)
   extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
@@ -74,7 +74,10 @@ class EncodingEv(override val expr: CompiledExpression[String], trd: TermRuntime
   }
 }
 
-final class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
+final class EncodingEv(expr: CompiledExpression[String], trd: TermRuntimeData)
+  extends EncodingEvBase(expr, trd)
+
+abstract class CharsetEvBase(encodingEv: EncodingEvBase, val trd: TermRuntimeData)
   extends Evaluatable[BitsCharset](trd)
   with InfosetCachedEvaluatable[BitsCharset] {
 
@@ -99,6 +102,9 @@ final class CharsetEv(encodingEv: EncodingEv, val trd: TermRuntimeData)
     dcs
   }
 }
+
+final class CharsetEv(encodingEv: EncodingEv, trd: TermRuntimeData)
+  extends CharsetEvBase(encodingEv, trd)
 
 class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, val trd: TermRuntimeData)
   extends Evaluatable[Integer](trd)

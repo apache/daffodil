@@ -17,44 +17,25 @@
 
 package org.apache.daffodil.compiler
 
-import java.io.File
-import java.io.FileInputStream
-import java.io.ObjectInputStream
+import java.io.{ File, FileInputStream, ObjectInputStream, StreamCorruptedException }
 import java.nio.channels.Channels
-import scala.xml.Node
-import org.apache.daffodil.ExecutionMode
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.dsom.SchemaSet
-import org.apache.daffodil.oolag.OOLAG
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.DataProcessor
-import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Logging
-import org.apache.daffodil.xml._
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.externalvars.Binding
+import java.util.zip.{ GZIPInputStream, ZipException }
+
 import scala.collection.mutable.Queue
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.processors.SchemaSetRuntimeData
-import org.apache.daffodil.util.CheckJavaVersion
-import org.apache.daffodil.util.InvalidJavaVersionException
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.processors.VariableMap
-import java.util.zip.GZIPInputStream
-import java.util.zip.ZipException
-import java.io.StreamCorruptedException
-import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.processors.SerializableDataProcessor
-import org.apache.daffodil.processors.Processor
+import scala.xml.Node
+
+import org.apache.daffodil.ExecutionMode
+import org.apache.daffodil.api.{ DFDL, DaffodilSchemaSource, DaffodilTunables, URISchemaSource, UnitTestSchemaSource, ValidationMode }
+import org.apache.daffodil.dsom.{ ElementBase, SchemaComponent, SchemaComponentImpl, SchemaSet }
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.externalvars.{ Binding, ExternalVariablesLoader }
+import org.apache.daffodil.oolag.OOLAG
+import org.apache.daffodil.processors.{ DataProcessor, Processor, SchemaSetRuntimeData, SerializableDataProcessor, VariableMap }
 import org.apache.daffodil.processors.parsers.NotParsableParser
 import org.apache.daffodil.processors.unparsers.NotUnparsableUnparser
 import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
-import org.apache.daffodil.dsom.SchemaComponent
-import org.apache.daffodil.dsom.SchemaComponentImpl
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.util.{ CheckJavaVersion, InvalidJavaVersionException, LogLevel, Logging, Misc }
+import org.apache.daffodil.xml._
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying
@@ -307,6 +288,28 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       }
       case ex: StreamCorruptedException => {
         throw new InvalidParserException("The saved parser file is not a valid parser.", ex)
+      }
+      //
+      // If we are running on Java 7, and a class such as Base64 (only in Java 8)
+      // needs to be created as part of loading the schema, then we'll get a
+      // class not found exception. This catches that and issues a
+      // sensible diagnostic.
+      //
+      // Similarly, if a class *should* be on the classpath in order for this
+      // schema to reload, then we will get CNF, and we issue a diagnostic
+      // which also displays the classpath.
+      //
+      case cnf: ClassNotFoundException => {
+        val cpString =
+          if (Misc.classPath.length == 0) " empty."
+          else ":\n" + Misc.classPath.mkString("\n\t")
+        val msg = "%s\nThe class may not exist in this Java JVM version (%s)," +
+          "or it is missing from the classpath which is%s".format(
+            cnf.getMessage(),
+            scala.util.Properties.javaVersion,
+            cpString
+          )
+        throw new InvalidParserException(msg, cnf)
       }
     }
   }

@@ -817,7 +817,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   final override def pastData(nBytesRequested: Int): ByteBuffer = {
     Assert.usage(isReadable)
-    if (!areDebugging) throw new IllegalStateException("Must be debugging.")
+    if (!areDebugging)
+      throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
     if (debugOutputStream == Nope) {
       ByteBuffer.allocate(0)

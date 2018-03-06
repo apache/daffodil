@@ -50,7 +50,7 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ve
   extends CombinatorUnparser(ctxt)
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
   override def nom = "Sequence"
 

@@ -228,20 +228,30 @@ abstract class ParseOrUnparseState protected (
         case erd: ElementRuntimeData => erd.maybeByteOrderEv.get.evaluate(this)
         case mgrd: ModelGroupRuntimeData => {
           //
-          // Model Groups can't have byte order.
+          // Model Groups can't have the byteOrder property.
+          //
           // However, I/O layer still requests it because alignment regions
           // use skip, which ultimately uses getLong/putLong, which asks for
-          // byteOrder.
+          // byteOrder. (Not any more for 1-byte case - mikeb)
           //
           // A model group DOES care about bit order for its alignment regions,
           // and for the charset encoding of say, initiators or prefix separators.
           // A bitOrder change requires that we check the new bitOrder against the
           // byte order to insure compatibility. (byteOrder can be an expression),
-          // so of necessity, we also need byte order. However, if byte order isn't defined
-          // we can assume littleEndian since that works with all bit orders.
-          // (Big endian only allows MSBF bit order)
+          // so of necessity, we also need byte order.
           //
-          ByteOrder.LittleEndian
+          // Because the binary integer unparsers (unsignedLong in particular)
+          // dispatch on byte order first, then bit order (if littleEndian),
+          // we do have to provide the byte order that is consistent with the
+          // bit order - if the bit order is LSBF, we have to provide byte order
+          // of LittleEndian, otherwise we end up in BigEndian+MSBF code paths.
+          //
+          val bo =
+            if (mgrd.defaultBitOrder eq BitOrder.LeastSignificantBitFirst)
+              ByteOrder.LittleEndian
+            else
+              ByteOrder.BigEndian
+          bo
         }
         case _ => Assert.usageError("byte order of non term: " + runtimeData)
       }

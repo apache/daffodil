@@ -35,6 +35,8 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.processors.LayerTransformerEv
+import org.apache.daffodil.util.Maybe
 
 abstract class SequenceTermBase(
   final override val xml: Node,
@@ -44,7 +46,8 @@ abstract class SequenceTermBase(
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SequenceGrammarMixin
-  with SeparatorSuppressionPolicyMixin {
+  with SeparatorSuppressionPolicyMixin
+  with LayeringRuntimeValuedPropertiesMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
   requiredEvaluations(modelGroupRuntimeData.preSerialization)
@@ -244,6 +247,31 @@ abstract class SequenceTermBase(
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharset)
   }
+
+  private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength", "layerLengthUnits", "layerBoundaryMark")
+
+  final lazy val maybeLayerTransformerEv: Maybe[LayerTransformerEv] = {
+    if (maybeLayerTransformEv.isEmpty) Maybe.Nope
+    else { // need to check that only layering properties are specified
+      val localProps = this.formatAnnotation.justThisOneProperties
+      val localKeys = localProps.keySet
+      val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
+      if (disallowedKeys.size > 0)
+        SDE("Sequence has dfdl:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
+
+      val lt = new LayerTransformerEv(maybeLayerTransformEv.get,
+        maybeLayerCharsetEv,
+        Maybe.toMaybe(optionLayerLengthKind),
+        maybeLayerLengthInBytesEv,
+        Maybe.toMaybe(optionLayerLengthUnits),
+        maybeLayerBoundaryMarkEv,
+        termRuntimeData)
+      lt.compile()
+      Maybe.One(lt)
+    }
+  }
+
+  final def isLayered = maybeLayerTransformerEv.isDefined
 
 }
 

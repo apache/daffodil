@@ -353,6 +353,17 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     rootUnparser.unparse1(state)
 
+    // Restore invariant that there is always a processor.
+    // Later when suspensions get evaluated, there are still times when
+    // properties are read, and those require a processor to be set
+    // for model groups so that the RuntimeData can be found.
+    //
+    // For elements, the infoset node enables you to find the
+    // ElementRuntimeData, but for model groups there is no infoset node,
+    // so we need the Processor, which has a context which is the RD.
+    //
+    state.setProcessor(rootUnparser)
+
     /* Verify that all stacks are empty */
     Assert.invariant(state.arrayIndexStack.length == 1)
     Assert.invariant(state.groupIndexStack.length == 1)

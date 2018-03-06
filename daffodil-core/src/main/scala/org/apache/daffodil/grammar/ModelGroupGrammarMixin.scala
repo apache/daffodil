@@ -52,7 +52,7 @@ trait ModelGroupGrammarMixin
     val finalContent =
       if (hasDelimiters ||
         enclosingTerm.map(_.hasDelimiters).getOrElse(false) //
-        // The above refernce to the delimiters of the enclosing term,
+        // The above reference to the delimiters of the enclosing term,
         // has to do with the way our delim stack works.
         // Even if this model group doesn't have delimiters,
         // if the enclosing term did have delimiters, then we still need to

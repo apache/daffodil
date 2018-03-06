@@ -96,11 +96,26 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
     res
   }
 
+  private val layerID: Int = synchronized {
+    if (splitFrom ne null) splitFrom.layerID
+    else {
+      val lid = DirectOrBufferedDataOutputStream.nextLayerID
+      DirectOrBufferedDataOutputStream.nextLayerID += 1
+      lid
+    }
+  }
+
   /**
    * Must be val, as split-from will get reset to null as streams
    * are morphed into direct streams.
    */
-  val id: Int = if (splitFrom == null) 0 else splitFrom.id + 1
+  private val splitID: Int = if (splitFrom == null) 0 else splitFrom.splitID + 1
+
+  /**
+   * id will be a N.M type identifier where N is the layer number,
+   * and M is the splitID.
+   */
+  lazy val id: String = layerID.toString + "." + splitID.toString
 
   /**
    * Two of these are equal if they are eq.
@@ -186,6 +201,10 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    * Note that an alignment region may be inserted first if the next DOS has an alignment requirement.
    */
   private var _following: Maybe[DirectOrBufferedDataOutputStream] = Nope
+
+  def lastInChain: DirectOrBufferedDataOutputStream =
+    if (_following.isEmpty) this
+    else _following.get.lastInChain
 
   /**
    * Provides a new buffered data output stream. Note that this must
@@ -305,6 +324,9 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
             // zero out so we don't end up thinking it is still there
             directStream.cst.setFragmentLastByte(0, 0)
           }
+          // now flush/close the whole data output stream
+          // propagate the closed-ness by closing the underlying java stream.
+          directStream.getJavaOutputStream().close()
           directStream.setDOSState(Uninitialized) // not just finished. We're dead now.
         } else {
           // the last stream we merged forward into was not finished.
@@ -700,6 +722,7 @@ class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo
 
 object DirectOrBufferedDataOutputStream {
 
+  var nextLayerID = 0
   /**
    * This is over here to be sure it isn't operating on other members
    * of the object. This operates on the arguments only.
@@ -779,7 +802,8 @@ object DirectOrBufferedDataOutputStream {
   }
 
   /**
-   * Factory for creating new ones
+   * Factory for creating new ones/
+   * Passing creator as null indicates no other stream created this one.
    */
   def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
     val dbdos = new DirectOrBufferedDataOutputStream(creator)

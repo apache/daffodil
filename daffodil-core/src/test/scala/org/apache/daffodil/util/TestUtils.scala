@@ -83,9 +83,13 @@ object TestUtils {
     runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data), isTracing)
   }
 
-  def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false) = {
+  def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
     val b = Misc.hex2Bytes(hexData)
-    val rbc = Misc.byteArrayToReadableByteChannel(b)
+    testBinary(testSchema, b, areTracing)
+  }
+
+  def testBinary(testSchema: Node, data: Array[Byte], areTracing: Boolean): (DFDL.ParseResult, Node) = {
+    val rbc = Misc.byteArrayToReadableByteChannel(data)
     runSchemaOnData(testSchema, rbc, areTracing)
   }
 
@@ -127,21 +131,26 @@ object TestUtils {
     actual.getDiagnostics
   }
 
+  def throwDiagnostics(ds: Seq[Diagnostic]) {
+    if (ds.length == 1) throw (ds(0))
+    else {
+      val msgs = ds.map(_.getMessage()).mkString("\n")
+      throw new Exception(msgs)
+    }
+  }
+
   def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
+    if (pf.isError) throwDiagnostics(pf.diagnostics)
     val u = pf.onPath("/")
+    if (u.isError) throwDiagnostics(u.getDiagnostics)
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val inputter = new ScalaXMLInfosetInputter(infoset)
     val actual = u.unparse(inputter, out)
-    if (actual.isProcessingError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+    if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
     val unparsed = outputStream.toByteArray()
-    //        System.err.println("parsed: " + infoset)
-    //        System.err.println("unparsed: " + unparsed)
     out.close()
     assertEquals(unparsed.length, unparseTo.length)
     for (i <- 0 until unparsed.length) {

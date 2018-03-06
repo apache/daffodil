@@ -45,6 +45,6 @@ class TestExternalVariablesNew {
    */
   @Test
   def test_testNoRootUnnecessaryBinding(): Unit = {
-    runner.trace.runOneTest("testNoRootUnnecessaryBinding")
+    runner.runOneTest("testNoRootUnnecessaryBinding")
   }
 }
