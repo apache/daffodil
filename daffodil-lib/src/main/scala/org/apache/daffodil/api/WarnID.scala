@@ -59,6 +59,7 @@ object WarnID extends PropsEnum[WarnID] {
    * Deprecated properties should all begin with "DeprecatedProperty..."
    */
   case object DeprecatedPropertySeparatorPolicy extends WarnID; forceConstruction(DeprecatedPropertySeparatorPolicy)
+  case object EncodingErrorPolicyError extends WarnID; forceConstruction(EncodingErrorPolicyError)
   case object EscapeSchemeRefUndefined extends WarnID; forceConstruction(EscapeSchemeRefUndefined)
   case object FacetExplicitLengthOutOfRange extends WarnID; forceConstruction(FacetExplicitLengthOutOfRange)
   case object InconsistentLengthKind extends WarnID; forceConstruction(InconsistentLengthKind)

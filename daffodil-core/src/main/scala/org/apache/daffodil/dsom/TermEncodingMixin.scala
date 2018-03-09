@@ -22,6 +22,7 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.KnownEncodingMixin
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 
 /**
  * Captures concepts around dfdl:encoding property and Terms.
@@ -31,6 +32,15 @@ import org.apache.daffodil.api.WarnID
 trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   requiredEvaluations(encodingInfo.preSerialization)
+  requiredEvaluations(checkTextBidi)
+
+  private lazy val optionTextBiDi = findPropertyOption("textBiDi")
+
+  private def checkTextBidi = {
+    this.subset(
+      !optionTextBiDi.isDefined || (optionTextBiDi.isDefined && (textBiDi eq YesNo.No)),
+      "Property value textBiDi='yes' is not supported.")
+  }
 
   protected final lazy val defaultEncodingErrorPolicy = {
     val policy =
@@ -41,7 +51,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       }
     if (policy == EncodingErrorPolicy.Error) {
       // DFDL-935 to enable
-      notYetImplemented("dfdl:encodingErrorPolicy=\"error\"")
+      SDW(WarnID.EncodingErrorPolicyError, "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.")
+      EncodingErrorPolicy.Replace
     }
     policy
   }
