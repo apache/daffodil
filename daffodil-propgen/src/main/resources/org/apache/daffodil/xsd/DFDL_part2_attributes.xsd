@@ -50,6 +50,7 @@
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
+  <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
   
   <!-- Added to DFDL -->
   <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
@@ -67,6 +68,7 @@
     <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
     <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
+    <xsd:attribute name="textBiDi" type="dfdl:YesNoEnum"/>
   </xsd:attributeGroup>
 
   <!-- 12.1 Aligned Data -->

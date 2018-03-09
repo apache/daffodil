@@ -48,7 +48,8 @@
 					textStandardZeroRep="0" textStandardInfinityRep="Inf"
 					textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
 					textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
-					textNumberRoundingIncrement="0" decimalSigned="yes"/>
+					textNumberRoundingIncrement="0" decimalSigned="yes"
+                     />
 			</dfdl:defineFormat>
 
 			<!-- As we add new properties, add them here. -->
@@ -70,7 +71,12 @@
                     textBooleanPadCharacter="%SP;" textCalendarPadCharacter="%SP;" 
                     textCalendarJustification="left"
                     textNumberJustification="right"
-                    textOutputMinLength="0" />
+                    textOutputMinLength="0"
+                    floating="no"           
+                    calendarCenturyStart="53"
+                    calendarObserveDST="yes"
+                    textBiDi="no"
+                     />
 			</dfdl:defineFormat>
 
 		</xs:appinfo>
