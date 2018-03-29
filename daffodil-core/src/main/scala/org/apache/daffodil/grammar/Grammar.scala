@@ -180,8 +180,13 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
   // Note: keep the toString really simple.
   // It causes much grief if toString uses complicated things that can fail or
   // that end up needing the name of this NamedGram again.
-  override def toString = name // + "(" + context.scPath.last + ")" //+ (if (isEmpty) "(Empty)" else "")
 
+  override def name = context match {
+    case nm: NamedMixin => nm.name
+    case _ => super.name
+  }
+
+  override def toString = "<" + name + ">" + super.name + "</" + name + ">"
 }
 
 /**
@@ -191,10 +196,5 @@ abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
   extends NamedGram(contextArg) {
 
   override def isEmpty = !guard
-
-  private lazy val realSC = context.asInstanceOf[SchemaComponent]
-  final override lazy val path = realSC.path + "@@" + diagnosticDebugName
-
-  override def toString = path // dangerous. What if realSC.path fails?
 
 }
