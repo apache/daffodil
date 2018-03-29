@@ -63,11 +63,9 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ar
 
   def unparse(start: UState): Unit = {
 
-
     var index = 0
     var doUnparser = false
     val limit = childUnparsers.length
-
     start.groupIndexStack.push(1L) // one-based indexing
 
     while (index < limit) {

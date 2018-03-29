@@ -48,6 +48,8 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
 
   final override def name = nameArg
 
+  override def toString() = "<" + name + ">" + gram.toString + "</" + name + ">"
+
   final override lazy val path = sc.path + "@@Prod(" + diagnosticDebugName + ")"
 
   final override lazy val gram: Gram = {
