@@ -72,7 +72,6 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ve
     var index = 0
     var doUnparser = false
     val limit = childUnparsers.length
-
     while (index < limit) {
       doUnparser = false
       val childUnparser = childUnparsers(index)

@@ -231,4 +231,36 @@ class TestXMLUtils {
     assertEquals("&&&", res(0).text)
   }
 
+  @Test def testEscapeLineEndings() {
+    val input = "abc\r\ndef\rghi\njkl\tmno\u0085pqr"
+    val actual = XMLUtils.escape(input).toString()
+    assertEquals("abc&#xE00D;&#xA;def&#xE00D;ghi&#xA;jkl&#x9;mno&#x85;pqr", actual)
+  }
+
+  @Test def testEscape0To127() {
+    val input = (0 to 127).map { _.toChar }.mkString
+    val actual = XMLUtils.escape(input).toString()
+    val expected = "&#xE000;&#xE001;&#xE002;&#xE003;&#xE004;&#xE005;&#xE006;&#xE007;&#xE008;" + // first batch of C0 controls
+      "&#x9;&#xA;" + // Tab and LF
+      "&#xE00B;&#xE00C;" + // more C0 controls
+      "&#xE00D;" + // CR
+      // Even more of the C0 controls.
+      "&#xE00E;&#xE00F;&#xE010;&#xE011;&#xE012;&#xE013;&#xE014;&#xE015;&#xE016;&#xE017;&#xE018;&#xE019;&#xE01A;&#xE01B;&#xE01C;&#xE01D;&#xE01E;&#xE01F;" +
+      "&#x20;" + // space is whitespace comes through numeric.
+      "!&quot;#$%&amp;" + // XML Entities for quot, amp
+      "&#x27;" + // numeric entity for apos aka single quote (because &apos; is not universal, i.e., not in HTML
+      "()*+,-./0123456789:;&lt;=&gt" + // XML entities for lt, gt
+      ";?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[" + // all printing characters
+      "\\" + // backslash char needs escape. This is ONE character
+      "]^_`abcdefghijklmnopqrstuvwxyz{|}~" + // all printing characters
+      "&#x7F;" // DEL is a control char, so numeric entity for that too.
+    assertEquals(expected, actual)
+  }
+
+  @Test def testEscape128To255() {
+    val input = (128 to 255).map { _.toChar }.mkString
+    val actual = XMLUtils.escape(input).toString()
+    val expected = "&#x80;&#x81;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;&#x8A;&#x8B;&#x8C;&#x8D;&#x8E;&#x8F;&#x90;&#x91;&#x92;&#x93;&#x94;&#x95;&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9D;&#x9E;&#x9F;&#xA0;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+    assertEquals(expected, actual)
+  }
 }

@@ -45,6 +45,8 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.XMLUtils
 
 object ENoWarn3 { EqualitySuppressUnusedImportWarning() }
 
@@ -81,7 +83,15 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
   lazy val uInit = if (e.initiatorParseEv.isKnownNonEmpty) One(e.initiatorUnparseEv) else Nope
   lazy val uTerm = if (e.terminatorParseEv.isKnownNonEmpty) One(e.terminatorUnparseEv) else Nope
 
-  lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pTerm.toList).toArray, e.termRuntimeData, body.parser)
+  lazy val delims = (pInit.toList ++ pTerm.toList)
+
+  override def toString() = {
+    val delimAttrib = delims.map { _.toString }.map { XMLUtils.escape(_).toString() }.mkString(" ")
+    "<" + Misc.getNameFromClass(this) + " delims='" + delimAttrib + "'>" +
+      body.toString() +
+      "</" + Misc.getNameFromClass(this) + ">"
+  }
+  lazy val parser: DaffodilParser = new DelimiterStackParser(delims.toArray, e.termRuntimeData, body.parser)
 
   override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, e.termRuntimeData, body.unparser)
 }
@@ -103,6 +113,11 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 
   override def isEmpty = body.isEmpty
 
+  override def toString() =
+    "<" + Misc.getNameFromClass(this) + ">" +
+      body.toString() +
+      "</" + Misc.getNameFromClass(this) + ">"
+
   lazy val parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
 
   override lazy val unparser: DaffodilUnparser =
@@ -118,6 +133,11 @@ case class SequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
     val res = frt.isEmpty
     res
   }
+
+  override def toString() =
+    "<" + Misc.getNameFromClass(this) + ">" +
+      terms.map { _.toString() }.mkString +
+      "</" + Misc.getNameFromClass(this) + ">"
 
   private val mt: Gram = EmptyGram
   lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
@@ -142,6 +162,7 @@ case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+  override def toString() = "<Array>" + body.toString + "</Array>"
 
   lazy val parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
   override lazy val unparser: Unparser = new ArrayCombinatorUnparser(e.elementRuntimeData, body.unparser)
@@ -149,6 +170,7 @@ case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body
 
 case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
+  override def toString() = "<Optional>" + body.toString + "</Optional>"
   lazy val parser: DaffodilParser = new OptionalCombinatorParser(e.elementRuntimeData, body.parser)
   override lazy val unparser: Unparser = new OptionalCombinatorUnparser(e.elementRuntimeData, body.unparser)
 }

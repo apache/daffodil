@@ -50,23 +50,25 @@ object XMLUtils {
   /**
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
    */
-  def remapXMLIllegalCharToPUA(checkForExistingPUA: Boolean = true)(c: Char): Char = {
+  def remapXMLIllegalCharToPUA(checkForExistingPUA: Boolean = true, replaceCRWithLF: Boolean = true)(c: Char): Char = {
     val cInt = c.toInt
     val res = cInt match {
       case 0x9 => c
       case 0xA => c
-      case 0xD => 0xA.toChar // Map CR to LF. That's what XML does.
-      case _ if (c < 0x20) => (c + 0xE000).toChar
-      case _ if (c > 0xD7FF && c < 0xE000) => (c + 0x1000).toChar
-      case _ if (c >= 0xE000 && c <= 0xF8FF) => {
+      case 0xD =>
+        if (replaceCRWithLF) 0xA.toChar // Map CR to LF. That's what XML does.
+        else 0xE00D.toChar // or remap it to PUA so it is non-whitespace, and preserved.
+      case _ if (cInt < 0x20) => (cInt + 0xE000).toChar
+      case _ if (cInt > 0xD7FF && cInt < 0xE000) => (cInt + 0x1000).toChar
+      case _ if (cInt >= 0xE000 && cInt <= 0xF8FF) => {
         if (checkForExistingPUA)
           Assert.usageError("Pre-existing Private Use Area (PUA) character found in data: '%s'".format(c))
         else c
       }
       case 0xFFFE => 0xF0FE.toChar
       case 0xFFFF => 0xF0FF.toChar
-      case _ if (c > 0x10FFFF) => {
-        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(c.toInt))
+      case _ if (cInt > 0x10FFFF) => {
+        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(cInt))
       }
       case _ => c
 
@@ -356,7 +358,7 @@ object XMLUtils {
   val EXT_NS_APACHE = NS(DAFFODIL_EXTENSION_NAMESPACE_APACHE.uri)
 
   private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_APACHE + ":int")
-  val INT_PREFIX= "dafint"
+  val INT_PREFIX = "dafint"
   val INT_NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
 
   val FILE_ATTRIBUTE_NAME = "file"
@@ -423,7 +425,7 @@ object XMLUtils {
   def dafAttributes(n: Node) = {
     n.attributes.filter { a =>
       a.getNamespace(n) == XMLUtils.EXT_NS_NCSA.toString ||
-      a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
+        a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
     }
   }
 
@@ -905,6 +907,71 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
+  /**
+   * Strong escaping that never loses information, handles apos and CR right.
+   *
+   * Escapes apostrophe (single quote) as well as the other XML escaped chars.
+   * Remaps CR and any other XML-illegals into PUA. Replaces whitespace with
+   * numeric character entities for additional safety.
+   *
+   * This is needed since XML may be using single quotes to surround a string which
+   * might contain single quotes.
+   *
+   * The reason basic scala.xml.Utility.escape doesn't escape single-quotes is
+   * HTML compatibility. HTML doesn't define an "&apos;" entity.
+   *
+   * Furthermore, since some potentially illegal XML characters may be used here, we
+   * are going to remap all the illegal XML characters to their corresponding PUA characters.
+   *
+   * Lastly, all whitespace chars are replaced by numeric character entities, and
+   * anything above 0xFF that is not considered letter or digit, is also replaced
+   * by a numeric character entity.
+   *
+   * The result is a string which can be displayed as an XML attribute value, is
+   * invertible back to the original string.
+   *
+   * Finally, CRLF and CR will come through as &#xE00D;&#xA; that's because
+   * if we used &#xD; for the CR, it might be converted to a LF by XML readers.
+   * We have to use our own PUA remapping trick if we want to be sure to preserve
+   * CR in XML.
+   */
+  def escape(str: String, sb: StringBuilder = new StringBuilder()): StringBuilder = {
+    var i = 0
+    while (i < str.length) {
+      val x = str(i)
+      val c = escapeMapper(x)
+      i += 1
+      c match {
+        case '\'' => sb.append("&#x27;") // don't use "&apos;" because it's not universally accepted (HTML doesn't have it in early versions)
+        case '"' => sb.append("&quot;")
+        case '&' => sb.append("&amp;")
+        case '<' => sb.append("&lt;")
+        case '>' => sb.append("&gt;")
+        case _ if (c.isLetterOrDigit) => sb.append(c)
+        case _ if (c.isWhitespace || c.isControl) => toNumericCharacterEntity(c, sb)
+        // A0 is the NBSP character - not considered whitespace, but no glyph, so we need it numeric
+        case _ if (c.toInt == 0xA0) => toNumericCharacterEntity(c, sb)
+        // Any other char < 256 is punctuation or other glyph char
+        case _ if (c.toInt < 0xFF) => sb.append(c)
+        case _ => toNumericCharacterEntity(c, sb)
+      }
+    }
+    sb
+  }
+
+  private val escapeMapper =
+    remapXMLIllegalCharToPUA(
+      checkForExistingPUA = false,
+      replaceCRWithLF = false) _
+
+  def toNumericCharacterEntity(c: Char, sb: StringBuilder) = {
+    val i = c.toInt
+    Assert.usage(i > 0) // NUL cannot be represented at all in XML.
+    val s = Integer.toHexString(i).toUpperCase()
+    sb.append("&#x")
+    sb.append(s)
+    sb.append(";")
+  }
 }
 
 trait GetAttributesMixin extends ThrowsSDE {
