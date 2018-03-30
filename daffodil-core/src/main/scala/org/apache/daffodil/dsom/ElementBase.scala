@@ -478,34 +478,11 @@ trait ElementBase
   }.value
 
   protected def computeElementRuntimeData(): ElementRuntimeData = {
-    val ee = enclosingElement
-    //
-    // Must be lazy below, because we are defining the elementRuntimeData in terms of
-    // the elementRuntimeData of its enclosing element. This backpointer must be
-    // constructed lazily so that we first connect up all the erds to their children,
-    // and only subsequently ask for these parents to be elaborated.
-    //
-    lazy val parent = ee.map { enc =>
-      Assert.invariant(this != enc)
-      enc.elementRuntimeData
-    }
-    lazy val parentTerm = this.enclosingTerm.map { enc =>
-      Assert.invariant(this != enc)
-      enc.termRuntimeData
-    }
-
-    //
-    // I got sick of initialization time problems, so this mutual recursion
-    // defines the tree of ERDs.
-    //
-    // This works because of deferred arguments and lazy evaluation
-    //
+    
     lazy val childrenERDs: Seq[ElementRuntimeData] =
       elementChildren.map { _.elementRuntimeData }
 
     val newERD: ElementRuntimeData = new ElementRuntimeData(
-      parent,
-      parentTerm,
       childrenERDs,
       schemaSet.variableMap,
       nextElementResolver,

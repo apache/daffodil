@@ -248,11 +248,6 @@ abstract class ChoiceTermBase( final override val xml: Node,
       namespaces,
       defaultBitOrder,
       groupMembersRuntimeData,
-      enclosingElement.map { _.elementRuntimeData }.getOrElse(
-        Assert.invariantFailed("model group with no surrounding element.")),
-      enclosingTerm.map { _.termRuntimeData }.getOrElse {
-        Assert.invariantFailed("model group with no surrounding term.")
-      },
       isRepresented,
       couldHaveText,
       alignmentValueInBits,
