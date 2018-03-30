@@ -24,7 +24,6 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.processors.NonTermRuntimeData
 import org.apache.daffodil.xml.ResolvesQNames
@@ -91,8 +90,6 @@ trait SchemaComponent
       diagnosticDebugName,
       path,
       namespaces,
-      enclosingElement.map { _.erd },
-      Maybe.toMaybe(enclosingTerm.map { _.termRuntimeData }),
       tunable)
   }.value
 

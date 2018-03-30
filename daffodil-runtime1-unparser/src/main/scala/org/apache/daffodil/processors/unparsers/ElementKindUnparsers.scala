@@ -85,17 +85,7 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ar
                 doUnparser = true
               }
             } else if (ev.isEnd && ev.isComplex) {
-              val c = ev.asComplex
-              //ok. We've peeked ahead and found the end of the complex element
-              //that this sequence is the model group of.
-              val optParentRD = ctxt.immediateEnclosingElementRuntimeData
-              optParentRD match {
-                case Some(e: ElementRuntimeData) =>
-                  Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
-                case _ =>
-                  Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
-                    ev, optParentRD))
-              }
+                // ok. Expected case. Do nothing.
             } else {
               Assert.invariantFailed("Not a start event: " + ev)
             }

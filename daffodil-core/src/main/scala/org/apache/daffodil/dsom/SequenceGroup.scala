@@ -31,7 +31,6 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.Implicits.ns2String
 import org.apache.daffodil.grammar.SequenceGrammarMixin
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
@@ -230,11 +229,6 @@ abstract class SequenceTermBase(
       namespaces,
       defaultBitOrder,
       groupMembersRuntimeData,
-      enclosingElement.map { _.elementRuntimeData }.getOrElse(
-        Assert.invariantFailed("model group with no surrounding element.")),
-      enclosingTerm.map { _.termRuntimeData }.getOrElse {
-        Assert.invariantFailed("model group with no surrounding term.")
-      },
       isRepresented,
       couldHaveText,
       alignmentValueInBits,
