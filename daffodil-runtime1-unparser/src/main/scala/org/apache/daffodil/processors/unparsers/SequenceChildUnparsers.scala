@@ -170,23 +170,12 @@ abstract class RepeatingChildUnparser(
                 false // event not a start for this element
               }
             } else if (ev.isEnd && ev.isComplex) {
-              val c = ev.asComplex
-              //ok. We've peeked ahead and found the end of the complex element
+              //ok. We've peeked ahead and found the end of a complex element.
+              // It has to be the complex element that ultimately encloses this sequence.
+              // Though that's not a unique element given that this sequence could be inside
+              // a global group definition that is reused in muliple places.
               //that this sequence is the model group of.
-              val optParentRD = srd.immediateEnclosingElementRuntimeData
-              // FIXME: there's no reason to walk backpointer to immediateEnclosingElementRuntimeData
-              // as we just want that element's name, and we could precompute that and
-              // include it on the SequenceChildUnparser for this
-              optParentRD match {
-                case Some(e: ElementRuntimeData) => {
-                  Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
-                  // System.err.println("Stopping occurrences(2) of %s due to event %s".format(erd.namedQName, ev))
-                  false
-                }
-                case _ =>
-                  Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
-                    ev, optParentRD))
-              }
+              false
             } else {
               // end of simple element. We shouldUnparse on the start event.
               // System.err.println("Stopping occurrences(3) of %s due to event %s".format(erd.namedQName, ev))

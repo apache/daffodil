@@ -253,11 +253,6 @@ abstract class ChoiceTermBase(
       namespaces,
       defaultBitOrder,
       groupMembersRuntimeData,
-      enclosingElement.map { _.elementRuntimeData }.getOrElse(
-        Assert.invariantFailed("model group with no surrounding element.")),
-      enclosingTerm.map { _.termRuntimeData }.getOrElse {
-        Assert.invariantFailed("model group with no surrounding term.")
-      },
       isRepresented,
       couldHaveText,
       alignmentValueInBits,
