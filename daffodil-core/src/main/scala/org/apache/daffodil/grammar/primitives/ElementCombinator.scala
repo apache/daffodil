@@ -76,6 +76,8 @@ class ElementCombinator(context: ElementBase,
   extends NamedGram(context)
   with Padded {
 
+  override def toString = subComb.toString() // parse centric view of the world. Unparser doesn't use subComb at all.
+
   private lazy val subComb = {
     if (context.isParentUnorderedSequence) {
       new ChoiceElementCombinator(context, eBeforeContent,
@@ -406,6 +408,8 @@ class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gr
 
 abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram)
   extends NamedGram(context) {
+
+  override def toString() = "<element name='" + name + "'>" + eGram.toString() + "</element>"
 
   // The order of things matters in some cases, so to be consistent we'll always use the
   // same order even when it doesn't matter

@@ -150,8 +150,8 @@ final class DFDLSchemaFile(val sset: SchemaSet,
         ldr.validateSchema(schemaSource) // validate as XSD (catches UPA errors for example)
       } catch {
         case _: org.xml.sax.SAXParseException =>
-          // ok to absorb this. We have captured fatal exceptions in the
-          // error handler. 
+        // ok to absorb this. We have captured fatal exceptions in the
+        // error handler.
         case e: Exception =>
           Assert.invariantFailed("Unexpected exception type " + e)
       }
