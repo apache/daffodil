@@ -21,7 +21,7 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
-object TestPacked {
+object TestPacked2 {
   val testDir = "/org/apache/daffodil/section13/packed/"
   lazy val runner = Runner(testDir, "packed.tdml")
 
@@ -31,7 +31,7 @@ object TestPacked {
 
 }
 
-class TestPacked {
+class TestPacked2 {
   import TestPacked._
 
   @Test def testDelimitedIBM4690IntOptSeq02(): Unit = { runner.runOneTest("DelimitedIBM4690IntOptSeq02") } // Needs proper trailing suppression - DAFFODIL-1919
