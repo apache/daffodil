@@ -21,18 +21,41 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Logging
+import org.apache.daffodil.util.Misc
+import org.apache.daffodil.xml.DaffodilXMLLoader
 
 object DaffodilTunables {
 
   def apply(tunables: Map[String, String]): DaffodilTunables = {
-    new DaffodilTunables().setTunables(tunables)
+    apply().setTunables(tunables)
   }
 
   def apply(tunable: String, value: String): DaffodilTunables = {
-    new DaffodilTunables().setTunable(tunable, value)
+    apply().setTunable(tunable, value)
   }
 
-  def apply(): DaffodilTunables = new DaffodilTunables()
+  def apply(): DaffodilTunables = {
+    // override tunables from the global configuration file on the class path, if it exists
+    val (configOpt, _) = Misc.getResourceOption("/daffodil-config.xml")
+    val configTunables: Map[String, String] =
+      if (configOpt.isDefined) {
+        val loader = new DaffodilXMLLoader()
+        val node = loader.load(new URISchemaSource(configOpt.get))
+        val trimmed = scala.xml.Utility.trim(node)
+        val tunablesNode = (trimmed \ "tunables").headOption
+        val tunablesMap: Map[String, String] = tunablesNode match {
+          case None => Map.empty
+          case Some(tunableNode) => {
+            tunableNode.child.map { n => (n.label, n.text) }.toMap
+          }
+        }
+        tunablesMap
+      } else {
+        Map.empty
+      }
+
+    new DaffodilTunables().setTunables(configTunables)
+  }
 }
 
 case class DaffodilTunables(
@@ -105,7 +128,19 @@ case class DaffodilTunables(
   // This may cause a degredation of performance in path expression evaluation,
   // so this should be avoided when in production. This flag is automatically
   // enabled when debugging is enabled.
-  val allowExternalPathExpressions: Boolean = false)
+  val allowExternalPathExpressions: Boolean = false,
+
+  // A bug exists in Java 7 that causes unexpected behavior when decode errors
+  // occur in the specific ways that Daffodil decodes data. For this reason,
+  // Daffodil throws an exception when it detects that Daffodil is not running
+  // under Java 8 or has this decoder bug. However, there are some cases where
+  // a user has no choice but to run on Java 7. Setting this tunable to false
+  // will cause Daffodil to log a warning rather than throw an exception so
+  // that a user can run Daffodil on unsupported Java versions, with the
+  // understanding that it is not fully tested and behavior may not be well
+  // defined. This boolean is experimental and should only be used by those
+  // that fully understand the risks.
+  val errorOnUnsupportedJavaVersion: Boolean = true)
   extends Serializable
   with Logging
   with DataStreamLimits {
@@ -206,6 +241,7 @@ case class DaffodilTunables(
         this.copy(suppressSchemaDefinitionWarnings = warningsList)
       }
       case "allowexternalpathexpressions" => this.copy(allowExternalPathExpressions = java.lang.Boolean.valueOf(value))
+      case "erroronunsupportedjavaversion" => this.copy(errorOnUnsupportedJavaVersion = java.lang.Boolean.valueOf(value))
       case _ => {
         log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
         this

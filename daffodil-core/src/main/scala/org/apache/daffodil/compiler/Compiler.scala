@@ -39,6 +39,7 @@ import scala.collection.mutable.Queue
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.processors.SchemaSetRuntimeData
 import org.apache.daffodil.util.CheckJavaVersion
+import org.apache.daffodil.util.InvalidJavaVersionException
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.processors.VariableMap
 import java.util.zip.GZIPInputStream
@@ -162,7 +163,14 @@ final class ProcessorFactory(val sset: SchemaSet)
         rootERD,
         variables,
         validationMode)
-      CheckJavaVersion.checkJavaVersion(ssrd)
+      val versionErrorOpt = CheckJavaVersion.checkJavaVersion()
+      if (versionErrorOpt.isDefined) {
+        if (tunable.errorOnUnsupportedJavaVersion) {
+          throw new InvalidJavaVersionException(versionErrorOpt.get)
+        } else {
+          log(LogLevel.Warning, versionErrorOpt.get + " " + CheckJavaVersion.allowUnsupportedJavaMessage)
+        }
+      }
       val dataProc = new DataProcessor(ssrd)
       if (dataProc.isError) {
         // NO longer printing anything here. Callers must do this.
@@ -284,7 +292,14 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       val dpObj = objInput.readObject()
       objInput.close()
       val dp = dpObj.asInstanceOf[SerializableDataProcessor]
-      CheckJavaVersion.checkJavaVersion(dp.ssrd)
+      val versionErrorOpt = CheckJavaVersion.checkJavaVersion()
+      if (versionErrorOpt.isDefined) {
+        if (dp.getTunables.errorOnUnsupportedJavaVersion) {
+          throw new InvalidJavaVersionException(versionErrorOpt.get)
+        } else {
+          log(LogLevel.Warning, versionErrorOpt.get + " " + CheckJavaVersion.allowUnsupportedJavaMessage)
+        }
+      }
       dp
     } catch {
       case ex: ZipException => {

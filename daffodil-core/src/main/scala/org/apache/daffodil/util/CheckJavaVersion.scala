@@ -17,24 +17,27 @@
 
 package org.apache.daffodil.util
 
-import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.processors.charset.CharsetUtils
 
 class InvalidJavaVersionException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 object CheckJavaVersion {
 
-  def checkJavaVersion(context: ThrowsSDE) = {
+  def checkJavaVersion(): Option[String] = {
     val jVersion = scala.util.Properties.javaVersion
-    if (!scala.util.Properties.isJavaAtLeast("1.8")) {
-      throw new InvalidJavaVersionException("Daffodil requires Java 8 (1.8) or higher. You are currently running %s".format(jVersion))
-    }
-    //
-    // Test specifically for this particular decoder bug
-    // 
-    if (CharsetUtils.hasJava7DecoderBug) {
-      throw new InvalidJavaVersionException("This Java JVM has the Java 7 Decoder Bug. Daffodil requires Java 8 or higher.")
-    }
+    val errorStringOpt =
+      if (!scala.util.Properties.isJavaAtLeast("1.8")) {
+        Some("Daffodil requires Java 8 (1.8) or higher. You are currently running %s.".format(jVersion))
+      } else if (CharsetUtils.hasJava7DecoderBug) {
+        Some("This Java JVM has the Java 7 Decoder Bug. Daffodil requires Java 8 or higher.")
+      } else {
+        None
+      }
+    errorStringOpt
   }
 
+  val allowUnsupportedJavaMessage =
+    "Due to the tunable value of errorOnUnsupportedJavaVersion, " +
+    "processing will continue with the understanding that this is not " +
+    "fully tested and may have unexpected behavior in some circumstances."
 }
