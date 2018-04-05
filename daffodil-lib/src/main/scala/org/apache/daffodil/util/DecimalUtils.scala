@@ -19,6 +19,7 @@ package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 
@@ -111,7 +112,7 @@ object DecimalUtils {
   }
 
   def packedToBigDecimal(num: Array[Byte], scale: Int, signCodes: PackedSignCodes): JBigDecimal = {
-    return new JBigDecimal(packedToBigInteger(num, signCodes), scale)
+    new JBigDecimal(packedToBigInteger(num, signCodes), scale)
   }
 
   def packedFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int, signCodes: PackedSignCodes): Array[Byte] = {
@@ -335,4 +336,155 @@ object DecimalUtils {
     outArray
   }
 
+  def convertFromAsciiStandard(digit: Char): (Int, Boolean) = {
+    if ((digit >= '0') && (digit <= '9')) // positive 0-9
+      (digit - 48, false)
+    else if ((digit >= 'p') && (digit <= 'y')) // negative 0-9
+      (digit - 112, true)
+    else
+      throw new NumberFormatException("Invalid zoned digit: " + digit)
+  }
+
+  def convertToAsciiStandard(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      digit
+    else
+      (digit + 64).asInstanceOf[Char]
+  }
+
+  def convertFromAsciiTranslatedEBCDIC(digit: Char): (Int, Boolean) = {
+    if (digit == '{')
+      (0, false)
+    else if (digit == '}')
+      (0, true)
+    else if ((digit >= 'A') && (digit <= 'I')) // positive 1-9
+      (digit - 64, false)
+    else if ((digit >= 'J') && (digit <= 'R')) // negative 1-9
+      (digit - 73, true)
+    else if ((digit >= '0') && (digit <= '9'))
+      (digit - 48, false) // non-overpunched digit
+    else
+      throw new NumberFormatException("Invalid zoned digit: " + digit)
+  }
+
+  def convertToAsciiTranslatedEBCDIC(digit: Char, positive: Boolean): Char = {
+    if (positive) {
+      if (digit == '0')
+        '{'
+      else
+        (digit + 16).asInstanceOf[Char]
+    } else {
+      if (digit == '0')
+        '}'
+      else
+        (digit + 25).asInstanceOf[Char]
+    }
+  }
+
+  def convertFromAsciiCARealiaModified(digit: Char): (Int, Boolean) = {
+    if ((digit >= '0') && (digit <= '9')) // positive 0-9
+      (digit - 48, false)
+    else if ((digit >= ' ') && (digit <= ')')) // negative 0-9
+      (digit - 32, true)
+    else
+      throw new NumberFormatException("Invalid zoned digit: " + digit)
+  }
+
+  def convertToAsciiCARealiaModified(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      digit
+    else
+      (digit - 16).asInstanceOf[Char]
+  }
+
+  def convertFromAsciiTandemModified(digit: Char): (Int, Boolean) = {
+    if ((digit >= '0') && (digit <= '9')) // positive 0-9
+      (digit - 48, false)
+    else if ((digit >= 128) && (digit <= 137)) // negative 0-9
+      (digit - 128, true)
+    else
+      throw new NumberFormatException("Invalid zoned digit: " + digit)
+  }
+
+  def convertToAsciiTandemModified(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      digit
+    else
+      (digit + 80).asInstanceOf[Char]
+  }
+
+  object OverpunchLocation extends Enumeration {
+    type OverpunchLocation = Value
+    val Start, End, None = Value
+  }
+
+  def zonedToNumber(num: String, zonedStyle: TextZonedSignStyle, opl: OverpunchLocation.Value): String = {
+    val opindex = opl match {
+      case OverpunchLocation.Start => 0
+      case OverpunchLocation.End => num.length - 1
+      case _ => -1
+    }
+
+    val decodedValue = {
+      if (opl == OverpunchLocation.None) {
+        num
+      } else {
+        val (digit, opneg) = zonedStyle match {
+          case TextZonedSignStyle.AsciiStandard => convertFromAsciiStandard(num(opindex))
+          case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertFromAsciiTranslatedEBCDIC(num(opindex))
+          case TextZonedSignStyle.AsciiCARealiaModified => convertFromAsciiCARealiaModified(num(opindex))
+          case TextZonedSignStyle.AsciiTandemModified => convertFromAsciiTandemModified(num(opindex))
+        }
+
+        val convertedNum = (opneg, opl) match {
+          case (true, OverpunchLocation.Start) => "-" + digit + num.substring(1)
+          case (false, OverpunchLocation.Start) => digit + num.substring(1)
+          case (true, OverpunchLocation.End) => "-" + num.substring(0, opindex) + digit
+          case (false, OverpunchLocation.End) => num.substring(0, opindex) + digit
+          case _ => Assert.impossible()
+        }
+
+        convertedNum
+      }
+    }
+
+    decodedValue
+  }
+
+  def zonedFromNumber(num: String, zonedStyle: TextZonedSignStyle, opl: OverpunchLocation.Value): String = {
+    val positive = (num.charAt(0) != '-')
+    val inStr = positive match {
+      case true => num
+      case false => num.substring(1)
+    }
+    val opindex = opl match {
+      case OverpunchLocation.Start => 0
+      case OverpunchLocation.End => inStr.length - 1
+      case _ => -1
+    }
+
+    val encodedValue = {
+      if (opl == OverpunchLocation.None) {
+        if (!positive) Assert.impossible()
+        inStr
+      } else {
+        val digit = zonedStyle match {
+          case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(inStr(opindex), positive)
+        }
+
+        val convertedNum = opl match {
+          case OverpunchLocation.Start => digit + inStr.substring(1)
+          case OverpunchLocation.End => inStr.substring(0, opindex) + digit
+          case _ => Assert.impossible()
+        }
+
+        convertedNum
+      }
+    }
+
+    encodedValue
+  }
 }

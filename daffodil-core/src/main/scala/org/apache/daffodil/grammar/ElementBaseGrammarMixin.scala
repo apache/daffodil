@@ -67,6 +67,18 @@ import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedBytePrim
 import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedIntPrim
 import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedLongPrim
 import org.apache.daffodil.grammar.primitives.ConvertTextUnsignedShortPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedBytePrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedCombinator
+import org.apache.daffodil.grammar.primitives.ConvertZonedDecimalPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedIntPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedIntegerPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedLongPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedNonNegativeIntegerPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedShortPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedBytePrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedIntPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedLongPrim
+import org.apache.daffodil.grammar.primitives.ConvertZonedUnsignedShortPrim
 import org.apache.daffodil.grammar.primitives.DelimiterStackCombinatorElement
 import org.apache.daffodil.grammar.primitives.DynamicEscapeSchemeCombinatorElement
 import org.apache.daffodil.grammar.primitives.ElementCombinator
@@ -112,7 +124,6 @@ import org.apache.daffodil.grammar.primitives.StringDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.StringOfSpecifiedLength
 import org.apache.daffodil.grammar.primitives.Terminator
 import org.apache.daffodil.grammar.primitives.TrailingSkipRegion
-import org.apache.daffodil.grammar.primitives.ZonedTextIntPrim
 import org.apache.daffodil.processors.TextJustificationType
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
@@ -552,43 +563,43 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val textByte = prod("textByte", impliedRepresentation == Representation.Text) {
-    standardTextByte || zonedTextInt
+    standardTextByte || zonedTextByte
   }
 
   private lazy val textShort = prod("textShort", impliedRepresentation == Representation.Text) {
-    standardTextShort || zonedTextInt
+    standardTextShort || zonedTextShort
   }
 
   private lazy val textLong = prod("textLong", impliedRepresentation == Representation.Text) {
-    standardTextLong || zonedTextInt
+    standardTextLong || zonedTextLong
   }
 
   private lazy val textInteger = prod("textInteger", impliedRepresentation == Representation.Text) {
-    standardTextInteger || zonedTextInt
+    standardTextInteger || zonedTextInteger
   }
 
   private lazy val textDecimal = prod("textDecimal", impliedRepresentation == Representation.Text) {
-    standardTextDecimal || zonedTextInt
+    standardTextDecimal || zonedTextDecimal
   }
 
   private lazy val textNonNegativeInteger = prod("textNonNegativeInteger", impliedRepresentation == Representation.Text) {
-    standardTextNonNegativeInteger || zonedTextInt
+    standardTextNonNegativeInteger || zonedTextNonNegativeInteger
   }
 
   private lazy val textUnsignedInt = prod("textUnsignedInt", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedInt || zonedTextInt
+    standardTextUnsignedInt || zonedTextUnsignedInt
   }
 
   private lazy val textUnsignedByte = prod("textUnsignedByte", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedByte || zonedTextInt
+    standardTextUnsignedByte || zonedTextUnsignedByte
   }
 
   private lazy val textUnsignedShort = prod("textUnsignedShort", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedShort || zonedTextInt
+    standardTextUnsignedShort || zonedTextUnsignedShort
   }
 
   private lazy val textUnsignedLong = prod("textUnsignedLong", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedLong || zonedTextInt
+    standardTextUnsignedLong || zonedTextUnsignedLong
   }
 
   //
@@ -617,8 +628,29 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedShortPrim(this)) }
   private lazy val standardTextUnsignedByte = prod("standardTextUnsignedByte",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedBytePrim(this)) }
+
+  private lazy val zonedTextInteger = prod("zonedTextInteger",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntegerPrim(this)) }
+  private lazy val zonedTextDecimal = prod("zonedTextDecimal",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedDecimalPrim(this)) }
+  private lazy val zonedTextNonNegativeInteger = prod("zonedTextNonNegativeInteger",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedNonNegativeIntegerPrim(this)) }
+  private lazy val zonedTextLong = prod("zonedTextLong",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedLongPrim(this)) }
   private lazy val zonedTextInt = prod("zonedTextInt",
-    textNumberRep == TextNumberRep.Zoned) { ZonedTextIntPrim(this) }
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedIntPrim(this)) }
+  private lazy val zonedTextShort = prod("zonedTextShort",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedShortPrim(this)) }
+  private lazy val zonedTextByte = prod("zonedTextByte",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedBytePrim(this)) }
+  private lazy val zonedTextUnsignedLong = prod("zonedTextUnsignedLong",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedLongPrim(this)) }
+  private lazy val zonedTextUnsignedInt = prod("zonedTextUnsignedInt",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedIntPrim(this)) }
+  private lazy val zonedTextUnsignedShort = prod("zonedTextUnsignedShort",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedShortPrim(this)) }
+  private lazy val zonedTextUnsignedByte = prod("zonedTextUnsignedByte",
+    textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedBytePrim(this)) }
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
     standardTextDouble || zonedTextDouble
