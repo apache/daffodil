@@ -175,7 +175,7 @@
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="ISO-8859-1" occursCountKind="implicit"
     textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bytes" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
-    binaryDecimalVirtualPoint="2" separatorSuppressionPolicy="trailingEmpty"/>
+    binaryDecimalVirtualPoint="2"/>
 
   <xs:element name="packedIntSeq" dfdl:lengthKind="delimited">
     <xs:complexType>
@@ -230,20 +230,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-
-  <xs:element name="ibmOptIntSeq" dfdl:lengthKind="delimited" >
-    <xs:complexType>
-      <xs:sequence dfdl:initiatedContent="no" dfdl:separatorPosition="infix"
-        dfdl:sequenceKind="ordered" dfdl:separator=":">
-        <xs:element name="a" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" minOccurs="0"/>
-        <xs:element name="b" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" minOccurs="0"/>
-        <xs:element name="c" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" minOccurs="0"/>
-        <xs:element name="d" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" minOccurs="0"/>
-        <xs:element name="e" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" minOccurs="0"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
 
   </tdml:defineSchema>
 
@@ -855,37 +841,6 @@
           <num>3</num>
           <num>-123</num>
         </ibmIntSeq>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="DelimitedIBM4690IntOptSeq01" root="ibmOptIntSeq" model="s14"
-    description="Parsing a delimited separated sequence with optional elements" roundTrip="false">
-
-    <tdml:document>
-      <tdml:documentPart type="byte">FFF1 3A 3A 3A 3A FFF5</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ibmOptIntSeq>
-          <a>1</a>
-          <e>5</e>
-        </ibmOptIntSeq>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="DelimitedIBM4690IntOptSeq02" root="ibmOptIntSeq" model="s14"
-    description="Parsing a delimited separated sequence with optional elements" roundTrip="false">
-
-    <tdml:document>
-      <tdml:documentPart type="byte">3A 3A 3A 3A FFF5</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ibmOptIntSeq>
-          <e>5</e>
-        </ibmOptIntSeq>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

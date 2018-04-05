@@ -46,7 +46,7 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Array[Unparser])
+class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
   extends CombinatorUnparser(ctxt)
   with ToBriefXMLImpl {
 
@@ -57,18 +57,21 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ar
   // Sequences of nothing (no initiator, no terminator, nothing at all) should
   // have been optimized away
   Assert.invariant(childUnparsers.length > 0)
-  Assert.invariant(ctxt.groupMembers.length == childUnparsers.length)
+
+  // Since some of the grammar terms might have folded away to EmptyGram,
+  // the number of unparsers here may be different from the number of
+  // children of the sequence group.
+  Assert.invariant(ctxt.groupMembers.length >= childUnparsers.length)
 
   override lazy val childProcessors: Seq[Processor] = childUnparsers
 
   def unparse(start: UState): Unit = {
 
+    start.groupIndexStack.push(1L) // one-based indexing
 
     var index = 0
     var doUnparser = false
     val limit = childUnparsers.length
-
-    start.groupIndexStack.push(1L) // one-based indexing
 
     while (index < limit) {
       doUnparser = false

@@ -119,26 +119,18 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: TermRuntimeData, childParsers: Array[Parser])
+class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
   override def nom = "Sequence"
 
   override lazy val runtimeDependencies = Nil
 
-  override lazy val childProcessors = childParsers.toSeq
-
-  val numChildParsers = childParsers.size
+  override lazy val childProcessors = Seq(bodyParser)
 
   def parse(start: PState): Unit = {
-    var i: Int = 0
-
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
 
-    while ((i < numChildParsers) && (start.processorStatus eq Success)) {
-      val parser = childParsers(i)
-      parser.parse1(start)
-      i += 1
-    }
+    bodyParser.parse1(start)
 
     start.mpstate.groupIndexStack.pop()
     start.mpstate.moveOverOneGroupIndexOnly()

@@ -112,19 +112,23 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 case class SequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
   extends Terminal(sq, true) {
 
-  lazy val terms = rawTerms.filterNot{ _.isEmpty }
+  override lazy val isEmpty = {
+    val rt = rawTerms
+    val frt = rt.filterNot { _.isEmpty }
+    val res = frt.isEmpty
+    res
+  }
 
-  override lazy val isEmpty = terms.isEmpty
+  private val mt: Gram = EmptyGram
+  lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
 
-  lazy val parsers = terms.map { term =>
-    term.parser
-  }.toArray
+  lazy val terms = rawTerms.filterNot { _.isEmpty }
 
   lazy val unparsers = terms.map { term =>
     term.unparser
-  }.toArray
+  }.toVector
 
-  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, parsers)
+  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, body.parser)
 
   override lazy val unparser: DaffodilUnparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC
