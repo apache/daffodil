@@ -1249,4 +1249,283 @@ class TestDecimalUtils {
       case nfe: NumberFormatException => assertTrue(nfe.getMessage().contains("Invalid low nibble"))
     }
   }
+
+  @Test def zonedInt1Pos() {
+    val num = new Array[Byte](1)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x1C.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("1"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt2Pos() {
+    val num = new Array[Byte](2)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x2C.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("12"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt3Pos() {
+    val num = new Array[Byte](2)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x12.toByte
+    num(1) = 0x3C.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("123"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt4Pos() {
+    val num = new Array[Byte](6)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x23.toByte
+    num(2) = 0x45.toByte
+    num(3) = 0x67.toByte
+    num(4) = 0x89.toByte
+    num(5) = 0x0C.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("1234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt5Pos() {
+    val num = new Array[Byte](11)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x00.toByte
+    num(1) = 0x00.toByte
+    num(2) = 0x00.toByte
+    num(3) = 0x00.toByte
+    num(4) = 0x00.toByte
+    num(5) = 0x01.toByte
+    num(6) = 0x23.toByte
+    num(7) = 0x45.toByte
+    num(8) = 0x67.toByte
+    num(9) = 0x89.toByte
+    num(10) = 0x0C.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("1234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt1Neg() {
+    val num = new Array[Byte](1)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x1D.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("-1"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt2Neg() {
+    val num = new Array[Byte](2)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x2D.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("-12"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt3Neg() {
+    val num = new Array[Byte](2)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x12.toByte
+    num(1) = 0x3D.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("-123"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt4Neg() {
+    val num = new Array[Byte](6)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x23.toByte
+    num(2) = 0x45.toByte
+    num(3) = 0x67.toByte
+    num(4) = 0x89.toByte
+    num(5) = 0x0D.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("-1234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedInt5Neg() {
+    val num = new Array[Byte](11)
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x00.toByte
+    num(1) = 0x00.toByte
+    num(2) = 0x00.toByte
+    num(3) = 0x00.toByte
+    num(4) = 0x00.toByte
+    num(5) = 0x01.toByte
+    num(6) = 0x23.toByte
+    num(7) = 0x45.toByte
+    num(8) = 0x67.toByte
+    num(9) = 0x89.toByte
+    num(10) = 0x0D.toByte
+    val bignum = zonedToBigInteger(num, signCodes)
+    assertEquals(bignum, new JBigInteger("-1234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec1Pos() {
+    val num = new Array[Byte](1)
+    val scale = 0
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x1C.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("1"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec2Pos() {
+    val num = new Array[Byte](2)
+    val scale = 1
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x2C.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("1.2"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec3Pos() {
+    val num = new Array[Byte](2)
+    val scale = 3
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x12.toByte
+    num(1) = 0x3C.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal(".123"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec4Pos() {
+    val num = new Array[Byte](6)
+    val scale = 5
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x23.toByte
+    num(2) = 0x45.toByte
+    num(3) = 0x67.toByte
+    num(4) = 0x89.toByte
+    num(5) = 0x0C.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("12345.67890"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec5Pos() {
+    val num = new Array[Byte](11)
+    val scale = 19
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x00.toByte
+    num(1) = 0x00.toByte
+    num(2) = 0x00.toByte
+    num(3) = 0x00.toByte
+    num(4) = 0x00.toByte
+    num(5) = 0x01.toByte
+    num(6) = 0x23.toByte
+    num(7) = 0x45.toByte
+    num(8) = 0x67.toByte
+    num(9) = 0x89.toByte
+    num(10) = 0x0C.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("0.0000000001234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec1Neg() {
+    val num = new Array[Byte](1)
+    val scale = 0
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x1D.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("-1"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec2Neg() {
+    val num = new Array[Byte](2)
+    val scale = 1
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x2D.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("-1.2"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec3Neg() {
+    val num = new Array[Byte](2)
+    val scale = 3
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x12.toByte
+    num(1) = 0x3D.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("-.123"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec4Neg() {
+    val num = new Array[Byte](6)
+    val scale = 5
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x01.toByte
+    num(1) = 0x23.toByte
+    num(2) = 0x45.toByte
+    num(3) = 0x67.toByte
+    num(4) = 0x89.toByte
+    num(5) = 0x0D.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("-12345.67890"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
+  @Test def zonedDec5Neg() {
+    val num = new Array[Byte](11)
+    val scale = 19
+    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
+
+    num(0) = 0x00.toByte
+    num(1) = 0x00.toByte
+    num(2) = 0x00.toByte
+    num(3) = 0x00.toByte
+    num(4) = 0x00.toByte
+    num(5) = 0x01.toByte
+    num(6) = 0x23.toByte
+    num(7) = 0x45.toByte
+    num(8) = 0x67.toByte
+    num(9) = 0x89.toByte
+    num(10) = 0x0D.toByte
+    val bignum = zonedToBigDecimal(num, scale, signCodes)
+    assertEquals(bignum, new JBigDecimal("-0.0000000001234567890"))
+    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  }
+
 }

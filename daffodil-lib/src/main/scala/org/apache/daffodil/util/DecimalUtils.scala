@@ -335,4 +335,14 @@ object DecimalUtils {
     outArray
   }
 
+  def convertAsciiStandard(digit: Int): Int = {
+    if ((digit >= 0) && (digit <= 9))
+      return digit
+    else if ((digit >= 112) && (digit <= 121))
+      return -(digit - 112)
+  }
+
+  def zonedFromString(num: String, zonedStyle: TextZonedSignStyle): Number = {
+    for (char: 
+
 }
