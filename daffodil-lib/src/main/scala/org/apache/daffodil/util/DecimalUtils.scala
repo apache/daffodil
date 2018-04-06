@@ -18,7 +18,7 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 
@@ -335,14 +335,115 @@ object DecimalUtils {
     outArray
   }
 
-  def convertAsciiStandard(digit: Int): Int = {
-    if ((digit >= 0) && (digit <= 9))
-      return digit
-    else if ((digit >= 112) && (digit <= 121))
+  def convertFromAsciiStandard(digit: Int): Int = {
+    if ((digit >= 48) && (digit <= 57))
+      return digit - 48
+    else if ((digit >= 112) && (digit <= 121)) // negative 0-9
       return -(digit - 112)
+    else
+      return 0
   }
 
-  def zonedFromString(num: String, zonedStyle: TextZonedSignStyle): Number = {
-    for (char: 
+  def convertToAsciiStandard(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      return digit
+    else
+      return (digit + 64).asInstanceOf[Char]
+  }
 
+  def convertFromAsciiTranslatedEBCDIC(digit: Int): Int = {
+    if ((digit == 123) || (digit == 125))
+      return 0
+    else if ((digit >= 65) && (digit <= 73)) // positive 1-9
+      return (digit - 64)
+    else if ((digit >= 74) && (digit <= 82)) // negative 1-9
+      return -(digit - 73)
+    else
+      return 0
+  }
+
+  def convertToAsciiTranslatedEBCDIC(digit: Char, positive: Boolean): Char = {
+    val result = positive match {
+      case true => {
+        if (digit == '0')
+          123
+        else
+          digit + 16
+      }
+      case false => {
+        if (digit == '0')
+          125
+        else
+          digit + 25
+      }
+    }
+
+    return result.asInstanceOf[Char]
+  }
+
+  def convertFromAsciiCARealiaModified(digit: Int): Int = {
+    if ((digit >= 48) && (digit <= 57))
+      return digit - 48
+    else if ((digit >= 32) && (digit <= 41)) // negative 0-9
+      return -(digit - 32)
+    else return 0
+  }
+
+  def convertToAsciiCARealiaModified(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      return digit
+    else
+      return (digit - 16).asInstanceOf[Char]
+  }
+
+  /*def convertAsciiTandemModified(digit: Int): Int = {
+    if ((digit >= 0) && (digit <= 9))
+      return digit
+    else if ((digit >= 32) && (digit <= 41)) // negative 0-9
+      return -(digit - 32)
+    else
+      return 0
+  }*/
+
+  def zonedToInt(num: String, zonedStyle: TextZonedSignStyle): Int = {
+    val decodedValue = new StringBuilder()
+    var negative = false
+
+    for (char <- num.chars().toArray) {
+      val digit = zonedStyle match {
+        case TextZonedSignStyle.AsciiStandard => convertFromAsciiStandard(char)
+        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertFromAsciiTranslatedEBCDIC(char)
+        case TextZonedSignStyle.AsciiCARealiaModified => convertFromAsciiCARealiaModified(char)
+        //case TextZonedSignStyle.AsciiTandemModified => convertAsciiTandemModified(char)
+      }
+
+      if ((digit < 0) && !negative)
+        negative = true
+
+      decodedValue.append(java.lang.Math.abs(digit))
+    }
+
+    return negative match {
+      case true => -Integer.parseInt(decodedValue.toString)
+      case false => Integer.parseInt(decodedValue.toString)
+    }
+  }
+
+  def zonedFromInt(num: Int, zonedStyle: TextZonedSignStyle): String = {
+    val positive = (num >= 0)
+    val inChars = java.lang.Math.abs(num).toString.toCharArray
+    val encodedValue = new StringBuilder()
+
+    for (char <- inChars) {
+      val digit = zonedStyle match {
+        case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, positive)
+        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, positive)
+        case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, positive)
+      }
+
+      encodedValue.append(digit)
+    }
+
+    return encodedValue.toString
+  }
 }

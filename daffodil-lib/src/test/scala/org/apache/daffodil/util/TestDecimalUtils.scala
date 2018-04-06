@@ -18,7 +18,7 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.util.DecimalUtils._
-import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 import org.junit.Test
@@ -1250,282 +1250,144 @@ class TestDecimalUtils {
     }
   }
 
-  @Test def zonedInt1Pos() {
-    val num = new Array[Byte](1)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x1C.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("1"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardPos1() {
+    val num = "1"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, 1)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt2Pos() {
-    val num = new Array[Byte](2)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x2C.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("12"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardPos2() {
+    val num = "12"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, 12)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt3Pos() {
-    val num = new Array[Byte](2)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x12.toByte
-    num(1) = 0x3C.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("123"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardPos3() {
+    val num = "123"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, 123)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt4Pos() {
-    val num = new Array[Byte](6)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x23.toByte
-    num(2) = 0x45.toByte
-    num(3) = 0x67.toByte
-    num(4) = 0x89.toByte
-    num(5) = 0x0C.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("1234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardPos4() {
+    val num = "1234567890"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, 1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt5Pos() {
-    val num = new Array[Byte](11)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x00.toByte
-    num(1) = 0x00.toByte
-    num(2) = 0x00.toByte
-    num(3) = 0x00.toByte
-    num(4) = 0x00.toByte
-    num(5) = 0x01.toByte
-    num(6) = 0x23.toByte
-    num(7) = 0x45.toByte
-    num(8) = 0x67.toByte
-    num(9) = 0x89.toByte
-    num(10) = 0x0C.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("1234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardPos5() {
+    val num = "000000000001234567890"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, 1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), "1234567890")
   }
 
-  @Test def zonedInt1Neg() {
-    val num = new Array[Byte](1)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x1D.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("-1"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardNeg1() {
+    val num = "q"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, -1)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt2Neg() {
-    val num = new Array[Byte](2)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x2D.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("-12"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardNeg2() {
+    val num = "qr"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, -12)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt3Neg() {
-    val num = new Array[Byte](2)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x12.toByte
-    num(1) = 0x3D.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("-123"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardNeg3() {
+    val num = "qrs"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, -123)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt4Neg() {
-    val num = new Array[Byte](6)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x23.toByte
-    num(2) = 0x45.toByte
-    num(3) = 0x67.toByte
-    num(4) = 0x89.toByte
-    num(5) = 0x0D.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("-1234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardNeg4() {
+    val num = "qrstuvwxyp"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, -1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
-  @Test def zonedInt5Neg() {
-    val num = new Array[Byte](11)
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x00.toByte
-    num(1) = 0x00.toByte
-    num(2) = 0x00.toByte
-    num(3) = 0x00.toByte
-    num(4) = 0x00.toByte
-    num(5) = 0x01.toByte
-    num(6) = 0x23.toByte
-    num(7) = 0x45.toByte
-    num(8) = 0x67.toByte
-    num(9) = 0x89.toByte
-    num(10) = 0x0D.toByte
-    val bignum = zonedToBigInteger(num, signCodes)
-    assertEquals(bignum, new JBigInteger("-1234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiStandardNeg5() {
+    val num = "pppppppppppqrstuvwxyp"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiStandard)
+    assertEquals(result, -1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiStandard), "qrstuvwxyp")
   }
 
-  @Test def zonedDec1Pos() {
-    val num = new Array[Byte](1)
-    val scale = 0
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x1C.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("1"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedPos1() {
+    val num = "1"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, 1)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec2Pos() {
-    val num = new Array[Byte](2)
-    val scale = 1
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x2C.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("1.2"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedPos2() {
+    val num = "12"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, 12)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec3Pos() {
-    val num = new Array[Byte](2)
-    val scale = 3
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x12.toByte
-    num(1) = 0x3C.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal(".123"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedPos3() {
+    val num = "123"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, 123)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec4Pos() {
-    val num = new Array[Byte](6)
-    val scale = 5
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x23.toByte
-    num(2) = 0x45.toByte
-    num(3) = 0x67.toByte
-    num(4) = 0x89.toByte
-    num(5) = 0x0C.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("12345.67890"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedPos4() {
+    val num = "1234567890"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, 1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec5Pos() {
-    val num = new Array[Byte](11)
-    val scale = 19
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x00.toByte
-    num(1) = 0x00.toByte
-    num(2) = 0x00.toByte
-    num(3) = 0x00.toByte
-    num(4) = 0x00.toByte
-    num(5) = 0x01.toByte
-    num(6) = 0x23.toByte
-    num(7) = 0x45.toByte
-    num(8) = 0x67.toByte
-    num(9) = 0x89.toByte
-    num(10) = 0x0C.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("0.0000000001234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedPos5() {
+    val num = "000000000001234567890"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, 1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), "1234567890")
   }
 
-  @Test def zonedDec1Neg() {
-    val num = new Array[Byte](1)
-    val scale = 0
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x1D.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("-1"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedNeg1() {
+    val num = "!"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, -1)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec2Neg() {
-    val num = new Array[Byte](2)
-    val scale = 1
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x2D.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("-1.2"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedNeg2() {
+    val num = "!\""
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, -12)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec3Neg() {
-    val num = new Array[Byte](2)
-    val scale = 3
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x12.toByte
-    num(1) = 0x3D.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("-.123"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedNeg3() {
+    val num = "!\"#"
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, -123)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec4Neg() {
-    val num = new Array[Byte](6)
-    val scale = 5
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x01.toByte
-    num(1) = 0x23.toByte
-    num(2) = 0x45.toByte
-    num(3) = 0x67.toByte
-    num(4) = 0x89.toByte
-    num(5) = 0x0D.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("-12345.67890"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedNeg4() {
+    val num = "!\"#$%&'() "
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, -1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
-  @Test def zonedDec5Neg() {
-    val num = new Array[Byte](11)
-    val scale = 19
-    val signCodes = PackedSignCodes("C D F C", BinaryNumberCheckPolicy.)
-
-    num(0) = 0x00.toByte
-    num(1) = 0x00.toByte
-    num(2) = 0x00.toByte
-    num(3) = 0x00.toByte
-    num(4) = 0x00.toByte
-    num(5) = 0x01.toByte
-    num(6) = 0x23.toByte
-    num(7) = 0x45.toByte
-    num(8) = 0x67.toByte
-    num(9) = 0x89.toByte
-    num(10) = 0x0D.toByte
-    val bignum = zonedToBigDecimal(num, scale, signCodes)
-    assertEquals(bignum, new JBigDecimal("-0.0000000001234567890"))
-    assertArrayEquals(zonedFromBigInteger(bignum.unscaledValue, num.length*8, signCodes), num)
+  @Test def zonedIntAsciiCARealiaModifiedNeg5() {
+    val num = "           !\"#$%&'() "
+    val result = zonedToInt(num, TextZonedSignStyle.AsciiCARealiaModified)
+    assertEquals(result, -1234567890)
+    assertEquals(zonedFromInt(result, TextZonedSignStyle.AsciiCARealiaModified), "!\"#$%&'() ")
   }
 
 }
