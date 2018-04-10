@@ -336,7 +336,7 @@ object DecimalUtils {
   }
 
   def convertFromAsciiStandard(digit: Int): Int = {
-    if ((digit >= 48) && (digit <= 57))
+    if ((digit >= 48) && (digit <= 57)) // positive 0-9
       return digit - 48
     else if ((digit >= 112) && (digit <= 121)) // negative 0-9
       return -(digit - 112)
@@ -382,7 +382,7 @@ object DecimalUtils {
   }
 
   def convertFromAsciiCARealiaModified(digit: Int): Int = {
-    if ((digit >= 48) && (digit <= 57))
+    if ((digit >= 48) && (digit <= 57)) // positive 0-9
       return digit - 48
     else if ((digit >= 32) && (digit <= 41)) // negative 0-9
       return -(digit - 32)
@@ -396,14 +396,21 @@ object DecimalUtils {
       return (digit - 16).asInstanceOf[Char]
   }
 
-  /*def convertAsciiTandemModified(digit: Int): Int = {
-    if ((digit >= 0) && (digit <= 9))
-      return digit
-    else if ((digit >= 32) && (digit <= 41)) // negative 0-9
-      return -(digit - 32)
+  def convertFromAsciiTandemModified(digit: Int): Int = {
+    if ((digit >= 48) && (digit <= 57)) // positive 0-9
+      return digit - 48
+    else if ((digit >= 128) && (digit <= 137)) // negative 0-9
+      return -(digit - 128)
     else
       return 0
-  }*/
+  }
+
+  def convertToAsciiTandemModified(digit: Char, positive: Boolean): Char = {
+    if (positive)
+      return digit
+    else
+      return (digit + 80).asInstanceOf[Char]
+  }
 
   def zonedToInt(num: String, zonedStyle: TextZonedSignStyle): Int = {
     val decodedValue = new StringBuilder()
@@ -414,7 +421,7 @@ object DecimalUtils {
         case TextZonedSignStyle.AsciiStandard => convertFromAsciiStandard(char)
         case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertFromAsciiTranslatedEBCDIC(char)
         case TextZonedSignStyle.AsciiCARealiaModified => convertFromAsciiCARealiaModified(char)
-        //case TextZonedSignStyle.AsciiTandemModified => convertAsciiTandemModified(char)
+        case TextZonedSignStyle.AsciiTandemModified => convertFromAsciiTandemModified(char)
       }
 
       if ((digit < 0) && !negative)
@@ -439,6 +446,7 @@ object DecimalUtils {
         case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, positive)
         case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, positive)
         case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, positive)
+        case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(char, positive)
       }
 
       encodedValue.append(digit)

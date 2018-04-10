@@ -314,6 +314,7 @@
       <xsd:enumeration value="asciiStandard" />
       <xsd:enumeration value="asciiTranslatedEBCDIC" />
       <xsd:enumeration value="asciiCARealiaModified" />
+      <xsd:enumeration value="asciiTandemModified" />
     </xsd:restriction>
   </xsd:simpleType>
 
