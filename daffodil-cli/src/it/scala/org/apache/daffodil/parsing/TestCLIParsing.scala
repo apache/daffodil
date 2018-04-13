@@ -929,5 +929,31 @@ class TestCLIparsing {
     }
   }
 
+  // These DAFFODIL_JAVA_OPTS values change the Java defaults classes like
+  // SAXParserFactory and SchemaFactory to be Java's internal classes instead
+  // of those provided by dependencies (e.g. Xerces) included with Daffodil.
+  // Some places require dependency version of these classes. This test ensures
+  // that we override defaults when necesssary
+  @Test def test_CLI_Parsing_JavaDefaults() {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val java_opts = Map("DAFFODIL_JAVA_OPTS" ->
+                          ("-Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl " +
+                           "-Djavax.xml.xml.validation.SchemaFactory=com/sun/org/apache/xerces/internal/jaxp/validation/XMLSchemaFactory"))
+
+    val shell = Util.start("", envp = java_opts)
+
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
 
 }
