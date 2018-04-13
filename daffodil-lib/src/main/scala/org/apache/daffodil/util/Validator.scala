@@ -19,7 +19,6 @@ package org.apache.daffodil.util
 
 import javax.xml.transform.stream.StreamSource
 import javax.xml.XMLConstants
-import javax.xml.validation.SchemaFactory
 import scala.xml.parsing.NoBindingFactoryAdapter
 import java.io.StringReader
 import java.net.URI
@@ -62,9 +61,7 @@ object Validator extends NoBindingFactoryAdapter {
             }
           }
 
-          val schemaLang = "http://www.w3.org/2001/XMLSchema"
-          val factory = SchemaFactory.newInstance(schemaLang)
-          //          val hdlr = new ContentHandler()
+          val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
           factory.setErrorHandler(errHandler)
           val resolver = DFDLCatalogResolver.get
           factory.setResourceResolver(resolver)

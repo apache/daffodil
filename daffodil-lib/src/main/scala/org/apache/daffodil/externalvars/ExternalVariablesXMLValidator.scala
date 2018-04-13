@@ -18,7 +18,6 @@
 package org.apache.daffodil.externalvars
 
 import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.SchemaFactory
 import org.xml.sax.SAXException
 import java.io.File
 
@@ -31,8 +30,7 @@ object ExternalVariablesValidator {
 
   def validate(xmlFile: File): Either[java.lang.Throwable, _] = {
     try {
-      val schemaLang = "http://www.w3.org/2001/XMLSchema"
-      val factory = SchemaFactory.newInstance(schemaLang)
+      val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
       val schema = factory.newSchema(new StreamSource(extVarXsd))
       val validator = schema.newValidator()
       validator.validate(new StreamSource(xmlFile))

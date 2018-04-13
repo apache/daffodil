@@ -43,8 +43,6 @@ import org.apache.daffodil.util.Logging
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.api.DaffodilSchemaSource
 import javax.xml.XMLConstants
-import javax.xml.parsers.SAXParserFactory
-import javax.xml.validation.SchemaFactory
 import java.io.InputStream
 import java.io.BufferedInputStream
 import java.io.Reader
@@ -376,10 +374,7 @@ trait SchemaAwareLoaderMixin {
   def resolver = DFDLCatalogResolver.get
 
   override lazy val parser: SAXParser = {
-
-    // val x = new com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl
-
-    val f = SAXParserFactory.newInstance()
+    val f = new org.apache.xerces.jaxp.SAXParserFactoryImpl()
     f.setNamespaceAware(true)
     f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
 
@@ -427,7 +422,7 @@ trait SchemaAwareLoaderMixin {
    * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
    * newSchema call is what forces schema validation to take place.
    */
-  protected val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+  protected val sf = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
   sf.setResourceResolver(resolver)
   sf.setErrorHandler(errorHandler)
 
