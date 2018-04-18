@@ -47,13 +47,13 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
       separatedForArrayPosition(empty)
     }
 
-  private lazy val separatedRecurringDefaultable = prod("separatedRecurringDefaultable", !isScalar) {
+  private lazy val separatedRecurring = prod("separatedRecurring", !isScalar) {
     separatedForArrayPosition(enclosedElement)
   }
 
-  private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
-    separatedForArrayPosition(enclosedElementNonDefault)
-  }
+  //  private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
+  //    separatedForArrayPosition(enclosedElementNonDefault)
+  //  }
 
   private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { enclosedElement }
 
@@ -73,14 +73,14 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
    * speculate parsing forward until we get an error
    */
   private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
       RepUnbounded(self, separatedRecurringNonDefault) ~
       StopValue(this)
   }
 
   private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(self, maxOccurs, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
+      RepAtMostTotalN(self, maxOccurs, separatedRecurring) ~
       StopValue(this)
   }
 
@@ -93,13 +93,13 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   }
 
   private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", !isScalar) {
-    RepUnbounded(self, separatedRecurringNonDefault) ~
+    RepUnbounded(self, separatedRecurring) ~
       StopValue(this)
   }
 
   private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
+      RepAtMostTotalN(this, maxOccurs, separatedRecurring) ~
       StopValue(this)
   }
 
@@ -128,12 +128,12 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   private def separatedContentExactlyN(count: Long) = prod("separatedContentExactlyN") {
     if (minOccurs == maxOccurs) {
       // fixed length case. All are defaultable. Still might have a stop value tho.
-      RepExactlyN(self, count, separatedRecurringDefaultable) ~
+      RepExactlyN(self, count, separatedRecurring) ~
         StopValue(this)
     } else {
       // variable length case. So some defaultable, some not.
-      RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-        RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
+      RepExactlyN(self, minOccurs, separatedRecurring) ~
+        RepAtMostTotalN(self, count, separatedRecurring) ~
         StopValue(this) ~
         RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb remaining separators after stop value.
     }
@@ -141,8 +141,8 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
 
   private lazy val separatedContentExactlyNComputed = prod("separatedContentExactlyNComputed") {
     OccursCountExpression(this) ~
-      RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
-      RepExactlyTotalOccursCount(this, separatedRecurringNonDefault)
+      RepAtMostOccursCount(this, minOccurs, separatedRecurring) ~
+      RepExactlyTotalOccursCount(this, separatedRecurring)
   }
 
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
@@ -156,7 +156,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   }
 
   private lazy val contentUnbounded = prod("contentUnbounded") {
-    RepUnbounded(self, separatedRecurringDefaultable)
+    RepUnbounded(self, separatedRecurring)
   }
 
   //
@@ -180,7 +180,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
       case (Fixed_____, min_, max) if (min_ != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min_, max)
       case (Fixed_____, ____, max) => separatedContentExactlyN(max)
       case (Implicit__, ZERO, UNB) => contentUnbounded // same as parsed
-      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs
+      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurring) ~ contentUnbounded // respects minOccurs
       case (Implicit__, ____, __2) => separatedContentAtMostN // uses min and maxOccurs
       case (Parsed____, ____, __2) => contentUnbounded
       case (StopValue_, ____, __2) => contentUnbounded
