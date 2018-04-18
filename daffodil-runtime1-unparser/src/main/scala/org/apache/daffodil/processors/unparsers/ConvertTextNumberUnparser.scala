@@ -17,15 +17,12 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.processors._
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.cookers.EntityReplacer
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.parsers.NumberFormatFactoryBase
-import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
+import org.apache.daffodil.util.DecimalUtils
+import org.apache.daffodil.processors.parsers.ConvertZonedNumberParserUnparserHelperBase
 
-case class ConvertTextCombinatorUnparser(
+case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
   converterUnparser: Unparser)
@@ -44,9 +41,9 @@ case class ConvertTextCombinatorUnparser(
   }
 }
 
-case class ConvertTextNumberUnparser[S](
-  helper: ConvertTextNumberParserUnparserHelperBase[S],
-  nff: NumberFormatFactoryBase[S],
+case class ConvertZonedNumberUnparser[S](
+  helper: ConvertZonedNumberParserUnparserHelperBase[S],
+  zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData)
   extends PrimUnparser
   with ToBriefXMLImpl {
@@ -56,36 +53,17 @@ case class ConvertTextNumberUnparser[S](
   override def toString = "to(xs:" + helper.xsdType + ")"
   override lazy val childProcessors = Nil
 
-  lazy val zeroRep: Maybe[String] = helper.zeroRepListRaw.headOption.map { zr =>
-    EntityReplacer { _.replaceForUnparse(zr) }
-  }
-
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue
+    val value = node.dataValueAsString
 
     // The type of value should have the type of S, but type erasure makes this
     // difficult to assert. Could probably check this with TypeTags or Manifest
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
 
-    val strRep =
-      if (value == 0 && zeroRep.isDefined) {
-        zeroRep.get
-      } else {
-        // Needed because the DecimalFormat class of ICU will call
-        // doubleValue on scala's BigInt and BigDecimal because it
-        // doesn't recognize it as Java's BigInteger and BigDecimal.
-        // This caused large numbers to be truncated silently.
-        value match {
-          case bd: scala.math.BigDecimal => Assert.usageError("Received scala.math.BigDecimal, expected java.math.BigDecimal.")
-          case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
-          case _ => // OK
-        }
-        val df = nff.getNumFormat(state)
-        df.get.format(value)
-      }
+    val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle)
 
     node.overwriteDataValue(strRep)
   }

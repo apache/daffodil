@@ -412,7 +412,7 @@ object DecimalUtils {
       return (digit + 80).asInstanceOf[Char]
   }
 
-  def zonedToInt(num: String, zonedStyle: TextZonedSignStyle): Int = {
+  def zonedToNumber(num: String, zonedStyle: TextZonedSignStyle): String = {
     val decodedValue = new StringBuilder()
     var negative = false
 
@@ -424,29 +424,31 @@ object DecimalUtils {
         case TextZonedSignStyle.AsciiTandemModified => convertFromAsciiTandemModified(char)
       }
 
-      if ((digit < 0) && !negative)
+      if ((digit < 0) && !negative) {
         negative = true
+        decodedValue.append('-')
+      }
 
       decodedValue.append(java.lang.Math.abs(digit))
     }
 
-    return negative match {
-      case true => -Integer.parseInt(decodedValue.toString)
-      case false => Integer.parseInt(decodedValue.toString)
-    }
+    return decodedValue.toString
   }
 
-  def zonedFromInt(num: Int, zonedStyle: TextZonedSignStyle): String = {
-    val positive = (num >= 0)
-    val inChars = java.lang.Math.abs(num).toString.toCharArray
+  def zonedFromNumber(num: String, zonedStyle: TextZonedSignStyle): String = {
+    val negative = (num.charAt(0) == '-')
+    val inChars = negative match {
+      case true => num.substring(0).toCharArray
+      case false => num.toCharArray
+    }
     val encodedValue = new StringBuilder()
 
     for (char <- inChars) {
       val digit = zonedStyle match {
-        case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, positive)
-        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, positive)
-        case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, positive)
-        case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(char, positive)
+        case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, negative)
+        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, negative)
+        case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, negative)
+        case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(char, negative)
       }
 
       encodedValue.append(digit)
