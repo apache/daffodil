@@ -55,4 +55,18 @@ class TestTDMLRunner3 {
     val expected = "AAF9".replace(" ", "")
     assertEquals(expected, hexDigits)
   }
+
+  val testDir = "/test/tdml/"
+  val runner = Runner(testDir, "tdmlQuoting.tdml", validateTDMLFile = false)
+
+  /**
+   * Test illustrates problem with tdml runner correctly processes apostrophes (') 
+   * in the html format (&apos;) within the document or infoset data. The aposrophes are  
+   * stripped out of actual or expected values causing the comparison to fail.
+   *
+   * Bug DAFFODIL-1928
+   */
+  @Test def test_apos_test1() { runner.runOneTest("apos_test1") }
+  @Test def test_apos_test2() { runner.runOneTest("apos_test2") }
+
 }

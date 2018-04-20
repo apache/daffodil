@@ -48,4 +48,10 @@ class TestEscapeSchemeDebug {
 
   //DFDL-961
   @Test def test_scenario3_11_postfix() { runner2.runOneTest("scenario3_11_postfix") }
+
+
+  //DAFFODIL-1923
+  @Test def test_escBlkAllQuotes() { runner.runOneTest("escBlkAllQuotes") }
+  @Test def test_escBlkEndSame() { runner.runOneTest("escBlkEndSame") }
+
 }
