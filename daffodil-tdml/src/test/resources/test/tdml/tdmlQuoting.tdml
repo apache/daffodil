@@ -22,7 +22,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:ex="http://example.com">
 	
-		<tdml:defineSchema name="quote">
+	<tdml:defineSchema name="quote">
 
 		<dfdl:format ref="ex:GeneralFormat" initiator=""
 			terminator="" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian"
@@ -33,10 +33,8 @@
 			initiatedContent="no" separatorSuppressionPolicy="never"
 			separatorPosition="infix" />
 
-
-								<xsd:element name="doublequote" type="xsd:string"
-									dfdl:lengthKind="pattern" dfdl:lengthPattern='["]{1,1}' />
-								
+		<xsd:element name="doublequote" type="xsd:string"
+			dfdl:lengthKind="explicit" dfdl:length="1"  />
 
 	</tdml:defineSchema>
 	
@@ -53,4 +51,57 @@
 		</tdml:infoset>
 
 	</tdml:parserTestCase>
+
+  <!--
+       Test Name: apos_test1
+          Schema: apostrophe
+            Root: record
+         Purpose: This test demonstrates that tdml runner correctly processes apostrophes (&apos;) within the infoset data (DAFFODIL-1928).
+  -->
+
+	<tdml:defineSchema name="apostrophe">
+
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+		<xsd:element name="apostrophe" type="xsd:string"
+			dfdl:lengthKind="explicit" dfdl:length="1" />
+
+	</tdml:defineSchema>
+	
+	<tdml:parserTestCase name="apos_test1"
+		root="apostrophe" model="apostrophe"
+		description="Can't deal properly with apostrophe (') marks within the document data in TDML " roundTrip="true">
+
+		<tdml:document>'</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<apostrophe>&apos;</apostrophe>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+  <!--
+       Test Name: apos_test2
+          Schema: apostrophe
+            Root: record
+         Purpose: This test demonstrates that tdml runner correctly processes apostrophes (&apos;) within the document data (DAFFODIL-1928).
+  -->
+
+	<tdml:parserTestCase name="apos_test2"
+		root="apostrophe" model="apostrophe"
+		description="Can't deal properly with apostrophe (&apos;) marks within the document data in TDML " roundTrip="true">
+
+		<tdml:document>&apos;</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<apostrophe>'</apostrophe>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+
 </tdml:testSuite>

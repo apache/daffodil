@@ -54,7 +54,7 @@
       </xs:complexType>
     </xs:element>
   </defineSchema>
-  
+
   <defineSchema name="es2">
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
       <xs:element name="elem" dfdl:defineEscapeScheme=""/>
@@ -107,7 +107,7 @@
     </xs:element>
     
   </defineSchema>
-  
+
   <defineSchema name="emptyRef">
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
     
@@ -520,5 +520,87 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  
+
+  <!--
+       Test Name: escBlkAllQuotes
+          Schema: eBlkAllQuotes
+            Root: record
+         Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockStart, escapeBlockEnd and escapeEscapeCharacter characters are the same, all quotes (DAFFODIL-1923).
+  -->
+  <defineSchema name="eBlkAllQuotes">
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="eBlkAllQuotes">
+      <dfdl:escapeScheme escapeBlockStart="&quot;"
+        escapeBlockEnd="&quot;" escapeKind="escapeBlock"
+        escapeEscapeCharacter="&quot;"  extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="record">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="item" type="xs:string" maxOccurs="unbounded"
+	    dfdl:escapeSchemeRef="tns:eBlkAllQuotes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+
+  <parserTestCase name="escBlkAllQuotes" model="eBlkAllQuotes"
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="record" roundTrip="true">
+    <document>1,"Column ""Number"" Two",3,4,5</document>
+    <infoset>
+      <dfdlInfoset>
+    	<tns:record>
+    	  <tns:item>1</tns:item>
+    	  <tns:item>Column &quot;Number&quot; Two</tns:item>
+    	  <tns:item>3</tns:item>
+    	  <tns:item>4</tns:item>
+    	  <tns:item>5</tns:item>
+  	</tns:record>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+       Test Name: escBlkEndSame
+          Schema: eBlkEndSame
+            Root: record
+         Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockEnd and escapeEscapeCharacter characters are the same (closing paren) but differnet from escapeBlockStart (DAFFODIL-1923).
+  -->
+  <defineSchema name="eBlkEndSame">
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="eBlkEndParen">
+      <dfdl:escapeScheme escapeBlockStart="("
+        escapeBlockEnd=")" escapeKind="escapeBlock"
+        escapeEscapeCharacter=")"  extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="record">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="item" type="xs:string" maxOccurs="unbounded"
+	    dfdl:escapeSchemeRef="tns:eBlkEndParen" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+ 
+  <parserTestCase name="escBlkEndSame" model="eBlkEndSame"
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="record" roundTrip="true">
+    <document>1,(Column (Number)) Two),3,4,5</document>
+    <infoset>
+      <dfdlInfoset>
+    	<tns:record>
+    	  <tns:item>1</tns:item>
+    	  <tns:item>Column (Number) Two</tns:item>
+    	  <tns:item>3</tns:item>
+    	  <tns:item>4</tns:item>
+    	  <tns:item>5</tns:item>
+  	</tns:record>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+ 
 </testSuite>
