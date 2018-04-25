@@ -25,6 +25,7 @@ import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 
@@ -120,22 +121,51 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
+class SequenceCombinatorParser(rd: TermRuntimeData, childParsers: Vector[Parser])
   extends CombinatorParser(rd) {
   override def nom = "Sequence"
 
   override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
-  override lazy val childProcessors = Seq(bodyParser)
+  override lazy val childProcessors = childParsers.toSeq
+
+  val numChildParsers = childParsers.size
+
+  def createDiagnostic(start: PState) = {}
 
   def parse(start: PState): Unit = {
+    var i = 0
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
 
-    bodyParser.parse1(start)
+    while ((i < numChildParsers) && (start.processorStatus eq Success)) {
+      val parser = childParsers(i)
+      val prevBitPos = start.bitPos0b
+
+      parser.parse1(start)
+
+      start.mpstate.wasLastArrayElementZeroLength = (prevBitPos == start.bitPos0b)
+      if (!start.mpstate.wasAnyArrayElementNonZeroLength)
+        start.mpstate.wasAnyArrayElementNonZeroLength = !start.mpstate.wasLastArrayElementZeroLength
+      i += 1
+    }
+
+    if (start.processorStatus ne Success)
+      createDiagnostic(start)
 
     start.mpstate.groupIndexStack.pop()
     start.mpstate.moveOverOneGroupIndexOnly()
     ()
+  }
+}
+
+class TrailingStrictSequenceCombinatorParser(rd: TermRuntimeData, childParsers: Vector[Parser])
+  extends SequenceCombinatorParser(rd, childParsers) {
+
+  override def createDiagnostic(start: PState) = {
+    if (start.mpstate.wasLastArrayElementZeroLength) {
+      val diag = new ParseError(One(context.schemaFileLocation), One(start.currentLocation), "Empty trailing elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'")
+      start.setFailed(diag)
+    }
   }
 }
 

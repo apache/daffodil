@@ -74,7 +74,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
    */
   private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurring) ~
-      RepUnbounded(self, separatedRecurringNonDefault) ~
+      RepUnbounded(self, separatedRecurring) ~
       StopValue(this)
   }
 

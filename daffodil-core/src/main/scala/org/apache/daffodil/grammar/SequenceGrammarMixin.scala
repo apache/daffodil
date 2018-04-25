@@ -16,10 +16,10 @@
  */
 
 package org.apache.daffodil.grammar
+import org.apache.daffodil.schema.annotation.props._
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.grammar.primitives.SequenceCombinator
 import org.apache.daffodil.dsom.SequenceTermBase
-import org.apache.daffodil.grammar.primitives.LayeredSequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
@@ -43,7 +43,15 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   }
 
   private lazy val orderedSequenceContent = prod("sequenceContent") {
-    SequenceCombinator(this, terms)
+    if (hasSeparator) {
+      self.separatorSuppressionPolicy match {
+        case SeparatorSuppressionPolicy.Never => SequenceCombinator(this, terms)
+        case SeparatorSuppressionPolicy.TrailingEmpty => SequenceCombinator(this, terms)
+        case SeparatorSuppressionPolicy.TrailingEmptyStrict => TrailingEmptyStrictSequenceCombinator(this, terms)
+        case SeparatorSuppressionPolicy.AnyEmpty => SequenceCombinator(this, terms)
+      }
+    } else
+      SequenceCombinator(this, terms)
   }
 
   //  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {

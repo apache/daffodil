@@ -359,6 +359,25 @@ trait Term
   def isKnownRequiredElement = false
   def hasKnownRequiredSyntax = false
 
+  def hasPotentiallyTrailingInstances: Boolean
+  final def isPotentiallyTrailing = LV('isPotentiallyTrailing) {
+    if (!isRequired) {
+      val es = nearestEnclosingSequence
+      val res = es match {
+        case None => true
+        case Some(s) => {
+          val allRequired = s.groupMembers.filter(_.isRequired)
+          val lastDeclaredRequired = allRequired.last
+          if (s.groupMembers.indexOf(lastDeclaredRequired) < s.groupMembers.indexOf(this)) true
+          else false
+        }
+      }
+      res
+      // Since we can't determine at compile time, return false so that we can continue processing.
+      // Runtime checks will make final determination.
+    } else false
+  }.value
+
   /**
    * Returns a tuple, where the first item in the tuple is the list of sibling
    * terms that could appear before this. The second item in the tuple is a

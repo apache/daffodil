@@ -127,28 +127,38 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 case class SequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
   extends Terminal(sq, true) {
 
-  override lazy val isEmpty = {
-    val rt = rawTerms
-    val frt = rt.filterNot { _.isEmpty }
-    val res = frt.isEmpty
-    res
-  }
-
+  lazy val terms = rawTerms.filterNot { _.isEmpty }
+  
+  override lazy val isEmpty = terms.isEmpty
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
       terms.map { _.toString() }.mkString +
       "</" + Misc.getNameFromClass(this) + ">"
 
-  private val mt: Gram = EmptyGram
-  lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
-
-  lazy val terms = rawTerms.filterNot { _.isEmpty }
+  lazy val parsers = terms.map { term =>
+    term.parser
+  }.toVector
 
   lazy val unparsers = terms.map { term =>
     term.unparser
   }.toVector
 
-  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, body.parser)
+  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, parsers)
+
+  override lazy val unparser: DaffodilUnparser = {
+    sq.checkHiddenSequenceIsDefaultableOrOVC
+    new SequenceCombinatorUnparser(sq.modelGroupRuntimeData, unparsers)
+  }
+}
+
+case class TrailingStrictSequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
+  extends SequenceCombinator(sq, rawTerms) {
+
+  override lazy val parsers = terms.map { term =>
+    term.parser
+  }.toVector
+
+  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, parsers)
 
   override lazy val unparser: DaffodilUnparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC

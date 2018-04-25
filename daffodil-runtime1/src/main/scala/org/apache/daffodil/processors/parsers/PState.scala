@@ -127,6 +127,9 @@ class MPState private () {
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
+  var wasAnyArrayElementNonZeroLength = false
+  var wasLastArrayElementZeroLength = true
+
   private def init {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
