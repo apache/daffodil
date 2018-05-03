@@ -765,7 +765,7 @@
            </xsd:documentation>
          </xsd:annotation>
        </xsd:enumeration>      
-       <xsd:enumeration value="ais">
+       <xsd:enumeration value="aisPayloadArmor">
          <xsd:annotation>
            <xsd:documentation>
              Automatic Identification System - ITU-R M.1371-1

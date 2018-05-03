@@ -109,7 +109,8 @@
       <xs:complexType>
         <xs:sequence dfdl:ref="folded">
           <xs:sequence>
-            <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
+            <xs:element name="marker" type="xs:string"
+              dfdl:initiator="boundary=" dfdl:terminator="%CR;%LF;" />
             <xs:element name="contents" dfdl:lengthKind="implicit" dfdl:initiator="{ fn:concat('--', ../marker, '%CR;%LF;') }">
               <xs:complexType>
                 <xs:sequence>
@@ -254,4 +255,134 @@ xxx]]></tdml:documentPart>
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s4" elementFormDefault="unqualified">
+
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" layerEncoding="iso-8859-1"
+        layerLengthUnits='bytes' />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="base64">
+      <dfdl:format ref="ex:general" layerTransform="base64_MIME" layerLengthKind="boundaryMark" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="gzip">
+      <dfdl:format ref="ex:general" layerTransform="gzip" layerLengthKind="explicit" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="ex:general" />
+
+    <xs:element name="file" type="ex:fileType" />
+
+    <!-- broke this up to provide some resuable types and groups here -->
+
+    <xs:complexType name="fileType">
+      <!--
+           first we have the base64 details
+       -->
+      <xs:sequence dfdl:ref="ex:base64" dfdl:layerBoundaryMark="--END--">
+        <xs:sequence>
+          <!--
+              now the gzip details, including the 4-byte gzLength element that stores how long
+              the gzipped data is.
+           -->
+          <xs:element name="gzLength" type="xs:int" dfdl:representation="binary" dfdl:lengthKind="implicit"
+            dfdl:outputValueCalc="{ dfdl:contentLength( ../data, 'bytes') }" />
+          <!--
+             this 'data' element is needed only because we have to measure how big it is when unparsing.
+             If we were only worried about parsing, we woundn't need to have this extra 'data' element wrapped around
+             the contents.
+           -->
+          <xs:element name="data" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <!--
+                 now the gzipped layered sequence itself
+               -->
+              <xs:sequence dfdl:ref="ex:gzip" dfdl:layerLength="{ ../gzLength }">
+                <!--
+                  finally, inside that, we have the original fileTypeGroup group reference.
+                  -->
+                <xs:group ref="ex:fileTypeGroup" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:group name="fileTypeGroup">
+      <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+        <xs:element name="header" minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="title" type="xs:string" maxOccurs="unbounded" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="record" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="item" type="xs:string" maxOccurs="unbounded" dfdl:occursCount="{ fn:count(../../header/title) }"
+                dfdl:occursCountKind="expression" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="layers4" root="file" model="s4" roundTrip="true">
+    <tdml:document>
+    <!-- 
+    This data is gzipped, then base64 encoded:
+     
+last,first,middle,DOB
+smith,robert,brandon,1988-03-24
+johnson,john,henry,1986-01-23
+jones,arya,cat,1986-02-19 
+
+We gzip that, and then we must prepend that with the length (as a binary 4-byte int) before we base64 encode.
+  -->
+      <tdml:documentPart type="text" 
+      replaceDFDLEntities="true"
+      ><![CDATA[AAAAcx+LCAAAAAAAAAAtyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;
+K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;
+wXIAAAA=--END--]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file>
+          <gzLength>115</gzLength>
+          <data>
+            <header>
+              <title>last</title>
+              <title>first</title>
+              <title>middle</title>
+              <title>DOB</title>
+            </header>
+            <record>
+              <item>smith</item>
+              <item>robert</item>
+              <item>brandon</item>
+              <item>1988-03-24</item>
+            </record>
+            <record>
+              <item>johnson</item>
+              <item>john</item>
+              <item>henry</item>
+              <item>1986-01-23</item>
+            </record>
+            <record>
+              <item>jones</item>
+              <item>arya</item>
+              <item>cat</item>
+              <item>1986-02-19</item>
+            </record>
+          </data>
+        </ex:file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+  
 </tdml:testSuite>

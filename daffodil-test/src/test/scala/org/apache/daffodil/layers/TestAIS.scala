@@ -25,23 +25,19 @@ import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestLayers {
+object TestAISPayloadArmoring {
   lazy val testDir = "/org/apache/daffodil/layers/"
-  lazy val runner = Runner(testDir, "layers.tdml")
+  lazy val runner = Runner(testDir, "ais.tdml")
 
   @AfterClass def shutDown() {
     runner.reset
   }
 }
 
-class TestLayers {
+class TestAISPayloadArmoring {
 
-  import TestLayers._
+  import TestAISPayloadArmoring._
 
-  @Test def test_layers1() { runner.runOneTest("layers1") }
-  @Test def test_layers2() { runner.runOneTest("layers2") }
-  @Test def test_layers3() { runner.runOneTest("layers3") }
-  @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
-  @Test def test_layers4() { runner.runOneTest("layers4") }
+  @Test def test_ais1() { runner.runOneTest("ais1") }
 
 }

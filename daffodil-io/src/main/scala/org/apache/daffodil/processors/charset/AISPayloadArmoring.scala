@@ -26,11 +26,11 @@ import org.apache.daffodil.schema.annotation.props.gen.BitOrder
  *
  * http://catb.org/gpsd/AIVDM.html#_aivdm_aivdo_payload_armoring
  *
- * To convert a string of length N, You will get 6N bits.
+ * To convert a string of length N bytes, You will get 6N bits.
  *
  * The decoder can be used for unit testing, but the point of this class
  * is to make the encoder available for use in un-doing the AIS Payload
- * armoring.
+ * armoring when parsing, and performing this armoring when unparsing.
  *
  * When encoding from 8-bit say, ascii, or iso-8859-1, this can only encode
  * things that stay within the 64 allowed characters.

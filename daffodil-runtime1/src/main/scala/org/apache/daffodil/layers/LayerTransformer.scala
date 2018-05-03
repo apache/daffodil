@@ -101,6 +101,7 @@ object LayerTransformerFactory {
   register(GZIPTransformerFactory)
   register(IMFLineFoldedTransformerFactory)
   register(ICalendarLineFoldedTransformerFactory)
+  register(AISPayloadArmoringTransformerFactory)
 }
 
 /**
