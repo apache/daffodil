@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
+
+<!-- 
+Examples:
+!AIVDM,1,1,,A,13aEOK?P00PD2wVMdLDRhgvL289?,0*26
+!AIVDM,1,1,,B,16S`2cPP00a3UF6EKT@2:?vOr0S2,0*00
+!AIVDM,2,1,9,B,53nFBv01SJ<thHp6220H4heHTf2222222222221?50:454o<`9QSlUDp,0*09
+!AIVDM,2,2,9,B,888888888888880,2*2E
+
+see http://catb.org/gpsd/AIVDM.html
+
+Example:
+!AIVDM,1,1,,B,177KQJ5000G?tO`K>RA1wUbN0TKH,0*5C
+
+In the above, after the glop field's trailing boundaryMark comma, the 0 is n fill bits 
+required to pad the data payload to a 6-bit boundary. So it is 0 to 5. 
+
+The *5C is a NMEA 0183 data integrity checksum, preceded by "*" - computed on 
+the whole message including the AIVDM, but excluding the "!"
+
+Seems another role for layers is computing checksums.
+
+Example Multifragment sentence:
+!AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO@mBplU@<PDhh000000001S;AJ::4A80?4i@E53,0*3E
+!AIVDM,2,2,3,B,1@0000000000000,2*55
+
+ -->
+  <tdml:defineSchema name="ais1" elementFormDefault="unqualified">
+
+    <dfdl:defineFormat name="aisText">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="aisEncoding">
+      <dfdl:format ref="ex:GeneralFormat" layerTransform="aisPayloadArmor" layerLengthUnits="bytes" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="aisBinary">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bits" alignment="1" alignmentUnits="bits"
+        representation="binary" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" binaryBooleanTrueRep="1" binaryBooleanFalseRep="0" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="ex:aisBinary" />
+
+    <xs:element name="AIVDM" dfdl:initiator="!AIVDM" dfdl:ref="ex:aisText" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="prefix" dfdl:ref="ex:aisText">
+          <xs:element name="numSentences" type="xs:unsignedInt" dfdl:ref="ex:aisText" />
+          <!-- could add facets minValue is 1 -->
+          <xs:element name="sentenceNumber" type="xs:unsignedInt" dfdl:ref="ex:aisText" />
+          <!-- could add facets minValue is 1 -->
+          <xs:element name="sequentialMessageID" type="xs:string" dfdl:ref="ex:aisText" />
+          <xs:element name="AISChannel" type="xs:string" dfdl:ref="ex:aisText" />
+          <!-- could add enum. One of A, B, 1, 2 -->
+          <xs:sequence>
+            <xs:sequence dfdl:ref="aisEncoding">
+              <xs:sequence>
+                <!-- now using default format which is aisBinary -->
+                <xs:element name="messageType" type="xs:unsignedInt" dfdl:length="6" />
+                <xs:element name="repeatIndicator" type="xs:unsignedInt" dfdl:length="2" />
+                <xs:element name="userID" type="xs:unsignedInt" dfdl:length="30" />
+                <xs:element name="navigationStatus" type="xs:unsignedInt" dfdl:length="4" />
+                <xs:element name="rateOfTurn" type="xs:unsignedInt" dfdl:length="8" />
+                <xs:element name="speedOverGround" type="xs:unsignedInt" dfdl:length="10" />
+                <xs:element name="positionAccuracy" type="xs:boolean" dfdl:length="1" />
+                <xs:element name="longitude" type="xs:int" dfdl:length="28" />
+                <xs:element name="latitude" type="xs:int" dfdl:length="27" />
+                <xs:element name="courseOverGround" type="xs:unsignedInt" dfdl:length="12" />
+                <xs:element name="trueHeading" type="xs:unsignedInt" dfdl:length="9" />
+                <xs:element name="timeStamp" type="xs:unsignedInt" dfdl:length="6" />
+                <xs:element name="regional" type="xs:unsignedInt" dfdl:length="2" />
+                <xs:element name="spare" type="xs:unsignedInt" dfdl:length="3" />
+                <xs:element name="RAIM" type="xs:unsignedInt" dfdl:length="1" />
+                <xs:element name="radioStatus" type="xs:unsignedInt" dfdl:length="19" />
+              </xs:sequence>
+            </xs:sequence>
+            <xs:element name="bitsPad" type="xs:unsignedInt" dfdl:ref="ex:aisText" dfdl:lengthKind="explicit" dfdl:length="1" />
+              <!--  must be 0 to 5 -->
+            <xs:element name="checksum" type="xs:string" dfdl:ref="ex:aisText" dfdl:initiator="*" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="ais1" root="AIVDM" model="ais1" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[!AIVDM,1,1,,A,13aEOK?P00PD2wVMdLDRhgvL289?,0*26]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:AIVDM>
+          <numSentences>1</numSentences>
+          <sentenceNumber>1</sentenceNumber>
+          <sequentialMessageID />
+          <AISChannel>A</AISChannel>
+          <messageType>1</messageType>
+          <repeatIndicator>0</repeatIndicator>
+          <userID>244670316</userID>
+          <navigationStatus>15</navigationStatus>
+          <rateOfTurn>128</rateOfTurn>
+          <speedOverGround>0</speedOverGround>
+          <positionAccuracy>true</positionAccuracy>
+          <longitude>2627571</longitude>
+          <latitude>31136850</latitude>
+          <courseOverGround>706</courseOverGround>
+          <trueHeading>511</trueHeading>
+          <timeStamp>14</timeStamp>
+          <regional>0</regional>
+          <spare>0</spare>
+          <RAIM>1</RAIM>
+          <radioStatus>33359</radioStatus>
+          <bitsPad>0</bitsPad>
+          <checksum>26</checksum>
+        </ex:AIVDM>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
