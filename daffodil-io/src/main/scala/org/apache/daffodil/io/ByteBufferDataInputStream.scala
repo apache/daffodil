@@ -23,6 +23,7 @@ import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import java.nio.charset.CodingErrorAction
+import org.apache.commons.io.IOUtils
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import org.apache.daffodil.exceptions.Assert
@@ -90,13 +91,7 @@ object ByteBufferDataInputStream {
       case _ => {
         // copy the contents of the stream into an array of bytes
         val bos = new ByteArrayOutputStream
-        var b: Int = 0
-        while ({
-          b = in.read()
-          b != -1
-        }) {
-          bos.write(b)
-        }
+        IOUtils.copy(in, bos)
         bos.flush()
         bos.close()
         in.close()

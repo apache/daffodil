@@ -254,6 +254,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream)
    */
   override def read(): Int = {
     import State._
+    if (state eq Done) return -1
     while (state != Done) {
       state match {
         case Start => {
