@@ -25,7 +25,7 @@ import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 
-object TestLayers {
+object TestLayersDebug {
   lazy val testDir = "/org/apache/daffodil/layers/"
   lazy val runner = Runner(testDir, "layers.tdml")
 
@@ -34,16 +34,10 @@ object TestLayers {
   }
 }
 
-class TestLayers {
+class TestLayersDebug {
 
-  import TestLayers._
+  import TestLayersDebug._
 
-  @Test def test_layers1() { runner.runOneTest("layers1") }
-  @Test def test_layers2() { runner.runOneTest("layers2") }
-  @Test def test_layers3() { runner.runOneTest("layers3") }
-  @Test def test_layersErr1() { runner.runOneTest("layersErr1") }
-
-  // DAFFODIL-1934
-  //@Test def test_layers4() { runner.runOneTest("layers4") }
+  @Test def test_layers4() { runner.runOneTest("layers4") }
 
 }
