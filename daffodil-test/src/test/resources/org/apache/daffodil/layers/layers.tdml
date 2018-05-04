@@ -253,5 +253,50 @@ xxx]]></tdml:documentPart>
       <tdml:error>separator</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="s4" elementFormDefault="unqualified">
+    <dfdl:defineFormat name="general">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
+    </dfdl:defineFormat>
+    <dfdl:defineFormat name="folded">
+      <dfdl:format ref="ex:general" layerTransform="lineFolded_IMF" layerLengthKind="implicit" layerLengthUnits="bytes"
+        layerEncoding="iso-8859-1" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:general" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:ref="folded">
+            <xs:element name="header" dfdl:terminator="%CR;%LF;%CR;%LF;">
+              <xs:complexType>
+                <xs:sequence dfdl:separator="%CR;%LF;">
+                  <xs:element name="field" type="xs:string" maxOccurs="unbounded" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="body" type="xs:string" dfdl:initiator="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="layers4" root="root" model="s4" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[this is%CR;%LF; folded one%CR;%LF;this%CR;%LF; is folded two%CR;%LF;%CR;%LF;this is the body]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <header>
+            <field>this is folded one</field>
+            <field>this is folded two</field>
+          </header>
+          <body>this is the body</body>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
