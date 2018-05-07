@@ -79,8 +79,8 @@ object TestUtils {
     throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
   }
 
-  def testString(testSchema: Node, data: String, isTracing: Boolean = false) = {
-    runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data), isTracing)
+  def testString(testSchema: Node, data: String, areTracing: Boolean = false) = {
+    runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
   }
 
   def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
@@ -139,15 +139,19 @@ object TestUtils {
     }
   }
 
-  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
+  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte], areTracing: Boolean = false) {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.diagnostics)
-    val u = pf.onPath("/")
+    val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) throwDiagnostics(u.getDiagnostics)
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val inputter = new ScalaXMLInfosetInputter(infoset)
+    if (areTracing) {
+      u.setDebugger(builtInTracer)
+      u.setDebugging(true)
+    }
     val actual = u.unparse(inputter, out)
     if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
     val unparsed = outputStream.toByteArray()

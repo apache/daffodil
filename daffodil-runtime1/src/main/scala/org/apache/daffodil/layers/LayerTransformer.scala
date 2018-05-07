@@ -142,6 +142,7 @@ abstract class LayerTransformer()
 
     val newDIS = ByteBufferDataInputStream(decodedInputStream, 0L)
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst) // must initialize priorBitOrder
+    newDIS.setDebugging(s.areDebugging)
     newDIS
   }
 
@@ -156,6 +157,7 @@ abstract class LayerTransformer()
     val newDOS = DirectOrBufferedDataOutputStream(encodedOutputStream, null)
     newDOS.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
     newDOS.setAbsStartingBitPos0b(ULong(0L))
+    newDOS.setDebugging(s.areDebugging)
     newDOS
   }
 
