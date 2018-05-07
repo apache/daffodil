@@ -304,7 +304,6 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // turn debugging off
       this.cst.debugging = false
       debugOutputStream = Nope
-      setJavaOutputStream(new ByteArrayOutputStream())
     }
   }
 
@@ -816,9 +815,15 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   }
 
   final override def pastData(nBytesRequested: Int): ByteBuffer = {
-    Assert.usage(isReadable)
-    if (!areDebugging)
-      throw new IllegalStateException("Must be debugging.")
+    Assert.usage(isReadable ||
+      // when unparsing trace/debug wants to access pastData from this DOS
+      // even after it has been closed. This is just a consequence of the
+      // creation and completion of DOS interacting with the DOS being
+      // created on the fly to implement layering, where we allocate a new
+      // DOS for the layer, and then later just drop it when the layer exits.
+      // At that point the layer is closed, but trace/debug still wants to print
+      // pastData from it as part of what it displays.
+      areDebugging)
     Assert.usage(nBytesRequested >= 0)
     if (debugOutputStream == Nope) {
       ByteBuffer.allocate(0)
