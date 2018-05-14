@@ -685,6 +685,13 @@
   
   <xsd:simpleType name="LayerTransformEnum">
     <xsd:restriction base="xsd:token">
+       <xsd:enumeration value="fourbyteswap">
+         <xsd:annotation>
+           <xsd:documentation>
+             Swap bytes in 32 bit words.
+           </xsd:documentation>
+         </xsd:annotation>
+       </xsd:enumeration>
        <xsd:enumeration value="base64_MIME">
          <xsd:annotation>
            <xsd:documentation>

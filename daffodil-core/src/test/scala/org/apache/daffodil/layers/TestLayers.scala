@@ -358,4 +358,54 @@ a few lines of pointless text like this.""".replace("\n", " ")
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
   }
+
+  val le32BitData = Array[Byte](0x01,                   // BE MSBF
+                                0x43, 0x33, 0x33, 0x32, // fourbyteswap + LE LSBF (parsed right to left four bytes at a time)
+                                            0x55, 0x54, // fourbyteswap + LE LSBF
+                                0x67)                   // BE MSBF
+
+  val le32BitSchema =
+    SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat" bitOrder="leastSignificantBitFirst"
+                   byteOrder="littleEndian" alignmentUnits="bits" alignment="1"
+                   lengthKind="explicit" lengthUnits="bits"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s0" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
+            <xs:element name="s1" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
+            <xs:sequence dfdl:layerTransform="fourbyteswap" dfdl:layerLengthKind="explicit" dfdl:layerLengthUnits="bytes" dfdl:layerLength="6">
+              <xs:sequence>
+                <xs:element name="s2" type="xs:hexBinary" dfdl:length="4"/>
+                <xs:element name="s3" type="xs:hexBinary" dfdl:length="24"/>
+                <xs:element name="s4" type="xs:hexBinary" dfdl:length="8"/>
+                <xs:element name="s5" type="xs:hexBinary" dfdl:length="12"/>
+              </xs:sequence>
+            </xs:sequence>
+            <xs:element name="s6" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
+            <xs:element name="s7" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>, elementFormDefault = "qualified")
+
+  @Test def testFourByteSwapLayer() {
+    val sch = le32BitSchema
+    val data = le32BitData
+    val infoset =
+      <e1 xmlns={ example }>
+        <s0>00</s0>
+        <s1>01</s1>
+        <s2>02</s2>
+        <s3>333333</s3>
+        <s4>44</s4>
+        <s5>0555</s5>
+        <s6>06</s6>
+        <s7>07</s7>
+      </e1>
+
+    val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    TestUtils.testUnparsingBinary(sch, infoset, data)
+  }
 }
