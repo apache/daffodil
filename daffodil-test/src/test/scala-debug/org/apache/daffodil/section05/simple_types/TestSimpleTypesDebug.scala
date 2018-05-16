@@ -115,4 +115,6 @@ class TestSimpleTypesDebug {
   @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
   @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
 
+  // DAFFODIL-1946
+  @Test def test_dateTimeImplicitPatternFail5() { runner.runOneTest("dateTimeImplicitPatternFail5") }
 }

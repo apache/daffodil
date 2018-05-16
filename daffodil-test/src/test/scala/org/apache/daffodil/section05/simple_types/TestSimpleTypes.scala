@@ -170,12 +170,33 @@ class TestSimpleTypes {
   @Test def test_dateImplicitPatternFail() { runner.runOneTest("dateImplicitPatternFail") }
   @Test def test_timeImplicitPattern() { runner.runOneTest("timeImplicitPattern") }
   @Test def test_timeImplicitPatternFail() { runner.runOneTest("timeImplicitPatternFail") }
+  @Test def test_dateTimeBin() { runner.runOneTest("dateTimeBin") }
+  @Test def test_dateTimeBin2() { runner.runOneTest("dateTimeBin2") }
+  @Test def test_dateTimeBin3() { runner.runOneTest("dateTimeBin3") }
+  @Test def test_dateTimeBin4() { runner.runOneTest("dateTimeBin4") }
+  @Test def test_dateTimeBin5() { runner.runOneTest("dateTimeBin5") }
+  @Test def test_dateTimeBin6() { runner.runOneTest("dateTimeBin6") }
+  @Test def test_dateTimeBin7() { runner.runOneTest("dateTimeBin7") }
+  @Test def test_dateTimeBin8() { runner.runOneTest("dateTimeBin8") }
+  @Test def test_dateTimeBin9() { runner.runOneTest("dateTimeBin9") }
+  @Test def test_dateTimeBin10() { runner.runOneTest("dateTimeBin10") }
+  @Test def test_dateTimeBin11() { runner.runOneTest("dateTimeBin11") }
+  @Test def test_dateTimeBin12() { runner.runOneTest("dateTimeBin12") }
+  @Test def test_dateTimeBin13() { runner.runOneTest("dateTimeBin13") }
+  @Test def test_dateTimeBin14() { runner.runOneTest("dateTimeBin14") }
+  @Test def test_dateTimeBin15() { runner.runOneTest("dateTimeBin15") }
+  @Test def test_dateTimeBin16() { runner.runOneTest("dateTimeBin16") }
+  @Test def test_dateTimeBin17() { runner.runOneTest("dateTimeBin17") }
+  @Test def test_dateTimeBin18() { runner.runOneTest("dateTimeBin18") }
+  @Test def test_dateTimeBin19() { runner.runOneTest("dateTimeBin19") }
+  @Test def test_dateBin2() { runner.runOneTest("dateBin2") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
   @Test def test_dateTimeImplicitPatternFail() { runner.runOneTest("dateTimeImplicitPatternFail") }
   @Test def test_dateTimeImplicitPatternFail2() { runner.runOneTest("dateTimeImplicitPatternFail2") }
   @Test def test_dateTimeImplicitPatternFail3() { runner.runOneTest("dateTimeImplicitPatternFail3") }
   @Test def test_dateTimeImplicitPatternFail4() { runner.runOneTest("dateTimeImplicitPatternFail4") }
+  //@Test def test_dateTimeImplicitPatternFail5() { runner.runOneTest("dateTimeImplicitPatternFail5") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
   //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }
