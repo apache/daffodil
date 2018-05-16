@@ -50,6 +50,9 @@ class IBMTestsThatPass {
   @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") }
   @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
 
+  @Test def test_simple_type_properties_bin_calendar_13_01() { runner2.runOneTest("simple_type_properties_bin_calendar_13_01") }
+  @Test def test_simple_type_properties_bin_calendar_13_02() { runner2.runOneTest("simple_type_properties_bin_calendar_13_02") }
+
   @Test def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
 
   @Test def test_property_syntax_7_04() { runner1.runOneTest("property_syntax_7_04") }

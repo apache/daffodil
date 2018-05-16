@@ -26,7 +26,8 @@
 				encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" lengthUnits="bytes"
 				textOutputMinLength="1" alignment="1" alignmentUnits="bytes"
 				fillByte="%NUL;"  occursCountKind="implicit" ignoreCase="no"
-				lengthKind="implicit" sequenceKind="ordered" initiatedContent="no" />
+				lengthKind="implicit" sequenceKind="ordered" initiatedContent="no"
+				textPadKind="none"  binaryNumberRep="binary" calendarLanguage='en' />
 
 		</xs:appinfo>
 	</xs:annotation>
@@ -52,7 +53,7 @@
 	<xs:element name="testBinaryMilliseconds" type="xs:dateTime">
 		<xs:annotation>
 			<xs:appinfo source="http://www.ogf.org/dfdl/">
-				<dfdl:element binaryCalendarRep="binaryMilliseconds" binaryCalendarEpoch="2009-12-24T05:15:00+05:00"/>
+				<dfdl:element binaryCalendarRep="binaryMilliseconds" binaryCalendarEpoch="2009-12-24T05:15:00+05:00" />
 			</xs:appinfo>
 		</xs:annotation>
 	</xs:element>

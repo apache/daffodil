@@ -48,6 +48,7 @@ import org.apache.daffodil.grammar.primitives.CaptureContentLengthStart
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthStart
 import org.apache.daffodil.grammar.primitives.ComplexNilOrContent
+import org.apache.daffodil.grammar.primitives.ConvertBinaryDateTimeSecMilliPrim
 import org.apache.daffodil.grammar.primitives.ConvertTextBooleanPrim
 import org.apache.daffodil.grammar.primitives.ConvertTextBytePrim
 import org.apache.daffodil.grammar.primitives.ConvertTextCombinator
@@ -115,6 +116,7 @@ import org.apache.daffodil.grammar.primitives.ZonedTextIntPrim
 import org.apache.daffodil.processors.TextJustificationType
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
+import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
@@ -462,6 +464,11 @@ trait ElementBaseGrammarMixin
     case PrimType.Short | PrimType.UnsignedShort => 16
     case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
     case PrimType.Double | PrimType.Long | PrimType.UnsignedLong => 64
+    case PrimType.DateTime => binaryCalendarRep match {
+      case BinaryCalendarRep.BinarySeconds => 32
+      case BinaryCalendarRep.BinaryMilliseconds => 64
+      case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' with binaryCalendarRep='" + binaryCalendarRep + "' cannot be determined implicitly.")
+    }
     case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
@@ -775,6 +782,25 @@ trait ElementBaseGrammarMixin
       }
 
       case PrimType.Boolean => { new BinaryBoolean(this) }
+
+      case PrimType.DateTime | PrimType.Date | PrimType.Time => {
+        (primType, binaryCalendarRep) match {
+          case (PrimType.DateTime, BinaryCalendarRep.BinarySeconds) => (lengthUnits, binaryNumberKnownLengthInBits) match {
+            case (LengthUnits.Bytes, 32) => new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
+            case (_, 32)  => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binarySeconds'")
+            case (_, n) => SDE("binary xs:dateTime must be 32 bits when binaryCalendarRep='binarySeconds'. Length in bits was %s.", n)
+          }
+          case (_, BinaryCalendarRep.BinarySeconds) => SDE("binaryCalendarRep='binarySeconds' is not allowed with type %s", primType.name)
+          case (PrimType.DateTime, BinaryCalendarRep.BinaryMilliseconds) => (lengthUnits, binaryNumberKnownLengthInBits) match {
+            case (LengthUnits.Bytes, 64) => new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
+            case (_, 64)  => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binaryMilliseconds'")
+            case (_, n) => SDE("binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.", n)
+          }
+          case (_, BinaryCalendarRep.BinaryMilliseconds) => SDE("binaryCalendarRep='binaryMilliseconds' is not allowed with type %s", primType.name)
+          case _ => notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
+        }
+      }
+
       case _ => notYetImplemented("Type %s when representation='binary'", primType.name)
     }
     res

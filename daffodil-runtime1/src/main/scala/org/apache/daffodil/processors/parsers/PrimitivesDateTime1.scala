@@ -20,7 +20,6 @@ package org.apache.daffodil.processors.parsers
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.calendar.DFDLDateTime
@@ -30,21 +29,11 @@ import org.apache.daffodil.processors.CalendarEv
 import org.apache.daffodil.processors.CalendarLanguageEv
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
 
 abstract class ConvertTextCalendarProcessorBase(
   override val context: ElementRuntimeData,
-  xsdType: String,
-  prettyType: String,
-  pattern: String,
-  hasTZ: Boolean,
-  localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv,
-  infosetPattern: String,
-  firstDay: Int,
-  calendarDaysInFirstWeek: Int,
-  calendarCheckPolicy: Boolean,
-  calendarTz: Option[TimeZone],
-  tz: TimeZone) extends Processor {
+  pattern: String) extends Processor {
   // The dfdl:calendarLanguage property can be a runtime-valued expression.
   // Hence, locale and calendar, derived from it, can also be runtime-valued.
   //
@@ -99,16 +88,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   pattern: String,
   hasTZ: Boolean,
   localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv,
-  infosetPattern: String,
-  firstDay: Int,
-  calendarDaysInFirstWeek: Int,
-  calendarCheckPolicy: Boolean,
-  calendarTz: Option[TimeZone],
-  tz: TimeZone)
-  extends ConvertTextCalendarProcessorBase(erd,
-    xsdType, prettyType, pattern, hasTZ, localeEv, calendarEv, infosetPattern, firstDay, calendarDaysInFirstWeek,
-    calendarCheckPolicy, calendarTz, tz)
+  calendarEv: CalendarEv)
+  extends ConvertTextCalendarProcessorBase(erd, pattern)
   with TextPrimParser {
 
   override lazy val runtimeDependencies = List(localeEv, calendarEv)
@@ -186,5 +167,43 @@ object TextCalendarConstants {
       formatter.setLenient(true)
       formatter
     }
+  }
+}
+
+case class ConvertBinaryCalendarSecMilliParser(
+  override val context: ElementRuntimeData,
+  hasTZ: Boolean,
+  binCalRep: BinaryCalendarRep,
+  epochCal: Calendar,
+  lengthInBits: Int)
+  extends PrimParser {
+
+  override lazy val runtimeDependencies = Nil
+
+  def parse(start: PState): Unit = {
+
+    val dis = start.dataInputStream
+    val slong: Long = dis.getSignedLong(lengthInBits, start)
+    val cal = epochCal.clone.asInstanceOf[Calendar]
+
+    val millisToAdd: Long = binCalRep match {
+      case BinaryCalendarRep.BinarySeconds => slong * 1000
+      case BinaryCalendarRep.BinaryMilliseconds => slong
+      case _ => Assert.impossibleCase
+    }
+
+    val newTime = cal.getTimeInMillis + millisToAdd
+    try {
+      cal.setTimeInMillis(newTime)
+    } catch {
+      case e: IllegalArgumentException => {
+        PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values (%s to %s): %s.",
+            millisToAdd, Calendar.MIN_MILLIS, Calendar.MAX_MILLIS, e.getMessage())
+        return
+      }
+    }
+
+    val newCal = new DFDLDateTime(cal, hasTZ)
+    start.simpleElement.overwriteDataValue(newCal)
   }
 }

@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors.unparsers
 
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 
 import org.apache.daffodil.calendar.DFDLCalendar
@@ -30,21 +29,10 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
 
 case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
-  xsdType: String,
-  prettyType: String,
   pattern: String,
-  hasTZ: Boolean,
   localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv,
-  infosetPattern: String,
-  firstDay: Int,
-  calendarDaysInFirstWeek: Int,
-  calendarCheckPolicy: Boolean,
-  calendarTz: Option[TimeZone],
-  tz: TimeZone)
-  extends ConvertTextCalendarProcessorBase(erd,
-    xsdType, prettyType, pattern, hasTZ, localeEv, calendarEv, infosetPattern, firstDay, calendarDaysInFirstWeek,
-    calendarCheckPolicy, calendarTz, tz)
+  calendarEv: CalendarEv)
+  extends ConvertTextCalendarProcessorBase(erd, pattern)
   with TextPrimUnparser {
 
   /**
