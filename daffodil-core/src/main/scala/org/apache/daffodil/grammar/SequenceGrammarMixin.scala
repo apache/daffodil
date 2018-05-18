@@ -16,7 +16,6 @@
  */
 
 package org.apache.daffodil.grammar
-import org.apache.daffodil.schema.annotation.props._
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.grammar.primitives.SequenceCombinator
 import org.apache.daffodil.dsom.SequenceTermBase
@@ -43,14 +42,6 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   }
 
   private lazy val orderedSequenceContent = prod("sequenceContent") {
-    if (hasSeparator) {
-      self.separatorSuppressionPolicy match {
-        case SeparatorSuppressionPolicy.Never => SequenceCombinator(this, terms)
-        case SeparatorSuppressionPolicy.TrailingEmpty => SequenceCombinator(this, terms)
-        case SeparatorSuppressionPolicy.TrailingEmptyStrict => TrailingEmptyStrictSequenceCombinator(this, terms)
-        case SeparatorSuppressionPolicy.AnyEmpty => SequenceCombinator(this, terms)
-      }
-    } else
       SequenceCombinator(this, terms)
   }
 
@@ -59,7 +50,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   //    UnorderedSequenceCombinator(this, uoseq.terms)
   //  }
 
-  protected lazy val terms = groupMembers // .map { _.asTermInSequence }
+  protected lazy val terms = groupMembers.map { _.asTermInSequence }
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.

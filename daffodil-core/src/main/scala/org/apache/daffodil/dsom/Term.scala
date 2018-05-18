@@ -359,7 +359,7 @@ trait Term
   def isKnownRequiredElement = false
   def hasKnownRequiredSyntax = false
 
-  def hasPotentiallyTrailingInstances: Boolean
+  def hasPotentiallyTrailingInstances: Boolean = false
   final def isPotentiallyTrailing = LV('isPotentiallyTrailing) {
     if (!isRequired) {
       val es = nearestEnclosingSequence

@@ -25,9 +25,11 @@ import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.LogLevel
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -121,7 +123,7 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: TermRuntimeData, childParsers: Vector[Parser])
+class SequenceCombinatorParser(rd: TermRuntimeData, ssp: SeparatorSuppressionPolicy, childParsers: Vector[Parser])
   extends CombinatorParser(rd) {
   override def nom = "Sequence"
 
@@ -149,23 +151,20 @@ class SequenceCombinatorParser(rd: TermRuntimeData, childParsers: Vector[Parser]
       i += 1
     }
 
-    if (start.processorStatus ne Success)
-      createDiagnostic(start)
+    val diag = (ssp, start.mpstate.wasLastArrayElementZeroLength) match {
+      case (SeparatorSuppressionPolicy.Never, _) => Maybe.Nope
+      case (SeparatorSuppressionPolicy.TrailingEmpty, _) => Maybe.Nope
+      case (SeparatorSuppressionPolicy.TrailingEmptyStrict, true) => Maybe(new ParseError(One(context.schemaFileLocation), One(start.currentLocation), "Empty trailing elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'"))
+      case (SeparatorSuppressionPolicy.TrailingEmptyStrict, false) => Maybe.Nope
+      case (SeparatorSuppressionPolicy.AnyEmpty, _) => Maybe.Nope
+    }
+
+    if (!diag.isEmpty)
+      start.setFailed(diag.get)
 
     start.mpstate.groupIndexStack.pop()
     start.mpstate.moveOverOneGroupIndexOnly()
     ()
-  }
-}
-
-class TrailingStrictSequenceCombinatorParser(rd: TermRuntimeData, childParsers: Vector[Parser])
-  extends SequenceCombinatorParser(rd, childParsers) {
-
-  override def createDiagnostic(start: PState) = {
-    if (start.mpstate.wasLastArrayElementZeroLength) {
-      val diag = new ParseError(One(context.schemaFileLocation), One(start.currentLocation), "Empty trailing elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'")
-      start.setFailed(diag)
-    }
   }
 }
 

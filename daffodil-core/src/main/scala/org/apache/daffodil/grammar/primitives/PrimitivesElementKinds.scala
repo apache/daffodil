@@ -143,22 +143,7 @@ case class SequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
     term.unparser
   }.toVector
 
-  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, parsers)
-
-  override lazy val unparser: DaffodilUnparser = {
-    sq.checkHiddenSequenceIsDefaultableOrOVC
-    new SequenceCombinatorUnparser(sq.modelGroupRuntimeData, unparsers)
-  }
-}
-
-case class TrailingStrictSequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
-  extends SequenceCombinator(sq, rawTerms) {
-
-  override lazy val parsers = terms.map { term =>
-    term.parser
-  }.toVector
-
-  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, parsers)
+  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, sq.separatorSuppressionPolicy, parsers)
 
   override lazy val unparser: DaffodilUnparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC

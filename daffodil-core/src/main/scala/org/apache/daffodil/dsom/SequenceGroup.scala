@@ -67,7 +67,7 @@ abstract class SequenceTermBase(
       groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
-  final lazy val hasPotentiallyTrailingInstances = {
+  final override def hasPotentiallyTrailingInstances = {
     isPotentiallyTrailing ||
     groupMembers.exists { _.hasPotentiallyTrailingInstances }
   }

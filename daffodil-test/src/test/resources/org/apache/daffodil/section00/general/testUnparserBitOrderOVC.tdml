@@ -34,7 +34,8 @@
   
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
 
-    <dfdl:format textPadKind='none' lengthKind="explicit" lengthUnits="bits" alignmentUnits="bits" alignment="1"
+    <dfdl:format ref="ex:GeneralFormat"
+      textPadKind='none' lengthKind="explicit" lengthUnits="bits" alignmentUnits="bits" alignment="1"
       fillByte="%#rFF;" representation="binary" binaryNumberRep="binary"
       leadingSkip="0" trailingSkip="0" initiator="" terminator="" separator="" 
       ignoreCase="yes" sequenceKind="ordered" encoding="ascii" initiatedContent="no"
