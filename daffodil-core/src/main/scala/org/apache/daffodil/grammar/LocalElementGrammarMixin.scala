@@ -112,8 +112,11 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
     // We don't know if this repeating thing is in trailing position, or in the middle
     // of a sequence. There is also ambiguity if the enclosing sequence and this sequence
     // have the same separator.
-    //      ~
-    //      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
+    ~
+    (if (couldBeLastElementInModelGroup)
+      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
+    else
+      EmptyGram)
     )
   }
 

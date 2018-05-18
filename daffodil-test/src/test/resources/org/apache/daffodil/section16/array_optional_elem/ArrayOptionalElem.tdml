@@ -632,4 +632,75 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="array-ockImplicitSeparators.dfdl.xsd" elementFormDefault="unqualified">
+
+    <dfdl:format lengthKind="delimited" lengthUnits="bytes"
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
+      representation="text" />
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=":"
+          dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="trailingEmpty"
+          dfdl:sequenceKind="ordered">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0" />
+          <xs:element name="c" type="xs:int" minOccurs="0" />
+          <xs:element name="d" type="xs:int" minOccurs="0" />
+          <xs:element name="e" type="xs:int" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators01" root="root"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[1::3::5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <a>1</a>
+          <c>3</c>
+          <e>5</e>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators02" root="root"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[:2:3::5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <b>2</b>
+          <c>3</c>
+          <e>5</e>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:unparserTestCase name="occursCountKindImplicitSeparatorsUnparser" root="root"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[1:3:5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <a>1</a>
+          <c>3</c>
+          <e>5</e>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>
