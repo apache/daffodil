@@ -214,7 +214,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
       case (TrailingStr, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Implicit__, UNB, ___) => separatedContentWithMinUnbounded
-      case (Always_____, Implicit__, max, ___) => separatedContentAtMostN
+      case (Always_____, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Parsed____, ___, __2) => separatedContentZeroToUnbounded
       case (Always_____, StopValue_, ___, __2) => separatedContentZeroToUnbounded
       case (policy /**/ , ock /****/ , max, __2) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")

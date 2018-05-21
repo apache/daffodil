@@ -51,6 +51,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   //  }
 
   protected lazy val terms = groupMembers.map { _.asTermInSequence }
+  //protected lazy val terms = groupMembers//.map { _.asTermInSequence }
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
