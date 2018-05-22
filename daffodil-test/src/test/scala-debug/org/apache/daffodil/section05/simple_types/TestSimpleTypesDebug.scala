@@ -117,4 +117,6 @@ class TestSimpleTypesDebug {
 
   // DAFFODIL-1946
   @Test def test_dateTimeImplicitPatternFail5() { runner.runOneTest("dateTimeImplicitPatternFail5") }
+
+  @Test def test_dateTimeBinBCD3() { runner.runOneTest("dateTimeBinBCD3") }
 }

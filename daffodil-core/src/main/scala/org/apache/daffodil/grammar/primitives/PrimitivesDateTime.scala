@@ -23,16 +23,23 @@ import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
 import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 import org.apache.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
+import org.apache.daffodil.processors.unparsers.BinaryCalendarBCDRuntimeLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryCalendarBCDKnownLengthUnparser
+import org.apache.daffodil.processors.unparsers.BinaryCalendarBCDDelimitedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ConvertBinaryCalendarSecMilliUnparser
 import org.apache.daffodil.processors.unparsers.ConvertTextCalendarUnparser
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.processors.CalendarEv
 import org.apache.daffodil.processors.CalendarLanguageEv
+import org.apache.daffodil.processors.parsers.BinaryCalendarBCDDelimitedLengthParser
+import org.apache.daffodil.processors.parsers.BinaryCalendarBCDKnownLengthParser
+import org.apache.daffodil.processors.parsers.BinaryCalendarBCDRuntimeLengthParser
 import org.apache.daffodil.processors.parsers.ConvertBinaryCalendarSecMilliParser
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarParser
 import org.apache.daffodil.processors.parsers.TextCalendarConstants
@@ -47,32 +54,12 @@ abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   override def toString = "to(xs:" + xsdType + ")"
 }
 
-abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
-  extends ConvertCalendarPrimBase(e, guard) {
+trait CalendarPrimBase {
+  def e: ElementBase
 
   protected def infosetPattern: String
-  protected def implicitPattern: String
   protected def validFormatCharacters: Seq[Char]
-
-  lazy val pattern: String = {
-    val p = e.calendarPatternKind match {
-      case CalendarPatternKind.Explicit => e.calendarPattern
-      case CalendarPatternKind.Implicit => implicitPattern
-    }
-
-    val escapedText = "(''|'[^']+'|[^a-zA-Z])".r
-    val patternNoEscapes = escapedText.replaceAllIn(p, "")
-    patternNoEscapes.toSeq.foreach(char =>
-      if (!validFormatCharacters.contains(char)) {
-        SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType))
-      })
-
-    if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
-      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
-    }
-
-    p
-  }
+  protected def pattern: String
 
   val firstDay = e.calendarFirstDayOfWeek match {
     case CalendarFirstDayOfWeek.Sunday => Calendar.SUNDAY
@@ -134,16 +121,43 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     res
   }
 
-  private lazy val localeEv = {
+  protected lazy val localeEv = {
     val ev = new CalendarLanguageEv(e.calendarLanguage, e.erd)
     ev.compile()
     ev
   }
 
-  private lazy val calendarEv = {
+  protected lazy val calendarEv = {
     val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.erd)
     cev.compile()
     cev
+  }
+}
+
+abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
+  extends ConvertCalendarPrimBase(e, guard)
+  with CalendarPrimBase {
+
+  protected def implicitPattern: String
+
+  lazy val pattern: String = {
+    val p = e.calendarPatternKind match {
+      case CalendarPatternKind.Explicit => e.calendarPattern
+      case CalendarPatternKind.Implicit => implicitPattern
+    }
+
+    val escapedText = "(''|'[^']+'|[^a-zA-Z])".r
+    val patternNoEscapes = escapedText.replaceAllIn(p, "")
+    patternNoEscapes.toSeq.foreach(char =>
+      if (!validFormatCharacters.contains(char)) {
+        SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType))
+      })
+
+    if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
+    }
+
+    p
   }
 
   override lazy val parser = new ConvertTextCalendarParser(
@@ -186,9 +200,27 @@ case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPr
   protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq
 }
 
-abstract class ConvertBinaryCalendarPrimBase(e: ElementBase, guard: Boolean, lengthInBits: Long)
-  extends ConvertCalendarPrimBase(e, guard) {
+abstract class BinaryPackedDecimalCalendarPrimBase(e: ElementBase, guard: Boolean)
+  extends ConvertCalendarPrimBase(e, guard)
+  with CalendarPrimBase {
 
+  lazy val pattern: String = {
+    val p = e.calendarPatternKind match {
+      case CalendarPatternKind.Explicit => e.calendarPattern
+      case _ => Assert.impossibleCase
+    }
+
+    p.toSeq.foreach(char =>
+      if (!validFormatCharacters.contains(char)) {
+        SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s with a binaryCalendarRep of '%s'".format(char, xsdType, e.binaryCalendarRep))
+      })
+
+    if (p.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
+    }
+
+    p
+  }
 }
 
 case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long) extends ConvertCalendarPrimBase(e, true) {
@@ -242,4 +274,156 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
     epochCalendar.getTimeInMillis,
     lengthInBits.toInt,
     !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE))
+}
+
+abstract class BCDRuntimeLength(e: ElementBase) extends BinaryPackedDecimalCalendarPrimBase(e, true) {
+
+  override lazy val parser = new BinaryCalendarBCDRuntimeLengthParser(
+    e.elementRuntimeData,
+    false,
+    pattern,
+    localeEv,
+    calendarEv,
+    xsdType,
+    prettyType,
+    e.lengthEv,
+    e.lengthUnits)
+
+  override lazy val unparser =
+    new BinaryCalendarBCDRuntimeLengthUnparser(
+    e.elementRuntimeData,
+    pattern,
+    localeEv,
+    calendarEv,
+    e.lengthEv,
+    e.lengthUnits)
+}
+
+abstract class BCDKnownLength(e: ElementBase, lengthInBits: Long) extends BinaryPackedDecimalCalendarPrimBase(e, true) {
+
+  override lazy val parser = new BinaryCalendarBCDKnownLengthParser(
+    e.elementRuntimeData,
+    false,
+    lengthInBits.toInt,
+    pattern,
+    localeEv,
+    calendarEv,
+    xsdType,
+    prettyType)
+
+  override lazy val unparser =
+    new BinaryCalendarBCDKnownLengthUnparser(
+    e.elementRuntimeData,
+    lengthInBits.toInt,
+    pattern,
+    localeEv,
+    calendarEv)
+}
+
+abstract class BCDDelimitedLength(e: ElementBase, xsdType: String, prettyType: String)
+  extends StringDelimited(e)
+  with CalendarPrimBase {
+
+  lazy val pattern: String = {
+    val p = e.calendarPatternKind match {
+      case CalendarPatternKind.Explicit => e.calendarPattern
+      case _ => Assert.impossibleCase
+    }
+
+    p.toSeq.foreach(char =>
+      if (!validFormatCharacters.contains(char)) {
+        SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s with a binaryCalendarRep of '%s'".format(char, xsdType, e.binaryCalendarRep))
+      })
+
+    if (p.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
+    }
+
+    p
+  }
+
+  val isDelimRequired: Boolean = false
+
+  override lazy val parser = new BinaryCalendarBCDDelimitedLengthParser(
+    e.elementRuntimeData,
+    false,
+    pattern,
+    localeEv,
+    calendarEv,
+    xsdType,
+    prettyType,
+    textDelimitedParser,
+    fieldDFAParseEv,
+    isDelimRequired)
+
+  override lazy val unparser =
+    new BinaryCalendarBCDDelimitedLengthUnparser(
+    e.elementRuntimeData,
+    pattern,
+    localeEv,
+    calendarEv)
+
+}
+
+case class BCDDateKnownLengthPrim(e: ElementBase, lengthInBits: Long)
+    extends BCDKnownLength(e, lengthInBits) {
+  protected override val xsdType = "date"
+  protected override val prettyType = "Date"
+  protected override val infosetPattern = "uuuu-MM-ddxxx"
+  protected override val validFormatCharacters = "dDeEFGMuwWyXxYzZ".toSeq
+}
+
+case class BCDDateRuntimeLengthPrim(e: ElementBase) extends BCDRuntimeLength(e) {
+  protected override val xsdType = "date"
+  protected override val prettyType = "Date"
+  protected override val infosetPattern = "uuuu-MM-ddxxx"
+  protected override val validFormatCharacters = "dDeEFGMuwWyXxYzZ".toSeq
+}
+
+case class BCDDateDelimitedLengthPrim(e: ElementBase)
+    extends BCDDelimitedLength(e, "date", "Date") {
+  protected override val infosetPattern = "uuuu-MM-ddxxx"
+  protected override val validFormatCharacters = "dDeEFGMuwWyXxYzZ".toSeq
+}
+
+case class BCDTimeKnownLengthPrim(e: ElementBase, lengthInBits: Long)
+    extends BCDKnownLength(e, lengthInBits) {
+  protected override val xsdType = "time"
+  protected override val prettyType = "Time"
+  protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "ahHkKmsSvVzXxZ".toSeq
+}
+
+case class BCDTimeRuntimeLengthPrim(e: ElementBase) extends BCDRuntimeLength(e) {
+  protected override val xsdType = "time"
+  protected override val prettyType = "Time"
+  protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "ahHkKmsSvVzXxZ".toSeq
+}
+
+case class BCDTimeDelimitedLengthPrim(e: ElementBase)
+    extends BCDDelimitedLength(e, "time", "Time") {
+  protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "ahHkKmsSvVzXxZ".toSeq
+}
+
+case class BCDDateTimeKnownLengthPrim(e: ElementBase, lengthInBits: Long)
+    extends BCDKnownLength(e, lengthInBits) {
+  protected override val xsdType = "dateTime"
+  protected override val prettyType = "DateTime"
+  protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq
+}
+
+case class BCDDateTimeRuntimeLengthPrim(e: ElementBase) extends BCDRuntimeLength(e) {
+  protected override val xsdType = "dateTime"
+  protected override val prettyType = "DateTime"
+  protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq
+}
+
+case class BCDDateTimeDelimitedLengthPrim(e: ElementBase)
+    extends BCDDelimitedLength(e, "dateTime", "DateTime") {
+  protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
+  protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq
 }

@@ -17,23 +17,34 @@
 
 package org.apache.daffodil.processors.parsers
 
+import java.lang.{ Long => JLong }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.ULocale
 import org.apache.daffodil.exceptions.Assert
+
 import org.apache.daffodil.calendar.DFDLDateTime
 import org.apache.daffodil.calendar.DFDLTime
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.processors.CalendarEv
 import org.apache.daffodil.processors.CalendarLanguageEv
 import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.processors.FieldDFAParseEv
+import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.processors.dfa.TextDelimitedParserBase
 import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.DecimalUtils
 
-abstract class ConvertTextCalendarProcessorBase(
-  override val context: ElementRuntimeData,
-  pattern: String) extends Processor {
+trait ConvertTextCalendarProcessorBase extends Processor {
+
+  override val context: ElementRuntimeData
+  val pattern: String
+
   // The dfdl:calendarLanguage property can be a runtime-valued expression.
   // Hence, locale and calendar, derived from it, can also be runtime-valued.
   //
@@ -82,26 +93,15 @@ abstract class ConvertTextCalendarProcessorBase(
   }
 }
 
-case class ConvertTextCalendarParser(erd: ElementRuntimeData,
-  xsdType: String,
-  prettyType: String,
-  pattern: String,
-  hasTZ: Boolean,
-  localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv)
-  extends ConvertTextCalendarProcessorBase(erd, pattern)
-  with TextPrimParser {
+trait CalendarParser extends PrimParser with ConvertTextCalendarProcessorBase {
+  def localeEv: CalendarLanguageEv
+  def calendarEv: CalendarEv
+  def xsdType: String
+  def prettyType: String
+  def hasTZ: Boolean
 
-  override lazy val runtimeDependencies = List(localeEv, calendarEv)
-
-  def parse(start: PState): Unit = {
-    val node = start.simpleElement
-    val str = node.dataValueAsString
-
-    Assert.invariant(str != null)
-
+  def writeResult (start: PState, toWrite: String) {
     val pos = new ParsePosition(0)
-
     val locale: ULocale = localeEv.evaluate(start)
     val calendar: Calendar = calendarEv.evaluate(start)
 
@@ -114,13 +114,14 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
 
     val df = tlDataFormatter(locale, calendar)
     val cal = df.getCalendar.clone.asInstanceOf[Calendar]
-    df.parse(str, cal, pos);
+
+    df.parse(toWrite, cal, pos);
 
     // Verify that what was parsed was what was passed exactly in byte count
     // Use pos to verify all characters consumed & check for errors
-    if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
+    if (pos.getIndex != toWrite.length || pos.getErrorIndex >= 0) {
       val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
-      PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, str, errIndex + 1)
+      PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, toWrite, errIndex + 1)
       return
     }
 
@@ -132,7 +133,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {
-        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage())
+        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, toWrite, e.getMessage())
         return
       }
     }
@@ -144,8 +145,28 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
       case _ => Assert.impossibleCase
     }
 
-    node.overwriteDataValue(newCal)
+    start.simpleElement.overwriteDataValue(newCal)
+  }
+}
 
+case class ConvertTextCalendarParser(context: ElementRuntimeData,
+  xsdType: String,
+  prettyType: String,
+  pattern: String,
+  hasTZ: Boolean,
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv)
+  extends CalendarParser
+  with TextPrimParser {
+
+  override lazy val runtimeDependencies = List(localeEv, calendarEv)
+
+  def parse(start: PState): Unit = {
+    val node = start.simpleElement
+    val str = node.dataValueAsString
+
+    Assert.invariant(str != null)
+    writeResult(start, str)
   }
 }
 
@@ -180,6 +201,8 @@ case class ConvertBinaryCalendarSecMilliParser(
 
   override lazy val runtimeDependencies = Nil
 
+  def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
   def parse(start: PState): Unit = {
 
     val dis = start.dataInputStream
@@ -206,4 +229,95 @@ case class ConvertBinaryCalendarSecMilliParser(
     val newCal = new DFDLDateTime(cal, hasTZ)
     start.simpleElement.overwriteDataValue(newCal)
   }
+}
+
+abstract class BinaryCalendarBCDParser(
+  override val context: ElementRuntimeData,
+  hasTZ: Boolean,
+  pattern: String,
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
+  xsdType: String,
+  prettyType: String)
+  extends CalendarParser {
+
+  def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
+  def getBitLength(start: ParseOrUnparseState): Int
+
+  def parse(start: PState): Unit = {
+
+    val dis = start.dataInputStream
+    val nBits = getBitLength(start)
+    if (nBits == 0) return // zero length is used for outputValueCalc often.
+
+    if (!dis.isDefinedForLength(nBits)) {
+      PE(start, "Insufficient bits in data. Needed %d bit(s) but found only %d available.", nBits, dis.remainingBits.get)
+      return
+    }
+
+    try {
+      // Use '0' for the binaryDecimalVirtualPoint because its location will be implied by the pattern
+      val bigDec: BigDecimal = toBigDecimal(dis.getByteArray(nBits, start), 0)
+      writeResult(start, bigDec.toString())
+    } catch {
+      case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
+    }
+  }
+}
+
+case class BinaryCalendarBCDKnownLengthParser(
+  override val context: ElementRuntimeData,
+  hasTZ: Boolean,
+  lengthInBits: Int,
+  pattern: String,
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
+  xsdType: String,
+  prettyType: String)
+  extends BinaryCalendarBCDParser(context, hasTZ, pattern, localeEv, calendarEv, xsdType, prettyType)
+  with PrimParser
+  with HasKnownLengthInBits {
+
+  override lazy val runtimeDependencies = List(localeEv, calendarEv)
+}
+
+case class BinaryCalendarBCDRuntimeLengthParser(
+  override val e: ElementRuntimeData,
+  hasTZ: Boolean,
+  pattern: String,
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
+  xsdType: String,
+  prettyType: String,
+  val lengthEv: Evaluatable[JLong],
+  val lUnits: LengthUnits)
+  extends BinaryCalendarBCDParser(e, hasTZ, pattern, localeEv, calendarEv, xsdType, prettyType)
+  with PrimParser
+  with HasRuntimeExplicitLength {
+
+  override lazy val runtimeDependencies = List(localeEv, calendarEv, lengthEv)
+}
+
+case class BinaryCalendarBCDDelimitedLengthParser(
+  e: ElementRuntimeData,
+  hasTZ: Boolean,
+  pattern: String,
+  localeEv: CalendarLanguageEv,
+  calendarEv: CalendarEv,
+  xsdType: String,
+  prettyType: String,
+  textParser: TextDelimitedParserBase,
+  fieldDFAEv: FieldDFAParseEv,
+  isDelimRequired: Boolean)
+  extends PackedBinaryDecimalDelimitedBaseParser(e, textParser, fieldDFAEv, isDelimRequired, 0 )
+  with CalendarParser {
+
+  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+  def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+
+  override def writeResult(state: PState, num: BigDecimal) {
+    super[CalendarParser].writeResult(state, num.toString())
+  }
+
 }
