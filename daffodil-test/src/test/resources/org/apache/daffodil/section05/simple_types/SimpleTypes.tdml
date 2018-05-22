@@ -263,9 +263,68 @@
       dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="2000-1-1T00:00"/>
     <xs:element name="dateTimeBin11" type="xs:dateTime" dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes"
       dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="01-01-2000T00:00:00"/>
+    <xs:element name="dateTimeBin12" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:terminator=";"
+      dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1977-01-01T00:00:07"/>
 
-    <xs:element name="dateBin2" type="xs:date" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"
-      dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1970-01-01T00:00:00+00:00"/>
+    <xs:element name="dateBinBCD" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd" />
+    <xs:element name="dateBinBCD2" type="xs:date" dfdl:calendarPattern="MMddyyyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateBinBCD3" type="xs:date" dfdl:calendarPattern="MM-dd-yy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateBinBCD4" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateBinBCD5" type="xs:date" dfdl:calendarPattern="MMEEyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateBinBCD6" type="xs:date" dfdl:calendarPattern="MMddyyeee" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateBinBCD7" type="xs:date" dfdl:calendarPattern="eMyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 16 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="bcd"/>
+
+    <xs:element name="timeBinBCD" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="timeBinBCD2" type="xs:time" dfdl:calendarPattern="HHmmssSSSS" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="timeBinBCD3" type="xs:time" dfdl:calendarPatternKind="implicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="timeBinBCD4" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="timeBinBCD5" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryCalendarRep="bcd" dfdl:encoding="ISO-8859-1"/>
+
+    <xs:element name="timeBinBCD6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="length" type="xs:int" dfdl:representation="binary"
+            dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:lengthUnits="bytes" />
+          <xs:element name="time" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dateTimeBinBCD" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyHHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateTimeBinBCD2" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyhhmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+    <xs:element name="dateTimeBinBCD3" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyhhmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+
+    <xs:element name="dateTimeBinBCD4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0"/>
+          <xs:element name="datetime" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyHHmmss" dfdl:encoding="ISO-8859-1"
+            dfdl:calendarPatternKind="explicit" dfdl:binaryCalendarRep="bcd" dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="num2" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dateBinInvalid" type="xs:date" dfdl:calendarPattern="yyyy.MM.dd" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
+      dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1970-01-01T00:00:00+00:00"/>
 
   </tdml:defineSchema>
   
@@ -1850,7 +1909,7 @@
     <tdml:document><tdml:documentPart type="byte">ff ff fb ff ff ff fb</tdml:documentPart></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Size of binary data 'nonNegativeInteger' cannot be determined implicitly.</tdml:error>
+      <tdml:error>Length of binary data 'nonNegativeInteger' cannot be determined implicitly.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1996,8 +2055,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin2" root="dateTimeBin2"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="false">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
@@ -2008,8 +2066,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin3" root="dateTimeBin3"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="false">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
@@ -2124,8 +2181,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin11" root="dateTimeBin6"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="true">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">01111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111</tdml:documentPart>
@@ -2156,8 +2212,7 @@
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' - expecting an error for being 1 milisecond
     greater than the maximum date allowed -->
   <tdml:parserTestCase name="dateTimeBin13" root="dateTimeBin6"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="true">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">00000010 10001101 01000110 11111011 11111100 10101110 01100010 11101001</tdml:documentPart>
@@ -2187,8 +2242,7 @@
   <!-- xs:dateTime with binaryCalendarRep='binaryMillieconds' - expecting an error for being 1 milisecond
     less than the minimum date allowed -->
   <tdml:parserTestCase name="dateTimeBin15" root="dateTimeBin6"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="true">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">11111101 01110001 00110111 10110011 11111100 10101110 01100010 11100111</tdml:documentPart>
@@ -2228,8 +2282,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin18" root="dateTimeBin10"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="false">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
@@ -2240,8 +2293,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin19" root="dateTimeBin11"
-    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
-    roundTrip="false">
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
@@ -2251,9 +2303,275 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="dateBin2" root="dateBin2"
+  <tdml:parserTestCase name="dateTimeBin20" root="dateTimeBin12"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: lengthKind='delimited' only supported for packed binary formats.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD" root="dateBinBCD"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 14 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinBCD>2023-12-14</dateBinBCD>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD2" root="dateBinBCD2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 14 20 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinBCD2>2023-12-14</dateBinBCD2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD3" root="dateBinBCD"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 0F 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid low nibble</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD4" root="dateBinBCD3"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">08 17 48</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character '-' not allowed in dfdl:calendarPattern for xs:date with a binaryCalendarRep of 'bcd'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD5" root="dateBinBCD4"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The given length (7 bits) must be a multiple of 4 when using binaryCalendarRep='bcd'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD6" root="dateBinBCD"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0001 0010 0010 0111 1001 1001</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinBCD>1999-12-27</dateBinBCD>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD7" root="dateBinBCD5"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">08 17 48</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'E' not allowed in dfdl:calendarPattern for xs:date with a binaryCalendarRep of 'bcd'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD8" root="dateBinBCD6"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">08 17 48</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:calendarPattern must only contain characters that result in the presentation of digits for xs:date with a binaryCalendarRep of 'bcd'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinBCD9" root="dateBinBCD7"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">38 18</tdml:documentPart>
+    </tdml:document>
+   <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinBCD7>2018-08-07</dateBinBCD7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD" root="timeBinBCD"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinBCD>18:56:03.000000</timeBinBCD>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD2" root="timeBinBCD2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 45 00 99 87</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinBCD2>01:45:00.998000</timeBinBCD2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD3" root="timeBinBCD3"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 45 00 99 87</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>calendarPatternKind must be 'explicit' when binaryCalendarRep='bcd'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD4" root="timeBinBCD4"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Length of binary data 'Time' cannot be determined implicitly</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD5" root="timeBinBCD5"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">18 56 03 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinBCD5>18:56:03.000000</timeBinBCD5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinBCD6" root="timeBinBCD6"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">03 18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinBCD6>
+          <length>3</length>
+          <time>18:56:03.000000</time>
+        </timeBinBCD6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinBCD" root="dateTimeBinBCD"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">06 14 20 04 18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinBCD>2004-06-14T18:56:03.000000</dateTimeBinBCD>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinBCD2" root="dateTimeBinBCD2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 45 00 99 87</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Length of binary data 'DateTime' with binaryCalendarRep='bcd' cannot be determined implicitly</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinBCD3" root="dateTimeBinBCD3"
     model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
     roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">06 14 20 04 18 56 03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinBCD3>2004-06-14T18:56:03.000000</dateTimeBinBCD3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinBCD4" root="dateTimeBinBCD4"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">03 3B 06 14 20 04 18 56 03 3B 19 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinBCD4>
+          <num1>3</num1>
+          <datetime>2004-06-14T18:56:03.000000</datetime>
+          <num2>19</num2>
+        </dateTimeBinBCD4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinInvalid" root="dateBinInvalid"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
 
     <tdml:document>
       <tdml:documentPart type="bits">0000 0000 0011 1101</tdml:documentPart>
@@ -2427,7 +2745,7 @@
       <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Size of binary data 'decimal' cannot be determined implicitly.</tdml:error>
+      <tdml:error>Schema Definition Error: Length of binary data 'decimal' cannot be determined implicitly.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3282,7 +3600,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Size of binary data 'integer' cannot be determined implicitly</tdml:error>
+      <tdml:error>Length of binary data 'integer' cannot be determined implicitly</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3299,7 +3617,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Size of binary data 'integer' cannot be determined implicitly</tdml:error>
+      <tdml:error>Length of binary data 'integer' cannot be determined implicitly</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

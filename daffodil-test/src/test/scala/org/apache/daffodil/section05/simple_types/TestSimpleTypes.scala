@@ -189,7 +189,27 @@ class TestSimpleTypes {
   @Test def test_dateTimeBin17() { runner.runOneTest("dateTimeBin17") }
   @Test def test_dateTimeBin18() { runner.runOneTest("dateTimeBin18") }
   @Test def test_dateTimeBin19() { runner.runOneTest("dateTimeBin19") }
-  @Test def test_dateBin2() { runner.runOneTest("dateBin2") }
+  @Test def test_dateTimeBin20() { runner.runOneTest("dateTimeBin20") }
+  @Test def test_dateBinBCD() { runner.runOneTest("dateBinBCD") }
+  @Test def test_dateBinBCD2() { runner.runOneTest("dateBinBCD2") }
+  @Test def test_dateBinBCD3() { runner.runOneTest("dateBinBCD3") }
+  @Test def test_dateBinBCD4() { runner.runOneTest("dateBinBCD4") }
+  @Test def test_dateBinBCD5() { runner.runOneTest("dateBinBCD5") }
+  @Test def test_dateBinBCD6() { runner.runOneTest("dateBinBCD6") }
+  @Test def test_dateBinBCD7() { runner.runOneTest("dateBinBCD7") }
+  @Test def test_dateBinBCD8() { runner.runOneTest("dateBinBCD8") }
+  @Test def test_dateBinBCD9() { runner.runOneTest("dateBinBCD9") }
+  @Test def test_timeBinBCD() { runner.runOneTest("timeBinBCD") }
+  @Test def test_timeBinBCD2() { runner.runOneTest("timeBinBCD2") }
+  @Test def test_timeBinBCD3() { runner.runOneTest("timeBinBCD3") }
+  @Test def test_timeBinBCD4() { runner.runOneTest("timeBinBCD4") }
+  @Test def test_timeBinBCD5() { runner.runOneTest("timeBinBCD5") }
+  @Test def test_timeBinBCD6() { runner.runOneTest("timeBinBCD6") }
+  @Test def test_dateTimeBinBCD() { runner.runOneTest("dateTimeBinBCD") }
+  @Test def test_dateTimeBinBCD2() { runner.runOneTest("dateTimeBinBCD2") }
+  @Test def test_dateTimeBinBCD3() { runner.runOneTest("dateTimeBinBCD3") }
+  @Test def test_dateTimeBinBCD4() { runner.runOneTest("dateTimeBinBCD4") }
+  @Test def test_dateBinInvalid() { runner.runOneTest("dateBinInvalid") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
   @Test def test_dateTimeImplicitPatternFail() { runner.runOneTest("dateTimeImplicitPatternFail") }

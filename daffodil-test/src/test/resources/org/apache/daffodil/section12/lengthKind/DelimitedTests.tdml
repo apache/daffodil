@@ -1098,7 +1098,7 @@ C</MessageHeaders>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset lengthKind='delimited' only supported for packed binary formats.</tdml:error>
+      <tdml:error>lengthKind='delimited' only supported for packed binary formats.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -51,7 +51,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
 
     val calValue = node.dataValue match {
       case dc: DFDLCalendar => dc.calendar
-      case x => Assert.invariantFailed("ConvertTextCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+      case x => Assert.invariantFailed("ConvertBinaryCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
     }
 
     // Adjust the time based on time zone - if a time zone wasn't specified, Calendar will assume the default

@@ -130,6 +130,7 @@ import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
+import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
@@ -478,9 +479,9 @@ trait ElementBaseGrammarMixin
     case PrimType.DateTime => binaryCalendarRep match {
       case BinaryCalendarRep.BinarySeconds => 32
       case BinaryCalendarRep.BinaryMilliseconds => 64
-      case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' with binaryCalendarRep='" + binaryCalendarRep + "' cannot be determined implicitly.")
+      case _ => schemaDefinitionError("Length of binary data '" + primType.name + "' with binaryCalendarRep='" + binaryCalendarRep + "' cannot be determined implicitly.")
     }
-    case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
+    case _ => schemaDefinitionError("Length of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
   /**
@@ -496,8 +497,14 @@ trait ElementBaseGrammarMixin
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
-    case LengthKind.Delimited if (binaryNumberRep == BinaryNumberRep.Binary) => subsetError("lengthKind='delimited' only supported for packed binary formats.")
-    case LengthKind.Delimited => -1 // only for packed binary data, length must be computed at runtime.
+    case LengthKind.Delimited => primType match {
+      case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+        if (binaryCalendarRep == BinaryCalendarRep.BinaryMilliseconds || binaryCalendarRep == BinaryCalendarRep.BinarySeconds)
+          SDE("lengthKind='delimited' only supported for packed binary formats.")
+        else -1 // only for packed binary data, length must be computed at runtime.
+      case _ => if (binaryNumberRep == BinaryNumberRep.Binary) SDE("lengthKind='delimited' only supported for packed binary formats.")
+        else -1 // only for packed binary data, length must be computed at runtime.
+    }
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
     case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
@@ -651,6 +658,51 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedShortPrim(this)) }
   private lazy val zonedTextUnsignedByte = prod("zonedTextUnsignedByte",
     textNumberRep == TextNumberRep.Zoned) { ConvertZonedCombinator(this, stringValue, ConvertZonedUnsignedBytePrim(this)) }
+
+
+  private lazy val bcdKnownLengthCalendar = prod("bcdKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
+    bcdDateKnownLength | bcdTimeKnownLength | bcdDateTimeKnownLength
+  }
+  private lazy val bcdRuntimeLengthCalendar = prod("bcdRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
+    bcdDateRuntimeLength | bcdTimeRuntimeLength | bcdDateTimeRuntimeLength
+  }
+  private lazy val bcdDelimitedLengthCalendar = prod("bcdDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
+    bcdDateDelimitedLength | bcdTimeDelimitedLength | bcdDateTimeDelimitedLength
+  }
+
+  // BCD calendar with known length
+  private lazy val bcdDateKnownLength = prod("bcdDateKnownLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
+  }
+  private lazy val bcdDateTimeKnownLength = prod("bcdDateTimeKnownLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
+  }
+  private lazy val bcdTimeKnownLength = prod("bcdTimeKnownLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
+  }
+
+  // BCD calendar with runtime length
+  private lazy val bcdDateRuntimeLength = prod("bcdDateRuntimeLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextDatePrim(this))
+  }
+  private lazy val bcdDateTimeRuntimeLength = prod("bcdDateTimeRuntimeLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextDateTimePrim(this))
+  }
+  private lazy val bcdTimeRuntimeLength = prod("bcdTimeRuntimeLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new BCDIntegerRuntimeLength(this), ConvertTextTimePrim(this))
+  }
+
+  // BCD calendar with delimited length
+  private lazy val bcdDateDelimitedLength = prod("bcdDateDelimitedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextDatePrim(this))
+  }
+  private lazy val bcdDateTimeDelimitedLength = prod("bcdDateTimeDelimitedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextDateTimePrim(this))
+  }
+  private lazy val bcdTimeDelimitedLength = prod("bcdTimeDelimitedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextTimePrim(this))
+  }
+
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
     standardTextDouble || zonedTextDouble
@@ -829,7 +881,19 @@ trait ElementBaseGrammarMixin
             case (_, n) => SDE("binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.", n)
           }
           case (_, BinaryCalendarRep.BinaryMilliseconds) => SDE("binaryCalendarRep='binaryMilliseconds' is not allowed with type %s", primType.name)
-          case _ => notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
+          case (_, BinaryCalendarRep.Bcd) => {
+            if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0)
+              SDE("The given length (%s bits) must be a multiple of 4 when using binaryCalendarRep='%s'.", binaryNumberKnownLengthInBits, binaryCalendarRep)
+            if (calendarPatternKind != CalendarPatternKind.Explicit)
+              SDE("calendarPatternKind must be 'explicit' when binaryCalendarRep='%s'", binaryCalendarRep)
+
+            (lengthKind, binaryNumberKnownLengthInBits) match {
+              case (LengthKind.Delimited, -1) => bcdDelimitedLengthCalendar
+              case (_, -1) => bcdRuntimeLengthCalendar
+              case (_, _) => bcdKnownLengthCalendar
+            }
+          }
+          case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
         }
       }
 
