@@ -749,4 +749,62 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="nestedSequence" elementFormDefault="unqualified">
+
+    <dfdl:format lengthKind="delimited" lengthUnits="bytes"
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
+      occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
+      representation="text" />
+
+    <dfdl:defineFormat name="listFormat">
+      <dfdl:format separator="||%NL;" separatorPosition="postfix" separatorSuppressionPolicy="trailingEmptyStrict"/>
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="parameters">
+      <dfdl:format sequenceKind="ordered" separator="|" separatorPosition="prefix" separatorSuppressionPolicy="trailingEmptyStrict"/>
+    </dfdl:defineFormat>
+
+    <xs:complexType name="listObject">
+      <xs:sequence dfdl:ref="parameters">
+        <xs:element name="param1" type="xs:string"/>
+        <xs:element name="param2" type="xs:string"/>
+        <xs:element name="param3" type="xs:string" minOccurs="0" maxOccurs="4" dfdl:occursCountKind="implicit"/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="nestedRoot">
+      <xs:complexType>
+        <xs:sequence dfdl:ref="listFormat">
+          <xs:element name="list1" type="listObject" dfdl:initiator="BEGIN"/>
+          <xs:element name="list2" type="listObject" dfdl:initiator="BEGIN"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators05" root="nestedRoot"
+    model="nestedSequence"
+    roundTrip="true">
+
+    <tdml:document><![CDATA[BEGIN|this|is||
+BEGIN|of|nested||
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:nestedRoot>
+          <list1>
+            <param1>this</param1>
+            <param2>is</param2>
+          </list1>
+          <list2>
+            <param1>of</param1>
+            <param2>nested</param2>
+          </list2>
+        </ex:nestedRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
