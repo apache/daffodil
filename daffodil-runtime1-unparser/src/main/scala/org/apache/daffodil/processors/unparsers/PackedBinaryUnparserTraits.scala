@@ -26,6 +26,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.processors.Evaluatable
+import org.apache.daffodil.dpath.NodeInfo
 
 trait PackedBinaryConversion {
   def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte]
@@ -45,7 +46,18 @@ abstract class PackedBinaryBaseUnparser(
   override def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.asInstanceOf[JNumber]
+
+    // Packed decimal calendars use the convert combinator which sets the string value of the calendar
+    //   - using dataValue would give the Calendar value rather than that string. Since the Calendar value
+    //   cannot be cast as a JNumber we need to use dataValueAsString and convert it to a JBigInteger.
+    //   With packed numbers, dataValue is already a number so just use that.
+    val nodeValue =
+      node.erd.optPrimType.get match {
+      case NodeInfo.Date | NodeInfo.DateTime | NodeInfo.Time => new JBigInteger(node.dataValueAsString)
+      case _ => node.dataValue
+    }
+
+    val value = nodeValue.asInstanceOf[JNumber]
     val dos = state.dataOutputStream
 
     val res = putNumber(dos, value, nBits, state)
