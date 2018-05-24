@@ -107,4 +107,12 @@ class TestSimpleTypesDebug {
   @Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
 
   @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
+
+  //////////////////////// DAFFODIL-1945 /////////////////////////////
+  @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
+  @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
+
+  @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
+  @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
+
 }

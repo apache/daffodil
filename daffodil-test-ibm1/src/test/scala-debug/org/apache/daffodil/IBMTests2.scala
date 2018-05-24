@@ -63,6 +63,8 @@ class IBMTestsThatThrow {
   @Test def test_simple_type_properties_bin_calendar_13_01() { runner2.runOneTest("simple_type_properties_bin_calendar_13_01") } // DFDL-99 dateTime
   @Test def test_simple_type_properties_bin_calendar_13_02() { runner2.runOneTest("simple_type_properties_bin_calendar_13_02") } // DFDL-99 dateTime
 
+  @Test def test_simple_type_properties_text_calendar_13_01() { runner2.runOneTest("simple_type_properties_text_calendar_13_01") } // DAFFODIL-1945
+
   @Test def test_sequences_separated_14_04() { runner2.runOneTest("sequences_separated_14_04") } // left over data
 
 }

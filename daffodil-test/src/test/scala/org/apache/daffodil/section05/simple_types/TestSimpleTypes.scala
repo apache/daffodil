@@ -109,9 +109,9 @@ class TestSimpleTypes {
 
   @Test def test_dateCalendarDaysInFirstWeek() { runner.runOneTest("dateCalendarDaysInFirstWeek") }
   @Test def test_dateCalendarDaysInFirstWeek2() { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
-  @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
+  //DAFFODIL-1945 @Test def test_dateCalendarDaysInFirstWeek3() { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
   @Test def test_dateCalendarDaysInFirstWeek4() { runner.runOneTest("dateCalendarDaysInFirstWeek4") }
-  @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
+  //DAFFODIL-1945 @Test def test_dateCalendarDaysInFirstWeek5() { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
 
   @Test def test_timeSymbols() { runner.runOneTest("timeSymbols") }
   @Test def test_timeSymbols2() { runner.runOneTest("timeSymbols2") }
@@ -160,8 +160,8 @@ class TestSimpleTypes {
 
   @Test def test_dateCalendarFirstDayOfWeek01() { runner.runOneTest("dateCalendarFirstDayOfWeek01") }
   @Test def test_dateCalendarFirstDayOfWeek02() { runner.runOneTest("dateCalendarFirstDayOfWeek02") }
-  @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
-  @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
+  //DAFFODIL-1945 @Test def test_dateCalendarFirstDayOfWeek03() { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
+  //DAFFODIL-1945 @Test def test_dateCalendarFirstDayOfWeek04() { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
   @Test def test_timeFractionalSeconds01() { runner.runOneTest("timeFractionalSeconds01") }
   @Test def test_dateText() { runner.runOneTest("dateText") }
   @Test def test_timeText() { runner.runOneTest("timeText") }
