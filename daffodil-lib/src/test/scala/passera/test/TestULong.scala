@@ -38,5 +38,28 @@ class TestULong {
     assertEquals(ULong.MaxValueAsBigInt, mm1.toBigInt)
     assertEquals(BigInt(Long.MinValue).abs.toString, mm1.toString)
   }
+
+  // DAFFODIL-1714
+  @Test def testULongModulus1 {
+    for (i <- 0 to 16 ) {
+      val numerator = ULong(i)
+      val denominator = ULong(8)
+      val remainder = numerator % denominator
+      assertEquals(ULong(i%8), remainder)
+    }
+  }
+
+  @Test def testULongModulus2 {
+    val mm1 = ULong(-1L)
+    val remainder = mm1 % ULong(65536)
+    assertEquals(ULong(0x0000FFFF), remainder)
+  }
+  
+  @Test def testULongModulus3 {
+    val mm1 = ULong(-1L)
+    val mm2 = ULong(-2L)
+    val remainder = mm1 % mm2
+    assertEquals(ULong(1), remainder)
+  }
   
 }
