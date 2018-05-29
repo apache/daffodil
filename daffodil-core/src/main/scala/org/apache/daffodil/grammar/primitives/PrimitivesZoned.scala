@@ -18,6 +18,7 @@
 package org.apache.daffodil.grammar.primitives
 
 import org.apache.daffodil.dsom._
+import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
 import com.ibm.icu.text.DecimalFormat
@@ -39,10 +40,13 @@ import org.apache.daffodil.processors.parsers.ConvertZonedUnsignedByteParserUnpa
 import org.apache.daffodil.processors.parsers.ConvertZonedUnsignedLongParserUnparserHelper
 import org.apache.daffodil.processors.parsers.ConvertZonedUnsignedShortParserUnparserHelper
 import org.apache.daffodil.processors.parsers.ZonedFormatFactoryBase
-import org.apache.daffodil.processors.parsers.ZonedFormatFactoryDynamic
 import org.apache.daffodil.processors.parsers.ZonedFormatFactoryStatic
 import org.apache.daffodil.processors.parsers.ConvertZonedUnsignedIntParserUnparserHelper
 import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
+import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.util.MaybeDouble
 
 case class ConvertZonedCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -60,7 +64,7 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
   def numFormatFactory: ZonedFormatFactoryBase[S] = {
     val h = helper
 
-    val (pattern, patternStripped) = {
+    val pattern = {
       val p = e.textNumberPattern
 
       val noEscapedTicksRegex = """''""".r
@@ -103,24 +107,22 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
         case ex: IllegalArgumentException => e.SDE("Invalid textNumberPattern: " + ex.getMessage())
       }
 
-      (p, patternNoQuoted)
+      p
     }
 
-    val nff = if (isConstant) {
-      new ZonedFormatFactoryStatic[S](e.termRuntimeData, h,
-        e.textNumberCheckPolicy,
-        pattern,
-        e.textNumberRounding,
-        roundingMode,
-        roundingIncrement)
-    } else {
-      new ZonedFormatFactoryDynamic[S](e.termRuntimeData, h,
-        e.textNumberCheckPolicy,
-        pattern,
-        e.textNumberRounding,
-        roundingMode,
-        roundingIncrement)
-    }
+    val (roundingIncrement: MaybeDouble, roundingMode) =
+      e.textNumberRounding match {
+        case TextNumberRounding.Explicit => (MaybeDouble(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
+        case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
+      }
+
+    val nff = new ZonedFormatFactoryStatic[S](
+      e.termRuntimeData, h,
+      e.textNumberCheckPolicy,
+      pattern,
+      e.textNumberRounding,
+      roundingMode,
+      roundingIncrement)
     nff
   }
 

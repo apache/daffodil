@@ -1281,8 +1281,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiStandardPos5() {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard)
-    assertEquals(result, "1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard), "1234567890")
+    assertEquals(result, "000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard), "000000000001234567890")
   }
 
   @Test def zonedIntAsciiStandardNeg1() {
@@ -1316,8 +1316,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiStandardNeg5() {
     val num = "pppppppppppqrstuvwxyp"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard)
-    assertEquals(result, "-1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard), "qrstuvwxyp")
+    assertEquals(result, "-000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard), num)
   }
 
   @Test def zonedIntAsciiCARealiaModifiedPos1() {
@@ -1351,8 +1351,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos5() {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified)
-    assertEquals(result, "1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified), "1234567890")
+    assertEquals(result, "000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified), "000000000001234567890")
   }
 
   @Test def zonedIntAsciiCARealiaModifiedNeg1() {
@@ -1386,8 +1386,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg5() {
     val num = "           !\"#$%&'() "
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified)
-    assertEquals(result, "-1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified), "!\"#$%&'() ")
+    assertEquals(result, "-000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified), num)
   }
 
   @Test def zonedIntAsciiTandemModifiedPos1() {
@@ -1421,8 +1421,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos5() {
     val num = "000000000001234567890"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified)
-    assertEquals(result, "1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified), "1234567890")
+    assertEquals(result, "000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified), num)
   }
 
   @Test def zonedIntAsciiTandemModifiedNeg1() {
@@ -1456,8 +1456,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg5() {
     val num = ""
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified)
-    assertEquals(result, "-1234567890")
-    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified), "")
+    assertEquals(result, "-000000000001234567890")
+    assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified), num)
   }
 
 }

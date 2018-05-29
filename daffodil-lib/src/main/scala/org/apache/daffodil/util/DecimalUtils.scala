@@ -426,7 +426,7 @@ object DecimalUtils {
 
       if ((digit < 0) && !negative) {
         negative = true
-        decodedValue.append('-')
+        decodedValue.insert(0, '-')
       }
 
       decodedValue.append(java.lang.Math.abs(digit))
@@ -436,19 +436,19 @@ object DecimalUtils {
   }
 
   def zonedFromNumber(num: String, zonedStyle: TextZonedSignStyle): String = {
-    val negative = (num.charAt(0) == '-')
-    val inChars = negative match {
-      case true => num.substring(0).toCharArray
-      case false => num.toCharArray
+    val positive = (num.charAt(0) != '-')
+    val inChars = positive match {
+      case true => num.toCharArray
+      case false => num.substring(1).toCharArray
     }
     val encodedValue = new StringBuilder()
 
     for (char <- inChars) {
       val digit = zonedStyle match {
-        case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, negative)
-        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, negative)
-        case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, negative)
-        case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(char, negative)
+        case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(char, positive)
+        case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(char, positive)
+        case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(char, positive)
+        case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(char, positive)
       }
 
       encodedValue.append(digit)
