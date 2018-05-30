@@ -19,6 +19,7 @@ daffodil-test/errors
 errors
 project/errors
 .~*#
+testData_OnClassPath
 daffodil-core/src/main/daffodil-core.iml
 daffodil-core/src/test/Test1.iml
 daffodil-lib/src/main/daffodil-lib.iml

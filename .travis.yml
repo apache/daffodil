@@ -39,3 +39,4 @@ script:
     daffodil-cli/rpm:packageBin
     daffodil-japi/genjavadoc:doc
     daffodil-sapi/doc
+    ratCheck

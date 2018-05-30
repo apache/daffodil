@@ -53,6 +53,14 @@ $ sbt daffodil-cli/stage
 
 The above will create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
 
+To run the Apache RAT checks:
+
+```bash
+$ sbt ratCheck
+```
+
+This will generate a RAT report in ``target/rat.txt`` and will error if any unapproved licenses are found.
+
 ### Debugging CLI Tests in Eclipse
 
 The CLI tests in daffodil-cli execute a daffodil script to perform tests.
