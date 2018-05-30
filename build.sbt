@@ -25,7 +25,7 @@ lazy val IntegrationTestDebug = config("debugIt") extend(Test)
 
 lazy val daffodil         = Project("daffodil", file(".")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
                               .aggregate(macroLib, propgen, lib, io, runtime1, runtime1Unparser, core, japi, sapi, tdml, cli, test, testIBM1, tutorials, testStdLayout)
-                              .settings(commonSettings, nopublish)
+                              .settings(commonSettings, nopublish, ratSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest, TestDebug, IntegrationTestDebug)
                               .settings(commonSettings, nopublish)
@@ -221,3 +221,18 @@ lazy val libManagedSettings = Seq(
   sourceGenerators in Compile += (genProps in Compile).taskValue,
   resourceGenerators in Compile += (genSchemas in Compile).taskValue
 )
+
+lazy val ratSettings = Seq(
+  ratLicenses := Seq(
+    ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA),
+    ("BSD3 ", Rat.BSD3_LICENSE_NAME, Rat.LICENSE_TEXT_SCALA)
+  ),
+
+  ratLicenseFamilies := Seq(
+    Rat.BSD3_LICENSE_NAME,
+    Rat.BSD2_LICENSE_NAME
+  ),
+
+  ratExcludes := Rat.excludes
+)
+

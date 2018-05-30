@@ -32,8 +32,8 @@ packageName in Linux := executableScriptName.value
 packageName in Rpm := "apache-" + executableScriptName.value
 
 mappings in Universal ++= Seq(
-  baseDirectory.value / "LICENSE-bin" -> "LICENSE",
-  baseDirectory.value / "NOTICE-bin" -> "NOTICE",
+  baseDirectory.value / "bin.LICENSE" -> "LICENSE",
+  baseDirectory.value / "bin.NOTICE" -> "NOTICE",
   baseDirectory.value / ".." / "DISCLAIMER" -> "DISCLAIMER",
   baseDirectory.value / "README.md" -> "README.md",
 )

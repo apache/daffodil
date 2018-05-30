@@ -256,7 +256,7 @@ abstract class CatalogTestBase {
   System.err.println("cd = " + cdpath)
   val testCPDirPath =
     if (cdpath.endsWith("daffodil-test/.")) "testData_OnClassPath"
-    else if (cdpath.endsWith("daffodil/.")) "daffodil-test/testData_OnClassPath"
+    else if ((new File(cdpath, "daffodil-test" )).isDirectory) "daffodil-test/testData_OnClassPath"
     else {
       System.err.println("Can't run catalog tests because we are not in a directory where they are runnable.")
       ""
@@ -313,7 +313,6 @@ catalogs=testData_OnClassPath/testCatalog.xml
       try {
         System.err.println("Creating test directory " + testCPDir.getAbsolutePath())
         testCPDir.mkdir()
-        testCPDir.deleteOnExit()
       } catch {
         case e: SecurityException => {
           System.err.println("Required test directory does not exist, and cannot be created.")
@@ -321,11 +320,6 @@ catalogs=testData_OnClassPath/testCatalog.xml
         }
       }
     }
-
-    tmpSchemaFileName.deleteOnExit()
-    tmpDataFileName.deleteOnExit()
-    tmpCatalogFileName.deleteOnExit()
-    tmpCatalogManagerPropFile.deleteOnExit()
 
     using(new java.io.FileWriter(tmpSchemaFileName)) {
       fw =>
@@ -344,37 +338,45 @@ catalogs=testData_OnClassPath/testCatalog.xml
         fw.write(testData.toString())
     }
 
-    // At this point, these files should be on the classpath.
-    // Let's make sure by trying to retrieve one as a resource.
-    Misc.getResourceOption("/CatalogManager.properties") match {
-      case (Some(res), path) => // ok. It exists.
-      case (None, path) => {
-        System.err.println("Unable to get required resource: " + path + " from the classpath.")
-        return false
+    try {
+      // At this point, these files should be on the classpath.
+      // Let's make sure by trying to retrieve one as a resource.
+      Misc.getResourceOption("/CatalogManager.properties") match {
+        case (Some(res), path) => // ok. It exists.
+        case (None, path) => {
+          System.err.println("Unable to get required resource: " + path + " from the classpath.")
+          return false
+        }
       }
+
+      val loader = new DaffodilXMLLoader(new org.xml.sax.ErrorHandler {
+
+        def warning(exception: SAXParseException) = {
+          exceptionList = exception :: exceptionList
+          System.err.println("Warning " + exception.getMessage())
+        }
+
+        def error(exception: SAXParseException) = {
+          exceptionList = exception :: exceptionList
+          System.err.println("Error: " + exception.getMessage())
+        }
+        def fatalError(exception: SAXParseException) = {
+          exceptionList = exception :: exceptionList
+          System.err.println("Fatal: " + exception.getMessage())
+        }
+      })
+
+      val src = new URISchemaSource(tmpDataFileName.toURI)
+      // val elem = 
+        loader.load(src) // that should validate it.
+      // println(elem)
+      true // returned to indicate that things worked
+    } finally {
+      tmpSchemaFileName.delete()
+      tmpDataFileName.delete()
+      tmpCatalogFileName.delete()
+      tmpCatalogManagerPropFile.delete()
+      testCPDir.delete()
     }
-
-    val loader = new DaffodilXMLLoader(new org.xml.sax.ErrorHandler {
-
-      def warning(exception: SAXParseException) = {
-        exceptionList = exception :: exceptionList
-        System.err.println("Warning " + exception.getMessage())
-      }
-
-      def error(exception: SAXParseException) = {
-        exceptionList = exception :: exceptionList
-        System.err.println("Error: " + exception.getMessage())
-      }
-      def fatalError(exception: SAXParseException) = {
-        exceptionList = exception :: exceptionList
-        System.err.println("Fatal: " + exception.getMessage())
-      }
-    })
-
-    val src = new URISchemaSource(tmpDataFileName.toURI)
-    // val elem = 
-      loader.load(src) // that should validate it.
-    // println(elem)
-    true // returned to indicate that things worked
   }
 }
