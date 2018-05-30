@@ -27,6 +27,7 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.equality._
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends CombinatorUnparser(rd) {
@@ -46,7 +47,7 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   }
 }
 
-class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
+sealed abstract class OrderedSequenceUnparserBase(ctxt: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
   extends CombinatorUnparser(ctxt)
   with ToBriefXMLImpl {
 
@@ -61,55 +62,88 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ve
   // Since some of the grammar terms might have folded away to EmptyGram,
   // the number of unparsers here may be different from the number of
   // children of the sequence group.
-  Assert.invariant(ctxt.groupMembers.length >= childUnparsers.length)
+  Assert.invariant(ctxt.groupMembers.length >= childUnparsers.length - 1) // minus 1 for the separator unparser
 
   override lazy val childProcessors: Seq[Processor] = childUnparsers
 
   def unparse(start: UState): Unit = {
 
     start.groupIndexStack.push(1L) // one-based indexing
+    unparseChildren(start)
+    start.groupIndexStack.pop()
+    //
+    // this is establishing the invariant that unparsers (in this case the sequence unparser)
+    // moves over within its containing group. The caller of an unparser does not do this move.
+    //
+    start.moveOverOneGroupIndexOnly()
+  }
+
+  protected def unparseChildren(start: UState): Unit
+
+  protected final def shouldDoUnparser(childRD: RuntimeData, start: UState): Boolean = {
+    childRD match {
+      case erd: ElementRuntimeData if !erd.isRequired => {
+        // it's not a required element, so we check to see if we have a matching
+        // incoming infoset event
+        if (start.inspect) {
+          val ev = start.inspectAccessor
+          if (ev.isStart) {
+            val eventNQN = ev.node.namedQName
+            if (eventNQN =:= erd.namedQName) {
+              true
+            } else {
+              false // event not a start for this element
+            }
+          } else if (ev.isEnd && ev.isComplex) {
+            val c = ev.asComplex
+            //ok. We've peeked ahead and found the end of the complex element
+            //that this sequence is the model group of.
+            val optParentRD = ctxt.immediateEnclosingElementRuntimeData
+            optParentRD match {
+              case Some(e: ElementRuntimeData) => {
+                Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
+                false
+              }
+              case _ =>
+                Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
+                  ev, optParentRD))
+            }
+          } else {
+            Assert.invariantFailed("Not a start event: " + ev)
+          }
+        } else {
+          // was no element, so no unparse
+          false
+        }
+      }
+      case _ => {
+        // since only elements can be optional, anything else is non-optional
+        true
+      }
+    }
+  }
+}
+
+/*
+ * Temporarily these next two classes are identical, but as we break out the separator
+ * functionality from being built into the child unparsers, these will diverge.
+ * The unseparated variant will stay like it is, but the separated one should be
+ * distinct.
+ */
+class OrderedUnseparatedSequenceUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Vector[Unparser])
+  extends OrderedSequenceUnparserBase(ctxt, childUnparsers) {
+
+  protected def unparseChildren(start: UState): Unit = {
 
     var index = 0
     var doUnparser = false
     val limit = childUnparsers.length
     while (index < limit) {
-      doUnparser = false
       val childUnparser = childUnparsers(index)
       val childRD = childUnparser.context
 
-      childRD match {
-        case erd: ElementRuntimeData if !erd.isRequired => {
-          // it's not a required element, so we check to see if we have a matching
-          // incoming infoset event
-          if (start.inspect) {
-            val ev = start.inspectAccessor
-            if (ev.isStart) {
-              val eventNQN = ev.node.namedQName
-              if (eventNQN =:= erd.namedQName) {
-                doUnparser = true
-              }
-            } else if (ev.isEnd && ev.isComplex) {
-              val c = ev.asComplex
-              //ok. We've peeked ahead and found the end of the complex element
-              //that this sequence is the model group of.
-              val optParentRD = ctxt.immediateEnclosingElementRuntimeData
-              optParentRD match {
-                case Some(e: ElementRuntimeData) =>
-                  Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
-                case _ =>
-                  Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
-                    ev, optParentRD))
-              }
-            } else {
-              Assert.invariantFailed("Not a start event: " + ev)
-            }
-          }
-        }
-        case _ => {
-          // since only elements can be optional, anything else is non-optional
-          doUnparser = true
-        }
-      }
+      doUnparser = shouldDoUnparser(childRD, start)
+
       if (doUnparser) {
         childUnparser.unparse1(start)
       }
@@ -119,12 +153,56 @@ class SequenceCombinatorUnparser(ctxt: ModelGroupRuntimeData, childUnparsers: Ve
       // we do not do the moving over here as we are the caller of the unparser.
       //
     }
-    start.groupIndexStack.pop()
-    //
-    // this is establishing the invariant that unparsers (in this case the sequence unparser)
-    // moves over within its containing group. The caller of an unparser does not do this move.
-    //
-    start.moveOverOneGroupIndexOnly()
+  }
+}
+
+class OrderedSeparatedSequenceUnparser(ctxt: ModelGroupRuntimeData,
+  spos: SeparatorPosition,
+  sep: Unparser,
+  childUnparserPairs: Vector[(TermRuntimeData, Unparser)])
+  extends OrderedSequenceUnparserBase(ctxt, sep +: childUnparserPairs.map { _._2 }) {
+
+  private val childUnparsers = childUnparserPairs.map { _._2 }
+
+  protected def unparseChildren(start: UState): Unit = {
+
+    var prefixDone = false
+    var atLeastOneUnparsed = false
+
+    var index = 0
+    var doUnparser = false
+
+    val limit = childUnparsers.length
+    while (index < limit) {
+      val pair = childUnparserPairs(index)
+      val trd = pair._1
+      val childUnparser = pair._2
+      val childRD = childUnparser.context
+      doUnparser = shouldDoUnparser(childRD, start)
+
+      if (doUnparser) {
+        // unparse prefix sep if any
+        if ((spos eq SeparatorPosition.Prefix) && !prefixDone && trd.isRepresented) {
+          prefixDone = true
+          sep.unparse1(start)
+        }
+        // except for the first position of the group, unparse an infix separator
+        if (index != 0 && trd.isRequiredScalar && trd.isRepresented) {
+          sep.unparse1(start)
+        }
+        childUnparser.unparse1(start)
+        if (trd.isRepresented)
+          atLeastOneUnparsed = true
+      }
+      index += 1
+      if (index == limit && (spos eq SeparatorPosition.Postfix) && atLeastOneUnparsed) {
+        sep.unparse1(start)
+      }
+      //
+      // Note: the invariant is that unparsers move over 1 within their group themselves
+      // we do not do the moving over here as we are the caller of the unparser.
+      //
+    }
   }
 }
 

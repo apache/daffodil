@@ -196,11 +196,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     val interesting = parser match {
       case _: ComplexTypeParser => false
       case _: SeqCompParser => false
-      case _: SequenceCombinatorParser => false
       case _: AltCompParser => false
       case _: RepParser => false
       case _: OptionalInfixSepParser => false
       case _: ConvertTextCombinatorParser => false
+      case _: CombinatorParser => false
       case _ => true
     }
     interesting

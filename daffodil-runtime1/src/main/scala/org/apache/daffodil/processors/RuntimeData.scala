@@ -129,6 +129,9 @@ sealed abstract class TermRuntimeData(
     case _ => false
   }
 
+  def isRequiredScalar: Boolean
+  def isArray: Boolean
+
   /**
    * At some point TermRuntimeData is a ResolvesQNames which requires tunables:
    *
@@ -659,6 +662,8 @@ final class ElementRuntimeData(
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
+  override def isRequiredScalar = !isArray && isRequired
+
   lazy val parent = parentArg
   lazy val parentTerm = parentTermArg
   lazy val children = childrenArg
@@ -683,7 +688,7 @@ final class ElementRuntimeData(
   lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
   lazy val isHidden = isHiddenArg
   lazy val isNillable = isNillableArg
-  lazy val isArray = isArrayArg
+  override lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
   lazy val isRequired = isRequiredArg
   lazy val namedQName = namedQNameArg
@@ -788,6 +793,9 @@ sealed abstract class ModelGroupRuntimeData(
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
+
+  final override def isRequiredScalar = true
+  final override def isArray = false
 
   lazy val variableMap = variableMapArg
   lazy val encInfo = encInfoArg

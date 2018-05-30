@@ -23,13 +23,15 @@ import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.processors.parsers.ComplexTypeParser
-import org.apache.daffodil.processors.parsers.SequenceCombinatorParser
+import org.apache.daffodil.processors.parsers.OrderedUnseparatedSequenceParser
+import org.apache.daffodil.processors.parsers.OrderedSeparatedSequenceParser
 import org.apache.daffodil.processors.parsers.ChoiceCombinatorParser
 import org.apache.daffodil.processors.parsers.ChoiceDispatchCombinatorParser
 import org.apache.daffodil.processors.parsers.ArrayCombinatorParser
 import org.apache.daffodil.processors.parsers.OptionalCombinatorParser
 import org.apache.daffodil.processors.unparsers.ComplexTypeUnparser
-import org.apache.daffodil.processors.unparsers.SequenceCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.OrderedUnseparatedSequenceUnparser
+import org.apache.daffodil.processors.unparsers.OrderedSeparatedSequenceUnparser
 import org.apache.daffodil.processors.unparsers.ChoiceCombinatorUnparser
 import org.apache.daffodil.processors.unparsers.HiddenChoiceCombinatorUnparser
 import org.apache.daffodil.processors.parsers.DelimiterStackParser
@@ -124,30 +126,74 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
     new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
-case class SequenceCombinator(sq: SequenceTermBase, rawTerms: Seq[Gram])
-  extends Terminal(sq, true) {
+sealed abstract class OrderedSequenceBase(sq: SequenceTermBase, rawTerms: Seq[Term])
+  extends Terminal(sq, rawTerms.length > 0) {
 
-  lazy val terms = rawTerms.filterNot { _.isEmpty }
-  
-  override lazy val isEmpty = terms.isEmpty
+  private lazy val allInOneTerms = rawTerms.filterNot { _.termContentBody.isEmpty }
+
+  // if all the body terms are empty, this causes this whole combinator to
+  // optimize away.
+  override final lazy val isEmpty = allInOneTerms.isEmpty
+
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
-      terms.map { _.toString() }.mkString +
+      rawTerms.map { _.toString() }.mkString +
       "</" + Misc.getNameFromClass(this) + ">"
 
-  lazy val parsers = terms.map { term =>
-    term.parser
+  protected lazy val parserPairs = allInOneTerms.map { term =>
+    val isNotRequired = !term.isRequired
+    val gram = term match {
+      case e: ElementBase if isNotRequired || term.isArray => e.recurrance
+      case e: ElementBase => e.enclosedElement
+      case _ => term.termContentBody
+    }
+    (term.termRuntimeData, gram.parser)
   }.toVector
 
-  lazy val unparsers = terms.map { term =>
-    term.unparser
+  protected lazy val unparserPairs = allInOneTerms.map { term =>
+    val isNotRequired = !term.isRequired
+    val gram = term match {
+      case e: ElementBase if isNotRequired || term.isArray => e.recurrance
+      case e: ElementBase => e.enclosedElement
+      case _ => term.termContentBody
+    }
+    (term.termRuntimeData, gram.unparser)
   }.toVector
 
-  lazy val parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, sq.separatorSuppressionPolicy, parsers)
+  protected lazy val parsers = allInOneTerms.map { term =>
+    term.termContentBody.parser
+  }.toVector
+
+  protected lazy val unparsers = allInOneTerms.map { term =>
+    term.termContentBody.unparser
+  }.toVector
+
+}
+
+case class OrderedUnseparatedSequence(sq: SequenceTermBase, rawTerms: Seq[Term])
+  extends OrderedSequenceBase(sq, rawTerms) {
+
+  lazy val parser: DaffodilParser =
+    new OrderedUnseparatedSequenceParser(sq.termRuntimeData, parsers)
 
   override lazy val unparser: DaffodilUnparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC
-    new SequenceCombinatorUnparser(sq.modelGroupRuntimeData, unparsers)
+    new OrderedUnseparatedSequenceUnparser(sq.modelGroupRuntimeData, unparsers)
+  }
+}
+
+case class OrderedSeparatedSequence(sq: SequenceTermBase, rawTerms: Seq[Term])
+  extends OrderedSequenceBase(sq, rawTerms) {
+
+  lazy val parser: DaffodilParser = {
+    new OrderedSeparatedSequenceParser(sq.termRuntimeData, sq.separatorSuppressionPolicy,
+      sq.separatorPosition, sq.sequenceSeparator.parser, parserPairs)
+  }
+
+  override lazy val unparser: DaffodilUnparser = {
+    sq.checkHiddenSequenceIsDefaultableOrOVC
+    new OrderedSeparatedSequenceUnparser(sq.modelGroupRuntimeData, sq.separatorPosition,
+      sq.sequenceSeparator.unparser, unparserPairs)
   }
 }
 

@@ -274,8 +274,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         state.setFailed(e)
       }
       case us: UnsuppressableException => throw us
-      case x: Throwable =>
-        Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
+      //      case x: Throwable =>
+      //        Assert.invariantFailed("Runtime.scala - Leaked exception: " + x)
     }
 
     state.dataInputStream.validateFinalStreamState

@@ -25,11 +25,16 @@ import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.Failure
+import java.io.StringWriter
+import org.apache.daffodil.exceptions.UnsuppressableException
+import java.io.PrintWriter
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -123,7 +128,7 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: TermRuntimeData, ssp: SeparatorSuppressionPolicy, childParsers: Vector[Parser])
+sealed abstract class OrderedSequenceParserBase(rd: TermRuntimeData, childParsers: Vector[Parser])
   extends CombinatorParser(rd) {
   override def nom = "Sequence"
 
@@ -131,39 +136,195 @@ class SequenceCombinatorParser(rd: TermRuntimeData, ssp: SeparatorSuppressionPol
 
   override lazy val childProcessors = childParsers.toSeq
 
-  val numChildParsers = childParsers.size
-
   def createDiagnostic(start: PState) = {}
+}
+
+class OrderedUnseparatedSequenceParser(rd: TermRuntimeData, childParsers: Vector[Parser])
+  extends OrderedSequenceParserBase(rd, childParsers) {
 
   def parse(start: PState): Unit = {
     var i = 0
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
 
-    while ((i < numChildParsers) && (start.processorStatus eq Success)) {
+    while ((i < childParsers.size) && (start.processorStatus eq Success)) {
       val parser = childParsers(i)
-      val prevBitPos = start.bitPos0b
 
       parser.parse1(start)
 
-      start.mpstate.wasLastArrayElementZeroLength = (prevBitPos == start.bitPos0b)
-      if (!start.mpstate.wasAnyArrayElementNonZeroLength)
-        start.mpstate.wasAnyArrayElementNonZeroLength = !start.mpstate.wasLastArrayElementZeroLength
       i += 1
     }
 
-    val diag = (ssp, start.mpstate.wasLastArrayElementZeroLength) match {
-      case (SeparatorSuppressionPolicy.Never, _) => Maybe.Nope
-      case (SeparatorSuppressionPolicy.TrailingEmpty, _) => Maybe.Nope
-      case (SeparatorSuppressionPolicy.TrailingEmptyStrict, true) => Maybe(new ParseError(One(context.schemaFileLocation), One(start.currentLocation), "Empty trailing elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'"))
-      case (SeparatorSuppressionPolicy.TrailingEmptyStrict, false) => Maybe.Nope
-      case (SeparatorSuppressionPolicy.AnyEmpty, _) => Maybe.Nope
-    }
-
-    if (!diag.isEmpty)
-      start.setFailed(diag.get)
-
     start.mpstate.groupIndexStack.pop()
     start.mpstate.moveOverOneGroupIndexOnly()
+    ()
+  }
+}
+
+class OrderedSeparatedSequenceParser(rd: TermRuntimeData,
+  ssp: SeparatorSuppressionPolicy,
+  spos: SeparatorPosition,
+  sep: Parser,
+  childPairs: Vector[(TermRuntimeData, Parser)])
+  extends OrderedSequenceParserBase(rd, sep +: childPairs.map { _._2 }) {
+
+  def parse(initialState: PState): Unit = {
+    var index = 0
+    initialState.mpstate.groupIndexStack.push(1L) // one-based indexing
+
+    val pstate = initialState
+
+    var prefixDone = false
+    var atLeastOneParsed = false
+    var priorState: PState.Mark = null
+    var markLeakCausedByException = false
+
+    val limit = childPairs.size
+
+    var wasLastChildZeroLength = false
+
+    while ((index < limit) && (pstate.processorStatus eq Success)) {
+      val pair = childPairs(index)
+      val trd = pair._1
+      val parser = pair._2
+      val prevBitPos = pstate.bitPos0b
+
+      try {
+        priorState = pstate.mark("OrderedSeparatedSequence_beforeSeparator")
+
+        // parse prefix sep if any
+        if ((spos eq SeparatorPosition.Prefix) && !prefixDone && trd.isRepresented) {
+          sep.parse1(pstate)
+          prefixDone = true
+        }
+
+        // except for the first position of the group, parse an infix separator
+        // but only for required scalars. Arrays and optionals take care of their
+        // own infix separator.
+
+        if ((spos eq SeparatorPosition.Infix) && index != 0 && trd.isRequiredScalar && trd.isRepresented) {
+          sep.parse1(pstate)
+        }
+
+        val sepSuccessful = pstate.processorStatus eq Success // true on succcess, and true if we didn't parse a separator
+
+        // if that was successful, then parse child term.
+        // If the child is an array, it takes care of its own infix separators
+
+        if (sepSuccessful) {
+          val childIndexBefore = pstate.childPos
+          parser.parse1(pstate)
+          val childIndexAfter = pstate.childPos
+
+          val childSuccessful = pstate.processorStatus eq Success
+
+          // This tells us if it was array or optional and 1 or more occurrences
+          // were found. If so then it's a true successful parse and we'll keep
+          // the parse of the separator we just did above.
+          //
+          // If no occurrences at all, then we'll backtrack the separator we parsed
+          // above.
+          val isAtLeast1Occurence = trd.isRequiredScalar || (childIndexAfter > childIndexBefore)
+
+          if (childSuccessful && isAtLeast1Occurence) {
+            pstate.discard(priorState) // we're keeping the separator. Don't need priorState any more.
+            priorState = null
+            if (trd.isRepresented) {
+              atLeastOneParsed = true // flag to tell us we'll need a postix separator if postfix mode
+
+              //
+              // trailingEmptyStrict - we keep track of the last child, if it was zero length
+              //
+              if ((ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict)) {
+                wasLastChildZeroLength = (prevBitPos == pstate.bitPos0b)
+              }
+            }
+
+          } else {
+            //
+            // Failed to parse the child, due to real failure, or
+            // Success, but where an array/optional found zero occurrences.
+            //
+            // However, for a scalar required element, we parsed a separator above.
+            // (except for first in group when we only parsed one if a prefix sep is needed.
+            // but that exception won't affect the logic here.)
+            // Subsequently the parse of the term after the separator failed
+            //
+            // If the term was an array or optional element, then it will
+            // have backed out its own separator parse.
+            // But for a scalar required element, we have to back out the
+            // separator here.
+            //
+            // It doesn't hurt to just always back out to the state before the
+            // separator above.
+            //
+            pstate.processorStatus match {
+              case Success => {
+                Assert.invariant(!trd.isRequiredScalar)
+                pstate.reset(priorState)
+                priorState = null
+              }
+              case f: Failure => {
+                val cause = f.cause
+                pstate.reset(priorState)
+                priorState = null
+                PE(pstate, "Failed to parse sequence child. Cause: %s.", cause)
+              }
+            }
+          } // end success/fail of child parse
+
+          // so parse postfix separator if in postfix mode
+
+          if ((pstate.processorStatus eq Success) &&
+            (spos eq SeparatorPosition.Postfix) &&
+            atLeastOneParsed) {
+            sep.parse1(pstate)
+          }
+        } else {
+          // failed to parse infix separator for required scalar
+          val cause = pstate.processorStatus.asInstanceOf[Failure].cause
+          pstate.reset(priorState)
+          priorState = null
+          PE(pstate, "Failed to parse separator. Cause: %s.", cause)
+        } // end success/fail of separator-before-child parse
+        index += 1
+      } catch {
+        // Similar try/catch/finally logic for returning marks is also used in
+        // the AltCompParser and RepUnboundedParser. The logic isn't
+        // easily factored out so it is duplicated. Changes made here should also
+        // be made there. Only these parsers deal with taking marks, so this logic
+        // should not be needed elsewhere.
+        case t: Throwable => {
+          if (priorState != null) {
+            markLeakCausedByException = true
+            if (!t.isInstanceOf[SchemaDefinitionDiagnosticBase] && !t.isInstanceOf[UnsuppressableException]) {
+              val stackTrace = new StringWriter()
+              t.printStackTrace(new PrintWriter(stackTrace))
+              Assert.invariantFailed("Exception thrown with mark not returned: " + t + "\nStackTrace:\n" + stackTrace)
+            }
+          }
+          throw t
+        }
+      } finally {
+        var markLeak = false;
+        if (priorState != null) {
+          initialState.discard(priorState)
+          markLeak = true;
+        }
+        if (markLeak && !markLeakCausedByException) {
+          // likely a logic bug, throw assertion
+          Assert.invariantFailed("mark not returned, likely a logic bug")
+        }
+      } // end try/catch/finally
+    } // end while
+
+    Assert.invariant(priorState eq null)
+
+    if ((pstate.processorStatus eq Success) && wasLastChildZeroLength) {
+      Assert.invariant(ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict)
+      PE(pstate, "Empty trailing elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'")
+    }
+    pstate.mpstate.groupIndexStack.pop()
+    pstate.mpstate.moveOverOneGroupIndexOnly()
     ()
   }
 }

@@ -157,8 +157,10 @@ case class Initiator(e: Term) extends DelimiterText(e, e) {
   Assert.invariant(e.hasInitiator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
-case class Separator(s: SequenceTermBase, t: Term) extends DelimiterText(s, t) {
-  Assert.invariant(s.hasSeparator)
+case class ArrayElementSeparator(s: SequenceTermBase, t: Term) extends DelimiterText(s, t, s.hasSeparator) {
+  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
+}
+case class SequenceSeparator(s: SequenceTermBase) extends DelimiterText(s, s, s.hasSeparator) {
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
 }
 case class Terminator(e: Term) extends DelimiterText(e, e) {

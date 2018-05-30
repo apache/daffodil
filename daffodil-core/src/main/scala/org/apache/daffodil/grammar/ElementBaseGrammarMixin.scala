@@ -299,10 +299,10 @@ trait ElementBaseGrammarMixin
       ((lengthKind eq LengthKind.Implicit) ||
         ((lengthKind eq LengthKind.Explicit) &&
           lengthEv.optConstant.isDefined)) // TODO: consider if delimiters matter, alignment, nil values,.... Are we excluding
-          // that stuff here? For example, if the element is nillable, but
-          // if isNilled, the representation will still be exactly the same
-          // length, then we'd like this to be true.
-          ) ||
+    // that stuff here? For example, if the element is nillable, but
+    // if isNilled, the representation will still be exactly the same
+    // length, then we'd like this to be true.
+    ) ||
           (
             // a fixed-length textual number, where a legal value
             // (or nil value) must by definition be smaller than the
@@ -329,7 +329,7 @@ trait ElementBaseGrammarMixin
             // for the largest possible textNumber matching the pattern.
             //
             false // TODO: implement this
-            ) ||
+          ) ||
             (isComplexType && !isNillable &&
               (
                 //
@@ -339,7 +339,7 @@ trait ElementBaseGrammarMixin
                 // alignment regions.
                 //
                 false // TODO: implement this
-                ))
+              ))
   }
 
   /**
@@ -971,9 +971,9 @@ trait ElementBaseGrammarMixin
     SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
   }
 
-  //  private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
-  //    SimpleEmptyOrValue(this, empty, parsedValue)
-  //  }
+  //    private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
+  //      SimpleEmptyOrValue(this, empty, parsedValue)
+  //    }
 
   private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
     parsedValue
@@ -1067,7 +1067,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val elementRightFraming = prod("elementRightFraming") { TrailingSkipRegion(this) }
 
-  protected lazy val enclosedElement = prod("enclosedElement") {
+  lazy val enclosedElement = prod("enclosedElement") {
     //
     // not isScalar, because this is reused inside arrays
     // that is, we're counting on reusuing this production for array elements
