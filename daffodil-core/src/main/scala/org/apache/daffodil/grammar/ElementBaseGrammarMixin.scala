@@ -89,7 +89,6 @@ import org.apache.daffodil.grammar.primitives.LiteralCharacterNilOfSpecifiedLeng
 import org.apache.daffodil.grammar.primitives.LiteralNilDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
 import org.apache.daffodil.grammar.primitives.LogicalNilValue
-import org.apache.daffodil.grammar.primitives.NilLiteralCharacter
 import org.apache.daffodil.grammar.primitives.OVCRetry
 import org.apache.daffodil.grammar.primitives.OnlyPadding
 import org.apache.daffodil.grammar.primitives.PackedDecimalDelimitedEndOfData
@@ -128,6 +127,7 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.grammar.primitives.ComplexTypeCombinator
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -400,18 +400,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val rightFill = new RightFill(context)
 
-  // maybe can be private - if it is used still
-  protected lazy val elementUnused = new ElementUnused(context)
-
-  /**
-   * provided by ElementBase for array considerations, and GlobalElementDecl - scalar only
-   */
-  protected def allowedValue: Gram
-  //
-  // This silly redundancy where the variable name has to also be passed as a string,
-  // is, by the way, a good reason Scala needs real Lisp-style macros, that can take an argument and
-  // turn it into a type/class, object, def, or val/var name, as well as a string, etc.
-  //
+  private lazy val elementUnused = new ElementUnused(context)
 
   private lazy val parsedNil = prod("parsedNil", NYI && isNillable && nilKind == NilKind.LogicalValue) {
     nilElementInitiator ~
@@ -435,7 +424,7 @@ trait ElementBaseGrammarMixin
   private lazy val parsedValue = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
-      captureLengthRegions(leftPadding, ovcRetry(allowedValue), rightPadding ~ rightFill) ~
+      captureLengthRegions(leftPadding, ovcRetry(value), rightPadding ~ rightFill) ~
       terminatorRegion
   }
 
@@ -511,7 +500,6 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val stringDelimitedEndOfData = prod("stringDelimitedEndOfData") { StringDelimitedEndOfData(this) }
-  //  private lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
 
   private lazy val stringValue = prod("stringValue") { stringPrim }
 
@@ -787,13 +775,13 @@ trait ElementBaseGrammarMixin
         (primType, binaryCalendarRep) match {
           case (PrimType.DateTime, BinaryCalendarRep.BinarySeconds) => (lengthUnits, binaryNumberKnownLengthInBits) match {
             case (LengthUnits.Bytes, 32) => new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
-            case (_, 32)  => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binarySeconds'")
+            case (_, 32) => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binarySeconds'")
             case (_, n) => SDE("binary xs:dateTime must be 32 bits when binaryCalendarRep='binarySeconds'. Length in bits was %s.", n)
           }
           case (_, BinaryCalendarRep.BinarySeconds) => SDE("binaryCalendarRep='binarySeconds' is not allowed with type %s", primType.name)
           case (PrimType.DateTime, BinaryCalendarRep.BinaryMilliseconds) => (lengthUnits, binaryNumberKnownLengthInBits) match {
             case (LengthUnits.Bytes, 64) => new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
-            case (_, 64)  => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binaryMilliseconds'")
+            case (_, 64) => SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binaryMilliseconds'")
             case (_, n) => SDE("binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.", n)
           }
           case (_, BinaryCalendarRep.BinaryMilliseconds) => SDE("binaryCalendarRep='binaryMilliseconds' is not allowed with type %s", primType.name)
@@ -840,41 +828,14 @@ trait ElementBaseGrammarMixin
 
   protected final lazy val empty = prod("empty", NYI && emptyIsAnObservableConcept) { EmptyGram }
 
-  //  private lazy val emptyRepresentation = prod("emptyRepresentation") {
-  //    simpleOrNonImplicitComplexEmpty | complexImplicitEmpty
-  //  }
-
-  //  private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
-  //    isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
-  //      emptyElementInitiator ~
-  //        valueMTA ~
-  //        captureLengthRegions(EmptyGram, EmptyGram, EmptyGram) ~
-  //        emptyElementTerminator
-  //    }
-  //
-  //  /**
-  //   * This is about the case where we take an empty, parse a complex type recursively from it
-  //   * and potentially succeed.
-  //   */
-  //  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty",
-  //    isComplexType && lengthKind == LengthKind.Implicit) {
-  //      SaveInputStream(this) ~ SetEmptyInputStream(this) ~ complexType.mainGrammar ~
-  //        RestoreInputStream(this) ~ emptyElementTerminator
-  //    }
-
-  //  private lazy val emptyDefaulted = prod("emptyDefaulted",
-  //    isDefaultable && emptyIsAnObservableConcept) {
-  //      empty ~ TheDefaultValue(this)
-  //    }
-
-  private lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { delimMTA ~ Initiator(this) }
-  private lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { delimMTA ~ Terminator(this) }
+  private lazy val nilElementInitiator = prod("nilElementInitiator", hasNilValueInitiator) { delimMTA ~ Initiator(this) }
+  private lazy val nilElementTerminator = prod("nilElementTerminator", hasNilValueTerminator) { delimMTA ~ Terminator(this) }
 
   //  private lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { delimMTA ~ Initiator(this) }
   //  private lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { delimMTA ~ Terminator(this) }
 
   private lazy val complexContent = prod("complexContent", isComplexType) {
-    complexType.mainGrammar
+    ComplexTypeCombinator(complexType, complexType.group.termContentBody)
   }
 
   private lazy val isNilLit = isNillable && ((nilKind == NilKind.LiteralValue) || (nilKind == NilKind.LiteralCharacter))
@@ -894,8 +855,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) {
     captureLengthRegions(leftPadding,
-      specifiedLength(nilLitContent) ~ // for parser
-        NilLiteralCharacter(context), // for unparser
+      specifiedLength(nilLitContent),
       rightPadding ~ rightFill)
   }
 
@@ -911,7 +871,11 @@ trait ElementBaseGrammarMixin
 
   }
 
-  private lazy val nilLitMTA = prod("nilLitMTA", isNilLit) { mtaBase }
+  /**
+   * mandatory text alignment for a literal nil value is only needed
+   * if there is no initiator that gets its own mandatory text alignment.
+   */
+  private lazy val nilLitMTA = prod("nilLitMTA", isNilLit && !hasNilValueInitiator) { mtaBase }
 
   private lazy val nilLitContent = prod("nilLitContent",
     isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)) {
@@ -956,31 +920,16 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  private lazy val nilOrEmptyOrValue = prod("nilOrEmptyOrValue") {
-    // anyOfNilOrEmptyOrValue ||
-    nilOrValue ||
-      //   emptyOrValue ||
-      nonNilNonEmptyParsedValue
-  }
-
-  //  private lazy val anyOfNilOrEmptyOrValue = prod("anyOfNilOrEmptyOrValue", isNillable && NYI && emptyIsAnObservableConcept) {
-  //    SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue)
-  //  }
-
   private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
     SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
   }
 
-  //    private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
-  //      SimpleEmptyOrValue(this, empty, parsedValue)
-  //    }
-
-  private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
+  private lazy val nonNillableParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) {
     parsedValue
   }
 
   private lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
-    nilOrEmptyOrValue
+    nilOrValue || nonNillableParsedValue
   }
 
   /**

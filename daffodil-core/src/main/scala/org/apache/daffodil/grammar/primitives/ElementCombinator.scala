@@ -21,7 +21,6 @@ import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Gram
-import org.apache.daffodil.grammar.HasNoUnparser
 import org.apache.daffodil.grammar.NamedGram
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.parsers.ChoiceElementParser
@@ -43,14 +42,12 @@ import org.apache.daffodil.processors.unparsers.ElementUnparserNoRep
 import org.apache.daffodil.processors.unparsers.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.ElementUnusedUnparser
 import org.apache.daffodil.processors.unparsers.LeftCenteredPaddingUnparser
-import org.apache.daffodil.processors.unparsers.NilLiteralCharacterUnparser
 import org.apache.daffodil.processors.unparsers.OVCRetryUnparser
 import org.apache.daffodil.processors.unparsers.OnlyPaddingUnparser
 import org.apache.daffodil.processors.unparsers.RightCenteredPaddingUnparser
 import org.apache.daffodil.processors.unparsers.RightFillUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.util.Maybe
@@ -167,22 +164,22 @@ case class OnlyPadding(ctxt: ElementBase)
   }
 }
 
-case class NilLiteralCharacter(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined &&
-    ctxt.isNillable && ctxt.nilKind == NilKind.LiteralCharacter)
-  with Padded {
-
-  override def parser = new NadaParser(ctxt.erd)
-
-  private lazy val nilLitCharacter = ctxt.cookedNilValuesForUnparse.head(0)
-
-  override lazy val unparser: Unparser =
-    new NilLiteralCharacterUnparser(ctxt.erd,
-      ctxt.maybeUnparseTargetLengthInBitsEv.get,
-      ctxt.maybeLengthEv,
-      ctxt.maybeCharsetEv,
-      nilLitCharacter)
-}
+//case class NilLiteralCharacter(ctxt: ElementBase)
+//  extends Terminal(ctxt, ctxt.maybeUnparseTargetLengthInBitsEv.isDefined &&
+//    ctxt.isNillable && ctxt.nilKind == NilKind.LiteralCharacter)
+//  with Padded {
+//
+//  override def parser = new NadaParser(ctxt.erd)
+//
+//  private lazy val nilLitCharacter = ctxt.cookedNilValuesForUnparse.head(0)
+//
+//  override lazy val unparser: Unparser =
+//    new NilLiteralCharacterUnparser(ctxt.erd,
+//      ctxt.maybeUnparseTargetLengthInBitsEv.get,
+//      ctxt.maybeLengthEv,
+//      ctxt.maybeCharsetEv,
+//      nilLitCharacter)
+//}
 
 case class RightCenteredPadding(ctxt: ElementBase)
   extends Terminal(ctxt, ctxt.shouldAddPadding)
@@ -390,7 +387,7 @@ class ElementParseAndUnspecifiedLength(context: ElementBase, eBeforeGram: Gram, 
 }
 
 class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) with HasNoUnparser {
+  extends ElementCombinatorBase(context, eGramBefore, eGram, eAfterGram) {
 
   lazy val parser: Parser = new ChoiceElementParser(
     context.erd,
@@ -403,6 +400,8 @@ class ChoiceElementCombinator(context: ElementBase, eGramBefore: Gram, eGram: Gr
     eBeforeParser,
     eParser,
     eAfterParser)
+
+  lazy val unparser = hasNoUnparser
 
 }
 
@@ -431,7 +430,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
     if (pd.size == 0) {
       Maybe.Nope
     } else {
-      Maybe(pd(0).gram.parser)
+      pd(0).gram.maybeParser
     }
   }
   lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
@@ -442,38 +441,26 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
     if (td.size == 0) {
       Maybe.Nope
     } else {
-      Maybe(td(0).gram.parser)
+      td(0).gram.maybeParser
     }
   }
   lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
 
-  lazy val eBeforeParser: Maybe[Parser] =
-    if (eGramBefore.isEmpty) Maybe.Nope
-    else Maybe(eGramBefore.parser)
+  lazy val eBeforeParser: Maybe[Parser] = eGramBefore.maybeParser
 
-  lazy val eParser: Maybe[Parser] =
-    if (eGram.isEmpty) Maybe.Nope
-    else Maybe(eGram.parser)
+  lazy val eParser: Maybe[Parser] = eGram.maybeParser
 
-  lazy val eAfterParser: Maybe[Parser] =
-    if (eGramAfter.isEmpty) Maybe.Nope
-    else Maybe(eGramAfter.parser)
+  lazy val eAfterParser: Maybe[Parser] = eGramAfter.maybeParser
 
   def parser: Parser
 
   lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser).toArray
 
-  lazy val eBeforeUnparser: Maybe[Unparser] =
-    if (eGramBefore.isEmpty) Maybe.Nope
-    else Maybe(eGramBefore.unparser)
+  lazy val eBeforeUnparser: Maybe[Unparser] = eGramBefore.maybeUnparser
 
-  lazy val eUnparser: Maybe[Unparser] =
-    if (eGram.isEmpty) Maybe.Nope
-    else Maybe(eGram.unparser)
+  lazy val eUnparser: Maybe[Unparser] = eGram.maybeUnparser
 
-  lazy val eAfterUnparser: Maybe[Unparser] =
-    if (eGramAfter.isEmpty) Maybe.Nope
-    else Maybe(eGramAfter.unparser)
+  lazy val eAfterUnparser: Maybe[Unparser] = eGramAfter.maybeUnparser
 
   def unparser: Unparser
 

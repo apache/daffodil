@@ -21,6 +21,9 @@ import org.apache.daffodil.processors.RuntimeData
 
 class NadaUnparser(override val context: RuntimeData)
   extends PrimUnparser {
+  
+  override def isEmpty = true
+  
   override def toString = "Nada"
 
   override lazy val runtimeDependencies = Nil

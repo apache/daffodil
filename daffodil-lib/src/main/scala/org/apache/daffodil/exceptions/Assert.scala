@@ -20,7 +20,7 @@ package org.apache.daffodil.exceptions
 trait ThinThrowable { self: Throwable =>
   // Sometimes we want to use Exceptions/Throwables in try/catch as a form of
   // flow control (yeah, usually not that great of an idea), for example with
-  // ProcessingError and withParseErrorThrowing. Unfortunately, the problem
+  // ProcessingError. Unfortunately, the problem
   // with this is that Exceptions are pretty heavy to create, mostly do to the
   // building of stack traces. But, in cases where we use Exceptions for flow
   // control, we don't need all this extra baggage of the stack traces. So

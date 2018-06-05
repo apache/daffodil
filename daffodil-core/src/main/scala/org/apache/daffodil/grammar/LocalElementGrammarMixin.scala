@@ -26,13 +26,9 @@ import org.apache.daffodil.compiler.ForParser
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
 
-  override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
+  override lazy val termContentBody = prod("termContentBody") {
     (if (isScalar) enclosedElement else recurrance)
   }
-
-  protected final lazy val allowedValue = prod("allowedValue") { notStopValue | value }
-
-  private lazy val notStopValue = prod("notStopValue", hasStopValue) { NotStopValue(this) }
 
   private def separatedForArrayPosition(bodyArg: => Gram): Gram = {
     val body = bodyArg

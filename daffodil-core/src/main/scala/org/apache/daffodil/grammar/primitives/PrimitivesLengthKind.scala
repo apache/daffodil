@@ -335,7 +335,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
 
 case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.lengthKind == LengthKind.Prefixed)
 
-class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
+class OptionalInfixSep(term: Term, sep: Gram) extends Terminal(term, !sep.isEmpty) {
 
   lazy val parser: DaffodilParser = new OptionalInfixSepParser(term.termRuntimeData, sep.parser)
 

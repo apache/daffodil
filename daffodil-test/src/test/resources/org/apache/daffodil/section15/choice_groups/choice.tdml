@@ -301,7 +301,7 @@
       <tdml:error>float</tdml:error>
       <tdml:error>int</tdml:error>
       <tdml:error>Alternative failed</tdml:error>
-      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
 
     </tdml:errors>
 
@@ -1913,7 +1913,7 @@ it sure is/
     <tdml:document><![CDATA[1;5;foo]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
       <tdml:error>Choice dispatch branch failed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

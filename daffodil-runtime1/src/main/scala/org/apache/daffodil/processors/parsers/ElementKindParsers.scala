@@ -329,24 +329,6 @@ class OrderedSeparatedSequenceParser(rd: TermRuntimeData,
   }
 }
 
-/**
- * This is essentially just a wrapper around the bodyParser, which is an
- * AltCompParser. This is only here to maintain symmetry with the unparse side,
- * which has a more complicated unparser that differs from an AltCompUnparser.
- */
-class ChoiceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
-  extends CombinatorParser(rd) {
-  override def nom = "Choice"
-
-  override lazy val runtimeDependencies = Nil
-
-  override lazy val childProcessors = Seq(bodyParser)
-
-  def parse(start: PState): Unit = {
-    bodyParser.parse1(start)
-  }
-}
-
 class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"

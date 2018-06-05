@@ -38,7 +38,6 @@ import org.apache.daffodil.processors.unparsers.SetVariableUnparser
 import org.apache.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import org.apache.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import org.apache.daffodil.compiler.ForParser
-import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.dsom.ExpressionCompilers
@@ -73,7 +72,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
 
-  override def unparser: DaffodilUnparser = new NadaUnparser(decl.runtimeData) // Assert.invariantFailed("should not request unparser for asserts/discriminators")
+  override def unparser: DaffodilUnparser = hasNoUnparser
 
 }
 

@@ -576,6 +576,7 @@
     <document>foo$$$//$;</document>
     <errors>
       <error>Parse Error</error>
+      <error>Terminator '$;' not found</error>
     </errors>
   </parserTestCase>
 

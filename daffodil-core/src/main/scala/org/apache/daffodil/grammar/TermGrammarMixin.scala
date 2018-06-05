@@ -50,11 +50,6 @@ trait TermGrammarMixin
     newVarEnds.fold(mt) { _ ~ _ }
   }
 
-  // I am not sure we need to distinguish these two.
-  //  final lazy val asTermInSequence = prod("asTermInSequence") {
-  //    separatedForSequencePosition(termContentBody)
-  //  }
-
   /**
    * overridden in LocalElementGrammarMixin
    */
@@ -126,8 +121,7 @@ trait TermGrammarMixin
   //  }
   //
   //  private lazy val infixSepRule = prod("infixSepRule", !ignoreES && hasES && es.hasInfixSep) {
-  //    if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
-  //    else if (hasPriorRequiredSiblings) infixSep // always in this case
+  //    if (hasPriorRequiredSiblings) infixSep // always in this case
   //    else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
   //      new OptionalInfixSep(this, separatorItself)
   //    } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)

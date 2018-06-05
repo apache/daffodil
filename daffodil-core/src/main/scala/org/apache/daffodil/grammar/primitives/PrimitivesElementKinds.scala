@@ -21,27 +21,9 @@ import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.processors.parsers._
+import org.apache.daffodil.processors.unparsers._
 import org.apache.daffodil.grammar.Gram
-import org.apache.daffodil.processors.parsers.ComplexTypeParser
-import org.apache.daffodil.processors.parsers.OrderedUnseparatedSequenceParser
-import org.apache.daffodil.processors.parsers.OrderedSeparatedSequenceParser
-import org.apache.daffodil.processors.parsers.ChoiceCombinatorParser
-import org.apache.daffodil.processors.parsers.ChoiceDispatchCombinatorParser
-import org.apache.daffodil.processors.parsers.ArrayCombinatorParser
-import org.apache.daffodil.processors.parsers.OptionalCombinatorParser
-import org.apache.daffodil.processors.unparsers.ComplexTypeUnparser
-import org.apache.daffodil.processors.unparsers.OrderedUnseparatedSequenceUnparser
-import org.apache.daffodil.processors.unparsers.OrderedSeparatedSequenceUnparser
-import org.apache.daffodil.processors.unparsers.ChoiceCombinatorUnparser
-import org.apache.daffodil.processors.unparsers.HiddenChoiceCombinatorUnparser
-import org.apache.daffodil.processors.parsers.DelimiterStackParser
-import org.apache.daffodil.processors.parsers.DynamicEscapeSchemeParser
-import org.apache.daffodil.processors.unparsers.DynamicEscapeSchemeUnparser
-import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.processors.unparsers.ArrayCombinatorUnparser
-import org.apache.daffodil.processors.unparsers.OptionalCombinatorUnparser
-import org.apache.daffodil.processors.unparsers.DelimiterStackUnparser
-import org.apache.daffodil.grammar.EmptyGram
 import org.apache.daffodil.equality._;
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe._
@@ -93,9 +75,17 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
       body.toString() +
       "</" + Misc.getNameFromClass(this) + ">"
   }
-  lazy val parser: DaffodilParser = new DelimiterStackParser(delims.toArray, e.termRuntimeData, body.parser)
+  lazy val parser: DaffodilParser = {
+    val p = body.parser
+    if (p.isEmpty) p
+    else new DelimiterStackParser(delims.toArray, e.termRuntimeData, p)
+  }
 
-  override lazy val unparser: DaffodilUnparser = new DelimiterStackUnparser(uInit, None, uTerm, e.termRuntimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = {
+    val u = body.unparser
+    if (u.isEmpty) u
+    else new DelimiterStackUnparser(uInit, None, uTerm, e.termRuntimeData, u)
+  }
 }
 
 case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -106,68 +96,85 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram) exte
   Assert.invariant(schemeParseOpt.isDefined && !schemeParseOpt.get.isConstant)
   Assert.invariant(schemeUnparseOpt.isDefined && !schemeUnparseOpt.get.isConstant)
 
-  lazy val parser: DaffodilParser = new DynamicEscapeSchemeParser(schemeParseOpt.get, e.termRuntimeData, body.parser)
+  lazy val parser: DaffodilParser = {
+    val p = body.parser
+    if (p.isEmpty) p
+    else new DynamicEscapeSchemeParser(schemeParseOpt.get, e.termRuntimeData, p)
+  }
 
-  override lazy val unparser: DaffodilUnparser = new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.termRuntimeData, body.unparser)
+  override lazy val unparser: DaffodilUnparser = {
+    val u = body.unparser
+    if (u.isEmpty) u
+    else new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.termRuntimeData, u)
+  }
 }
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.elementDecl, !body.isEmpty) {
 
   override def isEmpty = body.isEmpty
 
+  private lazy val p = body.parser
+  private lazy val u = body.unparser
+
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
       body.toString() +
       "</" + Misc.getNameFromClass(this) + ">"
 
-  lazy val parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
+  lazy val parser: DaffodilParser =
+    if (p.isEmpty)
+      p
+    else
+      new ComplexTypeParser(ct.runtimeData, p)
 
   override lazy val unparser: DaffodilUnparser =
-    new ComplexTypeUnparser(ct.runtimeData, body.unparser)
+    if (u.isEmpty)
+      u
+    else
+      new ComplexTypeUnparser(ct.runtimeData, u)
 }
 
 sealed abstract class OrderedSequenceBase(sq: SequenceTermBase, rawTerms: Seq[Term])
   extends Terminal(sq, rawTerms.length > 0) {
 
-  private lazy val allInOneTerms = rawTerms.filterNot { _.termContentBody.isEmpty }
+  private lazy val terms = rawTerms.filterNot { _.termContentBody.isEmpty }
 
   // if all the body terms are empty, this causes this whole combinator to
   // optimize away.
-  override final lazy val isEmpty = allInOneTerms.isEmpty
+  override final lazy val isEmpty = super.isEmpty || terms.isEmpty
 
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
       rawTerms.map { _.toString() }.mkString +
       "</" + Misc.getNameFromClass(this) + ">"
 
-  protected lazy val parserPairs = allInOneTerms.map { term =>
+  protected lazy val parserPairs = terms.flatMap { term =>
     val isNotRequired = !term.isRequired
     val gram = term match {
       case e: ElementBase if isNotRequired || term.isArray => e.recurrance
       case e: ElementBase => e.enclosedElement
       case _ => term.termContentBody
     }
-    (term.termRuntimeData, gram.parser)
+    val p = gram.parser
+    if (p.isEmpty) Nil
+    else List((term.termRuntimeData, gram.parser))
   }.toVector
 
-  protected lazy val unparserPairs = allInOneTerms.map { term =>
+  protected lazy val unparserPairs = terms.flatMap { term =>
     val isNotRequired = !term.isRequired
     val gram = term match {
       case e: ElementBase if isNotRequired || term.isArray => e.recurrance
       case e: ElementBase => e.enclosedElement
       case _ => term.termContentBody
     }
-    (term.termRuntimeData, gram.unparser)
+    val u = gram.unparser
+    if (u.isEmpty) Nil
+    else List((term.termRuntimeData, gram.unparser))
   }.toVector
 
-  protected lazy val parsers = allInOneTerms.map { term =>
-    term.termContentBody.parser
-  }.toVector
+  protected lazy val parsers = parserPairs.map { _._2 }
 
-  protected lazy val unparsers = allInOneTerms.map { term =>
-    term.termContentBody.unparser
-  }.toVector
-
+  protected lazy val unparsers = unparserPairs.map { _._2 }
 }
 
 case class OrderedUnseparatedSequence(sq: SequenceTermBase, rawTerms: Seq[Term])
@@ -219,19 +226,26 @@ case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !b
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to
  * determine which branch to go down. In the parser case, for non-direct
- * dispatch, we just rely on the AltCompParser behavior to handle the
- * backtracking. For direct dispatch, we create a disapatch-branch key map
+ * dispatch, we just rely on backtracking here.
+ *
+ * For direct dispatch, we create a disapatch-branch key map
  * which is used to determine which branch to parse at runtime.
  *
  * In the unparser case, we know which element we got from the infoset, but we
  * need to determine which branch of the choice to take at runtime. This
  * unparser uses a Map to make the determination based on the element seen.
  */
-case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
+case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram]) extends Terminal(ch, !rawAlternatives.isEmpty) {
+
+  private lazy val alternatives = rawAlternatives.filterNot(_.isEmpty)
+
+  private lazy val parsers = alternatives.map { _.parser }.filterNot { _.isEmpty }
+
+  override def isEmpty = super.isEmpty || alternatives.isEmpty
+
   lazy val parser: DaffodilParser = {
     if (!ch.isDirectDispatch) {
-      val folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
-      new ChoiceCombinatorParser(ch.termRuntimeData, folded.parser)
+      new ChoiceParser(ch.termRuntimeData, parsers)
     } else {
       val dispatchBranchKeyValueTuples = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
@@ -262,18 +276,21 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram]) extends
   override lazy val unparser: DaffodilUnparser = {
     if (!ch.isHidden) {
       val eventRDMap = ch.choiceBranchMap
-      val eventUnparserMap = eventRDMap.mapValues { rd =>
-        alternatives.find(_.context.runtimeData =:= rd).get.unparser
+      val eventUnparserMap = eventRDMap.flatMap {
+        case (cbe, rd) =>
+          // if we don't find a matching RD for a term that's probably
+          // because the term is an empty sequence or empty choice (which do happen
+          // and we even have tests for them). Since those can never be chosen by
+          // means of an element event, they don't appear in the map.
+          val altGram = alternatives.find { alt =>
+            val crd = alt.context.runtimeData
+            val found = crd =:= rd
+            found
+          }
+          altGram.map { ag => (cbe, ag.unparser) }
       }
 
-      // The following line is required because mapValues() creates a "view" of
-      // the map, which is not serializable. map()ing this "view" with the
-      // identity forces evaluation of the "view", creating a map that is
-      // serializable and can be safely passed to a parser. See SI-7005 for
-      // discussions about this issue.
-      val serializableMap = eventUnparserMap.map(identity)
-
-      new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
+      new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap)
     } else {
       // Choices inside a hidden group ref are slightly different because we
       // will never see events for any of the branches. Instead, we will just
