@@ -53,6 +53,10 @@ import org.apache.daffodil.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.processors.parsers.OptionalCombinatorParser
+import org.apache.daffodil.processors.unparsers.OptionalCombinatorUnparser
+import org.apache.daffodil.processors.unparsers.ArrayCombinatorUnparser
+import org.apache.daffodil.processors.parsers.ArrayCombinatorParser
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -464,4 +468,18 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
 
   def unparser: Unparser
 
+}
+
+case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+  override def toString() = "<Array>" + body.toString + "</Array>"
+
+  lazy val parser: Parser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
+  override lazy val unparser: Unparser = new ArrayCombinatorUnparser(e.elementRuntimeData, body.unparser)
+}
+
+case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+
+  override def toString() = "<Optional>" + body.toString + "</Optional>"
+  lazy val parser: Parser = new OptionalCombinatorParser(e.elementRuntimeData, body.parser)
+  override lazy val unparser: Unparser = new OptionalCombinatorUnparser(e.elementRuntimeData, body.unparser)
 }
