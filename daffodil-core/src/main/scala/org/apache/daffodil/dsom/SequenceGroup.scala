@@ -17,12 +17,8 @@
 
 package org.apache.daffodil.dsom
 
-import scala.xml.Attribute
 import scala.xml.Elem
 import scala.xml.Node
-import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml.Null
-import scala.xml.Text
 import scala.xml._
 import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
@@ -37,15 +33,63 @@ import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.processors.LayerTransformerEv
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.processors.SeparatorParseEv
+import org.apache.daffodil.processors.ModelGroupRuntimeData
+import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.processors.SeparatorUnparseEv
 
+/**
+ * Base for anything sequence-like.
+ *
+ * Sequences, group refs to sequences, and the implied sequences
+ * that are choice branches, are all instances.
+ */
 abstract class SequenceTermBase(
   final override val xml: Node,
   final override val parent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup
+  with SequenceGrammarMixin {
+
+  def separatorSuppressionPolicy: SeparatorSuppressionPolicy
+
+  def sequenceKind: SequenceKind
+
+  def separatorPosition: SeparatorPosition
+
+  def isLayered: Boolean
+
+  // def hasSeparator: Boolean
+
+  def separatorParseEv: SeparatorParseEv
+  def separatorUnparseEv: SeparatorUnparseEv
+
+  def sequenceRuntimeData: SequenceRuntimeData
+
+  def layerLengthUnits: LayerLengthUnits
+
+  def isOrdered: Boolean
+
+  def maybeLayerTransformerEv: Maybe[LayerTransformerEv]
+
+  def checkHiddenSequenceIsDefaultableOrOVC: Unit
+
+}
+
+/**
+ * Base for anything sequence-like that actually
+ * has the sequence properties. So actual sequences, group refs to them,
+ * but NOT implied sequences inside choice branches.
+ */
+abstract class SequenceGroupTermBase(
+  xml: Node,
+  parent: SchemaComponent,
+  position: Int)
+  extends SequenceTermBase(xml, parent, position)
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
-  with SequenceGrammarMixin
   with SeparatorSuppressionPolicyMixin
   with LayeringRuntimeValuedPropertiesMixin {
 
@@ -69,7 +113,7 @@ abstract class SequenceTermBase(
 
   final override def hasPotentiallyTrailingInstances = {
     isPotentiallyTrailing ||
-    groupMembers.exists { _.hasPotentiallyTrailingInstances }
+      groupMembers.exists { _.hasPotentiallyTrailingInstances }
   }
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
@@ -148,7 +192,8 @@ abstract class SequenceTermBase(
             // Now we're looking at the individual name buckets within the
             // individual namespace bucket.
             if (children.length > 1)
-              this.SDE("Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
+              this.SDE(
+                "Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
                 "\nNamespace: %s\tName: %s.",
                 this.path, ns, name)
         }
@@ -171,62 +216,9 @@ abstract class SequenceTermBase(
     case SequenceKind.Unordered => false
   }
 
-  final lazy val unorderedSeq: Option[UnorderedSequence] = if (!isOrdered) {
+  final lazy val modelGroupRuntimeData = sequenceRuntimeData
 
-    val children = apparentXMLChildren.map(c => {
-      c match {
-        case elem: Elem => {
-          val elemMin = elem % Attribute(None, "minOccurs", Text("1"), Null)
-          val elemMax = elemMin % Attribute(None, "maxOccurs", Text("1"), Null)
-          elemMax
-        }
-        case x => x
-      }
-    })
-
-    // Create a list of the min/maxOccur pairs for each child
-    val elementChildrenMinMaxOccurs = apparentXMLChildren.map(c =>
-      c match {
-        case elem: Elem => {
-          val min = Integer.parseInt(elem.attributes.get("minOccurs").get.text)
-          val max = Integer.parseInt(elem.attributes.get("maxOccurs").get.text)
-          Some(min, max)
-        }
-        case x => None
-      }).filter(_.isDefined).map(_.get)
-
-    // Compute minimal number of elements required
-    val newMinOccurs = {
-      val minRequired = elementChildrenMinMaxOccurs.map { case (minVal, _) => minVal }.foldLeft(0)(_ + _)
-      minRequired.toString
-    }
-
-    // Compute maximal number of elements required
-    val newMaxOccurs = {
-      val maxRequired = elementChildrenMinMaxOccurs.map { case (_, maxVal) => maxVal }.foldLeft(0)(_ + _)
-      maxRequired.toString
-    }
-
-    val newContent: Node =
-      <element name="choiceElement" minOccurs={ newMinOccurs } maxOccurs={ newMaxOccurs } dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
-        <complexType>
-          <choice dfdl:choiceLengthKind="implicit">{ children }</choice>
-        </complexType>
-      </element>
-
-    // Constructs a sequence of choice using newContent
-    val newXML = {
-      xml match {
-        case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, true, newContent: _*)
-        case other => other
-      }
-    }
-
-    Some(new UnorderedSequence(newXML, children, parent, position))
-
-  } else None
-
-  final lazy val modelGroupRuntimeData = {
+  final lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,
@@ -264,7 +256,8 @@ abstract class SequenceTermBase(
       if (disallowedKeys.size > 0)
         SDE("Sequence has dfdl:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
 
-      val lt = new LayerTransformerEv(maybeLayerTransformEv.get,
+      val lt = new LayerTransformerEv(
+        maybeLayerTransformEv.get,
         maybeLayerCharsetEv,
         Maybe.toMaybe(optionLayerLengthKind),
         maybeLayerLengthInBytesEv,
@@ -318,7 +311,7 @@ trait SequenceDefMixin
  * Represents a local sequence definition.
  */
 class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
-  extends SequenceTermBase(xmlArg, parent, position)
+  extends SequenceGroupTermBase(xmlArg, parent, position)
   with SequenceDefMixin {
 
   requiredEvaluations(checkHiddenGroupRefHasNoChildren)
@@ -344,8 +337,89 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   }.value
 }
 
-final class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)
-  extends Sequence(xmlArg, parent, position) {
-  // A shell, the actual XML representation is passed in
-  // from Sequence
+/**
+ * A choice branch can be an element with multiple occurrances, or varying occurrences.
+ *
+ * There can't be separators, but the driving of the iteration for the occurences, is
+ * in the sequence parsers/unparsers. So this implements that, leveraging the
+ * sequence machinery, but specifying the properties needed to insure it is
+ * handled as a degenerate sequence having only one element decl within it.
+ */
+final class ChoiceBranchImpliedSequence(rawGM: Term)
+  extends SequenceTermBase(rawGM.xml, rawGM.parent, rawGM.position)
+  with GroupDefLike {
+
+  override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+
+  override def sequenceKind: SequenceKind = SequenceKind.Ordered
+
+  override def separatorPosition: SeparatorPosition = SeparatorPosition.Infix
+
+  override def isLayered: Boolean = false
+
+  override lazy val hasSeparator = false
+  override lazy val hasTerminator = false
+  override lazy val hasInitiator = false
+
+  override def separatorParseEv: SeparatorParseEv = Assert.usageError("Not to be called on choice branches.")
+
+  override def separatorUnparseEv: SeparatorUnparseEv = Assert.usageError("Not to be called on choice branches.")
+
+  override def layerLengthUnits: LayerLengthUnits = LayerLengthUnits.Bytes
+
+  override def isOrdered = true
+
+  override def maybeLayerTransformerEv: Maybe[LayerTransformerEv] = Maybe.Nope
+
+  override def checkHiddenSequenceIsDefaultableOrOVC: Unit = ()
+
+  override lazy val sequenceRuntimeData: SequenceRuntimeData = {
+    new SequenceRuntimeData(
+      schemaSet.variableMap,
+      encodingInfo,
+      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
+      schemaFileLocation,
+      dpathCompileInfo,
+      diagnosticDebugName,
+      path,
+      namespaces,
+      defaultBitOrder,
+      groupMembersRuntimeData,
+      enclosingElement.map { _.elementRuntimeData }.getOrElse(
+        Assert.invariantFailed("model group with no surrounding element.")),
+      enclosingTerm.map { _.termRuntimeData }.getOrElse {
+        Assert.invariantFailed("model group with no surrounding term.")
+      },
+      isRepresented,
+      couldHaveText,
+      alignmentValueInBits,
+      true,
+      None,
+      Maybe.Nope,
+      Maybe.Nope,
+      Maybe.Nope)
+  }
+
+  /**
+   * Implied sequence doesn't exist textually, so can't have properties on it.
+   */
+  override lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = groupMembers(0).nonDefaultPropertySources
+
+  // Members declared in AnnotatedMixin
+  protected def annotationFactory(node: scala.xml.Node): Option[DFDLAnnotation] = None
+  protected def emptyFormatFactory: DFDLFormatAnnotation = Assert.usageError("Not to be called on choice branches.")
+  protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = false
+
+  // Members declared in AnnotatedSchemaComponent
+  protected def optReferredToComponent: Option[AnnotatedSchemaComponent] = None
+
+  def modelGroupRuntimeData: ModelGroupRuntimeData = sequenceRuntimeData
+
+  protected def myPeers: Option[Seq[ModelGroup]] = None
+
+  def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
+
+  // Members declared in Term
+  def hasStaticallyRequiredInstances: Boolean = groupMembers(0).hasStaticallyRequiredInstances
+
 }

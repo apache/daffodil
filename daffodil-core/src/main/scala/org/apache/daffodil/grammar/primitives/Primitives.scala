@@ -34,20 +34,4 @@ abstract class UnimplementedPrimitive(e: Term, guard: Boolean = false)
   override final lazy val unparser = hasNoUnparser
 }
 
-// base stub classes
-
-// case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class SaveInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class SetEmptyInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class RestoreInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class NotStopValue(e: ElementBase with LocalElementMixin) extends UnimplementedPrimitive(e, e.hasStopValue)
-
-case class StopValue(e: ElementBase with LocalElementMixin) extends UnimplementedPrimitive(e, e.hasStopValue)
-
-case class TheDefaultValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isDefaultable)
-
 case class UnicodeByteOrderMark(e: Root) extends UnimplementedPrimitive(e, false)

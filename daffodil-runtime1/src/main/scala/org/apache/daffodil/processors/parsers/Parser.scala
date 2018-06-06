@@ -262,10 +262,15 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
       pstate.popDiscriminator
     } catch {
       // Similar try/catch/finally logic for returning marks is also used in
-      // the RepAtMostTotalNParser and RepUnboundedParser. The logic isn't
+      // the Sequence parser base. The logic isn't
       // easily factored out so it is duplicated. Changes made here should also
       // be made there. Only these parsers deal with taking marks, so this logic
       // should not be needed elsewhere.
+      //
+      // TODO: Refactor by hoisting this logic into CombinatorParser using same
+      // technique as in SequenceParserBase's tryParseDetectMarkLeaks and parseOne
+      // methods. That way this code really can live in exactly one place.
+      //
       case t: Throwable => {
         if (pBefore != null) {
           markLeakCausedByException = true

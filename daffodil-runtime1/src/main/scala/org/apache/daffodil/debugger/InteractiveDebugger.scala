@@ -197,7 +197,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     val interesting = parser match {
       case _: ComplexTypeParser => false
       case _: SeqCompParser => false
-      case _: RepParser => false
+      case _: RepeatingChildParser => false
       case _: OptionalInfixSepParser => false
       case _: ConvertTextCombinatorParser => false
       case _: CombinatorParser => false
@@ -1180,7 +1180,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoUnparser, InfoPath)
+      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDelimiterStack, InfoDiff, InfoDiscriminator, InfoDisplays, InfoFoundDelimiter, InfoGroupIndex, InfoInfoset, InfoParser, InfoUnparser, InfoPath)
 
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
@@ -1538,17 +1538,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         }
       }
 
-      object InfoOccursBounds extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "occursBounds"
-        override lazy val short = "ob"
-        val desc = "display the current occurs bounds"
-        val longDesc = desc
-        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          if (state.occursBoundsStack.isEmpty) debugPrintln("%s: occurs bounds not set".format(name))
-          else debugPrintln("%s: %d".format(name, state.occursBoundsStack.top))
-          DebugState.Pause
-        }
-      }
+//      object InfoOccursBounds extends DebugCommand with DebugCommandValidateZeroArgs {
+//        val name = "occursBounds"
+//        override lazy val short = "ob"
+//        val desc = "display the current occurs bounds"
+//        val longDesc = desc
+//        def act(args: Seq[String], prestate: StateForDebugger, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+//          if (state.occursBoundsStack.isEmpty) debugPrintln("%s: occurs bounds not set".format(name))
+//          else debugPrintln("%s: %d".format(name, state.occursBoundsStack.top))
+//          DebugState.Pause
+//        }
+//      }
 
       abstract class InfoProcessorBase extends DebugCommand with DebugCommandValidateZeroArgs {
         val desc = "display the current Daffodil " + name

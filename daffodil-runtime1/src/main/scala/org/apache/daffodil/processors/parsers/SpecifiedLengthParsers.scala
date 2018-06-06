@@ -62,7 +62,8 @@ sealed abstract class SpecifiedLengthParserBase(maybeEParser: Maybe[Parser],
 
     val startingBitPos0b = dis.bitPos0b
     val isLimitOk: Boolean = dis.withBitLengthLimit(nBits) {
-      if (maybeEParser.isDefined) maybeEParser.get.parse1(pState)
+      if (maybeEParser.isDefined) 
+        maybeEParser.get.parse1(pState)
     }
     Assert.invariant(isLimitOk)
 

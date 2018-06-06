@@ -44,7 +44,8 @@
         textCalendarPadCharacter="%SP;" textNumberJustification="right"
         textNumberPadCharacter="%SP;" textNumberRep="standard" textOutputMinLength="0"
         textPadKind="none" textStringPadCharacter="%SP;" textTrimKind="none"
-        trailingSkip="0" truncateSpecifiedLengthString="no" />
+        trailingSkip="0" truncateSpecifiedLengthString="no" 
+        emptyValueDelimiterPolicy="none"/>
     </xs:appinfo>
   </xs:annotation>
   

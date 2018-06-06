@@ -31,11 +31,11 @@ import org.apache.daffodil.xml.XMLUtils
 
 case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram) extends Terminal(sq, !body.isEmpty) {
   lazy val pInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorParseEv) else Nope
-  lazy val pSep = if (sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorParseEv) else Nope
+  lazy val pSep = if (sq.hasSeparator && sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorParseEv) else Nope
   lazy val pTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorParseEv) else Nope
 
   lazy val uInit = if (sq.initiatorParseEv.isKnownNonEmpty) One(sq.initiatorUnparseEv) else Nope
-  lazy val uSep = if (sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorUnparseEv) else Nope
+  lazy val uSep = if (sq.hasSeparator && sq.separatorParseEv.isKnownNonEmpty) One(sq.separatorUnparseEv) else Nope
   lazy val uTerm = if (sq.terminatorParseEv.isKnownNonEmpty) One(sq.terminatorUnparseEv) else Nope
 
   lazy val parser: DaffodilParser = new DelimiterStackParser((pInit.toList ++ pSep.toList ++ pTerm.toList).toArray, sq.runtimeData, body.parser)

@@ -37,14 +37,14 @@ trait InitiatedTerminatedMixin
     parentSays
   }
 
-  final lazy val hasInitiator = {
+  lazy val hasInitiator = {
     val hasOne = initiatorExpr.isKnownNonEmpty
     if (parentSaysInitiatedContent)
       schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
     hasOne
   }
 
-  final lazy val hasTerminator = {
+  lazy val hasTerminator = {
     val res = terminatorExpr.isKnownNonEmpty
     res
   }

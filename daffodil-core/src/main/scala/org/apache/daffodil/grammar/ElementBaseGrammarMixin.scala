@@ -649,13 +649,13 @@ trait ElementBaseGrammarMixin
 
 
   private lazy val bcdKnownLengthCalendar = prod("bcdKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateKnownLength | bcdTimeKnownLength | bcdDateTimeKnownLength
+    bcdDateKnownLength || bcdTimeKnownLength || bcdDateTimeKnownLength
   }
   private lazy val bcdRuntimeLengthCalendar = prod("bcdRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateRuntimeLength | bcdTimeRuntimeLength | bcdDateTimeRuntimeLength
+    bcdDateRuntimeLength || bcdTimeRuntimeLength || bcdDateTimeRuntimeLength
   }
   private lazy val bcdDelimitedLengthCalendar = prod("bcdDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
-    bcdDateDelimitedLength | bcdTimeDelimitedLength | bcdDateTimeDelimitedLength
+    bcdDateDelimitedLength || bcdTimeDelimitedLength || bcdDateTimeDelimitedLength
   }
 
   // BCD calendar with known length

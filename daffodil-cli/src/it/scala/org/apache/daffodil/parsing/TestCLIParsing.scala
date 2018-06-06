@@ -197,7 +197,7 @@ class TestCLIparsing {
       val cmd = String.format("echo 1/3| %s -vv parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<OptionalInfixSep><Separator/></OptionalInfixSep>"))
+      shell.expect(contains("<Sequence><Separator/><RepMinMax name='s1'>"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -909,7 +909,7 @@ class TestCLIparsing {
       shell.close()
     }
   }
-  
+
   @Test def test_CLI_Parsing_built_in_formats() {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_04.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input6.txt")
@@ -940,8 +940,8 @@ class TestCLIparsing {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
     val java_opts = Map("DAFFODIL_JAVA_OPTS" ->
-                          ("-Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl " +
-                           "-Djavax.xml.xml.validation.SchemaFactory=com/sun/org/apache/xerces/internal/jaxp/validation/XMLSchemaFactory"))
+      ("-Djavax.xml.parsers.SAXParserFactory=com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl " +
+        "-Djavax.xml.xml.validation.SchemaFactory=com/sun/org/apache/xerces/internal/jaxp/validation/XMLSchemaFactory"))
 
     val shell = Util.start("", envp = java_opts)
 

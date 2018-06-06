@@ -643,7 +643,8 @@
     <tdml:document><![CDATA[$A$$]]></tdml:document>
     <tdml:errors>
     <tdml:error>Parse Error</tdml:error>
-    <tdml:error>Found out of scope delimiter: $$</tdml:error>
+    <tdml:error>Found out of scope delimiter</tdml:error>
+    <tdml:error>$$</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -652,7 +653,8 @@
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
     <tdml:error>Parse Error</tdml:error>
-    <tdml:error>Found out of scope delimiter: $$</tdml:error>
+    <tdml:error>Found out of scope delimiter</tdml:error>
+    <tdml:error>$$</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -660,7 +662,8 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Found out of scope delimiter: $$</tdml:error>
+    <tdml:error>Found out of scope delimiter</tdml:error>
+    <tdml:error>$$</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

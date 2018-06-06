@@ -115,6 +115,13 @@ case object OnePassRoundTrip extends RoundTrip
  */
 case object TwoPassRoundTrip extends RoundTrip
 
+/**
+ * Unparse doesn't produce original data, parsing it doesn't produce the
+ * same infoset, but an equivalent infoset which if unparsed, reproduces
+ * the first unparse output.
+ */
+case object ThreePassRoundTrip extends RoundTrip
+
 private[tdml] object DFDLTestSuite {
 
   /**
@@ -125,6 +132,8 @@ private[tdml] object DFDLTestSuite {
       case "false" | "none" => NoRoundTrip
       case "true" | "onePass" => OnePassRoundTrip
       case "twoPass" => TwoPassRoundTrip
+      case "threePass" => ThreePassRoundTrip
+      case other => Assert.invariantFailed("String '%s' not valid for round trip".format(other))
     }
 
   type CompileResult = Either[Seq[Diagnostic], (Seq[Diagnostic], DFDL.DataProcessor)]
@@ -872,6 +881,44 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     unparseResult
   }
 
+  private def doTwoPassRoundTripExpectSuccess(
+    processor: DFDL.DataProcessor,
+    firstPassInfosetOutputter: TDMLInfosetOutputter, // outputter from prior parse.
+    firstParseTestData: Array[Byte],
+    testInfoset: Infoset,
+    passesLabel: String = "Two-Pass"): (TDMLInfosetOutputter, DFDL.ParseResult, Array[Byte], Long) = {
+    val outStream = new java.io.ByteArrayOutputStream()
+    val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+    val isUnparseOutputDataMatching =
+      try {
+        VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
+        true
+      } catch {
+        case e: TDMLException => {
+          false
+          //
+          // We got the failure we expect for a two-pass test on the unparse.
+          //
+        }
+      }
+    if (isUnparseOutputDataMatching) {
+      val msg = ("Expected data from first unparse of %s to NOT match original input, but it did match." +
+        "\nShould this really be a %s test?").format(passesLabel, passesLabel)
+      throw new TDMLException(msg)
+    }
+    // Try parse again, consuming the canonicalized data from the prior unparse.
+    val reParseTestData = outStream.toByteArray
+    val reParseTestDataLength = unparseResult.resultState.bitPos0b
+    // verify enough bytes for the bits.
+    val fullBytesNeeded = (reParseTestDataLength + 7) / 8
+    if (reParseTestData.length != fullBytesNeeded) {
+      throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
+        reParseTestData.length, reParseTestDataLength, fullBytesNeeded))
+    }
+    val (outputter, actual) = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength)
+    (outputter, actual, reParseTestData, reParseTestDataLength)
+  }
+
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
     dataToParse: InputStream,
     lengthLimitInBits: Long,
@@ -922,37 +969,63 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // equivalent in that re-parsing that data produces the same infoset
         // that parsing the original data did.
         //
-        val outStream = new java.io.ByteArrayOutputStream()
-        val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+
+        val (outputter, actual, _, reParseTestDataLength) =
+          doTwoPassRoundTripExpectSuccess(
+            processor,
+            firstPassInfosetOutputter,
+            firstParseTestData,
+            testInfoset)
+        verifyParseResults(processor, actual, testInfoset, outputter)
+        verifyLeftOverData(actual, reParseTestDataLength)
+        // if it doesn't pass, it will throw out of here.
+      }
+      case ThreePassRoundTrip => {
+        //
+        // In three-pass, the unparse comparison of data from first unparse
+        // to the original input data MUST fail.
+        // We need to unparse, then parse again and the infoset comparison
+        // must ALSO fail.
+        // Then we unparse again, and get same data as the first unparse.
+        // At that point we're in steady state.
+        //
+        // This mode is needed due to asymmetric separator suppression policies
+        // like anyEmpty which allow a separator for a zero-length optional element to
+        // appear in the data, but when unparsing will not output this separator,
+        // so when reparsed, the infoset won't have the element.
+        //
+        val (secondPassInfosetOutputter, secondPassActual, reParseTestData, reParseTestDataLength) =
+          doTwoPassRoundTripExpectSuccess(
+            processor,
+            firstPassInfosetOutputter,
+            firstParseTestData,
+            testInfoset,
+            "Three-Pass")
         val isUnparseOutputDataMatching =
           try {
-            VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
+            verifyParseResults(processor, actual, testInfoset, secondPassInfosetOutputter)
+            verifyLeftOverData(secondPassActual, reParseTestDataLength)
             true
           } catch {
             case e: TDMLException => {
               false
               //
-              // We got the failure we expect for a two-pass test on the unparse.
+              // We got the failure we expect for a three-pass test on the reparse.
               //
             }
           }
         if (isUnparseOutputDataMatching) {
-          throw new TDMLException("Expected data from first unparse of Two-Pass to NOT match original input, but it did match." +
-            "\nShould this really be a Two-Pass test?")
+          throw new TDMLException("Expected infoset from reparse of Three-Pass to NOT match original infoset, but it did match." +
+            "\nShould this really be a Three-Pass test?")
         }
-        // Try parse again, consuming the canonicalized data from the prior unparse.
-        val reParseTestData = outStream.toByteArray
-        val reParseTestDataLength = unparseResult.resultState.bitPos0b
-        // verify enough bytes for the bits.
-        val fullBytesNeeded = (reParseTestDataLength + 7) / 8
-        if (reParseTestData.length != fullBytesNeeded) {
-          throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
-            reParseTestData.length, reParseTestDataLength, fullBytesNeeded))
-        }
-        val (outputter, actual) = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength)
-        verifyParseResults(processor, actual, testInfoset, outputter)
-        verifyLeftOverData(actual, reParseTestDataLength)
-        // if it doesn't pass, it will throw out of here.
+        //
+        // So now we do the third pass unparse and compare this output with the
+        // first unparsed output.
+        //
+        // We get to reuse the one-pass code here.
+        val thirdPassOutStream = new java.io.ByteArrayOutputStream()
+        doOnePassRoundTripUnparseExpectSuccess(processor, thirdPassOutStream, firstPassInfosetOutputter)
+        VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(reParseTestData), thirdPassOutStream)
       }
     }
   }
@@ -1177,7 +1250,12 @@ object VerifyTestCase {
 
     val expectedForCompare = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
 
-    XMLUtils.compareAndReport(expectedForCompare, actualForCompare)
+    try {
+      XMLUtils.compareAndReport(expectedForCompare, actualForCompare)
+    } catch {
+      case e: Exception =>
+        throw new TDMLException(e)
+    }
   }
 
   def verifyUnparserTestData(expectedData: InputStream, actualOutStream: java.io.ByteArrayOutputStream) {
@@ -1313,6 +1391,8 @@ object VerifyTestCase {
       if (str.length <= maxTextCharsToShow) str
       else str.substring(0, maxTextCharsToShow) + "..."
     }
+    val actualCharsToShow = if (actualText.length == 0) "" else " for '" + trimToMax(actualText) + "'"
+    val expectedCharsToShow = if (expectedText.length == 0) "" else " for '" + trimToMax(expectedText) + "'"
     if (actualText.length != expectedText.length) {
       val actualCharsToShow = if (actualText.length == 0) "" else " for '" + trimToMax(actualText) + "'"
       val expectedCharsToShow = if (expectedText.length == 0) "" else " for '" + trimToMax(expectedText) + "'"
@@ -1324,7 +1404,8 @@ object VerifyTestCase {
     pairs.foreach {
       case ((expected, actual), index) =>
         if (expected != actual) {
-          val msg = "Unparsed data differs at character %d. Expected '%s'. Actual was '%s'".format(index, expected, actual)
+          val msg = "Unparsed data differs at character %d. Expected '%s'. Actual was '%s'. Expected data %s, actual data %s".format(
+            index, expected, actual, expectedCharsToShow, actualCharsToShow)
           throw new TDMLException(msg)
         }
     }

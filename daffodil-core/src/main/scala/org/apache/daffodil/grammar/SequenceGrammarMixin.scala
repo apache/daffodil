@@ -17,46 +17,122 @@
 
 package org.apache.daffodil.grammar
 import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
+import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives._
-import org.apache.daffodil.dsom.SequenceTermBase
+import org.apache.daffodil.grammar.primitives.OrderedSequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
   final override lazy val groupContent = prod("groupContent") {
-    if (isLayered) layeredSequenceContent
-    else {
-      self.sequenceKind match {
-        case SequenceKind.Ordered => orderedSequenceContent
-        case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
-      }
+    if (isLayered) layerContent
+    else sequenceContent
+  }
+
+  final lazy val sequenceContent = {
+    import columnConstants._
+    self.sequenceKind match {
+      case Ordered__ => orderedSequence
+      case Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
     }
   }
 
-  private lazy val layeredSequenceContent = {
+  private lazy val layerContent = {
     schemaDefinitionUnless(groupMembers.length == 1, "Layered sequence can have only 1 child term. %s were found: %s", groupMembers.length,
       groupMembers.mkString(", "))
     val term = groupMembers(0)
     schemaDefinitionWhen(term.isArray, "Layered sequence body cannot be an array.")
-    val termGram = term.termContentBody
-    LayeredSequence(this, termGram)
+    LayeredSequence(this, new ScalarOrderedSequenceChild(this, term, 1))
   }
 
-  private lazy val orderedSequenceContent = prod("sequenceContent") {
-    (self.sequenceKind, hasSeparator) match {
-      case (SequenceKind.Ordered, true) => orderedSeparatedSequence
-      case (SequenceKind.Ordered, false) => orderedUnseparatedSequence
-      case (SequenceKind.Unordered, _) => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
-    }
+  private lazy val seqChildren = (groupMembers zip Stream.from(1)).map {
+    case (gm, i) =>
+      sequenceChild(gm, i)
   }
 
-  private lazy val orderedSeparatedSequence = {
-    val gm = groupMembers
-    val res = OrderedSeparatedSequence(this, gm)
+  private lazy val orderedSequence = {
+    val res = new OrderedSequence(this, seqChildren)
     res
   }
 
-  private lazy val orderedUnseparatedSequence =
-    OrderedUnseparatedSequence(this, groupMembers)
+  /**
+   * Constants to make the lookup tables below more readable without using fragile whitespace
+   */
+  object columnConstants {
+    val UNB = -1 // UNBOUNDED
+    val ZER = 0
+    val ONE = 1
+
+    val Sep__ = true
+    val NoSep = false
+
+    val Ordered__ = SequenceKind.Ordered
+    val Unordered = SequenceKind.Unordered
+
+    val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
+    val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
+    val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+    val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
+
+    val StopValue_ = OccursCountKind.StopValue
+    val Implicit__ = OccursCountKind.Implicit
+    val Parsed____ = OccursCountKind.Parsed
+    val Fixed_____ = OccursCountKind.Fixed
+    val Expression = OccursCountKind.Expression
+
+    val True_ = true
+
+    type EB = ElementBase
+    type MG = ModelGroup
+    type SG = SequenceTermBase
+    type CG = ChoiceTermBase
+
+  }
+
+  /**
+   * Produces the right kind of SequenceChild object for this particular child
+   * for the role it must play within this sequence's behavior.
+   *
+   * A SequenceChild object is effectively generator for part of the Sequence's parse/unparse
+   * algorithm. For arrays these SequenceChild objects enable processing exactly one array instance at
+   * a time, orchestrated by the surrounding sequence's processor.
+   */
+  protected def sequenceChild(child: Term, groupIndex: Int): SequenceChild = {
+    import columnConstants._
+
+    val (max, min, ock) = child match {
+      case e: EB =>
+        // don't require OCK unnecessarily
+        (e.maxOccurs, e.minOccurs, if (e.isScalar) null else e.occursCountKind)
+      case _ => (1, 1, null)
+    }
+    // don't require SSP unnecessarily
+    val ssp = if (!hasSeparator) SeparatorSuppressionPolicy.AnyEmpty else separatorSuppressionPolicy
+
+    val res = (child, sequenceKind, ssp, ock, min, max) match {
+      case (e: EB, Ordered__, ___________, _________, ONE, ONE) => new ScalarOrderedSequenceChild(this, e, groupIndex)
+      case (e: EB, _________, ___________, StopValue_, ___, __2) => e.subsetError("dfdl:occursCountKind 'stopValue' is not supported.")
+      case (_____, Unordered, ___________, __________, ___, __2) => this.subsetError("Unordered sequences are not supported.")
+      case (e: EB, Ordered__, ___________, Parsed____, ___, __2) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, ___________, Fixed_____, ___, UNB) => e.SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
+      case (e: EB, Ordered__, ___________, Fixed_____, ___, `min`) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, min)
+      case (e: EB, Ordered__, ___________, Fixed_____, ___, max) => { Assert.invariant(min != max); e.SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max) }
+      case (e: EB, Ordered__, ___________, Expression, ___, __2) => new RepOrderedExactlyTotalOccursCountSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, Never______, Implicit__, ___, UNB) => e.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs.")
+      case (e: EB, Ordered__, Never______, Implicit__, ___, max) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, max)
+      case (e: EB, Ordered__, Never______, ock /****/ , ___, __2) if (ock ne null) => e.SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
+      case (e: EB, Ordered__, Trailing___, Implicit__, ___, UNB) if !e.isLastDeclaredRequiredElementOfSequence => e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (e: EB, Ordered__, Trailing___, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) if !e.isLastDeclaredRequiredElementOfSequence => e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, TrailingStr, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (e: EB, Ordered__, Always_____, Implicit__, ___, max) => new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
+      case (m: MG, Ordered__, ___________, __________, ___, __2) => new ScalarOrderedSequenceChild(this, m, groupIndex)
+      case (_____, _________, policy /**/ , ock /**/ , ___, __2) => child.SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
+    }
+    res
+  }
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
@@ -74,7 +150,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
     else false
   }
 
-  final lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
+  lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
 
   lazy val sequenceSeparator = prod("separator", hasSeparator) {
     //

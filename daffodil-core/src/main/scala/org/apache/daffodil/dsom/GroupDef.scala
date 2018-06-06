@@ -67,7 +67,7 @@ trait GroupDefLike
   def xmlChildren: Seq[Node]
 
   /** Returns the group members that are elements or model groups. */
-  final lazy val groupMembers: Seq[Term] = LV('groupMembers) {
+  final lazy val groupMembers : Seq[Term] = {
     //
     // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
     // and our ModelGroup factory has to return Nil for annotations and Text nodes.
@@ -79,8 +79,8 @@ trait GroupDefLike
       case (n, i) =>
         TermFactory(n, this, i)
     }
-  }.value
-
+  }
+  
   /**
    * XML is full of uninteresting text nodes. We just want the element children, not all children.
    */

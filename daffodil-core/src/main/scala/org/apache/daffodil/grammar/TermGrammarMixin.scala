@@ -36,8 +36,8 @@ trait TermGrammarMixin
     st.isInstanceOf[DFDLNewVariableInstance]
   }.asInstanceOf[Seq[DFDLNewVariableInstance]]
 
-  private lazy val newVarStarts = newVars.map { _.gram }
-  private lazy val newVarEnds = newVars.map { _.endGram }
+  private lazy val newVarStarts = newVars.map { _.gram(self) }
+  private lazy val newVarEnds = newVars.map { _.endGram(self) }
 
   protected lazy val hasEncoding = optionEncodingRaw.isDefined
 
@@ -49,11 +49,6 @@ trait TermGrammarMixin
   protected final lazy val dfdlScopeEnd = prod("dfdlScopeEnd", newVarEnds.length > 0) {
     newVarEnds.fold(mt) { _ ~ _ }
   }
-
-  /**
-   * overridden in LocalElementGrammarMixin
-   */
-  lazy val asTermInChoice = termContentBody
 
   //  protected final def separatedForSequencePosition(bodyArg: => Gram): Gram = {
   //    val body = bodyArg

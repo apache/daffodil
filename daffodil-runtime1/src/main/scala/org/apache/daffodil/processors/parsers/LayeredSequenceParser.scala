@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.LayerTransformerEv
 
-class LayeredSequenceParser(rd: TermRuntimeData,
+class LayeredSequenceParser(rd: SequenceRuntimeData,
   layerTransformerEv: LayerTransformerEv,
-  bodyParser: Parser)
-  extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
+  bodyParser: SequenceChildParser)
+  extends OrderedUnseparatedSequenceParser(rd, Seq(bodyParser)) {
   override def nom = "LayeredSequence"
 
   override lazy val runtimeDependencies = Seq(layerTransformerEv)

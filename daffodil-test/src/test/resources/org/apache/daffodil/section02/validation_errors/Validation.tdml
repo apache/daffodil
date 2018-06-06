@@ -1321,8 +1321,8 @@
 
     <tdml:document>1,2</tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Failed to populate ex:e[3]</tdml:error>
-      <tdml:error>Expected 3 item(s)</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to populate ex:e[3]</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

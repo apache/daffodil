@@ -68,7 +68,7 @@
     <xs:element name="root2">
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-          <xs:element name="e1" type="xs:int" minOccurs="1" maxOccurs="10" />
+          <xs:element name="e1" type="xs:int" minOccurs="1" maxOccurs="10" dfdl:occursCountKind="implicit"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -649,7 +649,7 @@
           <xs:element name="b" type="xs:int" minOccurs="0" />
           <xs:element name="c" type="xs:int" minOccurs="0" />
           <xs:element name="d" type="xs:int" minOccurs="0" />
-          <xs:element name="e" type="xs:int" minOccurs="0" />
+          <xs:element name="e" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -663,14 +663,38 @@
           <xs:element name="b" type="xs:int" minOccurs="0" />
           <xs:element name="c" type="xs:int" minOccurs="0" />
           <xs:element name="d" type="xs:int" minOccurs="0" />
-          <xs:element name="e" type="xs:int" minOccurs="0" />
+          <xs:element name="e" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="occursCountKindImplicitSeparators01" root="te_root"
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators01a" root="te_root"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[1::::::]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:te_root>
+          <a>1</a>
+        </ex:te_root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="occursCountKindImplicitSeparators01b" root="ts_root"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[1::::]]></tdml:document>
+    <tdml:errors>
+        <tdml:error>strict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="occursCountKindImplicitSeparators02" root="te_root"
     model="array-ockImplicitSeparators.dfdl.xsd"
     roundTrip="false">
 
@@ -686,25 +710,9 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="occursCountKindImplicitSeparators02" root="te_root"
-    model="array-ockImplicitSeparators.dfdl.xsd"
-    roundTrip="false">
-
-    <tdml:document><![CDATA[:2:3::5]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:te_root>
-          <b>2</b>
-          <c>3</c>
-          <e>5</e>
-        </ex:te_root>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="occursCountKindImplicitSeparators03" root="te_root"
     model="array-ockImplicitSeparators.dfdl.xsd"
-    roundTrip="true">
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1:2:3::]]></tdml:document>
     <tdml:infoset>
@@ -739,17 +747,10 @@
     roundTrip="true">
 
     <tdml:document><![CDATA[1:2:3::]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:ts_root>
-          <a>1</a>
-          <b>2</b>
-          <c>3</c>
-        </ex:ts_root>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
-
 
   <tdml:defineSchema name="nestedSequence" elementFormDefault="unqualified">
 

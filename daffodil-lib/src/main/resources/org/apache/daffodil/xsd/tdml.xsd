@@ -164,6 +164,7 @@
       <enumeration value="true"/> <!-- means same as onePass -->
       <enumeration value="onePass"/> <!--  parse, compare infoset, unparse - compare data -->
       <enumeration value="twoPass"/> <!-- parse, unparse, reparse - compare infoset -->
+      <enumeration value="threePass"/><!-- parse, unparse, reparse, reunparse, compare data -->
     </restriction>
   </simpleType>
   

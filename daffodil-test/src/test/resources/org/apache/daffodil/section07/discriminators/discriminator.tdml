@@ -546,6 +546,10 @@
               <xs:sequence>
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <!-- NOTE That this discriminator executes regardless of whether the 
+                    sequence content (int element) below parses successfully. So if that int parse fails, 
+                    the discriminator still will be true, and we will NOT backtrack to have zero occurrences
+                    of the ints array. -->
                     <dfdl:discriminator testKind="expression" test='{ fn:true() }' />
                   </xs:appinfo>
                 </xs:annotation>

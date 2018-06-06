@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.util._
-import org.apache.daffodil.exceptions.Assert
 
 object Processor {
   /**
@@ -33,9 +32,9 @@ object Processor {
   private def ensureCompiled(proc: Processor) {
     if (!proc.isInitialized) {
       proc.isInitialized = true
-      proc.childProcessors.foreach { cp =>
-        Assert.invariant(!cp.isEmpty)
-      }
+      //      proc.childProcessors.foreach { cp =>
+      //        Assert.invariant(!cp.isEmpty)
+      //      }
       proc.runtimeDependencies.foreach { ensureCompiled }
       proc.childProcessors.foreach { ensureCompiled }
     }

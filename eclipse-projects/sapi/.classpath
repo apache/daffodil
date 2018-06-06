@@ -6,15 +6,7 @@
 *********** Utility and should not be modified by hand or using the Eclipse
 *********** BuildPath... GUI dialog.
 ***********
---><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4.jar">
-            <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4-javadoc.jar!/"/>
-                </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4.jar">
-            <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4-javadoc.jar!/"/>
-                </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6.jar">
+--><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6.jar">
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-javadoc.jar!/"/>
                 </attributes>

@@ -68,6 +68,12 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }
 
+  /**
+   * For unit testing. Must override because of multiple inheritance.
+   */
+  override def verifyPropValue(key: String, value: String): Boolean =
+    super.verifyPropValue(key, value)
+
   final def escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this)

@@ -716,7 +716,7 @@ class InputSourceDataInputStreamCharIteratorState  {
 
 class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) extends DataInputStream.CharIterator {
 
-  private var finfo : FormatInfo = _
+  private var finfo : FormatInfo = null
 
   override def reset(): Unit = {
     dis.cst.charIteratorState.clear()

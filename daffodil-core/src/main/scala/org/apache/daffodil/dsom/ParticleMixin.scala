@@ -27,11 +27,19 @@ trait RequiredOptionalMixin { self: ElementBase =>
 
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
+  /**
+   * Distinguishes elements which have minOccurs 0, maxOccurs 1, and
+   * a dfdl:occursCountKind that means parsing/unparsing will respect these
+   * bounds.
+   *
+   * This enables implementations to use different, lighter weight, representations
+   * for optional elements (e.g., null or not null object reference) vs what
+   * is required for arrays (growable vector of slots).
+   */
   final override lazy val isOptional = {
-    // minOccurs == 0
-    (optMinOccurs, optMaxOccurs) match {
-      case (Some(1), Some(1)) => false // scalars are not optional
-      case (Some(0), max) => {
+    (minOccurs, maxOccurs) match {
+      case (1, 1) => false // scalars are not optional
+      case (0, max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
         if (occursCountKind =:= OccursCountKind.Parsed ||
@@ -41,9 +49,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
           false
         } else {
           max match {
-            case Some(1) => true
-            case None => true
-            case Some(_) => false
+            case 1 => true
+            case _ => false
           }
         }
       }
@@ -51,7 +58,18 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
+  /**
+   * True if the element is required to appear in the DFDL Infoset.
+   *
+   * This includes elements that have no representation in the
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequired true.
+   *
+   * Takes into account that some dfdl:occursCountKind can make
+   * seemingly required elements (based on minOccurs) optional or
+   * repeating.
+   */
   final override def isRequired: Boolean = LV('isRequired) {
+    // TODO: Rename to isRequiredOrComputed
     val res = {
       if (isScalar) true
       else if (isOptional) false
@@ -61,24 +79,26 @@ trait RequiredOptionalMixin { self: ElementBase =>
     res
   }.value
 
+  /**
+   * True if a "real" array, i.e., not an optional element, but something
+   * that can potentially have 2 or more occurrences based on maxOccurs
+   * and dfdl:occursCountKind that indicates whether maxOccurs will be respected.
+   */
   final override lazy val isArray = {
-    // maxOccurs > 1 || maxOccurs == -1
-
     if (isOptional) false
     else {
       val UNBOUNDED = -1
-      (optMinOccurs, optMaxOccurs) match {
-        case (None, None) => false
-        case (Some(1), Some(1)) => false
-        case (_, Some(n)) if n > 1 => true
-        case (_, Some(UNBOUNDED)) => true
+      (minOccurs, maxOccurs) match {
+        case (1, 1) => false
+        case (_, n) if n > 1 => true
+        case (_, UNBOUNDED) => true
         /**
          * This next case is for occursCountKinds parsed and stopValue.
          * These only use min/maxOccurs for validation, so anything
          * with these occursCountKinds is an array (so long as it isn't
          * scalar)
          */
-        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed ||
+        case (_, 1) if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue ||
           occursCountKind == OccursCountKind.Expression) => true
         case _ => false
@@ -86,7 +106,13 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
+  /**
+   * True if an array has at least one required element based
+   * on a minOccurs and a dfdl:occursCountKind that means that
+   * minOccurs will be respected.
+   */
   final lazy val isRequiredArrayElement = {
+    // TODO: rename to isArraywithAtLeastOneRequiredArrayElement
     isArray &&
       minOccurs > 0 &&
       (occursCountKind == OccursCountKind.Fixed ||
@@ -95,11 +121,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
   }
 }
 
-// A Particle is something that can be repeating.
+// A Particle is something that can be repeating or optional.
 trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
-
-  final lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  final lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
@@ -117,23 +140,31 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       case _ => max.toInt
     }
   }
+  
+  /**
+   * Can have a varying number of occurrences.
+   */
+  final override lazy val isVariableOccurrences = minOccurs != maxOccurs
 
   final lazy val isFixedOccurrences = {
-    // TODO optimizations to take scope into consideration. E.g.,
+    // TODO maybe do optimizations to take scope into consideration. E.g.,
     // We could be in a context where the value of our occursCount expression
     // will always be a constant.
     occursCountKind == OccursCountKind.Fixed
   }
 
   /**
-   * Does this node have statically required instances.
+   * Does this node have statically required instances in the data stream.
+   *
+   * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
    */
   final def hasStaticallyRequiredInstances = LV('hasStaticallyRequiredInstances) {
+    // TODO: Rename to hasStaticallyRequiredOccurrencesInDataRepresentation
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
       else if (isFixedOccurrences) true
-      else if (minOccurs > 0) true
+      else if (minOccurs > 0) true // FIXME: should call isRequiredArrayElement
       else false
     res
   }.value

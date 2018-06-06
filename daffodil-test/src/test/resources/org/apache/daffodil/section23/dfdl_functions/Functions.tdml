@@ -8943,7 +8943,7 @@
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
-      initiatedContent="no" separatorSuppressionPolicy="never" separatorPosition="infix" />
+      initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
     <xs:element name="choice">
       <xs:complexType>
