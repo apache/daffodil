@@ -58,14 +58,6 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   private lazy val orderedUnseparatedSequence =
     OrderedUnseparatedSequence(this, groupMembers)
 
-  //  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
-  //    val uoseq = self.unorderedSeq.get
-  //    UnorderedSequenceCombinator(this, uoseq.terms)
-  //  }
-
-  // protected lazy val terms = groupMembers.map { _.asTermInSequence }
-  // protected lazy val terms = groupMembers//.map { _.asTermInSequence }
-
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
