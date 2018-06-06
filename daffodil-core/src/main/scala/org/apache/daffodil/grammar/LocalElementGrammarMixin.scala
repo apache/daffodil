@@ -79,14 +79,12 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
    */
   private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurring) ~
-      RepUnbounded(self, separatedRecurring) ~
-      StopValue(this)
+      RepUnbounded(self, separatedRecurring)
   }
 
   private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurring) ~
-      RepAtMostTotalN(self, maxOccurs, separatedRecurring) ~
-      StopValue(this)
+      RepAtMostTotalN(self, maxOccurs, separatedRecurring)
   }
 
   private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", !isScalar) {
@@ -102,14 +100,12 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   }
 
   private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", !isScalar) {
-    RepUnbounded(self, separatedRecurring) ~
-      StopValue(this)
+    RepUnbounded(self, separatedRecurring)
   }
 
   private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", !isScalar) {
     RepExactlyN(self, minOccurs, separatedRecurring) ~
-      RepAtMostTotalN(this, maxOccurs, separatedRecurring) ~
-      StopValue(this)
+      RepAtMostTotalN(this, maxOccurs, separatedRecurring)
   }
 
   // Question: Do we have to adjust the count to take stopValue into account?
@@ -124,25 +120,18 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
     RepAtMostTotalN(self, maxOccurs, separatedEmpty)
   }
 
-  /**
-   *  parse counted number of occurrences exactly.
-   */
-  private lazy val stopValueSize = if (hasStopValue) 1 else 0
-
   // TODO FIXME: We really want to have different productions for parsing and unparsing in these
   // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
   // symmetric with parsing in these situations.
   private def separatedContentExactlyN(count: Long) = prod("separatedContentExactlyN") {
     if (minOccurs == maxOccurs) {
       // fixed length case. All are defaultable. Still might have a stop value tho.
-      RepExactlyN(self, count, separatedRecurring) ~
-        StopValue(this)
+      RepExactlyN(self, count, separatedRecurring)
     } else {
       // variable length case. So some defaultable, some not.
       RepExactlyN(self, minOccurs, separatedRecurring) ~
         RepAtMostTotalN(self, count, separatedRecurring) ~
-        StopValue(this) ~
-        RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb remaining separators after stop value.
+        RepExactlyTotalN(self, maxOccurs, separatedEmpty) // absorb remaining separators after stop value.
     }
   }
 
