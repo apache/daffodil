@@ -19,8 +19,6 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 
 /**
  * Base class for any DFDL annotation
@@ -38,19 +36,18 @@ import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends SchemaComponent
-  with NestingLexicalMixin
-  with FindPropertyMixin // only needed because unit tests look at properties on annotations
+  with NestingLexicalMixin //with  FindPropertyMixin // only needed because unit tests look at properties on annotations
   {
 
   final override val xml = xmlArg
   final override def parent = annotatedSCArg
   final override val context: AnnotatedSchemaComponent = annotatedSCArg
 
-  // delegate to the annotated component.
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.resolver.findPropertyOption(pname)
-    res
-  }
+  //  // delegate to the annotated component.
+  //  override def findPropertyOption(pname: String): PropertyLookupResult = {
+  //    val res = annotatedSC.resolver.findPropertyOption(pname)
+  //    res
+  //  }
 
   final lazy val annotatedSC = annotatedSCArg
 

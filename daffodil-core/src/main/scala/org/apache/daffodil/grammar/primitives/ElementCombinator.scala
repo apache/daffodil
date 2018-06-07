@@ -98,7 +98,7 @@ class ElementCombinator(context: ElementBase,
     subComb.parser
   }
 
-  private lazy val uSetVars = context.setVariableStatements.map(_.gram.unparser).toArray
+  private lazy val uSetVars = context.setVariableStatements.map(_.gram(context).unparser).toArray
 
   private lazy val eBeforeUnparser: Maybe[Unparser] =
     if (eBeforeContent.isEmpty) Maybe.Nope
@@ -434,21 +434,21 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
     if (pd.size == 0) {
       Maybe.Nope
     } else {
-      pd(0).gram.maybeParser
+      pd(0).gram(context).maybeParser
     }
   }
-  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser).toArray
-  lazy val pSetVar = context.setVariableStatements.map(_.gram.parser).toArray
+  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram(context).parser).toArray
+  lazy val pSetVar = context.setVariableStatements.map(_.gram(context).parser).toArray
   lazy val testDiscrim = {
     val td = context.discriminatorStatements.filter(_.testKind == TestKind.Expression)
     Assert.invariant(td.size <= 1)
     if (td.size == 0) {
       Maybe.Nope
     } else {
-      td(0).gram.maybeParser
+      td(0).gram(context).maybeParser
     }
   }
-  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser).toArray
+  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram(context).parser).toArray
 
   lazy val eBeforeParser: Maybe[Parser] = eGramBefore.maybeParser
 
@@ -458,7 +458,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
 
   def parser: Parser
 
-  lazy val uSetVar = context.setVariableStatements.map(_.gram.unparser).toArray
+  lazy val uSetVar = context.setVariableStatements.map(_.gram(context).unparser).toArray
 
   lazy val eBeforeUnparser: Maybe[Unparser] = eGramBefore.maybeUnparser
 

@@ -44,7 +44,8 @@ trait Term
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin {
+  with TermEncodingMixin
+  with EscapeSchemeRefMixin {
 
   def position: Int
 

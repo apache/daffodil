@@ -21,7 +21,7 @@ import org.apache.daffodil.dsom.Term
 
 trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
 
-  private lazy val statementGrams = statements.map { _.gram }
+  private lazy val statementGrams = statements.map { _.gram(self) }
   // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
 
   final lazy val dfdlStatementEvaluations = prod("dfdlStatementEvaluations", statementGrams.length > 0) {

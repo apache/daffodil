@@ -107,8 +107,8 @@ case class InitiatedContent(
     "initiatedContent") {
 }
 
-case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-  extends ExpressionEvaluatorBase(decl) {
+case class SetVariable(stmt: DFDLSetVariable)
+  extends ExpressionEvaluatorBase(stmt.context) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
 
