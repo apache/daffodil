@@ -21,13 +21,17 @@ import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.processors.unparsers.LayeredSequenceUnparser
+import org.apache.daffodil.processors.parsers.ScalarOrderedRequiredUnseparatedSequenceChildParser
+import org.apache.daffodil.processors.unparsers.ScalarOrderedRequiredUnseparatedSequenceChildUnparser
 
-case class LayeredSequence(sq: SequenceTermBase, bodyTerm: Gram)
+case class LayeredSequence(sq: SequenceTermBase, bodyTerm: SequenceChild)
   extends Terminal(sq, true) {
+
+  private val srd = sq.sequenceRuntimeData
+  private val trd = bodyTerm.trd
 
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
@@ -35,9 +39,11 @@ case class LayeredSequence(sq: SequenceTermBase, bodyTerm: Gram)
       "</" + Misc.getNameFromClass(this) + ">"
 
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(sq.termRuntimeData, sq.maybeLayerTransformerEv.get, bodyTerm.parser)
+    new LayeredSequenceParser(srd, sq.maybeLayerTransformerEv.get,
+      new ScalarOrderedRequiredUnseparatedSequenceChildParser(bodyTerm.parser, srd, trd))
 
   override lazy val unparser: DaffodilUnparser = {
-    new LayeredSequenceUnparser(sq.modelGroupRuntimeData, sq.maybeLayerTransformerEv.get, bodyTerm.unparser)
+    new LayeredSequenceUnparser(sq.sequenceRuntimeData, sq.maybeLayerTransformerEv.get,
+      new ScalarOrderedRequiredUnseparatedSequenceChildUnparser(bodyTerm.unparser, srd, trd))
   }
 }

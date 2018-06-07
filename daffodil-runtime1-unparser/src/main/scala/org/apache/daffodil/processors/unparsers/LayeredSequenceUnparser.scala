@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.{ LayerTransformerEv, ModelGroupRuntimeData }
+import org.apache.daffodil.processors.LayerTransformerEv
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.processors.SequenceRuntimeData
 
-class LayeredSequenceUnparser(ctxt: ModelGroupRuntimeData,
+class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
   layerTransformerEv: LayerTransformerEv,
-  childUnparser: Unparser)
-  extends OrderedUnseparatedSequenceUnparser(ctxt, Vector(childUnparser)) {
+  childUnparser: SequenceChildUnparser)
+  extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override lazy val runtimeDependencies = Seq(layerTransformerEv)
 

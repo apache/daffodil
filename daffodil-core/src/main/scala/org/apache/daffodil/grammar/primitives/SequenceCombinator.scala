@@ -23,72 +23,44 @@ import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.processors.unparsers._
 import org.apache.daffodil.util.Misc
 
-sealed abstract class OrderedSequenceBase(sq: SequenceTermBase, rawTerms: Seq[Term])
-  extends Terminal(sq, rawTerms.length > 0) {
+abstract class SequenceCombinator(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild])
+  extends Terminal(sq, sequenceChildren.length > 0) {
+  val srd = sq.sequenceRuntimeData
+}
 
-  private lazy val terms = rawTerms.filterNot { _.termContentBody.isEmpty }
-
-  // if all the body terms are empty, this causes this whole combinator to
-  // optimize away.
-  override final lazy val isEmpty = super.isEmpty || terms.isEmpty
+sealed abstract class OrderedSequenceBase(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild])
+  extends SequenceCombinator(sq, sequenceChildren) {
 
   override def toString() =
     "<" + Misc.getNameFromClass(this) + ">" +
-      rawTerms.map { _.toString() }.mkString +
+      sequenceChildren.map { _.toString() }.mkString +
       "</" + Misc.getNameFromClass(this) + ">"
-
-  protected lazy val parserPairs = terms.flatMap { term =>
-    val isNotRequired = !term.isRequired
-    val gram = term match {
-      case e: ElementBase if isNotRequired || term.isArray => e.recurrance
-      case e: ElementBase => e.enclosedElement
-      case _ => term.termContentBody
-    }
-    val p = gram.parser
-    if (p.isEmpty) Nil
-    else List((term.termRuntimeData, gram.parser))
-  }.toVector
-
-  protected lazy val unparserPairs = terms.flatMap { term =>
-    val isNotRequired = !term.isRequired
-    val gram = term match {
-      case e: ElementBase if isNotRequired || term.isArray => e.recurrance
-      case e: ElementBase => e.enclosedElement
-      case _ => term.termContentBody
-    }
-    val u = gram.unparser
-    if (u.isEmpty) Nil
-    else List((term.termRuntimeData, gram.unparser))
-  }.toVector
-
-  protected lazy val parsers = parserPairs.map { _._2 }
-
-  protected lazy val unparsers = unparserPairs.map { _._2 }
 }
 
-case class OrderedUnseparatedSequence(sq: SequenceTermBase, rawTerms: Seq[Term])
-  extends OrderedSequenceBase(sq, rawTerms) {
+class OrderedSequence(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild])
+  extends OrderedSequenceBase(sq, sequenceChildren) {
 
-  lazy val parser: Parser =
-    new OrderedUnseparatedSequenceParser(sq.termRuntimeData, parsers)
+  private lazy val sepGram = sq.sequenceSeparator
+  private lazy val sepParser = sepGram.parser
+  private lazy val sepUnparser = sepGram.unparser
 
+  override lazy val parser: Parser = sq.hasSeparator match {
+    case true => new OrderedSeparatedSequenceParser(srd,
+      sq.separatorSuppressionPolicy, sq.separatorPosition, sepParser,
+      sequenceChildren.flatMap { _.optSequenceChildParser })
+    case false =>
+      new OrderedUnseparatedSequenceParser(srd,
+        sequenceChildren.flatMap { _.optSequenceChildParser })
+  }
   override lazy val unparser: Unparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC
-    new OrderedUnseparatedSequenceUnparser(sq.modelGroupRuntimeData, unparsers)
-  }
-}
-
-case class OrderedSeparatedSequence(sq: SequenceTermBase, rawTerms: Seq[Term])
-  extends OrderedSequenceBase(sq, rawTerms) {
-
-  lazy val parser: Parser = {
-    new OrderedSeparatedSequenceParser(sq.termRuntimeData, sq.separatorSuppressionPolicy,
-      sq.separatorPosition, sq.sequenceSeparator.parser, parserPairs)
-  }
-
-  override lazy val unparser: Unparser = {
-    sq.checkHiddenSequenceIsDefaultableOrOVC
-    new OrderedSeparatedSequenceUnparser(sq.modelGroupRuntimeData, sq.separatorPosition,
-      sq.sequenceSeparator.unparser, unparserPairs)
+    sq.hasSeparator match {
+      case true => new OrderedSeparatedSequenceUnparser(srd,
+        sq.separatorSuppressionPolicy, sq.separatorPosition, sepUnparser,
+        sequenceChildren.flatMap { _.optSequenceChildUnparser })
+      case false =>
+        new OrderedUnseparatedSequenceUnparser(srd,
+          sequenceChildren.flatMap { _.optSequenceChildUnparser })
+    }
   }
 }

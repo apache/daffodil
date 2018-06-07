@@ -236,7 +236,9 @@ abstract class ChoiceTermBase( final override val xml: Node,
     noDupes
   }.value
 
-  final lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = choiceRuntimeData
+
+  final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,

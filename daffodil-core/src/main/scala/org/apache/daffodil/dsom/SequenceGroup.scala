@@ -69,7 +69,7 @@ abstract class SequenceTermBase(
 
   final override def hasPotentiallyTrailingInstances = {
     isPotentiallyTrailing ||
-    groupMembers.exists { _.hasPotentiallyTrailingInstances }
+      groupMembers.exists { _.hasPotentiallyTrailingInstances }
   }
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
@@ -226,7 +226,9 @@ abstract class SequenceTermBase(
 
   } else None
 
-  final lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = sequenceRuntimeData
+
+  final lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,
