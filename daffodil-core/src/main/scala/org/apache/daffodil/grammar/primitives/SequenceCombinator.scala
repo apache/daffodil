@@ -54,13 +54,16 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild]
   }
   override lazy val unparser: Unparser = {
     sq.checkHiddenSequenceIsDefaultableOrOVC
-    sq.hasSeparator match {
-      case true => new OrderedSeparatedSequenceUnparser(srd,
-        sq.separatorSuppressionPolicy, sq.separatorPosition, sepUnparser,
-        sequenceChildren.flatMap { _.optSequenceChildUnparser })
-      case false =>
-        new OrderedUnseparatedSequenceUnparser(srd,
-          sequenceChildren.flatMap { _.optSequenceChildUnparser })
-    }
+    val childUnparsers = sequenceChildren.flatMap { _.optSequenceChildUnparser }
+    if (childUnparsers.isEmpty) new NadaUnparser(null)
+    else
+      sq.hasSeparator match {
+        case true => new OrderedSeparatedSequenceUnparser(srd,
+          sq.separatorSuppressionPolicy, sq.separatorPosition, sepUnparser,
+          childUnparsers)
+        case false =>
+          new OrderedUnseparatedSequenceUnparser(srd,
+            childUnparsers)
+      }
   }
 }

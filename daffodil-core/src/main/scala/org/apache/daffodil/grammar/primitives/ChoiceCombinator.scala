@@ -94,8 +94,11 @@ case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram])
           }
           altGram.map { ag => (cbe, ag.unparser) }
       }
-
-      new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap)
+      val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
+      if (mapValues.isEmpty)
+        new NadaUnparser(null)
+      else
+        new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, eventUnparserMap)
     } else {
       // Choices inside a hidden group ref are slightly different because we
       // will never see events for any of the branches. Instead, we will just

@@ -125,8 +125,8 @@ class OrderedSeparatedSequenceUnparser(rd: SequenceRuntimeData,
       sep.unparse1(state)
     }
 
-    if ((spos eq SeparatorPosition.Infix) && state.childPos != 0 && trd.isRepresented) {
-      state.processorStatus eq Success
+    if ((spos eq SeparatorPosition.Infix) && state.childPos > 1 && trd.isRepresented) {
+      sep.unparse1(state)
     }
 
     unparser.unparse1(state)

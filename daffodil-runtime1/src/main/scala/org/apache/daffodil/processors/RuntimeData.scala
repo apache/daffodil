@@ -55,6 +55,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.OKOrError
 import java.util.regex.Matcher
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -623,6 +624,7 @@ final class ElementRuntimeData(
   @TransientParam optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
   @TransientParam minOccursArg: => Long,
   @TransientParam maxOccursArg: => Long,
+  @TransientParam maybeOccursCountKindArg: => Maybe[OccursCountKind],
   @TransientParam nameArg: => String,
   @TransientParam targetNamespacePrefixArg: => String,
   @TransientParam thisElementsNamespacePrefixArg: => String,
@@ -683,6 +685,7 @@ final class ElementRuntimeData(
   lazy val optSimpleTypeRuntimeData = optSimpleTypeRuntimeDataArg
   lazy val minOccurs = minOccursArg
   lazy val maxOccurs = maxOccursArg
+  lazy val maybeOccursCountKind = maybeOccursCountKindArg
   lazy val name = nameArg
   lazy val targetNamespacePrefix = targetNamespacePrefixArg
   lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
@@ -720,6 +723,7 @@ final class ElementRuntimeData(
     optSimpleTypeRuntimeData
     minOccurs
     maxOccurs
+    maybeOccursCountKind
     name
     targetNamespacePrefix
     thisElementsNamespacePrefix

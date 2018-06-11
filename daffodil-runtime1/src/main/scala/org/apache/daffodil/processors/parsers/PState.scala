@@ -26,10 +26,8 @@ import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
@@ -59,6 +57,7 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.infoset.DIElementState
 
 object MPState {
 
@@ -113,7 +112,11 @@ class MPState private () {
   // stack. Can we get rid of it?
   val childIndexStack = MStackOfLong()
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
-  def childPos = childIndexStack.top
+  def childPos = {
+    val res = childIndexStack.top
+    Assert.invariant(res >= 1)
+    res
+  }
 
   val occursBoundsStack = MStackOfLong()
   def updateBoundsHead(ob: Long) = {
@@ -340,8 +343,7 @@ object PState {
 
     def bitPos0b = disMark.bitPos0b
 
-    val simpleElementState = DISimpleState()
-    val complexElementState = DIComplexState()
+    var elementState: DIElementState = null
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
@@ -352,8 +354,7 @@ object PState {
     val mpStateMark = new MPState.Mark
 
     def clear() {
-      simpleElementState.clear()
-      complexElementState.clear()
+      if (elementState ne null) elementState.clear()
       disMark = null
       variableMap = null
       processorStatus = null
@@ -365,10 +366,8 @@ object PState {
 
     def captureFrom(ps: PState, requestorID: String) {
       val e = ps.thisElement
-      if (e.isSimple)
-        simpleElementState.captureFrom(e)
-      else
-        complexElementState.captureFrom(e)
+      if (elementState == null) elementState = e.makeElementState()
+      elementState.captureFrom(e)
       this.disMark = ps.dataInputStream.mark(requestorID)
       this.variableMap = ps.variableMap
       this.processorStatus = ps.processorStatus
@@ -379,10 +378,7 @@ object PState {
 
     def restoreInto(ps: PState) {
       val e = ps.thisElement
-      e match {
-        case s: DISimple => simpleElementState.restoreInto(e)
-        case c: DIComplex => complexElementState.restoreInto(e)
-      }
+      elementState.restoreInto(e)
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
       ps._processorStatus = this.processorStatus

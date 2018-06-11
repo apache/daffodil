@@ -27,7 +27,6 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.processors.Failure
 
@@ -66,6 +65,37 @@ object ArrayIndexStatus {
    * are unable to continue parsing.
    */
   case object Failed extends StopArrayIndexStatus
+
+  /**
+   * Indicates that we are done iterating, and should stop parsing more
+   * array. Used to indicate that the end of the array was identified
+   * by speculative parsing.
+   */
+  case object Done extends StopArrayIndexStatus
+}
+
+sealed trait ParseAttemptStatus
+sealed trait SuccessParseAttemptStatus extends ParseAttemptStatus
+sealed trait FailedParseAttemptStatus extends ParseAttemptStatus
+
+object ParseAttemptStatus {
+
+  case object Uninitialized extends ParseAttemptStatus
+
+  case object Success_ZeroLength extends SuccessParseAttemptStatus
+
+  case object Success_NotZeroLength extends SuccessParseAttemptStatus
+
+  case object Success_LengthUndetermined extends SuccessParseAttemptStatus
+
+  case object Success_EndOfArray extends SuccessParseAttemptStatus
+
+  case object FailedWithDiscriminatorSet extends FailedParseAttemptStatus
+
+  case object FailedSpeculativeParse extends FailedParseAttemptStatus
+
+  case object FailedEntireArray extends FailedParseAttemptStatus
+
 }
 
 /**
@@ -79,7 +109,8 @@ trait ParseLoopState {
    * and how we should interpret the existence of an element
    * or empty/zero-length based on the array index.
    */
-  def arrayIndexStatus(parser: SequenceChildParser, state: PState): ArrayIndexStatus
+  def arrayIndexStatus(parser: SequenceChildParser, state: PState,
+    resultOfPriorTry: ParseAttemptStatus): ArrayIndexStatus
 
   /**
    * Must advance array position for arrays, plus any
@@ -109,13 +140,13 @@ abstract class OrderedSequenceParserBase(rd: SequenceRuntimeData, childParsers: 
     pstate: PState,
     priorState: PState.Mark,
     maybeStartState: Maybe[PState.Mark],
-    ais: GoArrayIndexStatus): MaybeBoolean
+    ais: GoArrayIndexStatus): ParseAttemptStatus
 
   final protected def tryParseDetectMarkLeaks(
     parser: SequenceChildParser,
     pstate: PState,
     maybeStartState: Maybe[PState.Mark],
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
 
     var markLeakCausedByException = false
     var priorState: PState.Mark = null
@@ -156,7 +187,63 @@ abstract class OrderedSequenceParserBase(rd: SequenceRuntimeData, childParsers: 
     result
   }
 
+  protected def failedChild(pstate: PState, priorState: PState.Mark): ParseAttemptStatus = {
+    val cause = pstate.processorStatus.asInstanceOf[Failure].cause
+    pstate.reset(priorState)
+    PE(pstate, "Failed to parse sequence child. Cause: %s.", cause)
+    ParseAttemptStatus.FailedSpeculativeParse
+  }
+
+  protected def processFailedChildParseResults(
+    pstate: PState,
+    priorState: PState.Mark,
+    maybeStartState: Maybe[PState.Mark]): ParseAttemptStatus = {
+    val isFixedOccurs = maybeStartState.isEmpty
+    val isVariableOccurs = !isFixedOccurs
+    //
+    // we failed to parse a child
+    //
+    // failedChild(pstate, priorState) // discards prior state
+    if (isFixedOccurs) {
+      //
+      // in fixed occurs, there are no points of uncertainty for the
+      // individual elements, so a failure is a failure of the whole loop.
+      // And any discriminator that has been set is the discriminator
+      // of some surrounding scope.
+      //
+      ParseAttemptStatus.FailedEntireArray
+    } else {
+      Assert.invariant(isVariableOccurs)
+      val startState = maybeStartState.get
+      //
+      // variable occurs case, there is a PoU per array element
+      //
+      // Parsing the array element may be a deep recursive walk
+      // somewhere in there a discriminator may be set indicating
+      // this array element is known to exist
+      //
+      // Hence, if discriminator is set, we fail the whole array
+      // because the discriminator says this array element *is here*, but
+      // the parse failed, so it isn't.
+      //
+      if (pstate.discriminator == true) {
+        pstate.discard(priorState) // deallocate
+        pstate.reset(startState)
+        ParseAttemptStatus.FailedWithDiscriminatorSet
+      } else {
+        Assert.invariant(pstate.discriminator == false)
+        //
+        // discriminator false, variable occurs case, we failed the element, but that
+        // just means we back out to prior element.
+        //
+        pstate.reset(priorState) // no need discard priorState, that is implicitly discarded by resetting the startState
+        pstate.discard(startState) // finished with array, so cleanup
+        ParseAttemptStatus.Success_EndOfArray // not zero length (in this case with success at prior element)
+      }
+    } // end if fixed/variable
+  }
 }
+
 object SequenceChildParser {
   type SeparatedChildParser = SequenceChildParser with Separated
   type RepSeparatedChildParser = SeparatedChildParser with RepParser
@@ -172,6 +259,7 @@ abstract class SequenceChildParser(
   extends CombinatorParser(srd) {
 
   override def runtimeDependencies = Nil
+
 }
 
 trait RepParser { self: SequenceChildParser =>
@@ -180,17 +268,13 @@ trait RepParser { self: SequenceChildParser =>
   def srd: SequenceRuntimeData
   def erd: ElementRuntimeData
   def baseName: String
-  def minRepeats: Long
-  def maxRepeats: Long
 
   override protected def parse(pstate: PState): Unit = {
     childParser.parse1(pstate)
     if (pstate.processorStatus ne Success) {
       val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-      PE(pstate, "Failed to populate %s[%s].  Expected from %s to %s item(s). Cause: %s.",
-        erd.prefixedName, pstate.mpstate.arrayPos, minRepeats,
-        (if (maxRepeats == Long.MaxValue) "unbounded" else maxRepeats),
-        cause) // they all must succeed, otherwise we fail here.
+      PE(pstate, "Failed to populate %s[%s]. Cause: %s.",
+        erd.prefixedName, pstate.mpstate.arrayPos, cause) // they all must succeed, otherwise we fail here.
       return
     }
   }

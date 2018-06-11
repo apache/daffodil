@@ -18,18 +18,12 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors.{ SequenceRuntimeData, Success, TermRuntimeData }
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.util.{ Maybe, MaybeBoolean }
+import org.apache.daffodil.util.Maybe
 
 trait Unseparated { self: SequenceChildParser =>
 
   val childProcessors = Seq(childParser)
 }
-//abstract class UnseparatedSequenceChildParser(
-//  childParser: Parser,
-//  srd: SequenceRuntimeData,
-//  trd: TermRuntimeData)
-//  extends SequenceChildParser(childParser, srd, trd) with Unseparated {
-//}
 
 class ScalarOrderedRequiredUnseparatedSequenceChildParser(
   childParser: Parser,
@@ -42,8 +36,8 @@ class ScalarOrderedRequiredUnseparatedSequenceChildParser(
 
 abstract class RepUnseparatedParser(
   childParser: Parser,
-  val minRepeats: Long,
-  val maxRepeats: Long,
+  val min: Long,
+  val max: Long,
   srd: SequenceRuntimeData,
   val erd: ElementRuntimeData,
   val baseName: String)
@@ -54,13 +48,11 @@ class RepOrderedExactlyNUnseparatedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  repeatCount: Long,
+  val repeatCount: Long,
   baseName: String = "ExactlyN")
   extends RepUnseparatedParser(childParser, 0, repeatCount, srd, erd, baseName)
-  with RepParser {
-
-  override def loopState(pstate: PState): ParseLoopState = ???
-}
+  with RepParser
+  with OccursCountExactLoopStateMixin
 
 class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(
   childParser: Parser,
@@ -71,9 +63,11 @@ class RepOrderedExactlyTotalOccursCountUnseparatedSequenceChildParser(
     srd, erd,
     { val ignored = 0; ignored },
     "ExactlyTotalOccursCount")
-  with OccursCountLoopStateMixin {
+  with OccursCountExpressionLoopStateMixin {
 
-  override def loopState(pstate: PState): ParseLoopState = ???
+  override val childProcessors = Seq(ocParser, childParser)
+
+  override def loopState(pstate: PState) = super.loopState(pstate)
 }
 
 class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
@@ -85,17 +79,9 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
   max: Long = -1) // pass -2 to force unbounded behavior
   extends RepUnseparatedParser(
     childParser,
-    (if (min == -1) erd.minOccurs else min),
-    max match {
-      case -1 if (erd.maxOccurs == -1) => Long.MaxValue
-      case -1 => erd.maxOccurs
-      case -2 => Long.MaxValue
-      case _ => max
-    },
-    srd, erd, baseName) {
-
-  override def loopState(pstate: PState): ParseLoopState = ???
-}
+    min, max,
+    srd, erd, baseName)
+  with OccursCountMinMaxLoopStateMixin
 
 class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg: Seq[SequenceChildParser])
   extends OrderedSequenceParserBase(rd, childParsersArg) {
@@ -114,7 +100,7 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
     pstate: PState,
     priorState: PState.Mark,
     maybeStartState: Maybe[PState.Mark],
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
 
     val parser = parserArg.asInstanceOf[UnseparatedChildParser]
 
@@ -131,10 +117,19 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
 
     if (pstate.dataProc.isDefined) pstate.dataProc.get.afterRepetition(pstate, this)
 
+    val childSuccessful = pstate.processorStatus eq Success
+
+    val res: ParseAttemptStatus = {
+      if (!childSuccessful)
+        processFailedChildParseResults(pstate, priorState, maybeStartState)
+      else
+        ParseAttemptStatus.Success_LengthUndetermined
+
+    }
     if (isVariableOccurs) {
       pstate.popDiscriminator
     }
-    MaybeBoolean(false)
+    res
   }
 
   //
@@ -164,12 +159,20 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
 
           var ais: ArrayIndexStatus = null
 
+          var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+          val maybeStartState =
+            if (parser.erd.maxOccurs != parser.erd.minOccurs)
+              Maybe(pstate.mark("startState in OrderedUnseparatedSequenceParser"))
+            else
+              Maybe.Nope
+
           while ({
-            ais = loopState.arrayIndexStatus(parser, pstate)
+            ais = loopState.arrayIndexStatus(parser, pstate, resultOfTry)
             ais.isInstanceOf[GoArrayIndexStatus]
           }) {
 
-            tryParseDetectMarkLeaks(parser, pstate, Maybe.Nope, ais.asInstanceOf[GoArrayIndexStatus])
+            resultOfTry = tryParseDetectMarkLeaks(parser, pstate, maybeStartState, ais.asInstanceOf[GoArrayIndexStatus])
 
             loopState.nextArrayIndex(pstate)
           } // end while for each repeat

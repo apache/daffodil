@@ -24,6 +24,8 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.equality._
+import org.apache.daffodil.infoset.DIArray
+import org.apache.daffodil.util.Maybe._
 
 abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnparsers: Seq[SequenceChildUnparser])
   extends CombinatorUnparser(srd) {
@@ -132,51 +134,6 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
       }
     }
   }
-
-  //  protected def unparse(state: UState): Unit = {
-  //
-  //    var scpIndex = 0
-  //    state.groupIndexStack.push(1L) // one-based indexing
-  //
-  //    val limit = childUnparsers.length
-  //
-  //    while ((scpIndex < limit) && (state.processorStatus eq Success)) {
-  //      val child = childUnparsers(scpIndex)
-  //      val trd = child.trd
-  //      child match {
-  //        case unparser: RepSeparatedChildUnparser => {
-  //
-  //          val loopState = unparser.loopState(state)
-  //
-  //          // push new array context for array/optional
-  //          unparser.startArray(state)
-  //
-  //          var ais: ArrayIndexStatus = null
-  //
-  //          while ({
-  //            ais = loopState.arrayIndexStatus(unparser, state)
-  //            ais.isInstanceOf[GoArrayIndexStatus]
-  //          }) {
-  //
-  //            unparseOne(unparser, trd, state, ais.asInstanceOf[GoArrayIndexStatus])
-  //
-  //            loopState.nextArrayIndex(state)
-  //          } // end while for each repeat
-  //
-  //          unparser.endArray(state)
-  //        } // end match case RepUnparser
-  //
-  //        case scalarUnparser => {
-  //          unparseOne(scalarUnparser, trd, state, ArrayIndexStatus.Required)
-  //        } // end match case scalar unparser
-  //      } // end match
-  //      scpIndex += 1
-  //    } // end while for each sequence child unparser
-  //
-  //    state.groupIndexStack.pop()
-  //    state.moveOverOneGroupIndexOnly()
-  //    ()
-  //  }
 }
 object SequenceChildUnparser {
   type SeparatedChildUnparser = SequenceChildUnparser with Separated
@@ -205,7 +162,9 @@ trait RepUnparser { self: SequenceChildUnparser =>
   def maxRepeats: Long
 
   override protected def unparse(state: UState): Unit = {
+    startArray(state)
     childUnparser.unparse1(state)
+    endArray(state)
   }
 
   override lazy val runtimeDependencies = Nil
@@ -221,9 +180,18 @@ trait RepUnparser { self: SequenceChildUnparser =>
   def startArray(state: UState): Unit = {
     state.arrayIndexStack.push(1L) // one-based indexing
     state.occursBoundsStack.push(state.tunable.maxOccursBounds)
+
+    val event = state.advanceOrError
+    Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
   }
 
   def endArray(state: UState): Unit = {
+
+    val event = state.advanceOrError
+    if (!(event.isEnd && event.node.isInstanceOf[DIArray])) {
+      UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "Expected array end event for %s, but received %s.", erd.namedQName, event)
+    }
+
     val actualOccurs = state.arrayIndexStack.pop()
     state.occursBoundsStack.pop()
 

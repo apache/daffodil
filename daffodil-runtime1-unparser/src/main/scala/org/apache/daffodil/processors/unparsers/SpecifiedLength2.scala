@@ -391,7 +391,7 @@ sealed trait NeedValueAndTargetLengthMixin {
             paddingLengthInBits
           }
           case c: DIComplex =>
-            ???
+            ??? // FIXME: This code was left incomplete - JIRA DAFFODIL-1952
         }
       } else {
         0L // must be delimited, so we don't pad unless there's a minLength, which

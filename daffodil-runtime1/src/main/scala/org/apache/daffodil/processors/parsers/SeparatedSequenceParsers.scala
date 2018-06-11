@@ -21,7 +21,8 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.{ ElementRuntimeData, Failure, ModelGroupRuntimeData, SequenceRuntimeData, Success, TermRuntimeData }
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
-import org.apache.daffodil.util.{ Maybe, MaybeBoolean }
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
 trait Separated { self: SequenceChildParser =>
   import ArrayIndexStatus._
@@ -30,7 +31,7 @@ trait Separated { self: SequenceChildParser =>
   def spos: SeparatorPosition
   def ssp: SeparatorSuppressionPolicy
 
-  val childProcessors = Seq(childParser, sep)
+  val childProcessors = Seq(sep, childParser)
 
   /**
    * Tells us if we should remove a successfully parsed zero-length string
@@ -74,35 +75,26 @@ class ScalarOrderedRequiredSeparatedSequenceChildParser(
   override def shouldRemoveZLStringHexBinaryValue(ais: ArrayIndexStatus, erd: ElementRuntimeData): Boolean = false
 }
 
-//abstract class RepSeparatedParser(
-//  childParser: Parser,
-//  val minRepeats: Long,
-//  val maxRepeats: Long,
-//  srd: SequenceRuntimeData,
-//  val erd: ElementRuntimeData,
-//  val baseName: String,
-//  val sep: Parser,
-//  val spos: SeparatorPosition,
-//  val ssp: SeparatorSuppressionPolicy)
-//  extends SequenceChildParser(childParser, srd, erd)
-//with Separated
-//with RepParser {
-//  import ArrayIndexStatus._
-//
-//
-//}
-
 class ExactlyNLoopState(limit: Long) extends ParseLoopState {
   import ArrayIndexStatus._
 
-  def arrayIndexStatus(parser: SequenceChildParser, pstate: PState) = {
+  def arrayIndexStatus(parser: SequenceChildParser,
+    pstate: PState,
+    resultOfPriorTry: ParseAttemptStatus) = {
     val res =
       if (pstate.processorStatus ne Success)
         Failed
-      else if (pstate.arrayPos <= limit)
-        Required
-      else
-        MaxExceeded
+      else {
+        resultOfPriorTry match {
+          case _: FailedParseAttemptStatus => ArrayIndexStatus.Failed
+          case _ => {
+            if (pstate.arrayPos <= limit)
+              Required
+            else
+              MaxExceeded
+          }
+        }
+      }
     res
   }
 
@@ -113,28 +105,32 @@ class ExactlyNLoopState(limit: Long) extends ParseLoopState {
   }
 }
 
-class RepOrderedExactlyNSeparatedSequenceChildParser(
-  childParser: Parser,
-  srd: SequenceRuntimeData,
-  val erd: ElementRuntimeData,
-  repeatCount: Long,
-  val sep: Parser,
-  val spos: SeparatorPosition,
-  val ssp: SeparatorSuppressionPolicy,
-  val baseName: String = "ExactlyN")
-  extends SequenceChildParser(childParser, srd, erd)
-  with Separated
-  with RepParser {
+trait OccursCountExactLoopStateMixin { self: SequenceChildParser =>
+
+  def repeatCount: Long
   val minRepeats = 0L
   val maxRepeats = repeatCount
 
   def loopState(pstate: PState): ParseLoopState = {
     new ExactlyNLoopState(repeatCount)
   }
-
 }
 
-trait OccursCountLoopStateMixin { self: SequenceChildParser =>
+class RepOrderedExactlyNSeparatedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  val erd: ElementRuntimeData,
+  val repeatCount: Long,
+  val sep: Parser,
+  val spos: SeparatorPosition,
+  val ssp: SeparatorSuppressionPolicy,
+  val baseName: String = "ExactlyN")
+  extends SequenceChildParser(childParser, srd, erd)
+  with OccursCountExactLoopStateMixin
+  with Separated
+  with RepParser
+
+trait OccursCountExpressionLoopStateMixin { self: SequenceChildParser =>
 
   def ocParser: Parser
 
@@ -158,9 +154,20 @@ class RepOrderedExactlyTotalOccursCountSeparatedSequenceChildParser(
     { val ignored = 0; ignored },
     sep, spos, ssp,
     "ExactlyTotalOccursCount")
-  with OccursCountLoopStateMixin {
+  with OccursCountExpressionLoopStateMixin {
+
+  override val childProcessors = Seq(ocParser, childParser)
 
   override def loopState(pstate: PState) = super.loopState(pstate)
+}
+
+trait OccursCountMinMaxLoopStateMixin { self: SequenceChildParser =>
+  def min: Long
+  def max: Long
+  def erd: ElementRuntimeData
+
+  def loopState(pstate: PState): ParseLoopState =
+    new MinMaxLoopState(erd, min, max)
 }
 
 /**
@@ -175,20 +182,53 @@ class RepOrderedWithMinMaxSeparatedSequenceChildParser(
   val sep: Parser,
   val spos: SeparatorPosition,
   val ssp: SeparatorSuppressionPolicy,
-  min: Long = -1,
-  max: Long = -1) // pass -2 to force unbounded behavior
+  val min: Long = -1,
+  val max: Long = -1) // pass -2 to force unbounded behavior
   extends SequenceChildParser(childParser, srd, erd)
   with Separated
-  with RepParser {
-  val minRepeats = if (min == -1) erd.minOccurs else min
-  val maxRepeats = max match {
+  with RepParser
+  with OccursCountMinMaxLoopStateMixin
+
+class MinMaxLoopState(erd: ElementRuntimeData, min: Long, max: Long) extends ParseLoopState {
+  import ArrayIndexStatus._
+
+  Assert.invariant(erd.maybeOccursCountKind.isDefined)
+  lazy val minRepeats = if (min == -1) erd.minOccurs else min
+  lazy val maxRepeats = max match {
     case -1 if (erd.maxOccurs == -1) => Long.MaxValue
-    case -1 => erd.maxOccurs
+    case -1 => if (erd.maybeOccursCountKind.get eq OccursCountKind.Parsed) Long.MaxValue else erd.maxOccurs
     case -2 => Long.MaxValue
     case _ => max
   }
 
-  override def loopState(pstate: PState): ParseLoopState = ???
+  def arrayIndexStatus(
+    parser: SequenceChildParser,
+    pstate: PState,
+    resultOfPriorTry: ParseAttemptStatus): ArrayIndexStatus = {
+    import ParseAttemptStatus._
+
+    if (pstate.processorStatus ne Success)
+      return Failed
+    resultOfPriorTry match {
+      case Success_EndOfArray => return Done
+      case _: SuccessParseAttemptStatus => // ok
+      case Uninitialized => // ok
+      case FailedEntireArray => return Failed
+      case FailedWithDiscriminatorSet => return Failed
+      case FailedSpeculativeParse => Assert.invariantFailed("Should already be handled.")
+    }
+    if (pstate.arrayPos <= minRepeats)
+      return Required
+    if (pstate.arrayPos <= maxRepeats)
+      return Optional
+    MaxExceeded
+  }
+
+  def nextArrayIndex(pstate: PState): Long = {
+    val res = pstate.arrayPos
+    pstate.mpstate.moveOverOneArrayIndexOnly() // advance array position
+    res
+  }
 }
 
 class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
@@ -211,27 +251,22 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     val cause = pstate.processorStatus.asInstanceOf[Failure].cause
     pstate.reset(priorState)
     PE(pstate, "Failed to parse %s separator. Cause: %s.", kind, cause)
-    MaybeBoolean(false)
-  }
-
-  private def failedChild(pstate: PState, priorState: PState.Mark) = {
-    val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-    pstate.reset(priorState)
-    PE(pstate, "Failed to parse sequence child. Cause: %s.", cause)
-    MaybeBoolean(false)
+    ParseAttemptStatus.FailedSpeculativeParse
   }
 
   private def failedZeroLengthWithAnyEmpty(pstate: PState, priorState: PState.Mark) = {
     pstate.reset(priorState)
     PE(pstate, "Failed to parse sequence child. Cause: zero-length data, but dfdl:separatorSuppressionPolicy is 'anyEmpty'.")
-    MaybeBoolean(false)
+    ParseAttemptStatus.FailedSpeculativeParse
   }
 
   /**
    * Parses one iteration of an array/optional element, and returns
    * * MaybeBoolean.One(true) - indicates the child parse was zero length
    * * MaybeBoolean.One(false) - indicates the child parse was not zero length or failed
-   * * MaybeBoolean.Nope - indicates that the array loop should terminate due to discriminator failure. in which case the pstate will indicate failure.
+   * * MaybeBoolean.Nope - indicates that the array loop should terminate. If due to discriminator failure
+   * the pstate will indicate failure. If due to speculative parsing finding the end of the array
+   * then pstate will indicate success.
    */
   protected def parseOne(
     parserArg: SequenceChildParser,
@@ -239,14 +274,14 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
     maybeStartState: Maybe[PState.Mark],
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
 
     val parser = parserArg.asInstanceOf[SeparatedChildParser]
 
     val isFixedOccurs = maybeStartState.isEmpty
     val isVariableOccurs = !isFixedOccurs
 
-    val wasZeroLength: MaybeBoolean = {
+    val finalStatus: ParseAttemptStatus = {
       // parse prefix sep if any
       val prefixSepSuccessful =
         if ((spos eq SeparatorPosition.Prefix) && trd.isRepresented) {
@@ -261,7 +296,8 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
         // except for the first position of the group, parse an infix separator
 
         val infixSepSuccessful =
-          if ((spos eq SeparatorPosition.Infix) && pstate.mpstate.childPos != 0 && trd.isRepresented) {
+          if ((spos eq SeparatorPosition.Infix) && pstate.mpstate.childPos > 1 && trd.isRepresented) {
+            sep.parse1(pstate)
             pstate.processorStatus eq Success
           } else
             true
@@ -286,7 +322,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
 
           val childSuccessful = pstate.processorStatus eq Success
 
-          val res: MaybeBoolean = {
+          val res: ParseAttemptStatus = {
             if (!childSuccessful) {
               processFailedChildParseResults(pstate, priorState, maybeStartState)
             } else {
@@ -316,7 +352,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
         } // end if infix
       } // end if prefix
     }
-    wasZeroLength
+    finalStatus
   }
 
   private def processSuccessfulChildParseResults(
@@ -326,7 +362,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
     maybeStartState: Maybe[PState.Mark],
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
 
     val isFixedOccurs = maybeStartState.isEmpty
     val isVariableOccurs = !isFixedOccurs
@@ -340,7 +376,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
       // note that anyEmpty doesn't apply in this case, and
       // that property should be ignored.
       //
-      MaybeBoolean(zl)
+      ParseAttemptStatus.Success_LengthUndetermined
     } else {
       Assert.invariant(isVariableOccurs)
       val startState = maybeStartState.get
@@ -354,13 +390,13 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
     startState: PState.Mark,
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
     import ArrayIndexStatus._
 
     //
     // Now we have to analyze the cases where ZL matters and needs special handling
     //
-    val result: MaybeBoolean = ais match {
+    val result: ParseAttemptStatus = ais match {
       case Required => processSuccessfulRequiredVariableOccursChildParseResults(zl, pstate, priorState, startState)
       case Optional => processSuccessfulOptionalVariableOccursChildParseResults(trd, parser, zl, pstate, priorState, startState, ais)
     }
@@ -372,7 +408,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     zl: Boolean,
     pstate: PState,
     priorState: PState.Mark,
-    startState: PState.Mark): MaybeBoolean = {
+    startState: PState.Mark): ParseAttemptStatus = {
     //
     // It's required. If it is empty, then that has to work as a value
     // for us (so must work as empty string value, or empty hexBinary.
@@ -391,10 +427,10 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
         //
         failedZeroLengthWithAnyEmpty(pstate, priorState)
       } else {
-        MaybeBoolean(true) // ZL, successful parse of required element
+        ParseAttemptStatus.Success_ZeroLength // ZL, successful parse of required element
       }
     } else {
-      MaybeBoolean(false) // not ZL, successful parse of required element
+      ParseAttemptStatus.Success_NotZeroLength // not ZL, successful parse of required element
     }
   }
 
@@ -404,7 +440,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
     pstate: PState,
     priorState: PState.Mark,
     startState: PState.Mark,
-    ais: GoArrayIndexStatus): MaybeBoolean = {
+    ais: GoArrayIndexStatus): ParseAttemptStatus = {
     if (zl) {
       val shouldRemoveZLElement =
         trd match {
@@ -414,11 +450,17 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
             false
         }
       if (shouldRemoveZLElement) {
-        // we want to proclaim failure at this element and behave
-        // as if we had success at the prior element and this one failed.
+        // it's an optional element, type is string/hexBinary and length is zero
+        // so we don't want to add it to the infoset
+        //
+        // However, we do want to keep trying to parse more, as they could be trailing separators.
+        // that are to be tolerated.
+        //
+        // So we don't backtrack here. We just remove the accumulated element.
+        //
         pstate.reset(priorState) // no need discard priorState, that is implicitly discarded by resetting the startState
         pstate.discard(startState) // finished with array, so cleanup
-        MaybeBoolean(false) // not zero length (in this case with success at prior element)
+        ParseAttemptStatus.Success_EndOfArray // success, but we're at end of array. not zero length (in this case with success at prior element)
       } else {
         //
         // optional, zero length, successful parse, not a string/hexBinary
@@ -432,59 +474,12 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
           //
           failedZeroLengthWithAnyEmpty(pstate, priorState)
         } else {
-          MaybeBoolean(true) // ZL, successful parse of optional 'thing'
+          ParseAttemptStatus.Success_ZeroLength // ZL, successful parse of optional 'thing'
         }
       }
     } else {
-      MaybeBoolean(false) // not ZL, successful optional element parse
+      ParseAttemptStatus.Success_NotZeroLength // not ZL, successful optional element parse
     }
-  }
-
-  private def processFailedChildParseResults(pstate: PState, priorState: PState.Mark, maybeStartState: Maybe[PState.Mark]): MaybeBoolean = {
-    val isFixedOccurs = maybeStartState.isEmpty
-    val isVariableOccurs = !isFixedOccurs
-    //
-    // we failed to parse a child
-    //
-    failedChild(pstate, priorState)
-    if (isFixedOccurs) {
-      //
-      // in fixed occurs, there are no points of uncertainty for the
-      // individual elements, so a failure is a failure of the whole loop.
-      // And any discriminator that has been set is the discriminator
-      // of some surrounding scope.
-      //
-      pstate.discard(priorState) // deallocate
-      MaybeBoolean.Nope // exit array
-    } else {
-      Assert.invariant(isVariableOccurs)
-      val startState = maybeStartState.get
-      //
-      // variable occurs case, there is a PoU per array element
-      //
-      // Parsing the array element may be a deep recursive walk
-      // somewhere in there a discriminator may be set indicating
-      // this array element is known to exist
-      //
-      // Hence, if discriminator is set, we fail the whole array
-      // because the discriminator says this array element *is here*, but
-      // the parse failed, so it isn't.
-      //
-      if (pstate.discriminator == true) {
-        pstate.discard(priorState) // deallocate
-        pstate.reset(startState)
-        MaybeBoolean.Nope
-      } else {
-        Assert.invariant(pstate.discriminator == false)
-        //
-        // discriminator false, variable occurs case, we failed the element, but that
-        // just means we back out to prior element.
-        //
-        pstate.reset(priorState) // no need discard priorState, that is implicitly discarded by resetting the startState
-        pstate.discard(startState) // finished with array, so cleanup
-        MaybeBoolean(false) // not zero length (in this case with success at prior element)
-      }
-    } // end if fixed/variable
   }
 
   protected def parse(pstate: PState): Unit = {
@@ -514,15 +509,17 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
 
           var ais: ArrayIndexStatus = null
 
+          var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
           while ({
-            ais = loopState.arrayIndexStatus(parser, pstate)
+            ais = loopState.arrayIndexStatus(parser, pstate, resultOfTry)
             ais.isInstanceOf[GoArrayIndexStatus]
           }) {
 
-            val resultOfTry: MaybeBoolean =
+            resultOfTry =
               tryParseDetectMarkLeaks(parser, pstate, maybeStartState, ais.asInstanceOf[GoArrayIndexStatus])
 
-            wasLastChildZeroLength = if (resultOfTry.isDefined) resultOfTry.get else false
+            wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
 
             loopState.nextArrayIndex(pstate)
           } // end while for each repeat
@@ -531,9 +528,9 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
         } // end match case RepParser
 
         case scalarParser => {
-          val resultOfTry: MaybeBoolean = tryParseDetectMarkLeaks(scalarParser, pstate, Maybe.Nope, ArrayIndexStatus.Required)
+          val resultOfTry = tryParseDetectMarkLeaks(scalarParser, pstate, Maybe.Nope, ArrayIndexStatus.Required)
 
-          wasLastChildZeroLength = if (resultOfTry.isDefined) resultOfTry.get else false
+          wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
         } // end match case scalar parser
       } // end match
       scpIndex += 1

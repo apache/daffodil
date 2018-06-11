@@ -42,6 +42,7 @@ import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.NextElementResolver
 import org.apache.daffodil.infoset.ChildResolver
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.util.Maybe
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -524,6 +525,7 @@ trait ElementBase
       optSimpleTypeRuntimeData,
       minOccurs,
       maxOccurs,
+      Maybe(occursCountKind),
       name,
       targetNamespacePrefix,
       thisElementsNamespacePrefix,
