@@ -20,7 +20,6 @@ import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 
 trait Separated { self: SequenceChildUnparser =>

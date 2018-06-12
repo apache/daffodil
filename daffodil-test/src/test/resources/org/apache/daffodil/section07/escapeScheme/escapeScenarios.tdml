@@ -150,8 +150,8 @@
       <dfdlInfoset>
         <e_infix>
           <x>foo</x>
-	  <y></y>
-	</e_infix>
+          <!-- should not be a element y with emptystring contents here since y is optional. -->
+	   </e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

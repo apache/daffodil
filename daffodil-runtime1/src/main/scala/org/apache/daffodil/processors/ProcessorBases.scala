@@ -18,7 +18,6 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.util._
-import org.apache.daffodil.exceptions.Assert
 
 object Processor {
   /**

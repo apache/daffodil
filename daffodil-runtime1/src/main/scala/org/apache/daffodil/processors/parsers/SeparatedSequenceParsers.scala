@@ -247,15 +247,12 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
   //
   private val children = childrenArg.map { _.asInstanceOf[SeparatedChildParser] }
 
-  private def failedSeparator(pstate: PState, priorState: PState.Mark, kind: String) = {
+  private def failedSeparator(pstate: PState, priorState: PState.Mark, kind: String): Unit = {
     val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-    pstate.reset(priorState)
     PE(pstate, "Failed to parse %s separator. Cause: %s.", kind, cause)
-    ParseAttemptStatus.FailedSpeculativeParse
   }
 
   private def failedZeroLengthWithAnyEmpty(pstate: PState, priorState: PState.Mark) = {
-    pstate.reset(priorState)
     PE(pstate, "Failed to parse sequence child. Cause: zero-length data, but dfdl:separatorSuppressionPolicy is 'anyEmpty'.")
     ParseAttemptStatus.FailedSpeculativeParse
   }
@@ -292,6 +289,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
 
       if (!prefixSepSuccessful) {
         failedSeparator(pstate, priorState, "prefix")
+        processFailedChildParseResults(pstate, priorState, maybeStartState)
       } else {
         // except for the first position of the group, parse an infix separator
 
@@ -304,6 +302,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
 
         if (!infixSepSuccessful) {
           failedSeparator(pstate, priorState, "infix")
+          processFailedChildParseResults(pstate, priorState, maybeStartState)
         } else {
           //
           // now we parse the child
@@ -338,6 +337,7 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
 
               if (!postfixSepSuccessful) {
                 failedSeparator(pstate, priorState, "postfix")
+                processFailedChildParseResults(pstate, priorState, maybeStartState)
               } else {
 
                 processSuccessfulChildParseResults(trd, parser, zl, pstate, priorState, maybeStartState, ais)

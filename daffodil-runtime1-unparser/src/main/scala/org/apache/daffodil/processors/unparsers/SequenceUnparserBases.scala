@@ -53,19 +53,16 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
   // children of the sequence group.
   Assert.invariant(srd.groupMembers.length >= childUnparsers.length - 1) // minus 1 for the separator unparser
 
-  protected def unparse(start: UState): Unit = {
+  /**
+   * Unparses an entire sequence, including both scalar and array/optional children.
+   *
+   * Of note: This is not symmetric with parsing. For parsing there are separate parse() methods
+   * for the separated and unseparated cases. For unparsing we were able to factor this
+   * difference out into this common base method.
+   */
+  protected def unparse(state: UState): Unit = {
 
-    start.groupIndexStack.push(1L) // one-based indexing
-    unparseChildren(start)
-    start.groupIndexStack.pop()
-    //
-    // this is establishing the invariant that unparsers (in this case the sequence unparser)
-    // moves over within its containing group. The caller of an unparser does not do this move.
-    //
-    start.moveOverOneGroupIndexOnly()
-  }
-
-  private def unparseChildren(start: UState): Unit = {
+    state.groupIndexStack.push(1L) // one-based indexing
 
     var index = 0
     var doUnparser = false
@@ -73,16 +70,74 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
     while (index < limit) {
       val childUnparser = childUnparsers(index)
       val trd = childUnparser.trd
-      val childRD = childUnparser.trd
 
-      doUnparser = shouldDoUnparser(childRD, start)
+      //
+      // Unparsing an ordered sequence depends on the incoming
+      // stream of infoset events matching up with the order that
+      // they are expected as the unparser recurses through the
+      // child term unparsers.
+      //
+      childUnparser match {
+        case rep: RepUnparser => {
+          val erd = rep.erd
+          //
+          // The number of occurrances we unparse is always exactly driven
+          // by the number of infoset events for the repeating/optional element.
+          //
+          // For RepUnparser - array/optional case - in all cases we should get a
+          // startArray event. If we don't then
+          // the element must be entirely optional, so we get no events for it
+          // at all.
+          //
+          if (state.inspect) {
+            val ev = state.inspectAccessor
+            if (ev.isStart && ev.isArray) {
+              val eventNQN = ev.node.namedQName
+              if (eventNQN =:= erd.namedQName) {
+                //
+                // StartArray for this unparser's array element
+                //
+                rep.startArray(state)
+                while ({
+                  doUnparser = shouldDoUnparser(trd, state)
+                  doUnparser
+                }) {
+                  if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
 
-      if (doUnparser) {
-        if (start.dataProc.isDefined) start.dataProc.get.beforeRepetition(start, this)
+                  unparseOne(rep, erd, state)
 
-        unparseOne(childUnparser, trd, start)
+                  if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
+                }
+                rep.endArray(state)
+              } else {
+                //
+                // start array for some other array. Not this one. So we
+                // don't unparse anything here, and we'll go on to the next
+                // sequence child, which hopefully will be a matching array.
+                //
+                Assert.invariant(erd.minOccurs == 0L)
+              }
+            } else if (ev.isStart) {
+              Assert.invariant(!ev.isArray)
+              //
+              // start of scalar.
+              // That has to be for a different element later in the sequence
+              // since this one has a RepUnparser (i.e., is NOT scalar)
+              val eventNQN = ev.node.namedQName
+              Assert.invariant(eventNQN !=:= erd.namedQName)
+            } else {
+              Assert.invariant(ev.isEnd && ev.isComplex)
+            }
+          } else {
+            // no event (state.inspect returned false)
+            ??? // TODO: does this happen for the root element ??
 
-        if (start.dataProc.isDefined) start.dataProc.get.afterRepetition(start, this)
+          }
+        }
+        //
+        case scalarUnparser => {
+          unparseOne(scalarUnparser, trd, state)
+        }
       }
       index += 1
       //
@@ -90,21 +145,28 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
       // we do not do the moving over here as we are the caller of the unparser.
       //
     }
+
+    state.groupIndexStack.pop()
+    //
+    // this is establishing the invariant that unparsers (in this case the sequence unparser)
+    // moves over within its containing group. The caller of an unparser does not do this move.
+    //
+    state.moveOverOneGroupIndexOnly() // move past this sequence itself, next group child it ITS parent.
   }
 
-  private def shouldDoUnparser(childRD: TermRuntimeData, start: UState): Boolean = {
+  private def shouldDoUnparser(childRD: TermRuntimeData, state: UState): Boolean = {
     childRD match {
       case erd: ElementRuntimeData if !erd.isRequired => {
         // it's not a required element, so we check to see if we have a matching
         // incoming infoset event
-        if (start.inspect) {
-          val ev = start.inspectAccessor
+        if (state.inspect) {
+          val ev = state.inspectAccessor
           if (ev.isStart) {
             val eventNQN = ev.node.namedQName
             if (eventNQN =:= erd.namedQName) {
               true
             } else {
-              false // event not a start for this element
+              false // event not a state for this element
             }
           } else if (ev.isEnd && ev.isComplex) {
             val c = ev.asComplex
@@ -121,7 +183,7 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
                   ev, optParentRD))
             }
           } else {
-            Assert.invariantFailed("Not a start event: " + ev)
+            false
           }
         } else {
           // was no element, so no unparse
@@ -143,6 +205,15 @@ object SequenceChildUnparser {
   type RepUnseparatedChildUnparser = UnseparatedChildUnparser with RepUnparser
 }
 
+/**
+ * base for unparsers for the children of sequences.
+ *
+ * There is one sequence child unparser for each child (declared) of the sequence.
+ *
+ * These do not iterate over multiple recurring instances. That iteration happens
+ * in the caller. These unparse only a single occurrence when the child unparser
+ * is for an array/optional element.
+ */
 abstract class SequenceChildUnparser(
   val childUnparser: Unparser,
   val srd: SequenceRuntimeData,
@@ -152,6 +223,12 @@ abstract class SequenceChildUnparser(
   override def runtimeDependencies = Nil
 }
 
+/**
+ * Mixin trait for unparsers of array/optional elements.
+ *
+ * The unparse() method unparses exactly one occurrance, does NOT iterate over
+ * all the occurrences.
+ */
 trait RepUnparser { self: SequenceChildUnparser =>
 
   def childUnparser: Unparser
@@ -161,10 +238,13 @@ trait RepUnparser { self: SequenceChildUnparser =>
   def minRepeats: Long
   def maxRepeats: Long
 
+  /**
+   * Unparse exactly one occurrence of an array/optional element.
+   *
+   * Iterating for arrays/optionals is done in the caller.
+   */
   override protected def unparse(state: UState): Unit = {
-    startArray(state)
     childUnparser.unparse1(state)
-    endArray(state)
   }
 
   override lazy val runtimeDependencies = Nil
@@ -177,6 +257,10 @@ trait RepUnparser { self: SequenceChildUnparser =>
         "</Rep" + baseName + ">"
   }
 
+  /**
+   * Sets up for the start of an array. Pulls an event, which must be a start-array
+   * event.
+   */
   def startArray(state: UState): Unit = {
     state.arrayIndexStack.push(1L) // one-based indexing
     state.occursBoundsStack.push(state.tunable.maxOccursBounds)
@@ -185,6 +269,10 @@ trait RepUnparser { self: SequenceChildUnparser =>
     Assert.invariant(event.isStart && event.node.isInstanceOf[DIArray])
   }
 
+  /**
+   * Ends an array. Pulls an event which must be an end-array event.
+   * Validates array dimensions if validation has been requested.
+   */
   def endArray(state: UState): Unit = {
 
     val event = state.advanceOrError

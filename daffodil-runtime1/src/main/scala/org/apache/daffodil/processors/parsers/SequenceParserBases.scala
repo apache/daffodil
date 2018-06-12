@@ -189,7 +189,6 @@ abstract class OrderedSequenceParserBase(rd: SequenceRuntimeData, childParsers: 
 
   protected def failedChild(pstate: PState, priorState: PState.Mark): ParseAttemptStatus = {
     val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-    pstate.reset(priorState)
     PE(pstate, "Failed to parse sequence child. Cause: %s.", cause)
     ParseAttemptStatus.FailedSpeculativeParse
   }
@@ -236,7 +235,7 @@ abstract class OrderedSequenceParserBase(rd: SequenceRuntimeData, childParsers: 
         // discriminator false, variable occurs case, we failed the element, but that
         // just means we back out to prior element.
         //
-        pstate.reset(priorState) // no need discard priorState, that is implicitly discarded by resetting the startState
+        pstate.reset(priorState)
         pstate.discard(startState) // finished with array, so cleanup
         ParseAttemptStatus.Success_EndOfArray // not zero length (in this case with success at prior element)
       }
