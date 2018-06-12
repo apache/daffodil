@@ -110,7 +110,7 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
       case (e: EB, Ordered__, _____, ___________, Fixed_____, min, `min`) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, min)
       case (e: EB, Ordered__, _____, ___________, Fixed_____, min, max) => { Assert.invariant(min != max); e.SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min, max) }
       case (e: EB, Ordered__, _____, ___________, Expression, ___, __2) => new RepOrderedExactlyTotalOccursCountSequenceChild(this, e, groupIndex)
-      case (e: EB, Ordered__, _____, Never______, Implicit__, ___, UNB) => e.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
+      case (e: EB, Ordered__, _____, Never______, Implicit__, ___, UNB) => e.SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs.")
       case (e: EB, Ordered__, _____, Never______, Implicit__, ___, max) => new RepOrderedExactlyNSequenceChild(this, e, groupIndex, max)
       case (e: EB, Ordered__, _____, Never______, ock /****/ , ___, __2) => e.SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
       case (e: EB, Ordered__, _____, Trailing___, Implicit__, ___, UNB) if (!e.isLastDeclaredRequiredElementOfSequence) => e.SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")

@@ -57,7 +57,8 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
-import org.apache.daffodil.infoset.DIElementState
+import org.apache.daffodil.infoset.DIComplexState
+import org.apache.daffodil.infoset.DISimpleState
 
 object MPState {
 
@@ -343,7 +344,8 @@ object PState {
 
     def bitPos0b = disMark.bitPos0b
 
-    var elementState: DIElementState = null
+    val simpleElementState = DISimpleState()
+    val complexElementState = DIComplexState()
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
@@ -354,7 +356,8 @@ object PState {
     val mpStateMark = new MPState.Mark
 
     def clear() {
-      if (elementState ne null) elementState.clear()
+      simpleElementState.clear()
+      complexElementState.clear()
       disMark = null
       variableMap = null
       processorStatus = null
@@ -366,8 +369,10 @@ object PState {
 
     def captureFrom(ps: PState, requestorID: String) {
       val e = ps.thisElement
-      if (elementState == null) elementState = e.makeElementState()
-      elementState.captureFrom(e)
+      if (e.isSimple)
+        simpleElementState.captureFrom(e)
+      else
+        complexElementState.captureFrom(e)
       this.disMark = ps.dataInputStream.mark(requestorID)
       this.variableMap = ps.variableMap
       this.processorStatus = ps.processorStatus
@@ -378,7 +383,10 @@ object PState {
 
     def restoreInto(ps: PState) {
       val e = ps.thisElement
-      elementState.restoreInto(e)
+      e match {
+        case s: DISimple => simpleElementState.restoreInto(e)
+        case c: DIComplex => complexElementState.restoreInto(e)
+      }
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
       ps._processorStatus = this.processorStatus

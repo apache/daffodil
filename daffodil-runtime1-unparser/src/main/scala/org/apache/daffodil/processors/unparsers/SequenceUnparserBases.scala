@@ -118,7 +118,7 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
                 Assert.invariant(erd.minOccurs == 0L)
               }
             } else if (ev.isStart) {
-              Assert.invariant(!ev.isArray)
+              Assert.invariant(!ev.erd.isArray)
               //
               // start of scalar.
               // That has to be for a different element later in the sequence
@@ -156,7 +156,7 @@ abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnpars
 
   private def shouldDoUnparser(childRD: TermRuntimeData, state: UState): Boolean = {
     childRD match {
-      case erd: ElementRuntimeData if !erd.isRequired => {
+      case erd: ElementRuntimeData => {
         // it's not a required element, so we check to see if we have a matching
         // incoming infoset event
         if (state.inspect) {

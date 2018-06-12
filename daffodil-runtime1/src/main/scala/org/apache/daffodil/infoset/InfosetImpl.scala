@@ -791,8 +791,6 @@ sealed trait DIElement
   with InfosetElement
   with DIElementSharedImplMixin {
 
-  def makeElementState(): DIElementState
-
   final override protected def allocContentLength = new ContentLengthState(this)
   final override protected def allocValueLength = new ValueLengthState(this)
 
@@ -1041,8 +1039,6 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   final override def isSimple = true
   final override def isComplex = false
-
-  final def makeElementState = DISimpleState()
 
   def contents: IndexedSeq[DINode] = IndexedSeq.empty
 
@@ -1312,8 +1308,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData, val tunable: Daffod
 
   final override def isSimple = false
   final override def isComplex = true
-
-  final def makeElementState = DIComplexState()
 
   private lazy val nfe = new InfosetComplexElementNotFinalException(this)
 

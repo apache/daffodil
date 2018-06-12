@@ -238,6 +238,8 @@ class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
   childrenArg: Seq[SequenceChildParser])
   extends OrderedSequenceParserBase(rd, childrenArg) {
 
+  override lazy val childProcessors = sep +: childrenArg
+
   import SequenceChildParser._
   //
   // TODO: It would be good to get rid of this downcast
