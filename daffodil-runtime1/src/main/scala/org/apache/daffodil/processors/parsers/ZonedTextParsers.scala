@@ -25,13 +25,11 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.DecimalUtils
 import java.text.ParsePosition
 import com.ibm.icu.text.DecimalFormat
-import com.ibm.icu.text.DecimalFormatSymbols
 import org.apache.daffodil.util.MaybeDouble
 import org.apache.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.processors.Dynamic
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Success
@@ -78,6 +76,7 @@ case class ConvertZonedNumberParser[S](
       return
     }
 
+    var checkLength = str.length
     // because of the way the zero rep regular expressions are generated, they
     // will match either all or none of 'str', never part of it. Thus,
     // findFirstIn() either matches and it's a zero rep, or it doesn't and it's
@@ -87,6 +86,8 @@ case class ConvertZonedNumberParser[S](
       val pos = new ParsePosition(0)
       val num = try {
         val decodedNum = DecimalUtils.zonedToNumber(str, zonedSignStyle)
+        if (decodedNum(0) == '-')
+          checkLength = checkLength + 1
         df.get.parse(decodedNum, pos)
       } catch {
         case s: scala.util.control.ControlThrowable => throw s
@@ -100,7 +101,7 @@ case class ConvertZonedNumberParser[S](
 
       // Verify that what was parsed was what was passed exactly in byte count.
       // Use pos to verify all characters consumed & check for errors!
-      if (num == null || pos.getIndex != str.length) {
+      if (num == null || pos.getIndex != checkLength) {
         PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
           helper.prettyType, helper.xsdType, str)
         return
@@ -394,9 +395,7 @@ abstract class ZonedFormatFactoryBase[S](parserHelper: ConvertZonedNumberParserU
     roundingMode: Maybe[TextNumberRoundingMode],
     roundingIncrement: MaybeDouble) = {
 
-    val dfs = new DecimalFormatSymbols()
-
-    val df = new DecimalFormat(pattern, dfs)
+    val df = new DecimalFormat(pattern.replace("+", ""))
 
     val cp = checkPolicy match {
       case TextNumberCheckPolicy.Strict => true
@@ -445,10 +444,6 @@ abstract class ZonedFormatFactoryBase[S](parserHelper: ConvertZonedNumberParserU
 
 }
 
-//
-// TODO: Complexity - why do we need both Static and Dynamic variants of this?
-// CachedDynamic hides this distinction (or should), as does CompiledExpression underneath that.
-
 class ZonedFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertZonedNumberParserUnparserHelperBase[S],
   checkPolicy: TextNumberCheckPolicy,
@@ -477,41 +472,4 @@ class ZonedFormatFactoryStatic[S](context: ThrowsSDE,
   def getNumFormat(state: ParseOrUnparseState): ThreadLocal[DecimalFormat] = {
     numFormat
   }
-}
-
-class ZonedFormatFactoryDynamic[S](staticContext: ThrowsSDE,
-  parserHelper: ConvertZonedNumberParserUnparserHelperBase[S],
-  checkPolicy: TextNumberCheckPolicy,
-  pattern: String,
-  rounding: TextNumberRounding,
-  roundingMode: Maybe[TextNumberRoundingMode],
-  roundingIncrement: MaybeDouble)
-  extends ZonedFormatFactoryBase[S](parserHelper)
-  with Dynamic {
-
-  checkUnique(staticContext)
-
-  val roundingInc = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, staticContext) }
-
-  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[DecimalFormat] = {
-
-    checkUnique(state)
-
-    val generatedNumFormat =
-      generateNumFormat(
-        checkPolicy,
-        pattern,
-        rounding,
-        roundingMode,
-        roundingInc)
-
-    val numFormat = new ThreadLocal[DecimalFormat] {
-      override def initialValue() = {
-        generatedNumFormat
-      }
-    }
-
-    numFormat
-  }
-
 }

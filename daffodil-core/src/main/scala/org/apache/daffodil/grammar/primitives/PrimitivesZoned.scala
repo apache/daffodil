@@ -90,12 +90,14 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
 
       e.primType match {
         case PrimType.Double | PrimType.Float => e.SDE("textZonedFormat='zoned' does not support Doubles/Floats")
-        case PrimType.UnsignedLong | PrimType.UnsignedInt | PrimType.UnsignedShort | PrimType.UnsignedByte if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) => {
-          if ((patternNoQuoted.charAt(0) != '+') || (patternNoQuoted.charAt(patternNoQuoted.length) != '+'))
-            e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textZonedFormat='zoned' and textNumberPolicy='lax' for unsigned numbers")
+        case PrimType.UnsignedLong | PrimType.UnsignedInt | PrimType.UnsignedShort | PrimType.UnsignedByte => {
+          if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) {
+            if ((patternNoQuoted.charAt(0) != '+') && (patternNoQuoted.charAt(patternNoQuoted.length - 1) != '+'))
+              e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textZonedFormat='zoned' and textNumberPolicy='lax' for unsigned numbers")
+          }
         }
         case _ => {
-          if ((patternNoQuoted.charAt(0) != '+') || (patternNoQuoted.charAt(patternNoQuoted.length) != '+'))
+          if ((patternNoQuoted.charAt(0) != '+') && (patternNoQuoted.charAt(patternNoQuoted.length - 1) != '+'))
             e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textZonedFormat='zoned' for signed numbers")
         }
       }
@@ -128,7 +130,7 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
 
   lazy val parser: Parser = new ConvertZonedNumberParser[S](helper, numFormatFactory, e.textZonedSignStyle, e.elementRuntimeData)
 
-  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser[S](helper, e.textZonedSignStyle, e.elementRuntimeData)
+  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser[S](helper, e.textNumberPattern, e.textZonedSignStyle, e.elementRuntimeData)
 }
 
 case class ConvertZonedIntegerPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigInt](e) {

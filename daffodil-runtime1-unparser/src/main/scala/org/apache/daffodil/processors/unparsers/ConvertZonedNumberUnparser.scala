@@ -20,6 +20,7 @@ package org.apache.daffodil.processors.unparsers
 import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.DecimalUtils
+import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 import org.apache.daffodil.processors.parsers.ConvertZonedNumberParserUnparserHelperBase
 
 case class ConvertZonedCombinatorUnparser(
@@ -43,6 +44,7 @@ case class ConvertZonedCombinatorUnparser(
 
 case class ConvertZonedNumberUnparser[S](
   helper: ConvertZonedNumberParserUnparserHelperBase[S],
+  pattern: String,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData)
   extends PrimUnparser
@@ -63,7 +65,16 @@ case class ConvertZonedNumberUnparser[S](
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
 
-    val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle)
+    val opindex = pattern.indexOf('+')
+    val opl = {
+      if (opindex == 0)
+        OverpunchLocation.Start
+      else if (opindex == pattern.length - 1)
+        OverpunchLocation.End
+      else
+        OverpunchLocation.None
+    }
+    val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle, opl)
 
     node.overwriteDataValue(strRep)
   }

@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="zoned"
+  description="Zoned Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  defaultRoundTrip="true">
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="ISO-8859-1" occursCountKind="implicit"
+      textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right" textNumberRep="zoned"
+      textZonedSignStyle="asciiStandard"
+    lengthUnits="characters"/>
+
+    <xs:element name="int01" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+00@00" />
+    <xs:element name="int02" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="0000" />
+    <xs:element name="uint03" type="xs:unsignedInt" dfdl:length="4" dfdl:textNumberPattern="0000" dfdl:textNumberCheckPolicy="lax"/>
+    <xs:element name="int04" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
+    <xs:element name="float01" type="xs:float" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
+    <xs:element name="double01" type="xs:double" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
+
+
+    <xs:element name="standard01" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="+0000000000" />
+    <xs:element name="standard02" type="xs:unsignedInt" dfdl:length="10" dfdl:textNumberPattern="0000000000" />
+    <xs:element name="standard03" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="0000000000+" />
+
+    <xs:element name="trans01" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="+0000000000" dfdl:textZonedSignStyle="asciiTranslatedEBCDIC" />
+    <xs:element name="trans02" type="xs:unsignedInt" dfdl:length="10" dfdl:textNumberPattern="0000000000" dfdl:textZonedSignStyle="asciiTranslatedEBCDIC" />
+    <xs:element name="trans03" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="0000000000+" dfdl:textZonedSignStyle="asciiTranslatedEBCDIC" />
+<xs:element name="mod01" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="+0000000000" dfdl:textZonedSignStyle="asciiCARealiaModified" />
+    <xs:element name="mod02" type="xs:unsignedInt" dfdl:length="10" dfdl:textNumberPattern="0000000000" dfdl:textZonedSignStyle="asciiCARealiaModified" />
+    <xs:element name="mod03" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="0000000000+" dfdl:textZonedSignStyle="asciiCARealiaModified" />
+
+    <xs:element name="tmod01" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="+0000000000" dfdl:textZonedSignStyle="asciiTandemModified" />
+    <xs:element name="tmod02" type="xs:unsignedInt" dfdl:length="10" dfdl:textNumberPattern="0000000000" dfdl:textZonedSignStyle="asciiTandemModified" />
+    <xs:element name="tmod03" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="0000000000+" dfdl:textZonedSignStyle="asciiTandemModified" />
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail01" root="int01" model="s1"
+    description="This test should fail because '@' is not allowed to appear in the textNumberPattern for zoned numbers">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>The '@' symbol may not be used</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail02" root="int02" model="s1"
+    description="This test should fail because '+' must be the first or last character in the textNumberPattern when using zoned numbers with signed types">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>textNumberPattern must have '+' at the beginning</tdml:error>
+      <tdml:error>for signed numbers</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail03" root="uint03" model="s1"
+    description="This test should fail because '+' must be the first or last character in the textNumberPattern when using zoned numbers and textNumberCheckPolicy=strict">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>textNumberPattern must have '+' at the beginning</tdml:error>
+      <tdml:error>for unsigned numbers</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail04" root="int04" model="s1"
+    description="This test should fail because negative number patterns may not be used with zoned numbers">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Negative patterns may not be used</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_float_fail01" root="float01" model="s1"
+    description="This test should fail because floats are not supported with zoned decimal">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Zoned not supported for float and double</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_double_fail01" root="double01" model="s1"
+    description="This test should fail because doubles are not supported with zoned decimal">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Zoned not supported for float and double</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedStandard01" root="standard01" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiStandard">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <standard01>1234567890</standard01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedStandard02" root="standard01" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiStandard with overpunch on first char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">q234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <standard01>-1234567890</standard01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedStandard03" root="standard01" model="s1"
+    description="This test should fail as 'z' is not a valid digit in zoned AsciiStandard">
+
+    <tdml:document>
+      <tdml:documentPart type="text">z234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedStandard04" root="standard02" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiStandard with no overpunch char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <standard02>1234567890</standard02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedStandard05" root="standard03" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiStandard with overpunch on last char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789p</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <standard03>-1234567890</standard03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTranslatedEBCDIC01" root="trans01" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiTranslatedEBCDIC">
+
+    <tdml:document>
+      <tdml:documentPart type="text">A234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <trans01>1234567890</trans01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTranslatedEBCDIC02" root="trans01" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiTranslatedEBCDIC with overpunch on first char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">J234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <trans01>-1234567890</trans01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTranslatedEBCDIC03" root="trans01" model="s1"
+    description="This test should fail as 'z' is not a valid digit in zoned AsciiTranslatedEBCDIC">
+
+    <tdml:document>
+      <tdml:documentPart type="text">z234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTranslatedEBCDIC04" root="trans02" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiTranslatedEBCDIC with no overpunch char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <trans02>1234567890</trans02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTranslatedEBCDIC05" root="trans03" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiTranslatedEBCDIC with overpunch on last char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789}</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <trans03>-1234567890</trans03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedCARealiaModified01" root="mod01" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiCARealiaModified">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mod01>1234567890</mod01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedCARealiaModified02" root="mod01" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiCARealiaModified with overpunch on first char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">!234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mod01>-1234567890</mod01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedCARealiaModified03" root="mod01" model="s1"
+    description="This test should fail as 'z' is not a valid digit in zoned AsciiCARealiaModified">
+
+    <tdml:document>
+      <tdml:documentPart type="text">z234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedCARealiaModified04" root="mod02" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiCARealiaModified with no overpunch char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mod02>1234567890</mod02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedCARealiaModified05" root="mod03" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiCARealiaModified with overpunch on last char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789 </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <mod03>-1234567890</mod03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTandemModified01" root="tmod01" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiTandemModified">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tmod01>1234567890</tmod01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTandemModified02" root="tmod01" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiTandemModified with overpunch on first char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">&#x81;234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tmod01>-1234567890</tmod01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTandemModified03" root="tmod01" model="s1"
+    description="This test should fail as 'z' is not a valid digit in zoned AsciiTandemModified">
+
+    <tdml:document>
+      <tdml:documentPart type="text">z234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>NumberFormatException: Invalid zoned digit</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTandemModified04" root="tmod02" model="s1"
+    description="Test of a positive number with zonedSignStyle=asciiTandemModified with no overpunch char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234567890</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tmod02>1234567890</tmod02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ZonedTandemModified05" root="tmod03" model="s1"
+    description="Test of a negative number with zonedSignStyle=asciiTandemModified with overpunch on last char">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789&#x80;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tmod03>-1234567890</tmod03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+</tdml:testSuite>
