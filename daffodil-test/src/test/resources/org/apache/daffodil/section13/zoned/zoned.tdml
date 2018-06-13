@@ -52,7 +52,7 @@
     <xs:element name="tmod02" type="xs:unsignedInt" dfdl:length="10" dfdl:textNumberPattern="0000000000" dfdl:textZonedSignStyle="asciiTandemModified" />
     <xs:element name="tmod03" type="xs:int" dfdl:length="10" dfdl:textNumberPattern="0000000000+" dfdl:textZonedSignStyle="asciiTandemModified" />
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="zoned_textNumberPattern_fail01" root="int01" model="s1"
     description="This test should fail because '@' is not allowed to appear in the textNumberPattern for zoned numbers">
 
