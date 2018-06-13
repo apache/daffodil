@@ -77,10 +77,6 @@ case class ConvertZonedNumberParser[S](
     }
 
     var checkLength = str.length
-    // because of the way the zero rep regular expressions are generated, they
-    // will match either all or none of 'str', never part of it. Thus,
-    // findFirstIn() either matches and it's a zero rep, or it doesn't and it's
-    // not a zero
     val numValue = {
       val df = nff.getNumFormat(start)
       val pos = new ParsePosition(0)
@@ -118,14 +114,6 @@ case class ConvertZonedNumberParser[S](
         val asNumber = helper.getNum(num)
         Assert.invariant(!asNumber.isInstanceOf[String])
 
-        // The following change was made because of the issues with the float
-        // adding a position of precision to the Number object.  At some point we
-        // will want to revert this back to the actual type but this is a quick fix
-        // for the issues we were having with the 0.003 vs 0.0030 error in test_DelimProp_05
-        //
-        //helper.getStringFormat(asNumber)
-        //
-        // Above was changed back into the actual number object.
         asNumber
       }
       numValue
@@ -339,38 +327,6 @@ case class ConvertZonedDecimalParserUnparserHelper[S]()
   }
 }
 
-case class ConvertZonedDoubleParserUnparserHelper[S]()
-  extends ConvertZonedFloatingPointNumberParserUnparserHelper[Double]() {
-
-  val MAX_VALUE = new JBigDecimal(Double.MaxValue)
-  val MIN_VALUE = new JBigDecimal(Double.MinValue)
-
-  override def getNum(num: Number) = num.doubleValue
-  override val xsdType = "double"
-  override val prettyType = "Double"
-  def isInvalidRange(n: java.lang.Number): Boolean = {
-    val d = n.doubleValue() // This can truncate the number and void range checking
-    val bd = new JBigDecimal(n.toString)
-    (d.isNaN || bd.compareTo(MIN_VALUE) < 0 || bd.compareTo(MAX_VALUE) > 0)
-  }
-}
-
-case class ConvertZonedFloatParserUnparserHelper[S]()
-  extends ConvertZonedFloatingPointNumberParserUnparserHelper[Float]() {
-
-  val MAX_VALUE = new JBigDecimal(Float.MaxValue)
-  val MIN_VALUE = new JBigDecimal(Float.MinValue)
-
-  override def getNum(num: Number) = num.floatValue
-  override val xsdType = "float"
-  override val prettyType = "Float"
-  def isInvalidRange(n: java.lang.Number): Boolean = {
-    val f = n.floatValue() // This can truncated the number and void range checking
-    val bd = new JBigDecimal(n.toString)
-    (f.isNaN || bd.compareTo(MIN_VALUE) < 0 || bd.compareTo(MAX_VALUE) > 0)
-  }
-}
-
 abstract class ZonedFormatFactoryBase[S](parserHelper: ConvertZonedNumberParserUnparserHelperBase[S]) extends Serializable {
 
   protected def checkUnique(
@@ -395,6 +351,12 @@ abstract class ZonedFormatFactoryBase[S](parserHelper: ConvertZonedNumberParserU
     roundingMode: Maybe[TextNumberRoundingMode],
     roundingIncrement: MaybeDouble) = {
 
+    /* Need to remove the '+' from the number pattern as '+' is only
+     * used to indicate which digit of the number is overpunched when
+     * dealing with zoned decimal formats. If the '+' is not removed
+     * DecimalFormat will attempt to use it as an indicator for exponent
+     * numbers, which will most likely not match the zoned number being
+     * parsed */
     val df = new DecimalFormat(pattern.replace("+", ""))
 
     val cp = checkPolicy match {

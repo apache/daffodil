@@ -42,27 +42,27 @@ class TestZoned {
   @Test def testZonedDoubleFail01(): Unit = { runner.runOneTest("zoned_double_fail01") }
   //TODO: @Test def testZonedEncodingFail01(): Unit = { runner.runOneTest("zoned_encoding_fail01") }
 
-  @Test def testZonedStandard01(): Unit = { runner.trace.runOneTest("ZonedStandard01") }
-  @Test def testZonedStandard02(): Unit = { runner.trace.runOneTest("ZonedStandard02") }
-  @Test def testZonedStandard03(): Unit = { runner.trace.runOneTest("ZonedStandard03") }
-  @Test def testZonedStandard04(): Unit = { runner.trace.runOneTest("ZonedStandard04") }
-  @Test def testZonedStandard05(): Unit = { runner.trace.runOneTest("ZonedStandard05") }
+  @Test def testZonedStandard01(): Unit = { runner.runOneTest("ZonedStandard01") }
+  @Test def testZonedStandard02(): Unit = { runner.runOneTest("ZonedStandard02") }
+  @Test def testZonedStandard03(): Unit = { runner.runOneTest("ZonedStandard03") }
+  @Test def testZonedStandard04(): Unit = { runner.runOneTest("ZonedStandard04") }
+  @Test def testZonedStandard05(): Unit = { runner.runOneTest("ZonedStandard05") }
 
-  @Test def testZonedTranslatedEBCDIC01(): Unit = { runner.trace.runOneTest("ZonedTranslatedEBCDIC01") }
-  @Test def testZonedTranslatedEBCDIC02(): Unit = { runner.trace.runOneTest("ZonedTranslatedEBCDIC02") }
-  @Test def testZonedTranslatedEBCDIC03(): Unit = { runner.trace.runOneTest("ZonedTranslatedEBCDIC03") }
-  @Test def testZonedTranslatedEBCDIC04(): Unit = { runner.trace.runOneTest("ZonedTranslatedEBCDIC04") }
-  @Test def testZonedTranslatedEBCDIC05(): Unit = { runner.trace.runOneTest("ZonedTranslatedEBCDIC05") }
+  @Test def testZonedTranslatedEBCDIC01(): Unit = { runner.runOneTest("ZonedTranslatedEBCDIC01") }
+  @Test def testZonedTranslatedEBCDIC02(): Unit = { runner.runOneTest("ZonedTranslatedEBCDIC02") }
+  @Test def testZonedTranslatedEBCDIC03(): Unit = { runner.runOneTest("ZonedTranslatedEBCDIC03") }
+  @Test def testZonedTranslatedEBCDIC04(): Unit = { runner.runOneTest("ZonedTranslatedEBCDIC04") }
+  @Test def testZonedTranslatedEBCDIC05(): Unit = { runner.runOneTest("ZonedTranslatedEBCDIC05") }
 
-  @Test def testZonedCARealiaModified01(): Unit = { runner.trace.runOneTest("ZonedCARealiaModified01") }
-  @Test def testZonedCARealiaModified02(): Unit = { runner.trace.runOneTest("ZonedCARealiaModified02") }
-  @Test def testZonedCARealiaModified03(): Unit = { runner.trace.runOneTest("ZonedCARealiaModified03") }
-  @Test def testZonedCARealiaModified04(): Unit = { runner.trace.runOneTest("ZonedCARealiaModified04") }
-  @Test def testZonedCARealiaModified05(): Unit = { runner.trace.runOneTest("ZonedCARealiaModified05") }
+  @Test def testZonedCARealiaModified01(): Unit = { runner.runOneTest("ZonedCARealiaModified01") }
+  @Test def testZonedCARealiaModified02(): Unit = { runner.runOneTest("ZonedCARealiaModified02") }
+  @Test def testZonedCARealiaModified03(): Unit = { runner.runOneTest("ZonedCARealiaModified03") }
+  @Test def testZonedCARealiaModified04(): Unit = { runner.runOneTest("ZonedCARealiaModified04") }
+  @Test def testZonedCARealiaModified05(): Unit = { runner.runOneTest("ZonedCARealiaModified05") }
 
-  @Test def testZonedTandemModified01(): Unit = { runner.trace.runOneTest("ZonedTandemModified01") }
-  //@Test def testZonedTandemModified02(): Unit = { runner.trace.runOneTest("ZonedTandemModified02") }
-  @Test def testZonedTandemModified03(): Unit = { runner.trace.runOneTest("ZonedTandemModified03") }
-  @Test def testZonedTandemModified04(): Unit = { runner.trace.runOneTest("ZonedTandemModified04") }
-  //@Test def testZonedTandemModified05(): Unit = { runner.trace.runOneTest("ZonedTandemModified05") }
+  @Test def testZonedTandemModified01(): Unit = { runner.runOneTest("ZonedTandemModified01") }
+  //@Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") }
+  @Test def testZonedTandemModified03(): Unit = { runner.runOneTest("ZonedTandemModified03") }
+  @Test def testZonedTandemModified04(): Unit = { runner.runOneTest("ZonedTandemModified04") }
+  //@Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
 }

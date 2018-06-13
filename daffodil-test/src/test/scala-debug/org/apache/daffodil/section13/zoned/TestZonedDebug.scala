@@ -34,6 +34,6 @@ object TestZoned {
 class TestZoned {
   import TestZoned._
 
-  @Test def testZonedTandemModified02(): Unit = { runner.trace.runOneTest("ZonedTandemModified02") }
-  @Test def testZonedTandemModified05(): Unit = { runner.trace.runOneTest("ZonedTandemModified05") }
+  @Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") }
+  @Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
 }
