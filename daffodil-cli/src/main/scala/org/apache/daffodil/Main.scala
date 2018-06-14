@@ -55,7 +55,6 @@ import scala.language.reflectiveCalls
 import scala.concurrent.Future
 import java.util.concurrent.Executors
 import scala.concurrent.ExecutionContext
-import scala.reflect.runtime.universe._
 import org.rogach.scallop.ScallopOption
 import scala.concurrent.duration.Duration
 import scala.concurrent.Await
@@ -187,7 +186,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
    * of the string to the type [A].
    *
    */
-  def optionalValueConverter[A](conv: String => A)(implicit tt: TypeTag[Option[A]]): scallop.ValueConverter[Option[A]] =
+  def optionalValueConverter[A](conv: String => A): scallop.ValueConverter[Option[A]] =
     new scallop.ValueConverter[Option[A]] {
 
       // From the Scallop wiki:
@@ -199,9 +198,9 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       // and if option was found, it returns Right(...)
       def parse(s: List[(String, List[String])]): Either[String, Option[Option[A]]] = {
         s match {
-          case Nil => Right(None) // --validate flag was not present
-          case (_, Nil) :: Nil => Right(Some(None)) // --validate flag was present but 'mode' wasn't
-          case (_, v :: Nil) :: Nil => { // --validate [mode] was present, perform the conversion
+          case Nil => Right(None) // flag was not present
+          case (_, Nil) :: Nil => Right(Some(None)) // flag was present but had no parameter
+          case (_, v :: Nil) :: Nil => { // flag was present with a parameter, convert the parameter
             try {
               Right(Some(Some(conv(v))))
             } catch {
@@ -212,15 +211,14 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               }
             }
           }
-          case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one --validate flag
+          case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one flag
         }
       }
-      val tag = tt
       val argType = scallop.ArgType.LIST
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  def validateConf(c1: => Option[scallop.ScallopConf])(fn: (Option[scallop.ScallopConf]) => Either[String, Unit]) {
+  def validateConf(c1: => Option[scallop.ScallopConfBase])(fn: (Option[scallop.ScallopConfBase]) => Either[String, Unit]) {
     validations :+= new Function0[Either[String, Unit]] {
       def apply = {
         fn(c1)
@@ -228,22 +226,21 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  def validateConverter(s: String): ValidationMode.Type = {
+  implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
     s.toLowerCase match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
       case "off" => ValidationMode.Off
-      case "" => ValidationMode.Full // Is this even possible?
       case _ => throw new Exception("Unrecognized ValidationMode %s.  Must be 'on', 'limited' or 'off'.".format(s))
     }
-  }
+  })
 
   def qnameConvert(s: String): RefQName = {
     val eQN = QName.refQNameFromExtendedSyntax(s)
     eQN.get
   }
 
-  def singleArgConverter[A](conv: String => A)(implicit tt: TypeTag[A]) = new ValueConverter[A] {
+  def singleArgConverter[A](conv: String => A) = new ValueConverter[A] {
     def parse(s: List[(String, List[String])]) = {
       s match {
         case (_, i :: Nil) :: Nil =>
@@ -258,7 +255,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         case _ => Left("you should provide exactly one argument for this option")
       }
     }
-    val tag = tt
     val argType = ArgType.SINGLE
   }
 
@@ -315,6 +311,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val debug = opt[Option[String]](argName = "file", descr = "enable debugging. Optionally, read initial debugger commands from [file] if provided.")(optionalValueConverter[String](a => a))
   val trace = opt[Boolean](descr = "run the debugger with verbose trace output")
   val verbose = tally(descr = "increment verbosity level, one level for each -v")
+  val version = opt[Boolean](descr = "Show version of this program")
 
   // Parse Subcommand Options
   val parse = new scallop.Subcommand("parse") {
@@ -337,10 +334,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
-      case None => ValidationMode.Full
-      case Some(mode) => mode
-    })
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -403,10 +397,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
-      case None => ValidationMode.Full
-      case Some(mode) => mode
-    })
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -454,10 +445,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
-      case None => ValidationMode.Full
-      case Some(mode) => mode
-    })
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -544,6 +532,13 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val info = tally(descr = "increment test result information output level, one level for each -i")
   }
 
+  addSubcommand(parse)
+  addSubcommand(performance)
+  addSubcommand(unparse)
+  addSubcommand(save)
+  addSubcommand(test)
+
+
   validateOpt(trace, debug) {
     case (Some(true), Some(_)) => Left("Only one of --trace and --debug may be defined")
     case _ => Right(Unit)
@@ -553,6 +548,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     case None => Left("Missing subcommand")
     case _ => Right(Unit)
   }
+
+  verify()
 }
 
 object Main extends Logging {
@@ -803,16 +800,16 @@ object Main extends Logging {
       case Some(conf.parse) => {
         val parseOpts = conf.parse
 
-        val validate = parseOpts.validate.get.get
+        val validate = parseOpts.validate.toOption.get
 
-        val cfgFileNode = parseOpts.config.get match {
+        val cfgFileNode = parseOpts.config.toOption match {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
 
         val processor = {
           if (parseOpts.parser.isDefined) {
-            val p = createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validate)
+            val p = createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
             p.get.setExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
@@ -821,13 +818,13 @@ object Main extends Logging {
             val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode, tunablesObj)
 
             //val schema = new URI(parseOpts.schemaString())
-            createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.toOption, parseOpts.path.toOption, extVarsBindings, tunables, validate)
           }
         }
 
         val rc = processor match {
           case Some(processor) if (!processor.isError) => {
-            val (input, optDataSize) = parseOpts.infile.get match {
+            val (input, optDataSize) = parseOpts.infile.toOption match {
               case Some("-") | None => (System.in, None)
               case Some(file) => {
                 val f = new File(parseOpts.infile())
@@ -839,12 +836,12 @@ object Main extends Logging {
             processor.setValidationMode(validate)
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
-            val output = parseOpts.output.get match {
+            val output = parseOpts.output.toOption match {
               case Some("-") | None => System.out
               case Some(file) => new FileOutputStream(file)
             }
             val writer = new BufferedWriter(new OutputStreamWriter(output))
-            val outputter = getInfosetOutputter(parseOpts.infosetType.get.get, writer)
+            val outputter = getInfosetOutputter(parseOpts.infosetType.toOption.get, writer)
 
             val parseResult = Timer.getResult("parsing",
               optDataSize match {
@@ -916,16 +913,16 @@ object Main extends Logging {
       case Some(conf.performance) => {
         val performanceOpts = conf.performance
 
-        val validate = performanceOpts.validate.get.get
+        val validate = performanceOpts.validate.toOption.get
 
-        val cfgFileNode = performanceOpts.config.get match {
+        val cfgFileNode = performanceOpts.config.toOption match {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
 
         val processor = {
           if (performanceOpts.parser.isDefined) {
-            val p = createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.get, validate)
+            val p = createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.toOption, validate)
             p.get.setExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
@@ -933,7 +930,7 @@ object Main extends Logging {
             val tunablesObj = DaffodilTunables(tunables)
             val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode, tunablesObj)
 
-            createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, extVarsBindings, tunables, validate)
           }
         }
 
@@ -949,7 +946,7 @@ object Main extends Logging {
               }
             }
 
-            val infosetType = performanceOpts.infosetType.get.get
+            val infosetType = performanceOpts.infosetType.toOption.get
 
             val dataSeq = files.map { filePath =>
               val input = (new FileInputStream(filePath))
@@ -1055,16 +1052,16 @@ object Main extends Logging {
       case Some(conf.unparse) => {
         val unparseOpts = conf.unparse
 
-        val validate = unparseOpts.validate.get.get
+        val validate = unparseOpts.validate.toOption.get
 
-        val cfgFileNode = unparseOpts.config.get match {
+        val cfgFileNode = unparseOpts.config.toOption match {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
-            val p = createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validate)
+            val p = createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.toOption, validate)
             p.get.setExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode, p.get.getTunables()))
             p
           } else {
@@ -1072,11 +1069,11 @@ object Main extends Logging {
             val tunablesObj = DaffodilTunables(tunables)
             val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode, tunablesObj)
 
-            createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.get, unparseOpts.path.get, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.toOption, unparseOpts.path.toOption, extVarsBindings, tunables, validate)
           }
         }
 
-        val output = unparseOpts.output.get match {
+        val output = unparseOpts.output.toOption match {
           case Some("-") | None => System.out
           case Some(file) => new FileOutputStream(file)
         }
@@ -1085,7 +1082,7 @@ object Main extends Logging {
         //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
-        val is = unparseOpts.infile.get match {
+        val is = unparseOpts.infile.toOption match {
           case Some("-") | None => System.in
           case Some(fileName) => new FileInputStream(fileName)
         }
@@ -1095,8 +1092,8 @@ object Main extends Logging {
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
             val data = IOUtils.toByteArray(is)
-            val inputterData = infosetDataToInputterData(unparseOpts.infosetType.get.get, data)
-            val inputter = getInfosetInputter(unparseOpts.infosetType.get.get, inputterData)
+            val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, data)
+            val inputter = getInfosetInputter(unparseOpts.infosetType.toOption.get, inputterData)
             val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
             output.close()
             displayDiagnostics(unparseResult)
@@ -1111,7 +1108,7 @@ object Main extends Logging {
 
         val validate = ValidationMode.Off
 
-        val cfgFileNode = saveOpts.config.get match {
+        val cfgFileNode = saveOpts.config.toOption match {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
@@ -1119,9 +1116,9 @@ object Main extends Logging {
         val tunablesObj = DaffodilTunables(tunables)
         val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode, tunablesObj)
 
-        val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.get, saveOpts.path.get, extVarsBindings, tunables, validate)
+        val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.toOption, saveOpts.path.toOption, extVarsBindings, tunables, validate)
 
-        val output = saveOpts.outfile.get match {
+        val output = saveOpts.outfile.toOption match {
           case Some("-") | None => Channels.newChannel(System.out)
           case Some(file) => new FileOutputStream(file).getChannel()
         }

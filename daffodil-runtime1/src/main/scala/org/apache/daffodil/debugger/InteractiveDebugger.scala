@@ -50,6 +50,7 @@ import org.apache.daffodil.infoset.InfosetElement
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.processors.parsers.ConvertTextCombinatorParser
 import org.apache.daffodil.oolag.OOLAG._
+import scala.collection.JavaConverters._
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -556,7 +557,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             val completeString = getCompleteString(args)
             val subcandidates = new java.util.ArrayList[CharSequence]
             val newCursor = subcommandsCompleter.complete(completeString, cursor, subcandidates)
-            val seq = scala.collection.JavaConversions.asScalaBuffer(subcandidates)
+            val seq = subcandidates.asScala
             seq.foreach(c => candidates.add(c))
             buffer.lastIndexOf(completeString) + newCursor
           } else {
@@ -690,7 +691,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
           val cmd = buffer.replaceAll("^\\s+", "")
           val subcandidates = new java.util.ArrayList[CharSequence]
           val newCursor = subcommandsCompleter.complete(cmd, cursor, subcandidates)
-          val seq = scala.collection.JavaConversions.asScalaBuffer(subcandidates)
+          val seq = subcandidates.asScala
           seq.foreach(c => candidates.add(c))
           buffer.lastIndexOf(cmd) + newCursor
         }

@@ -18,7 +18,7 @@
 package org.apache.daffodil.japi.logger
 
 import java.io.File
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Abstract log writer, which can be overridden to create a custom log writer.
@@ -73,7 +73,7 @@ abstract class LogWriter {
   def log(level: LogLevel, logID: String, msg: String, args: java.util.List[Any]): Unit = {
     val message =
       if (args.size > 0) {
-        msg.format(args: _*)
+        msg.format(args.asScala: _*)
       } else {
         msg
       }

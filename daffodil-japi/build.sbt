@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-addCompilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.10" cross CrossVersion.full)
+addCompilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.11" cross CrossVersion.full)
 
 
 lazy val JavaDoc = config("genjavadoc") extend Compile

@@ -44,7 +44,7 @@ trait ThrowsSDE {
   def SDE(id: String, args: Any*): Nothing
   final def SDE(th: Throwable): Nothing = SDE(Misc.getSomeMessage(th).get)
 
-  def ThrowSDE = PartialFunction[Throwable, Nothing] { case th: Throwable => SDE(th) }
+  def ThrowSDE: PartialFunction[Throwable, Nothing] = { case th: Throwable => SDE(th) }
 
   def schemaFileLocation: SchemaFileLocation
 

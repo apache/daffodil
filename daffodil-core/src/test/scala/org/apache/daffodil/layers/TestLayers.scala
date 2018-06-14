@@ -26,7 +26,7 @@ import org.apache.commons.io.IOUtils
 import java.nio.charset.StandardCharsets
 import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.apache.daffodil.xml.XMLUtils
 
 class TestLayers {
@@ -122,7 +122,7 @@ a few lines of pointless text like this.""".replace("\n", " ")
     val gzis = new java.util.zip.GZIPInputStream(bais)
     val rdr = new InputStreamReader(gzis, StandardCharsets.UTF_8)
     val lines = IOUtils.readLines(rdr)
-    val textBack = lines.head
+    val textBack = lines.asScala.head
     assertEquals(text, textBack)
   }
 

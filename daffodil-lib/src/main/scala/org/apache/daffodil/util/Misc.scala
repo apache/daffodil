@@ -30,7 +30,7 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CodingErrorAction
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.apache.daffodil.equality._
 
 /**
@@ -480,7 +480,7 @@ object Misc {
   def isAsciiBased(csName: String): Boolean = isAsciiBased(JavaCharset.forName(csName))
 
   def isAsciiBased(cs: JavaCharset): Boolean = {
-    val aliases: Seq[String] = cs.aliases().toSeq.map { _.toUpperCase }
+    val aliases: Seq[String] = cs.aliases().asScala.toSeq.map { _.toUpperCase }
     val byName =
       aliases.exists { s =>
         !(s.contains("7-BIT")) &&

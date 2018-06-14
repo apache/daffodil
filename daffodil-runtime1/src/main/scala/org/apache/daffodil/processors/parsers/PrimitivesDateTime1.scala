@@ -197,8 +197,8 @@ case class ConvertBinaryCalendarSecMilliParser(
       cal.setTimeInMillis(newTime)
     } catch {
       case e: IllegalArgumentException => {
-        PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values (%s to %s): %s.",
-            millisToAdd, Calendar.MIN_MILLIS, Calendar.MAX_MILLIS, e.getMessage())
+        PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",
+            millisToAdd, e.getMessage())
         return
       }
     }

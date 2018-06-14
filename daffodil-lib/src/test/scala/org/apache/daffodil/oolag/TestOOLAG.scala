@@ -137,7 +137,7 @@ class TestOOLAG {
 
     val a1lv = h.a1_
     assertFalse(a1lv.hasError)
-    OOLAG.keepGoing() {
+    OOLAG.keepGoing({}) {
       val a1v = h.a1
       // println("value of a1_ is: " + a1lv)
       assertEquals("a1 value", a1v)
@@ -149,7 +149,7 @@ class TestOOLAG {
 
   @Test def testFailLazyVal() {
     val h = new MyHost
-    OOLAG.keepGoing() {
+    OOLAG.keepGoing({}) {
       // println("ask host for the LV")
       h.a2
       //    catch {
@@ -190,7 +190,7 @@ class TestOOLAG {
   @Test def testLVName2() {
     val h = new MyHost
     var res: String = null
-    OOLAG.keepGoing() {
+    OOLAG.keepGoing({}) {
       // println("ask for the value")
       res = h.a4 + h.a3
     }
@@ -200,7 +200,7 @@ class TestOOLAG {
   @Test def testCircularDefinitionDetected() {
     val h = new MyHost
     var e: Exception = null
-    OOLAG.keepGoing() {
+    OOLAG.keepGoing({}) {
       e = intercept[CircularDefinition] {
         h.circ1
         fail()
@@ -229,7 +229,7 @@ class TestOOLAG {
   @Test def testThrowToTopLevel() {
     val h = new MyHost
     intercept[Abort] {
-      OOLAG.keepGoing() {
+      OOLAG.keepGoing({}) {
         h.abortInside // should print useful lazy val nest messages to log
       }
     }
@@ -242,7 +242,7 @@ class TestOOLAG {
     h.a1
     h.subHostCreator
     intercept[Exception] {
-      OOLAG.keepGoing() {
+      OOLAG.keepGoing({}) {
         h.divZero
       }
     }
@@ -259,7 +259,7 @@ class TestOOLAG {
 
   @Test def testAutoTreeCreate() {
     val h = new MyHost
-    OOLAG.keepGoing() {
+    OOLAG.keepGoing({}) {
       h.subHostCreator
       h.a2
     }

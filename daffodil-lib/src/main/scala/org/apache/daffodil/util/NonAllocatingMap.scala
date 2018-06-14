@@ -19,7 +19,7 @@ package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
 import Maybe._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 /**
@@ -58,15 +58,15 @@ class NonAllocatingMap[K, V <: AnyRef](javaMap: java.util.Map[K, V]) {
   def clear(): Unit = javaMap.clear()
   def containsKey(x: Any): Boolean = javaMap.containsKey(x)
   def containsValue(x: Any): Boolean = javaMap.containsValue(x)
-  def entrySet(): mutable.Set[java.util.Map.Entry[K, V]] = javaMap.entrySet()
+  def entrySet(): mutable.Set[java.util.Map.Entry[K, V]] = javaMap.entrySet().asScala
   def isEmpty(): Boolean = javaMap.isEmpty()
-  def keySet(): mutable.Set[K] = javaMap.keySet()
+  def keySet(): mutable.Set[K] = javaMap.keySet().asScala
   def putAll(x: java.util.Map[K, V]): Unit = {
     // Call our own method so as to insure no nulls find their way in.
-    x.foreach { case (k, v) => put(k, v) }
+    x.asScala.foreach { case (k, v) => put(k, v) }
   }
   def remove(x: Any): Maybe[V] = Maybe(javaMap.remove(x))
   def size(): Int = javaMap.size()
-  def values(): Iterable[V] = javaMap.values()
+  def values(): Iterable[V] = javaMap.values().asScala
 
 }

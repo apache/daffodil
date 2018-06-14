@@ -184,6 +184,7 @@ class DataDumper {
         case (2, x) => 4 - x
         case (3, x) => 6 - x
         case (4, x) => 8 - x
+        case (n, x) => Assert.impossible()
       })
       val trimmedPadding = padding.take(padding.length - paddingFromPriorLine.length)
       txtsb ++= char.toString + trimmedPadding

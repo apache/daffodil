@@ -540,9 +540,9 @@ class TestCLIparsing {
     val shell = Util.start("", true)
 
     try {
-      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix -P parserThatDoesNotExist", Util.binPath, testSchemaFile)
+      val cmd = String.format("echo 0,1,2| %s parse -P parserThatDoesNotExist", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("Bad arguments for option 'parser': 'parserThatDoesNotExist' - file 'parserThatDoesNotExist' doesn't exist"))
+      shell.expect(contains("parserThatDoesNotExist (No such file or directory)"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
@@ -662,16 +662,18 @@ class TestCLIparsing {
     }
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validation() {
+  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validation_missing_mode() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    val shell = Util.start("")
+    val shell = Util.start("", true)
 
     try {
       val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains(output1))
+      shell.expect(contains("Bad arguments"))
+      shell.expect(contains("validate"))
+      shell.expect(contains("exactly one argument"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

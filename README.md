@@ -26,8 +26,7 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 ## Build Requirements
 
 * JDK 1.8
-* Scala 2.11.8
-* SBT 0.13.8
+* SBT 0.13.8 or higher
 
 ## Getting Started
 

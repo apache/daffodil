@@ -249,14 +249,8 @@ class TestCLISaveParser {
       val saveCmd = String.format("%s save-parser -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName())
       shell.sendLine(saveCmd)
 
-      val cmd = String.format("%s parse --parser %s --validate %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      val cmd = String.format("%s parse --parser %s --validate on %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
-
-      shell.expect(contains("[error]"))
-      shell.expect(contains("The validation mode must be 'limited' or 'off' when using a saved parser."))
-
-      val cmd2 = String.format("%s parse --parser %s --validate on %s", Util.binPath, savedParserFile.getName(), testInputFile)
-      shell.sendLine(cmd2)
 
       shell.expect(contains("[error]"))
       shell.expect(contains("The validation mode must be 'limited' or 'off' when using a saved parser."))

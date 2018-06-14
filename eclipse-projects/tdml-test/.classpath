@@ -6,17 +6,17 @@
 *********** Utility and should not be modified by hand or using the Eclipse
 *********** BuildPath... GUI dialog.
 ***********
---><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-parser-combinators_2.11/scala-parser-combinators_2.11-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.11/scala-parser-combinators_2.11-1.0.4.jar">
+--><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-parser-combinators_2.11/scala-parser-combinators_2.11-1.0.4-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-parser-combinators_2.12/scala-parser-combinators_2.12-1.0.4-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.4.jar">
+          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.4-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.4-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.6.jar">
+          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.6-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scala-lang.modules/scala-xml_2.12/scala-xml_2.12-1.0.6-javadoc.jar!/"/>
                 </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.codehaus.woodstox/stax2-api/stax2-api-3.1.4-sources.jar" exported="true" kind="lib" path="lib_managed/bundles/org.codehaus.woodstox/stax2-api/stax2-api-3.1.4.jar">
             <attributes>
@@ -68,17 +68,17 @@
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/commons-io/commons-io/commons-io-2.5-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scalacheck/scalacheck_2.11/scalacheck_2.11-1.13.4-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.11/scalacheck_2.11-1.13.4.jar">
+          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.13.4-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.13.4.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalacheck/scalacheck_2.11/scalacheck_2.11-1.13.4-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.scalacheck/scalacheck_2.12/scalacheck_2.12-1.13.4-javadoc.jar!/"/>
                 </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar" exported="true" kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar">
             <attributes>
                   <attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
                 </attributes>
-          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.rogach/scallop_2.11/scallop_2.11-0.9.5.jar">
+          </classpathentry><classpathentry sourcepath="lib_managed/srcs/org.rogach/scallop_2.12/scallop_2.12-3.1.2-sources.jar" exported="true" kind="lib" path="lib_managed/jars/org.rogach/scallop_2.12/scallop_2.12-3.1.2.jar">
             <attributes>
-                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-javadoc.jar!/"/>
+                  <attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.rogach/scallop_2.12/scallop_2.12-3.1.2-javadoc.jar!/"/>
                 </attributes>
           </classpathentry><classpathentry sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar" exported="true" kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar">
             <attributes>

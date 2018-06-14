@@ -367,7 +367,7 @@ trait CurrencyMixin extends PropertyMixin {
   }
 
   final def currencyInit() = {
-    registerToStringFunction(currencyToString)
+    registerToStringFunction(() => currencyToString)
   }
 
   currencyInit() // call at object creation to initialize
