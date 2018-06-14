@@ -238,10 +238,9 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   This product bundles 'Scala', including the following files:
-    - lib/org.scala-lang.modules.scala-parser-combinators_2.11-1.0.4.jar
-    - lib/org.scala-lang.modules.scala-xml_2.11-1.0.6.jar
-    - lib/org.scala-lang.scala-library-2.11.8.jar
-    - lib/org.scala-lang.scala-reflect-2.11.8.jar
+    - lib/org.scala-lang.modules.scala-parser-combinators_2.12-1.0.4.jar
+    - lib/org.scala-lang.modules.scala-xml_2.12-1.0.6.jar
+    - lib/org.scala-lang.scala-library-2.12.6.jar
     - org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-2.1.0.jar
   These files are available under the BSD-3-Clause licnese:
 
@@ -447,7 +446,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
     OF THE POSSIBILITY OF SUCH DAMAGE.
 
   This product bundles 'Scallop', including the following files:
-    - lib/org.rogach.scallop_2.11-0.9.5.jar
+    - lib/org.rogach.scallop_2.12-3.1.2.jar
   These files are available under under an MIT License. For details, see
   https://github.com/scallop/scallop/blob/develop/license.txt
 
@@ -469,7 +468,7 @@ subcomponents is subject to the terms and conditions of the following licenses.
     UTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE. scallop_2.11-0.9.5.jar
+    SOFTWARE.
 
   This product product bundles 'Stax 2 API', including the following files:
     - lib/org.codehaus.woodstox.stax2-api-3.1.4.jar

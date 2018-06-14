@@ -33,7 +33,7 @@ import org.apache.daffodil.util.{ LogWriter => SLogWriter }
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 private[japi] object LoggingConversions {
 
@@ -97,7 +97,7 @@ private[japi] class JavaLogWriter(logWriter: LogWriter)
 
   override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
     if (logWriter != null) {
-      logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args)
+      logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args.asJava)
     }
   }
 }

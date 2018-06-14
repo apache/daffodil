@@ -39,7 +39,7 @@ object Dependencies {
    
   lazy val cli = Seq( 
     "org.fusesource.jansi" % "jansi" % "1.14",
-    "org.rogach" %% "scallop" % "0.9.5", // new version avail. 2.0.5 requires code changes
+    "org.rogach" %% "scallop" % "3.1.2",
     "net.sf.expectit" % "expectit-core" % "0.8.1" % "it,test"
   )
 

@@ -95,11 +95,6 @@ class TestGeneral {
     assertTrue(m.toLowerCase.contains("not found"))
   }
 
-  @Test def test_1530_scala_version() {
-    val versionStr = scala.util.Properties.versionNumberString
-    assertTrue("The scala version must begin with 2.11. The current version is: " + versionStr, versionStr.startsWith("2.11."))
-  }
-
   // DFDL-1143
   @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
   @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }

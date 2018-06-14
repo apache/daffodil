@@ -26,7 +26,7 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.Assert
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import org.apache.daffodil.dpath.ExpressionEvaluationException
 import org.apache.daffodil.xml._
 import org.apache.daffodil.api.Diagnostic
@@ -398,7 +398,7 @@ final class EvalCache {
    * Creates an XML-like string representation of each item in the cache.
    */
   def toPseudoXML(): String = {
-    val strings = mapAsScalaMap(ht).map { case (k, _) => k.toPseudoXML(this) }
+    val strings = ht.asScala.map { case (k, _) => k.toPseudoXML(this) }
     val string = strings.mkString("\n")
     string
   }

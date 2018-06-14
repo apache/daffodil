@@ -25,7 +25,7 @@ import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.io.File
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
@@ -210,7 +210,7 @@ class Compiler private[japi] () {
    *                   then Daffodil will figure out the namespace.
    */
   def setExternalDFDLVariables(extVarsMap: java.util.AbstractMap[String, String]): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsMap.toMap)
+    val extVars = ExternalVariablesLoader.getVariables(extVarsMap.asScala.toMap)
     sCompiler.setExternalDFDLVariables(extVars)
   }
 
@@ -252,7 +252,7 @@ class Compiler private[japi] () {
    * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value to set it to
    */
   def setTunables(tunables: java.util.AbstractMap[String, String]): Unit = {
-    sCompiler.setTunables(tunables.toMap)
+    sCompiler.setTunables(tunables.asScala.toMap)
   }
 }
 
@@ -319,7 +319,7 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
    *
    * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false.
    */
-  def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) } // implicitly converts to the Java collection
+  def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map(new Diagnostic(_)).asJava
 }
 
 /**
@@ -343,7 +343,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    *
    * @return list of [[DataLocation]]'s related to this diagnostic
    */
-  def getDataLocations: java.util.List[DataLocation] = d.getDataLocations.map { new DataLocation(_) }
+  def getDataLocations: java.util.List[DataLocation] = d.getDataLocations.map(new DataLocation(_)).asJava
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -353,7 +353,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    * @return list of [[LocationInSchemaFile]]'s related to this diagnostic.
    */
   def getLocationsInSchemaFiles: java.util.List[LocationInSchemaFile] =
-    d.getLocationsInSchemaFiles.map { new LocationInSchemaFile(_) }
+    d.getLocationsInSchemaFiles.map(new LocationInSchemaFile(_)).asJava
 
   /**
    * Determine if a diagnostic object represents an error or something less serious.
