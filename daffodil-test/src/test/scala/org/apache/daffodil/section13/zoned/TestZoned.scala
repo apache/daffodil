@@ -38,6 +38,8 @@ class TestZoned {
   @Test def testZonedPatternFail02(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail02") }
   @Test def testZonedPatternFail03(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail03") }
   @Test def testZonedPatternFail04(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail04") }
+  @Test def testZonedPatternFail05(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail05") }
+  @Test def testZonedPatternFail06(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail06") }
   @Test def testZonedFloatFail01(): Unit = { runner.runOneTest("zoned_float_fail01") }
   @Test def testZonedDoubleFail01(): Unit = { runner.runOneTest("zoned_double_fail01") }
   //TODO: @Test def testZonedEncodingFail01(): Unit = { runner.runOneTest("zoned_encoding_fail01") }

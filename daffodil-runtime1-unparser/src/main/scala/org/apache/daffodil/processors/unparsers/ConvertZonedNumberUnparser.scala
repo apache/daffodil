@@ -21,7 +21,7 @@ import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.DecimalUtils
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
-import org.apache.daffodil.processors.parsers.ConvertZonedNumberParserUnparserHelperBase
+import org.apache.daffodil.processors.parsers.ConvertTextNumberParserUnparserHelperBase
 
 case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,
@@ -36,14 +36,14 @@ case class ConvertZonedCombinatorUnparser(
   override def unparse(state: UState): Unit = {
     converterUnparser.unparse1(state)
 
-    if (state.processorStatus ne Success) return
-
-    valueUnparser.unparse1(state)
+    if (state.processorStatus eq Success) {
+      valueUnparser.unparse1(state)
+    }
   }
 }
 
 case class ConvertZonedNumberUnparser[S](
-  helper: ConvertZonedNumberParserUnparserHelperBase[S],
+  helper: ConvertTextNumberParserUnparserHelperBase[S],
   pattern: String,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData)

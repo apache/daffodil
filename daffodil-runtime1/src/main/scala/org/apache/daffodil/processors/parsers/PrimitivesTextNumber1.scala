@@ -442,7 +442,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
   protected def generateNumFormat(decimalSepList: Maybe[List[Character]],
     groupingSep: Maybe[Character],
-    exponentRep: String,
+    exponentRep: Maybe[String],
     infRep: Maybe[String],
     nanRep: Maybe[String],
     checkPolicy: TextNumberCheckPolicy,
@@ -463,7 +463,9 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     }
 
     // TODO: this is allowed to be case insenstive, ICU doesn't support that
-    dfs.setExponentSeparator(exponentRep)
+    if (exponentRep.isDefined) {
+      dfs.setExponentSeparator(exponentRep.get)
+    }
 
     if (infRep.isDefined) {
       // TODO: this is allowed to be case insensitive, ICU doesn't support that
@@ -557,7 +559,7 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
   decimalSepExpEv: Maybe[Evaluatable[List[String]]],
   groupingSepExpEv: Maybe[Evaluatable[String]],
-  exponentRepExpEv: Evaluatable[String],
+  exponentRepExpEv: Maybe[Evaluatable[String]],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -566,9 +568,6 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: MaybeDouble)
   extends NumberFormatFactoryBase[S](parserHelper) {
-  Assert.invariant((!decimalSepExpEv.isDefined || decimalSepExpEv.get.isConstant) &&
-    (!groupingSepExpEv.isDefined || groupingSepExpEv.get.isConstant) &&
-    exponentRepExpEv.isConstant)
 
   val decSep =
     if (decimalSepExpEv.isEmpty) Nope else One {
@@ -582,17 +581,18 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
       getGroupingSep(gse, context)
     }
 
-  val expRep = {
-    Assert.invariant(exponentRepExpEv.isConstant)
-    getExponentRep(exponentRepExpEv.maybeConstant.get, context)
-  }
+  val expRep =
+    if (exponentRepExpEv.isEmpty) Nope else One {
+      Assert.invariant(exponentRepExpEv.get.isConstant)
+      getExponentRep(exponentRepExpEv.get.maybeConstant.get, context)
+    }
 
   val roundingInc: MaybeDouble = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, context) }
 
   checkUnique(
     decSep,
     groupSep,
-    One(expRep),
+    expRep,
     infRep,
     nanRep,
     parserHelper.zeroRepListRaw,
@@ -623,7 +623,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
   decimalSepExpEv: Maybe[Evaluatable[List[String]]],
   groupingSepExpEv: Maybe[Evaluatable[String]],
-  exponentRepExpEv: Evaluatable[String],
+  exponentRepExpEv: Maybe[Evaluatable[String]],
   infRep: Maybe[String],
   nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
@@ -644,14 +644,14 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       (a: String) => getGroupingSep(a, staticContext)
     }
 
-  val exponentRepCached: CachedDynamic[String, String] =
-    cacheConstantExpression(exponentRepExpEv) {
+  val exponentRepCached: Maybe[CachedDynamic[String, String]] =
+    cacheConstantExpressionMaybe(exponentRepExpEv) {
       (a: String) => getExponentRep(a, staticContext)
     }
 
   checkUnique(getStaticMaybe(decimalSepListCached),
     getStaticMaybe(groupingSepCached),
-    getStatic(exponentRepCached),
+    getStaticMaybe(exponentRepCached),
     infRep,
     nanRep,
     parserHelper.zeroRepListRaw,
@@ -675,7 +675,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
         }
     }
 
-    val exponentRep = evalWithConversion(state, exponentRepCached) {
+    val exponentRep = evalWithConversionMaybe(state, exponentRepCached) {
       (s: ParseOrUnparseState, c: String) =>
         {
           getExponentRep(c, s)
@@ -685,7 +685,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     checkUnique(
       decimalSepList,
       groupingSep,
-      One(exponentRep),
+      exponentRep,
       infRep,
       nanRep,
       parserHelper.zeroRepListRaw,

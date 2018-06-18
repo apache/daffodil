@@ -31,8 +31,10 @@
 
     <xs:element name="int01" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+00@00" />
     <xs:element name="int02" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="0000" />
-    <xs:element name="uint03" type="xs:unsignedInt" dfdl:length="4" dfdl:textNumberPattern="0000" dfdl:textNumberCheckPolicy="lax"/>
+    <xs:element name="int03" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+00E00" />
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:length="4" dfdl:textNumberPattern="0000" dfdl:textNumberCheckPolicy="lax"/>
     <xs:element name="int04" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
+    <xs:element name="int05" type="xs:int" dfdl:length="4" dfdl:textNumberPattern="+0000+" />
     <xs:element name="float01" type="xs:float" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
     <xs:element name="double01" type="xs:double" dfdl:length="4" dfdl:textNumberPattern="+00;00" />
 
@@ -78,7 +80,7 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="zoned_textNumberPattern_fail03" root="uint03" model="s1"
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail03" root="uint01" model="s1"
     description="This test should fail because '+' must be the first or last character in the textNumberPattern when using zoned numbers and textNumberCheckPolicy=strict">
 
     <tdml:document>
@@ -99,6 +101,30 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Negative patterns may not be used</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail05" root="int03" model="s1"
+    description="This test should fail because 'E' is not an allowed character in the textNumberPattern for zoned numbers">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Invalid characters used in textNubmerPattern for zoned number</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zoned_textNumberPattern_fail06" root="int05" model="s1"
+    description="This test should fail because '+' is not allowed to be at both the start and end of the textNumberPattern">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1988</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>The textNumberPattern may either begin or end with a '+', not both</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
