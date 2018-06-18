@@ -42,7 +42,6 @@ class TestZoned {
   @Test def testZonedPatternFail06(): Unit = { runner.runOneTest("zoned_textNumberPattern_fail06") }
   @Test def testZonedFloatFail01(): Unit = { runner.runOneTest("zoned_float_fail01") }
   @Test def testZonedDoubleFail01(): Unit = { runner.runOneTest("zoned_double_fail01") }
-  //TODO: @Test def testZonedEncodingFail01(): Unit = { runner.runOneTest("zoned_encoding_fail01") }
 
   @Test def testZonedStandard01(): Unit = { runner.runOneTest("ZonedStandard01") }
   @Test def testZonedStandard02(): Unit = { runner.runOneTest("ZonedStandard02") }
@@ -63,8 +62,8 @@ class TestZoned {
   @Test def testZonedCARealiaModified05(): Unit = { runner.runOneTest("ZonedCARealiaModified05") }
 
   @Test def testZonedTandemModified01(): Unit = { runner.runOneTest("ZonedTandemModified01") }
-  //@Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") }
+  //@Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") } - DAFFODIL-1957 TDML Runner bug
   @Test def testZonedTandemModified03(): Unit = { runner.runOneTest("ZonedTandemModified03") }
   @Test def testZonedTandemModified04(): Unit = { runner.runOneTest("ZonedTandemModified04") }
-  //@Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
+  //@Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") } - DAFFODIL-1957 TDML Runner bug
 }
