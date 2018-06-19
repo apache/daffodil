@@ -34,6 +34,4 @@ object TestZoned {
 class TestZoned {
   import TestZoned._
 
-  @Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") } // DAFFODIL-1957 TDML Runner Bug
-  @Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") } // DAFFODIL-1957 TDML Runner Bug
 }

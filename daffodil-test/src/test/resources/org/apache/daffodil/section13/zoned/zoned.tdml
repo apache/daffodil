@@ -375,7 +375,7 @@
     description="Test of a negative number with zonedSignStyle=asciiTandemModified with overpunch on first char">
 
     <tdml:document>
-      <tdml:documentPart type="text">&#x81;234567890</tdml:documentPart>
+      <tdml:documentPart type="text" encoding="ISO-8859-1">&#x81;234567890</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -415,7 +415,7 @@
     description="Test of a negative number with zonedSignStyle=asciiTandemModified with overpunch on last char">
 
     <tdml:document>
-      <tdml:documentPart type="text">123456789&#x80;</tdml:documentPart>
+      <tdml:documentPart type="text" encoding="ISO-8859-1">123456789&#x80;</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

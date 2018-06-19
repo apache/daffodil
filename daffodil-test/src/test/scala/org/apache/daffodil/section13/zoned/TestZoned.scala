@@ -62,8 +62,8 @@ class TestZoned {
   @Test def testZonedCARealiaModified05(): Unit = { runner.runOneTest("ZonedCARealiaModified05") }
 
   @Test def testZonedTandemModified01(): Unit = { runner.runOneTest("ZonedTandemModified01") }
-  //@Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") } - DAFFODIL-1957 TDML Runner bug
+  @Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") }
   @Test def testZonedTandemModified03(): Unit = { runner.runOneTest("ZonedTandemModified03") }
   @Test def testZonedTandemModified04(): Unit = { runner.runOneTest("ZonedTandemModified04") }
-  //@Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") } - DAFFODIL-1957 TDML Runner bug
+  @Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
 }
