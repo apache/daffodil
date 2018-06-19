@@ -44,7 +44,7 @@ case class ConvertZonedCombinatorUnparser(
 
 case class ConvertZonedNumberUnparser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
-  pattern: String,
+  opl: OverpunchLocation.Value,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData)
   extends PrimUnparser
@@ -65,15 +65,6 @@ case class ConvertZonedNumberUnparser[S](
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
 
-    val opindex = pattern.indexOf('+')
-    val opl = {
-      if (opindex == 0)
-        OverpunchLocation.Start
-      else if (opindex == pattern.length - 1)
-        OverpunchLocation.End
-      else
-        OverpunchLocation.None
-    }
     val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle, opl)
 
     node.overwriteDataValue(strRep)

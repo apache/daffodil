@@ -49,7 +49,7 @@ case class ConvertZonedCombinatorParser(
 
 case class ConvertZonedNumberParser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
-  pattern: String,
+  opl: OverpunchLocation.Value,
   nff: NumberFormatFactoryBase[S],
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData) extends TextPrimParser {
@@ -65,16 +65,6 @@ case class ConvertZonedNumberParser[S](
     if (str == "") {
       PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.prettyType, helper.xsdType)
       return
-    }
-
-    val opindex = pattern.indexOf('+')
-    val opl = {
-      if (opindex == 0)
-        OverpunchLocation.Start
-      else if (opindex == pattern.length - 1)
-        OverpunchLocation.End
-      else
-        OverpunchLocation.None
     }
 
     var checkLength = str.length

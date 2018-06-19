@@ -465,6 +465,7 @@ object DecimalUtils {
 
     val encodedValue = {
       if (opl == OverpunchLocation.None) {
+        if (!positive) Assert.impossible()
         inStr
       } else {
         val digit = zonedStyle match {

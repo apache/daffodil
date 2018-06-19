@@ -1321,6 +1321,16 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start), num)
   }
 
+  @Test def zonedIntAsciiStandardInvalidDigit() {
+    val num = "z123"
+    try {
+      val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+      assertEquals(result, "-0123")
+    } catch {
+      case nfe: NumberFormatException => assertTrue(nfe.getMessage().contains("Invalid zoned digit"))
+    }
+  }
+
   @Test def zonedIntAsciiTranslatedEBCDICPos1() {
     val num = "A"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
@@ -1391,6 +1401,15 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start), num)
   }
 
+  @Test def zonedIntAsciiTranslatedEBCDICInvalidDigit() {
+    val num = "z123"
+    try {
+      val result = zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      assertEquals(result, "-0123")
+    } catch {
+      case nfe: NumberFormatException => assertTrue(nfe.getMessage().contains("Invalid zoned digit"))
+    }
+  }
 
   @Test def zonedIntAsciiCARealiaModifiedPos1() {
     val num = "1"
@@ -1462,6 +1481,16 @@ class TestDecimalUtils {
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start), num)
   }
 
+  @Test def zonedIntAsciiCARealiaModifiedInvalidDigit() {
+    val num = "z123"
+    try {
+      val result = zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      assertEquals(result, "-0123")
+    } catch {
+      case nfe: NumberFormatException => assertTrue(nfe.getMessage().contains("Invalid zoned digit"))
+    }
+  }
+
   @Test def zonedIntAsciiTandemModifiedPos1() {
     val num = "1"
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
@@ -1530,6 +1559,16 @@ class TestDecimalUtils {
     val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start), num)
+  }
+
+  @Test def zonedIntAsciiTandemModifiedInvalidDigit() {
+    val num = "z123"
+    try {
+      val result = zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      assertEquals(result, "-0123")
+    } catch {
+      case nfe: NumberFormatException => assertTrue(nfe.getMessage().contains("Invalid zoned digit"))
+    }
   }
 
   @Test def zonedIntAsciiStandardAllDigits() {

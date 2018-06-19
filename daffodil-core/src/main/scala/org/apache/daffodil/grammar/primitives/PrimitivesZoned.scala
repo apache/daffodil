@@ -47,6 +47,7 @@ import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeDouble
+import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
@@ -151,9 +152,19 @@ abstract class ConvertZonedNumberPrim[S](e: ElementBase)
     nff
   }
 
-  lazy val parser: Parser = new ConvertZonedNumberParser[S](helper, e.textNumberPattern, numFormatFactory, e.textZonedSignStyle, e.elementRuntimeData)
+  val opindex = e.textNumberPattern.indexOf('+')
+  val opl = {
+    if (opindex == 0)
+      OverpunchLocation.Start
+    else if (opindex == e.textNumberPattern.length - 1)
+      OverpunchLocation.End
+    else
+      OverpunchLocation.None
+  }
 
-  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser[S](helper, e.textNumberPattern, e.textZonedSignStyle, e.elementRuntimeData)
+  lazy val parser: Parser = new ConvertZonedNumberParser[S](helper, opl, numFormatFactory, e.textZonedSignStyle, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser[S](helper, opl, e.textZonedSignStyle, e.elementRuntimeData)
 }
 
 case class ConvertZonedIntegerPrim(e: ElementBase) extends ConvertZonedNumberPrim[JBigInt](e) {
