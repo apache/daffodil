@@ -499,7 +499,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored04" root="tnp09" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">******$123456 is negative!</tdml:documentPart>
@@ -543,7 +544,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_negativeIgnored06" root="tnp30" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">(0.43E3)</tdml:documentPart>
@@ -564,7 +566,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberPattern_exponent01" root="tnp05" model="textNumberPattern"
-    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067.1R">
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067.1R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">006.54E9</tdml:documentPart>
@@ -781,7 +784,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax02" root="tnp10" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[           0052    ]]></tdml:documentPart>
@@ -803,7 +807,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax03" root="tnp10" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[        000052    ]]></tdml:documentPart>
@@ -868,7 +873,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax06" root="tnp31" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    00003352    ]]></tdml:documentPart>
@@ -890,7 +896,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax07" root="tnp32" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[00003352    ]]></tdml:documentPart>
@@ -912,7 +919,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax08" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[00003352]]></tdml:documentPart>
@@ -934,7 +942,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax09" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[03]]></tdml:documentPart>
@@ -1110,7 +1119,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax17" root="tnp36" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[          3352]]></tdml:documentPart>
@@ -1156,7 +1166,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict02" root="tnp11" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    52    ]]></tdml:documentPart>
@@ -1179,7 +1190,8 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict03" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[052]]></tdml:documentPart>
@@ -1223,7 +1235,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict05" root="tnp13" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000000000005]]></tdml:documentPart>
@@ -2220,7 +2233,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding01" root="tnp54" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
@@ -2300,7 +2314,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding05" root="tnp56" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">                 12 o'clock</tdml:documentPart>
@@ -2320,7 +2335,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding06" root="tnp57" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">data:                           4,999</tdml:documentPart>
@@ -2340,7 +2356,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding07" root="tnp57" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">(data:                           4,999)</tdml:documentPart>
@@ -2360,7 +2377,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding08" root="tnp58" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> right</tdml:documentPart>
@@ -2380,7 +2398,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding09" root="tnp59" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">8 Items$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</tdml:documentPart>
@@ -2420,7 +2439,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding11" root="tnp61" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">******9</tdml:documentPart>
@@ -2440,7 +2460,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_padding12" root="tnp62" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">######2</tdml:documentPart>
@@ -2481,7 +2502,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo01" root="tnp64" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">********++++5</tdml:documentPart>
@@ -2502,7 +2524,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo02" root="tnp65" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****5*****</tdml:documentPart>
@@ -2523,7 +2546,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo03" root="tnp66" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2544,7 +2568,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo04" root="tnp67" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">***********************************************************************************************************************************************************************************3</tdml:documentPart>
@@ -2565,7 +2590,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo05" root="tnp68" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">-500</tdml:documentPart>
@@ -2586,7 +2612,8 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_paddingCombo06" root="tnp68" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">----500</tdml:documentPart>
@@ -2606,7 +2633,8 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding01" root="decimalPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2647,7 +2675,8 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding03" root="intPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2668,7 +2697,8 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding04" root="decimalPad2" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****4****</tdml:documentPart>
@@ -2689,7 +2719,8 @@
   -->
 
   <tdml:parserTestCase name="decimalPadding05" root="decimalPad3" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
@@ -2729,7 +2760,8 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding01" root="nonNegIntPad" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
@@ -2770,7 +2802,8 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding03" root="nonNegIntPad2" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****4****</tdml:documentPart>
@@ -2791,7 +2824,8 @@
   -->
 
   <tdml:parserTestCase name="nonNegIntPadding04" root="nonNegIntPad3" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
@@ -2975,7 +3009,8 @@
    -->
 
   <tdml:parserTestCase name="standardZeroRep02" root="tnp78" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">NAUGHT</tdml:documentPart>
@@ -2996,7 +3031,8 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep03" root="tnp79" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">ZERO</tdml:documentPart>
@@ -3017,7 +3053,8 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep04" root="tnp80" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">*****nil</tdml:documentPart>
@@ -3076,7 +3113,8 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep06" root="tnp81" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">7F</tdml:documentPart>
@@ -3154,7 +3192,8 @@
   -->
 
   <tdml:parserTestCase name="standardZeroRep10" root="tnp85" model="textNumberPattern"
-    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">nil</tdml:documentPart>
@@ -4068,7 +4107,8 @@
 
   <tdml:parserTestCase name="zero" root="zero"
     model="textprops"
-    description="Test zero repreentations">
+    description="Test zero repreentations"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NIL|ZILCH|ZERO|5|0]]]></tdml:documentPart>

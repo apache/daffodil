@@ -668,7 +668,8 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:parserTestCase name="whitespace_02"
     description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
-    model="EscapesSchema" root="e2">
+    model="EscapesSchema" root="e2"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text">[ start ]hello[ end ]</tdml:documentPart>
     </tdml:document>
@@ -709,7 +710,8 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:parserTestCase name="whitespace_04"
     description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
-    model="EscapesSchema" root="e4">
+    model="EscapesSchema" root="e4"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"> h e l l o</tdml:documentPart>
     </tdml:document>
@@ -791,7 +793,8 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:parserTestCase name="whitespace_08"
     description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
-    model="whitespaceSchema" root="spacePad2">
+    model="whitespaceSchema" root="spacePad2"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[      hello      ]]></tdml:documentPart>
     </tdml:document>
@@ -830,7 +833,8 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:parserTestCase name="whitespace_10"
     description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
-    model="whitespaceSchema" root="spacePad4">
+    model="whitespaceSchema" root="spacePad4"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[      123      ]]></tdml:documentPart>
     </tdml:document>
@@ -887,7 +891,8 @@ is multiple bytes in UTF-8 encoding that is used"
   -->
 
   <tdml:parserTestCase name="doubleNLterminator" root="seq" model="NLSchema"
-    description="">
+    description=""
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
       <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
@@ -910,7 +915,8 @@ is multiple bytes in UTF-8 encoding that is used"
   -->
 
   <tdml:parserTestCase name="doubleNLseparator" root="seq2" model="NLSchema"
-    description="">
+    description=""
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="byte">74 65 78 74 0d 0a 0d 0a</tdml:documentPart>
       <tdml:documentPart type="byte">74 65 78 74</tdml:documentPart>

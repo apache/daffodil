@@ -4379,7 +4379,8 @@
       Purpose: This test demonstrates the use of validation for the totalDigits facet.
   -->
   <tdml:parserTestCase name="checkTotalDigits_Pass"
-    root="e4_1" model="TestFacets">
+    root="e4_1" model="TestFacets"
+    roundTrip="twoPass">
 
     <tdml:document>12345</tdml:document>
     <tdml:infoset>
@@ -4502,7 +4503,8 @@
       Purpose: This test demonstrates the use of validation for the fractionDigits and totalDigits facet.
   -->
   <tdml:parserTestCase name="checkTotalDigitsFractionDigits_Pass2"
-    root="e4_1_2" model="TestFacets">
+    root="e4_1_2" model="TestFacets"
+    roundTrip="twoPass">
 
     <tdml:document>123.010</tdml:document>
     <tdml:infoset>
@@ -6146,7 +6148,8 @@
   -->
 
   <tdml:parserTestCase name="minMaxInExdateTime01" root="mImE_e13"
-    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
+    model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R"
+    roundTrip="twoPass">
     <tdml:document>Today is the 16th day of March, year 2012</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

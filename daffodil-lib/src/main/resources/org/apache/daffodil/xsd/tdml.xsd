@@ -73,7 +73,7 @@
       <attribute name="suiteName" type="xs:token" use="optional"/>
       <attribute name="ID" type="xs:token" use="optional"/>
       <attribute name="description" type="xs:string" use="optional"/>
-      <attribute name="defaultRoundTrip" type="xs:boolean" use="optional"/>
+      <attribute name="defaultRoundTrip" type="tns:roundTripType" use="optional"/>
       <attribute name="defaultValidation" type="tns:validationType" use="optional"/>
       <attribute name="defaultConfig" type="xs:string" use="optional"/>
     </complexType>
@@ -151,12 +151,22 @@
     <attribute name="root" type="xs:NCName" use="optional"/> <!-- only needed when there is no infoset. -->
     <attribute name="model" type="xs:string" use="optional"/> <!-- is there a type for a path/uri? -->
     <attribute name="config" type="xs:string" use="optional"/> <!-- is there a type for a path/uri? -->
-    <attribute name="roundTrip" type="xs:boolean" use="optional"/>
+    <attribute name="roundTrip" type="tns:roundTripType" use="optional"/>
     <attribute name="description" type="xs:string" use="optional"/>
     <attribute name="unsupported" type="xs:boolean" use="optional" default="false"/>
     <attribute name="validation" type="tns:validationType" use="optional"/>
   </attributeGroup>
 
+  <simpleType name="roundTripType">
+    <restriction base="xs:token">
+      <enumeration value="false"/> <!-- means same as none -->
+      <enumeration value="none"/>
+      <enumeration value="true"/> <!-- means same as onePass -->
+      <enumeration value="onePass"/> <!--  parse, compare infoset, unparse - compare data -->
+      <enumeration value="twoPass"/> <!-- parse, unparse, reparse - compare infoset -->
+    </restriction>
+  </simpleType>
+  
   <simpleType name="elementFormDefaultType">
     <restriction base="xs:token">
       <enumeration value="qualified"/>

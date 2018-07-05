@@ -49,7 +49,8 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="Lesson1_lengthKind_explicit"
-		root="address" model="lengthKind_explicit" description="lengthKind='explicit' - DFDL-12-039R">
+		root="address" model="lengthKind_explicit" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -129,7 +130,8 @@
 -->
 
 	<tdml:parserTestCase name="ExplicitLengthBitsNotFixed"
-		root="notFixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R">
+		root="notFixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000180
 			</tdml:documentPart>
@@ -158,7 +160,8 @@
 -->
 
 	<tdml:parserTestCase name="ExplicitLengthBitsFixed"
-		root="fixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R">
+		root="fixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
 		</tdml:document>
@@ -256,7 +259,8 @@
 
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Chars"
 		root="fixed1" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R">
+		description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[123456789012345678901234567890]]></tdml:documentPart>
 		</tdml:document>
@@ -288,7 +292,8 @@
 
 	<tdml:parserTestCase name="test_ExplicitLengthChildLengthLessParent_Bytes"
 		root="fixed2" model="test_ExplicitLengthChildLengthLessParent"
-		description="lengthKind='explicit' - DFDL-12-039R">
+		description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="byte">00 0F 00 0F 00 0F 00 0F
 			</tdml:documentPart>
@@ -468,7 +473,8 @@
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="test_ExplicitLengthBytesNotFixed"
-		root="notFixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+		root="notFixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000030
 			</tdml:documentPart>
@@ -490,7 +496,8 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="test_ExplicitLengthBytesFixed"
-		root="fixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+		root="fixed" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
 		</tdml:document>
@@ -518,7 +525,8 @@
 -->
 
   <tdml:parserTestCase name="ExplicitLengthBytesFixed50"
-    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+    root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NYXX000118Ridgewood Circle    Rochester           NYXX]]></tdml:documentPart>
     </tdml:document>
@@ -554,7 +562,8 @@
 	</tdml:parserTestCase>
 
 	<tdml:parserTestCase name="test_ExplicitLengthBytesChoiceRef"
-		root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
+		root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000033
 			</tdml:documentPart>
@@ -684,7 +693,8 @@
 -->
 
 	<tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
-		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000030
 			</tdml:documentPart>
@@ -713,7 +723,8 @@
 -->
 
 	<tdml:parserTestCase name="ExplicitLengthCharsFixed"
-		root="fixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+		root="fixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R"
+		roundTrip="twoPass">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
 		</tdml:document>

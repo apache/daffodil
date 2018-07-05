@@ -22,7 +22,8 @@
   defaultRoundTrip="true">
 
   <parserTestCase name="AK000" root="list" model="AK.dfdl.xsd"
-    description="Simple Binary with signed and usigned types - DFDL-5-020R">
+    description="Simple Binary with signed and usigned types - DFDL-5-020R"
+    roundTrip="twoPass">
     <document>
       <documentPart type="byte">ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</documentPart>
     </document>
@@ -43,7 +44,8 @@
   </parserTestCase>
 
   <parserTestCase name="AK001" root="list" model="AK.dfdl.xsd"
-    description="Simple Binary with signed and usigned types - DFDL-5-020R">
+    description="Simple Binary with signed and usigned types - DFDL-5-020R"
+    roundTrip="twoPass">
     <document>
       <documentPart type="byte">7f7f7fff7fffffff7fffffff7fffffff7fffffffffffffff7fffffffffffffff</documentPart>
     </document>

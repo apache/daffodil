@@ -49,7 +49,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="AI000" root="list"
-    model="AI.dfdl.xsd" description="AI - length kind pattern test - DFDL-12-038R">
+    model="AI.dfdl.xsd" description="AI - length kind pattern test - DFDL-12-038R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[

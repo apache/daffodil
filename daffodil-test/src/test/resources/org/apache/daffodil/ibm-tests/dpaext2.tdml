@@ -56,6 +56,7 @@
 		maxlength 3, field 3 has minlength 3.  no padding/triming on field 1.
 	-->
 	<parserTestCase name="simple_type_properties_pad_trim_13_03" root="groupElem"
+        roundTrip="twoPass"
 		model="./fvt/ext/dpa/dpadelonetrm_01.dfdl.xsd" validation="on"
 		 description="Section 13.2 trimming on text fields in a delimited sequence, left justified">
 		<document>A:a~B:bb*~C:ccc</document>
@@ -271,9 +272,10 @@
 	
 <!-- @ Terminator inherited at both parent element and group from default format -->	
 	<parserTestCase name="simple_type_properties_text_calendar_13_02" root="calendar_group"
+        roundTrip="twoPass"
 		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
 		 description="Section 13.10 Properties for calendar text  - implicit patterns for date, time, and dateTime ">
-		<document>2010-12-30*04:05:06+01:00*2010-12-30T04:05:06@@</document>
+		<document>2010-12-30*04:05:06+01:00*2010-12-30T04:05:06</document>
 		<infoset>
 			<dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			  <calendar_group>
@@ -286,6 +288,7 @@
 	</parserTestCase>
 		
 	<parserTestCase name="simple_type_properties_text_calendar_13_03" root="myDateTime"
+        roundTrip="twoPass"
 		model="./fvt/ext/dpa/dpacaltxt_43.dfdl.xsd" 
 		 description="Section 13.10 Properties for calendar text  - calendarStrictChecking (56th week  is ok if lax)">
 		<document>xxxx2011040506MON56@</document>

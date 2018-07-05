@@ -771,7 +771,7 @@
   -->
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_04" root="e9"
-    model="packed7BitASCII" roundTrip="true">
+    model="packed7BitASCII" roundTrip="twoPass">
     <tdml:document bitOrder="LSBFirst">
       <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[ 0110100 0110010 11]]></tdml:documentPart>
     </tdml:document>
@@ -894,7 +894,8 @@
         results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
   -->
   <tdml:parserTestCase name="encodingErrorReplace2" root="ee2"
-    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">64f0908767</tdml:documentPart>
@@ -915,7 +916,8 @@
         results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
   -->
   <tdml:parserTestCase name="encodingErrorReplace3" root="ee2"
-    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">64c2ff67</tdml:documentPart>
@@ -936,7 +938,8 @@
         results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
   -->
   <tdml:parserTestCase name="encodingErrorReplace4" root="ee2"
-    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">648067</tdml:documentPart>

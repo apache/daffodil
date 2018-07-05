@@ -447,7 +447,8 @@ C</MessageHeaders>
 
   <tdml:parserTestCase name="Lesson4_delimited_fixed_length"
     root="address1" model="lengthKindDelimited-Embedded.dfdl.xsd"
-    description="delimited fixed length elements - DFDL-12-053R">
+    description="delimited fixed length elements - DFDL-12-053R"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[000118*Ridgewood Circle    *Rochester           *NY]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -489,7 +490,8 @@ C</MessageHeaders>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_00a" root="NS_00a"
-    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R">
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-048R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1aab]]></tdml:document>
     <tdml:infoset>
@@ -635,7 +637,8 @@ C</MessageHeaders>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_07" root="NS_07"
-    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-8476,-749]]></tdml:document>
     <tdml:infoset>
@@ -661,7 +664,8 @@ C</MessageHeaders>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_08" root="NS_07"
-    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R">
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-043R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[.639,pqrs,27.44,vxyz,3.78,abcd,73,-289,-5.89,hijk,-23,-8476,-749]]></tdml:document>
     <tdml:infoset>
@@ -712,7 +716,8 @@ C</MessageHeaders>
 
   <tdml:parserTestCase name="lengthKindDelimited_01"
     root="delim_01" model="lengthKindDelimited-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-delimited - use space character (0x20) as %WSP; - DFDL-12-048R">
+    description="Section 12 lengthKind-delimited - use space character (0x20) as %WSP; - DFDL-12-048R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[abcd  +
 		  efg]]></tdml:document>
@@ -729,7 +734,8 @@ C</MessageHeaders>
 
   <tdml:parserTestCase name="lengthKindDelimited_02"
     root="delim_01" model="lengthKindDelimited-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-delimited - use tab character (0x09) as %WSP; - DFDL-12-048R">
+    description="Section 12 lengthKind-delimited - use tab character (0x09) as %WSP; - DFDL-12-048R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[abcd		+
 				efg]]></tdml:document>

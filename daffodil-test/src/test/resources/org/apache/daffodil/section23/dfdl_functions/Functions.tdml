@@ -22,7 +22,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:math="http://www.w3.org/2005/xpath-functions/math"
   xmlns:ex="http://example.com"
-  defaultRoundTrip="true">
+  defaultRoundTrip="onePass">
     
   <tdml:defineSchema name="Functions.dfdl.xsd">
     <dfdl:format ref="ex:GeneralFormat" initiator=""
@@ -2436,7 +2436,8 @@
 -->
 
   <tdml:parserTestCase name="xfromdatetime_02" root="e_xfromdatetime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R"
+    roundTrip="twoPass">
 
     <tdml:document>2013-12-31T23:62:30</tdml:document>
     <tdml:infoset>
@@ -2463,7 +2464,8 @@
 -->
 
   <tdml:parserTestCase name="xfromdatetime_03" root="e_xfromdatetime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R"
+    roundTrip="twoPass">
 
     <tdml:document>0100-13-12T24:11:99</tdml:document>
     <tdml:infoset>
@@ -2681,7 +2683,8 @@
 -->
 
   <tdml:parserTestCase name="xfromdate_02" root="e_xfromdate2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R"
+    roundTrip="twoPass">
 
     <tdml:document>2008-09-31</tdml:document>
     <tdml:infoset>
@@ -2705,7 +2708,8 @@
 -->
 
   <tdml:parserTestCase name="xfromdate_03" root="e_xfromdate1"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R"
+    roundTrip="twoPass">
 
     <tdml:document>-0020-01-99</tdml:document>
     <tdml:infoset>
@@ -2747,7 +2751,8 @@
 -->
 
   <tdml:parserTestCase name="hoursfromtime_02" root="e_hoursfromtime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R"
+    roundTrip="twoPass">
 
     <tdml:document>23:00:00+00:00</tdml:document>
     <tdml:infoset>
@@ -2786,7 +2791,8 @@
 -->
 
   <tdml:parserTestCase name="minutesfromtime_02" root="e_minutesfromtime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-time - DFDL-23-119R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-time - DFDL-23-119R"
+    roundTrip="twoPass">
 
     <tdml:document>23:59:00+00:00</tdml:document>
     <tdml:infoset>
@@ -2825,7 +2831,8 @@
 -->
 
   <tdml:parserTestCase name="secondsfromtime_02" root="e_secondsfromtime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-time - DFDL-23-120R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-time - DFDL-23-120R"
+    roundTrip="twoPass">
 
     <tdml:document>23:00:48+00:00</tdml:document>
     <tdml:infoset>
@@ -2846,7 +2853,8 @@
 -->
 
   <tdml:parserTestCase name="xfromtime_01" root="e_xfromtime1"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R"
+    roundTrip="twoPass">
 
     <tdml:document>24:00:00+00:00</tdml:document>
     <tdml:infoset>
@@ -2870,7 +2878,8 @@
 -->
 
   <tdml:parserTestCase name="xfromtime_02" root="e_xfromtime2"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R"
+    roundTrip="twoPass">
 
     <tdml:document>01:75:18.743-04:00</tdml:document>
     <tdml:infoset>
@@ -2894,7 +2903,8 @@
 -->
 
   <tdml:parserTestCase name="xfromtime_03" root="e_xfromtime1"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R"
+    roundTrip="twoPass">
 
     <tdml:document>12:13:14+00:00</tdml:document>
     <tdml:infoset>
@@ -3666,7 +3676,8 @@
 -->
 
   <tdml:parserTestCase name="valueLength_0" root="valueLength"
-    model="Functions.dfdl.xsd" description="Section 23 ">
+    model="Functions.dfdl.xsd" description="Section 23 "
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
@@ -3690,7 +3701,8 @@
 -->
 
   <tdml:parserTestCase name="valueLength_1" root="valueLength2"
-    model="Functions.dfdl.xsd" description="Section 23 ">
+    model="Functions.dfdl.xsd" description="Section 23 "
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[////test////]]></tdml:documentPart>
@@ -3744,7 +3756,8 @@
 -->
 
   <tdml:parserTestCase name="valueLength_3" root="valueLength4"
-    model="Functions.dfdl.xsd" description="Section 23 ">
+    model="Functions.dfdl.xsd" description="Section 23 "
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[/te*,st!*;]]></tdml:documentPart>
@@ -4018,7 +4031,8 @@
 -->
 
   <tdml:parserTestCase name="valueContentLength1" root="valueContentLength1"
-    model="Functions-binary.dfdl.xsd" description="dfdl:valueLength and dfdl:contentLength functions.">
+    model="Functions-binary.dfdl.xsd" description="dfdl:valueLength and dfdl:contentLength functions."
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10101000 01010100 110011</tdml:documentPart>
@@ -4053,7 +4067,8 @@
 -->
 
   <tdml:parserTestCase name="valueContentLength2" root="valueContentLength2"
-    model="Functions-binary.dfdl.xsd" description="dfdl:outputValueCalc and dfdl:valueLength during parse.">
+    model="Functions-binary.dfdl.xsd" description="dfdl:outputValueCalc and dfdl:valueLength during parse."
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10101000 01010100 110011</tdml:documentPart>
@@ -5882,7 +5897,8 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_02" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3.455,2</tdml:documentPart>
@@ -5908,7 +5924,8 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_03" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3.00865,4</tdml:documentPart>
@@ -5933,7 +5950,8 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_04" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3.00065,4</tdml:documentPart>
@@ -5958,7 +5976,8 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_05" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3.000065,5</tdml:documentPart>
@@ -13247,7 +13266,8 @@
 -->
 
   <tdml:parserTestCase name="timezonefromtime_03" root="e_timezonefromtime3"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromTime - DFDL-23-109R">
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromTime - DFDL-23-109R"
+    roundTrip="twoPass">
 
     <tdml:document>04:17:09+07:00</tdml:document>
     <tdml:infoset>

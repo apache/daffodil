@@ -70,7 +70,8 @@
 
   <tdml:parserTestCase name="text_03" root="doc"
     model="text_03"
-    description="Text_03 Two nilValues one a regular value the other a CharEntity - DFDL-13-235R">
+    description="Text_03 Two nilValues one a regular value the other a CharEntity - DFDL-13-235R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0,nil,;]]></tdml:documentPart>
@@ -90,7 +91,8 @@
 
   <tdml:parserTestCase name="text_03ic" root="docIC"
     model="text_03"
-    description="Text_03 nil values with ignore case - DFDL-13-235R">
+    description="Text_03 nil values with ignore case - DFDL-13-235R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NIL,Nil,niL;]]></tdml:documentPart>
@@ -133,7 +135,8 @@
 
   <tdml:parserTestCase name="text_04" root="doc"
     model="text_04"
-    description="Text_04 Two nilValues one a regular value the other a WSP CharEntity - DFDL-13-235R">
+    description="Text_04 Two nilValues one a regular value the other a WSP CharEntity - DFDL-13-235R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0,nil, ;]]></tdml:documentPart>
@@ -176,7 +179,8 @@
 
   <tdml:parserTestCase name="text_05" root="doc"
     model="text_05"
-    description="Text_05 Two nilValues one a regular value the other a CharEntity - DFDL-13-235R">
+    description="Text_05 Two nilValues one a regular value the other a CharEntity - DFDL-13-235R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0,nil, ;]]></tdml:documentPart>
@@ -219,7 +223,8 @@
 
   <tdml:parserTestCase name="text_06" root="doc"
     model="text_06"
-    description="Text_06 Two nilValues one a regular value the other a WSP+ CharEntity - DFDL-13-235R">
+    description="Text_06 Two nilValues one a regular value the other a WSP+ CharEntity - DFDL-13-235R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0,nil, 	 ;]]></tdml:documentPart>
@@ -313,7 +318,8 @@
   
     <tdml:parserTestCase name="test_padded_nils" root="doc"
     model="PaddedNils"
-    description="Verify that padding and nils work correctly">
+    description="Verify that padding and nils work correctly"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0PPP,PPPnil,PPP   PPP;]]></tdml:documentPart>

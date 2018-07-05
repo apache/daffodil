@@ -83,7 +83,8 @@
   </parserTestCase>
 
   <parserTestCase name="scenario1_2" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo/bar</document>
     <infoset>
       <dfdlInfoset>
@@ -120,7 +121,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario1_5" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo///bar</document>
     <infoset>
       <dfdlInfoset>
@@ -259,7 +261,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario1_12" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo/</document>
     <infoset>
       <dfdlInfoset>
@@ -279,7 +282,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario1_13" model="es1"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo///</document>
     <infoset>
       <dfdlInfoset>
@@ -398,7 +402,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario2_5" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo//$;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -410,7 +415,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario2_6" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo//////////bar</document>
     <infoset>
       <dfdlInfoset>
@@ -435,7 +441,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario2_8" model="es2"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$//;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -640,7 +647,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_2" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$/;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -677,7 +685,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_5" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo///;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -715,7 +724,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_8" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$////;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -728,7 +738,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_9" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$///////;bar</document>
     <infoset>
       <dfdlInfoset>
@@ -765,7 +776,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_11" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$/;</document>
     <infoset>
       <dfdlInfoset>
@@ -835,7 +847,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario3_14" model="es3"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo$/$/$/;</document>
     <infoset>
       <dfdlInfoset>
@@ -1059,7 +1072,8 @@
   </parserTestCase>
   
   <parserTestCase name="scenario4_10" model="es4"
-    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix"
+    roundTrip="twoPass">
     <document>foo///</document>
     <infoset>
       <dfdlInfoset>

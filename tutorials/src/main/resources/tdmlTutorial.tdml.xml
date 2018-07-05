@@ -125,10 +125,18 @@ community by IBM. (It is built into the Daffodil software.)
  test case will actually test parsing and unparsing, but as it is a parser
  test case, it begins with parsing the data to an infoset, then unparses it
  and checks that it gets back the original data. 
+ <br />
+ Except, that it won't get back the exact original data. The Time Zone notation won't 
+ be reproduced exactly. What is unparsed is equivalent to the original, but not identical.
+ So this pass requires that we do a second parse pass, and
+ verify that we get the infoset back that we expected. That is, what was unparsed
+ can be reparsed back to the same infoset. So this test specifies the roundTrip="twoPass"
+ attribute which overrides the default behavior of the suite.
  </p></tdml:tutorial>
 
   <tdml:parserTestCase name="dateTimeTest" root="myTestRoot" model="s1" 
-    description="Test of date/time. Runs round trip (parse and unparse) because that is the default for this test suite.">
+    description="Test of date/time. Runs round trip (parse and unparse) because that is the default for this test suite."
+    roundTrip="twoPass">
 
     <tdml:tutorial xml:space="preserve"><p>
 The data for your test is given by the tdml:document element, which optionally 

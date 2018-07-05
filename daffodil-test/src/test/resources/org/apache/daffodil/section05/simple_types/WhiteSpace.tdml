@@ -58,7 +58,8 @@
 
   <tdml:parserTestCase name="whiteSpaceDuringLax"
     root="uS_02" model="Lax.dfdl.xsd"
-    description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-019R">
+    description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-019R"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[9 99]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

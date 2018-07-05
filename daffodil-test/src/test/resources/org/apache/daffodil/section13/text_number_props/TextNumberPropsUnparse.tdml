@@ -492,7 +492,7 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="parse_int_01" root="e1"
-    model="pattern" description="" roundTrip="true">
+    model="pattern" description="" roundTrip="twoPass">
 
     <tdml:document><![CDATA[1576]]></tdml:document>
     <tdml:infoset>

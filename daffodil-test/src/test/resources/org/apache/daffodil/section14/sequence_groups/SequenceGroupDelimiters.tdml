@@ -112,7 +112,8 @@
   <tdml:parserTestCase name="SeqGrp_01"
     model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
     description="Section 14 Sequence groups with delimiters, a whitespace separated list for separator - DFDL-14-008R"
-    root="SG_01">
+    root="SG_01"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[1,2,3,4:5.6.7.8$9;10;11;12::13|14|15|16]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -159,7 +160,8 @@
 
   <tdml:parserTestCase name="SeqGrp_03" root="SG_03"
     model="SequenceGroupDelimiters-Embedded.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -multiple separators - DFDL-14-008R">
+    description="Section 14 Sequence groups with delimiters -multiple separators - DFDL-14-008R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1,,2,,,3,4]]></tdml:document>
     <tdml:infoset>
@@ -500,7 +502,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lastElts" root="testLastElts" 
-    model="lastElts" description="test for last optional element contains the separator, but is not escaped.">
+    model="lastElts" description="test for last optional element contains the separator, but is not escaped."
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[G2  R1

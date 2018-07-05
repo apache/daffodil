@@ -411,13 +411,17 @@ object Misc {
    */
   def remapCodepointToVisibleGlyph(codepoint: Int): Int = {
     if (codepoint > 255 || codepoint < -128) return codepoint
-    val b = Bits.asSignedByte(codepoint)
+    val b = codepoint.toByte
     val r = remapOneByteToVisibleGlyph(b)
     if (r == -1) codepoint else r
   }
 
   def remapStringToVisibleGlyphs(s: String) = {
     s.map { c => remapCodepointToVisibleGlyph(c.toInt).toChar }
+  }
+
+  def remapBytesToStringOfVisibleGlyphs(ba: Array[Byte]): String = {
+    ba.map { b => remapCodepointToVisibleGlyph(b.toInt).toChar }.mkString
   }
 
   def remapByteToVisibleGlyph(b: Byte): Int = {
@@ -429,6 +433,9 @@ object Misc {
   }
 
   /**
+   * Remaps a byte to a unicode codepoint for a visible picture, or -1 if
+   * no remapping is needed.
+   *
    * A difficulty is that there do not seem to be generally available Unicode fonts
    * which are truly monospaced for every Unicode character. So since we are
    * trying to produce data dumps that are monospaced, the tabular layout is off a bit.
@@ -439,7 +446,6 @@ object Misc {
    * in this remap stuff. But not for the "double wide" Kanji or other wide oriental
    * characters.
    */
-
   private def remapOneByteToVisibleGlyph(b: Byte): Int = {
     Bits.asUnsignedByte(b) match {
       //

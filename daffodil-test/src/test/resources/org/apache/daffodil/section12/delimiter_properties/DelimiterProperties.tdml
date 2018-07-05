@@ -150,7 +150,8 @@
   <tdml:parserTestCase name="DelimProp_01"
     model="DelimiterProperties-Embedded.dfdl.xsd"
     description="Section 12 property delimiters, a whitespace separated list of initiators and terminators - DFDL-12-032R"
-    root="DP_01">
+    root="DP_01"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[+1,+2,+3,+4:-5.-6.-7.-8${{9;10;11;12]]::13|14|15|16]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -187,7 +188,8 @@
 
   <tdml:parserTestCase name="DelimProp_02" root="DP_02"
     model="DelimiterProperties-Embedded.dfdl.xsd"
-    description="Section 12 property delimiters -each element terminated by a different terminator - DFDL-12-033R">
+    description="Section 12 property delimiters -each element terminated by a different terminator - DFDL-12-033R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1]2)3}]]></tdml:document>
     <tdml:infoset>
@@ -214,7 +216,8 @@
 
   <tdml:parserTestCase name="DelimProp_04" root="DP_02"
     model="DelimiterProperties-Embedded.dfdl.xsd"
-    description="Section 12 property delimiters -each element terminated by a different terminator - DFDL-12-033R">
+    description="Section 12 property delimiters -each element terminated by a different terminator - DFDL-12-033R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1]02)3}]]></tdml:document>
     <tdml:infoset>
@@ -231,7 +234,8 @@
 
   <tdml:parserTestCase name="DelimProp_05" root="DP_03"
     model="DelimiterProperties-Embedded.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -each element terminated by a different terminator - DFDL-12-033R">
+    description="Section 14 Sequence groups with delimiters -each element terminated by a different terminator - DFDL-12-033R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[.00300]-02.75)3.9900}]]></tdml:document>
     <tdml:infoset>
@@ -293,7 +297,8 @@
 
   <tdml:parserTestCase name="DelimProp_10_01" root="DP_04_01"
     model="DelimiterProperties-Embedded.dfdl.xsd"
-    description="Section 12 property delimiters -use of %WSP+; as terminator - DFDL-12-033R Should pass">
+    description="Section 12 property delimiters -use of %WSP+; as terminator - DFDL-12-033R Should pass"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[.00300 -02.75
       3.9900 7.33
@@ -313,7 +318,8 @@
 
   <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength" root="e1"
     model="DelimiterProperties-Embedded2.dfdl.xsd"
-    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[12 45 78  
 257 1 9  4]]></tdml:document>
     <tdml:infoset>
@@ -490,7 +496,8 @@
 
   <tdml:parserTestCase name="DelimProp_07" model="initiatedContentSchema"
     description="Section 12 property delimiters, a whitespace separated list of initiators and terminators - DFDL-12-032R"
-    root="DP_07">
+    root="DP_07"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[+1,+2,+3,+4:-5.-6.-7.-8${{9;10;11;12]]::13|14|15|16]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -724,7 +731,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="delims_ignorecase_01" root="e1"
-    model="ignoreCase" description="delimiters with ignore case">
+    model="ignoreCase" description="delimiters with ignore case"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[iixxaa1bbssaa2bbssaa3bbyytt]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
