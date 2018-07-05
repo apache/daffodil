@@ -309,7 +309,8 @@
 
   <tdml:parserTestCase name="initiatedContentChoice6"
     description="initiatedContent with delimited elements - - DFDL-15-003R"
-    model="s1" root="e3">
+    model="s1" root="e3"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[[1789 (3.25]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -327,7 +328,8 @@
 
   <tdml:parserTestCase name="initiatedContentChoice7"
     description="same as initiatedConten6 except initiatedContent='no' - - DFDL-15-003R"
-    model="s1" root="e4">
+    model="s1" root="e4"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[[1789 [3.25]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

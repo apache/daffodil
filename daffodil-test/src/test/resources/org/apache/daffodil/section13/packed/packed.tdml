@@ -696,7 +696,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="DelimitedPackedIntSeq" root="packedIntSeq" model="s14"
-    description="Parsing a delimited sequence of the various packed formats">
+    description="Parsing a delimited sequence of the various packed formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">003C 2A 123D 3B</tdml:documentPart>
@@ -712,7 +713,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="DelimitedPackedDecSeq" root="packedDecSeq" model="s14"
-    description="Parsing a delimited sequence of the various packed formats">
+    description="Parsing a delimited sequence of the various packed formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">003C 2A 123D 3B</tdml:documentPart>
@@ -763,7 +765,8 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="DelimitedBCDIntSeq" root="bcdIntSeq" model="s14"
-    description="Parsing a delimited sequence of the various bcd formats">
+    description="Parsing a delimited sequence of the various bcd formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">0003 2C 0123 3B</tdml:documentPart>
@@ -779,7 +782,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="DelimitedBCDDecSeq" root="bcdDecSeq" model="s14"
-    description="Parsing a delimited sequence of the various bcd formats">
+    description="Parsing a delimited sequence of the various bcd formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">0003 2C 0123 3B</tdml:documentPart>
@@ -830,7 +834,8 @@
 
 
   <tdml:parserTestCase name="DelimitedIBM4690IntSeq" root="ibmIntSeq" model="s14"
-    description="Parsing a delimited sequence of the various ibm formats">
+    description="Parsing a delimited sequence of the various ibm formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">FFF3 2C D123 3B</tdml:documentPart>
@@ -846,7 +851,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="DelimitedIBM4690DecSeq" root="ibmDecSeq" model="s14"
-    description="Parsing a delimited sequence of the various ibm formats">
+    description="Parsing a delimited sequence of the various ibm formats"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">FFF3 2C D123 3B</tdml:documentPart>

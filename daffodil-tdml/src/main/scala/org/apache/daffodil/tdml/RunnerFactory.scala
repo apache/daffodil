@@ -41,7 +41,7 @@ object Runner {
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
-    defaultRoundTripDefault: Boolean = defaultRoundTripDefaultDefault,
+    defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault): Runner =
     new Runner(null, dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault, defaultValidationDefault)
@@ -56,7 +56,7 @@ object Runner {
   // defaultRoundTripDefault - on runner aka test suite factory
   // defaultRoundTripDefaultDefault - on runner factory
   //
-  def defaultRoundTripDefaultDefault = false
+  def defaultRoundTripDefaultDefault: RoundTrip = NoRoundTrip
   def defaultValidationDefaultDefault = "off"
 }
 
@@ -70,8 +70,9 @@ class Runner private (elem: scala.xml.Elem, dir: String, file: String,
   validateTDMLFile: Boolean = true,
   validateDFDLSchemas: Boolean = true,
   compileAllTopLevel: Boolean = false,
-  defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
+  defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault) {
+
 
   if (elem ne null)
     Assert.usage((dir eq null) && (file eq null))

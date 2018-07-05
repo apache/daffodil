@@ -469,7 +469,8 @@
   -->
 
   <tdml:parserTestCase name="hiddenGroupChoice2" root="e"
-    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
+    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
     </tdml:document>
@@ -887,7 +888,8 @@ Date: Mon Feb 23 15:20:47 CST 2009
   </tdml:defineSchema>
   
   <tdml:parserTestCase name="AD000" root="list" model="AD-Embedded"
-    description="occursCount with expressions">
+    description="occursCount with expressions"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[3
 first x
 second x
@@ -1138,7 +1140,8 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
   </tdml:defineSchema>
 
 	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
-		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R">
+		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
+		roundTrip="twoPass">
 
 		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
 A,B,C,x,1|D,E,F,y,2|G,H,I,z,3

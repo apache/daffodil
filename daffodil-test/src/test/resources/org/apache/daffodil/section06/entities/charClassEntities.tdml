@@ -62,7 +62,8 @@
   </parserTestCase>
 
   <parserTestCase name="CarriageReturn" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11,12,13,14]]></documentPart>
@@ -100,7 +101,8 @@
   </parserTestCase>
 
   <parserTestCase name="LineSeparator" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,4 5,6,7,8 10,11,12,13,14]]></documentPart>
@@ -137,7 +139,8 @@
   </parserTestCase>
 
   <parserTestCase name="NextLine" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,45,6,7,8,910,11]]></documentPart>
@@ -211,7 +214,8 @@
   </parserTestCase>
 
   <parserTestCase name="CarriageReturn_byte" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="byte">302C312C322C332C340d352C362C372C382C390d31302C31312C31322C31332C3134</documentPart>
@@ -250,7 +254,8 @@
   </parserTestCase>
 
   <parserTestCase name="CRLF_byte" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="byte">302C312C322C332C340d0a352C362C372C382C390d0a31302C31312C31322C31332C3134</documentPart>
@@ -289,7 +294,8 @@
   </parserTestCase>
 
   <parserTestCase name="LineSeparator_byte" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="byte">302C312C322C332C34e280a8352C362C372C382C39e280a831302C31312C31322C31332C3134</documentPart>
@@ -328,7 +334,8 @@
   </parserTestCase>
 
   <parserTestCase name="NextLine_byte" root="matrix"
-    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R">
+    model="charClassEntities.dfdl.xsd" description="CSV-style tests and use of %NL; - DFDL-6-045R"
+    roundTrip="twoPass">
 
     <document>
       <documentPart type="byte">302C312C322C332C34c285352C362C372C382C39c28531302C31312C31322C31332C3134</documentPart>
@@ -449,7 +456,8 @@ jonesington,david,frederick,1986-02-19
 
   <parserTestCase name="doubleNL2" root="TopLevel"
     model="TopLevel.dfdl.xsd"
-    description="">
+    description=""
+    roundTrip="twoPass">
     <document>
       <documentPart type="file">02nine_headers.txt</documentPart>
     </document>

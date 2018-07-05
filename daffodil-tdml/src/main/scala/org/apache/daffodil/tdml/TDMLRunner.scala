@@ -77,12 +77,43 @@ import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharset
 import org.apache.daffodil.processors.charset.NBitsWidth_BitsCharsetEncoder
 import java.nio.charset.{ Charset => JavaCharset }
+import java.io.OutputStream
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
 
+sealed trait RoundTrip
+
+/**
+ * Test is just a parse test, or just an unparse, with no round trip involved.
+ */
+case object NoRoundTrip extends RoundTrip
+
+/**
+ * Test round trips with a single pass. Unparse produces exactly the original data.
+ */
+case object OnePassRoundTrip extends RoundTrip
+
+/**
+ * Unparse doesn't produce original data, but equivalent canonical data which
+ * if reparsed in a second parse pass, produces the same infoset as the first
+ * parse.
+ */
+case object TwoPassRoundTrip extends RoundTrip
+
 private[tdml] object DFDLTestSuite {
+
+  /**
+   * Use to convert round trip default into enum value
+   */
+  def standardizeRoundTrip(enumStr: String): RoundTrip =
+    enumStr match {
+      case "false" | "none" => NoRoundTrip
+      case "true" | "onePass" => OnePassRoundTrip
+      case "twoPass" => TwoPassRoundTrip
+    }
+
   type CompileResult = Either[Seq[Diagnostic], (Seq[Diagnostic], DFDL.DataProcessor)]
 }
 //
@@ -117,7 +148,7 @@ class DFDLTestSuite private[tdml] (
   validateTDMLFile: Boolean,
   val validateDFDLSchemas: Boolean,
   val compileAllTopLevel: Boolean,
-  val defaultRoundTripDefault: Boolean,
+  val defaultRoundTripDefault: RoundTrip,
   val defaultValidationDefault: String)
   extends Logging with HasSetDebugger {
 
@@ -130,7 +161,7 @@ class DFDLTestSuite private[tdml] (
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
-    defaultRoundTripDefault: Boolean = Runner.defaultRoundTripDefaultDefault,
+    defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = Runner.defaultValidationDefaultDefault) =
     this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel, defaultRoundTripDefault, defaultValidationDefault)
 
@@ -237,7 +268,7 @@ class DFDLTestSuite private[tdml] (
   val description = (ts \ "@description").text
   val defaultRoundTrip = {
     val str = (ts \ "@defaultRoundTrip").text
-    if (str == "") defaultRoundTripDefault else str.toBoolean
+    if (str == "") defaultRoundTripDefault else DFDLTestSuite.standardizeRoundTrip(str)
   }
   val defaultValidation = {
     val str = (ts \ "@defaultValidation").text
@@ -381,7 +412,7 @@ class DFDLTestSuite private[tdml] (
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
-  lazy val defaultRoundTrip: Boolean = parent.defaultRoundTrip
+  lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
   lazy val defaultValidation: String = parent.defaultValidation
 
   /**
@@ -449,9 +480,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val root = (testCaseXML \ "@root").text
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
-  lazy val tcRoundTrip = (testCaseXML \ "@roundTrip").text
-  lazy val roundTrip: Boolean =
-    if (tcRoundTrip == "") defaultRoundTrip else tcRoundTrip.toBoolean
+  lazy val tcRoundTrip: String = (testCaseXML \ "@roundTrip").text
+  lazy val roundTrip: RoundTrip =
+    if (tcRoundTrip == "") defaultRoundTrip else DFDLTestSuite.standardizeRoundTrip(tcRoundTrip)
   lazy val description = (testCaseXML \ "@description").text
   lazy val unsupported = (testCaseXML \ "@unsupported").text match {
     case "true" => true
@@ -480,7 +511,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean,
+    roundTrip: RoundTrip,
     tracer: Option[Debugger]): Unit
 
   private def retrieveBindings(cfg: DefinedConfig, tunable: DaffodilTunables): Seq[Binding] = {
@@ -636,7 +667,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean,
+    roundTrip: RoundTrip,
     tracer: Option[Debugger]) = {
 
     val useSerializedProcessor =
@@ -728,15 +759,101 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
+  /**
+   * Returns outputter containing the parse infoset. Throws if there isn't one.
+   */
+  private def doParseExpectSuccess(
+    testData: Array[Byte],
+    testInfoset: Infoset,
+    processor: DFDL.DataProcessor,
+    lengthLimitInBits: Long) = {
+
+    val testDataLength = lengthLimitInBits
+    val outputter = new TDMLInfosetOutputter()
+
+    val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), outputter, testDataLength)
+
+    if (actual.isProcessingError) {
+      // Means there was an error, not just warnings.
+      val diagObjs = actual.getDiagnostics
+      if (diagObjs.length == 1) throw new TDMLException(diagObjs(0))
+      val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    (outputter, actual)
+  }
+
+  private def verifyLeftOverData(actual: DFDL.ParseResult,
+    lengthLimitInBits: Long) = {
+    val loc: DataLocation = actual.resultState.currentLocation
+
+    val leftOverException = if (!loc.isAtEnd) {
+      val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
+      Some(new TDMLException(leftOverMsg))
+    } else None
+
+    leftOverException.map { throw _ } // if we get here, throw the left over data exception.
+  }
+
+  private def verifyParseResults(processor: DFDL.DataProcessor,
+    actual: DFDL.ParseResult,
+    testInfoset: Infoset,
+    outputter: TDMLInfosetOutputter) = {
+    val resultXmlNode = outputter.getResult
+    VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset)
+
+    (shouldValidate, expectsValidationError) match {
+      case (true, true) => {
+        VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
+        Assert.invariant(actual.isValidationError)
+      }
+      case (true, false) => {
+        VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        Assert.invariant(!actual.isValidationError)
+      }
+      case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
+      case (false, false) => // Nothing to do here.
+    }
+
+    val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
+    VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)
+  }
+
+  /**
+   * Do an unparse. Report any actual diagnostics, but don't compare
+   * the unparsed data output.
+   */
+  private def doOnePassRoundTripUnparseExpectSuccess(
+    processor: DFDL.DataProcessor,
+    outStream: OutputStream, // stream where unparsed data is written
+    outputter: TDMLInfosetOutputter // outputter from prior parse.
+    ): UnparseResult = {
+
+    // in a one pass round trip, the parse test is entirely over, and the infoset comparison
+    // MUST have succeeded. We now just are trying to unparse and we must get back
+    // exactly the original input data.
+    val output = java.nio.channels.Channels.newChannel(outStream)
+
+    val inputter = outputter.toInfosetInputter()
+    val unparseResult = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
+    if (unparseResult.isProcessingError) {
+      val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
+      if (diagObjs.length == 1) throw diagObjs(0)
+      throw new TDMLException(diagObjs)
+    }
+    output.close()
+    unparseResult
+  }
+
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
     dataToParse: DFDL.Input,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTripArg: Boolean) {
+    roundTripArg: RoundTrip) {
 
-    val roundTrip = roundTripArg // change to true to force all parse tests to round trip (to see which fail to round trip)
+    val roundTrip = roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
     if (processor.isError) {
       val diagObjs = processor.getDiagnostics
@@ -745,111 +862,77 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
     processor.setValidationMode(validationMode)
 
-    var testPass = 1
-    var stillTesting = true
-    var testData = IOUtils.toByteArray(Channels.newInputStream(dataToParse))
-    var testDataLength = lengthLimitInBits
+    val firstParseTestData = IOUtils.toByteArray(Channels.newInputStream(dataToParse))
     val testInfoset = optExpectedInfoset.get
 
-    while (stillTesting) {
-      val outputter = new TDMLInfosetOutputter()
-      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), outputter, testDataLength)
+    // First parse pass
 
-      if (actual.isProcessingError) {
-        // Means there was an error, not just warnings.
-        val diagObjs = actual.getDiagnostics
-        if (diagObjs.length == 1) throw new TDMLException(diagObjs(0))
-        val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
-        throw new TDMLException(diags)
-      }
+    val (firstPassInfosetOutputter, actual) = doParseExpectSuccess(firstParseTestData, testInfoset, processor, lengthLimitInBits)
+    verifyParseResults(processor, actual, testInfoset, firstPassInfosetOutputter)
+    verifyLeftOverData(actual, lengthLimitInBits)
 
-      val loc: DataLocation = actual.resultState.currentLocation
+    // if we get here, the parse test passed. If we don't get here then some exception was
+    // thrown either during the run of the test or during the comparison.
 
-      val leftOverException = if (!loc.isAtEnd) {
-        val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(loc.bitPos1b - 1, lengthLimitInBits - (loc.bitPos1b - 1))
-        Some(new TDMLException(leftOverMsg))
-      } else None
-
-      val resultXmlNode = outputter.getResult
-      VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset)
-
-      (shouldValidate, expectsValidationError) match {
-        case (true, true) => {
-          VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, validationErrors) // verify all validation errors were found
-          Assert.invariant(actual.isValidationError)
+      roundTrip match {
+        case NoRoundTrip => {
+          // done. Do nothing else.
         }
-        case (true, false) => {
-          VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
-          Assert.invariant(!actual.isValidationError)
+        case OnePassRoundTrip => {
+          val outStream = new java.io.ByteArrayOutputStream()
+
+          doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+
+          // It has to work, as this is one pass round trip. We expect it to unparse
+          // directly back to the original input form.
+
+          VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(firstParseTestData)), outStream)
         }
-        case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
-        case (false, false) => // Nothing to do here.
-      }
-
-      leftOverException.map { throw _ } // if we get here, throw the left over data exception.
-
-      val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
-      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)
-
-      // if we get here, the test passed. If we don't get here then some exception was
-      // thrown either during the run of the test or during the comparison.
-
-      if (roundTrip && testPass < 2) {
-        val outStream = new java.io.ByteArrayOutputStream()
-        val output = java.nio.channels.Channels.newChannel(outStream)
-
-        val inputter = outputter.toInfosetInputter()
-        val unparseResult = processor.unparse(inputter, output).asInstanceOf[UnparseResult]
-        if (unparseResult.isProcessingError) {
-          val diagObjs = processor.getDiagnostics ++ unparseResult.resultState.diagnostics
-          if (diagObjs.length == 1) throw diagObjs(0)
-          throw new TDMLException(diagObjs)
-        }
-        output.close()
-
-        try {
-          VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(testData)), outStream)
+        case TwoPassRoundTrip => {
           //
-          // if verification passes, we're done
-          stillTesting = false
-        } catch {
-          case e: TDMLException => {
-            // if verification threw (failed)
-            // consider this:
-            //    infoset1 = parse(data1)
-            //    data2 = unparse(infoset1)
-            // if comparing expected output to data2 failed, then we want to try again:
-            //    infoset2 = parse(data2)
-            //    data3 = unparse(infoset2)
-            // if comparing data2 to data 3 fails, then the test fails
-            //
-            // As an example of why this is needed.
-            // If the input data is 64 bits all 1s, parsing that as a double produces a NaN as
-            // do many bit patterns. Unparsing this produces the cannonical NaN (which is *not* all 1s)
-            // However, parsing this cannnonical NaN bit pattern produces a NaN again, and unparsing
-            // it again produces the same cannoical NaN bits. So this second comparison will succeed.
-            //
-            // Any time a parse+unparse is a many to 1 mapping, a parser test case isn't necessarily
-            // going to invert into an unparser test.
-            //
-            if (testPass == 1) {
-              // Try again
-              testData = outStream.toByteArray
-              testDataLength = unparseResult.resultState.bitPos0b
-              val fullBytesNeeded = (testDataLength + 7) / 8
-              if (testData.length != fullBytesNeeded) {
-                throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(testData.length, testDataLength, fullBytesNeeded))
+          // In two-pass, the unparse comparison of data from first unparse
+          // to the original input data MUST fail.
+          // We need to unparse, then parse again to have the comparison work
+          // thereby showing that while the output data is different, it is
+          // equivalent in that re-parsing that data produces the same infoset
+          // that parsing the original data did.
+          //
+          val outStream = new java.io.ByteArrayOutputStream()
+          val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+          val isUnparseOutputDataMatching =
+            try {
+              VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(firstParseTestData)), outStream)
+              true
+            } catch {
+              case e: TDMLException => {
+                false
+                //
+                // We got the failure we expect for a two-pass test on the unparse.
+                //
               }
-            } else
-              throw e
+            }
+          if (isUnparseOutputDataMatching) {
+            throw new TDMLException("Expected data from first unparse of Two-Pass to NOT match original input, but it did match." +
+              "\nShould this really be a Two-Pass test?")
           }
+          // Try parse again, consuming the canonicalized data from the prior unparse.
+          val reParseTestData = outStream.toByteArray
+          val reParseTestDataLength = unparseResult.resultState.bitPos0b
+          // verify enough bytes for the bits.
+          val fullBytesNeeded = (reParseTestDataLength + 7) / 8
+          if (reParseTestData.length != fullBytesNeeded) {
+            throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
+              reParseTestData.length, reParseTestDataLength, fullBytesNeeded))
+          }
+          val (outputter, actual) = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength)
+          verifyParseResults(processor, actual, testInfoset, outputter)
+          verifyLeftOverData(actual, reParseTestDataLength)
+          // if it doesn't pass, it will throw out of here.
         }
-
-        testPass += 1
-      } else stillTesting = false
+      }
     }
   }
-}
+
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
@@ -863,7 +946,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean,
+    roundTrip: RoundTrip,
     tracer: Option[Debugger]) = {
 
     val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
@@ -901,7 +984,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   def runUnparserExpectSuccess(processor: DFDL.DataProcessor,
     expectedData: DFDL.Input,
     optWarnings: Option[ExpectedWarnings],
-    roundTrip: Boolean) {
+    roundTrip: RoundTrip) {
+
+    Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -935,7 +1020,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val allDiags = actual.getDiagnostics ++ processor.getDiagnostics
     VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)
 
-    if (roundTrip) {
+    if (roundTrip eq OnePassRoundTrip) {
       val out = new ScalaXMLInfosetOutputter()
       val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)), out, testDataLength)
 
@@ -1077,8 +1162,9 @@ object VerifyTestCase {
     val readCount = expectedBytes.length
 
     if (actualBytes.length != readCount) {
-      throw new TDMLException("output data length " + actualBytes.length + " for " + actualBytes.toList +
-        " doesn't match expected value " + readCount + " for " + expectedBytes)
+      throw new TDMLException("Output data length %s for '%s' doesn't match expected value %s for '%s'.".format(
+        actualBytes.length, Misc.remapBytesToStringOfVisibleGlyphs(actualBytes),
+        readCount, Misc.remapBytesToStringOfVisibleGlyphs(expectedBytes)))
     }
 
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)

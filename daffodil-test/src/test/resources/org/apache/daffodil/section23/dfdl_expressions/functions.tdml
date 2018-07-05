@@ -133,7 +133,8 @@
 -->
   
   <tdml:parserTestCase name="dateTimeFunctions02" root="dtFunctions"
-    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[03-36-1988 04:55:23]]></tdml:document>
     <tdml:infoset>
@@ -182,7 +183,8 @@
 -->
   
   <tdml:parserTestCase name="dateFunctions02" root="dFunctions"
-    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[02-30-2012]]></tdml:document>
     <tdml:infoset>
@@ -205,7 +207,8 @@
 -->
   
   <tdml:parserTestCase name="timeFunctions01" root="tFunctions"
-    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[12:44:56GMT]]></tdml:document>
     <tdml:infoset>
@@ -228,7 +231,8 @@
 -->
   
   <tdml:parserTestCase name="timeFunctions02" root="tFunctions"
-    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
+    model="dateTimeSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[12:62:56GMT]]></tdml:document>
     <tdml:infoset>

@@ -259,7 +259,8 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="binaryBoolean_1" root="binaryList2" model="boolean"
-    description="Binary boolean">
+    description="Binary boolean"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[00 00 00 01 00 00 00 00 00 00 00 1b 00 10 00 0c]]></tdml:documentPart>
     </tdml:document>
@@ -354,7 +355,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="textBoolean_0" root="textList" model="boolean"
-    description="Text boolean">
+    description="Text boolean"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[1,Y,yes,0,no,N;2,a,2,b,2,c;]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -400,7 +402,8 @@
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="textBoolean_IgnoreCase" root="textListIgnoreCase" model="boolean"
-    description="Text boolean">
+    description="Text boolean"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[1,y,YES,0,NO,n;2,A,2,B,2,C;]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

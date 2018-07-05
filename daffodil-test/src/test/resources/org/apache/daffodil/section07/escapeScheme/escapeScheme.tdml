@@ -251,7 +251,8 @@
   -->
 
   <parserTestCase name="escapeSchemeNonEmpty" model="emptyRef"
-    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="esc">
+    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="esc"
+    roundTrip="twoPass">
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>

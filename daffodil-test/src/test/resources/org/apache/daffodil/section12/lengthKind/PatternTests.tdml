@@ -603,7 +603,8 @@
   -->
   <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace"
     root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
+    description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
     </tdml:document>
@@ -700,7 +701,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nested_patterns" root="list_04"
-    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[cat,dog,house.]]></tdml:document>
     <tdml:infoset>
@@ -717,7 +719,8 @@
 
   <tdml:parserTestCase name="nested_patterns_01"
     root="list_04" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">6361742C646F670D0A2C686F7573652E</tdml:documentPart>
@@ -735,7 +738,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nested_patterns_02" root="list_05"
-    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[cat,dog,house,1.]]></tdml:document>
     <tdml:infoset>
@@ -752,7 +756,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nested_patterns_03" root="list_05"
-    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[cat,dog,house,b.]]></tdml:document>
     <tdml:infoset>

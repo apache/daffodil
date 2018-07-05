@@ -191,7 +191,8 @@
   
   <tdml:parserTestCase name="Lesson6_fixed_array"
     description="occursCountKind 'fixed' - DFDL-16-002R"
-    model="arrays_optional_elements.dfdl.xsd" root="address1">
+    model="arrays_optional_elements.dfdl.xsd" root="address1"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[000118Ridgewood Circle    Main Street         Rochester           NYUSA                 ]]></tdml:document>
     <tdml:infoset>

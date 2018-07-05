@@ -500,6 +500,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 
 
 <parserTestCase name="alignment_bytes_12_03" root="Fixed_text_multi_sequence3"
+        roundTrip="twoPass"
 		model="./fvt/ext/dpa/dpaflsaln101_01.dfdl.xsd"
 		description="Section 12 Framing - Alignment with trailingSkip">
 
@@ -599,6 +600,7 @@ entity NL and also use of UTF-16 encoding - DFDL-6-045R"
 	</parserTestCase>
     
      <parserTestCase name="delimiter_12_02" root="Fixed_string_with_Pads_10_1"
+        roundTrip="twoPass"
 		model="./fvt/ext/dpa/delimiter_12.dfdl.xsd" description="Section 12.2 simple initiator and terminator - ignore case">
 
 		<document>IAAAAAAAAAAT</document>

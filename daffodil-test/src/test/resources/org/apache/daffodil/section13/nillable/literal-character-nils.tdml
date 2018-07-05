@@ -91,7 +91,8 @@
 
   <tdml:parserTestCase name="text_01ic" root="docIC"
     model="text_01"
-    description="Text_01 Two nilValues one length 1, other length 2, with ignorecase">
+    description="Text_01 Two nilValues one length 1, other length 2, with ignorecase"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0XxX]]></tdml:documentPart>

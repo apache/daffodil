@@ -3045,7 +3045,8 @@ c]]></value>
   -->
   
   <tdml:parserTestCase name="expressionRules05" root="e_05"
-    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R"
+    roundTrip="twoPass">
 
     <tdml:document>123{456{{789[123</tdml:document>
     <tdml:infoset>
@@ -3240,7 +3241,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="whitespace_expression2" root="ws_expr2"
-    model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+    model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R"
+    roundTrip="twoPass">
 
     <tdml:document>3]4=5]</tdml:document>
     <tdml:infoset>
@@ -3401,7 +3403,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="comparison_operators_08" root="e5"
-    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1"
+    roundTrip="twoPass">
 
     <tdml:document>7.509,7.510</tdml:document>
     <tdml:infoset>
@@ -4489,7 +4492,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="sequential_and_or_02" root="e6"
-    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R"
+    roundTrip="twoPass">
 
     <tdml:document>abc,abc,1.0,5</tdml:document>
     <tdml:infoset>
@@ -5990,7 +5994,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="comparison_operators_46" root="e35"
-    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[2000-01-01T12:00:00,1999-12-31T23:00:00+00:00]]></tdml:document>
     <tdml:infoset>
@@ -6131,7 +6136,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="comparison_operators_52" root="e36"
-    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[1999-12-31T24:00:00-05:00,2000-01-01T00:00:00-05:00]]></tdml:document>
     <tdml:infoset>
@@ -6154,7 +6160,8 @@ c]]></value>
   -->
 
   <tdml:parserTestCase name="comparison_operators_53" root="e36"
-    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1"
+    roundTrip="twoPass">
 
     <tdml:document><![CDATA[2005-04-04T24:00:00-05:00,2005-04-04T00:00:00-05:00]]></tdml:document>
     <tdml:infoset>

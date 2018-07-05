@@ -594,7 +594,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentHexBinary" root="hB"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip -->
@@ -616,7 +617,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentHexBinary2" root="hB2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - hexBinary - DFDL-12-029R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">ab 43 82 b3</tdml:documentPart> <!-- leadingSkip -->
@@ -637,7 +639,8 @@
   -->
   
   <tdml:parserTestCase name="alignment01" root="e"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0010 00000100</tdml:documentPart>
@@ -657,7 +660,8 @@
   -->
   
   <tdml:parserTestCase name="alignment02" root="e3"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">00 00</tdml:documentPart> <!-- leadingSkip -->
@@ -687,7 +691,8 @@
   -->
   
   <tdml:parserTestCase name="alignment03" root="e4"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - DFDL-12-002R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">00 00</tdml:documentPart> <!-- leadingSkip -->
@@ -717,7 +722,8 @@
   -->
 
   <tdml:parserTestCase name="leadingSkip1" root="e"
-    model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R">
+    model="s1" description="Section 12.1 Aligned Data - DFDL-12-005R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">aabbcc</tdml:documentPart>
@@ -760,7 +766,8 @@
    -->
 
   <tdml:parserTestCase name="implicitAlignmentString1" root="string"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R - DFDL-13-006R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R - DFDL-13-006R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
@@ -784,7 +791,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentString2" root="string2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01100111 01101111</tdml:documentPart> <!-- leadingSkip -->
@@ -807,7 +815,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedInt" root="uInt"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (binary) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (binary) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1 0000000 00000000 00000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
@@ -830,7 +839,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedShort" root="uShort"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (binary) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (binary) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1 0000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
@@ -853,7 +863,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentInt" root="int"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">a4 b4</tdml:documentPart> <!-- leadingSkip -->
@@ -878,7 +889,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentInt2" root="int"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (binary) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">a4 b4</tdml:documentPart> <!-- leadingSkip -->
@@ -902,7 +914,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentShort" root="short"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">100100</tdml:documentPart> <!-- leadingSkip (6 bits) -->
@@ -927,7 +940,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentShort2" root="short"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (binary) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">100100</tdml:documentPart> <!-- leadingSkip (6 bits) -->
@@ -951,7 +965,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentLong" root="long"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (binary) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (binary) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11010101 10101010 1101</tdml:documentPart> <!-- leadingSkip (20 bits) -->
@@ -975,7 +990,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentLongT" root="longT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">00 b3 b3 b3</tdml:documentPart> <!-- leadingSkip (4 bytes) -->
@@ -998,7 +1014,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentLongTBits" root="longTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip (4 bits) -->
@@ -1022,7 +1039,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentByte" root="byte"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
@@ -1047,7 +1065,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentByte2" root="byte"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (binary) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
@@ -1071,7 +1090,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedByte" root="uByte"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
@@ -1095,7 +1115,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedByte2" root="uByte"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (binary) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11</tdml:documentPart> <!-- leadingSkip (2 bits) -->
@@ -1120,7 +1141,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedIntT" root="uIntT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
@@ -1168,7 +1190,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedIntT2b" root="uIntT2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart> <!-- leadingSkip -->
@@ -1192,7 +1215,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedIntTBits" root="uIntTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -1217,7 +1241,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedShortT2b" root="uShortT2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart> <!-- leadingSkip -->
@@ -1241,7 +1266,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedShortTBits" root="uShortTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0</tdml:documentPart> <!-- leadingSkip -->
@@ -1265,7 +1291,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedLong" root="uLong"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - uLong (binary) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - uLong (binary) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">11010</tdml:documentPart> <!-- leadingSkip (5 bits) -->
@@ -1290,7 +1317,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedLongT" root="uLongT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">32 32 32 32 32</tdml:documentPart> <!-- leadingSkip plus 3 filler bits for alignment (8 bits) -->
@@ -1314,7 +1342,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedLongT2" root="uLongT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10101111 10001010</tdml:documentPart> <!-- 2 bytes of leadingSkip (in bits) -->
@@ -1338,7 +1367,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedLongTBits" root="uLongTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip (4 bits) -->
@@ -1363,7 +1393,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentIntT" root="intT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (text) - DFDL-12-019R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - int (text) - DFDL-12-019R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01 101001</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1387,7 +1418,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentShortT" root="shortT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (text) - DFDL-12-020R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - short (text) - DFDL-12-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">011010 01</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1411,7 +1443,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentByteT" root="byteT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (text) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (text) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01 111111</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1435,7 +1468,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentByteT2" root="byteT2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (text) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - byte (text) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10 111111</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1484,7 +1518,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentUnsignedByteT2" root="uByteT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (text) - DFDL-12-021R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedByte (text) - DFDL-12-021R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10 111111</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1508,7 +1543,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDateT" root="dateT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - date (text) - DFDL-12-024R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - date (text) - DFDL-12-024R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">junk!31 03 2013</tdml:documentPart> <!-- leadingSkip (junk!) and dateT -->
@@ -1531,7 +1567,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDateT2" root="dateT2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - date (text) - DFDL-12-024R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - date (text) - DFDL-12-024R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">Bleak Monday in May - 2013</tdml:documentPart> <!-- leadingSkip (Bleak) and dateT -->
@@ -1554,7 +1591,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentTimeT" root="timeT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - time (text) - DFDL-12-026R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - time (text) - DFDL-12-026R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">time: 04:09:23</tdml:documentPart> <!-- leadingSkip (time:) and timeT -->
@@ -1577,7 +1615,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDateTimeT" root="dateTimeT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - dateTime (text) - DFDL-12-022R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - dateTime (text) - DFDL-12-022R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">look: Friday 05 2013 - 03:30:30</tdml:documentPart> <!-- leadingSkip (look:) and dateTimeT -->
@@ -1600,7 +1639,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentFloatT" root="floatT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1623,7 +1663,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentFloatT2" root="floatT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10</tdml:documentPart> <!-- leadingSkip -->
@@ -1671,7 +1712,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentFloat" root="float"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">2A 00 90 0D</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1694,7 +1736,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentFloat2" root="float"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01010101 01010101</tdml:documentPart> <!-- leadingSkip -->
@@ -1718,7 +1761,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDouble" root="double"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">2A 00 90 0D 2A 45 9F 9E</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1741,7 +1785,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDouble2" root="double2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01010101 01010101 01010101 01010101 01010101 01010101 01010101 01010101</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
@@ -1790,7 +1835,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDoubleT2" root="doubleTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -1865,7 +1911,8 @@
   -->
 
   <tdml:parserTestCase name="explicitAlignmentNoSkips02" root="e6"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">011 00000 010011000 001 0</tdml:documentPart>
@@ -1893,7 +1940,8 @@
   -->
 
   <tdml:parserTestCase name="explicitAlignmentNoSkips03" root="e7"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">011100 0001001100 000 10100 000100001111</tdml:documentPart>
@@ -1921,7 +1969,8 @@
   -->
 
   <tdml:parserTestCase name="explicitAlignmentNoSkips04" root="e8"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">00000001 11111111 00001100 00010100 00000000 00000000</tdml:documentPart>
@@ -1949,7 +1998,8 @@
   -->
 
   <tdml:parserTestCase name="explicitAlignmentNoSkips05" root="e9"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - alignmentUnits - DFDL-12-010R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">00000001 00001100 00010100 00000000 10000000 00000000 00000001</tdml:documentPart>
@@ -1978,7 +2028,8 @@
 
   <tdml:parserTestCase name="alignmentOptionalElem" root="e10"
     model="alignmentSchema"
-    description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+    description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="bits">1 0 11 101 </tdml:documentPart>
     </tdml:document>
@@ -2002,7 +2053,8 @@
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem02" root="e10a"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R"
+    roundTrip="twoPass">
 
   <tdml:document>
     <tdml:documentPart type="bits">0 1 1 1 101</tdml:documentPart>
@@ -2143,7 +2195,8 @@
   -->
 
   <tdml:parserTestCase name="leftFraming01" root="e13"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">a</tdml:documentPart>
@@ -2165,7 +2218,8 @@
   -->
 
   <tdml:parserTestCase name="rightFraming01" root="e14"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">strng:a</tdml:documentPart>
@@ -2186,7 +2240,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFraming01" root="e15"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">a:strnggnrts:a</tdml:documentPart>
@@ -2210,7 +2265,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFraming02" root="e16"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">gnrts:aa:strng</tdml:documentPart>
@@ -2234,7 +2290,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingNested01" root="e17"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
@@ -2260,7 +2317,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingNested02" root="e18"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- e18 - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
@@ -2316,7 +2374,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingNested03" root="e19"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
@@ -2342,7 +2401,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingNested04" root="e20"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte padding to fulfill alignment -->
@@ -2377,7 +2437,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingNested05" root="e21"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
@@ -2447,7 +2508,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentNonNegativeInteger" root="nonNeg"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">01110101 11010010</tdml:documentPart> <!-- leadingSkip -->
@@ -2468,7 +2530,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentNonNegativeInteger2" root="nonNeg"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
@@ -2489,7 +2552,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentNonNegativeInteger3" root="nonNeg2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2511,7 +2575,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentInteger1" root="integer2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2533,7 +2598,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentInteger2" root="integer"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R"
+    roundTrip="twoPass">
     
     <tdml:document>
       <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
@@ -2554,7 +2620,8 @@
   -->
   
   <tdml:parserTestCase name="impAlignmentInteger3" root="integer"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R"
+    roundTrip="twoPass">
     
     <tdml:document>
       <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
@@ -2575,7 +2642,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT" root="nonNegativeIntegerT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
@@ -2598,7 +2666,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT2" root="nonNegativeIntegerT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">10101010</tdml:documentPart> <!-- leadingSkip -->
@@ -2621,7 +2690,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT3" root="nonNegativeIntegerTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2669,7 +2739,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentIntegerT" root="integerT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
@@ -2692,7 +2763,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentIntegerT2" root="integerTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2740,7 +2812,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDecimalT" root="decimalT"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
@@ -2763,7 +2836,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDecimalT2" root="decimalTBits"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2811,7 +2885,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDecimal" root="decimal"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">09 01</tdml:documentPart> <!-- leadingSkip -->
@@ -2834,7 +2909,8 @@
   -->
 
   <tdml:parserTestCase name="implicitAlignmentDecimal2" root="decimal2"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
@@ -2858,7 +2934,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice01" root="e22"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e22 leadingSkip and padding to fulfill alignment-->
@@ -2885,7 +2962,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice02" root="e22"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e22 leadingSkip and padding to fulfill alignment-->
@@ -2911,7 +2989,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice03" root="e23"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e23 leadingSkip and padding to fulfill alignment-->
@@ -2950,7 +3029,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice04" root="e23"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e23 leadingSkip and padding to fulfill alignment-->
@@ -2989,7 +3069,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice05" root="e24"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
@@ -3037,7 +3118,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice06" root="e24"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
@@ -3098,7 +3180,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingChoice07" root="e24"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
@@ -3178,7 +3261,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingArray02" root="e26"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">aabb</tdml:documentPart>               <!-- leadingSkip (2B) and padding to fulfill alignment -->
@@ -3248,7 +3332,8 @@
   -->
 
   <tdml:parserTestCase name="leftAndRightFramingArray03" root="e27"
-    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R">
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">-=</tdml:documentPart>                 <!-- outer[1] leadingSkip and alignment padding --> 
@@ -3308,7 +3393,8 @@
   -->
 
   <tdml:parserTestCase name="trailingSkipDelimited01" root="e28"
-    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">test:a</tdml:documentPart>
@@ -3351,7 +3437,8 @@
   -->
 
   <tdml:parserTestCase name="trailingSkipDelimited03" root="e30"
-    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R"
+    roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">test1:test2:]a)</tdml:documentPart>
@@ -3441,7 +3528,8 @@
 
   <tdml:parserTestCase name="alignmentArray" root="e32"
     model="alignmentSchema"
-    description="Section 12.1 Aligned Data">
+    description="Section 12.1 Aligned Data"
+    roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="bits">101 1 000 1 111</tdml:documentPart>
     </tdml:document>

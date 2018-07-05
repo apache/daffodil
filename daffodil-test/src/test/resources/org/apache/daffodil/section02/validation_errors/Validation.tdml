@@ -887,7 +887,8 @@
 --> 
   <tdml:parserTestCase name="checkTotalDigits_Fail_off"
     root="e4_1" model="TestFacets" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R"
-    validation="off">
+    validation="off"
+    roundTrip="twoPass">
 
     <tdml:document>123456</tdml:document>
 		<tdml:infoset>
@@ -905,7 +906,8 @@
                Validation = LIMITED.
 --> 
   <tdml:parserTestCase name="checkTotalDigits_Fail_limited"
-    root="e4_1" model="TestFacets" validation="limited">
+    root="e4_1" model="TestFacets" validation="limited"
+    roundTrip="twoPass">
 
     <tdml:document>123456</tdml:document>
 		<tdml:infoset>
@@ -930,7 +932,8 @@
                Validation = ON.
 --> 
   <tdml:parserTestCase name="checkTotalDigits_Fail_on"
-    root="e4_1" model="TestFacets" validation="on">
+    root="e4_1" model="TestFacets" validation="on"
+    roundTrip="twoPass">
 
     <tdml:document>123456</tdml:document>
 		<tdml:infoset>

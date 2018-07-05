@@ -161,7 +161,8 @@
   -->
 
   <tdml:parserTestCase name="ibm_format_compat_02"
-    root="ABC" model="ABC_IBM.dfdl.xsd" description="">
+    root="ABC" model="ABC_IBM.dfdl.xsd" description=""
+    roundTrip="twoPass">
     <tdml:document><![CDATA[a
 ]]></tdml:document>
     <tdml:infoset>
@@ -364,7 +365,8 @@
   -->
 
   <tdml:parserTestCase name="multifile_choice_03"
-    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    root="choice01" model="multi_base_01.dfdl.xsd" description="import a schema - DFDL-6-007R"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[remote03:5555]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -572,7 +574,8 @@
   -->
 
   <tdml:parserTestCase name="long_chain_01" root="rabbitHole"
-    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R"
+    roundTrip="twoPass">
     <tdml:document><![CDATA[f:....53....(e)|f:..41..(e)]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1744,7 +1747,8 @@
   -->
 
   <tdml:parserTestCase name="nonsense_namespace_01"
-    root="ABC" model="ABC_invalid.dfdl.xsd" description="">
+    root="ABC" model="ABC_invalid.dfdl.xsd" description=""
+    roundTrip="twoPass">
     <tdml:document><![CDATA[a
 ]]></tdml:document>
     <tdml:infoset>
@@ -1759,7 +1763,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nonsense_namespace_02"
-    root="ABC" model="ABC_invalid.dfdl.xsd" description="">
+    root="ABC" model="ABC_invalid.dfdl.xsd" description=""
+    roundTrip="twoPass">
     <tdml:document><![CDATA[d
 ]]></tdml:document>
     <tdml:infoset>
