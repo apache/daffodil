@@ -27,7 +27,7 @@ import org.apache.daffodil.processors.CharsetEv
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
  * override
- * This grabs a string as long as it coverride an get, depending on the SpecifiedLength context
+ * This grabs a string as long as it can get, depending on the SpecifiedLength context
  * to constrain how much it can get.
  */
 final class StringOfSpecifiedLengthParser(

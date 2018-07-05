@@ -140,25 +140,6 @@ trait SuspendableUnparser
   }
 }
 
-// No-op, in case an optimization lets one of these sneak thru.
-// TODO: make this fail, and test optimizer sufficiently to know these
-// do NOT get through.
-final class EmptyGramUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
-
-  override lazy val runtimeDependencies = Nil
-
-  def unparse(ustate: UState) {
-    Assert.invariantFailed("EmptyGramUnparsers are all supposed to optimize out!")
-  }
-
-  override def isEmpty = true
-
-  override lazy val childProcessors = Nil
-
-  override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
-  override def toString = toBriefXML()
-}
-
 final class ErrorUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Nil

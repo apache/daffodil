@@ -128,6 +128,9 @@ class MPState private () {
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
+  //var wasAnyArrayElementNonZeroLength = false
+  //var wasLastArrayElementZeroLength = true
+
   private def init {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
@@ -331,6 +334,13 @@ object PState {
    * and is a copy of everything else in PState.
    */
   class Mark extends Poolable {
+
+    override def toString() = {
+      if (disMark ne null)
+        "Mark(bitPos0b = " + bitPos0b + ")"
+      else
+        "Mark(uninitialized)"
+    }
 
     def bitPos0b = disMark.bitPos0b
 

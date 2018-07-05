@@ -36,7 +36,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="rdefFormat">
 				<dfdl:format initiatedContent="no" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
-					ignoreCase="no" outputNewLine="%LF;"
+					ignoreCase="no" outputNewLine="%LF;" separatorSuppressionPolicy="trailingEmpty"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""
 					representation="text" lengthUnits="characters" lengthKind="explicit" 

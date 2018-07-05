@@ -76,7 +76,7 @@
       <dfdlInfoset>
         <e_infix>
           <x>foo</x>
-	  <y>bar</y>
+	      <y>bar</y>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
@@ -583,6 +583,7 @@
     <document>foo$$$//$;</document>
     <errors>
       <error>Parse Error</error>
+      <error>Terminator '$;' not found</error>
     </errors>
   </parserTestCase>
 

@@ -23,7 +23,7 @@ import org.apache.daffodil.processors.LayerTransformerEv
 class LayeredSequenceParser(rd: TermRuntimeData,
   layerTransformerEv: LayerTransformerEv,
   bodyParser: Parser)
-  extends SequenceCombinatorParser(rd, bodyParser) {
+  extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
   override lazy val runtimeDependencies = Seq(layerTransformerEv)

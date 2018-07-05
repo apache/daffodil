@@ -20,34 +20,11 @@ package org.apache.daffodil.grammar.primitives
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.processors.parsers.SimpleNilOrEmptyOrValueParser
-import org.apache.daffodil.processors.unparsers.SimpleNilOrEmptyOrValueUnparser
 import org.apache.daffodil.processors.parsers.SimpleNilOrValueParser
 import org.apache.daffodil.processors.unparsers.SimpleNilOrValueUnparser
-import org.apache.daffodil.processors.parsers.SimpleEmptyOrValueParser
-import org.apache.daffodil.processors.unparsers.SimpleEmptyOrValueUnparser
 import org.apache.daffodil.processors.parsers.ComplexNilOrContentParser
 import org.apache.daffodil.processors.unparsers.ComplexNilOrContentUnparser
 import org.apache.daffodil.grammar.Terminal
-
-case class SimpleNilOrEmptyOrValue(ctxt: ElementBase, nilGram: Gram, emptyGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
-  Assert.invariant(!nilGram.isEmpty)
-  Assert.invariant(!emptyGram.isEmpty)
-  Assert.invariant(!valueGram.isEmpty)
-
-  lazy val nilParser = nilGram.parser
-  lazy val emptyParser = emptyGram.parser
-  lazy val valueParser = valueGram.parser
-
-  lazy val nilUnparser = nilGram.unparser
-  lazy val emptyUnparser = emptyGram.unparser
-  lazy val valueUnparser = valueGram.unparser
-
-  override lazy val parser = SimpleNilOrEmptyOrValueParser(ctxt.erd, nilParser, emptyParser, valueParser)
-
-  override lazy val unparser = SimpleNilOrEmptyOrValueUnparser(ctxt.erd, nilUnparser, emptyUnparser, valueUnparser)
-
-}
 
 case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
   Assert.invariant(!nilGram.isEmpty)
@@ -62,22 +39,6 @@ case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram) e
   override lazy val parser = SimpleNilOrValueParser(ctxt.erd, nilParser, valueParser)
 
   override lazy val unparser = SimpleNilOrValueUnparser(ctxt.erd, nilUnparser, valueUnparser)
-
-}
-
-case class SimpleEmptyOrValue(ctxt: ElementBase, emptyGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
-  Assert.invariant(!emptyGram.isEmpty)
-  Assert.invariant(!valueGram.isEmpty)
-
-  lazy val emptyParser = emptyGram.parser
-  lazy val valueParser = valueGram.parser
-
-  lazy val emptyUnparser = emptyGram.unparser
-  lazy val valueUnparser = valueGram.unparser
-
-  override lazy val parser = SimpleEmptyOrValueParser(ctxt.erd, emptyParser, valueParser)
-
-  override lazy val unparser = SimpleEmptyOrValueUnparser(ctxt.erd, emptyUnparser, valueUnparser)
 
 }
 

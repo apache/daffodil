@@ -790,7 +790,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val testDataLength = lengthLimitInBits
     val outputter = new TDMLInfosetOutputter()
-    
+
     val dis = InputSourceDataInputStream(new ByteArrayInputStream(testData))
     if (testDataLength % 8 != 0) {
       // Only set the bit limit if the length is not a multiple of 8. In that
@@ -899,65 +899,64 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // if we get here, the parse test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
 
-      roundTrip match {
-        case NoRoundTrip => {
-          // done. Do nothing else.
-        }
-        case OnePassRoundTrip => {
-          val outStream = new java.io.ByteArrayOutputStream()
+    roundTrip match {
+      case NoRoundTrip => {
+        // done. Do nothing else.
+      }
+      case OnePassRoundTrip => {
+        val outStream = new java.io.ByteArrayOutputStream()
 
-          doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+        doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
 
-          // It has to work, as this is one pass round trip. We expect it to unparse
-          // directly back to the original input form.
+        // It has to work, as this is one pass round trip. We expect it to unparse
+        // directly back to the original input form.
 
-          VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
-        }
-        case TwoPassRoundTrip => {
-          //
-          // In two-pass, the unparse comparison of data from first unparse
-          // to the original input data MUST fail.
-          // We need to unparse, then parse again to have the comparison work
-          // thereby showing that while the output data is different, it is
-          // equivalent in that re-parsing that data produces the same infoset
-          // that parsing the original data did.
-          //
-          val outStream = new java.io.ByteArrayOutputStream()
-          val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
-          val isUnparseOutputDataMatching =
-            try {
-              VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
-              true
-            } catch {
-              case e: TDMLException => {
-                false
-                //
-                // We got the failure we expect for a two-pass test on the unparse.
-                //
-              }
+        VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
+      }
+      case TwoPassRoundTrip => {
+        //
+        // In two-pass, the unparse comparison of data from first unparse
+        // to the original input data MUST fail.
+        // We need to unparse, then parse again to have the comparison work
+        // thereby showing that while the output data is different, it is
+        // equivalent in that re-parsing that data produces the same infoset
+        // that parsing the original data did.
+        //
+        val outStream = new java.io.ByteArrayOutputStream()
+        val unparseResult: UnparseResult = doOnePassRoundTripUnparseExpectSuccess(processor, outStream, firstPassInfosetOutputter)
+        val isUnparseOutputDataMatching =
+          try {
+            VerifyTestCase.verifyUnparserTestData(new ByteArrayInputStream(firstParseTestData), outStream)
+            true
+          } catch {
+            case e: TDMLException => {
+              false
+              //
+              // We got the failure we expect for a two-pass test on the unparse.
+              //
             }
-          if (isUnparseOutputDataMatching) {
-            throw new TDMLException("Expected data from first unparse of Two-Pass to NOT match original input, but it did match." +
-              "\nShould this really be a Two-Pass test?")
           }
-          // Try parse again, consuming the canonicalized data from the prior unparse.
-          val reParseTestData = outStream.toByteArray
-          val reParseTestDataLength = unparseResult.resultState.bitPos0b
-          // verify enough bytes for the bits.
-          val fullBytesNeeded = (reParseTestDataLength + 7) / 8
-          if (reParseTestData.length != fullBytesNeeded) {
-            throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
-              reParseTestData.length, reParseTestDataLength, fullBytesNeeded))
-          }
-          val (outputter, actual) = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength)
-          verifyParseResults(processor, actual, testInfoset, outputter)
-          verifyLeftOverData(actual, reParseTestDataLength)
-          // if it doesn't pass, it will throw out of here.
+        if (isUnparseOutputDataMatching) {
+          throw new TDMLException("Expected data from first unparse of Two-Pass to NOT match original input, but it did match." +
+            "\nShould this really be a Two-Pass test?")
         }
+        // Try parse again, consuming the canonicalized data from the prior unparse.
+        val reParseTestData = outStream.toByteArray
+        val reParseTestDataLength = unparseResult.resultState.bitPos0b
+        // verify enough bytes for the bits.
+        val fullBytesNeeded = (reParseTestDataLength + 7) / 8
+        if (reParseTestData.length != fullBytesNeeded) {
+          throw new TDMLException("Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes.".format(
+            reParseTestData.length, reParseTestDataLength, fullBytesNeeded))
+        }
+        val (outputter, actual) = doParseExpectSuccess(reParseTestData, testInfoset, processor, reParseTestDataLength)
+        verifyParseResults(processor, actual, testInfoset, outputter)
+        verifyLeftOverData(actual, reParseTestDataLength)
+        // if it doesn't pass, it will throw out of here.
       }
     }
   }
-
+}
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
@@ -1275,7 +1274,7 @@ object VerifyTestCase {
     val finfo = new FormatInfoForTDMLDecode
     val cb = CharBuffer.allocate(256)
     val sb = new StringBuilder(256)
-    while( { val numDecoded = decoder.decode(dis, finfo, cb); numDecoded > 0 } ) {
+    while ({ val numDecoded = decoder.decode(dis, finfo, cb); numDecoded > 0 }) {
       cb.flip()
       sb.append(cb)
       cb.clear()

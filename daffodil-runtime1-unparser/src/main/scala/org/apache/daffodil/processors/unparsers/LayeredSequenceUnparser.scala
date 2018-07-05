@@ -23,7 +23,7 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 class LayeredSequenceUnparser(ctxt: ModelGroupRuntimeData,
   layerTransformerEv: LayerTransformerEv,
   childUnparser: Unparser)
-  extends SequenceCombinatorUnparser(ctxt, Vector(childUnparser)) {
+  extends OrderedUnseparatedSequenceUnparser(ctxt, Vector(childUnparser)) {
 
   override lazy val runtimeDependencies = Seq(layerTransformerEv)
 

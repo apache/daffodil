@@ -1687,7 +1687,7 @@
 
       <!-- Final Error -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
@@ -1697,7 +1697,7 @@
       <tdml:error>Parse Error</tdml:error>
       <!-- <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - branch2: Delimiter not found!</tdml:error> -->
       <tdml:error>branch2</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Initiator 'C' not found</tdml:error>
     </tdml:errors>
 
     <tdml:validationErrors>
@@ -1746,7 +1746,7 @@
 
       <!-- Final Error -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
@@ -1755,7 +1755,7 @@
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>branch2</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Initiator 'C' not found</tdml:error>
     </tdml:errors>
   
   </tdml:parserTestCase>
@@ -1774,7 +1774,7 @@
 
       <!-- Final Error -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>All alternatives failed</tdml:error>
+      <tdml:error>All choice alternatives failed</tdml:error>
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>

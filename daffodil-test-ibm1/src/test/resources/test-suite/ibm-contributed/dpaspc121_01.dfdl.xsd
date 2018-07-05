@@ -30,7 +30,7 @@
 		
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"    encodingErrorPolicy="replace" encoding="utf-8" 
-				lengthUnits="bytes" lengthKind="implicit"
+				lengthUnits="bytes" lengthKind="implicit" separatorSuppressionPolicy="trailingEmpty"
 				initiatedContent="no" sequenceKind="ordered" 
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 				bitOrder="mostSignificantBitFirst" representation="binary"

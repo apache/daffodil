@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.grammar
 import org.apache.daffodil.schema.annotation.props.gen._
-import org.apache.daffodil.grammar.primitives.SequenceCombinator
+import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.dsom.SequenceTermBase
-import org.apache.daffodil.grammar.primitives.LayeredSequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
 
@@ -43,10 +42,29 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   }
 
   private lazy val orderedSequenceContent = prod("sequenceContent") {
-    SequenceCombinator(this, terms)
+    (self.sequenceKind, hasSeparator) match {
+      case (SequenceKind.Ordered, true) => orderedSeparatedSequence
+      case (SequenceKind.Ordered, false) => orderedUnseparatedSequence
+      case (SequenceKind.Unordered, _) => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
+    }
   }
 
-  protected lazy val terms = groupMembers.map { _.asTermInSequence }
+  private lazy val orderedSeparatedSequence = {
+    val gm = groupMembers
+    val res = OrderedSeparatedSequence(this, gm)
+    res
+  }
+
+  private lazy val orderedUnseparatedSequence =
+    OrderedUnseparatedSequence(this, groupMembers)
+
+  //  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
+  //    val uoseq = self.unorderedSeq.get
+  //    UnorderedSequenceCombinator(this, uoseq.terms)
+  //  }
+
+  // protected lazy val terms = groupMembers.map { _.asTermInSequence }
+  // protected lazy val terms = groupMembers//.map { _.asTermInSequence }
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
@@ -65,5 +83,19 @@ trait SequenceGrammarMixin extends GrammarMixin { self: SequenceTermBase =>
   }
 
   final lazy val hasSeparator = separatorParseEv.isKnownNonEmpty
+
+  lazy val sequenceSeparator = prod("separator", hasSeparator) {
+    //
+    // TODO: (JIRA DFDL-1400) The separators may be in a different encoding than the terms
+    // that they separate.
+    //
+    // So we must allow for a change of encoding (which may also imply a change
+    // of bit order)
+    //
+    // However, this isn't the same as just plopping down a bitOrderChange ~ encodingChange, since
+    // those examine prior peer, and what we want to scrutinize is the prior term being separated.
+    //
+    delimMTA ~ SequenceSeparator(this)
+  }
 }
 

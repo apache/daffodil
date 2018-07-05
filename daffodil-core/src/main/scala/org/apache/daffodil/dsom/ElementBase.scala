@@ -792,8 +792,8 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  private lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  private lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  protected final lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  protected final lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.

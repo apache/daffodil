@@ -20,44 +20,49 @@ import org.apache.daffodil.schema.annotation.props._
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.equality._; object ENoWarn2 { EqualitySuppressUnusedImportWarning() }
-import org.apache.daffodil.grammar.primitives.StopValue
-import org.apache.daffodil.grammar.primitives.NotStopValue
-import org.apache.daffodil.grammar.primitives.RepUnbounded
-import org.apache.daffodil.grammar.primitives.RepExactlyTotalOccursCount
-import org.apache.daffodil.grammar.primitives.RepExactlyTotalN
-import org.apache.daffodil.grammar.primitives.RepExactlyN
-import org.apache.daffodil.grammar.primitives.RepAtMostTotalN
-import org.apache.daffodil.grammar.primitives.RepAtMostOccursCount
-import org.apache.daffodil.grammar.primitives.OccursCountExpression
-import org.apache.daffodil.grammar.primitives.OptionalCombinator
-import org.apache.daffodil.grammar.primitives.ArrayCombinator
+import org.apache.daffodil.grammar.primitives._
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.compiler.ForParser
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
 
-  override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
+  override lazy val termContentBody = prod("termContentBody") {
     (if (isScalar) enclosedElement else recurrance)
   }
 
-  protected final lazy val allowedValue = prod("allowedValue") { notStopValue | value }
+  private def separatedForArrayPosition(bodyArg: => Gram): Gram = {
+    val body = bodyArg
+    val (isElementWithNoRep, isRepeatingElement) = body.context match {
+      case e: ElementBase => (!e.isRepresented, !e.isScalar)
+      case other => (false, false)
+    }
+    Assert.usage(isRepeatingElement)
+    Assert.invariant(!isElementWithNoRep) //inputValueCalc not allowed on arrays in DFDL v1.0
+    // val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
+    val res = new OptionalInfixSep(this, arraySeparator) ~ body
+    res
+  }
 
-  private lazy val notStopValue = prod("notStopValue", hasStopValue) { NotStopValue(this) }
+  private lazy val arraySeparator = prod("separator", !ignoreES && hasES) {
+    delimMTA ~ ArrayElementSeparator(es, self)
+  }
 
   private lazy val separatedEmpty = prod("separatedEmpty",
     emptyIsAnObservableConcept && !isScalar) {
       separatedForArrayPosition(empty)
     }
 
-  private lazy val separatedRecurringDefaultable = prod("separatedRecurringDefaultable", !isScalar) {
+  private lazy val separatedRecurring = prod("separatedRecurring", !isScalar) {
     separatedForArrayPosition(enclosedElement)
   }
 
-  private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
-    separatedForArrayPosition(enclosedElementNonDefault)
-  }
+  //  private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
+  //    separatedForArrayPosition(enclosedElementNonDefault)
+  //  }
 
   private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { enclosedElement }
 
-  private lazy val recurrance = prod("recurrance", !isScalar) {
+  lazy val recurrance = prod("recurrance", !isScalar) {
     if (isOptional) {
       OptionalCombinator(this, arrayContents)
     } else {
@@ -73,48 +78,50 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
    * speculate parsing forward until we get an error
    */
   private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepUnbounded(self, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
+      RepUnbounded(self, separatedRecurring) ~
       StopValue(this)
   }
 
   private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(self, maxOccurs, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
+      RepAtMostTotalN(self, maxOccurs, separatedRecurring) ~
       StopValue(this)
   }
 
   private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", !isScalar) {
-    separatedContentWithMinUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
+    separatedContentWithMinUnboundedWithoutTrailingEmpties ~ unboundedTrailingEmpties
+  }
+
+  private lazy val unboundedTrailingEmpties = prod("unboundedTrailingEmpties", couldBeLastElementInModelGroup, forWhat = ForParser) {
+    RepUnbounded(self, separatedEmpty)
   }
 
   private lazy val separatedContentWithMinAndMax = prod("separatedContentWithMinAndMax", !isScalar) {
-    separatedContentWithMinAndMaxWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
+    separatedContentWithMinAndMaxWithoutTrailingEmpties ~ unboundedTrailingEmpties
   }
 
   private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", !isScalar) {
-    RepUnbounded(self, separatedRecurringNonDefault) ~
+    RepUnbounded(self, separatedRecurring) ~
       StopValue(this)
   }
 
   private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", !isScalar) {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
+    RepExactlyN(self, minOccurs, separatedRecurring) ~
+      RepAtMostTotalN(this, maxOccurs, separatedRecurring) ~
       StopValue(this)
   }
 
-  // TODO: Do we have to adjust the count to take stopValue into account?
+  // Question: Do we have to adjust the count to take stopValue into account?
   // Answer: No because the counts are never used when there is a stopValue (at least in current
   // thinking about how occursCountKind='stopValue' works.)
 
   private lazy val separatedContentAtMostN = prod("separatedContentAtMostN") {
-    (separatedContentAtMostNWithoutTrailingEmpties // FIXME: We don't know whether we can absorb trailing separators or not here.
-    // We don't know if this repeating thing is in trailing position, or in the middle
-    // of a sequence. There is also ambiguity if the enclosing sequence and this sequence
-    // have the same separator.
-    //      ~
-    //      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
-    )
+    separatedContentAtMostNWithoutTrailingEmpties ~ repAtMostTotalNTrailingEmpties
+  }
+
+  private lazy val repAtMostTotalNTrailingEmpties = prod("repAtMostTotalNTrailingEmpties", couldBeLastElementInModelGroup, forWhat = ForParser) {
+    RepAtMostTotalN(self, maxOccurs, separatedEmpty)
   }
 
   /**
@@ -128,12 +135,12 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   private def separatedContentExactlyN(count: Long) = prod("separatedContentExactlyN") {
     if (minOccurs == maxOccurs) {
       // fixed length case. All are defaultable. Still might have a stop value tho.
-      RepExactlyN(self, count, separatedRecurringDefaultable) ~
+      RepExactlyN(self, count, separatedRecurring) ~
         StopValue(this)
     } else {
       // variable length case. So some defaultable, some not.
-      RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-        RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
+      RepExactlyN(self, minOccurs, separatedRecurring) ~
+        RepAtMostTotalN(self, count, separatedRecurring) ~
         StopValue(this) ~
         RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb remaining separators after stop value.
     }
@@ -141,8 +148,8 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
 
   private lazy val separatedContentExactlyNComputed = prod("separatedContentExactlyNComputed") {
     OccursCountExpression(this) ~
-      RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
-      RepExactlyTotalOccursCount(this, separatedRecurringNonDefault)
+      RepAtMostOccursCount(this, minOccurs, separatedRecurring) ~
+      RepExactlyTotalOccursCount(this, separatedRecurring)
   }
 
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
@@ -156,7 +163,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
   }
 
   private lazy val contentUnbounded = prod("contentUnbounded") {
-    RepUnbounded(self, separatedRecurringDefaultable)
+    RepUnbounded(self, separatedRecurring)
   }
 
   //
@@ -180,7 +187,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
       case (Fixed_____, min_, max) if (min_ != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min_, max)
       case (Fixed_____, ____, max) => separatedContentExactlyN(max)
       case (Implicit__, ZERO, UNB) => contentUnbounded // same as parsed
-      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs
+      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurring) ~ contentUnbounded // respects minOccurs
       case (Implicit__, ____, __2) => separatedContentAtMostN // uses min and maxOccurs
       case (Parsed____, ____, __2) => contentUnbounded
       case (StopValue_, ____, __2) => contentUnbounded
@@ -206,12 +213,12 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>
       case (Trailing___, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (Trailing___, Implicit__, UNB, min) => separatedContentWithMinUnbounded
       case (Trailing___, Implicit__, max, min) if min > 0 => separatedContentWithMinAndMax
-      case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position
+      case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN
       case (TrailingStr, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (TrailingStr, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
-      case (Always_____, Implicit__, UNB, ___) => separatedContentWithMinUnbounded
-      case (Always_____, Implicit__, max, ___) => separatedContentAtMostN
+      case (Always_____, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties
+      case (Always_____, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Parsed____, ___, __2) => separatedContentZeroToUnbounded
       case (Always_____, StopValue_, ___, __2) => separatedContentZeroToUnbounded
       case (policy /**/ , ock /****/ , max, __2) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")

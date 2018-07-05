@@ -23,9 +23,9 @@ import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.Term
 import org.apache.daffodil.dsom.SequenceTermBase
 import org.apache.daffodil.grammar.UnaryGram
-import org.apache.daffodil.grammar.HasNoUnparser
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.processors.unparsers.Unparser
 
 object UnorderedSequence {
   def apply(context: Term, eGram: => Gram) = {
@@ -41,7 +41,7 @@ object UnorderedSequence {
 }
 
 class UnorderedSequence private (context: SequenceTermBase, eGramArg: => Gram) // private to force use of the object as factory
-  extends UnaryGram(context, eGramArg) with HasNoUnparser {
+  extends UnaryGram(context, eGramArg) {
 
   lazy val eGram = eGramArg // once only
 
@@ -76,5 +76,6 @@ class UnorderedSequence private (context: SequenceTermBase, eGramArg: => Gram) /
     }
 
   lazy val parser: Parser = ??? // new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
+  lazy val unparser: Unparser = ???
 
 }
