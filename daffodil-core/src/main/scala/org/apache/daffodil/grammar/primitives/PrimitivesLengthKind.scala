@@ -35,7 +35,6 @@ import org.apache.daffodil.processors.parsers.BCDDecimalDelimitedParser
 import org.apache.daffodil.processors.parsers.IBM4690PackedIntegerDelimitedParser
 import org.apache.daffodil.processors.parsers.IBM4690PackedDecimalDelimitedParser
 import org.apache.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
-import org.apache.daffodil.processors.parsers.OptionalInfixSepParser
 import org.apache.daffodil.processors.parsers.StringDelimitedParser
 import org.apache.daffodil.processors.parsers.StringOfSpecifiedLengthParser
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
@@ -48,7 +47,6 @@ import org.apache.daffodil.processors.unparsers.IBM4690PackedIntegerDelimitedUnp
 import org.apache.daffodil.processors.unparsers.IBM4690PackedDecimalDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.HexBinarySpecifiedLengthUnparser
 import org.apache.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
-import org.apache.daffodil.processors.unparsers.OptionalInfixSepUnparser
 import org.apache.daffodil.processors.unparsers.StringDelimitedUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
@@ -75,7 +73,8 @@ case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) wit
   private def erd = e.elementRuntimeData
 
   override lazy val parser: DaffodilParser =
-    new StringOfSpecifiedLengthParser(parsingPadChar,
+    new StringOfSpecifiedLengthParser(
+      parsingPadChar,
       justificationTrim,
       erd)
 
@@ -153,7 +152,8 @@ abstract class StringDelimited(e: ElementBase)
     isDelimRequired)
 
   override lazy val unparser: DaffodilUnparser =
-    new StringDelimitedUnparser(e.elementRuntimeData,
+    new StringDelimitedUnparser(
+      e.elementRuntimeData,
       escapeSchemeUnparseEvOpt,
       isDelimRequired)
 
@@ -327,7 +327,8 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.ignoreCaseBool)
 
   override lazy val unparser: DaffodilUnparser =
-    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData,
+    new LiteralNilDelimitedEndOfDataUnparser(
+      eb.elementRuntimeData,
       eb.nilStringLiteralForUnparserEv,
       isDelimRequired)
 
@@ -335,9 +336,3 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
 
 case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.lengthKind == LengthKind.Prefixed)
 
-class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
-
-  lazy val parser: DaffodilParser = new OptionalInfixSepParser(term.termRuntimeData, sep.parser)
-
-  override lazy val unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.termRuntimeData, sep.unparser)
-}

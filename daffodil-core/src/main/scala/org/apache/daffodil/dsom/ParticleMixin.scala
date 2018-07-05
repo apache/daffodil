@@ -19,6 +19,7 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.schema.annotation.props.gen._
 import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
 
 trait RequiredOptionalMixin { self: ElementBase =>
 
@@ -27,11 +28,19 @@ trait RequiredOptionalMixin { self: ElementBase =>
 
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
+  /**
+   * Distinguishes elements which have minOccurs 0, maxOccurs 1, and
+   * a dfdl:occursCountKind that means parsing/unparsing will respect these
+   * bounds.
+   *
+   * This enables implementations to use different, lighter weight, representations
+   * for optional elements (e.g., null or not null object reference) vs what
+   * is required for arrays (growable vector of slots).
+   */
   final override lazy val isOptional = {
-    // minOccurs == 0
-    (optMinOccurs, optMaxOccurs) match {
-      case (Some(1), Some(1)) => false // scalars are not optional
-      case (Some(0), max) => {
+    (minOccurs, maxOccurs) match {
+      case (1, 1) => false // scalars are not optional
+      case (0, max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
         if (occursCountKind =:= OccursCountKind.Parsed ||
@@ -41,9 +50,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
           false
         } else {
           max match {
-            case Some(1) => true
-            case None => true
-            case Some(_) => false
+            case 1 => true
+            case _ => false
           }
         }
       }
@@ -51,34 +59,46 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  final override def isRequired: Boolean = LV('isRequired) {
+  /**
+   * True if the element is required to appear in the DFDL Infoset.
+   *
+   * This includes elements that have no representation in the
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredOrComputed true.
+   *
+   * Takes into account that some dfdl:occursCountKind can make
+   * seemingly required elements (based on minOccurs) optional or
+   * repeating.
+   */
+  final override def isRequiredOrComputed: Boolean = LV('isRequired) {
     val res = {
       if (isScalar) true
       else if (isOptional) false
-      else if (isArray) isRequiredArrayElement
+      else if (isArray) isArraywithAtLeastOneRequiredArrayElement
       else false
     }
     res
   }.value
 
+  /**
+   * True if a "real" array, i.e., not an optional element, but something
+   * that can potentially have 2 or more occurrences based on maxOccurs
+   * and dfdl:occursCountKind that indicates whether maxOccurs will be respected.
+   */
   final override lazy val isArray = {
-    // maxOccurs > 1 || maxOccurs == -1
-
     if (isOptional) false
     else {
       val UNBOUNDED = -1
-      (optMinOccurs, optMaxOccurs) match {
-        case (None, None) => false
-        case (Some(1), Some(1)) => false
-        case (_, Some(n)) if n > 1 => true
-        case (_, Some(UNBOUNDED)) => true
+      (minOccurs, maxOccurs) match {
+        case (1, 1) => false
+        case (_, n) if n > 1 => true
+        case (_, UNBOUNDED) => true
         /**
          * This next case is for occursCountKinds parsed and stopValue.
          * These only use min/maxOccurs for validation, so anything
          * with these occursCountKinds is an array (so long as it isn't
          * scalar)
          */
-        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed ||
+        case (_, 1) if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue ||
           occursCountKind == OccursCountKind.Expression) => true
         case _ => false
@@ -86,7 +106,12 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  final lazy val isRequiredArrayElement = {
+  /**
+   * True if an array has at least one required element based
+   * on a minOccurs and a dfdl:occursCountKind that means that
+   * minOccurs will be respected.
+   */
+  override final lazy val isArraywithAtLeastOneRequiredArrayElement = {
     isArray &&
       minOccurs > 0 &&
       (occursCountKind == OccursCountKind.Fixed ||
@@ -95,11 +120,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
   }
 }
 
-// A Particle is something that can be repeating.
+// A Particle is something that can be repeating or optional.
 trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
-
-  final lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  final lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
@@ -118,30 +140,57 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
+  /**
+   * Can have a varying number of occurrences.
+   *
+   * Can be used for any Term, e.g., returns false for model groups
+   * true for elements with potentially varying number of occurrences.
+   *
+   * Scalars are false here, as are fixed-length arrays.
+   *
+   * Differs from (isOptional || isArray) because that is true for fixed-length
+   * arrays, where this is false if they are fixed length.
+   *
+   * dfdl:occursCountKind is not part of this concept. So for example
+   * an element with occursCountKind='expression' has exactly the number
+   * of occurrences the expression value specifies. But this is considered varying as
+   * that element declaration may correspond to many arrays of data where
+   * the expression gives a different number of occurrences each time.
+   */
+  final override lazy val isVariableOccurrences = minOccurs != maxOccurs
+
+  /**
+   * True if a recurring element has a fixed number of occurrences.
+   *
+   * One way this can happen is dfdl:occursCountKind of 'fixed'.
+   *
+   * In the future, can be enhanced to take more situations into account.
+   * E.g., Another way something can be fixed number of occurrences
+   * is dfdl:occursCountKind='expression' where the expression is a constant,
+   * whether a manifest constant like '5', or an expression that happens to be
+   * shown, by the schema compiler, to be constant for this element. One such example
+   * would be if the expression is just the value of a variable for which there are
+   * no dfdl:setVariable statements possible, so it is guaranteed to have the default or
+   * an externally specified fixed number as its value.
+   */
   final lazy val isFixedOccurrences = {
-    // TODO optimizations to take scope into consideration. E.g.,
-    // We could be in a context where the value of our occursCount expression
-    // will always be a constant.
+    Assert.usage(!isScalar)
     occursCountKind == OccursCountKind.Fixed
   }
 
   /**
-   * Does this node have statically required instances.
+   * True if this term has statically required instances in the data stream.
+   *
+   * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
    */
-  final def hasStaticallyRequiredInstances = LV('hasStaticallyRequiredInstances) {
+  final def hasStaticallyRequiredOccurrencesInDataRepresentation = LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
       else if (isFixedOccurrences) true
-      else if (minOccurs > 0) true
+      else if (isArraywithAtLeastOneRequiredArrayElement) true
       else false
     res
-  }.value
-
-  final override def isKnownRequiredElement = LV('isKnownRequiredElement) {
-    if (isScalar) true
-    else if (isFixedOccurrences) true
-    else false
   }.value
 
   final lazy val hasStopValue = LV('hasStopValue) {

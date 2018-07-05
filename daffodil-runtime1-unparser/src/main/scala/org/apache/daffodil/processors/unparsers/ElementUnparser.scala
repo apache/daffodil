@@ -53,10 +53,8 @@ class ElementUnspecifiedLengthUnparser(
 
 }
 
-trait RepMoveMixin {
+sealed trait RepMoveMixin {
   def move(start: UState) {
-    val grIndex = start.groupIndexStack.pop()
-    start.groupIndexStack.push(grIndex + 1)
     val childIndex = start.childIndexStack.pop()
     start.childIndexStack.push(childIndex + 1)
   }
@@ -270,7 +268,8 @@ class ElementSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(context,
+  extends ElementUnparserBase(
+    context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
@@ -321,7 +320,8 @@ class ElementOVCSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(context,
+  extends ElementUnparserBase(
+    context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,

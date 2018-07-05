@@ -541,6 +541,7 @@ trait SequenceRuntimeValuedPropertiesMixin
     ev.compile()
     ev
   }
+
   lazy val separatorUnparseEv = {
     val ev = new SeparatorUnparseEv(separatorExpr, outputNewLineEv, decl.termRuntimeData)
     ev.compile()

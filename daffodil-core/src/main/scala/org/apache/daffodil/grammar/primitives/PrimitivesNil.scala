@@ -23,7 +23,8 @@ import org.apache.daffodil.processors.parsers.LiteralValueNilOfSpecifiedLengthPa
 import org.apache.daffodil.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
 import org.apache.daffodil.processors.unparsers.LiteralValueNilOfSpecifiedLengthUnparser
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.processors.unparsers.NadaUnparser
+import org.apache.daffodil.processors.unparsers.NilLiteralCharacterUnparser
+import org.apache.daffodil.processors.unparsers.Unparser
 
 case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
   extends Terminal(e, true)
@@ -49,7 +50,14 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
     e.ignoreCaseBool,
     e.elementRuntimeData)
 
-  override lazy val unparser = new NadaUnparser(e.termRuntimeData)
+  private lazy val nilLitCharacter = e.cookedNilValuesForUnparse.head(0)
+
+  override lazy val unparser: Unparser =
+    new NilLiteralCharacterUnparser(e.erd,
+      e.maybeUnparseTargetLengthInBitsEv.get,
+      e.maybeLengthEv,
+      e.maybeCharsetEv,
+      nilLitCharacter)
 }
 
 case class LogicalNilValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isNillable)

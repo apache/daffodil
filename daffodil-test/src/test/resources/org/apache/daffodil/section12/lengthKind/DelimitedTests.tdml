@@ -178,21 +178,51 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="NS_13">
+    <xs:element name="NS_13"> 
+      <xs:annotation><xs:documentation>
+      Illustrates how to get an initial assertion to happen before 
+      a separated sequence without having an extra leading separator.
+      </xs:documentation></xs:annotation>
       <xs:complexType>
-        <xs:sequence dfdl:separator=","
-          dfdl:separatorPosition="infix">
+        <xs:sequence>
           <xs:sequence>
+            <!-- this first sequence exists just to make the assert run 
+             before the rest of the sequence. -->
           	<xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert>{fn:true()}</dfdl:assert>
               </xs:appinfo>
           	</xs:annotation>
           </xs:sequence>
-          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+            <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
+          </xs:sequence>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="NS_13a"> 
+      <xs:annotation><xs:documentation>
+      Verify that subsequence of separated sequence gets a separator. 
+      That is, if you put a sequence to run an assert at the start of a separated sequence, 
+      you'll get a leading separator that you probably do not expect.
+      </xs:documentation></xs:annotation>
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:sequence>
+            <!-- this first sequence exists just to make the assert run 
+             before the rest of the sequence. -->
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{fn:true()}</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+            <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
 
     <xs:element name="NS_14">
       <xs:complexType>
@@ -697,8 +727,7 @@ C</MessageHeaders>
 
   <tdml:parserTestCase name="NumSeq_10" root="NS_10"
     model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
-
-<tdml:document><![CDATA[1,2,3,4,5,6]]></tdml:document>
+    <tdml:document><![CDATA[1,2,3,4,5,6]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -865,6 +894,23 @@ C</MessageHeaders>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:unparserTestCase name="NumSeq_13a" root="NS_13a"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+    <tdml:document><![CDATA[,408,52283,22]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://example.com">
+        <NS_13a>
+          <e2>408</e2>
+          <e2>52283</e2>
+          <e2>22</e2>
+        </NS_13a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+  
 
   <tdml:parserTestCase name="NumSeq_13Fail" root="NS_13"
     model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
@@ -1058,8 +1104,9 @@ C</MessageHeaders>
 			<tdml:documentPart type="byte">31200a</tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-		<tdml:error>delimiter not found</tdml:error>
+		<tdml:error>terminator</tdml:error>
 		<tdml:error>%WSP*;%NL;</tdml:error>
+        <tdml:error>not found</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
   

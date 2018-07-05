@@ -65,8 +65,10 @@ class TresysTests3 {
   //
   // NOTE: AM.dfdl.xsd isn't a valid schema because it has an array in a hidden
   // group. Because everything inside a hidden group must be either default or
-  // OVC, and arrays can't have either, they cannot be in hidden groups. It is
-  // not worth fixing this test to work at the moment.
+  // OVC, and arrays can't have either, they cannot be in hidden groups.
+  // This is fixed by specifying daffodil-specific property
+  // daf:parseUnparsePolicy="parseOnly", which suppresses the check for this
+  // constraint.
 
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }

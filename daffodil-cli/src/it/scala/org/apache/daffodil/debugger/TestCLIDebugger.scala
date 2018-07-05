@@ -71,58 +71,6 @@ class TestCLIdebugger {
     }
   }
 
-  @Test def test_3263_CLI_Debugger_occursBounds() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input8.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
-
-    try {
-      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("display info occursBounds")
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("s")
-      shell.expect(contains("occursBounds: 1"))
-
-      shell.sendLine("complete")
-      shell.sendLine("quit")
-    } finally {
-      shell.close()
-    }
-  }
-
-  @Test def test_3266_CLI_Debugger_occursBounds_shortForm() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input8.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
-
-    try {
-      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("display info ob")
-      shell.expect(contains("(debug)"))
-      shell.sendLine("info oc")
-      shell.expect(contains("error: undefined info command: oc"))
-
-      shell.sendLine("s")
-      shell.expect(contains("occursBounds: 1"))
-
-      shell.sendLine("complete")
-      shell.sendLine("quit")
-    } finally {
-      shell.close()
-    }
-  }
-
   @Test def test_1591_CLI_Debugger_invalidCommandError() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
@@ -136,73 +84,6 @@ class TestCLIdebugger {
       shell.expect(contains("(debug)"))
       shell.sendLine("garbage")
       shell.expect(contains("error: undefined command: garbage"))
-      shell.sendLine("quit")
-    } finally {
-      shell.close()
-    }
-  }
-
-  @Test def test_1336_CLI_Debugger_occursBounds() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input8.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
-
-    try {
-      val cmd = String.format("%s -d parse -s %s -r file %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("display info occursBounds")
-      shell.sendLine("display info infoset")
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("break item")
-
-      shell.sendLine("continue")
-      shell.expect(contains("occursBounds: 5"))
-
-      shell.sendLine("continue")
-      shell.expect(contains("occursBounds: 5"))
-
-      shell.sendLine("complete")
-      shell.sendLine("quit")
-    } finally {
-      shell.close()
-    }
-  }
-
-  @Test def test_3398_CLI_Debugger_occursBounds_2() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input11.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
-
-    try {
-      val cmd = String.format("%s -d parse -s %s -r file %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("display info occursBounds")
-      shell.sendLine("display info infoset")
-      shell.expect(contains("(debug)"))
-
-      shell.sendLine("break title")
-      shell.sendLine("break item")
-
-      shell.sendLine("continue")
-      shell.expect(contains("breakpoint 1: title"))
-      shell.expect(contains("occursBounds: 1024")) //occursCount is not set, so default is used
-
-      shell.sendLine("disable breakpoint 1")
-
-      shell.sendLine("continue")
-      shell.expect(contains("breakpoint 2: item"))
-      shell.expect(contains("occursBounds: 3"))
-
-      shell.sendLine("complete")
       shell.sendLine("quit")
     } finally {
       shell.close()
@@ -727,7 +608,7 @@ class TestCLIdebugger {
       shell.expect(contains("childIndex: 2"))
 
       shell.sendLine("continue")
-      shell.expect(contains("childIndex: 1"))
+      shell.expect(contains("childIndex: 4"))
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")

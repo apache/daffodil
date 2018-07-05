@@ -29,13 +29,23 @@ import org.apache.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import org.apache.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
 
   lazy val eGram = eGramArg // once only
-  lazy val eParser = eGram.parser
-  lazy val eUnparser = eGram.unparser
+
+  final protected lazy val eParser: Parser = {
+    val p = eGram.parser
+    p
+  }
+
+  lazy val eUnparser = {
+    val u = eGram.unparser
+    u
+  }
 
   def kind: String
 
@@ -90,11 +100,16 @@ trait SpecifiedLengthExplicitImplicitUnparserMixin {
   def e: ElementBase
   def eUnparser: Unparser
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitImplicitUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    e.unparseTargetLengthInBitsEv,
-    e.maybeUnparseTargetLengthInCharactersEv)
+  lazy val unparser: Unparser = {
+    val u = eUnparser
+    if (u.isEmpty) u
+    else
+      new SpecifiedLengthExplicitImplicitUnparser(
+        u,
+        e.elementRuntimeData,
+        e.unparseTargetLengthInBitsEv,
+        e.maybeUnparseTargetLengthInCharactersEv)
+  }
 }
 
 class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)

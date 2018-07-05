@@ -154,10 +154,10 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Expected element start event</tdml:error>
+      <tdml:error>Expected</tdml:error>
+      <tdml:error>additional</tdml:error>
       <tdml:error>opt</tdml:error>
       <tdml:error>received array end event</tdml:error>
-      <tdml:error>r1a</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

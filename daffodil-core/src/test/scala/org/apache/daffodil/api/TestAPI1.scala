@@ -375,12 +375,29 @@ class TestDFDLParser {
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
         <xs:complexType>
           <xs:sequence dfdl:separator=";" dfdl:terminator=";">
-            <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="parsed"/>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="implicit" maxOccurs="4"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.", areTracing)
+    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
+
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparator3() {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:GeneralFormat"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:terminator=".">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=";" dfdl:terminator="!">
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" minOccurs="0" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val areTracing = false
+    val (_, actual) = TestUtils.testString(sch, "5;6;7;8!.", areTracing)
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
 
     TestUtils.assertEqualsXMLElements(expected, actual)

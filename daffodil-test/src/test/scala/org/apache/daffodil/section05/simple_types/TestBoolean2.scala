@@ -44,6 +44,7 @@ class TestBoolean2 {
   @Test def test_binaryBoolean_sde_0() { runner.runOneTest("binaryBoolean_sde_0") }
   @Test def test_binaryBoolean_sde_1() { runner.runOneTest("binaryBoolean_sde_1") }
   @Test def test_textBoolean_0() { runner.runOneTest("textBoolean_0") }
+  @Test def test_textBoolean_0a() { runner.runOneTest("textBoolean_0a") }
   @Test def test_textBoolean_unparse_0() { runner.runOneTest("textBoolean_unparse_0") }
   @Test def test_textBoolean_1() { runner.runOneTest("textBoolean_1") }
   @Test def test_textBoolean_2() { runner.runOneTest("textBoolean_2") }

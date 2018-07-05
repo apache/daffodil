@@ -19,14 +19,8 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors.TermRuntimeData
 
-case class SimpleNilOrEmptyOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, emptyParser: Parser, valueParser: Parser)
-  extends AltCompParser(ctxt, Seq(nilParser, emptyParser, valueParser))
-
 case class SimpleNilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
-  extends AltCompParser(ctxt, Seq(nilParser, valueParser))
-
-case class SimpleEmptyOrValueParser(ctxt: TermRuntimeData, emptyParser: Parser, valueParser: Parser)
-  extends AltCompParser(ctxt, Seq(emptyParser, valueParser))
+  extends ChoiceParser(ctxt, Seq(nilParser, valueParser))
 
 case class ComplexNilOrContentParser(ctxt: TermRuntimeData, emptyParser: Parser, contentParser: Parser)
-  extends AltCompParser(ctxt, Seq(emptyParser, contentParser))
+  extends ChoiceParser(ctxt, Seq(emptyParser, contentParser))

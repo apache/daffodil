@@ -18,9 +18,7 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import org.apache.daffodil.grammar._
 import org.apache.daffodil.xml._
-import org.apache.daffodil.grammar.ElementReferenceGrammarMixin
 import org.apache.daffodil.dpath.NodeInfo
 
 /**
@@ -34,7 +32,6 @@ abstract class AbstractElementRef(xmlArg: Node,
   parentArg: SchemaComponent,
   positionArg: Int)
   extends ElementBase
-  with ElementReferenceGrammarMixin
   with HasRefMixin
   with NamedMixin
   with NestingLexicalMixin {

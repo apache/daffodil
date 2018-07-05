@@ -17,16 +17,8 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.processors.ChoiceDispatchKeyEv
-import org.apache.daffodil.processors.DelimiterParseEv
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.EscapeSchemeParseEv
-import org.apache.daffodil.processors.RuntimeData
-import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors._
 import org.apache.daffodil.util.LogLevel
-import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.processors.Evaluatable
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
@@ -120,43 +112,6 @@ class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
   }
 }
 
-class SequenceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
-  extends CombinatorParser(rd) {
-  override def nom = "Sequence"
-
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
-
-  override lazy val childProcessors = Seq(bodyParser)
-
-  def parse(start: PState): Unit = {
-    start.mpstate.groupIndexStack.push(1L) // one-based indexing
-
-    bodyParser.parse1(start)
-
-    start.mpstate.groupIndexStack.pop()
-    start.mpstate.moveOverOneGroupIndexOnly()
-    ()
-  }
-}
-
-/**
- * This is essentially just a wrapper around the bodyParser, which is an
- * AltCompParser. This is only here to maintain symmetry with the unparse side,
- * which has a more complicated unparser that differs from an AltCompUnparser.
- */
-class ChoiceCombinatorParser(rd: TermRuntimeData, bodyParser: Parser)
-  extends CombinatorParser(rd) {
-  override def nom = "Choice"
-
-  override lazy val runtimeDependencies = Nil
-
-  override lazy val childProcessors = Seq(bodyParser)
-
-  def parse(start: PState): Unit = {
-    bodyParser.parse1(start)
-  }
-}
-
 class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, dispatchBranchKeyMap: Map[String, Parser])
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
@@ -195,52 +150,4 @@ class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceD
       }
     }
   }
-}
-
-class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser)
-  extends CombinatorParser(erd) {
-  override def nom = "Array"
-  override lazy val childProcessors = Seq(bodyParser)
-
-  override lazy val runtimeDependencies = Nil
-
-  def parse(start: PState): Unit = {
-
-    start.mpstate.arrayIndexStack.push(1L) // one-based indexing
-    start.mpstate.occursBoundsStack.push(start.tunable.maxOccursBounds)
-
-    bodyParser.parse1(start)
-
-    val actualOccurs = start.mpstate.arrayIndexStack.pop()
-    start.mpstate.occursBoundsStack.pop()
-
-    if (start.processorStatus ne Success) return
-
-    val shouldValidate =
-      start.dataProc.isDefined && start.dataProc.value.getValidationMode != ValidationMode.Off
-
-    if (shouldValidate && erd.minOccurs.isDefined && erd.maxOccurs.isDefined) {
-      val minO = erd.minOccurs.get
-      val maxO = erd.maxOccurs.get
-      val isUnbounded = maxO == -1
-      val occurrence = actualOccurs - 1
-
-      if (isUnbounded && occurrence < minO)
-        start.validationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
-          occurrence, minO)
-      else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
-        start.validationError("%s occurred '%s' times when it was expected to be a " +
-          "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
-          occurrence, minO, maxO)
-      else {
-        //ok
-      }
-    }
-  }
-}
-
-// This follows the same behavior as Arrays for parsing
-class OptionalCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends ArrayCombinatorParser(erd, bodyParser) {
-  override def nom = "Optional"
 }

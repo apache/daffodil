@@ -93,7 +93,8 @@ trait ChoiceDefMixin
   }
 }
 
-abstract class ChoiceTermBase( final override val xml: Node,
+abstract class ChoiceTermBase(
+  final override val xml: Node,
   final override val parent: SchemaComponent,
   final override val position: Int)
   extends ModelGroup
@@ -107,11 +108,11 @@ abstract class ChoiceTermBase( final override val xml: Node,
 
   protected final override lazy val myPeers = choicePeers
 
-  final lazy val hasStaticallyRequiredInstances = {
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
     // true if the choice has syntactic features (initiator, terminator)
     hasInitiator || hasTerminator ||
       // or if all arms of the choice have statically required instances.
-      groupMembers.forall { _.hasStaticallyRequiredInstances }
+      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
   }
 
   final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey")
@@ -212,7 +213,8 @@ abstract class ChoiceTermBase( final override val xml: Node,
             // UPA check may not catch this ambiguity. However, we need a real element
             // with unique name, to unambiguously identify a branch.
             // So if there is ambiguity at this point, we have to fail.
-            SDE("UPA violation. Multiple choice branches begin with %s.\n" +
+            SDE(
+              "UPA violation. Multiple choice branches begin with %s.\n" +
               "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
               "The offending choice branches are:\n%s",
               event.qname, trds.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
@@ -222,7 +224,8 @@ abstract class ChoiceTermBase( final override val xml: Node,
               case _: ChoiceBranchStartEvent => "start"
             }
             // there are no element children in any of the branches.
-            SDW(WarnID.MultipleChoiceBranches,
+            SDW(
+              WarnID.MultipleChoiceBranches,
               "Multiple choice branches are associated with the %s of element %s.\n" +
                 "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
                 "The offending choice branches are:\n%s\n" +
@@ -236,7 +239,9 @@ abstract class ChoiceTermBase( final override val xml: Node,
     noDupes
   }.value
 
-  final lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = choiceRuntimeData
+
+  final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,
@@ -261,6 +266,26 @@ abstract class ChoiceTermBase( final override val xml: Node,
       maybeFillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharset)
+  }
+
+  /**
+   * Examines all the children. Those that are non-scalar elements are
+   * encapsulated with a ChoiceBranchImpliedSequence, which is a kind of
+   * Sequence base.
+   *
+   * Thereafter daffodil can depend on the invariant that every recurring element is contained
+   * inside a sequence, and that sequence describes everything about how that
+   * element's occurrences are separated.
+   */
+  final lazy val groupMembersWithImpliedSequences = {
+    val rawGMs = groupMembers
+    val wrappedGMs = rawGMs.map {
+      gm =>
+        if (gm.isScalar) gm
+        else
+          new ChoiceBranchImpliedSequence(gm)
+    }
+    wrappedGMs
   }
 }
 

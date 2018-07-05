@@ -6777,6 +6777,21 @@
     </tdml:infoset>
 </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="hexBinary_Delimited_01a"
+    root="hb_root01" model="HexBinary"
+    description="Section 5 Simple Types - hexBinary - DFDL-5-025R" roundTrip="twoPass">
+    <tdml:document>123.456.789.</tdml:document>
+    <tdml:infoset>
+        <tdml:dfdlInfoset>
+            <hb_root01>
+        <text>313233</text>
+        <text>343536</text>
+        <text>373839</text>
+      </hb_root01>
+        </tdml:dfdlInfoset>
+    </tdml:infoset>
+</tdml:parserTestCase>
+
   <!--
     Test name: hexBinary_Delimited_02
     Schema: HexBinary

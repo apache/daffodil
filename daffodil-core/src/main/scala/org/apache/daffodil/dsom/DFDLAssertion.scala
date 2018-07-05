@@ -33,6 +33,15 @@ import org.apache.daffodil.api.WarnID
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
 
+  /**
+   * Perform checks that require the term on which this statement ultimately
+   * resides..
+   *
+   * In this case, it's an assertion, so if it has a pattern we have to check that
+   * pattern makes sense in the context.
+   */
+  override protected def check(term: Term) = checkPattern(term)
+
   private lazy val testAttrib = getAttributeOption("test")
 
   // tolerate whitespace. E.g.,
@@ -55,28 +64,42 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 
   private lazy val testPattern = {
     val optPattern = getAttributeOption("testPattern")
-    if (optPattern.isDefined) {
-      val thePattern = optPattern.get
-
+    optPattern.foreach { thePattern =>
       try {
         // val icu =
         UnicodeRegex.compile(thePattern) // Check against ICU
         // val java =
         Pattern.compile(thePattern) // Check against Java
       } catch { case e: PatternSyntaxException => SDE("The pattern contained invalid syntax: %s", e.getMessage()) }
-
-      val hasWord = thePattern.contains("\\w")
-      decl match {
-        case term: Term => {
-          val encInfo = term.termRuntimeData.encodingInfo
-          if (encInfo.knownEncodingIsUnicode && hasWord)
-            SDW(WarnID.PatternEncodingSlashW, "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
-              encInfo.knownEncodingName, thePattern)
-        }
-        case _ => // ok
-      }
     }
     optPattern
+  }
+
+  /**
+   * This assertion can appear on a global element def, for example, which is
+   * not a term, and so we cannot ask it for properties and get all the properties
+   * in the scope.
+   *
+   * To resolve properties you must start from the Term. (A local element decl,
+   * an element ref, a sequence, choice, or group ref.)
+   * To avoid reaching backward from a global element decl to the element ref
+   * we instead call from a term to its statements, passing them the Term they need to verify
+   * that they are compatible with the properties of that term.
+   *
+   * This is a technique to avoid backpointers from shared definitions/decls to
+   * the referencing objects that refer to them.
+   */
+  private def checkPattern(term: Term) = {
+
+    if (testPattern.isDefined) {
+      val thePattern = testPattern.get
+
+      val hasWord = thePattern.contains("\\w")
+      val encInfo = term.termRuntimeData.encodingInfo
+      if (encInfo.knownEncodingIsUnicode && hasWord)
+        SDW(WarnID.PatternEncodingSlashW, "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
+          encInfo.knownEncodingName, thePattern)
+    }
   }
 
   final lazy val testKind = getAttributeOption("testKind") match {
@@ -109,7 +132,8 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     // we need to be sure if it is an expression that it is surrounded by {...}
     // after trimming whitespace from before and after. Jira issue DFDL-434
     if (testKind == TestKind.Expression)
-      schemaDefinitionUnless(rawTxt.startsWith("{") && !rawTxt.startsWith("{{") && rawTxt.endsWith("}"),
+      schemaDefinitionUnless(
+        rawTxt.startsWith("{") && !rawTxt.startsWith("{{") && rawTxt.endsWith("}"),
         "Expression must begin with a single '{' and end with a '}'")
     rawTxt
   }
@@ -118,10 +142,10 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
 
-  final def gram = LV('gram) {
+  final def gram(term: Term) = LV('gram) {
     testKind match {
-      case TestKind.Pattern => AssertPatternPrim(decl.term, this)
-      case TestKind.Expression => AssertBooleanPrim(decl.term, this)
+      case TestKind.Pattern => AssertPatternPrim(term, this)
+      case TestKind.Expression => AssertBooleanPrim(term, this)
     }
   }.value
 }
@@ -129,10 +153,10 @@ final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin
 
-  final def gram = LV('gram) {
+  final def gram(term: Term) = LV('gram) {
     testKind match {
-      case TestKind.Pattern => DiscriminatorPatternPrim(decl.term, this)
-      case TestKind.Expression => DiscriminatorBooleanPrim(decl.term, this)
+      case TestKind.Pattern => DiscriminatorPatternPrim(term, this)
+      case TestKind.Expression => DiscriminatorBooleanPrim(term, this)
     }
   }.value
 }

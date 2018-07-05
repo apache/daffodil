@@ -26,7 +26,7 @@
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   ref="booleanText" escapeSchemeRef=""
 				encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian" lengthUnits="characters"
 				textOutputMinLength="1" alignment="1" alignmentUnits="bytes"
-				fillByte="f"  occursCountKind="implicit" ignoreCase="no"
+				fillByte="f"  occursCountKind="implicit" ignoreCase="no" separatorSuppressionPolicy="trailingEmpty"
 				lengthKind="delimited" sequenceKind="ordered" initiatedContent="no" />
 
 		</xs:appinfo>

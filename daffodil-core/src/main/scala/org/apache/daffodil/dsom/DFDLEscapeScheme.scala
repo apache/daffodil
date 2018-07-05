@@ -68,6 +68,20 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }
 
+  /**
+   * For unit testing. Must override because of multiple inheritance.
+   *
+   * The scala compiler complains as follows:
+   * class DFDLEscapeScheme inherits conflicting members:
+   * method verifyPropValue in class DFDLFormatAnnotation
+   * of type (propName: String, expectedValue: String)Boolean
+   * and method verifyPropValue in trait FindPropertyMixin
+   * of type (key: String, value: String)Boolean
+   * (Note: this can be resolved by declaring an override in class DFDLEscapeScheme.)
+   */
+  override def verifyPropValue(key: String, value: String): Boolean =
+    super.verifyPropValue(key, value)
+
   final def escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this)

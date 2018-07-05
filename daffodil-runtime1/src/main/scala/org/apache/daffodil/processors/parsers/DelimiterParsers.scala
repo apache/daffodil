@@ -132,7 +132,9 @@ class DelimiterTextParser(
     if (foundDelimiter.isDefined) {
       if (!containsLocalMatch(foundDelimiter.get.matchedDFAs, start)) {
         // It was a remote delimiter but we should have found a local one.
-        PE(start, "Found out of scope delimiter: %s", Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get))
+        PE(start, "Found out of scope delimiter: '%s' '%s'",
+          foundDelimiter.get.matchedDFAs(0).lookingFor,
+          Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get))
         return
       }
 
@@ -158,7 +160,14 @@ class DelimiterTextParser(
           return
         } else {
           // no match and no ES in delims
-          PE(start, "Delimiter not found.")
+          //
+          // FIXME: this was just doing start.mpstate.delimiters.last, assuming that would be the matching
+          // delim, but it isn't in some tests. It's a terminator when the delimiterType is initiator.
+          //
+          // val optDelim = start.mpstate.delimiters.find{ d => d.delimType == delimiterType }
+          val optDelim = Some(start.mpstate.delimiters.last)
+          Assert.invariant(optDelim.isDefined)
+          PE(start, "%s '%s' not found.", delimiterType.toString, optDelim.get.lookingFor)
           return
         }
       }

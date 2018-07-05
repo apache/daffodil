@@ -23,7 +23,7 @@ import org.junit.Assert._
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Fakes
 
-class HasProps(xml: Node) extends DFDLNonDefaultFormatAnnotation(xml, Fakes.fakeElem)
+class HasProps(xml: Node) extends DFDLFormatAnnotation(xml, Fakes.fakeElem)
 
 class TestPropertyScoping {
   val x1 = new HasProps(<fake alignmentUnits="bytes"/>)

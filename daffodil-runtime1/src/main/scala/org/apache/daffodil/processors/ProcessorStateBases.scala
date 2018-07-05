@@ -437,7 +437,6 @@ abstract class ParseOrUnparseState protected (
   def groupPos: Long
   def arrayPos: Long
   def childPos: Long
-  def occursBoundsStack: MStackOfLong
 
   def hasInfoset: Boolean
 
@@ -530,7 +529,6 @@ final class CompileState(trd: RuntimeData, maybeDataProc: Maybe[DataProcessor])
 
   def notifyDebugging(flag: Boolean): Unit = {}
   private val occursBoundsStack_ = MStackOfLong()
-  def occursBoundsStack: MStackOfLong = occursBoundsStack_
 
   def thisElement = infoset
 

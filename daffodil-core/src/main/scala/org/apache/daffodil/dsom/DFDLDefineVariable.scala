@@ -28,9 +28,8 @@ import org.apache.daffodil.xml.QName
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.grammar.primitives.SetVariable
-import org.apache.daffodil.grammar.primitives.NewVariableInstanceStart
-import org.apache.daffodil.grammar.primitives.NewVariableInstanceEnd
 import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.exceptions.Assert
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
@@ -107,12 +106,10 @@ abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   extends VariableReference(node, decl) // with NewVariableInstance_AnnotationMixin
   {
-  requiredEvaluations(endGram)
-
   lazy val defaultValue = getAttributeOption("defaultValue")
 
-  lazy val gram: Gram = NewVariableInstanceStart(decl, this)
-  lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
+  def gram(term: Term): Gram = Assert.nyi("dfdl:newVariableInstance")
+  def endGram(term: Term): Gram = Assert.nyi("dfdl:newVariableInstance")
 
   lazy val newVariableInstance = defv.newVariableInstance
 
@@ -131,7 +128,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final def gram = LV('gram) {
-    SetVariable(decl, this)
+  final def gram(term: Term) = LV('gram) {
+    SetVariable(this)
   }.value
 }

@@ -239,7 +239,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       Assert.invariant(state.mpstate.arrayIndexStack.length == 1)
       Assert.invariant(state.mpstate.groupIndexStack.length == 1)
       Assert.invariant(state.mpstate.childIndexStack.length == 1)
-      Assert.invariant(state.mpstate.occursBoundsStack.length == 1)
     } catch {
       // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure"
       // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an
@@ -370,7 +369,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.invariant(state.arrayIndexStack.length == 1)
     Assert.invariant(state.groupIndexStack.length == 1)
     Assert.invariant(state.childIndexStack.length == 1)
-    Assert.invariant(state.occursBoundsStack.length == 1)
     Assert.invariant(state.currentInfosetNodeStack.isEmpty)
     Assert.invariant(state.escapeSchemeEVCache.isEmpty)
     //

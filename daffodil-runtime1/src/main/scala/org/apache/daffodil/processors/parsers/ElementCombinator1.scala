@@ -229,7 +229,6 @@ class ElementParser(
     eAfterParser) {
 
   def move(start: PState) {
-    start.mpstate.moveOverOneGroupIndexOnly
     start.mpstate.moveOverOneElementChildOnly
     ()
   }

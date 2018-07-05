@@ -51,8 +51,8 @@ class TestMiddleEndAttributes {
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
-    assertTrue(s1.hasStaticallyRequiredInstances)
-    assertTrue(s2.hasStaticallyRequiredInstances)
+    assertTrue(s1.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertTrue(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertTrue(s1.hasLaterRequiredSiblings)
     assertTrue(s2.hasPriorRequiredSiblings)
 
@@ -80,8 +80,8 @@ class TestMiddleEndAttributes {
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
-    assertFalse(s1.hasStaticallyRequiredInstances)
-    assertFalse(s2.hasStaticallyRequiredInstances)
+    assertFalse(s1.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertFalse(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertFalse(s1.hasLaterRequiredSiblings)
     assertFalse(s2.hasPriorRequiredSiblings)
 
@@ -112,11 +112,11 @@ class TestMiddleEndAttributes {
     val e1ct = e1.complexType
     val seq = e1ct.sequence
     val Seq(s1, s2, s3, s4, s5) = seq.groupMembers
-    assertFalse(s1.hasStaticallyRequiredInstances)
-    assertTrue(s2.hasStaticallyRequiredInstances)
-    assertFalse(s3.hasStaticallyRequiredInstances)
-    assertTrue(s4.hasStaticallyRequiredInstances)
-    assertFalse(s5.hasStaticallyRequiredInstances)
+    assertFalse(s1.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertTrue(s2.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertFalse(s3.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertTrue(s4.hasStaticallyRequiredOccurrencesInDataRepresentation)
+    assertFalse(s5.hasStaticallyRequiredOccurrencesInDataRepresentation)
     assertTrue(s1.hasLaterRequiredSiblings)
     assertTrue(s2.hasLaterRequiredSiblings)
     assertTrue(s3.hasLaterRequiredSiblings)
