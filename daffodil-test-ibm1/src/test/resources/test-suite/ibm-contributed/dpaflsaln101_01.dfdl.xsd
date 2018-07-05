@@ -29,7 +29,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format representation="text" 
-            initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
+      initiator="" terminator="" leadingSkip="0" trailingSkip="0" separatorSuppressionPolicy="trailingEmpty"
 			truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   
 			ref="rdefFormat" encoding="ascii" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 			ignoreCase="yes" textStringJustification="left" occursCountKind="implicit"

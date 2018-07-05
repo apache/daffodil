@@ -116,7 +116,7 @@
             </xsd:restriction>
           </xsd:simpleType>
         </xsd:element>
-        <xsd:element name="suppressWarnings" minOccurs="0">
+        <xsd:element name="suppressSchemaDefinitionWarnings" minOccurs="0">
            <xsd:simpleType>
            <xsd:list>
              <xsd:simpleType>

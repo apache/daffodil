@@ -238,4 +238,20 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     res
   }.value
 
+  /**
+   * For unit testing convenience, or for use when debugging.
+   */
+  def getPropertyForUnitTest(propName: String) =
+    justThisOneProperties.get(propName).get._1
+
+  /**
+   * For unit testing convenience, or for use when debugging.
+   */
+  def verifyPropValue(propName: String, expectedValue: String): Boolean = {
+    val optInfo = justThisOneProperties.get(propName)
+    optInfo match {
+      case None => false
+      case Some((actualValue, _)) => actualValue == expectedValue
+    }
+  }
 }

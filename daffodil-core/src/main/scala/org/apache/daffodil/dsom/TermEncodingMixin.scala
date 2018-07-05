@@ -195,9 +195,12 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
   }
 
   /**
-   * no alignment properties that would explicitly create
+   * True if this term has no alignment properties that would explicitly create
    * a need to align in a way that is not on a suitable boundary
    * for a character.
+   *
+   * Not the same as AlignedMixin.isKnownToBeTextAligned. That depends on this but
+   * goes further to consider whether alignment is achieved even when this is false.
    */
   final lazy val hasTextAlignment = {
     val av = alignmentValueInBits

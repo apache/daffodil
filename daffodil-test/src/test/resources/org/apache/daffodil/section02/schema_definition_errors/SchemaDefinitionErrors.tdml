@@ -32,7 +32,7 @@
 
   <tdml:defineSchema name="SDE">
 
-    <dfdl:format ref="ex:GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"/>
 
     <xs:element name="matrix">
       <xs:complexType>

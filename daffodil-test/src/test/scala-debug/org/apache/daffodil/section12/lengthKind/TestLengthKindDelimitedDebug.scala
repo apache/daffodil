@@ -42,8 +42,9 @@ class TestLengthKindDelimitedDebug {
 
   import TestLengthKindDelimitedDebug._
 
-  //DFDL-230
+  // DAFFODIL-230 dfdl:documentFinalTerminatorCanBeMissing
   @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
 
-  @Test def test_delimsCheck() { runner.runOneTest("delimsCheck") }
+  // DAFFODIL-1975
+  @Test def test_NumSeq_13a() { runner.runOneTest("NumSeq_13a") }
 }

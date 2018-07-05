@@ -208,7 +208,9 @@ object TestUtils {
     val input = InputSourceDataInputStream(Channels.newInputStream(data))
     val actual = p.parse(input, outputter)
     if (actual.isProcessingError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val diags = actual.getDiagnostics
+      if (diags.length == 1) throw diags(0)
+      val msgs = diags.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     (actual, outputter.getResult)

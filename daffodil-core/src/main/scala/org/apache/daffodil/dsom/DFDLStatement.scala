@@ -26,9 +26,10 @@ import org.apache.daffodil.grammar.Gram
 abstract class DFDLStatement(node: Node,
   annotatedSCArg: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSCArg)
-  with NestingLexicalMixin {
+  with NestingLexicalMixin 
+  with HasTermCheck {
 
-  requiredEvaluations(gram)
+  /// requiredEvaluations(gram)
 
-  def gram: Gram
+  def gram(term: Term): Gram
 }

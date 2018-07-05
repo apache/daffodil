@@ -18,8 +18,8 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.equality._
-import org.apache.daffodil.exceptions.Assert
 import scala.collection.mutable
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * A pool is a collection of objects that are manually recycled usually via
@@ -78,7 +78,15 @@ trait Pool[T <: Poolable] {
     numOutstanding -= 1
     pool.push(thing)
     inUse -= thing
-    thing.setPoolDebugLabel(null)
+    // Do Not reset the pool debug label.
+    // That way if something is double-returned, we can look at the
+    // pool debug label to see what it previously was, as a clue to how
+    // it was erroneously double returned.
+    // thing.setPoolDebugLabel(null)
+  }
+
+  final def isInUse(thing: T) = {
+    inUse.contains(thing)
   }
 
   /**

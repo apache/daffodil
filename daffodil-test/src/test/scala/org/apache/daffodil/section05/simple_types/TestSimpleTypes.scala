@@ -46,6 +46,7 @@ class TestSimpleTypes {
 
   @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") } //roundTrip
   @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") } //roundTrip
+  @Test def test_hexBinary_Delimited_01a() { runner.runOneTest("hexBinary_Delimited_01a") } //roundTrip
   @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") } //roundTrip
   @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") } //roundTrip
   @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") } //roundTrip
@@ -57,7 +58,7 @@ class TestSimpleTypes {
   @Test def test_hexBinary_func() { runner.runOneTest("hexBinary_func") }
   @Test def test_hexBinary_func_neg() { runner.runOneTest("hexBinary_func_neg") }
 
-  // DFDL-1707 
+  // DFDL-1707
   @Test def test_hexBinary_bits_be_msbf() { runner.runOneTest("hexBinary_bits_be_msbf") }
   @Test def test_hexBinary_bits_le_msbf() { runner.runOneTest("hexBinary_bits_le_msbf") }
   @Test def test_hexBinary_bits_le_lsbf() { runner.runOneTest("hexBinary_bits_le_lsbf") }

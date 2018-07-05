@@ -384,8 +384,6 @@ class UStateForSuspension(
   override def moveOverOneElementChildOnly() = die
   override def childPos = 0 // was die, but this is called when copying state during debugging.
 
-  override def occursBoundsStack = die
-
   override def pushDelimiters(node: DelimiterStackUnparseNode) = die
   override def popDelimiters() = die
   override def localDelimiters = delimiterStackMaybe.get.top
@@ -541,9 +539,6 @@ final class UStateMain private (
   childIndexStack.push(1L)
   override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   override def childPos = childIndexStack.top
-
-  val occursBoundsStack = MStackOfLong()
-  occursBoundsStack.push(1L)
 
   override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
 

@@ -55,6 +55,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.util.OKOrError
 import java.util.regex.Matcher
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
 /*
  * NOTE: Any time you add a member to one of these objects, you must modify at least 3 places.
@@ -128,6 +129,9 @@ sealed abstract class TermRuntimeData(
     case ref: AnyRef => this eq ref
     case _ => false
   }
+
+  def isRequiredScalar: Boolean
+  def isArray: Boolean
 
   /**
    * At some point TermRuntimeData is a ResolvesQNames which requires tunables:
@@ -618,8 +622,9 @@ final class ElementRuntimeData(
   @TransientParam targetNamespaceArg: => NS,
   @TransientParam thisElementsNamespaceArg: => NS,
   @TransientParam optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
-  @TransientParam minOccursArg: => Option[Int],
-  @TransientParam maxOccursArg: => Option[Int],
+  @TransientParam minOccursArg: => Long,
+  @TransientParam maxOccursArg: => Long,
+  @TransientParam maybeOccursCountKindArg: => Maybe[OccursCountKind],
   @TransientParam nameArg: => String,
   @TransientParam targetNamespacePrefixArg: => String,
   @TransientParam thisElementsNamespacePrefixArg: => String,
@@ -627,7 +632,7 @@ final class ElementRuntimeData(
   @TransientParam isNillableArg: => Boolean,
   @TransientParam isArrayArg: => Boolean, // can have more than 1 occurrence
   @TransientParam isOptionalArg: => Boolean, // can have only 0 or 1 occurrence
-  @TransientParam isRequiredArg: => Boolean, // must have at least 1 occurrence
+  @TransientParam isRequiredOrOptionalArg: => Boolean, // must have at least 1 occurrence
   /**
    * This is the properly qualified name for recognizing this
    * element.
@@ -659,6 +664,8 @@ final class ElementRuntimeData(
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
+  override def isRequiredScalar = !isArray && isRequiredOrOptional
+
   lazy val parent = parentArg
   lazy val parentTerm = parentTermArg
   lazy val children = childrenArg
@@ -678,14 +685,15 @@ final class ElementRuntimeData(
   lazy val optSimpleTypeRuntimeData = optSimpleTypeRuntimeDataArg
   lazy val minOccurs = minOccursArg
   lazy val maxOccurs = maxOccursArg
+  lazy val maybeOccursCountKind = maybeOccursCountKindArg
   lazy val name = nameArg
   lazy val targetNamespacePrefix = targetNamespacePrefixArg
   lazy val thisElementsNamespacePrefix = thisElementsNamespacePrefixArg
   lazy val isHidden = isHiddenArg
   lazy val isNillable = isNillableArg
-  lazy val isArray = isArrayArg
+  override lazy val isArray = isArrayArg
   lazy val isOptional = isOptionalArg
-  lazy val isRequired = isRequiredArg
+  lazy val isRequiredOrOptional = isRequiredOrOptionalArg // if true, no uncertainty about number of occurrences.
   lazy val namedQName = namedQNameArg
   lazy val impliedRepresentation = impliedRepresentationArg
   lazy val optDefaultValue = optDefaultValueArg
@@ -715,6 +723,7 @@ final class ElementRuntimeData(
     optSimpleTypeRuntimeData
     minOccurs
     maxOccurs
+    maybeOccursCountKind
     name
     targetNamespacePrefix
     thisElementsNamespacePrefix
@@ -722,7 +731,7 @@ final class ElementRuntimeData(
     isNillable
     isArray
     isOptional
-    isRequired
+    isRequiredOrOptional
     namedQName
     impliedRepresentation
     optDefaultValue
@@ -782,12 +791,16 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends TermRuntimeData(Some(erdArg),
+  extends TermRuntimeData(
+    Some(erdArg),
     Maybe(trdArg),
     encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
+
+  final override def isRequiredScalar = true
+  final override def isArray = false
 
   lazy val variableMap = variableMapArg
   lazy val encInfo = encInfoArg

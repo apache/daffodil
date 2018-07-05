@@ -34,7 +34,7 @@ import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.MaybeChar
 
 trait PaddingInfoMixin {
-  def eBase: ElementBase
+  protected def eBase: ElementBase
 
   /**
    * parsingPadChar is the pad character for parsing
@@ -126,6 +126,6 @@ trait PaddingInfoMixin {
 }
 
 trait Padded extends PaddingInfoMixin { self: Gram =>
-  override final def eBase = self.context.asInstanceOf[ElementBase]
+  override final protected def eBase = self.context.asInstanceOf[ElementBase]
 
 }

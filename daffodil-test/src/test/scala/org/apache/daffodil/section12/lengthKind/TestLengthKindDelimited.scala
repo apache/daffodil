@@ -60,7 +60,9 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
   @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
+  // DAFFODIL-230 dfdl:documentFinalTerminatorCanBeMissing
   //  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
+  @Test def test_delimsCheck() { runner.runOneTest("delimsCheck") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   @Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }
@@ -68,6 +70,8 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_11() { runner.runOneTest("NumSeq_11") }
   @Test def test_NumSeq_12() { runner.runOneTest("NumSeq_12") }
   @Test def test_NumSeq_13() { runner.runOneTest("NumSeq_13") }
+  // DAFFODIL-1975
+  // @Test def test_NumSeq_13a() { runner.runOneTest("NumSeq_13a") }
   @Test def test_NumSeq_13Fail() { runner.runOneTest("NumSeq_13Fail") }
   @Test def test_NumSeq_14() { runner.runOneTest("NumSeq_14") }
   // Tests that initiator is found when on ElementRef

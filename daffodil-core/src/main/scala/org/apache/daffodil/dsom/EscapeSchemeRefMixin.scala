@@ -21,7 +21,7 @@ import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
 
-trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
+trait EscapeSchemeRefMixin { self: Term =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
    *
@@ -43,7 +43,7 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
    * issue DFDL-77)
    */
   final lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
-    val er = self.resolver.findPropertyOption("escapeSchemeRef")
+    val er = self.findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
         SDW(WarnID.EscapeSchemeRefUndefined,

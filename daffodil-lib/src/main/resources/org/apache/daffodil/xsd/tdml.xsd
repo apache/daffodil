@@ -160,10 +160,26 @@
   <simpleType name="roundTripType">
     <restriction base="xs:token">
       <enumeration value="false"/> <!-- means same as none -->
-      <enumeration value="none"/>
       <enumeration value="true"/> <!-- means same as onePass -->
-      <enumeration value="onePass"/> <!--  parse, compare infoset, unparse - compare data -->
-      <enumeration value="twoPass"/> <!-- parse, unparse, reparse - compare infoset -->
+      <!-- 
+        parse only - compare infoset. 
+        -->
+      <enumeration value="none"/>
+      <!--  
+        parse, compare infoset, unparse - compare data 
+        -->
+      <enumeration value="onePass"/> 
+      <!-- 
+        parse, unparse, reparse - compare infoset.
+        Note that this can mask certain errors. So must be used with caution.
+        -->
+      <enumeration value="twoPass"/> 
+      <!-- 
+        parse, unparse, reparse, reunparse, compare data.
+        Note that this can mask many kinds of errors very easily, so must be used
+        rarely and with caution. 
+        -->
+      <enumeration value="threePass"/>
     </restriction>
   </simpleType>
   

@@ -109,7 +109,8 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
     (remoteDelimValue, remoteElemName, remoteElemPath)
   }
 
-  def getMatchedDelimiterInfo(originalDelimRep: String,
+  def getMatchedDelimiterInfo(
+    originalDelimRep: String,
     delimiters: List[(List[String], String, String)]) = {
 
     val (remoteDelimValue, remoteElemName, remoteElemPath, _) =
@@ -157,8 +158,8 @@ case class Initiator(e: Term) extends DelimiterText(e, e) {
   Assert.invariant(e.hasInitiator)
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
-case class Separator(s: SequenceTermBase, t: Term) extends DelimiterText(s, t) {
-  Assert.invariant(s.hasSeparator)
+
+case class SequenceSeparator(s: SequenceTermBase) extends DelimiterText(s, s, s.hasSeparator) {
   val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
 }
 case class Terminator(e: Term) extends DelimiterText(e, e) {

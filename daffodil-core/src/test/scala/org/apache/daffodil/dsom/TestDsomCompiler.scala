@@ -223,25 +223,25 @@ class TestDsomCompiler extends Logging {
     val root1 = e1f.forRoot()
     val e1 = root1.referencedElement
     e2f.forRoot()
-    val e3 = e3f.forRoot().referencedElement
+    val e3 = e3f.forRoot()
     assertEquals(
       ByteOrder.BigEndian.toString.toLowerCase(),
-      e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase())
-    val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
+      e1.formatAnnotation.asInstanceOf[DFDLElement].getPropertyForUnitTest("byteOrder").toLowerCase())
+    val Seq(_, a2) = e3.referencedElement.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
-    assertEquals("implicit", a1.asInstanceOf[DFDLElement].getProperty("occursCountKind"))
+    assertEquals(OccursCountKind.Implicit.toString, e3.getProperty("occursCountKind"))
     // Explore local complex type def
     val seq = e1.sequence //... which is a sequence
     seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
     val Seq(e1a: DFDLElement) = e1.annotationObjs
-    assertEquals("UTF-8", e1a.getProperty("encoding"))
+    assertEquals("UTF-8", e1a.getPropertyForUnitTest("encoding"))
 
     // Explore global simple type defs
     val Seq(st1, _, _, _) = sd.globalSimpleTypeDefs // there are two.
     val Seq(b1, b2, _, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
-    assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getProperty("alignmentUnits")) // first has alignmentUnits
+    assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getPropertyForUnitTest("alignmentUnits")) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
     assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // fourth is an assert with yadda message
 
@@ -249,7 +249,7 @@ class TestDsomCompiler extends Logging {
     val Seq(df1, _) = sd.defineFormats // there are two
     val def1 = df1.asInstanceOf[DFDLDefineFormat]
     assertEquals("def1", def1.name) // first is named "def1"
-    assertEquals(Representation.Text.toString.toLowerCase, def1.formatAnnotation.getProperty("representation")) // has representation="text"
+    assertEquals(Representation.Text.toString.toLowerCase, def1.formatAnnotation.getPropertyForUnitTest("representation")) // has representation="text"
 
     // Explore define variables
     val Seq(dv1, _) = sd.defineVariables // there are two
@@ -331,8 +331,7 @@ class TestDsomCompiler extends Logging {
     val Seq(sd) = sch.schemaDocuments
 
     val Seq(ge1f, _, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
-    val ge1 = ge1f.forRoot().referencedElement
-    val Seq(a1: DFDLElement) = ge1.annotationObjs
+    val a1 = ge1f.forRoot()
 
     assertEquals(true, a1.verifyPropValue("occursCountKind", "parsed"))
     assertEquals(true, a1.verifyPropValue("lengthKind", "pattern"))
@@ -408,29 +407,29 @@ class TestDsomCompiler extends Logging {
 
     // Explore global element decl
     val Seq(e1f, e2f, e3f, _, _) = sd.globalElementDecls // there are 3 factories
-    val e1 = e1f.forRoot().referencedElement
+    val e1 = e1f.forRoot()
     e2f.forRoot()
     e3f.forRoot()
 
     val Seq(gs1f, _, gs3f, _) = sd.globalSimpleTypeDefs
 
-    val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
+    val gs1 = gs1f.forElement(e1.referencedElement) // Global Simple Type - aType
 
     val baseQName = gs1.optRestriction.get.baseQName
 
     assertEquals("ex", baseQName.prefix.get)
     assertEquals("aaType", baseQName.local)
 
-    assertTrue(gs1.term.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
+    assertTrue(gs1.formatAnnotation.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
 
-    assertTrue(gs1.term.verifyPropValue("byteOrder", "bigEndian")) // SimpleType - Base
-    assertTrue(gs1.term.verifyPropValue("occursCountKind", "implicit")) // Default Format
-    assertTrue(gs1.term.verifyPropValue("representation", "text")) // Define Format - def1
-    assertTrue(gs1.term.verifyPropValue("encoding", "UTF-8")) // Define Format - def1
-    assertTrue(gs1.term.verifyPropValue("textStandardBase", "10")) // Define Format - def2
-    assertTrue(gs1.term.verifyPropValue("escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
+    assertTrue(e1.verifyPropValue("byteOrder", "bigEndian")) // SimpleType - Base
+    assertTrue(e1.verifyPropValue("occursCountKind", "implicit")) // Default Format
+    assertTrue(e1.verifyPropValue("representation", "text")) // Define Format - def1
+    assertTrue(e1.verifyPropValue("encoding", "UTF-8")) // Define Format - def1
+    assertTrue(e1.verifyPropValue("textStandardBase", "10")) // Define Format - def2
+    assertTrue(e1.verifyPropValue("escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
 
-    val gs3 = gs3f.forElement(e1) // Global SimpleType - aTypeError - overlapping base props
+    val gs3 = gs3f.forElement(e1.referencedElement) // Global SimpleType - aTypeError - overlapping base props
 
     // Tests overlapping properties
     // because these unit tests are outside the normal framework,
@@ -504,7 +503,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
 
-    val f1 = ge1.formatAnnotation
+    val f1 = ge1
 
     assertTrue(f1.verifyPropValue("separatorPosition", "infix"))
     assertTrue(f1.verifyPropValue("lengthKind", "implicit"))
@@ -515,11 +514,9 @@ class TestDsomCompiler extends Logging {
     val seq = ct.sequence
 
     val Seq(e1: ElementBase, _: ElementBase) = seq.groupMembers
-
-    val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
     //
-    assertTrue(e1f.verifyPropValue("initiator", ""))
-    assertTrue(e1f.verifyPropValue("representation", "text"))
+    assertTrue(e1.verifyPropValue("initiator", ""))
+    assertTrue(e1.verifyPropValue("representation", "text"))
 
     e1.lengthKind
   }

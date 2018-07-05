@@ -111,7 +111,7 @@ case class DaffodilTunables(
   // smaller) than 1/2 the maximum JVM object size.
   //
   // val inputFileMemoryMapHighThreshold: Long = 256 * 1024 * 1024, // 256 Meg
-  
+
   //
   // Initial array buffer size allocated for recurring elements (aka arrays)
   //
@@ -151,7 +151,7 @@ case class DaffodilTunables(
 
   /* Appear to be Compile-Time as the tunable is obtained from:
    *  Term, SchemaComponent, Element, etc.
-   * 
+   *
    *  maxSkipLengthInBytes
    *  maxBinaryDecimalVirtualPoint
    *  minBinaryDecimalVirtualPoint
@@ -159,32 +159,32 @@ case class DaffodilTunables(
    *  requireBitOrderProperty
    *  generatedNamespacePrefixStem
    *  parseUnparsePolicy
-   * 
+   *
    * Used by StepQNameFactory.  Appears to get tunable from:
    *  Expressions's DPathCompileInfo
    *  CompiledExpression's ElementRuntimeData
-   *  
+   *
    *  unqualifiedPathStepPolicy
-   * 
+   *
    * Appear to be Run-Time as the tunable is obtained from:
    *  PState/UState
-   *  
+   *
    *  initialElementOccurrencesHint
    *  maxOccursBounds
    *  maxDataDumpSizeInBytes
-   *  
+   *
    * Only used in Main.scala for DataInputStream:
-   * 
+   *
    *  maxFieldContentLengthInBytes
-   *  
+   *
    * DataInputStream objects:
-   * 
+   *
    *  defaultInitRegexMatchLimitInChars
-   *  
+   *
    * Unused?
-   * 
+   *
    *  maxLengthForVariableLengthDelimiterDisplay
-   * 
+   *
    *  */
 
   def setTunables(tunables: Map[String, String]): DaffodilTunables = {

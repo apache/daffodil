@@ -37,7 +37,7 @@
         representation="text" lengthKind="delimited"
         nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
         documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
+        separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix" textTrimKind="none" />
     </appinfo>
   </annotation>
   <!-- Parsing of CSV -->

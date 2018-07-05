@@ -28,10 +28,8 @@ import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
@@ -60,6 +58,8 @@ import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.infoset.DIComplexState
+import org.apache.daffodil.infoset.DISimpleState
 
 object MPState {
 
@@ -89,13 +89,11 @@ object MPState {
       arrayIndexStackMark = mp.arrayIndexStack.mark
       groupIndexStackMark = mp.groupIndexStack.mark
       childIndexStackMark = mp.childIndexStack.mark
-      occursBoundsStackMark = mp.occursBoundsStack.mark
     }
     def restoreInto(mp: MPState) {
       mp.arrayIndexStack.reset(this.arrayIndexStackMark)
       mp.groupIndexStack.reset(this.groupIndexStackMark)
       mp.childIndexStack.reset(this.childIndexStackMark)
-      mp.occursBoundsStack.reset(this.occursBoundsStackMark)
     }
   }
 }
@@ -104,6 +102,8 @@ class MPState private () {
 
   val arrayIndexStack = MStackOfLong()
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
+  def moveBackOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop - 1)
+
   def arrayPos = arrayIndexStack.top
 
   val groupIndexStack = MStackOfLong()
@@ -114,25 +114,24 @@ class MPState private () {
   // stack. Can we get rid of it?
   val childIndexStack = MStackOfLong()
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
-  def childPos = childIndexStack.top
-
-  val occursBoundsStack = MStackOfLong()
-  def updateBoundsHead(ob: Long) = {
-    occursBoundsStack.pop()
-    occursBoundsStack.push(ob)
+  def childPos = {
+    val res = childIndexStack.top
+    Assert.invariant(res >= 1)
+    res
   }
-  def occursBounds = occursBoundsStack.top
 
   val delimiters = new mutable.ArrayBuffer[DFADelimiter]
   val delimitersLocalIndexStack = MStackOfInt()
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
+  //var wasAnyArrayElementNonZeroLength = false
+  //var wasLastArrayElementZeroLength = true
+
   private def init {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)
-    occursBoundsStack.push(1L)
     delimitersLocalIndexStack.push(-1)
   }
 }
@@ -172,7 +171,6 @@ final class PState private (
   override def groupPos = mpstate.groupPos
   override def arrayPos = mpstate.arrayPos
   override def childPos = mpstate.childPos
-  override def occursBoundsStack = mpstate.occursBoundsStack
 
   private val markPool = new PState.MarkPool
 
@@ -181,6 +179,10 @@ final class PState private (
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID)
     m
+  }
+
+  def isInUse(m: PState.Mark) = {
+    markPool.isInUse(m)
   }
 
   def reset(m: PState.Mark) {
@@ -332,6 +334,13 @@ object PState {
    */
   class Mark extends Poolable {
 
+    override def toString() = {
+      if (disMark ne null)
+        "Mark(bitPos0b = " + bitPos0b + " requestorId = " + poolDebugLabel + ")"
+      else
+        "Mark(uninitialized" + " requestorId = " + poolDebugLabel + ")"
+    }
+
     def bitPos0b = disMark.bitPos0b
 
     val simpleElementState = DISimpleState()
@@ -355,6 +364,7 @@ object PState {
       diagnostics = null
       delimitedParseResult = Nope
       mpStateMark.clear()
+      // DO NOT clear requestorId. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
     }
 
     def captureFrom(ps: PState, requestorID: String) {
@@ -371,12 +381,16 @@ object PState {
       this.mpStateMark.captureFrom(ps.mpstate)
     }
 
-    def restoreInto(ps: PState) {
+    def restoreInfoset(ps: PState) = {
       val e = ps.thisElement
       e match {
         case s: DISimple => simpleElementState.restoreInto(e)
         case c: DIComplex => complexElementState.restoreInto(e)
       }
+    }
+
+    def restoreInto(ps: PState) {
+      restoreInfoset(ps)
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
       ps._processorStatus = this.processorStatus
@@ -420,7 +434,7 @@ object PState {
     val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.getTunables()
-    
+
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(doc.asInstanceOf[DIElement], dis, output, variables, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope, tunables)

@@ -60,6 +60,14 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }.value
 
+  /**
+   * True if alignment for a text feature of this Term (e.g., an initiator)
+   * is provably not needed, either because there is no requirement for such
+   * alignment, or we can prove that the required alignment is already established.
+   *
+   * This goes further TermEncodingMixin.hasTextAlignment because it
+   * considers the surrounding context meeting the alignment needs.
+   */
   final lazy val isKnownToBeTextAligned: Boolean = {
     if (self.encodingInfo.isKnownEncoding) {
       if (self.encodingInfo.knownEncodingAlignmentInBits == 1)

@@ -42,6 +42,7 @@ import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.NextElementResolver
 import org.apache.daffodil.infoset.ChildResolver
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.util.Maybe
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -235,9 +236,9 @@ trait ElementBase
 
   /**
    * An array element is required if its index is less than the minOccurs of the
-   * array. For an array with a fixed number of elements, all elements are requried.
+   * array. For an array with a fixed number of elements, all elements are required.
    */
-  def isRequiredArrayElement: Boolean
+  def isArraywithAtLeastOneRequiredArrayElement: Boolean
 
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
 
@@ -391,7 +392,7 @@ trait ElementBase
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
   final lazy val defaultValue = {
-    if (isDefaultable && (isScalar || isRequiredArrayElement)) {
+    if (isDefaultable && (isScalar || isArraywithAtLeastOneRequiredArrayElement)) {
       val dv =
         if (isNillable && useNilForDefault =:= YesNo.Yes) {
           UseNilForDefault // singleton object indicator
@@ -451,7 +452,7 @@ trait ElementBase
     if (!isRepresented) MustExist
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
-    else if (isArray && !isRequiredArrayElement) Optional
+    else if (isArray && !isArraywithAtLeastOneRequiredArrayElement) Optional
     else MustExist
   }
 
@@ -522,8 +523,9 @@ trait ElementBase
       targetNamespace,
       thisElementsNamespace,
       optSimpleTypeRuntimeData,
-      optMinOccurs,
-      optMaxOccurs,
+      minOccurs,
+      maxOccurs,
+      Maybe.toMaybe(optionOccursCountKind),
       name,
       targetNamespacePrefix,
       thisElementsNamespacePrefix,
@@ -531,7 +533,7 @@ trait ElementBase
       isNillable,
       isArray, // can have more than 1 occurrence
       isOptional, // can have exactly 0 or 1 occurrence
-      isRequired, // must have at least 1 occurrence
+      isRequiredOrComputed, // must have at least 1 occurrence
       namedQName,
       isRepresented,
       couldHaveText,
@@ -681,7 +683,8 @@ trait ElementBase
           impliedRepresentation match {
             case Representation.Text => {
               if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
-                SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
+                SDE(
+                  "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
             case Representation.Binary => primType match {
@@ -689,7 +692,8 @@ trait ElementBase
               case _ => binaryNumberRep match {
                 case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
                   if ((alignInBits % 4) != 0)
-                    SDE("The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
+                    SDE(
+                      "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
                       alignInBits, primType.name)
                 }
                 case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
@@ -792,8 +796,8 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  private lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  private lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  protected final lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  protected final lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.
@@ -861,6 +865,18 @@ trait ElementBase
     }
   }.value
 
+  /**
+   * True if the element can be empty, and there is no syntax to indicate
+   * empty-string or empty-hexBinary values, i.e., they do not require initiator nor terminator)
+   * so they are just zero-length.
+   *
+   * False if the type can't be empty.
+   */
+  final lazy val hasEmptyValueZLSyntax =
+    !hasEmptyValueInitiator && !hasEmptyValueTerminator && isSimpleType &&
+      (simpleType.primType =:= PrimType.String ||
+        simpleType.primType =:= PrimType.HexBinary)
+
   import org.apache.daffodil.dsom.FacetTypes._
 
   private lazy val hasPattern: Boolean = typeDef.optRestriction.map { _.hasPattern }.getOrElse(false)
@@ -877,7 +893,8 @@ trait ElementBase
   final lazy val patternValues: Seq[FacetValueR] = {
     Assert.invariant(hasPattern)
     typeDef.optRestriction.map { r =>
-      schemaDefinitionUnless(r.primType == PrimType.String,
+      schemaDefinitionUnless(
+        r.primType == PrimType.String,
         "Pattern is only allowed to be applied to string and types derived from string.")
       r.patternValues
     }.getOrElse(Nil)
@@ -906,7 +923,8 @@ trait ElementBase
     typeDef match {
       case prim: PrimitiveType => {
         val pt = prim.primType
-        schemaDefinitionWhen((pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
+        schemaDefinitionWhen(
+          (pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
           "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
           pt.name)
         //
@@ -920,7 +938,8 @@ trait ElementBase
         val r = st.optRestriction.get
         val pt = st.primType
         val typeOK = pt == PrimType.String || pt == PrimType.HexBinary
-        schemaDefinitionWhen(!typeOK && (hasMinLength || hasMaxLength),
+        schemaDefinitionWhen(
+          !typeOK && (hasMinLength || hasMaxLength),
           "Facets minLength and maxLength are not allowed on types derived from type %s.\nThey are allowed only on typed derived from string and hexBinary.",
           pt.name)
         val res = (hasMinLength, hasMaxLength, lengthKind) match {
@@ -1086,13 +1105,15 @@ trait ElementBase
         if (!emptyIsAnObservableConcept)
           SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
-        if (isArray && !isRequiredArrayElement) {
-          (optMinOccurs, occursCountKind) match {
+        if (isArray && !isArraywithAtLeastOneRequiredArrayElement) {
+          (minOccurs, occursCountKind) match {
             case (_, OccursCountKind.Parsed) |
               (_, OccursCountKind.StopValue) =>
-              SDE("XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
+              SDE(
+                "XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
                 defaultValueAsString, occursCountKind)
-            case (Some(0), _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
+            case (0, _) => SDE(
+              "XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
               defaultValueAsString)
             case _ => // ok
           }
@@ -1100,7 +1121,7 @@ trait ElementBase
         Assert.invariant(hasDefaultValue)
         !isOptional &&
           (isScalar ||
-            isRequiredArrayElement)
+            isArraywithAtLeastOneRequiredArrayElement)
       }
     } else {
       // TODO: Implement complex element defaulting
@@ -1124,7 +1145,7 @@ trait ElementBase
       case None => true
       case Some(s: SequenceTermBase) if s.isOrdered => {
         !possibleNextSiblingTerms.exists {
-          case e: ElementBase => e.isRequired
+          case e: ElementBase => e.isRequiredOrComputed
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       }

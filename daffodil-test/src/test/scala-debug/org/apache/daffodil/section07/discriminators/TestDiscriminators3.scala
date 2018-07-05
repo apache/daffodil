@@ -15,10 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.grammar
+package org.apache.daffodil.section07.discriminators
 
-import org.apache.daffodil.dsom.AbstractElementRef
+import org.junit.Test
+import org.apache.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-trait ElementReferenceGrammarMixin { self: AbstractElementRef =>
+object TestDiscriminators3 {
+  val testDir = "/org/apache/daffodil/section07/discriminators/"
+  val runner = Runner(testDir, "discriminator.tdml")
 
+  @AfterClass def shutDown() {
+    runner.reset
+  }
+
+}
+
+class TestDiscriminators3 {
+
+  import TestDiscriminators3._
+
+  // DAFFODIL-1971
+  @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 }

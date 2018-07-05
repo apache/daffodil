@@ -140,7 +140,7 @@ abstract class ModelGroup
 
   final override def isScalar = true
   final override def isOptional = false
-  final override def isRequired = true
+  final override def isRequiredOrComputed = true
   final override def isArray = false
 
   private def prettyIndex = LV('prettyIndex) {
@@ -184,14 +184,17 @@ abstract class ModelGroup
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
-  protected lazy val groupMembersRuntimeData = this match {
-    case mg: ModelGroup => mg.groupMembers.map {
-      _ match {
-        case eb: ElementBase => eb.erd
-        case t: Term => t.termRuntimeData
+  protected lazy val groupMembersRuntimeData = {
+    val res = this match {
+      case mg: ModelGroup => mg.groupMembers.map {
+        _ match {
+          case eb: ElementBase => eb.erd
+          case t: Term => t.termRuntimeData
+        }
       }
+      case _ => Nil
     }
-    case _ => Nil
+    res
   }
 
   def modelGroupRuntimeData: ModelGroupRuntimeData
@@ -219,7 +222,7 @@ abstract class ModelGroup
           val last = maybeLast.get
           val lastIsOptional = last match {
             case mg: ModelGroup => false // model group is mandatory
-            case eb: ElementBase => !eb.isRequired || !eb.isRepresented
+            case eb: ElementBase => !eb.isRequiredOrComputed || !eb.isRepresented
           }
           if (lastIsOptional) {
             val (priorSibs, parent) = last.potentialPriorTerms
@@ -245,7 +248,7 @@ abstract class ModelGroup
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembers.map(m => {
         m match {
-          case e: ElementBase if !e.isRequired => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
+          case e: ElementBase if !e.isRequiredOrComputed => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: ElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -356,7 +359,7 @@ abstract class ModelGroup
         // required next sibling if the last sibling element is required
         possibleNextSiblingTerms.lastOption match {
           case None => false
-          case Some(e: ElementBase) => e.isRequired
+          case Some(e: ElementBase) => e.isRequiredOrComputed
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
           case Some(_) => Assert.invariantFailed()
         }

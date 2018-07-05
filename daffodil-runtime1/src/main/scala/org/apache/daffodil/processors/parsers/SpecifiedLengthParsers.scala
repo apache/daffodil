@@ -28,8 +28,10 @@ import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import org.apache.daffodil.equality._
 import java.lang.{ Long => JLong }
+import org.apache.daffodil.util.Maybe
 
-sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
+sealed abstract class SpecifiedLengthParserBase(
+  eParser: Parser,
   erd: ElementRuntimeData)
   extends CombinatorParser(erd)
   with CaptureParsingValueLength {

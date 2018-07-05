@@ -27,6 +27,44 @@ import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
 
 /**
+ * Mixin for objects that are shared, but have consistency checks to be run
+ * that are based on the concrete Term objects they are associated with.
+ *
+ * E.g., DFDL statements may have checks that need to know the encoding
+ * (if it is known at compile time). We call this on each statement to enable
+ * the checking code to be expressed on that statement where it is relevant,
+ * but have it be callable from the concrete Term once it is created.
+ *
+ * This is a way to avoid use of backpointers from shared objects to every
+ * thing referencing them.
+ */
+trait HasTermCheck {
+
+  /**
+   * Perform checking of an object against the supplied Term arg.
+   */
+  final def checkTerm(term: Term): Unit = {
+    //
+    // This public method calling a protected method lets us play tricks
+    // in the future to avoid repeated check calls by memoizing the
+    // results.
+    //
+    check(term)
+  }
+
+  /**
+   * Override to perform necessary checks that require information about the
+   * concrete Term.
+   *
+   * This avoids the need for the checking code to have a backpointer to the
+   * Term.
+   */
+  protected def check(term: Term): Unit = {
+    // by default this does nothing.
+  }
+}
+
+/**
  * Term, and what is and isn't a Term, is a key concept in DSOM.
  *
  * From elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
@@ -44,7 +82,14 @@ trait Term
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin {
+  with TermEncodingMixin
+  with EscapeSchemeRefMixin {
+
+  requiredEvaluations(termChecks)
+
+  private lazy val termChecks = {
+    statements.foreach { _.checkTerm(this) }
+  }
 
   def position: Int
 
@@ -71,9 +116,9 @@ trait Term
    * There are two senses of optional
    *
    * 1) Optional as in "might not be present" but for any reason.
-   * Consistent with this is Required meaning must occur (but for any
+   * Consistent with this is Required meaning must occur but for any
    * reason. So all the occurrences of an array that has fixed number of
-   * occurrences are required, and some of the occurrances of an array
+   * occurrences are required, and some of the occurrences of an array
    * that has a variable number of occurrences are optional.
    *
    * 2) Optional is in minOccurs="0" maxOccurs="1".
@@ -88,10 +133,18 @@ trait Term
   def isOptional: Boolean
 
   /**
-   * Something is required if it is not optional
-   * and not an array, unless that array has required elements.
+   * True if the Term is required to appear in the DFDL Infoset.
+   *
+   * This includes elements that have no representation in the
+   * data stream. That is, an element with dfdl:inputValueCalc will be isRequiredOrComputed true.
+   *
+   * For elements takes into account that some dfdl:occursCountKind can make
+   * seemingly required elements (based on minOccurs) optional or
+   * repeating.
+   *
+   * All model groups are required.
    */
-  def isRequired: Boolean
+  def isRequiredOrComputed: Boolean
 
   /**
    * An array can have more than 1 occurrence.
@@ -352,12 +405,72 @@ trait Term
     }
   }
 
-  final lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredInstances)
-  final lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredInstances)
+  final lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredOccurrencesInDataRepresentation)
+  final lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredOccurrencesInDataRepresentation)
 
-  def hasStaticallyRequiredInstances: Boolean
-  def isKnownRequiredElement = false
+  /**
+   * Does this term have always have statically required instances in the data stream.
+   *
+   * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
+   *
+   * Terms that are optional either via element having zero occurrences, or via a choice branch
+   * fail this test.
+   */
+  def hasStaticallyRequiredOccurrencesInDataRepresentation: Boolean
+
+  /**
+   * True if the term has some syntax itself or recursively within itself that
+   * must appear in the data stream.
+   *
+   * False only if the term has possibly no representation whatsoever in the
+   * data stream.
+   */
   def hasKnownRequiredSyntax = false
+
+  /**
+   * Can have a varying number of occurrences.
+   *
+   * Overridden for elements. See [[ParticleMixin.isVariableOccurrences]]
+   */
+  def isVariableOccurrences: Boolean = false
+
+  /**
+   * The concept of potentially trailing is defined in the DFDL specification.
+   *
+   * It means that the term could have instances that are the last thing in the sequence group
+   * and that are potentially also not present, so the issue of extra separators being present/absent for
+   * instances of the term is relevant.
+   *
+   * This currently can only be true for elements, however, it is defined for terms because
+   * the DFDL spec defines
+   * the concept of a potentially trailing group as well. Though the current draft of the DFDL spec
+   * doesn't USE this concept of potentially trailing group, that is likely to be corrected at some
+   * point.
+   */
+  final lazy val isPotentiallyTrailing = {
+    if (!isRepresented) false
+    else if (!isRequiredOrComputed ||
+      (isRequiredOrComputed && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
+      val es = nearestEnclosingSequence
+      val res = es match {
+        case None => true
+        case Some(s) => {
+          val allRequired = s.groupMembers.filter(_.isRequiredOrComputed)
+          if (allRequired.isEmpty) true
+          else {
+            val lastDeclaredRequired = allRequired.last
+            val thisLoc = s.groupMembers.indexOf(this)
+            val lastDeclaredRequiredLoc = s.groupMembers.indexOf(lastDeclaredRequired)
+            val res = lastDeclaredRequiredLoc <= thisLoc
+            res
+          }
+        }
+      }
+      res
+      // Since we can't determine at compile time, return false so that we can continue processing.
+      // Runtime checks will make final determination.
+    } else false
+  }
 
   /**
    * Returns a tuple, where the first item in the tuple is the list of sibling
@@ -378,7 +491,7 @@ trait Term
         } else {
           val firstNonOptional = previousTerms.reverse.find {
             _ match {
-              case eb: ElementBase if !eb.isRequired || !eb.isRepresented => false
+              case eb: ElementBase if !eb.isRequiredOrComputed || !eb.isRepresented => false
               case _ => true
             }
           }
@@ -506,7 +619,7 @@ trait Term
         // We're in an ordered sequence
 
         val termsUntilFirstRequiredTerm =
-          isDeclaredLastInSequence match {
+          isLastDeclaredRepresentedInSequence match {
             case true => oSeq.possibleNextTerms
             case false => {
 
@@ -532,19 +645,17 @@ trait Term
     listOfNextTerm
   }.value
 
-  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
-    val es = nearestEnclosingSequence
-    // how do we determine what child node we are? We search.
-    // TODO: better structure for O(1) answer to this.
-    es match {
-      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
-      case Some(s) => {
-        val members = s.groupMembers
-        if (members.last eq this) true // we want object identity comparison here, not equality.
-        else false
-      }
-    }
-  }.value
+  /**
+   * True if this term is the last one in the enclosing sequence that is represented
+   * in the data stream. That is, it is not an element with dfdl:inputValueCalc.
+   *
+   * This means whether the enclosing sequence's separator (if one is defined) is
+   * relevant.
+   */
+  final lazy val isLastDeclaredRepresentedInSequence = {
+    val res = laterSiblings.forall(!_.isRepresented)
+    res
+  }
 
   protected def possibleFirstChildTerms: Seq[Term]
 
