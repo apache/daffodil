@@ -22,11 +22,12 @@ scala:
   - 2.11.8
 jdk:
   - oraclejdk8
-sudo: false
+sudo: required
+dist: trusty
 before_script:
   - unset _JAVA_OPTIONS
 script:
-  - sbt -J-Xms4g -J-Xmx4g ++$TRAVIS_SCALA_VERSION
+  - sbt -J-Xms7g -J-Xmx7g ++$TRAVIS_SCALA_VERSION
     compile
     test:compile
     it:compile
