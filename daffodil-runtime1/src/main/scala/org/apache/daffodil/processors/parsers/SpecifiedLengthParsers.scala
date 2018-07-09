@@ -28,15 +28,16 @@ import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import org.apache.daffodil.equality._
 import java.lang.{ Long => JLong }
+import org.apache.daffodil.util.Maybe
 
-sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
+sealed abstract class SpecifiedLengthParserBase(maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData)
   extends CombinatorParser(erd)
   with CaptureParsingValueLength {
 
   override lazy val runtimeDependencies = Nil
 
-  override lazy val childProcessors = Seq(eParser)
+  override lazy val childProcessors = maybeEParser.toSeq
 
   override def charsetEv = Assert.invariantFailed("Specified Length parsers should not capture value length using the charset")
 
@@ -56,7 +57,8 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
 
     val startingBitPos0b = dis.bitPos0b
     val isLimitOk: Boolean = dis.withBitLengthLimit(nBits) {
-      eParser.parse1(pState)
+      if (maybeEParser.isDefined) 
+        maybeEParser.get.parse1(pState)
     }
     if (!isLimitOk) {
       val availBits = if (dis.remainingBits.isDefined) dis.remainingBits.get.toString else "(unknown)"
@@ -86,10 +88,10 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser,
 }
 
 class SpecifiedLengthPatternParser(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData,
   pattern: java.util.regex.Pattern)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(maybeEParser, erd) {
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
@@ -112,11 +114,11 @@ class SpecifiedLengthPatternParser(
 }
 
 class SpecifiedLengthExplicitParser(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong],
   toBits: Int)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(maybeEParser, erd) {
 
   final override def getBitLength(s: PState): MaybeULong = {
     val nBytesAsAny = lengthEv.evaluate(s)
@@ -126,10 +128,10 @@ class SpecifiedLengthExplicitParser(
 }
 
 class SpecifiedLengthImplicitParser(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData,
   nBits: Long)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(maybeEParser, erd) {
 
   final override def getBitLength(s: PState): MaybeULong = MaybeULong(nBits)
 }
@@ -148,9 +150,9 @@ class SpecifiedLengthImplicitParser(
  * characters, as we're going to recursively descend and parse it into the complex structure.
  */
 sealed abstract class SpecifiedLengthCharactersParserBase(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthParserBase(maybeEParser, erd) {
 
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
@@ -191,20 +193,20 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
 }
 
 final class SpecifiedLengthImplicitCharactersParser(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData,
   nChars: Long)
-  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  extends SpecifiedLengthCharactersParserBase(maybeEParser, erd) {
 
   override def getCharLength(s: PState) = nChars
 
 }
 
 final class SpecifiedLengthExplicitCharactersParser(
-  eParser: Parser,
+  maybeEParser: Maybe[Parser],
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  extends SpecifiedLengthCharactersParserBase(maybeEParser, erd) {
 
   def getCharLength(s: PState): Long = {
     val nChars = lengthEv.evaluate(s)

@@ -21,14 +21,11 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.processors.unparsers.SeqCompUnparser
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.grammar.primitives.Nada
 import org.apache.daffodil.processors.parsers.SeqCompParser
-import org.apache.daffodil.processors.parsers.AltCompParser
 import org.apache.daffodil.compiler.ForUnparser
 import org.apache.daffodil.compiler.ForParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.processors.parsers.NadaParser
-import org.apache.daffodil.processors.unparsers.EmptyGramUnparser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr
@@ -95,8 +92,6 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
   protected final override def open = "("
   protected final override def close = ")"
 
-  Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
-
   lazy val parserChildren = children.filter(_.forWhat != ForUnparser).map { _.parser }.filterNot { _.isInstanceOf[NadaParser] }
 
   final override lazy val parser = {
@@ -124,56 +119,20 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
   }
 }
 
-/**
- * Alternative composition of grammar terms.
- *
- * Flattens nests of these into a single flat list.
- */
-object AltComp {
-  def apply(context: SchemaComponent, p: => Gram, q: => Gram) = {
-    val children = (p, q) match {
-      case (ps: AltComp, qs: AltComp) => {
-        ps.children ++ qs.children
-      }
-      case (ps: AltComp, _) => ps.children ++ List(q)
-      case (_, qs: AltComp) => p +: qs.children
-      case (_, _) => List(p, q)
-    }
-    val res = new AltComp(context, children)
-    res
-  }
-}
-
-class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children)
-  with HasNoUnparser {
-  protected final override def op = "|"
-  protected final override def open = "["
-  protected final override def close = "]"
-
-  final override lazy val parser = new AltCompParser(context.runtimeData, children.map { _.parser })
-}
-
 object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
   override lazy val parser = new NadaParser(null)
-  override lazy val unparser = // hasNoUnparser
-    // we depend on this unparser being returned, even though it cannot be called to unparse anything.
-    // As there are unit tests which test attributes where those attributes cause a DummyUnparser to be created.
-    // That is later optimized out (or needs to be).
-    //
-    // FIXME: switch back to hasNoUnparser, find where this is being used and have it not ask for
-    // this unparser.
-    new EmptyGramUnparser(null) // DummyUnparser(Misc.getNameFromClass(this))
-
+  override lazy val unparser = new NadaUnparser(null)
 }
 
-object ErrorGram extends Gram(null) with HasNoUnparser {
+object ErrorGram extends Gram(null) {
   override def isEmpty = false
   override def toString = "Error"
 
-  override lazy val parser = hasNoParser // new ErrorParser
+  override lazy val parser = hasNoParser
+  override lazy val unparser = hasNoUnparser
 }
 
 abstract class NamedGram(context: SchemaComponent) extends Gram(context) {

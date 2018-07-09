@@ -20,25 +20,20 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.grammar.primitives.Nada
 import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.compiler.ParserOrUnparser
-import org.apache.daffodil.util.Misc
 import org.apache.daffodil.compiler.BothParserAndUnparser
 import org.apache.daffodil.api.WarnID
-
-trait HasNoUnparser {
-  final lazy val unparser: Unparser = hasNoUnparser
-  private def hasNoUnparser = Assert.invariantFailed("no unparser for " + Misc.getNameFromClass(this))
-}
+import org.apache.daffodil.util.Maybe
 
 /**
  * Gram - short for "Grammar Term"
  *
- * These are the objects in the grammar. The grammar is supposed to be
- * roughly the grammar in the DFDL specification, but some differences are expected
- * because this one has to actually be operationalized.
+ * These are the objects in the grammar.
+ *
+ * This grammar really differs a great deal from what we find in the DFDL specification
+ * because it actually has to be operationalized.
  */
 abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHostImpl(contextArg) {
@@ -75,35 +70,19 @@ abstract class Gram(contextArg: SchemaComponent)
   def ~(qq: => Gram) = {
     lazy val q = qq.deref
     val self = this.deref
-    //
-    // The Nada terminal also behaves like empty for sequential composition
-    // It is not empty for alternative composition though.
-    //
+
     val res =
-      if (self.isEmpty || self.isInstanceOf[Nada]) {
-        if (q.isEmpty || q.isInstanceOf[Nada]) // Nada might get through to this point. Let's optimize it out.
+      if (self.isEmpty) {
+        if (q.isEmpty)
           EmptyGram
         else q
-      } else if (q.isEmpty || q.isInstanceOf[Nada]) self
+      } else if (q.isEmpty) self
       else {
-        Assert.invariant(!self.isInstanceOf[Nada])
         Assert.invariant(!self.isEmpty)
-        Assert.invariant(!q.isInstanceOf[Nada])
         Assert.invariant(!q.isEmpty)
         SeqComp(context, self, q)
       }
     res
-  }
-
-  def |(qq: => Gram) = {
-    lazy val q = qq.deref
-    val self = this.deref
-    if (self.isEmpty)
-      if (q.isEmpty) EmptyGram
-      else q
-    else if (q.isEmpty) self
-    else
-      AltComp(context, self, q)
   }
 
   /**
@@ -127,9 +106,27 @@ abstract class Gram(contextArg: SchemaComponent)
    */
   def parser: Parser
 
+  final def maybeParser: Maybe[Parser] = {
+    if (this.isEmpty) Maybe.Nope
+    else {
+      val p = this.parser
+      if (p.isEmpty) Maybe.Nope
+      else Maybe(p)
+    }
+  }
+
   protected final def hasNoParser: Parser = Assert.invariantFailed("Has no parser.")
   protected final def hasNoUnparser: Unparser = Assert.invariantFailed("Has no unparser.")
 
-  def unparser: Unparser // = DummyUnparser(Misc.getNameFromClass(this)) // context.runtimeData
+  def unparser: Unparser
+
+  final def maybeUnparser: Maybe[Unparser] = {
+    if (this.isEmpty) Maybe.Nope
+    else {
+      val u = this.unparser
+      if (u.isEmpty) Maybe.Nope
+      else Maybe(u)
+    }
+  }
 
 }

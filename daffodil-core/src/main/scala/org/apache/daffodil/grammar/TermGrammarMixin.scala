@@ -16,17 +16,12 @@
  */
 
 package org.apache.daffodil.grammar
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
-import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.grammar.primitives.OptionalInfixSep
-import org.apache.daffodil.grammar.primitives.Nada
-import org.apache.daffodil.grammar.primitives.MandatoryTextAlignment
-import org.apache.daffodil.grammar.primitives.Separator
+import org.apache.daffodil.grammar.primitives._
 
 /////////////////////////////////////////////////////////////////
-// Groups System
+// Common to all Terms (Elements and ModelGroups
 /////////////////////////////////////////////////////////////////
 
 trait TermGrammarMixin
@@ -41,8 +36,8 @@ trait TermGrammarMixin
     st.isInstanceOf[DFDLNewVariableInstance]
   }.asInstanceOf[Seq[DFDLNewVariableInstance]]
 
-  private lazy val newVarStarts = newVars.map { _.gram }
-  private lazy val newVarEnds = newVars.map { _.endGram }
+  private lazy val newVarStarts = newVars.map { _.gram(self) }
+  private lazy val newVarEnds = newVars.map { _.endGram(self) }
 
   protected lazy val hasEncoding = optionEncodingRaw.isDefined
 
@@ -55,46 +50,24 @@ trait TermGrammarMixin
     newVarEnds.fold(mt) { _ ~ _ }
   }
 
-  // I am not sure we need to distinguish these two.
-  final lazy val asTermInSequence = prod("asTermInSequence") {
-    separatedForSequencePosition(termContentBody)
-  }
-
   /**
    * overridden in LocalElementGrammarMixin
    */
   lazy val asTermInChoice = termContentBody
 
-  /**
-   * separator combinators - detect cases where no separator applies.
-   * Note that repeating elements are excluded because they have to
-   * managed their own separatedForArrayPosition inside the repetition.
-   */
-  protected final def separatedForArrayPosition(bodyArg: => Gram): Gram = {
-    val body = bodyArg
-    val (isElementWithNoRep, isRepeatingElement) = body.context match {
-      case e: ElementBase => (!e.isRepresented, !e.isScalar)
-      case other => (false, false)
-    }
-    Assert.usage(isRepeatingElement)
-    Assert.invariant(!isElementWithNoRep) //inputValueCalc not allowed on arrays in DFDL v1.0
-    val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
-    res
-  }
-
-  protected final def separatedForSequencePosition(bodyArg: => Gram): Gram = {
-    val body = bodyArg
-    val (isElementWithNoRep, isRepeatingElement) = body.context match {
-      case e: ElementBase => (!e.isRepresented, !e.isScalar)
-      case other => (false, false)
-    }
-    if (isElementWithNoRep) body // no separators for things that have no representation in the data stream
-    else if (isRepeatingElement) body
-    else {
-      val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
-      res
-    }
-  }
+  //  protected final def separatedForSequencePosition(bodyArg: => Gram): Gram = {
+  //    val body = bodyArg
+  //    val (isElementWithNoRep, isRepeatingElement) = body.context match {
+  //      case e: ElementBase => (!e.isRepresented, !e.isScalar)
+  //      case other => (false, false)
+  //    }
+  //    if (isElementWithNoRep) body // no separators for things that have no representation in the data stream
+  //    else if (isRepeatingElement) body
+  //    else {
+  //      val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
+  //      res
+  //    }
+  //  }
 
   // public for unit testing use.
   final lazy val Some(es) = {
@@ -128,46 +101,31 @@ trait TermGrammarMixin
     nearestEnclosingSequence
   }
 
-  private def hasES = nearestEnclosingSequence != None
-  private def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
+  protected final def hasES = nearestEnclosingSequence != None
+  protected final def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
-  private lazy val separatorItself = prod("separator", !ignoreES && hasES) {
-    //
-    // TODO: (JIRA DFDL-1400) The separators may be in a different encoding than the terms
-    // that they separate.
-    //
-    // So we must allow for a change of encoding (which may also imply a change
-    // of bit order)
-    //
-    // However, this isn't the same as just plopping down a bitOrderChange ~ encodingChange, since
-    // those examine prior peer, and what we want to scrutinize is the prior term being separated.
-    //
-    delimMTA ~ Separator(es, self)
-  }
+  //  private lazy val sepRule = separatorItself
 
-  private lazy val sepRule = separatorItself
+  //  private lazy val prefixSep = prod("prefixSep", !ignoreES && hasES && es.hasPrefixSep) {
+  //    sepRule
+  //  }
 
-  private lazy val prefixSep = prod("prefixSep", !ignoreES && hasES && es.hasPrefixSep) {
-    sepRule
-  }
+  //  private lazy val postfixSep = prod("postfixSep", !ignoreES && hasES && es.hasPostfixSep) { sepRule }
+  // private lazy val infixSep = prod("infixSep", !ignoreES && hasES && es.hasInfixSep) { separatorItself }
 
-  private lazy val postfixSep = prod("postfixSep", !ignoreES && hasES && es.hasPostfixSep) { sepRule }
-  private lazy val infixSep = prod("infixSep", !ignoreES && hasES && es.hasInfixSep) { sepRule }
-
-  private lazy val isStaticallyFirst = {
-    es.hasInfixSep &&
-      this.positionInNearestEnclosingSequence == 1 &&
-      isScalar &&
-      !hasPriorRequiredSiblings
-  }
-
-  private lazy val infixSepRule = prod("infixSepRule", !ignoreES && hasES && es.hasInfixSep) {
-    if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
-    else if (hasPriorRequiredSiblings) infixSep // always in this case
-    else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
-      new OptionalInfixSep(this, infixSep)
-    } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
-  }
+  //  private lazy val isStaticallyFirst = {
+  //    es.hasInfixSep &&
+  //      this.positionInNearestEnclosingSequence == 1 &&
+  //      isScalar &&
+  //      !hasPriorRequiredSiblings
+  //  }
+  //
+  //  private lazy val infixSepRule = prod("infixSepRule", !ignoreES && hasES && es.hasInfixSep) {
+  //    if (hasPriorRequiredSiblings) infixSep // always in this case
+  //    else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
+  //      new OptionalInfixSep(this, separatorItself)
+  //    } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
+  //  }
 
   /**
    * Mandatory text alignment or mta
@@ -178,14 +136,14 @@ trait TermGrammarMixin
    * in the property environment shouldn't get you an MTA region. It has
    * to be textual.
    */
-  protected lazy val mtaBase = prod("mandatoryTextAlignment", hasEncoding) {
+  protected final lazy val mtaBase = prod("mandatoryTextAlignment", hasEncoding) {
     MandatoryTextAlignment(this, knownEncodingAlignmentInBits, false)
   }
 
   /**
    * Mandatory text alignment for delimiters
    */
-  protected lazy val delimMTA = prod("delimMTA",
+  protected final lazy val delimMTA = prod("delimMTA",
     {
       hasDelimiters
     }) {

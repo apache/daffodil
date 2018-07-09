@@ -14,17 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.daffodil.grammar.primitives
-
-import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.grammar.HasNoUnparser
-import org.apache.daffodil.processors.parsers.NadaParser
-
-case class Nada(sc: Term) extends Terminal(sc, true) with HasNoUnparser {
-  // cannot optimize this out! It is used as an alternative to things
-  // with the intention of "find this and this, or find nothing"
-
-  override lazy val parser = new NadaParser(sc.runtimeData)
-}
+//
+//package org.apache.daffodil.grammar.primitives
+//
+//import org.apache.daffodil.grammar.Terminal
+//import org.apache.daffodil.dsom.Term
+//import org.apache.daffodil.processors.parsers.NadaParser
+//
+//case class Nada(sc: Term) extends Terminal(sc, true) {
+//  // cannot optimize this out! It is used as an alternative to things
+//  // with the intention of "find this and this, or find nothing"
+//
+//  override lazy val parser = new NadaParser(sc.runtimeData)
+//
+//  override lazy val unparser = hasNoUnparser
+//}

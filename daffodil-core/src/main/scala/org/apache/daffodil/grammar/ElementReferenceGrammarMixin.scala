@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.daffodil.grammar
-
-import org.apache.daffodil.dsom.AbstractElementRef
-
-trait ElementReferenceGrammarMixin { self: AbstractElementRef =>
-
-}
+//
+//package org.apache.daffodil.grammar
+//
+//import org.apache.daffodil.dsom.AbstractElementRef
+//
+//trait ElementReferenceGrammarMixin { self: AbstractElementRef =>
+//
+//}

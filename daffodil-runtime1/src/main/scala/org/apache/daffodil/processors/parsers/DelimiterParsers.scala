@@ -158,7 +158,7 @@ class DelimiterTextParser(
           return
         } else {
           // no match and no ES in delims
-          PE(start, "Delimiter not found.")
+          PE(start, "%s '%s' not found.", delimiterType.toString, start.mpstate.delimiters.last.lookingFor)
           return
         }
       }

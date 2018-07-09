@@ -48,12 +48,12 @@ class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, detail
   }
 }
 
-class ParseAlternativeFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
+class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
   extends ParseError(One(rd), One(state.currentLocation), "Alternative failed. Reason(s): %s", errors)
 
-class AltParseFailed(rd: SchemaFileLocation, state: PState,
-                     diags: Seq[Diagnostic])
-  extends ParseError(One(rd), One(state.currentLocation), "All alternatives failed. Reason(s): %s", diags) {
+class EntireChoiceFailed(rd: SchemaFileLocation, state: PState,
+  diags: Seq[Diagnostic])
+  extends ParseError(One(rd), One(state.currentLocation), "All choice alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
@@ -84,24 +84,11 @@ class GeneralParseFailure(msg: String) extends Diagnostic(Nope, Nope, Nope, Mayb
 }
 
 /**
- * Mix this into parsers that have deep algorithms that are spread over multiple classes.
+ * Mixin for signaling Schema Definition Errors at runtime.
  *
- * These allow one to bend the rule about parsers not throwing ParseError so that
- * if you are inside a parser, but you are way down a bunch of calls away from the parser itself
- * you can throw, and it will be intercepted and proper behavior (not throwing, but returning
- * a failed status) will result.
- *
- * Use like this:
- * @example {{{
- * withParseErrorThrowing(pstate) { // something enclosing like the parser
- * ...
- *   // calls something which calls something which eventually calls
- *       PE(context, bitOffset % 8 == 0, "must be byte boundary, not bit %s", bitOffset)
- * ...
- * }
- * }}}
+ * Some SDE cannot be detected until runtime. Classes that need to signal them
+ * mixin this trait.
  */
-
 trait DoSDEMixin {
 
   protected final def doSDE(e: Throwable, state: ParseOrUnparseState) = {

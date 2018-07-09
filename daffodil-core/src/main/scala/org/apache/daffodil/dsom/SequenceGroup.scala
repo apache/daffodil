@@ -67,6 +67,11 @@ abstract class SequenceTermBase(
       groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
+  final override def hasPotentiallyTrailingInstances = {
+    isPotentiallyTrailing ||
+      groupMembers.exists { _.hasPotentiallyTrailingInstances }
+  }
+
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     lazy val memberHasRequiredSyntax = groupMembers.exists(_.hasKnownRequiredSyntax)
     lazy val prefixOrPostfixAndStaticallyRequiredInstance =
@@ -221,7 +226,9 @@ abstract class SequenceTermBase(
 
   } else None
 
-  final lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = sequenceRuntimeData
+
+  final lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,

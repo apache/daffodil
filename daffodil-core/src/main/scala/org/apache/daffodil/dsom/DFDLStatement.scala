@@ -28,7 +28,7 @@ abstract class DFDLStatement(node: Node,
   extends DFDLAnnotation(node, annotatedSCArg)
   with NestingLexicalMixin {
 
-  requiredEvaluations(gram)
+  /// requiredEvaluations(gram)
 
-  def gram: Gram
+  def gram(term: Term): Gram
 }

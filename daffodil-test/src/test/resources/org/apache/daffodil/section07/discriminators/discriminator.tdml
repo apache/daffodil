@@ -466,7 +466,7 @@
     <tdml:document><![CDATA[1234]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>All Alternatives Failed</tdml:error>
+      <tdml:error>All Choice Alternatives Failed</tdml:error>
       <tdml:error>Insufficient</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

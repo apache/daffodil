@@ -29,9 +29,9 @@ trait RequiredOptionalMixin { self: ElementBase =>
 
   final override lazy val isOptional = {
     // minOccurs == 0
-    (optMinOccurs, optMaxOccurs) match {
-      case (Some(1), Some(1)) => false // scalars are not optional
-      case (Some(0), max) => {
+    (minOccurs, maxOccurs) match {
+      case (1, 1) => false // scalars are not optional
+      case (0, max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
         if (occursCountKind =:= OccursCountKind.Parsed ||
@@ -41,9 +41,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
           false
         } else {
           max match {
-            case Some(1) => true
-            case None => true
-            case Some(_) => false
+            case 1 => true
+            case _ => false
           }
         }
       }
@@ -67,18 +66,17 @@ trait RequiredOptionalMixin { self: ElementBase =>
     if (isOptional) false
     else {
       val UNBOUNDED = -1
-      (optMinOccurs, optMaxOccurs) match {
-        case (None, None) => false
-        case (Some(1), Some(1)) => false
-        case (_, Some(n)) if n > 1 => true
-        case (_, Some(UNBOUNDED)) => true
+      (minOccurs, maxOccurs) match {
+        case (1, 1) => false
+        case (_, n) if n > 1 => true
+        case (_, UNBOUNDED) => true
         /**
          * This next case is for occursCountKinds parsed and stopValue.
          * These only use min/maxOccurs for validation, so anything
          * with these occursCountKinds is an array (so long as it isn't
          * scalar)
          */
-        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed ||
+        case (_, 1) if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue ||
           occursCountKind == OccursCountKind.Expression) => true
         case _ => false
@@ -98,8 +96,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
 // A Particle is something that can be repeating.
 trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
 
-  final lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  final lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
+  //  final lazy val optMinOccurs: Option[Int] = Some(minOccurs)
+  //  final lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString

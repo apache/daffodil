@@ -47,9 +47,6 @@ import org.apache.daffodil.api.WarnID
 trait ResolvesProperties
   extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
 
-  /** Returns Term corresponding to this object. */
-  def term: Term
-
   private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
     val result = findDefaultOrNonDefaultProperty(pname, nonDefaultPropertySources)
     result match {
@@ -81,12 +78,12 @@ trait ResolvesProperties
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode
     // first try in regular properties
-    val regularResult = resolver.findNonDefaultProperty(pname)
+    val regularResult = findNonDefaultProperty(pname)
     regularResult match {
       case f: Found => f
       case NotFound(nonDefaultLocsTried1, defaultLocsTried1, _) => {
         Assert.invariant(defaultLocsTried1.isEmpty)
-        val defaultResult = resolver.findDefaultProperty(pname)
+        val defaultResult = findDefaultProperty(pname)
         defaultResult match {
           case f: Found => f
           case NotFound(nonDefaultLocsTried2, defaultLocsTried2, _) => {
@@ -122,34 +119,34 @@ trait AnnotatedSchemaComponent
   requiredEvaluations(nonDefaultPropertySources)
   requiredEvaluations(defaultPropertySources)
 
-  /** Returns the Term corresponding to this component. */
-  final lazy val term: Term = this match {
-    case gr: GroupRef => gr.asModelGroup
-    //    case mg: ModelGroup => mg.parent match {
-    //      case ggd: GlobalGroupDef => {
-    //        // this is the model group that is the definition of
-    //        // a global group, so our term is the group reference referring to this.
-    //        ggd.groupRef.asModelGroup
-    //      }
-    //      case _ => mg
-    //    }
-    case t: Term => t
-    case ged: GlobalElementDecl => ged.elementRef
-    case ty: SimpleTypeDefBase => ty.elementBase
-    case ty: ComplexTypeBase => ty.elementBase
-    case ggd: GlobalGroupDef => ggd.groupRef.asModelGroup
-    case sd: SchemaDocument =>
-      Assert.usageError("not to be called for schema documents")
-  }
+  //  /** Returns the Term corresponding to this component. */
+  //  final lazy val term: Term = this match {
+  //    case gr: GroupRef => gr.asModelGroup
+  //    //    case mg: ModelGroup => mg.parent match {
+  //    //      case ggd: GlobalGroupDef => {
+  //    //        // this is the model group that is the definition of
+  //    //        // a global group, so our term is the group reference referring to this.
+  //    //        ggd.groupRef.asModelGroup
+  //    //      }
+  //    //      case _ => mg
+  //    //    }
+  //    case t: Term => t
+  //    case ged: GlobalElementDecl => ged.elementRef
+  //    case ty: SimpleTypeDefBase => ty.elementBase
+  //    case ty: ComplexTypeBase => ty.elementBase
+  //    case ggd: GlobalGroupDef => ggd.groupRef.asModelGroup
+  //    case sd: SchemaDocument =>
+  //      Assert.usageError("not to be called for schema documents")
+  //  }
 
-  /** Returns the property resolver for this component. */
-  final lazy val resolver: ResolvesProperties = {
-    val res = this match {
-      case sd: SchemaDocument => sd
-      case _ => term
-    }
-    res
-  }
+  //  /** Returns the property resolver for this component. */
+  //  final lazy val resolver: ResolvesProperties = {
+  //    val res = this match {
+  //      case sd: SchemaDocument => sd
+  //      case _ => term
+  //    }
+  //    res
+  //  }
 
   /**
    * Since validation of extra attributes on XML Schema elements is
@@ -265,8 +262,7 @@ trait AnnotatedSchemaComponent
  * or made smaller anyway.
  *
  */
-trait AnnotatedMixin
-  extends EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
+trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
 
   /**
    * Anything annotated must be able to construct the

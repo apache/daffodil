@@ -37,7 +37,7 @@ trait ResolvesDFDLStatementMixin
     f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
     s match {
       case a: DFDLAssertionBase if (a.testKind eq TestKind.Expression) => {
-        a.gram match {
+        a.gram(self) match {
           case ab: AssertBase => f(ab.expr)
           case _ => ReferencedElementInfos.None
         }
@@ -100,7 +100,7 @@ trait ResolvesDFDLStatementMixin
 trait ProvidesDFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
 
   final def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): Option[DFDLAnnotation] = {
-    val term = self.term
+    val term = self
     node match {
       case <dfdl:assert>{ content @ _* }</dfdl:assert> => Some(new DFDLAssert(node, term))
       case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => Some(new DFDLDiscriminator(node, term))

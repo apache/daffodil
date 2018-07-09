@@ -26,10 +26,8 @@ import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIComplexState
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.infoset.InfosetDocument
 import org.apache.daffodil.infoset.InfosetOutputter
@@ -59,6 +57,8 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Pool
 import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.infoset.DIComplexState
+import org.apache.daffodil.infoset.DISimpleState
 
 object MPState {
 
@@ -113,7 +113,11 @@ class MPState private () {
   // stack. Can we get rid of it?
   val childIndexStack = MStackOfLong()
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
-  def childPos = childIndexStack.top
+  def childPos = {
+    val res = childIndexStack.top
+    Assert.invariant(res >= 1)
+    res
+  }
 
   val occursBoundsStack = MStackOfLong()
   def updateBoundsHead(ob: Long) = {
@@ -126,6 +130,9 @@ class MPState private () {
   val delimitersLocalIndexStack = MStackOfInt()
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
+
+  //var wasAnyArrayElementNonZeroLength = false
+  //var wasLastArrayElementZeroLength = true
 
   private def init {
     arrayIndexStack.push(1L)
@@ -327,6 +334,13 @@ object PState {
    * and is a copy of everything else in PState.
    */
   class Mark extends Poolable {
+
+    override def toString() = {
+      if (disMark ne null)
+        "Mark(bitPos0b = " + bitPos0b + ")"
+      else
+        "Mark(uninitialized)"
+    }
 
     def bitPos0b = disMark.bitPos0b
 

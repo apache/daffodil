@@ -31,7 +31,7 @@
 					alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
 					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"
 					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
-					occursCountKind="implicit"	
+					occursCountKind="implicit" separatorSuppressionPolicy="trailingEmpty"
                     bitOrder="mostSignificantBitFirst"
 					/>
 				

@@ -575,7 +575,7 @@
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
       <tdml:error>Expected 2 item(s)</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Separator ',' not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -610,7 +610,7 @@
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
       <tdml:error>Expected 2 item(s)</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Initiator ')' not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

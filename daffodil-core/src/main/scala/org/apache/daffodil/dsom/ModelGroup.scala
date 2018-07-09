@@ -184,14 +184,17 @@ abstract class ModelGroup
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
-  protected lazy val groupMembersRuntimeData = this match {
-    case mg: ModelGroup => mg.groupMembers.map {
-      _ match {
-        case eb: ElementBase => eb.erd
-        case t: Term => t.termRuntimeData
+  protected lazy val groupMembersRuntimeData = {
+    val res = this match {
+      case mg: ModelGroup => mg.groupMembers.map {
+        _ match {
+          case eb: ElementBase => eb.erd
+          case t: Term => t.termRuntimeData
+        }
       }
+      case _ => Nil
     }
-    case _ => Nil
+    res
   }
 
   def modelGroupRuntimeData: ModelGroupRuntimeData

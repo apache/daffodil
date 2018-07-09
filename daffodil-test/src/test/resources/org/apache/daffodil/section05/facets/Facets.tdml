@@ -5288,7 +5288,7 @@
     model="enumSchema" description="Section 5 - Facets - enumeration - DFDL-5-054R">
     <tdml:document>crow</tdml:document>
       <tdml:errors>
-        <tdml:error>All alternatives failed</tdml:error>
+        <tdml:error>All choice alternatives failed</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   

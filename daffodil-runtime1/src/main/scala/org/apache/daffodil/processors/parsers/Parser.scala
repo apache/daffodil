@@ -48,6 +48,8 @@ import org.apache.daffodil.processors.PrimProcessorNoData
 sealed trait Parser
   extends Processor {
 
+  def isEmpty = false // override in NadaParser
+
   protected def parserName = Misc.getNameFromClass(this)
 
   def PE(pstate: PState, s: String, args: Any*) = {
@@ -127,17 +129,19 @@ trait TextPrimParser
 /**
  * Parser which does "Nada" (Nothing in Spanish)
  *
- * Used for optitonality in some cases, but is usually recognized and
+ * Used for optionality in some cases, but is usually recognized and
  * optimized out.
  */
 final class NadaParser(override val context: RuntimeData)
   extends PrimParserNoData {
   override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
 
+  override def isEmpty = true
+
   override def toString = "Nada"
 
   override def parse(start: PState): Unit = {
-    // do nothing
+    Assert.abort("NadaParsers are all supposed to optimize out!")
   }
 }
 
@@ -169,12 +173,12 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 
 }
 
-class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
+class ChoiceParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
   extends CombinatorParser(ctxt) {
   override lazy val runtimeDependencies = Nil
   override lazy val childProcessors = childParsers
 
-  override def nom = "alt"
+  override def nom = "choice"
 
   def parse(pstate: PState): Unit = {
     var pBefore: PState.Mark = null
@@ -191,7 +195,7 @@ class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
         parser = childParsers(i)
         i += 1
         log(LogLevel.Debug, "Trying choice alternative: %s", parser)
-        pBefore = pstate.mark("AltCompParser1")
+        pBefore = pstate.mark("ChoiceParser1")
         try {
           parser.parse1(pstate)
         } catch {
@@ -212,7 +216,7 @@ class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
           //
           // capture diagnostics
           //
-          val diag = new ParseAlternativeFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+          val diag = new ChoiceBranchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
           diagnostics = diag +: diagnostics
           //
           // check for discriminator evaluated to true.
@@ -223,7 +227,7 @@ class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
             // consume this discriminator status result (so it doesn't ripple upward)
             // and return the failed state with all the diagnostics.
             //
-            val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+            val allDiags = new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
             pstate.discard(pBefore) // because disc set, we don't unwind side effects on input stream & infoset
             pBefore = null
             pstate.setFailed(allDiags)
@@ -244,9 +248,9 @@ class AltCompParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
       if (returnFlag == false) {
         Assert.invariant(i == limit)
         // Out of alternatives. All of them failed.
-        val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+        val allDiags = new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
         pstate.setFailed(allDiags)
-        log(LogLevel.Debug, "All AltParser alternatives failed.")
+        log(LogLevel.Debug, "All Choice alternatives failed.")
       }
 
       pstate.popDiscriminator

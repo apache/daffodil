@@ -70,4 +70,11 @@ class TestArrayOptionalElem {
   @Test def test_arrays_16_01() { runner1.runOneTest("arrays_16_01") }
 
   @Test def test_backtrack1Text() = { rBack.runOneTest("backtrack1Text") }
+
+  @Test def test_occursCountKindImplicitSeparators01() { runner.runOneTest("occursCountKindImplicitSeparators01") }
+  @Test def test_occursCountKindImplicitSeparators02() { runner.runOneTest("occursCountKindImplicitSeparators02") }
+  @Test def test_occursCountKindImplicitSeparators03() { runner.runOneTest("occursCountKindImplicitSeparators03") }
+  @Test def test_occursCountKindImplicitSeparators04() { runner.runOneTest("occursCountKindImplicitSeparators04") }
+  @Test def test_occursCountKindImplicitSeparators05() { runner.trace.runOneTest("occursCountKindImplicitSeparators05") }
+  @Test def test_occursCountKindImplicitSeparatorsUnparser() { runner.runOneTest("occursCountKindImplicitSeparatorsUnparser") }
 }

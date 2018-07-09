@@ -92,7 +92,8 @@ trait Pool[T <: Poolable] {
     if (!(numOutstanding =#= 0)) {
       val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
         "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")
-      Assert.invariantFailed(msg)
+      System.err.println(msg)
+      // Assert.invariantFailed(msg)
     }
   }
 
