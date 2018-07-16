@@ -29,6 +29,8 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
 import java.net.URI
+import java.util.Scanner
+
 import scala.xml.SAXParseException
 import org.rogach.scallop
 import org.apache.daffodil.debugger.{ InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
@@ -341,7 +343,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to output. Must be one of 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', or 'null'.", default = Some("xml")).map { _.toLowerCase }
-    val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data", descrNo = "stop after the first parse, even if left over data exists")
+    val stream = toggle(noshort = true, default = Some(false), descrYes = "when left over data exists, parse again with remaining data, separating infosets by a NUL character", descrNo = "stop after the first parse, even if left over data exists")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -434,6 +436,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                        [--validate [mode]]
               |                        [-D[{namespace}]<variable>=<value>...] [-c <file>]
               |                        [-I <infoset_type>]
+              |                        [--stream]
               |                        [-o <output>] [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved parser
@@ -453,6 +456,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infosetType = opt[String](short = 'I', argName = "infoset_type", descr = "infoset type to unparse. Must be one of 'xml', 'scala-xml', 'json', 'jdom', or 'w3cdom'.", default = Some("xml")).map { _.toLowerCase }
+    val stream = toggle(noshort = true, default = Some(false), descrYes = "split the input data on the NUL character, and unparse each chuck separately", descrNo = "treat the entire input data as one infoset")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -906,6 +910,7 @@ object Main extends Logging {
                       lastParseBitPosition = loc.bitPos0b
                       keepParsing = true
                       error = false
+                      writer.write("\u0000")
                     }
                   } else {
                     // not streaming, show left over data warning
@@ -1100,15 +1105,49 @@ object Main extends Logging {
           case None => 1
           case Some(processor) => {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
-            val data = IOUtils.toByteArray(is)
-            val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, data)
-            val inputter = getInfosetInputter(unparseOpts.infosetType.toOption.get, inputterData)
-            val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
-            output.close()
-            displayDiagnostics(unparseResult)
-            if (unparseResult.isError) 1 else 0
+
+            val maybeScanner =
+              if (unparseOpts.stream.toOption.get) {
+                val scnr = new Scanner(is)
+                scnr.useDelimiter("\u0000")
+                Some(scnr)
+              } else {
+                None
+              }
+
+            var keepUnparsing = maybeScanner.isEmpty || maybeScanner.get.hasNext
+            var error = false
+
+            while (keepUnparsing) {
+
+              val data =
+                if (maybeScanner.isDefined) {
+                  maybeScanner.get.next().getBytes()
+                } else {
+                  IOUtils.toByteArray(is)
+                }
+
+              val inputterData = infosetDataToInputterData(unparseOpts.infosetType.toOption.get, data)
+              val inputter = getInfosetInputter(unparseOpts.infosetType.toOption.get, inputterData)
+              val unparseResult = Timer.getResult("unparsing", processor.unparse(inputter, outChannel))
+              displayDiagnostics(unparseResult)
+
+              if (unparseResult.isError) {
+                keepUnparsing = false
+                error = true
+              } else {
+                keepUnparsing = maybeScanner.isDefined && maybeScanner.get.hasNext
+                error = false
+              }
+            }
+
+            if (error) 1 else 0
           }
         }
+
+        is.close()
+        outChannel.close()
+
         rc
       }
 

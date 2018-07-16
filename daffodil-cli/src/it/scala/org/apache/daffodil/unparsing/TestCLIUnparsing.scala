@@ -410,4 +410,21 @@ class TestCLIunparsing {
     }
   }
 
+  @Test def test_XXX_CLI_Unparsing_Stream_01() {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s unparse --stream -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("123"))
+      shell.send("exit\n")
+    } finally {
+      shell.close()
+    }
+  }
+
 }

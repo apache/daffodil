@@ -81,8 +81,15 @@ private[io] class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOut
  * Has two modes of operation, buffering or direct. When buffering, all output goes into a
  * buffer. When direct, all output goes into a "real" DataOutputStream.
  *
+ * The isLayer parameter defines whether or not this instance originated from a
+ * layer or not. This is important to specify because this class is reponsible
+ * for closing the associated Java OutputStream, ultimately being written to
+ * the underlying underlying DataOutputStream. However, if the DataOutputStream
+ * is not related to a layer, that means the associated Java OutputStream came
+ * from the user and it is the users responsibility to close it. The isLayer
+ * provides the flag to know which streams should be closed or not.
  */
-final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream)
+final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectOrBufferedDataOutputStream, val isLayer: Boolean = false)
   extends DataOutputStreamImplMixin {
   type ThisType = DirectOrBufferedDataOutputStream
 
@@ -212,7 +219,7 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
    */
   def addBuffered: DirectOrBufferedDataOutputStream = {
     Assert.usage(_following.isEmpty)
-    val newBufStr = new DirectOrBufferedDataOutputStream(this)
+    val newBufStr = new DirectOrBufferedDataOutputStream(this, isLayer)
     _following = One(newBufStr)
     //
     // TODO: PERFORMANCE: This is very pessimistic. It's making a complete clone of the state
@@ -324,9 +331,14 @@ final class DirectOrBufferedDataOutputStream private[io] (var splitFrom: DirectO
             // zero out so we don't end up thinking it is still there
             directStream.cst.setFragmentLastByte(0, 0)
           }
-          // now flush/close the whole data output stream
-          // propagate the closed-ness by closing the underlying java stream.
-          directStream.getJavaOutputStream().close()
+          // Now flush the whole data output stream. Note that we only want to
+          // close the java output stream if it was one we created for
+          // layering. If it was not from a layer, then it is the underlying
+          // OutputStream from a user and they are responsible for closing it.
+          directStream.getJavaOutputStream().flush()
+          if (directStream.isLayer) {
+            directStream.getJavaOutputStream().close()
+          }
           directStream.setDOSState(Uninitialized) // not just finished. We're dead now.
         } else {
           // the last stream we merged forward into was not finished.
@@ -805,8 +817,8 @@ object DirectOrBufferedDataOutputStream {
    * Factory for creating new ones/
    * Passing creator as null indicates no other stream created this one.
    */
-  def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream) = {
-    val dbdos = new DirectOrBufferedDataOutputStream(creator)
+  def apply(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream, isLayer: Boolean = false) = {
+    val dbdos = new DirectOrBufferedDataOutputStream(creator, isLayer)
     dbdos.setJavaOutputStream(jos)
 
     if (creator eq null) {
