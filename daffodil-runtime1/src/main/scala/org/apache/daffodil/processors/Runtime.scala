@@ -17,6 +17,17 @@
 
 package org.apache.daffodil.processors
 
+import java.io.File
+import java.io.ObjectOutputStream
+import java.nio.channels.Channels
+import java.nio.CharBuffer
+import java.nio.LongBuffer
+import java.util.zip.GZIPOutputStream
+
+import org.xml.sax.ErrorHandler
+import org.xml.sax.SAXException
+import org.xml.sax.SAXParseException
+
 import org.apache.daffodil.Implicits._; object INoWarn4 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.equality._; object EqualityNoWarn3 { EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.api.WithDiagnostics
@@ -27,18 +38,13 @@ import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.util.Validator
-import org.xml.sax.SAXParseException
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
-import java.io.File
 import org.apache.daffodil.externalvars.Binding
-import java.nio.channels.Channels
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import java.io.ObjectOutputStream
 import org.apache.daffodil.util.Logging
 import org.apache.daffodil.debugger.Debugger
-import java.util.zip.GZIPOutputStream
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.processors.unparsers.UnparseError
@@ -47,8 +53,6 @@ import org.apache.daffodil.events.MultipleEventHandler
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.util.LogLevel
-import org.xml.sax.ErrorHandler
-import org.xml.sax.SAXException
 import org.apache.daffodil.io.BitOrderChangeException
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.ParseError
@@ -95,6 +99,20 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   with MultipleEventHandler {
 
   protected var tunablesObj = ssrd.tunable // Compiler-set tunables
+
+  // This thread local state is used by the PState when it needs buffers for
+  // regex matching. This cannot be in PState because a PState does not last
+  // beyond a single parse, but we want to share this among different parses to
+  // avoid large memory allocations. The alternative is to use a ThreadLocal
+  // companion object, but that would have not access to tunables, so one could
+  // not configure the size of the regex match buffers.
+  @transient lazy val regexMatchState = new ThreadLocal[(CharBuffer, LongBuffer)] {
+    override def initialValue = {
+      val cb = CharBuffer.allocate(tunablesObj.maximumRegexMatchLengthInCharacters)
+      val lb = LongBuffer.allocate(tunablesObj.maximumRegexMatchLengthInCharacters)
+      (cb, lb)
+    }
+  }
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
