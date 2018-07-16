@@ -18,8 +18,6 @@
 package org.apache.daffodil.processors.parsers
 
 import java.nio.channels.Channels
-import java.nio.CharBuffer
-import java.nio.LongBuffer
 
 import scala.Right
 import scala.collection.mutable
@@ -322,9 +320,7 @@ final class PState private (
     }
   }
 
-  // TODO: this should come from a thread safe pool or something so that we do not allocate it for every parse
-  override lazy val regexMatchBuffer = CharBuffer.allocate(tunable.maximumRegexMatchLengthInCharacters)
-  override lazy val regexMatchBitPositionBuffer = LongBuffer.allocate(tunable.maximumRegexMatchLengthInCharacters)
+  override lazy val (regexMatchBuffer, regexMatchBitPositionBuffer) = dataProcArg.regexMatchState.get
 }
 
 object PState {

@@ -701,15 +701,16 @@ class InputSourceDataInputStreamCharIteratorState  {
   }
 
   def assignFrom(other: InputSourceDataInputStreamCharIteratorState) {
-    // threadCheck()
-    // TODO: we want to avoid this duplication, we should really only duplicate
-    // when we creating a mark. When we reset, we just need to assign
-    // decodedChars = other.decodedChars. This API doesn't currently
-    // differentiate between saving a mark and resetting a mark
-    this.decodedChars = other.decodedChars.duplicate
-    this.bitPositions = other.bitPositions.duplicate
-    this.moreDataAvailable = other.moreDataAvailable
-    this.bitPositionAtLastFetch0b = other.bitPositionAtLastFetch0b
+    // We are intentionally not saving/restoring any state here. This is
+    // because saving state requires duplicating the long and charbuffers,
+    // which is fairly expensive and can use up alot of memory, especially when
+    // there are lots of points of uncertainties. Instead, the
+    // checkNeedsRefetch method will determine if something changed the
+    // bitPosition (e.g. resetting a mark), and just clear all the internal
+    // state, leading to a redecode of data. This does mean that if we reset
+    // back to a mark we will repeat work that has already been done. But that
+    // should be relatively fast, avoids memory usage, and only takes a penalty
+    // when backtracking rather than every time there is a PoU.
   }
 }
 
@@ -734,9 +735,11 @@ class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) ex
     val cis = dis.cst.charIteratorState
     if (cis.bitPositionAtLastFetch0b != dis.bitPos0b) {
       // Something outside of the char iterator  moved the bit position since
-      // the last time we fetched data. In this case, all of our cached decoded
-      // data is wrong. So lets clear the iterator state and reset the last
-      // fetch state so that more data will be fetched
+      // the last time we fetched data (e.g. backtracking to a previous mark,
+      // in which we do not save/restore this iterator state data). In this
+      // case, all of our cached decoded data is wrong. So lets clear the
+      // iterator state and reset the last fetch state so that more data will
+      // be fetched
       dis.cst.charIteratorState.clear()
       dis.cst.charIteratorState.bitPositionAtLastFetch0b = dis.bitPos0b
     }

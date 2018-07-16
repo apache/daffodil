@@ -968,30 +968,21 @@ object Main extends Logging {
 
             val infosetType = performanceOpts.infosetType.toOption.get
 
-            val dataSeq = files.map { filePath =>
+            val dataSeq: Seq[Either[AnyRef, Array[Byte]]] = files.map { filePath =>
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
               val fileContent = new Array[Byte](dataSize.toInt)
               input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
               val data = performanceOpts.unparse() match {
-                case true => infosetDataToInputterData(infosetType, fileContent)
-                case false => fileContent
+                case true => Left(infosetDataToInputterData(infosetType, fileContent))
+                case false => Right(fileContent)
               }
               data
             }
 
             val inputs = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
-              val data = dataSeq(index)
-              val inData = performanceOpts.unparse() match {
-                case true => {
-                  Left(data)
-                }
-                case false => {
-                  Right(InputSourceDataInputStream(data.asInstanceOf[Array[Byte]]))
-                }
-              }
-              inData
+              dataSeq(index)
             }
             val inputsWithIndex = inputs.zipWithIndex
 
@@ -1022,9 +1013,10 @@ object Main extends Logging {
                         val inputterForUnparse = getInfosetInputter(infosetType, anyRef)
                         processor.unparse(inputterForUnparse, nullChannelForUnparse)
                       })
-                      case Right(dis) => Timer.getTimeResult({
+                      case Right(data) => Timer.getTimeResult({
+                        val input = InputSourceDataInputStream(data)
                         val outputterForParse = getInfosetOutputter(infosetType, nullWriterForParse)
-                        processor.parse(dis, outputterForParse)
+                        processor.parse(input, outputterForParse)
                       })
                     }
 
