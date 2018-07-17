@@ -30,6 +30,15 @@ import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives.AlignmentFill
+import org.apache.daffodil.grammar.primitives.BCDDateKnownLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDDateRuntimeLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDDateTimeKnownLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDDateTimeRuntimeLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDTimeKnownLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDTimeRuntimeLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDTimeDelimitedLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDDateTimeDelimitedLengthPrim
+import org.apache.daffodil.grammar.primitives.BCDDateDelimitedLengthPrim
 import org.apache.daffodil.grammar.primitives.BCDDecimalDelimitedEndOfData
 import org.apache.daffodil.grammar.primitives.BCDDecimalKnownLength
 import org.apache.daffodil.grammar.primitives.BCDDecimalRuntimeLength
@@ -130,6 +139,7 @@ import org.apache.daffodil.schema.annotation.props.NotFound
 import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
+import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
@@ -496,8 +506,14 @@ trait ElementBaseGrammarMixin
     case LengthKind.Implicit => implicitBinaryLengthInBits
     case LengthKind.Explicit if (lengthEv.isConstant) => explicitBinaryLengthInBits()
     case LengthKind.Explicit => -1 // means must be computed at runtime.
-    case LengthKind.Delimited if (binaryNumberRep == BinaryNumberRep.Binary) => subsetError("lengthKind='delimited' only supported for packed binary formats.")
-    case LengthKind.Delimited => -1 // only for packed binary data, length must be computed at runtime.
+    case LengthKind.Delimited => primType match {
+      case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+        if (binaryCalendarRep == BinaryCalendarRep.BinaryMilliseconds || binaryCalendarRep == BinaryCalendarRep.BinarySeconds)
+          subsetError("lengthKind='delimited' only supported for packed binary formats.")
+        else -1 // only for packed binary data, length must be computed at runtime.
+      case _ => if (binaryNumberRep == BinaryNumberRep.Binary) subsetError("lengthKind='delimited' only supported for packed binary formats.")
+        else -1 // only for packed binary data, length must be computed at runtime.
+    }
     case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
     case LengthKind.Prefixed => subsetError("lengthKind='prefixed' not yet supported.")
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
@@ -829,7 +845,26 @@ trait ElementBaseGrammarMixin
             case (_, n) => SDE("binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.", n)
           }
           case (_, BinaryCalendarRep.BinaryMilliseconds) => SDE("binaryCalendarRep='binaryMilliseconds' is not allowed with type %s", primType.name)
-          case _ => notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
+          case (_, BinaryCalendarRep.Bcd) => {
+            if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0)
+              SDE("The given length (%s bits) must be a multiple of 4 when using binaryCalendarRep='%s'.", binaryNumberKnownLengthInBits, binaryCalendarRep)
+            if (calendarPatternKind != CalendarPatternKind.Explicit)
+              SDE("calendarPatternKind must be 'explicit' when binaryCalendarRep='%s'", binaryCalendarRep)
+
+            (primType, lengthKind, binaryNumberKnownLengthInBits) match {
+              case (PrimType.DateTime, LengthKind.Delimited, -1) => new BCDDateTimeDelimitedLengthPrim(this)
+              case (PrimType.DateTime, _, -1) => new BCDDateTimeRuntimeLengthPrim(this)
+              case (PrimType.DateTime, _, _) => new BCDDateTimeKnownLengthPrim(this, binaryNumberKnownLengthInBits)
+              case (PrimType.Date, LengthKind.Delimited, -1) => new BCDDateDelimitedLengthPrim(this)
+              case (PrimType.Date, _, -1) => new BCDDateRuntimeLengthPrim(this)
+              case (PrimType.Date, _, _) => new BCDDateKnownLengthPrim(this, binaryNumberKnownLengthInBits)
+              case (PrimType.Time, LengthKind.Delimited, -1) => new BCDTimeDelimitedLengthPrim(this)
+              case (PrimType.Time, _, -1) => new BCDTimeRuntimeLengthPrim(this)
+              case (PrimType.Time, _, _) => new BCDTimeKnownLengthPrim(this, binaryNumberKnownLengthInBits)
+              case _ => SDE("Invalid case.")
+            }
+          }
+          case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
         }
       }
 

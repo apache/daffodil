@@ -28,11 +28,11 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
 
-case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
+case class ConvertTextCalendarUnparser(context: ElementRuntimeData,
   pattern: String,
   localeEv: CalendarLanguageEv,
   calendarEv: CalendarEv)
-  extends ConvertTextCalendarProcessorBase(erd, pattern)
+  extends ConvertTextCalendarProcessorBase
   with TextPrimUnparser {
 
   /**

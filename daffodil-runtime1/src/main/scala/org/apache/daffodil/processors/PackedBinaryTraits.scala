@@ -169,7 +169,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
       } else {
         try {
           val num = toBigDecimal(fieldBytes, binaryDecimalVirtualPoint)
-          state.simpleElement.setDataValue(num)
+          writeResult(state, num)
         } catch {
           case n: NumberFormatException => PE(state, "Error in packed data: \n%s", n.getMessage())
         }
@@ -178,5 +178,9 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
       }
       return
     }
+  }
+
+  def writeResult(state: PState, num: BigDecimal) {
+    state.simpleElement.setDataValue(num)
   }
 }
