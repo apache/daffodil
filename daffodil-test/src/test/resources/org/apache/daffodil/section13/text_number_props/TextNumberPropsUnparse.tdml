@@ -258,7 +258,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
       <tdml:error>textStringJustification</tdml:error>
       <tdml:error>center</tdml:error>
       <tdml:error>truncateSpecifiedLengthString</tdml:error>
@@ -296,6 +296,53 @@
     </tdml:infoset>
     <tdml:document>6789100000</tdml:document>
   </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparsePaddedStringTruncate04
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string does not need to be truncated, and should be output with centered justification.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate04" model="delimitedStringsPadding" root="e6">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6 xmlns:ex="http://example.com">123456</ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>__123456__</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparsePaddedStringTruncate05
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string does not need to be truncated and the justification is "left", so the data is output justified to the left.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate05" model="delimitedStringsPadding" root="e7">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7 xmlns:ex="http://example.com">123456</ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>123456____</tdml:document>
+  </tdml:unparserTestCase>
+
+
+<!--
+      Test Name: unparsePaddedStringTruncate06
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string does not need to be truncated and the justification is "right", is output right justified.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate06" model="delimitedStringsPadding" root="e8">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8 xmlns:ex="http://example.com">123456</ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>____123456</tdml:document>
+  </tdml:unparserTestCase>
+
 
 <!--
       Test Name: unparseDelimitedPaddedString06

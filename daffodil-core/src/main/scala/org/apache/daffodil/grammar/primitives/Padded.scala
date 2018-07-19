@@ -70,9 +70,7 @@ trait PaddingInfoMixin {
       else eBase.textStringJustification match {
         case TextStringJustification.Left => TextTruncationType.Left
         case TextStringJustification.Right => TextTruncationType.Right
-        case TextStringJustification.Center => {
-          eBase.SDE("Properties dfdl:truncateSpecifiedLengthString 'yes' and dfdl:textStringJustification 'center' are incompatible.")
-        }
+        case TextStringJustification.Center => TextTruncationType.ErrorIfNeeded
       }
     res
   }

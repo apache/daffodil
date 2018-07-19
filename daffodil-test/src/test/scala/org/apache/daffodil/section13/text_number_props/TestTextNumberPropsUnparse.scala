@@ -53,6 +53,9 @@ class TestTextNumberPropsUnparse {
   @Test def test_unparsePaddedStringTruncate01() { runner.runOneTest("unparsePaddedStringTruncate01") }
   @Test def test_unparsePaddedStringTruncate02() { runner.runOneTest("unparsePaddedStringTruncate02") }
   @Test def test_unparsePaddedStringTruncate03() { runner.runOneTest("unparsePaddedStringTruncate03") }
+  @Test def test_unparsePaddedStringTruncate04() { runner.runOneTest("unparsePaddedStringTruncate04") }
+  @Test def test_unparsePaddedStringTruncate05() { runner.runOneTest("unparsePaddedStringTruncate05") }
+  @Test def test_unparsePaddedStringTruncate06() { runner.runOneTest("unparsePaddedStringTruncate06") }
 
   @Test def test_parseDelimitedPaddedString01() { runner.runOneTest("parseDelimitedPaddedString01") }
 

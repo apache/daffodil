@@ -31,5 +31,6 @@ object TextTruncationType extends Enum {
   sealed abstract trait Type extends EnumValueType
   case object Left extends Type
   case object Right extends Type
+  case object ErrorIfNeeded extends Type
   case object None extends Type
 }
