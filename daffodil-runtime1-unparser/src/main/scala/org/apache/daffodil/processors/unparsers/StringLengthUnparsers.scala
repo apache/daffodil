@@ -84,8 +84,14 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
       case TextTruncationType.Left => {
         str.substring(0, str.length - nCharsToTrim)
       }
-      case _ =>
+      case TextTruncationType.ErrorIfNeeded => {
+        // justification type was "center", which cannot be truncated, so
+        // should be an error
+        UE(ustate, "Truncation required but disallowed when dfdl:truncateSpecifiedLengthString=\"yes\" and dfdl:textStringJustification=\"center\"")
+      }
+      case TextTruncationType.None => {
         Assert.invariantFailed("cannot be TextTruncationType.None")
+      }
     }
     result
   }
@@ -193,16 +199,21 @@ class StringMaybeTruncateBitsUnparser(
       Assert.invariant(maybeTargetLengthInBits.isDefined)
       val targetLengthInBits = maybeTargetLengthInBits.get
       val (nBits, nChars) = getLengthInBits(valueString, state)
-      val targetLengthDiff = nBits - targetLengthInBits // positive if we need to truncate
-      val nBitsToTrim = targetLengthDiff
-      val dcs = erd.encInfo.getDFDLCharset(state)
-      val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(dcs)
-      // padChar must be a minimum-width char
-      val nCharsToTrim = nBitsToTrim / minBitsPerChar // positive if we need to truncate.
-      Assert.invariant(nCharsToTrim <= nChars)
-      val truncatedValue = truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
-      Assert.invariant(truncatedValue.length <= valueString.length)
-      truncatedValue
+      val targetLengthDiff = nBits - targetLengthInBits
+      if (targetLengthDiff <= 0) {
+        // truncation is not needed, just write the original string
+        valueString
+      } else {
+        val nBitsToTrim = targetLengthDiff
+        val dcs = erd.encInfo.getDFDLCharset(state)
+        val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(dcs)
+        // padChar must be a minimum-width char
+        val nCharsToTrim = nBitsToTrim / minBitsPerChar // positive if we need to truncate.
+        Assert.invariant(nCharsToTrim <= nChars)
+        val truncatedValue = truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
+        Assert.invariant(truncatedValue.length <= valueString.length)
+        truncatedValue
+      }
     }
 
     val nCharsWritten = dos.putString(valueToWrite, state)
