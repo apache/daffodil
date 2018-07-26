@@ -140,4 +140,7 @@ class TestEscapeScheme {
   @Test def test_scenario4_12_req_term() { runner2.runOneTest("scenario4_12_req_term") }
 
   @Test def test_scenario5_1() { runner2.runOneTest("scenario5_1") }
+
+  @Test def test_escBlkAllQuotes() { runner.runOneTest("escBlkAllQuotes") }
+  @Test def test_escBlkEndSame() { runner.runOneTest("escBlkEndSame") }
 }

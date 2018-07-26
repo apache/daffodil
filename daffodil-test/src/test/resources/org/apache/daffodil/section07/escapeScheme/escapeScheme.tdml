@@ -603,5 +603,47 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
- 
+
+  <!--
+       Test Name: escBlkMultipleEEC
+          Schema: eBlkMultipleEEC
+            Root: record
+         Purpose: This test demonstrates that escapeSheme with escapeBlock where the escapeBlockEnd is the same as 2 escapeEscapeCharacters (DAFFODIL-1923).
+  -->
+  <defineSchema name="eBlkMultipleEEC">
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="eBlkMultipleEEC">
+      <dfdl:escapeScheme escapeBlockStart="&quot;"
+        escapeBlockEnd="&quot;&quote;" escapeKind="escapeBlock"
+        escapeEscapeCharacter="&quot;"  extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="record">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="item" type="xs:string" maxOccurs="unbounded"
+	    dfdl:escapeSchemeRef="tns:eBlkMultipleEEC" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+
+  <parserTestCase name="escBlkMultipleEEC" model="eBlkMultipleEEC"
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="record" roundTrip="true">
+    <document>1,"Column """Number""" Two"",3,4,5</document>
+    <infoset>
+      <dfdlInfoset>
+    	<tns:record>
+    	  <tns:item>1</tns:item>
+    	  <tns:item>Column &quot;Number&quot; Two</tns:item>
+    	  <tns:item>3</tns:item>
+    	  <tns:item>4</tns:item>
+    	  <tns:item>5</tns:item>
+  	</tns:record>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+
 </testSuite>

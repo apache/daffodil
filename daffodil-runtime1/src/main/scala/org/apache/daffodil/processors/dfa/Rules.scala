@@ -214,9 +214,17 @@ class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADeli
   val stateName: String = "StartState"
 
   val rules = ArrayBuffer(
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd) } { (r: Registers) => r.status = StateKind.Paused },
-    Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => r.nextState = EECState },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => r.nextState = DFA.EndOfData },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd)} { (r: Registers) =>
+      {
+        if (EEC.isDefined && (blockEnd.lookingFor.equals(EEC.get.toString))) { // EEC == escapeBlockEnd
+          r.nextState = EECState
+        } else {
+          r.status = StateKind.Paused
+        }
+      }
+    },
+    Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => { r.nextState = EECState }},
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => { r.nextState = DFA.EndOfData }},
     Rule { (r: Registers) => true } { (r: Registers) =>
       {
         r.appendToField(r.data0)
@@ -224,7 +232,6 @@ class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADeli
         r.nextState = StartState
       }
     })
-
 }
 
 class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: Char, val stateNum: Int)
@@ -488,7 +495,7 @@ class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val E
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, blockEnd) && !couldBeFirstChar(r.data1, blockEnd) } {
       (r: Registers) => r.status = StateKind.Paused //PTERMState
     },
     Rule { (r: Registers) => couldBeFirstChar(r.data1, blockEnd) } { (r: Registers) =>
