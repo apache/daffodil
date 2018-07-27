@@ -323,6 +323,43 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="dateBinIBM4690Packed" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed" />
+    <xs:element name="dateBinIBM4690Packed2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 18 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed"/>
+
+    <xs:element name="dateTimeBinIBM4690Packed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="length" type="xs:int" dfdl:representation="binary"
+            dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:lengthUnits="bytes" />
+          <xs:element name="datetime" type="xs:dateTime" dfdl:calendarPattern="MMddyyHHmmss" dfdl:calendarPatternKind="explicit"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dateTimeBinIBM4690Packed2" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyHHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 56 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed" />
+    <xs:element name="dateTimeBinIBM4690Packed3" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyhhmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed"/>
+
+    <xs:element name="timeBinIBM4690Packed">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0"/>
+          <xs:element name="time" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:encoding="ISO-8859-1"
+            dfdl:calendarPatternKind="explicit" dfdl:binaryCalendarRep="ibm4690Packed" dfdl:lengthKind="delimited" dfdl:terminator=";"/>
+          <xs:element name="num2" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="timeBinIBM4690Packed2" type="xs:time" dfdl:calendarPatternKind="implicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 5 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed"/>
+
     <xs:element name="dateBinInvalid" type="xs:date" dfdl:calendarPattern="yyyy.MM.dd" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
       dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1970-01-01T00:00:00+00:00"/>
 
@@ -2579,6 +2616,118 @@
         </dateTimeBinBCD4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinIBM4690Packed" root="dateBinIBM4690Packed"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 14 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinIBM4690Packed>2023-12-14</dateBinIBM4690Packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinIBM4690Packed2" root="dateBinIBM4690Packed2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0000 0000 00000 0000 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The given length (18 bits) must be a multiple of 4 when using binaryCalendarRep='ibm4690Packed'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinIBM4690Packed3" root="dateBinIBM4690Packed"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">D2 14 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expected unsigned data but parsed a negative number</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinIBM4690Packed" root="dateTimeBinIBM4690Packed"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">06 11 30 07 04 15 08</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinIBM4690Packed>
+          <length>6</length>
+          <datetime>2007-11-30T04:15:08.000000</datetime>
+        </dateTimeBinIBM4690Packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinIBM4690Packed2" root="dateTimeBinIBM4690Packed2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">03 20 18 56 09 51 38</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinIBM4690Packed2>1856-03-20T09:51:38.000000</dateTimeBinIBM4690Packed2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinIBM4690Packed3" root="dateTimeBinIBM4690Packed3"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 45 00 99 87</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Length of binary data 'DateTime' with binaryCalendarRep='ibm4690Packed' cannot be determined implicitly</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinIBM4690Packed" root="timeBinIBM4690Packed"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">27 3B 10 32 49 3B 19 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinIBM4690Packed>
+          <num1>27</num1>
+          <time>10:32:49.000000</time>
+          <num2>19</num2>
+        </timeBinIBM4690Packed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinIBM4690Packed2" root="timeBinIBM4690Packed2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 45 00 99 87</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>calendarPatternKind must be 'explicit' when binaryCalendarRep='ibm4690Packed'</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateBinInvalid" root="dateBinInvalid"
