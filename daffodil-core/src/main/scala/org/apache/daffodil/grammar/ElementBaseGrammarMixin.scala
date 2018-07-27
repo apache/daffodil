@@ -703,6 +703,48 @@ trait ElementBaseGrammarMixin
     ConvertZonedCombinator(this, new BCDIntegerDelimitedEndOfData(this), ConvertTextTimePrim(this))
   }
 
+  private lazy val ibm4690PackedKnownLengthCalendar = prod("ibm4690PackedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
+    ibm4690PackedDateKnownLength | ibm4690PackedTimeKnownLength | ibm4690PackedDateTimeKnownLength
+  }
+  private lazy val ibm4690PackedRuntimeLengthCalendar = prod("ibm4690PackedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
+    ibm4690PackedDateRuntimeLength | ibm4690PackedTimeRuntimeLength | ibm4690PackedDateTimeRuntimeLength
+  }
+  private lazy val ibm4690PackedDelimitedLengthCalendar = prod("ibm4690PackedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
+    ibm4690PackedDateDelimitedLength | ibm4690PackedTimeDelimitedLength | ibm4690PackedDateTimeDelimitedLength
+  }
+
+    // ibm4690Packed calendar with known length
+  private lazy val ibm4690PackedDateKnownLength = prod("ibm4690PackedDateKnownLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
+  }
+  private lazy val ibm4690PackedDateTimeKnownLength = prod("ibm4690PackedDateTimeKnownLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
+  }
+  private lazy val ibm4690PackedTimeKnownLength = prod("ibm4690PackedTimeKnownLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
+  }
+
+  // ibm4690Packed calendar with runtime length
+  private lazy val ibm4690PackedDateRuntimeLength = prod("ibm4690PackedDateRuntimeLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextDatePrim(this))
+  }
+  private lazy val ibm4690PackedDateTimeRuntimeLength = prod("ibm4690PackedDateTimeRuntimeLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextDateTimePrim(this))
+  }
+  private lazy val ibm4690PackedTimeRuntimeLength = prod("ibm4690PackedTimeRuntimeLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerRuntimeLength(this, false), ConvertTextTimePrim(this))
+  }
+
+  // ibm4690Packed calendar with delimited length
+  private lazy val ibm4690PackedDateDelimitedLength = prod("ibm4690PackedDateDelimitedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextDatePrim(this))
+  }
+  private lazy val ibm4690PackedDateTimeDelimitedLength = prod("ibm4690PackedDateTimeDelimitedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextDateTimePrim(this))
+  }
+  private lazy val ibm4690PackedTimeDelimitedLength = prod("ibm4690PackedTimeDelimitedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextTimePrim(this))
+  }
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
     standardTextDouble || zonedTextDouble
@@ -881,19 +923,30 @@ trait ElementBaseGrammarMixin
             case (_, n) => SDE("binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.", n)
           }
           case (_, BinaryCalendarRep.BinaryMilliseconds) => SDE("binaryCalendarRep='binaryMilliseconds' is not allowed with type %s", primType.name)
-          case (_, BinaryCalendarRep.Bcd) => {
+          case _ => { // Packed Decimal representations
             if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0)
               SDE("The given length (%s bits) must be a multiple of 4 when using binaryCalendarRep='%s'.", binaryNumberKnownLengthInBits, binaryCalendarRep)
             if (calendarPatternKind != CalendarPatternKind.Explicit)
               SDE("calendarPatternKind must be 'explicit' when binaryCalendarRep='%s'", binaryCalendarRep)
 
-            (lengthKind, binaryNumberKnownLengthInBits) match {
-              case (LengthKind.Delimited, -1) => bcdDelimitedLengthCalendar
-              case (_, -1) => bcdRuntimeLengthCalendar
-              case (_, _) => bcdKnownLengthCalendar
+            binaryCalendarRep match {
+              case (BinaryCalendarRep.Bcd) => {
+                (lengthKind, binaryNumberKnownLengthInBits) match {
+                  case (LengthKind.Delimited, -1) => bcdDelimitedLengthCalendar
+                  case (_, -1) => bcdRuntimeLengthCalendar
+                  case (_, _) => bcdKnownLengthCalendar
+                }
+              }
+              case (BinaryCalendarRep.Ibm4690Packed) => {
+                (lengthKind, binaryNumberKnownLengthInBits) match {
+                  case (LengthKind.Delimited, -1) => ibm4690PackedDelimitedLengthCalendar
+                  case (_, -1) => ibm4690PackedRuntimeLengthCalendar
+                  case (_, _) => ibm4690PackedKnownLengthCalendar
+                }
+              }
+              case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
             }
           }
-          case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
         }
       }
 
