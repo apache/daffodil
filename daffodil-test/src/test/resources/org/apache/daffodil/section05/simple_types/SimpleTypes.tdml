@@ -360,6 +360,51 @@
     <xs:element name="timeBinIBM4690Packed2" type="xs:time" dfdl:calendarPatternKind="implicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 5 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed"/>
 
+    <xs:element name="dateBinPacked" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone=""/>
+    <xs:element name="dateBinPacked2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed" />
+    <xs:element name="dateBinPacked3" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed" dfdl:binaryPackedSignCodes="C D F C" />
+    <xs:element name="dateBinPacked4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="packed"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0" dfdl:binaryPackedSignCodes="C D F C"
+            dfdl:binaryNumberCheckPolicy="strict" />
+          <xs:element name="date" type="xs:date" dfdl:calendarPattern="MMddyyyy" dfdl:encoding="ISO-8859-1"
+            dfdl:calendarPatternKind="explicit" dfdl:binaryCalendarRep="packed" dfdl:lengthKind="delimited" dfdl:terminator=";"
+            dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="" />
+          <xs:element name="num2" type="xs:decimal" dfdl:encoding="ISO-8859-1" dfdl:representation="binary" dfdl:binaryNumberRep="packed"
+            dfdl:lengthKind="delimited" dfdl:terminator=";" dfdl:binaryDecimalVirtualPoint="0" dfdl:binaryPackedSignCodes="C D F C"
+            dfdl:binaryNumberCheckPolicy="strict" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="timeBinPacked" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone=""/>
+    <xs:element name="timeBinPacked2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="length" type="xs:int" dfdl:representation="binary"
+            dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:lengthUnits="bytes" />
+          <xs:element name="time" type="xs:time" dfdl:calendarPattern="HHmmss" dfdl:calendarPatternKind="explicit"
+            dfdl:lengthKind="explicit" dfdl:length="{ ../ex:length }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
+            dfdl:binaryPackedSignCodes="C D F C"  dfdl:binaryNumberCheckPolicy="strict" dfdl:calendarTimeZone="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="dateTimeBinPacked" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyHHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 8 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="strict"/>
+    <xs:element name="dateTimeBinPacked2" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyHHmmss" dfdl:calendarPatternKind="explicit"
+      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="packed"
+      dfdl:binaryPackedSignCodes="C D F C" dfdl:binaryNumberCheckPolicy="lax" dfdl:calendarTimeZone="UTC-05:00"/>
+
     <xs:element name="dateBinInvalid" type="xs:date" dfdl:calendarPattern="yyyy.MM.dd" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
       dfdl:length="{ 4 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1970-01-01T00:00:00+00:00"/>
 
@@ -2728,6 +2773,136 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>calendarPatternKind must be 'explicit' when binaryCalendarRep='ibm4690Packed'</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinPacked" root="dateBinPacked"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 21 42 3C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinPacked>2023-12-14</dateBinPacked>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinPacked2" root="dateBinPacked2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 21 42 3C</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property binaryPackedSignCodes is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinPacked3" root="dateBinPacked3"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 21 42 3C</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property binaryNumberCheckPolicy is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinPacked4" root="dateBinPacked4"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 4D 3B 10 11 97 8C 3B 06 7C 3B</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinPacked4>
+          <num1>-14</num1>
+          <date>1978-01-01</date>
+          <num2>67</num2>
+        </dateBinPacked4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinPacked" root="timeBinPacked"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 61 32 7C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinPacked>06:13:27.000000</timeBinPacked>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="timeBinPacked2" root="timeBinPacked2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">04 00 41 50 8C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <timeBinPacked2>
+          <length>4</length>
+          <time>04:15:08.000000</time>
+        </timeBinPacked2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinPacked" root="dateTimeBinPacked"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 22 51 64 51 93 65 0C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinPacked>1645-12-25T19:36:50.000000+00:00</dateTimeBinPacked>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinPacked2" root="dateTimeBinPacked"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 22 51 64 51 93 65 0D</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expected unsigned data but parsed a negative number</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBinPacked3" root="dateTimeBinPacked2"
+    model="SimpleTypes-binary" description="Section 5 Schema types-dateTime - DFDL-5-016R"
+    roundTrip="twoPass">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">41 53 93 10 62 04 5A</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBinPacked2>3931-04-15T06:20:45.000000-05:00</dateTimeBinPacked2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateBinInvalid" root="dateBinInvalid"
