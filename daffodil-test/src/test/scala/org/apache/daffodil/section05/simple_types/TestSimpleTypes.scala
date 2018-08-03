@@ -219,6 +219,16 @@ class TestSimpleTypes {
   @Test def test_timeBinIBM4690Packed() { runner.runOneTest("timeBinIBM4690Packed") }
   @Test def test_timeBinIBM4690Packed2() { runner.runOneTest("timeBinIBM4690Packed2") }
 
+  @Test def test_dateBinPacked() { runner.runOneTest("dateBinPacked") }
+  @Test def test_dateBinPacked2() { runner.runOneTest("dateBinPacked2") }
+  @Test def test_dateBinPacked3() { runner.runOneTest("dateBinPacked3") }
+  @Test def test_dateBinPacked4() { runner.runOneTest("dateBinPacked4") }
+  @Test def test_timeBinPacked() { runner.runOneTest("timeBinPacked") }
+  @Test def test_timeBinPacked2() { runner.runOneTest("timeBinPacked2") }
+  @Test def test_dateTimeBinPacked() { runner.runOneTest("dateTimeBinPacked") }
+  @Test def test_dateTimeBinPacked2() { runner.runOneTest("dateTimeBinPacked2") }
+  @Test def test_dateTimeBinPacked3() { runner.runOneTest("dateTimeBinPacked3") }
+
   @Test def test_dateBinInvalid() { runner.runOneTest("dateBinInvalid") }
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }

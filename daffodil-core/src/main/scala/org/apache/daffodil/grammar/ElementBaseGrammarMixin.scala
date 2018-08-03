@@ -713,7 +713,7 @@ trait ElementBaseGrammarMixin
     ibm4690PackedDateDelimitedLength | ibm4690PackedTimeDelimitedLength | ibm4690PackedDateTimeDelimitedLength
   }
 
-    // ibm4690Packed calendar with known length
+  // ibm4690Packed calendar with known length
   private lazy val ibm4690PackedDateKnownLength = prod("ibm4690PackedDateKnownLength", primType == PrimType.Date) {
     ConvertZonedCombinator(this, new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
   }
@@ -744,6 +744,49 @@ trait ElementBaseGrammarMixin
   }
   private lazy val ibm4690PackedTimeDelimitedLength = prod("ibm4690PackedTimeDelimitedLength", primType == PrimType.Time) {
     ConvertZonedCombinator(this, new IBM4690PackedIntegerDelimitedEndOfData(this, false), ConvertTextTimePrim(this))
+  }
+
+  private lazy val packedKnownLengthCalendar = prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+    packedDateKnownLength | packedTimeKnownLength | packedDateTimeKnownLength
+  }
+  private lazy val packedRuntimeLengthCalendar = prod("packedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+    packedDateRuntimeLength | packedTimeRuntimeLength | packedDateTimeRuntimeLength
+  }
+  private lazy val packedDelimitedLengthCalendar = prod("packedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+    packedDateDelimitedLength | packedTimeDelimitedLength | packedDateTimeDelimitedLength
+  }
+
+  // Packed calendar with known length
+  private lazy val packedDateKnownLength = prod("packedDateKnownLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextDatePrim(this))
+  }
+  private lazy val packedDateTimeKnownLength = prod("packedDateTimeKnownLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextDateTimePrim(this))
+  }
+  private lazy val packedTimeKnownLength = prod("packedTimeKnownLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new PackedIntegerKnownLength(this, false, packedSignCodes, binaryNumberKnownLengthInBits), ConvertTextTimePrim(this))
+  }
+
+  // Packed calendar with runtime length
+  private lazy val packedDateRuntimeLength = prod("packedDateRuntimeLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextDatePrim(this))
+  }
+  private lazy val packedDateTimeRuntimeLength = prod("packedDateTimeRuntimeLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
+  }
+  private lazy val packedTimeRuntimeLength = prod("packedTimeRuntimeLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new PackedIntegerRuntimeLength(this, false, packedSignCodes), ConvertTextTimePrim(this))
+  }
+
+  // Packed calendar with delimited length
+  private lazy val packedDateDelimitedLength = prod("packedDateDelimitedLength", primType == PrimType.Date) {
+    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextDatePrim(this))
+  }
+  private lazy val packedDateTimeDelimitedLength = prod("packedDateTimeDelimitedLength", primType == PrimType.DateTime) {
+    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextDateTimePrim(this))
+  }
+  private lazy val packedTimeDelimitedLength = prod("packedTimeDelimitedLength", primType == PrimType.Time) {
+    ConvertZonedCombinator(this, new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes), ConvertTextTimePrim(this))
   }
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
@@ -942,6 +985,13 @@ trait ElementBaseGrammarMixin
                   case (LengthKind.Delimited, -1) => ibm4690PackedDelimitedLengthCalendar
                   case (_, -1) => ibm4690PackedRuntimeLengthCalendar
                   case (_, _) => ibm4690PackedKnownLengthCalendar
+                }
+              }
+              case (BinaryCalendarRep.Packed) => {
+                (lengthKind, binaryNumberKnownLengthInBits) match {
+                  case (LengthKind.Delimited, -1) => packedDelimitedLengthCalendar
+                  case (_, -1) => packedRuntimeLengthCalendar
+                  case (_, _) => packedKnownLengthCalendar
                 }
               }
               case _ =>  notYetImplemented("Type %s when representation='binary' and binaryCalendarRep=%s", primType.name, binaryCalendarRep.toString)
