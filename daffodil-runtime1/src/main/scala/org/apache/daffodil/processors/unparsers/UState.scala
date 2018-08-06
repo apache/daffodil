@@ -384,7 +384,7 @@ class UStateForSuspension(
   override def moveOverOneElementChildOnly() = die
   override def childPos = 0 // was die, but this is called when copying state during debugging.
 
-  override def occursBoundsStack = die
+  // override def occursBoundsStack = die
 
   override def pushDelimiters(node: DelimiterStackUnparseNode) = die
   override def popDelimiters() = die

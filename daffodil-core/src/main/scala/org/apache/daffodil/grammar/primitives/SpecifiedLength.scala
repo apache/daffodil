@@ -29,21 +29,32 @@ import org.apache.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import org.apache.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe._
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
 
   lazy val eGram = eGramArg // once only
-  lazy val eParser = eGram.parser
+
+  final protected lazy val maybeEParser: Maybe[Parser] = {
+    val p = eGram.parser
+    if (p.isEmpty) Nope
+    else One(p)
+  }
+
   lazy val eUnparser = eGram.unparser
 
   def kind: String
 
   def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
-      "<SpecifiedLengthCombinator_" + kind + ">" +
-        eParser.toBriefXML(depthLimit - 1) +
-        "</SpecifiedLengthCombinator_" + kind + ">"
+      "<SpecifiedLengthCombinator_" + kind + (
+        if (maybeEParser.isEmpty) "/>"
+        else ">" +
+          maybeEParser.get.toBriefXML(depthLimit - 1) +
+          "</SpecifiedLengthCombinator_" + kind + ">"
+      )
   }
 
 }
@@ -71,7 +82,7 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
   }
 
   override lazy val parser: Parser = new SpecifiedLengthPatternParser(
-    eParser,
+    maybeEParser,
     e.elementRuntimeData,
     pattern)
 
@@ -90,11 +101,16 @@ trait SpecifiedLengthExplicitImplicitUnparserMixin {
   def e: ElementBase
   def eUnparser: Unparser
 
-  lazy val unparser: Unparser = new SpecifiedLengthExplicitImplicitUnparser(
-    eUnparser,
-    e.elementRuntimeData,
-    e.unparseTargetLengthInBitsEv,
-    e.maybeUnparseTargetLengthInCharactersEv)
+  lazy val unparser: Unparser = {
+    val u = eUnparser
+    if (u.isEmpty) u
+    else
+      new SpecifiedLengthExplicitImplicitUnparser(
+        u,
+        e.elementRuntimeData,
+        e.unparseTargetLengthInBitsEv,
+        e.maybeUnparseTargetLengthInCharactersEv)
+  }
 }
 
 class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: Int)
@@ -106,7 +122,7 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
   lazy val kind = "Explicit_" + e.lengthUnits.toString
 
   lazy val parser: Parser = new SpecifiedLengthExplicitParser(
-    eParser,
+    maybeEParser,
     e.elementRuntimeData,
     e.lengthEv,
     bitsMultiplier)
@@ -122,7 +138,7 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
   lazy val toBits = 1
 
   lazy val parser: Parser = new SpecifiedLengthImplicitParser(
-    eParser,
+    maybeEParser,
     e.elementRuntimeData,
     nBits)
 
@@ -135,7 +151,7 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
   val kind = "ExplicitCharacters"
 
   lazy val parser: Parser = new SpecifiedLengthExplicitCharactersParser(
-    eParser,
+    maybeEParser,
     e.elementRuntimeData,
     e.lengthEv)
 }
@@ -147,7 +163,7 @@ class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: 
   val kind = "ImplicitCharacters"
 
   lazy val parser: Parser = new SpecifiedLengthImplicitCharactersParser(
-    eParser,
+    maybeEParser,
     e.elementRuntimeData,
     nChars)
 }

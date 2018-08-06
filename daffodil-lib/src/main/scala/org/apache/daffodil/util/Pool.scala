@@ -18,7 +18,6 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.equality._
-import org.apache.daffodil.exceptions.Assert
 import scala.collection.mutable
 
 /**
@@ -78,7 +77,15 @@ trait Pool[T <: Poolable] {
     numOutstanding -= 1
     pool.push(thing)
     inUse -= thing
-    thing.setPoolDebugLabel(null)
+    // Do Not reset the pool debug label.
+    // That way if something is double-returned, we can look at the
+    // pool debug label to see what it previously was, as a clue to how
+    // it was erroneously double returned.
+    // thing.setPoolDebugLabel(null)
+  }
+  
+  final def isInUse(thing: T) = {
+    inUse.contains(thing)
   }
 
   /**
@@ -92,7 +99,8 @@ trait Pool[T <: Poolable] {
     if (!(numOutstanding =#= 0)) {
       val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
         "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")
-      Assert.invariantFailed(msg)
+      System.err.println(msg)
+      // Assert.invariantFailed(msg)
     }
   }
 

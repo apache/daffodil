@@ -417,10 +417,7 @@ case object EndKind extends InfosetEventKind { override def toString = "end" }
  */
 class InfosetAccessor private (var kind: InfosetEventKind, var node: DINode) extends Accessor[InfosetAccessor] {
   def namedQName = node.namedQName
-  def erd: ElementRuntimeData = node match {
-    case a: DIArray => a.parent.runtimeData
-    case e: DIElement => e.erd
-  }
+  def erd: ElementRuntimeData = node.erd
 
   override def toString = {
     val evLbl = if (kind eq null) "NullKind" else kind.toString

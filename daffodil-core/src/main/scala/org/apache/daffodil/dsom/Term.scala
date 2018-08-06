@@ -27,6 +27,44 @@ import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.gen.NilKind
 
 /**
+ * Mixin for objects that are shared, but have consistency checks to be run
+ * that are based on the concrete Term objects they are associated with.
+ *
+ * E.g., DFDL statements may have checks that need to know the encoding
+ * (if it is known at compile time). We call this on each statement to enable
+ * the checking code to be expressed on that statement where it is relevant,
+ * but have it be callable from the concrete Term once it is created.
+ *
+ * This is a way to avoid use of backpointers from shared objects to every
+ * thing referencing them.
+ */
+trait HasTermCheck {
+
+  /**
+   * Perform checking of an object against the supplied Term arg.
+   */
+  final def checkTerm(term: Term): Unit = {
+    //
+    // This public method calling a protected method lets us play tricks
+    // in the future to avoid repeated check calls by memoizing the
+    // results.
+    //
+    check(term)
+  }
+
+  /**
+   * Override to perform necessary checks that require information about the
+   * concrete Term.
+   *
+   * This avoids the need for the checking code to have a backpointer to the
+   * Term.
+   */
+  protected def check(term: Term): Unit = {
+    // by default this does nothing.
+  }
+}
+
+/**
  * Term, and what is and isn't a Term, is a key concept in DSOM.
  *
  * From elements, ElementRef and LocalElementDecl are Term. A GlobalElementDecl is *not* a Term.
@@ -44,7 +82,14 @@ trait Term
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin {
+  with TermEncodingMixin
+  with EscapeSchemeRefMixin {
+
+  requiredEvaluations(termChecks)
+
+  private lazy val termChecks = {
+    statements.foreach { _.checkTerm(this) }
+  }
 
   def position: Int
 
@@ -71,9 +116,9 @@ trait Term
    * There are two senses of optional
    *
    * 1) Optional as in "might not be present" but for any reason.
-   * Consistent with this is Required meaning must occur (but for any
+   * Consistent with this is Required meaning must occur but for any
    * reason. So all the occurrences of an array that has fixed number of
-   * occurrences are required, and some of the occurrances of an array
+   * occurrences are required, and some of the occurrences of an array
    * that has a variable number of occurrences are optional.
    *
    * 2) Optional is in minOccurs="0" maxOccurs="1".
@@ -90,6 +135,8 @@ trait Term
   /**
    * Something is required if it is not optional
    * and not an array, unless that array has required elements.
+   *
+   * Does not exclude computed elements however. So can be !isRepresented.
    */
   def isRequired: Boolean
 
@@ -360,6 +407,38 @@ trait Term
   def hasKnownRequiredSyntax = false
 
   /**
+   * Override in particle mixin
+   */
+  def isVariableOccurrences: Boolean = false
+
+  def hasPotentiallyTrailingInstances: Boolean = false
+
+  lazy val isPotentiallyTrailing = {
+    if (!isRepresented) false
+    else if (!isRequired ||
+      (isRequired && isLastDeclaredRepresentedInSequence && isVariableOccurrences)) {
+      val es = nearestEnclosingSequence
+      val res = es match {
+        case None => true
+        case Some(s) => {
+          val allRequired = s.groupMembers.filter(_.isRequired)
+          if (allRequired.isEmpty) true
+          else {
+            val lastDeclaredRequired = allRequired.last
+            val thisLoc = s.groupMembers.indexOf(this)
+            val lastDeclaredRequiredLoc = s.groupMembers.indexOf(lastDeclaredRequired)
+            val res = lastDeclaredRequiredLoc <= thisLoc
+            res
+          }
+        }
+      }
+      res
+      // Since we can't determine at compile time, return false so that we can continue processing.
+      // Runtime checks will make final determination.
+    } else false
+  }
+
+  /**
    * Returns a tuple, where the first item in the tuple is the list of sibling
    * terms that could appear before this. The second item in the tuple is a
    * One(parent) if all siblings are optional or this element has no prior siblings
@@ -531,6 +610,11 @@ trait Term
     }
     listOfNextTerm
   }.value
+
+  final lazy val isLastDeclaredRepresentedInSequence = {
+    val res = laterSiblings.forall(!_.isRepresented)
+    res
+  }
 
   final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence

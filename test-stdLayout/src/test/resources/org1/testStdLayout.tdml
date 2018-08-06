@@ -34,7 +34,7 @@
       <tdml:documentPart type="file">org1/test-outer-data1.txt</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>RepUnbounded - No forward progress</tdml:error>
+      <tdml:error>No forward progress</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

@@ -14,25 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.daffodil.grammar
-import org.apache.daffodil.dsom.ComplexTypeBase
-import org.apache.daffodil.dsom.GroupRef
-import org.apache.daffodil.grammar.primitives.ComplexTypeCombinator
-
-trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
-
-}
-
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =>
-
-  override protected final def grammarContext = this
-
-  lazy val mainGrammar = prod("mainGrammar") {
-    ComplexTypeCombinator(this, group.asChildOfComplexType)
-  }
-}
+//
+//package org.apache.daffodil.grammar
+//import org.apache.daffodil.dsom.ComplexTypeBase
+//import org.apache.daffodil.dsom.GroupRef
+//import org.apache.daffodil.grammar.primitives.ComplexTypeCombinator
+//
+///////////////////////////////////////////////////////////////////
+//// Types System
+///////////////////////////////////////////////////////////////////
+//
+//trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =>
+//
+//  override protected final def grammarContext = this
+//
+//  lazy val mainGrammar = prod("mainGrammar") {
+//    ComplexTypeCombinator(this, group.asChildOfComplexType)
+//  }
+//}

@@ -437,7 +437,7 @@ abstract class ParseOrUnparseState protected (
   def groupPos: Long
   def arrayPos: Long
   def childPos: Long
-  def occursBoundsStack: MStackOfLong
+  //  def occursBoundsStack: MStackOfLong
 
   def hasInfoset: Boolean
 

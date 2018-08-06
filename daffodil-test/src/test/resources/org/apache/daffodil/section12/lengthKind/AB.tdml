@@ -217,7 +217,8 @@
   </parserTestCase>
 
   <parserTestCase name="AB005" root="matrix_02" model="AB.dfdl.xsd"
-    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R">
+    description="CSV-style tests - data stream is scanned for element's enclosing construct's separator.  separatorPosition is postfix.  Sequence has is nil elements. - DFDL-12-043R"
+    roundTrip="threePass">
 
     <document>
       <documentPart type="text"><![CDATA[0,1,2,3,4

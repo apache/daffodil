@@ -21,12 +21,12 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Maybe
 
-case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, emptyUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
+  nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Nil
 
-  override lazy val childProcessors = Seq(nilUnparser, emptyUnparser, valueUnparser)
+  override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
 
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
@@ -39,38 +39,6 @@ case class SimpleNilOrEmptyOrValueUnparser(ctxt: ElementRuntimeData,
     // because _isNilled has not been set yet. Rather than having to deal with
     // suspending, only check isNilled for non-OVC elements.
     if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse1(state)
-    else if (inode.isEmpty) emptyUnparser.unparse1(state)
-    else valueUnparser.unparse1(state)
-  }
-}
-
-case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
-
-  override lazy val runtimeDependencies = Nil
-
-  override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
-
-  def unparse(state: UState): Unit = {
-    Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
-    val inode = state.currentInfosetNode.asSimple
-    // see comment above for why this OVC check is necessary
-    if (ctxt.outputValueCalcExpr.isEmpty && inode.isNilled) nilUnparser.unparse1(state)
-    else valueUnparser.unparse1(state)
-  }
-}
-
-case class SimpleEmptyOrValueUnparser(ctxt: ElementRuntimeData,
-  emptyUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
-
-  override lazy val runtimeDependencies = Nil
-
-  override lazy val childProcessors = Seq(emptyUnparser, valueUnparser)
-
-  def unparse(state: UState): Unit = {
-    Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
-    val inode = state.currentInfosetNode.asSimple
-    if (inode.isEmpty) emptyUnparser.unparse1(state)
     else valueUnparser.unparse1(state)
   }
 }

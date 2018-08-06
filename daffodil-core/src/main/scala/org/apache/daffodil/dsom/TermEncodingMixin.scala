@@ -200,6 +200,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * for a character.
    */
   final lazy val hasTextAlignment = {
+    // FIXME: Duplicate method?? Same as AlignedMixin.isKnownToBeTextAligned ??
     val av = alignmentValueInBits
     val kav = this.knownEncodingAlignmentInBits
     av % kav == 0

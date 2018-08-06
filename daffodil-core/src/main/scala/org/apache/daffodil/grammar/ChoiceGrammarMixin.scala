@@ -26,5 +26,5 @@ trait ChoiceGrammarMixin extends GrammarMixin { self: ChoiceTermBase =>
     ChoiceCombinator(this, alternatives)
   }
 
-  private lazy val alternatives = groupMembers.map { _.asTermInChoice }
+  private lazy val alternatives = groupMembersWithImpliedSequences.map{ _.termContentBody }
 }

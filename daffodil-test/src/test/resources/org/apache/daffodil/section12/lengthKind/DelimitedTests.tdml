@@ -180,16 +180,19 @@
 
     <xs:element name="NS_13">
       <xs:complexType>
-        <xs:sequence dfdl:separator=","
-          dfdl:separatorPosition="infix">
+        <xs:sequence>
           <xs:sequence>
+            <!-- this first sequence exists just to make the assert run 
+             before the rest of the sequence. -->
           	<xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert>{fn:true()}</dfdl:assert>
               </xs:appinfo>
           	</xs:annotation>
           </xs:sequence>
-          <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
+          <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+            <xs:element name="e2" type="xs:int" maxOccurs="unbounded" dfdl:textNumberPattern="#####" />
+          </xs:sequence>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

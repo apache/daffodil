@@ -19,7 +19,6 @@ package org.apache.daffodil.grammar.primitives
 
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.grammar.Terminal
-import org.apache.daffodil.grammar.HasNoUnparser
 
 abstract class Primitive(e: Term, guard: Boolean = false)
   extends Terminal(e, guard) {
@@ -30,25 +29,9 @@ abstract class Primitive(e: Term, guard: Boolean = false)
  * For stubbing out primitives that are placeholders
  */
 abstract class UnimplementedPrimitive(e: Term, guard: Boolean = false)
-  extends Primitive(e, guard)
-  with HasNoUnparser {
+  extends Primitive(e, guard) {
   override final lazy val parser = hasNoParser
+  override final lazy val unparser = hasNoUnparser
 }
-
-// base stub classes
-
-// case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class SaveInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class SetEmptyInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class RestoreInputStream(e: ElementBase, guard: Boolean = true) extends UnimplementedPrimitive(e, guard)
-
-case class NotStopValue(e: ElementBase with LocalElementMixin) extends UnimplementedPrimitive(e, e.hasStopValue)
-
-case class StopValue(e: ElementBase with LocalElementMixin) extends UnimplementedPrimitive(e, e.hasStopValue)
-
-case class TheDefaultValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isDefaultable)
 
 case class UnicodeByteOrderMark(e: Root) extends UnimplementedPrimitive(e, false)

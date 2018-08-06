@@ -574,8 +574,7 @@
     <tdml:errors>
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
-      <tdml:error>Expected 2 item(s)</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Separator ',' not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -609,8 +608,7 @@
     <tdml:errors>
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
-      <tdml:error>Expected 2 item(s)</tdml:error>
-      <tdml:error>Delimiter not found</tdml:error>
+      <tdml:error>Initiator ')' not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -679,7 +677,8 @@
   -->
 
   <tdml:parserTestCase name="ockImplicit8" root="r6"
-    model="s1" description="Section 14.2.2">
+    model="s1" description="Section 14.2.2"
+    roundTrip="threePass">
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

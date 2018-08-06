@@ -236,7 +236,9 @@ abstract class ChoiceTermBase( final override val xml: Node,
     noDupes
   }.value
 
-  final lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = choiceRuntimeData
+
+  final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
       schemaSet.variableMap,
       encodingInfo,
@@ -261,6 +263,17 @@ abstract class ChoiceTermBase( final override val xml: Node,
       maybeFillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharset)
+  }
+  
+  final lazy val groupMembersWithImpliedSequences = {
+    val rawGMs = groupMembers
+    val wrappedGMs = rawGMs.map {
+      gm =>
+        if (gm.isScalar) gm
+        else
+          new ChoiceBranchImpliedSequence(gm)
+    }
+    wrappedGMs
   }
 }
 

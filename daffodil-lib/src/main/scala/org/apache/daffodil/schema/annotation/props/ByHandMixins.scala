@@ -122,7 +122,7 @@ trait SeparatorSuppressionPolicyMixin
    * DFDL standard in this way, so this approach is better than the loader that rewrites. It
    * gives us more flexibility in warnings or error treatment of the old/deprecated names.
    */
-  lazy val separatorSuppressionPolicy = {
+  lazy val separatorSuppressionPolicy: SeparatorSuppressionPolicy = {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     (sp, ssp) match {
@@ -131,7 +131,10 @@ trait SeparatorSuppressionPolicyMixin
         SeparatorSuppressionPolicy(sspStr, this)
       }
       case (None, Some(sspStr)) => SeparatorSuppressionPolicy(sspStr, this)
-      case (None, None) => getProperty("separatorSuppressionPolicy") // which will SDE!
+      case (None, None) => {
+        getProperty("separatorSuppressionPolicy") // which will SDE!
+        Assert.impossible("Above is going to SDE")
+      }
       case (Some(spString), None) => {
         SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.")
         spString match {

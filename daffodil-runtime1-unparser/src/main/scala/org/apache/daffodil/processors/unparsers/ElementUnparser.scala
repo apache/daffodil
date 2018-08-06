@@ -55,8 +55,6 @@ class ElementUnspecifiedLengthUnparser(
 
 trait RepMoveMixin {
   def move(start: UState) {
-    val grIndex = start.groupIndexStack.pop()
-    start.groupIndexStack.push(grIndex + 1)
     val childIndex = start.childIndexStack.pop()
     start.childIndexStack.push(childIndex + 1)
   }

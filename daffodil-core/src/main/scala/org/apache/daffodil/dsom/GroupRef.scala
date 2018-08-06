@@ -77,7 +77,7 @@ final class SequenceGroupRef(globalGroupDef: => GlobalSequenceGroupDef,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
   isHiddenArg: Boolean)
-  extends SequenceTermBase(refXML, refLexicalParent, positionArg)
+  extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
   with GroupRef {
 
   override def isHidden = isHiddenArg

@@ -40,10 +40,6 @@ trait ModelGroupGrammarMixin
 
   private lazy val groupRightFraming = prod("groupRightFraming") { TrailingSkipRegion(this) }
 
-  // I believe we can have the same grammar rules whether we're directly inside a complex type, or
-  // we're nested inside another group as a term.
-  final lazy val asChildOfComplexType = termContentBody
-
   final override lazy val termContentBody = prod("termContentBody") {
     dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
   }

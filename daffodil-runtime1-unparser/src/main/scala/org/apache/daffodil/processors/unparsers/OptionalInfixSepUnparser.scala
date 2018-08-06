@@ -18,10 +18,13 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.exceptions.Assert
 
 class OptionalInfixSepUnparser(contextArg: TermRuntimeData,
   sepUnparser: Unparser)
   extends CombinatorUnparser(contextArg) {
+  
+  Assert.invariant(!sepUnparser.isEmpty)
 
   override lazy val runtimeDependencies = Nil
 

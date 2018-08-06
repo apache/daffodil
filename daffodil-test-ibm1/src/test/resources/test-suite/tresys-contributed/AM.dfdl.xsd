@@ -39,9 +39,6 @@
 
   <group name="arrayGroup">
     <sequence>
-    <!-- 
-    TBD: WHAT SHOULD THE occursCountKind BE??
-     -->
       <element name="array" type="xsd:unsignedByte" maxOccurs="unbounded" dfdl:occursCountKind='implicit'
         dfdl:representation="binary" dfdl:lengthKind="implicit" /> <!-- unsignedByte because it is compared with numbers > 127 -->
     </sequence>

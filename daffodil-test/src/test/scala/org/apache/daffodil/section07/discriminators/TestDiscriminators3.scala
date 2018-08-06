@@ -65,8 +65,9 @@ class TestDiscriminators {
   @Test def test_discrimExpression_01() = { runner.runOneTest("discrimExpression_01") }
   @Test def test_discrimExpression_02() = { runner.runOneTest("discrimExpression_02") }
   @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }
-  @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 
+  // DAFFODIL-1971
+  // @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 
   @Test def test_discrimFailStopsFollowingAssert1() { runner.runOneTest("discrimFailStopsFollowingAssert1") }
   @Test def test_discrimPEnotSDE1() { runner.runOneTest("discrimPEnotSDE1") }

@@ -42,6 +42,7 @@ import org.apache.daffodil.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.infoset.NextElementResolver
 import org.apache.daffodil.infoset.ChildResolver
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.util.Maybe
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -522,8 +523,9 @@ trait ElementBase
       targetNamespace,
       thisElementsNamespace,
       optSimpleTypeRuntimeData,
-      optMinOccurs,
-      optMaxOccurs,
+      minOccurs,
+      maxOccurs,
+      Maybe.toMaybe(optionOccursCountKind),
       name,
       targetNamespacePrefix,
       thisElementsNamespacePrefix,
@@ -792,8 +794,8 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  private lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  private lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  protected final lazy val hasNilValueInitiator = initTermTestExpression(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  protected final lazy val hasNilValueTerminator = initTermTestExpression(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.
@@ -860,6 +862,12 @@ trait ElementBase
       res
     }
   }.value
+
+
+    final lazy val hasEmptyValueZLSyntax =
+    !hasEmptyValueInitiator && !hasEmptyValueTerminator && isSimpleType &&
+(simpleType.primType =:= PrimType.String ||
+    simpleType.primType =:= PrimType.HexBinary)
 
   import org.apache.daffodil.dsom.FacetTypes._
 
@@ -1087,12 +1095,12 @@ trait ElementBase
           SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
         schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
         if (isArray && !isRequiredArrayElement) {
-          (optMinOccurs, occursCountKind) match {
+          (minOccurs, occursCountKind) match {
             case (_, OccursCountKind.Parsed) |
               (_, OccursCountKind.StopValue) =>
               SDE("XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
                 defaultValueAsString, occursCountKind)
-            case (Some(0), _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
+            case (0, _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
               defaultValueAsString)
             case _ => // ok
           }

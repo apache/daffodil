@@ -961,7 +961,7 @@ is multiple bytes in UTF-8 encoding that is used"
       <tdml:documentPart type="byte">00 41 00 0A 00 0A 00 42 00 0A 00 0A</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>␊␊</tdml:error>
+      <tdml:error>%NL;%NL;</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

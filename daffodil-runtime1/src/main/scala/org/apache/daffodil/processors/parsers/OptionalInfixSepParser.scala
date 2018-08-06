@@ -18,9 +18,12 @@
 package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors.TermRuntimeData
+import org.apache.daffodil.exceptions.Assert
 
 class OptionalInfixSepParser(ctxt: TermRuntimeData, sepParser: Parser)
   extends CombinatorParser(ctxt) {
+
+  Assert.invariant(!sepParser.isEmpty)
 
   override lazy val nom = "OptionalInfixSep"
   override lazy val childProcessors = Seq(sepParser)

@@ -23,6 +23,7 @@ import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.exceptions.Assert
 
 class UnparseAlternativeFailed(rd: TermRuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
   extends UnparseError(One(rd.schemaFileLocation), One(loc), Maybe.Nope, Maybe("Alternative failed. Reason(s): %s"), errors)
@@ -30,7 +31,7 @@ class UnparseAlternativeFailed(rd: TermRuntimeData, loc: DataLocation, val error
 object UnparseError {
   def apply(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], formatString: String, args: Any*) = {
     val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
-    throw ue
+    Assert.toss(ue)
   }
 }
 

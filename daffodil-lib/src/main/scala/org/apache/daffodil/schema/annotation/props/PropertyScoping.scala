@@ -193,7 +193,7 @@ trait FindPropertyMixin extends PropTypes {
   /**
    * For unit testing convenience, or for use when debugging.
    */
-  final def verifyPropValue(key: String, value: String): Boolean = {
+  def verifyPropValue(key: String, value: String): Boolean = {
     val prop = findPropertyOption(key)
     prop match {
       case Found(v, _, _, _) if (v == value) => true

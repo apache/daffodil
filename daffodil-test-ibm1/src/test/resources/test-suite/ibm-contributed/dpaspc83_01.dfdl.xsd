@@ -33,7 +33,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
-				truncateSpecifiedLengthString="no"  separator=""  
+				truncateSpecifiedLengthString="no"  separator="" separatorSuppressionPolicy="trailingEmpty"
 				textBidi="no" floating="no"   encodingErrorPolicy="replace" encoding="ASCII" representation="text"
 				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" initiatedContent="no" sequenceKind="ordered"
 				ignoreCase="no" textPadKind="none" textTrimKind="none"

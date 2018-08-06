@@ -18,15 +18,13 @@
 package org.apache.daffodil.dsom
 
 import scala.xml.Node
-import org.apache.daffodil.grammar.ComplexTypeBaseGrammarMixin
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.xml.QName
 
 abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)
   with TypeBase
-  with NonPrimTypeMixin
-  with ComplexTypeBaseGrammarMixin {
+  with NonPrimTypeMixin {
 
   final override def optRestriction = None
   final override def optUnion = None
