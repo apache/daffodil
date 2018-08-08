@@ -66,4 +66,6 @@ class TestTextNumberPropsUnparse {
   @Test def test_unparse_tnp_02() { runner.runOneTest("unparse_tnp_02") }
   @Test def test_unparse_tnp_03() { runner.runOneTest("unparse_tnp_03") }
   @Test def test_unparse_tnp_04() { runner.runOneTest("unparse_tnp_04") }
+  @Test def test_unparse_tnp_05a() { runner.runOneTest("unparse_tnp_05a") }
+  @Test def test_unparse_tnp_05b() { runner.runOneTest("unparse_tnp_05b") }
 }

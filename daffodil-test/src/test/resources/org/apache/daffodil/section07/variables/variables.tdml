@@ -1050,7 +1050,6 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unable to parse expression</tdml:error>
-      <tdml:error>but `/' found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

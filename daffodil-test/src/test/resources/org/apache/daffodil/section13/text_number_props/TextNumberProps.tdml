@@ -762,7 +762,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp28" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">1234</tdml:documentPart>
@@ -830,14 +830,14 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax04" root="tnp12" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    0052    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp10>52</tnp10>
+        <tnp12>52</tnp12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -852,7 +852,7 @@
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax05" root="tnp29" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234]]></tdml:documentPart>
@@ -965,7 +965,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax10" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  03  ]]></tdml:documentPart>
@@ -987,7 +987,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax11" root="tnp34" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
@@ -1009,14 +1009,14 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax12" root="tnp35" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp34>3</tnp34>
+        <tnp35>3</tnp35>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -1031,7 +1031,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax13" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[   3352     ]]></tdml:documentPart>
@@ -1053,7 +1053,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax14" root="tnp33" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[   03352     ]]></tdml:documentPart>
@@ -1075,7 +1075,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax15" root="tnp32" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
@@ -1097,7 +1097,7 @@
   -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax16" root="tnp36" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
@@ -1638,7 +1638,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardDecimalSeparator cannot contain</tdml:error>
+      <tdml:error>Byte Entity</tdml:error>
+      <tdml:error>%#r2E;</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1914,7 +1915,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>textStandardGroupingSeparator cannot contain</tdml:error>
+      <tdml:error>Byte Entity</tdml:error>
+      <tdml:error>%#r5B;</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2106,14 +2108,16 @@
   -->
 
   <tdml:parserTestCase name="textNumberPattern_scientificNotation02" root="tnp50" model="textNumberPattern"
-    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R" roundTrip="twoPass">
 
     <tdml:document>
       <tdml:documentPart type="text">1.234E3</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp50 xmlns:ex="http://example.com">1234.0</ex:tnp50>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -2221,7 +2225,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Invalid textNumberPattern</tdml:error>
-      <tdml:error>Grouping separator in exponential in pattern "##,###.##E0"</tdml:error>
+      <tdml:error>Cannot have grouping separator in scientific notation</tdml:error>
+      <tdml:error>##,###.##E0</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2302,7 +2307,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Invalid textNumberPattern</tdml:error>
-      <tdml:error>Multiple pad specifiers in pattern</tdml:error>
+      <tdml:error>multiple pad specifiers</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2427,7 +2432,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Invalid textNumberPattern</tdml:error>
-      <tdml:error>Multiple pad specifiers in pattern</tdml:error>
+      <tdml:error>multiple pad specifiers</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2489,7 +2494,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Invalid textNumberPattern</tdml:error>
-      <tdml:error>Invalid pad specifier in pattern "#*"</tdml:error>
+      <tdml:error>Malformed pattern</tdml:error>
+      <tdml:error>"#*"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3141,6 +3147,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Byte Entity</tdml:error>
+      <tdml:error>%#r3E;</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3301,11 +3309,11 @@
     <tdml:document>
       <tdml:documentPart type="text">-123</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp89>123</tnp89>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unsigned Short (for xs:unsignedShort)</tdml:error>
+      <tdml:error>Out of Range: '-123' converted to -123, is not in range for the type</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -4145,7 +4153,8 @@
     </tdml:document>
 	
 	<tdml:errors>
-		<tdml:error>Invalid textNumberPattern: Unquoted special character</tdml:error>
+		<tdml:error>Invalid textNumberPattern</tdml:error>
+    <tdml:error>unquoted special character</tdml:error>
 	</tdml:errors>
 
   </tdml:parserTestCase>

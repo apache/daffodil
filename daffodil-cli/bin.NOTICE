@@ -11,7 +11,7 @@ Based on source code originally developed by
 
 The following NOTICE information applies to binary components distributed with this project:
 
-Apache Xerces Java (lib/xerces.xercesImpl-2.10.0.jar)
+Apache Xerces Java (lib/xerces.xercesImpl-2.12.0.jar)
   Apache Xerces Java
   Copyright 1999-2010 The Apache Software Foundation
 
@@ -56,11 +56,11 @@ JDOM2 (lib/org.jdom.jdom2-2.0.6.jar)
   This product includes software developed by the
   JDOM Project (http://www.jdom.org/).
 
-Jansi (lib/org.fusesource.jansi.jansi-1.14.jar)
+Jansi (lib/org.fusesource.jansi.jansi-1.17.1.jar)
   Copyright (C) 2009, Progress Software Corporation and/or its
   subsidiaries or affiliates.  All rights reserved.
 
-Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.8.8.jar)
+Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.9.6.jar)
   # Jackson JSON processor
 
   Jackson is a high-performance, Free/Open Source JSON processing library.
@@ -82,7 +82,7 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-2.8.8.jar)
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
 
-Woodstox (lib/com.fasterxml.woodstox.woodstox-core-5.0.3.jar)
+Woodstox (lib/com.fasterxml.woodstox.woodstox-core-5.1.0.jar)
   This product currently only contains code developed by authors
   of specific components, as identified by the source code files.
 

@@ -72,7 +72,7 @@
           textNumberRep="standard"
           textNumberRounding="explicit"
           textNumberRoundingIncrement="0"
-          textNumberRoundingMode="roundUnnecessary"
+          textNumberRoundingMode="roundHalfEven"
           textOutputMinLength="0"
           textPadKind="none"
           textStandardBase="10"

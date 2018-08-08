@@ -47,7 +47,7 @@
 					textStandardGroupingSeparator="," textStandardExponentRep="E"
 					textStandardZeroRep="0" textStandardInfinityRep="Inf"
 					textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
-					textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
+					textNumberRounding="explicit" textNumberRoundingMode="roundHalfEven"
 					textNumberRoundingIncrement="0" decimalSigned="yes"
                      />
 			</dfdl:defineFormat>

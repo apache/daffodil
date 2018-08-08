@@ -63,24 +63,18 @@ class TestTextNumberProps {
 
   @Test def test_standardZeroRep01() { runner.runOneTest("standardZeroRep01") }
   @Test def test_standardZeroRep02() { runner.runOneTest("standardZeroRep02") }
+  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
+  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
+  @Test def test_standardZeroRep04b() { runner.runOneTest("standardZeroRep04b") }
   @Test def test_standardZeroRep05() { runner.runOneTest("standardZeroRep05") }
   @Test def test_standardZeroRep06() { runner.runOneTest("standardZeroRep06") }
+  @Test def test_standardZeroRep07() { runner.runOneTest("standardZeroRep07") }
   @Test def test_standardZeroRep08() { runner.runOneTest("standardZeroRep08") }
+  @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
   @Test def test_standardZeroRep10() { runner.runOneTest("standardZeroRep10") }
   @Test def test_standardZeroRep11() { runner.runOneTest("standardZeroRep11") }
 
   @Test def test_textNumberPattern_noNegative() { runner.runOneTest("textNumberPattern_noNegative") }
-
-  // DFDL-861
-  //  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
-
-  // DFDL-851
-  //  @Test def test_standardZeroRep07() { runner.runOneTest("standardZeroRep07") }
-
-  @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
-
-  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
-  @Test def test_standardZeroRep04b() { runner.runOneTest("standardZeroRep04b") }
 
   @Test def test_lengthDeterminedFirst01() { runner.runOneTest("lengthDeterminedFirst01") }
   @Test def test_lengthDeterminedFirst02() { runner.runOneTest("lengthDeterminedFirst02") }
@@ -93,6 +87,8 @@ class TestTextNumberProps {
   @Test def test_dynamicExp_neg() { runner.runOneTest("dynamicExpNeg") }
   @Test def test_dynamicExpInvalid() { runner.runOneTest("dynamicExpInvalid") }
   @Test def test_expCaseInsensitive() { runner.runOneTest("expCaseInsensitive") }
+  // DAFFODIL-861
+  //@Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
   @Test def test_expRawByteInvalid() { runner.runOneTest("expRawByteInvalid") }
   @Test def test_expRawByteNotAllowed() { runner.runOneTest("expRawByteNotAllowed") }
   @Test def test_expCharClasses() { runner.runOneTest("expCharClasses") }
@@ -100,8 +96,9 @@ class TestTextNumberProps {
   @Test def test_expCharEntities2() { runner.runOneTest("expCharEntities2") }
   @Test def test_noStandardExpRep() { runner.runOneTest("noStandardExpRep") }
   @Test def test_noStandardExpRep2() { runner.runOneTest("noStandardExpRep2") }
-  @Test def test_expEmptyString() { runner.runOneTest("expEmptyString") }
-  @Test def test_expEmptyString2() { runner.runOneTest("expEmptyString2") }
+  // DAFFODIL-1981
+  //@Test def test_expEmptyString() { runner.runOneTest("expEmptyString") }
+  //@Test def test_expEmptyString2() { runner.runOneTest("expEmptyString2") }
 
   @Test def test_zero() { runner.runOneTest("zero") }
   @Test def test_pattern_neg1() { runner.runOneTest("pattern_neg1") }
@@ -118,25 +115,25 @@ class TestTextNumberProps {
   @Test def test_nanCharEntities() { runner.runOneTest("nanCharEntities") }
   @Test def test_infCharClasses() { runner.runOneTest("infCharClasses") }
   @Test def test_infCharEntities() { runner.runOneTest("infCharEntities") }
+  // DAFFODIL-861
+  //@Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
 
-  // DFDL-845
-  //  @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }
-  //  @Test def test_textNumberCheckPolicy_lax05() { runner.runOneTest("textNumberCheckPolicy_lax05") }
-  //  @Test def test_textNumberCheckPolicy_lax04() { runner.runOneTest("textNumberCheckPolicy_lax04") }
-  //  @Test def test_textNumberCheckPolicy_lax10() { runner.runOneTest("textNumberCheckPolicy_lax10") }
-  //  @Test def test_textNumberCheckPolicy_lax11() { runner.runOneTest("textNumberCheckPolicy_lax11") }
-  //  @Test def test_textNumberCheckPolicy_lax12() { runner.runOneTest("textNumberCheckPolicy_lax12") }
-  //  @Test def test_textNumberCheckPolicy_lax13() { runner.runOneTest("textNumberCheckPolicy_lax13") }
-  //  @Test def test_textNumberCheckPolicy_lax14() { runner.runOneTest("textNumberCheckPolicy_lax14") }
-  //  @Test def test_textNumberCheckPolicy_lax15() { runner.runOneTest("textNumberCheckPolicy_lax15") }
-  //  @Test def test_textNumberCheckPolicy_lax16() { runner.runOneTest("textNumberCheckPolicy_lax16") }
-
+  @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }
   @Test def test_textNumberCheckPolicy_lax02() { runner.runOneTest("textNumberCheckPolicy_lax02") }
   @Test def test_textNumberCheckPolicy_lax03() { runner.runOneTest("textNumberCheckPolicy_lax03") }
+  @Test def test_textNumberCheckPolicy_lax04() { runner.runOneTest("textNumberCheckPolicy_lax04") }
+  @Test def test_textNumberCheckPolicy_lax05() { runner.runOneTest("textNumberCheckPolicy_lax05") }
   @Test def test_textNumberCheckPolicy_lax06() { runner.runOneTest("textNumberCheckPolicy_lax06") }
   @Test def test_textNumberCheckPolicy_lax07() { runner.runOneTest("textNumberCheckPolicy_lax07") }
   @Test def test_textNumberCheckPolicy_lax08() { runner.runOneTest("textNumberCheckPolicy_lax08") }
   @Test def test_textNumberCheckPolicy_lax09() { runner.runOneTest("textNumberCheckPolicy_lax09") }
+  @Test def test_textNumberCheckPolicy_lax10() { runner.runOneTest("textNumberCheckPolicy_lax10") }
+  @Test def test_textNumberCheckPolicy_lax11() { runner.runOneTest("textNumberCheckPolicy_lax11") }
+  @Test def test_textNumberCheckPolicy_lax12() { runner.runOneTest("textNumberCheckPolicy_lax12") }
+  @Test def test_textNumberCheckPolicy_lax13() { runner.runOneTest("textNumberCheckPolicy_lax13") }
+  @Test def test_textNumberCheckPolicy_lax14() { runner.runOneTest("textNumberCheckPolicy_lax14") }
+  @Test def test_textNumberCheckPolicy_lax15() { runner.runOneTest("textNumberCheckPolicy_lax15") }
+  @Test def test_textNumberCheckPolicy_lax16() { runner.runOneTest("textNumberCheckPolicy_lax16") }
   @Test def test_textNumberCheckPolicy_lax17() { runner.runOneTest("textNumberCheckPolicy_lax17") }
 
   @Test def test_textNumberCheckPolicy_strict01() { runner.runOneTest("textNumberCheckPolicy_strict01") }
@@ -161,6 +158,7 @@ class TestTextNumberProps {
   @Test def test_textStandardDecimalSeparator14() { runner.runOneTest("textStandardDecimalSeparator14") }
   @Test def test_textStandardDecimalSeparator15() { runner.runOneTest("textStandardDecimalSeparator15") }
   @Test def test_textStandardDecimalSeparator16() { runner.runOneTest("textStandardDecimalSeparator16") }
+  @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
 
   // DFDL-847
   //  @Test def test_textStandardDecimalSeparator10() { runner.runOneTest("textStandardDecimalSeparator10") }
@@ -177,22 +175,19 @@ class TestTextNumberProps {
   @Test def test_textStandardGroupingSeparator09() { runner.runOneTest("textStandardGroupingSeparator09") }
   @Test def test_textStandardGroupingSeparator10() { runner.runOneTest("textStandardGroupingSeparator10") }
   @Test def test_textStandardGroupingSeparator11() { runner.runOneTest("textStandardGroupingSeparator11") }
+  @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
   @Test def test_textStandardGroupingSeparator13() { runner.runOneTest("textStandardGroupingSeparator13") }
   @Test def test_textStandardGroupingSeparator14() { runner.runOneTest("textStandardGroupingSeparator14") }
   @Test def test_textStandardGroupingSeparator15() { runner.runOneTest("textStandardGroupingSeparator15") }
   @Test def test_textStandardGroupingSeparator16() { runner.runOneTest("textStandardGroupingSeparator16") }
   @Test def test_textStandardGroupingSeparator17() { runner.runOneTest("textStandardGroupingSeparator17") }
 
-  // DFDL-851
-  //  @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
-  //  @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
-
   // DFDL-853
   //  @Test def test_textNumberPattern_pSymbol01() { runner.runOneTest("textNumberPattern_pSymbol01") }
   //  @Test def test_textNumberPattern_pSymbol02() { runner.runOneTest("textNumberPattern_pSymbol02") }
 
   @Test def test_textNumberPattern_scientificNotation01() { runner.runOneTest("textNumberPattern_scientificNotation01") }
-  //  @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
+  @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
   @Test def test_textNumberPattern_scientificNotation03() { runner.runOneTest("textNumberPattern_scientificNotation03") }
   @Test def test_textNumberPattern_scientificNotation04() { runner.runOneTest("textNumberPattern_scientificNotation04") }
   @Test def test_textNumberPattern_scientificNotation05() { runner.runOneTest("textNumberPattern_scientificNotation05") }

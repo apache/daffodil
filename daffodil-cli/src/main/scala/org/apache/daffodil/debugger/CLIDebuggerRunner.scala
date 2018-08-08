@@ -45,7 +45,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerR
   }
 
   def fini(): Unit = {
-    reader.map { _.shutdown }
+    reader.map { _.close }
     reader = None
   }
 

@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors.parsers
 
+import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
+
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
@@ -27,7 +29,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import java.text.ParsePosition
-import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import org.apache.daffodil.util.MaybeDouble
@@ -90,10 +91,11 @@ case class ConvertTextNumberParser[S](
     val numValue = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
       case Some(_) => helper.getNum(0)
       case None => {
-        val df = nff.getNumFormat(start)
+        val df = nff.getNumFormat(start).get
+        val strCheckPolicy = if (df.isParseStrict) str else str.trim
         val pos = new ParsePosition(0)
         val num = try {
-          df.get.parse(str, pos)
+          df.parse(strCheckPolicy, pos)
         } catch {
           case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => throw u
@@ -106,10 +108,32 @@ case class ConvertTextNumberParser[S](
 
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
-        if (num == null || pos.getIndex != str.length) {
+        if (num == null) {
           PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
             helper.prettyType, helper.xsdType, str)
           return
+        }
+        if (pos.getIndex != strCheckPolicy.length) {
+          val isValid =
+            if (df.getPadPosition == DecimalFormat.PAD_AFTER_SUFFIX) {
+              // If the DecimalFormat pad position is PAD_AFTER_SUFFIX, ICU
+              // does not update the parse position to be a the end of the
+              // padding, but instead sets the position to the end of the
+              // suffix. So we need to manually check to see if all characters
+              // after the parse position are the pad character
+              val padChar = df.getPadCharacter
+              val afterPosition = str.substring(pos.getIndex)
+              afterPosition.forall(_ == padChar)
+            } else {
+              // For all other padPositions, the parse position must be at the
+              // end of the string. That's not the case here, so it's not valid
+              false
+            }
+          if (!isValid) {
+            PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
+              helper.prettyType, helper.xsdType, str)
+            return
+          }
         }
 
         val numValue = num match {
@@ -310,8 +334,8 @@ case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String],
   override val prettyType = "Unsigned Long"
   override def isInvalidRange(jn: java.lang.Number) = {
     jn match {
-      case n: JBigInt => {
-        n.compareTo(JBigInt.ZERO) < 0 || n.compareTo(JBigInt.ONE.shiftLeft(64)) >= 0
+      case n: ICUBigDecimal => {
+        n.compareTo(ICUBigDecimal.ZERO) < 0 || n.compareTo(maxBD) >= 0
       }
       case _ => {
         val n = jn.longValue()
@@ -321,6 +345,7 @@ case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String],
   }
   val min = 0.toLong
   val max = -1.toLong // unused.
+  val maxBD = new ICUBigDecimal(JBigInt.ONE.shiftLeft(64))
 }
 
 case class ConvertTextUnsignedIntParserUnparserHelper[S](zeroRep: List[String], ignoreCase: Boolean)
@@ -547,7 +572,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   // as per ICU4J documentation, "DecimalFormat objects are not
   // synchronized. Multiple threads should not access one formatter
   // concurrently."
-  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat]
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[DecimalFormat]
 
 }
 
@@ -598,7 +623,7 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     parserHelper.zeroRepListRaw,
     context)
 
-  @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+  @transient lazy val numFormat = new ThreadLocal[DecimalFormat] {
     override def initialValue() = {
       generateNumFormat(
         decSep,
@@ -614,7 +639,7 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     }
   }
 
-  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[DecimalFormat] = {
     numFormat
   }
 }
@@ -659,7 +684,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
   val roundingInc = if (roundingIncrement.isEmpty) MaybeDouble.Nope else MaybeDouble { getRoundingIncrement(roundingIncrement.value, staticContext) }
 
-  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[DecimalFormat] = {
 
     val decimalSepList = evalWithConversionMaybe(state, decimalSepListCached) {
       (s: ParseOrUnparseState, c: List[String]) =>
@@ -704,7 +729,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
         roundingMode,
         roundingInc)
 
-    val numFormat = new ThreadLocal[NumberFormat] {
+    val numFormat = new ThreadLocal[DecimalFormat] {
       override def initialValue() = {
         generatedNumFormat
       }

@@ -22,30 +22,30 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
-    "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    "com.ibm.icu" % "icu4j" % "51.1", // new versions avail. 58.1 requires code changes
-    "xerces" % "xercesImpl" % "2.10.0",
+    "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.1",
+    "com.ibm.icu" % "icu4j" % "62.1",
+    "xerces" % "xercesImpl" % "2.12.0",
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.5",
-    "jline" % "jline" % "2.12.1", // newer versions avail. 3.0.0-M1 requires code changes
+    "commons-io" % "commons-io" % "2.6",
+    "jline" % "jline" % "2.14.6",
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6",
-    "com.fasterxml.woodstox" % "woodstox-core" % "5.0.3",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.8.8"
+    "com.fasterxml.woodstox" % "woodstox-core" % "5.1.0",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.9.6"
   )
    
   lazy val cli = Seq( 
-    "org.fusesource.jansi" % "jansi" % "1.14",
-    "org.rogach" %% "scallop" % "3.1.2",
-    "net.sf.expectit" % "expectit-core" % "0.8.1" % "it,test"
+    "org.fusesource.jansi" % "jansi" % "1.17.1",
+    "org.rogach" %% "scallop" % "3.1.3",
+    "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test"
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.11" % "it,test",
+    "junit" % "junit" % "4.12" % "it,test",
     "com.novocode" % "junit-interface" % "0.11" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.13.4" % "it,test"
+    "org.scalacheck" %% "scalacheck" % "1.14.0" % "it,test"
   )
 }

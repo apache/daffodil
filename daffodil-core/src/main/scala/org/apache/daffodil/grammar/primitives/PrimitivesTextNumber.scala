@@ -72,6 +72,10 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
     val (pattern, patternStripped) = {
       val p = e.textNumberPattern
 
+      if (p.startsWith(";")) {
+        e.SDE("Invalid textNumberPattern: The postive number pattern is mandatory")
+      }
+
       val noEscapedTicksRegex = """''""".r
       val patternNoEscapedTicks = noEscapedTicksRegex.replaceAllIn(p, "")
       val noQuotedRegex = """'[^']+'""".r

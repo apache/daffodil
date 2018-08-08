@@ -507,13 +507,15 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="Long2" root="l_2"
+  <tdml:parserTestCase name="Long2" root="l_2" roundTrip="twoPass"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-long - DFDL-5-012R">
 
     <tdml:document><![CDATA[1         ]]></tdml:document>
-    <tdml:errors>
-      <tdml:error />
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <l_2>1</l_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Long3" root="l_3"
@@ -631,7 +633,8 @@
     description="Test parsing when encountering a whitespace character during a invalid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -643,7 +646,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedInt"
-    root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -721,7 +724,8 @@
     description="Test parsing when encountering a whitespace character during a invalid int - DFDL-5-013R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -733,7 +737,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidInt"
-    root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="int05" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid int - DFDL-5-013R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -811,7 +815,8 @@
     description="Test parsing when encountering a whitespace character during a invalid integer - DFDL-5-011R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -823,7 +828,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidInteger"
-    root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="integer02" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -902,7 +907,8 @@
     description="Test parsing when encountering a whitespace character during an invalid long - DFDL-5-012R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -914,12 +920,12 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidLong"
-    root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="l_4" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid long - DFDL-5-012R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-       <integer02>999</integer02>
+       <l_4>999</l_4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1004,7 +1010,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidShort"
-    root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="s_1" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid short - DFDL-5-014R">
     <tdml:document><![CDATA[9999 ]]></tdml:document>
     <tdml:infoset>
@@ -1046,6 +1052,7 @@
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1083,7 +1090,8 @@
     description="Test parsing when encountering a whitespace character during an invalid byte - DFDL-5-015R">
     <tdml:document><![CDATA[00 12]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '00 1' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1095,7 +1103,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidByte"
-    root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="b_01" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid byte - DFDL-5-015R">
     <tdml:document><![CDATA[127 ]]></tdml:document>
     <tdml:infoset>
@@ -1189,7 +1197,8 @@
     description="Test parsing when encountering a whitespace character during a invalid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1201,7 +1210,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedLong"
-    root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -1295,7 +1304,8 @@
     description="Test parsing when encountering a whitespace character during a invalid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '99 9' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1307,7 +1317,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedShort"
-    root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
     <tdml:infoset>
@@ -1401,7 +1411,8 @@
     description="Test parsing when encountering a whitespace character during a valid unsigned byte - DFDL-5-020R">
     <tdml:document><![CDATA[1 27]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Left over data</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '1 2' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1413,7 +1424,7 @@
 -->
 
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedByte"
-    root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
+    root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd" roundTrip="twoPass"
     description="Test parsing when encountering a whitespace character after a valid Unsigned byte - DFDL-5-020R">
     <tdml:document><![CDATA[99 ]]></tdml:document>
     <tdml:infoset>
@@ -4949,8 +4960,7 @@
 -->
   
   <tdml:parserTestCase name="dateCalendarLanguage" root="date24"
-    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R"
-    roundTrip="twoPass">
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
     <tdml:document><![CDATA[Freitag März 2013]]></tdml:document>
     <tdml:infoset>
@@ -5008,7 +5018,7 @@
   <tdml:parserTestCase name="dateCalendarLanguage4" root="date32"
     model="dateTimeSchema" description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
-    <tdml:document><![CDATA[пятница марта 2013]]></tdml:document>
+    <tdml:document><![CDATA[пятница мар. 2013]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <date32>2013-03-01+00:00</date32>

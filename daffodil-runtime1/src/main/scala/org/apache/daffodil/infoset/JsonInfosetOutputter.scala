@@ -19,7 +19,7 @@ package org.apache.daffodil.infoset
 
 import org.apache.daffodil.util.MStackOfBoolean
 import org.apache.daffodil.util.Indentable
-import com.fasterxml.jackson.core.io.JsonStringEncoder
+import com.fasterxml.jackson.core.util.BufferRecyclers
 import org.apache.daffodil.dpath.NodeInfo
 
 class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
@@ -33,7 +33,7 @@ class JsonInfosetOutputter(writer: java.io.Writer, pretty: Boolean = true)
   // is false).
   private val isFirstChildStack = MStackOfBoolean()
 
-  private val stringEncoder = JsonStringEncoder.getInstance() // thread-safe instance of a string encoder
+  private val stringEncoder = BufferRecyclers.getJsonStringEncoder() // thread-safe instance of a string encoder
 
   override def reset(): Unit = {
     isFirstChildStack.clear()

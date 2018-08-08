@@ -73,7 +73,7 @@ class TestXMLLoaderWithLocation {
       val node = (new DaffodilXMLLoader(eh)).load(res)
       assertTrue(eh.hasError)
       val msgs = eh.diagnostics.map { _.getMessage() }.mkString("\n")
-      assertTrue(msgs.contains("xs:illegal"))
+      assertTrue(msgs.contains(":illegal"))
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)

@@ -17,6 +17,9 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import java.lang.{ Double => JDouble }
+import java.lang.{ Float => JFloat }
+
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -69,22 +72,36 @@ case class ConvertTextNumberUnparser[S](
     // difficult to assert. Could probably check this with TypeTags or Manifest
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
+        
+    val df = nff.getNumFormat(state).get
+    val dfs = df.getDecimalFormatSymbols
 
-    val strRep =
-      if (value == 0 && zeroRep.isDefined) {
-        zeroRep.get
-      } else {
-        // Needed because the DecimalFormat class of ICU will call
-        // doubleValue on scala's BigInt and BigDecimal because it
-        // doesn't recognize it as Java's BigInteger and BigDecimal.
-        // This caused large numbers to be truncated silently.
-        value match {
-          case bd: scala.math.BigDecimal => Assert.usageError("Received scala.math.BigDecimal, expected java.math.BigDecimal.")
-          case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
-          case _ => // OK
+    val strRep = value match {
+      case n: Number if n == 0 && zeroRep.isDefined => zeroRep.get
+      // We need to special case infinity and NaN because ICU4J has a bug and
+      // will add an exponent to inf/nan (e.g. INFx10^0) if defined in the
+      // pattern, which we don't want. We need to manually output the inf/nan
+      // rep plus the prefix and suffix
+      case f: JFloat if f.isInfinite =>
+        if (f > 0) df.getPositivePrefix + dfs.getInfinity + df.getPositiveSuffix
+        else df.getNegativePrefix + dfs.getInfinity + df.getNegativeSuffix
+      case f: JFloat if f.isNaN => dfs.getNaN
+      case d: JDouble if d.isInfinite =>
+        if (d > 0) df.getPositivePrefix + dfs.getInfinity + df.getPositiveSuffix
+        else df.getNegativePrefix + dfs.getInfinity + df.getNegativeSuffix
+      case d: JDouble if d.isNaN => dfs.getNaN
+      // Needed because the DecimalFormat class of ICU will call
+      // doubleValue on scala's BigInt and BigDecimal because it
+      // doesn't recognize it as Java's BigInteger and BigDecimal.
+      // This caused large numbers to be truncated silently.
+      case bd: scala.math.BigDecimal => Assert.usageError("Received scala.math.BigDecimal, expected java.math.BigDecimal.")
+      case bi: scala.math.BigInt => Assert.usageError("Received scala.math.BigInt, expected java.math.BigInteger.")
+      case _ =>
+        try {
+          df.format(value)
+        } catch {
+          case e: java.lang.ArithmeticException => UE(state, "Unable to format number to pattern: %s", e.getMessage())
         }
-        val df = nff.getNumFormat(state)
-        df.get.format(value)
       }
 
     node.overwriteDataValue(strRep)
