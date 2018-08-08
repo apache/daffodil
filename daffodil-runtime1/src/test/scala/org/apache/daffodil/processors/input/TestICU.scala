@@ -22,6 +22,8 @@ import org.junit.Test
 import java.text.ParsePosition
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.text.DecimalFormat
+import com.ibm.icu.text.DecimalFormatSymbols
 import org.junit.Test
 import org.apache.daffodil.processors.parsers.TextCalendarConstants
 
@@ -62,5 +64,89 @@ class TestICU {
 
     val r = 1 to TextCalendarConstants.maxFractionalSeconds
     r.foreach(parseFractionalSeconds)
+  }
+
+  // The three following tests show an ICU bug where if the decimal pattern
+  // uses scientific notation and the number to format/unparse is positive
+  // infinity, negative infinity, or not a number, ICU still includes the
+  // exponent separator when it shouldn't. We currently work around this in
+  // Daffodil by handling INF, -INF, and NaN ourselves. If ICU a subsequent
+  // release of ICU fixes this issue, these tests should fail and we can remove
+  // the code that manually converts these values to strings. The real expected
+  // values are commented at the end of each function.
+
+  @Test def test_scientific_pos_inf = {
+    val dfs = new DecimalFormatSymbols()
+    dfs.setInfinity("INF")
+    dfs.setNaN("NaN")
+    dfs.setExponentSeparator("x10^")
+    val df = new DecimalFormat("000.0#E0", dfs)
+    val posInf = java.lang.Double.POSITIVE_INFINITY
+    val str = df.format(posInf)
+    assertEquals("INFx10^0", str)
+    //assertEquals("INF", str)
+  }
+
+  @Test def test_scientific_neg_inf = {
+    val dfs = new DecimalFormatSymbols()
+    dfs.setInfinity("INF")
+    dfs.setNaN("NaN")
+    dfs.setExponentSeparator("x10^")
+    val df = new DecimalFormat("000.0#E0", dfs)
+    val negInf = java.lang.Double.NEGATIVE_INFINITY
+    val str = df.format(negInf)
+    assertEquals("-INFx10^0", str)
+    //assertEquals("-INF", str)
+  }
+
+  @Test def test_scientific_nan = {
+    val dfs = new DecimalFormatSymbols()
+    dfs.setInfinity("INF")
+    dfs.setNaN("NaN")
+    dfs.setExponentSeparator("x10^")
+    val df = new DecimalFormat("000.0#E0", dfs)
+    val nan = java.lang.Double.NaN
+    val str = df.format(nan)
+    assertEquals("NaNx10^0", str)
+    //assertEquals("NaN", str)
+  }
+
+  // The following test shows that ICU does not reqiure a positive pattern.
+  // Because of this we manually check that a positive pattern exists.
+  @Test def test_missing_positive_pattern = {
+    // this should throw an exception if ICU ever adds back support for
+    // requiring a positive pattern.
+    val df = new DecimalFormat(";-000")
+  }
+
+  // When there is after-suffix padding, ICU has a bug where it does not update
+  // the parse position to after the padding but keeps it at the end of the
+  // suffix. So Daffodil does this check manually to ensure all characters
+  // after parse position are pad characters. If ICU ever fixes this bug and
+  // updates parse position, this test should fail, and we no longer need to do
+  // the manual check.
+  @Test def test_suffix_padding = {
+    val df = new DecimalFormat("0 SUFFIX*_")
+    val pos = new ParsePosition(0)
+    val str = "123 SUFFIX____"
+    val num = df.parse(str, pos)
+    assertEquals(123L, num)
+    assertEquals(10, pos.getIndex)
+    //assertEquals(str.length, pos.getIndex)
+  }
+
+  // This test shows the bug in ICU where it does not correctly handle
+  // scientific notiation with an empty exponent separator. If ICU fixes this
+  // bug, this test should fail. See DAFFODIL-1981
+  @Test def test_empty_exponent_separator = {
+    val dfs = new DecimalFormatSymbols()
+    dfs.setExponentSeparator("")
+    val df = new DecimalFormat("##.##E+0", dfs)
+    val pp = new ParsePosition(0)
+    val num = df.parse("12.34+2", pp)
+    assertEquals(12.34, num.doubleValue)
+    assertEquals(5, pp.getIndex)
+    //assertEquals(1234L, num)
+    //assertEquals(7, pp.getIndex)
   }
 }

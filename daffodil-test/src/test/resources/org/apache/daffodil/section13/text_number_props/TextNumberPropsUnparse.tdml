@@ -524,6 +524,7 @@
     <xs:element name="tnp02" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="00.000;" />
     <xs:element name="tnp03" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="##.##;" />
     <xs:element name="tnp04" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#.####;" />
+    <xs:element name="tnp05" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="##.##;" dfdl:textNumberRoundingMode="roundUnnecessary" />
 
   </tdml:defineSchema>
   
@@ -625,6 +626,46 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[0.1]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: unparse_tnp_05a
+        Schema: pattern
+          Root: tnp05
+       Purpose: This test demonstrates that it is a processing error if rounding is required with roundingMode of roundUnnecessary
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_05a" root="tnp05"
+    model="pattern" description="DFDL-13-080R" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp05>0.125</ex:tnp05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>rounding</tdml:error>
+    </tdml:errors>
+    <tdml:document><![CDATA[0.12]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: unparse_tnp_05b
+        Schema: pattern
+          Root: tnp05
+       Purpose: This test demonstrates that it unparse succeeds if rounding is not required with roundingMode of roundUnnecessary
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_05b" root="tnp05"
+    model="pattern" description="DFDL-13-080R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp05>0.12</ex:tnp05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[0.12]]></tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

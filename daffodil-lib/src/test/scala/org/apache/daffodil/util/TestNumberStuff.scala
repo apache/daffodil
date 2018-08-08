@@ -180,12 +180,12 @@ case class UnsignedLongConverter() extends ConvertTo[BigInt] {
       if (l >= 0L) new BigInt(java.math.BigInteger.valueOf(l))
       else throw new Exception("parsed as negative value")
     }
-    case bi: java.math.BigInteger => {
-      val ul = new BigInt(bi)
+    case icubd: com.ibm.icu.math.BigDecimal => {
+      val ul = new BigInt(icubd.toBigIntegerExact)
       if (ul > maxUnsignedLong) throw new Exception("too big for unsignedLong")
       if (ul < 0) throw new Exception("parsed as negative value")
       ul
     }
-    case _ => throw new Exception("not a valid unsignedLong")
+    case other => throw new Exception("not a valid unsignedLong: " + other + " : " + other.getClass.getName)
   }
 }

@@ -369,7 +369,7 @@
 
           <xs:element name="x" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../xi }" dfdl:outputValueCalc="{ fn:concat('2017-8-',dfdl:valueLength(../y, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
           <xs:element name="y" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../yi }" dfdl:outputValueCalc="{ fn:concat('1986-6-',dfdl:valueLength(../z, 'bytes')) }" dfdl:calendarPatternKind="explicit" />
-          <xs:element name="z" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="{ ../zi }" dfdl:calendarPatternKind="explicit" dfdl:encoding="UTF-8" />
+          <xs:element name="z" type="xs:date" dfdl:lengthKind="delimited" dfdl:representation="text" dfdl:calendarPattern="EEEE MMMM yyyy" dfdl:calendarLanguage="{ ../zi }" dfdl:calendarPatternKind="explicit" dfdl:encoding="UTF-8" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -490,7 +490,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="text">XYZ5X038.0Y41.23Z008</tdml:documentPart>
+      <tdml:documentPart type="text">XYZ5.0X038.0Y41.23Z008</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

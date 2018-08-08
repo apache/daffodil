@@ -45,8 +45,7 @@
        Purpose: This test demonstrates setting the calendarLanguage property at runtime to German.
 -->
   <tdml:parserTestCase name="runtimeCalendarLanguage1" root="r" model="s1" 
-  description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R"
-  roundTrip="twoPass">
+  description="Section 13 Simple Types - calendarLanguage - DFDL-13-145R">
 
     <tdml:document><![CDATA[de1996Freitag März 2013]]></tdml:document>
     <tdml:infoset>
