@@ -18,7 +18,7 @@
 package org.apache.daffodil.sapi
 
 /**
- * Provides the classes necessary to recieve logging messages from Daffodil.
+ * Provides the classes necessary to receive logging messages from Daffodil.
  *
  * <h3>Overview</h3>
  *
