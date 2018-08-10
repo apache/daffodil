@@ -39,7 +39,7 @@ class BitsCharsetDecoderUTF8
       // 2 bytes
       val byte2 = getByte(dis, 8)
       checkContinuationByte(dis, byte2, 16)
-      checkOverlong(byte1, 0x1F, 16)
+      checkOverlong(byte1, 0x1F, 0, 0, 16)
       val cp = ((byte1 & 0x1F) << 6) | (byte2 & 0x3F)
       cp.toChar
     } else if ((byte1 & 0xF0) == 0xE0) {
@@ -48,7 +48,7 @@ class BitsCharsetDecoderUTF8
       checkContinuationByte(dis, byte2, 16)
       val byte3 = getByte(dis, 16)
       checkContinuationByte(dis, byte3, 24)
-      checkOverlong(byte1, 0x0F, 24)
+      checkOverlong(byte1, 0x0F, byte2, 0x20, 24)
       val cp = ((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F)
       if (cp >= 0xD800 && cp <= 0xDFFF) {
         // out of valid range of Unicode (reserved for surrogate)
@@ -63,11 +63,11 @@ class BitsCharsetDecoderUTF8
       checkContinuationByte(dis, byte3, 24)
       val byte4 = getByte(dis, 24)
       checkContinuationByte(dis, byte4, 32)
-      checkOverlong(byte1, 0x07, 32)
+      checkOverlong(byte1, 0x07, byte2, 0x30, 32)
       val cp = ((byte1 & 0x0F) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F)
       if (cp > 0x10FFFF) {
-         // out of valid range of Unicode
-         throw new BitsCharsetDecoderMalformedException(32)
+        // out of valid range of Unicode
+        throw new BitsCharsetDecoderMalformedException(32)
       }
       val high = Character.highSurrogate(cp)
       setLowSurrogate(Character.lowSurrogate(cp))
@@ -115,7 +115,7 @@ class BitsCharsetDecoderUTF8
     }
   }
 
-  @inline final def checkOverlong(byte: Int, mask: Int, bitsConsumedSoFar: Int): Unit = {
-    if ((byte & mask) == 0) throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)
+  @inline final def checkOverlong(byte1: Int, mask1: Int, byte2: Int, mask2: Int, bitsConsumedSoFar: Int): Unit = {
+    if ((byte1 & mask1) == 0 && (byte2 & mask2) == 0) throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)
   }
 }
