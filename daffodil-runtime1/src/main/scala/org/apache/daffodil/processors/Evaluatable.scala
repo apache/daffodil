@@ -457,7 +457,7 @@ abstract class EvaluatableExpression[ExprType <: AnyRef](
   extends Evaluatable[ExprType](rd)
   with ExprEvalMixin[ExprType] {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + rd.diagnosticDebugName + "' expr=" + expr.toBriefXML() + " />"
 
@@ -477,7 +477,7 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 
   protected def converter: Converter[ExprType, ConvertedType]
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 

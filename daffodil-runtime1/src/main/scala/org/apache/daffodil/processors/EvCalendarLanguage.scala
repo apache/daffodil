@@ -49,7 +49,7 @@ class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], erd: 
     LocaleConverter,
     erd)
   with InfosetCachedEvaluatable[ULocale] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class CalendarEv(localeEv: CalendarLanguageEv,

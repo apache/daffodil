@@ -46,7 +46,7 @@ class StringDelimitedParser(
   extends TextPrimParser
   with CaptureParsingValueLength {
 
-  override val runtimeDependencies = List(fieldDFAEv, context.encInfo.charsetEv)
+  override val runtimeDependencies = Vector(fieldDFAEv, context.encInfo.charsetEv)
 
   override val charsetEv = context.encInfo.charsetEv
 

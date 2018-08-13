@@ -26,7 +26,7 @@ class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
   childUnparser: SequenceChildUnparser)
   extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
-  override lazy val runtimeDependencies = Seq(layerTransformerEv)
+  override lazy val runtimeDependencies = Vector(layerTransformerEv)
 
   override def nom = "LayeredSequence"
 

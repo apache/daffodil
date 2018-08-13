@@ -24,9 +24,9 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(rd) {
   override def nom = "ComplexType"
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(bodyParser)
+  override lazy val childProcessors = Vector(bodyParser)
 
   def parse(start: PState): Unit = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
@@ -43,13 +43,14 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  * the delimiter DFAs (bring them out of scope) after
  * the internal/body parser has completed.
  */
-class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
+class DelimiterStackParser(
+  delimiters: Array[DelimiterParseEv],
   ctxt: RuntimeData, bodyParser: Parser)
   extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = List(bodyParser)
+  override lazy val childProcessors = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = delimiters.toSeq
+  override lazy val runtimeDependencies = delimiters.toVector
 
   def parse(start: PState): Unit = {
 
@@ -89,13 +90,14 @@ class DelimiterStackParser(delimiters: Array[DelimiterParseEv],
  * Note that the escape scheme evaluatable (and its dependencies) are manually
  * cached, so upon exiting scope the cache must be invalidated.
  */
-class DynamicEscapeSchemeParser(escapeScheme: EscapeSchemeParseEv,
+class DynamicEscapeSchemeParser(
+  escapeScheme: EscapeSchemeParseEv,
   ctxt: TermRuntimeData, bodyParser: Parser)
   extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Seq(bodyParser)
+  override lazy val childProcessors = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = List(escapeScheme)
+  override lazy val runtimeDependencies = Vector(escapeScheme)
 
   def parse(start: PState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting
@@ -116,9 +118,9 @@ class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceD
   extends CombinatorParser(rd) {
   override def nom = "ChoiceDispatch"
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = dispatchBranchKeyMap.values.toSeq
+  override lazy val childProcessors = dispatchBranchKeyMap.values.toVector
 
   def parse(pstate: PState): Unit = {
     val key = dispatchKeyEv.evaluate(pstate)

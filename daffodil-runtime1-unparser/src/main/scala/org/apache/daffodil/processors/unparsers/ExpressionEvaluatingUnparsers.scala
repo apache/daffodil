@@ -56,9 +56,9 @@ final class SetVariableUnparser(
   referencingContext: NonTermRuntimeData)
   extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   def suspendableExpression =
     new SetVariableSuspendableExpression(
@@ -75,9 +75,9 @@ final class SetVariableUnparser(
 class NewVariableInstanceStartUnparser(override val context: RuntimeData)
   extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   context.notYetImplemented("newVariableInstance")
 
@@ -89,9 +89,9 @@ class NewVariableInstanceStartUnparser(override val context: RuntimeData)
 class NewVariableInstanceEndUnparser(override val context: RuntimeData)
   extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   context.notYetImplemented("newVariableInstance")
 

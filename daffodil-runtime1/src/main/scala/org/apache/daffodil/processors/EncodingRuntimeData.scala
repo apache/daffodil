@@ -139,7 +139,7 @@ final class EncodingRuntimeData(
   lazy val termRuntimeData = termRuntimeDataArg
   lazy val charsetEv = charsetEvArg
 
-  lazy val runtimeDependencies = List(charsetEv)
+  lazy val runtimeDependencies = Vector(charsetEv)
 
   def getDecoderInfo(state: ParseOrUnparseState) = {
     val cs = charsetEv.evaluate(state)

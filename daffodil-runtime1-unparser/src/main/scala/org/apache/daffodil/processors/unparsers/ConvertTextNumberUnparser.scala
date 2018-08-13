@@ -34,9 +34,9 @@ case class ConvertTextCombinatorUnparser(
   converterUnparser: Unparser)
   extends CombinatorUnparser(rd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(converterUnparser, valueUnparser)
+  override lazy val childProcessors = Vector(converterUnparser, valueUnparser)
 
   override def unparse(state: UState): Unit = {
     converterUnparser.unparse1(state)
@@ -54,10 +54,10 @@ case class ConvertTextNumberUnparser[S](
   extends PrimUnparser
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def toString = "to(xs:" + helper.xsdType + ")"
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   lazy val zeroRep: Maybe[String] = helper.zeroRepListRaw.headOption.map { zr =>
     EntityReplacer { _.replaceForUnparse(zr) }

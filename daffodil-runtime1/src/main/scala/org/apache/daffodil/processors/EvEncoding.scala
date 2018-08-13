@@ -54,7 +54,7 @@ abstract class EncodingEvBase(override val expr: CompiledExpression[String], trd
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
     trd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override protected def compute(state: ParseOrUnparseState): String = {
     // compute via the cooker first

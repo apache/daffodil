@@ -140,7 +140,7 @@ trait TextPrimParser
  */
 final class NadaParser(override val context: RuntimeData)
   extends PrimParserNoData {
-  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def isEmpty = true
 
@@ -152,14 +152,11 @@ final class NadaParser(override val context: RuntimeData)
 }
 
 abstract class CombinatorParser(override val context: RuntimeData)
-  extends Parser with CombinatorProcessor {
+  extends Parser with CombinatorProcessor
 
-  // override lazy val runtimeDependencies = Nil
-}
-
-final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
+final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(context) {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
   override def childProcessors = childParsers
 
   override def nom = "seq"
@@ -179,9 +176,9 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
 
 }
 
-class ChoiceParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
+class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(ctxt) {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
   override lazy val childProcessors = childParsers
 
   override def nom = "choice"
@@ -300,11 +297,11 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Seq[Parser])
 
 case class DummyParser(override val context: TermRuntimeData)
   extends PrimParserNoData {
-  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   def parse(pstate: PState): Unit = pstate.SDE("Parser for " + context + " is not yet implemented.")
 
-  override def childProcessors = Nil
+  override def childProcessors = Vector()
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (context == null) "Dummy[null]" else "Dummy[" + context + "]"
 }
@@ -319,6 +316,6 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     context.toss(rsde)
   }
 
-  override lazy val childProcessors = Nil
-  override lazy val runtimeDependencies = Nil
+  override lazy val childProcessors = Vector()
+  override lazy val runtimeDependencies = Vector()
 }

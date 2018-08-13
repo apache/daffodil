@@ -39,9 +39,9 @@ abstract class ExpressionEvaluationParser(
   override val context: RuntimeData)
   extends PrimParserNoData {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   /**
    * Modifies the PState
@@ -85,7 +85,7 @@ class NewVariableInstanceStartParser(
   override val context: RuntimeData)
   extends PrimParser {
   context.notYetImplemented("newVariableInstance")
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def parse(pstate: PState) = {
     context.notYetImplemented("newVariableInstance")
@@ -96,7 +96,7 @@ class NewVariableInstanceEndParser(
   override val context: RuntimeData)
   extends PrimParser {
   context.notYetImplemented("newVariableInstance")
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def parse(pstate: PState) = {
     context.notYetImplemented("newVariableInstance")

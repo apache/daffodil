@@ -51,7 +51,7 @@ class PackedIntegerRuntimeLengthUnparser(
   extends PackedIntegerBaseUnparser(e, packedSignCodes)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
 final class PackedIntegerDelimitedUnparser(
@@ -90,7 +90,7 @@ class PackedDecimalRuntimeLengthUnparser(
   extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
 final class PackedDecimalDelimitedUnparser(

@@ -40,12 +40,14 @@ abstract class SequenceCombinator(sq: SequenceTermBase, sequenceChildren: Seq[Se
       "</" + Misc.getNameFromClass(this) + ">"
 }
 
-class OrderedSequence(sq: SequenceTermBase, sequenceChildren: Seq[SequenceChild])
-  extends SequenceCombinator(sq, sequenceChildren) {
+class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild])
+  extends SequenceCombinator(sq, sequenceChildrenArg) {
 
   private lazy val sepGram = sq.sequenceSeparator
   private lazy val sepParser = sepGram.parser
   private lazy val sepUnparser = sepGram.unparser
+
+  private lazy val sequenceChildren = sequenceChildrenArg.toVector
 
   override lazy val parser: Parser = sq.hasSeparator match {
     case true => new OrderedSeparatedSequenceParser(

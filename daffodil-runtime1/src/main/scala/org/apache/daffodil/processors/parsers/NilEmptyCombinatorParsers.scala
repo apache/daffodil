@@ -20,7 +20,7 @@ package org.apache.daffodil.processors.parsers
 import org.apache.daffodil.processors.TermRuntimeData
 
 case class SimpleNilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
-  extends ChoiceParser(ctxt, Seq(nilParser, valueParser))
+  extends ChoiceParser(ctxt, Vector(nilParser, valueParser))
 
 case class ComplexNilOrContentParser(ctxt: TermRuntimeData, emptyParser: Parser, contentParser: Parser)
-  extends ChoiceParser(ctxt, Seq(emptyParser, contentParser))
+  extends ChoiceParser(ctxt, Vector(emptyParser, contentParser))

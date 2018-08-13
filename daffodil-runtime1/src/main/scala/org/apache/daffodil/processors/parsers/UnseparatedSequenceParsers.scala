@@ -24,7 +24,7 @@ import org.apache.daffodil.processors.OccursCountEv
 
 trait Unseparated { self: SequenceChildParser =>
 
-  val childProcessors = Seq(childParser)
+  val childProcessors = Vector(childParser)
 }
 
 class ScalarOrderedUnseparatedSequenceChildParser(
@@ -59,7 +59,7 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
   extends OccursCountMinMaxParser(childParser, srd, erd)
   with Unseparated
 
-class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg: Seq[SequenceChildParser])
+class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg: Vector[SequenceChildParser])
   extends OrderedSequenceParserBase(rd, childParsersArg) {
 
   /**
@@ -140,7 +140,8 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
               // success but no forward progress in unbounded case
               // This is the parser equivalent of an infinite loop.
               //
-              PE(pstate,
+              PE(
+                pstate,
                 "Repeating or Optional Element - No forward progress at byte %s. Attempt to parse %s " +
                   "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
                 pstate.bytePos, erd.diagnosticDebugName)

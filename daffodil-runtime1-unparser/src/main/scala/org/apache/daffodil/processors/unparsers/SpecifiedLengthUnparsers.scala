@@ -42,7 +42,8 @@ import org.apache.daffodil.infoset.RetryableException
  * Truncation of strings - the only case where we truncate, and only when
  * dfdl:truncateSpecifiedLengthString is 'yes', is handled elsewhere.
  */
-sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
+sealed abstract class SpecifiedLengthUnparserBase(
+  eUnparser: Unparser,
   erd: ElementRuntimeData)
 
 final class SpecifiedLengthExplicitImplicitUnparser(
@@ -52,9 +53,9 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv])
   extends CombinatorUnparser(erd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(eUnparser)
+  override lazy val childProcessors = Vector(eUnparser)
 
   private val libEv = targetLengthInBitsEv.lengthInBitsEv
   private val mcsEv = libEv.maybeCharsetEv
@@ -152,7 +153,8 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     // variable-width encodings and lengthUnits characters, and lengthKind explicit
     // is not supported (currently) for complex types
     //
-    state.schemaDefinitionUnless(erd.isSimpleType,
+    state.schemaDefinitionUnless(
+      erd.isSimpleType,
       "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
       getCharset(state).name, lengthKind.toString, lengthUnits.toString)
 

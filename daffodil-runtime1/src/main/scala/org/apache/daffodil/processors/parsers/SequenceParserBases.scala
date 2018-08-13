@@ -30,13 +30,12 @@ import org.apache.daffodil.processors.Failure
 
 abstract class OrderedSequenceParserBase(
   srd: SequenceRuntimeData,
-  protected val childParsers: Seq[SequenceChildParser])
+  protected val childParsers: Vector[Parser])
   extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
-
-  override lazy val childProcessors: Seq[Parser] = childParsers
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override lazy val childProcessors = childParsers
 
   /**
    * Parses (1) one iteration of an array with fixed/expression occurs count.
@@ -91,7 +90,7 @@ abstract class OrderedSequenceParserBase(
     // This loop iterates over the children terms of the sequence
     //
     while ((scpIndex < limit) && (pstate.processorStatus eq Success)) {
-      val child = children(scpIndex)
+      val child = children(scpIndex).asInstanceOf[SequenceChildParser]
       child match {
         case parser: RepeatingChildParser => {
           //
@@ -352,7 +351,7 @@ abstract class OrderedSequenceParserBase(
         // A model group term is considered scalar
         // in that they cannot be repeating at all in DFDL v1.0.
         //
-        case scalarParser => {
+        case scalarParser: SequenceChildParser => {
           val resultOfTry = parseOneWithoutPoU(scalarParser, scalarParser.trd, pstate)
           if (resultOfTry.isSuccess) {
             // only move over in group if the scalar "thing" is an element

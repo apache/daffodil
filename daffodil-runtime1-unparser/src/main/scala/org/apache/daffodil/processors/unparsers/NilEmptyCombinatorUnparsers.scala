@@ -24,9 +24,9 @@ import org.apache.daffodil.util.Maybe
 case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(nilUnparser, valueUnparser)
+  override lazy val childProcessors = Vector(nilUnparser, valueUnparser)
 
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
@@ -46,9 +46,9 @@ case class SimpleNilOrValueUnparser(ctxt: ElementRuntimeData,
 case class ComplexNilOrContentUnparser(ctxt: ElementRuntimeData,
   nilUnparser: Unparser, contentUnparser: Unparser) extends CombinatorUnparser(ctxt) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(nilUnparser, contentUnparser)
+  override lazy val childProcessors = Vector(nilUnparser, contentUnparser)
 
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))

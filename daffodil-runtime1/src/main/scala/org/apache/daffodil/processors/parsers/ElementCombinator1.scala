@@ -43,20 +43,20 @@ abstract class ElementParserBase(
   eAfterParser: Maybe[Parser])
   extends CombinatorParser(rd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseBegin(pstate: PState): Unit
   def parseEnd(pstate: PState): Unit
 
-  override lazy val childProcessors: Seq[Processor] = patDiscrimParser.toSeq ++
+  override lazy val childProcessors: Vector[Processor] = (patDiscrimParser.toSeq ++
     patAssertParser ++
     eBeforeParser.toSeq ++
     eParser.toSeq ++
     setVarParser ++
     testDiscrimParser.toSeq ++
     testAssertParser ++
-    eAfterParser.toSeq
+    eAfterParser.toSeq).toVector
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
@@ -78,10 +78,12 @@ abstract class ElementParserBase(
         pstate // Success, do not mutate state.
       } else {
         val failureMessage = ccfResult.errMsg
-        log(LogLevel.Debug,
+        log(
+          LogLevel.Debug,
           "Validation failed for %s due to %s. The element was %s.",
           context.toString, failureMessage, currentElement.namedQName)
-        pstate.validationError("%s failed facet checks due to: %s",
+        pstate.validationError(
+          "%s failed facet checks due to: %s",
           context.toString, failureMessage)
         currentElement.setValid(false)
         pstate

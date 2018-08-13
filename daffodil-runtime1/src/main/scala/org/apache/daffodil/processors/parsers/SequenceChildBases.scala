@@ -133,7 +133,7 @@ abstract class SequenceChildParser(
   val trd: TermRuntimeData)
   extends CombinatorParser(srd) {
 
-  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 }
 
 /**
@@ -380,7 +380,7 @@ abstract class OccursCountExpressionParser(
 
   final override def hasPoU = false
 
-  final override lazy val runtimeDependencies = Seq(occursCountEv)
+  final override lazy val runtimeDependencies = Vector(occursCountEv)
 
   final override def isBoundedMax(max: Long) = true
 

@@ -50,7 +50,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram])
 
   lazy val parser: Parser = {
     if (!ch.isDirectDispatch) {
-      new ChoiceParser(ch.termRuntimeData, parsers)
+      new ChoiceParser(ch.termRuntimeData, parsers.toVector)
     } else {
       val dispatchBranchKeyValueTuples = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
@@ -66,7 +66,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, rawAlternatives: Seq[Gram])
       groupedByKey.foreach {
         case (k, kvs) =>
           if (kvs.length > 1) {
-            SDE("dfdl:choiceBranchKey value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
+            SDE(
+              "dfdl:choiceBranchKey value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
               k, kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
           }
       }

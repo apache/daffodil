@@ -142,24 +142,24 @@ trait SuspendableUnparser
 
 final class ErrorUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def unparse(ustate: UState) {
     Assert.abort("Error Unparser")
   }
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
 
   override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Unparser"
 }
 
-final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unparser])
+final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Vector[Unparser])
   extends CombinatorUnparser(context)
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override val childProcessors = childUnparsers.toSeq
+  override val childProcessors = childUnparsers
 
   override def nom = "seq"
 
@@ -182,13 +182,13 @@ case class DummyUnparser(primitiveName: String) extends PrimUnparserNoData {
 
   override def context = null
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def isEmpty = true
 
   def unparse(state: UState): Unit = state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 
-  override lazy val childProcessors = Nil
+  override lazy val childProcessors = Vector()
   override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
@@ -203,6 +203,6 @@ case class NotUnparsableUnparser(override val context: ElementRuntimeData) exten
     context.toss(rsde)
   }
 
-  override lazy val childProcessors = Nil
-  override lazy val runtimeDependencies = Nil
+  override lazy val childProcessors = Vector()
+  override lazy val runtimeDependencies = Vector()
 }

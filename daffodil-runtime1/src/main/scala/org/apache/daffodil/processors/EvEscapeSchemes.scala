@@ -36,7 +36,7 @@ class EscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
     EscapeCharacterCooker,
     rd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class EscapeEscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
@@ -45,7 +45,7 @@ class EscapeEscapeCharEv(expr: CompiledExpression[String], rd: RuntimeData)
     EscapeEscapeCharacterCooker,
     rd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 trait EscapeSchemeCommonEv {
@@ -96,7 +96,7 @@ class EscapeSchemeCharParseEv(escapeChar: EscapeCharEv,
   rd: RuntimeData)
   extends EscapeSchemeParseEv(rd) {
 
-  override val runtimeDependencies = List(escapeChar) ++ optEscapeEscapeChar.toList
+  override val runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
 
   def compute(state: ParseOrUnparseState) = {
     val escChar = escapeChar.evaluate(state).charAt(0)
@@ -111,7 +111,7 @@ class EscapeSchemeCharUnparseEv(escapeChar: EscapeCharEv,
   rd: RuntimeData)
   extends EscapeSchemeUnparseEv(rd) {
 
-  override val runtimeDependencies = List(escapeChar) ++ optEscapeEscapeChar.toList
+  override val runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
 
   def compute(state: ParseOrUnparseState) = {
     val escChar = escapeChar.evaluate(state).charAt(0)

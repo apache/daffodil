@@ -29,7 +29,7 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(
 
   private val eName = erd.name
 
-  override val runtimeDependencies = List(erd.encInfo.charsetEv)
+  override val runtimeDependencies = Vector(erd.encInfo.charsetEv)
   override val context = erd
 
   override val charsetEv = erd.encInfo.charsetEv

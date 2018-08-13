@@ -30,7 +30,7 @@ class ByteOrderEv(override val expr: CompiledExpression[String], erd: ElementRun
     ByteOrder,
     erd)
   with InfosetCachedEvaluatable[ByteOrder] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }
 
@@ -47,7 +47,7 @@ class CheckByteAndBitOrderEv(t: TermRuntimeData, bitOrder: BitOrder)
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
     t match {
@@ -74,7 +74,7 @@ class CheckBitOrderAndCharsetEv(t: TermRuntimeData, bitOrder: BitOrder, charsetE
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
-  override lazy val runtimeDependencies = List(charsetEv)
+  override lazy val runtimeDependencies = Vector(charsetEv)
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
     val bitsCharset = charsetEv.evaluate(state)

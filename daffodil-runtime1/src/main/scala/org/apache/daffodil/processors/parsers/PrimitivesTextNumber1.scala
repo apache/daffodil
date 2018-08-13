@@ -53,9 +53,9 @@ case class ConvertTextCombinatorParser(
   converterParser: Parser)
   extends CombinatorParser(rd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(valueParser, converterParser)
+  override lazy val childProcessors = Vector(valueParser, converterParser)
 
   def parse(start: PState): Unit = {
     valueParser.parse1(start)
@@ -70,7 +70,7 @@ case class ConvertTextNumberParser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
   nff: NumberFormatFactoryBase[S],
   override val context: ElementRuntimeData) extends TextPrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def toString = "to(xs:" + helper.xsdType + ")"
 
@@ -427,7 +427,8 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String], ignore
 
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) extends Serializable {
 
-  protected def checkUnique(decimalSepList: Maybe[List[Character]],
+  protected def checkUnique(
+    decimalSepList: Maybe[List[Character]],
     groupingSep: Maybe[Character],
     exponentRep: Maybe[String],
     infRep: Maybe[String],
@@ -465,7 +466,8 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     context.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
 
-  protected def generateNumFormat(decimalSepList: Maybe[List[Character]],
+  protected def generateNumFormat(
+    decimalSepList: Maybe[List[Character]],
     groupingSep: Maybe[Character],
     exponentRep: Maybe[String],
     infRep: Maybe[String],
@@ -580,7 +582,8 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 // TODO: Complexity - why do we need both Static and Dynamic variants of this?
 // CachedDynamic hides this distinction (or should), as does CompiledExpression underneath that.
 
-class NumberFormatFactoryStatic[S](context: ThrowsSDE,
+class NumberFormatFactoryStatic[S](
+  context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
   decimalSepExpEv: Maybe[Evaluatable[List[String]]],
   groupingSepExpEv: Maybe[Evaluatable[String]],
@@ -644,7 +647,8 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   }
 }
 
-class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
+class NumberFormatFactoryDynamic[S](
+  staticContext: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
   decimalSepExpEv: Maybe[Evaluatable[List[String]]],
   groupingSepExpEv: Maybe[Evaluatable[String]],
@@ -674,7 +678,8 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       (a: String) => getExponentRep(a, staticContext)
     }
 
-  checkUnique(getStaticMaybe(decimalSepListCached),
+  checkUnique(
+    getStaticMaybe(decimalSepListCached),
     getStaticMaybe(groupingSepCached),
     getStaticMaybe(exponentRepCached),
     infRep,
