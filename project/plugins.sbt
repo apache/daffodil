@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.2.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.6")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.6.0")
 
@@ -28,5 +28,5 @@ addSbtPlugin("org.musigma" % "sbt-rat" % "0.6.0")
 // dependencies to the latest versions and removes the warning.
 dependencyOverrides ++= Seq(
   "org.codehaus.plexus" % "plexus-utils" % "3.0.17",
-  "com.google.guava" % "guava" % "18.0"
+  "com.google.guava" % "guava" % "20.0"
 )
