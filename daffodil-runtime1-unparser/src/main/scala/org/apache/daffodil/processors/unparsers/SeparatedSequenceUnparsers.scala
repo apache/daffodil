@@ -364,7 +364,7 @@ class OrderedSeparatedSequenceUnparser(
                 }
                 // System.err.println("Finished unparse of array/opt %s. Array Index Stack is: %s, maxReps %s, numOccurrences %s".format(
                 //   erd.namedQName, state.arrayIndexStack, maxReps, numOccurrences))
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps)
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
                 unparser.endArrayOrOptional(erd, state)
               } else {
                 //
@@ -384,9 +384,8 @@ class OrderedSeparatedSequenceUnparser(
               val eventNQN = ev.node.namedQName
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
-              //              if (!(ev.isEnd && ev.isComplex))
-              //                Assert.invariantFailed("Expected end of complex. Was " + ev)
-              // System.err.println("End event: " + ev)
+              Assert.invariant(ev.isEnd && ev.isComplex)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
             }
           } else {
             // no event (state.inspect returned false)
