@@ -20,12 +20,12 @@ import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.exceptions.Assert
 
-abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnparsers: Seq[SequenceChildUnparser])
+abstract class OrderedSequenceUnparserBase(srd: SequenceRuntimeData, childUnparsers: Vector[SequenceChildUnparser])
   extends CombinatorUnparser(srd) {
 
   override def nom = "Sequence"
 
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override lazy val childProcessors = childUnparsers
 

@@ -24,13 +24,12 @@ import ArrayIndexStatus._
 import org.apache.daffodil.dpath.NodeInfo
 
 trait Separated { self: SequenceChildParser =>
-  // import ArrayIndexStatus._
 
   def sep: Parser
   def spos: SeparatorPosition
   def ssp: SeparatorSuppressionPolicy
 
-  val childProcessors = Seq(sep, childParser)
+  val childProcessors = Vector(sep, childParser)
 }
 
 sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParser =>
@@ -41,8 +40,7 @@ sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParse
       isLastDeclaredRepresentedInSequence &&
       (
         (ssp eq SeparatorSuppressionPolicy.TrailingEmpty) ||
-        (ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict)
-      )
+        (ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict))
 
   /**
    * Tells us if we should remove a successfully parsed zero-length string
@@ -104,8 +102,7 @@ sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParse
                 // isLastDeclaredRepresentedInSequence &&
                 (
                   (ssp eq SeparatorSuppressionPolicy.TrailingEmpty) ||
-                  (ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict)
-                )
+                  (ssp eq SeparatorSuppressionPolicy.TrailingEmptyStrict))
             }
           }
 
@@ -123,7 +120,8 @@ sealed trait RepeatingSeparatedPoU extends Separated { self: RepeatingChildParse
    * This is applicable only to OPTIONAL elements (as in between min/maxOccurs, i.e.,
    * has variable occurrences, and speculative parsing/PoU.
    */
-  final def shouldSuppressZLDelimitedParseFailure(pstate: PState,
+  final def shouldSuppressZLDelimitedParseFailure(
+    pstate: PState,
     hasZLParseAttempt: Boolean): Boolean = {
     val shouldSuppress =
       shouldSuppressZLDelimitedParseFailures_ && {
@@ -183,14 +181,15 @@ final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
 
 }
 
-final class OrderedSeparatedSequenceParser(rd: SequenceRuntimeData,
+final class OrderedSeparatedSequenceParser(
+  rd: SequenceRuntimeData,
   ssp: SeparatorSuppressionPolicy,
   spos: SeparatorPosition,
   sep: Parser,
-  childrenArg: Seq[SequenceChildParser])
+  childrenArg: Vector[SequenceChildParser])
   extends OrderedSequenceParserBase(rd, childrenArg) {
 
-  override lazy val childProcessors: Seq[Parser] = sep +: childrenArg.asInstanceOf[Seq[Parser]]
+  override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
 
   /**
    * Parses (1) one iteration of an array with fixed/expression occurs count.

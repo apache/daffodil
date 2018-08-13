@@ -27,7 +27,7 @@ class SkipRegionUnparser(
   override val context: TermRuntimeData)
   extends AlignmentPrimUnparser {
 
-  override def runtimeDependencies = Nil
+  override def runtimeDependencies = Vector()
 
   override def unparse(state: UState) = {
     val dos = state.dataOutputStream
@@ -68,7 +68,7 @@ class AlignmentFillUnparser(
   extends AlignmentPrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Nil
+  override def runtimeDependencies = Vector()
 
   override def suspendableOperation =
     new AlignmentFillUnparserSuspendableOperation(

@@ -27,6 +27,6 @@ class BinaryFloatRepEv(expr: CompiledExpression[String], erd: ElementRuntimeData
     erd)
   with InfosetCachedEvaluatable[BinaryFloatRep] {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }

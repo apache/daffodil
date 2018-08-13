@@ -24,7 +24,7 @@ import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
 trait Unseparated { self: SequenceChildUnparser =>
 
-  val childProcessors = Seq(childUnparser)
+  val childProcessors = Vector(childUnparser)
 }
 
 class ScalarOrderedUnseparatedSequenceChildUnparser(
@@ -55,7 +55,7 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 }
 
 class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers: Seq[SequenceChildUnparser])
-  extends OrderedSequenceUnparserBase(rd, childUnparsers) {
+  extends OrderedSequenceUnparserBase(rd, childUnparsers.toVector) {
 
   /**
    * Unparses one iteration of an array/optional element

@@ -25,7 +25,7 @@ class SkipRegionParser(
   override val context: TermRuntimeData)
   extends PrimParser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def parse(pstate: PState) = {
     val dis = pstate.dataInputStream
@@ -38,7 +38,7 @@ class AlignmentFillParser(
   override val context: TermRuntimeData)
   extends PrimParser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def parse(pstate: PState): Unit = {
     val dis = pstate.dataInputStream

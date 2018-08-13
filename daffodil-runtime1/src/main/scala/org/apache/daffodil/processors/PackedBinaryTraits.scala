@@ -44,7 +44,7 @@ abstract class PackedBinaryDecimalBaseParser(
   binaryDecimalVirtualPoint: Int)
   extends PrimParser
   with PackedBinaryConversion {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -72,7 +72,7 @@ abstract class PackedBinaryIntegerBaseParser(
   signed: Boolean = false)
   extends PrimParser
   with PackedBinaryConversion {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 

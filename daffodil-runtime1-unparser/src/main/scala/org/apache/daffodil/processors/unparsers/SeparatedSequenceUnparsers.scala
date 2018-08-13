@@ -109,7 +109,7 @@ trait Separated { self: SequenceChildUnparser =>
   def ssp: SeparatorSuppressionPolicy
   def ssAlgorithm: SeparatorSuppressionMode
 
-  val childProcessors = Seq(childUnparser, sep)
+  val childProcessors = Vector(childUnparser, sep)
 }
 
 class ScalarOrderedSeparatedSequenceChildUnparser(
@@ -145,7 +145,7 @@ class OrderedSeparatedSequenceUnparser(
   ssp: SeparatorSuppressionPolicy,
   spos: SeparatorPosition,
   sep: Unparser,
-  childUnparsersArg: Seq[SequenceChildUnparser])
+  childUnparsersArg: Vector[SequenceChildUnparser])
   extends OrderedSequenceUnparserBase(rd, childUnparsersArg) {
 
   private val childUnparsers = childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]

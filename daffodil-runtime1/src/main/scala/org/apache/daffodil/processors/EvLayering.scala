@@ -47,7 +47,7 @@ final class LayerLengthInBytesEv(override val expr: CompiledExpression[JLong], o
     expr,
     rd)
   with NoCacheEvaluatable[JLong] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def compute(state: State): JLong = {
     val v: JLong = super.compute(state)
@@ -63,7 +63,7 @@ final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], o
     expr,
     rd)
   with NoCacheEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 final class LayerTransformerEv(

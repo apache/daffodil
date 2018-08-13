@@ -30,8 +30,8 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
   extends TextPrimUnparser {
 
   private def erd = context
-  
-  override lazy val runtimeDependencies = Nil
+
+  override lazy val runtimeDependencies = Vector()
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"

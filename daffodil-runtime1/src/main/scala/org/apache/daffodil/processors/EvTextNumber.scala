@@ -30,7 +30,7 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], trd: Term
     TextStandardDecimalSeparatorCooker,
     trd)
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -39,7 +39,7 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], trd: Ter
     TextStandardGroupingSeparatorCooker,
     trd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRuntimeData)
@@ -48,7 +48,7 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], trd: TermRunti
     TextStandardExponentRepCooker,
     trd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBooleanFalseRepEv, mustBeSameLength: Boolean, trd: TermRuntimeData)
@@ -57,7 +57,7 @@ class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBo
     TextBooleanTrueRepCooker,
     trd)
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override final protected def compute(state: ParseOrUnparseState): List[String] = {
     if (mustBeSameLength) {
@@ -86,5 +86,5 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], trd: TermRuntimeDa
     TextBooleanFalseRepCooker,
     trd)
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }

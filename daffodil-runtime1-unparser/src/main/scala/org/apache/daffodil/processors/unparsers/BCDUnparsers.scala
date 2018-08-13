@@ -48,7 +48,7 @@ class BCDIntegerRuntimeLengthUnparser(
   extends BCDIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
 final class BCDIntegerDelimitedUnparser(
@@ -82,7 +82,7 @@ class BCDDecimalRuntimeLengthUnparser(
   extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
 final class BCDDecimalDelimitedUnparser(

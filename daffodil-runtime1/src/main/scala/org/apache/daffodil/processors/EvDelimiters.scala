@@ -57,7 +57,7 @@ abstract class DelimiterParseEv(delimType: DelimiterTextType.Type, override val 
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[UState]) {

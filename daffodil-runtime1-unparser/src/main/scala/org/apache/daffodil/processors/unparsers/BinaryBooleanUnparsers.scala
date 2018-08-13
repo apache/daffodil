@@ -31,12 +31,13 @@ import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 import org.apache.daffodil.io.FormatInfo
 
-class BinaryBooleanUnparser(e: ElementRuntimeData,
-    binaryBooleanTrueRep: MaybeULong,
-    binaryBooleanFalseRep: ULong,
-    val lengthEv: Evaluatable[JLong],
-    val lUnits: LengthUnits,
-    val lengthKind: LengthKind)
+class BinaryBooleanUnparser(
+  e: ElementRuntimeData,
+  binaryBooleanTrueRep: MaybeULong,
+  binaryBooleanFalseRep: ULong,
+  val lengthEv: Evaluatable[JLong],
+  val lUnits: LengthUnits,
+  val lengthKind: LengthKind)
   extends PrimUnparser() {
 
   lazy val toBits = lUnits match {
@@ -53,11 +54,10 @@ class BinaryBooleanUnparser(e: ElementRuntimeData,
       case _ => nBytes * toBits
     }
   }
-  
-  override def context = e
-  
-  override lazy val runtimeDependencies = List(lengthEv)
 
+  override def context = e
+
+  override lazy val runtimeDependencies = Vector(lengthEv)
 
   protected def putNumber(dos: DataOutputStream, value: ULong, nBits: Int, finfo: FormatInfo): Boolean = {
     dos.putULong(value, nBits, finfo)

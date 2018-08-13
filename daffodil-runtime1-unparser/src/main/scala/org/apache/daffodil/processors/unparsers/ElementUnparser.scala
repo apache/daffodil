@@ -49,7 +49,7 @@ class ElementUnspecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }
 
@@ -80,7 +80,7 @@ class ElementUnparserNoRep(
     Nope)
   with RegularElementUnparserStartEndStrategy {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   /**
    * Move over in the element children, but not in the group.
@@ -107,7 +107,7 @@ class ElementOVCUnspecifiedLengthUnparser(
   with OVCStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }
 
@@ -129,7 +129,7 @@ sealed abstract class ElementUnparserBase(
   with ElementUnparserStartEndStrategy {
 
   final override lazy val childProcessors =
-    eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ setVarUnparsers.toList
+    (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ setVarUnparsers.toList).toVector
 
   private val name = erd.name
 
@@ -277,7 +277,7 @@ class ElementSpecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override lazy val runtimeDependencies = maybeTargetLengthEv.toList
+  override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   override def runContentUnparser(state: UState) {
     computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
@@ -329,7 +329,7 @@ class ElementOVCSpecifiedLengthUnparser(
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override lazy val runtimeDependencies = maybeTargetLengthEv.toList
+  override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   private def suspendableExpression =
     new ElementOVCSpecifiedLengthUnparserSuspendableExpresion(this)
@@ -365,7 +365,7 @@ sealed trait ElementUnparserStartEndStrategy {
 
   protected def erd: ElementRuntimeData
 
-  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+  def runtimeDependencies: Vector[Evaluatable[AnyRef]]
 }
 
 sealed trait RegularElementUnparserStartEndStrategy

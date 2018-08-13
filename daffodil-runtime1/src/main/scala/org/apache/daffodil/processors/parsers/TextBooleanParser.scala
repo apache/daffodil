@@ -23,13 +23,14 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TextBooleanTrueRepEv
 import org.apache.daffodil.processors.TextBooleanFalseRepEv
 
-case class ConvertTextBooleanParser(override val context: ElementRuntimeData,
+case class ConvertTextBooleanParser(
+  override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
   textBooleanFalseRepEv: TextBooleanFalseRepEv,
   ignoreCase: Boolean)
   extends TextPrimParser {
 
-  override lazy val runtimeDependencies = List(textBooleanTrueRepEv, textBooleanFalseRepEv)
+  override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
   private def matches(str1: String, str2: String): Boolean = {
     if (ignoreCase) str1.equalsIgnoreCase(str2) else str1 == str2

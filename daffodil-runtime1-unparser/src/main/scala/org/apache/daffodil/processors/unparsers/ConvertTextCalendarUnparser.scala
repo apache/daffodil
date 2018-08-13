@@ -28,7 +28,8 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarProcessorBase
 
-case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
+case class ConvertTextCalendarUnparser(
+  erd: ElementRuntimeData,
   pattern: String,
   localeEv: CalendarLanguageEv,
   calendarEv: CalendarEv)
@@ -38,7 +39,7 @@ case class ConvertTextCalendarUnparser(erd: ElementRuntimeData,
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Seq(localeEv, calendarEv)
+  override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
 
   def unparse(state: UState): Unit = {
     val locale: ULocale = localeEv.evaluate(state)

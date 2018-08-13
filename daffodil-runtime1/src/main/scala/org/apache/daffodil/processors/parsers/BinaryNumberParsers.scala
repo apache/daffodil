@@ -26,7 +26,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 
 class BinaryFloatParser(override val context: ElementRuntimeData)
   extends PrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -43,7 +43,7 @@ class BinaryFloatParser(override val context: ElementRuntimeData)
 
 class BinaryDoubleParser(override val context: ElementRuntimeData)
   extends PrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
     val dis = start.dataInputStream
@@ -70,7 +70,7 @@ class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo,
 
 abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
   extends PrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -103,7 +103,7 @@ class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val
 
 abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData, signed: Boolean)
   extends PrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 

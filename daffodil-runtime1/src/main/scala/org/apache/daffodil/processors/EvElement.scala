@@ -37,7 +37,7 @@ class ExplicitLengthEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
     rd)
   with LengthEv
   with InfosetCachedEvaluatable[JLong] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   /**
    * Length is special. For the dfdl:length property, when it's an expression
@@ -62,7 +62,7 @@ class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
   with LengthEv
   with NoCacheEvaluatable[JLong] {
 
-  override val runtimeDependencies = Nil
+  override val runtimeDependencies = Vector()
 
   private val jLength = new JLong(lengthValue)
 
@@ -203,7 +203,7 @@ class UnparseTargetLengthInBitsEv(
   extends Evaluatable[MaybeJULong](rd)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
-  override lazy val runtimeDependencies = List(this.lengthInBitsEv, this.minLengthInBitsEv)
+  override lazy val runtimeDependencies = Vector(this.lengthInBitsEv, this.minLengthInBitsEv)
 
   /**
    * Note: use of MaybeJULong type. New Maybe type added which can be stored in
@@ -239,7 +239,7 @@ class UnparseTargetLengthInCharactersEv(
   extends Evaluatable[MaybeJULong](rd)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
-  override lazy val runtimeDependencies = List(this.lengthEv, charsetEv)
+  override lazy val runtimeDependencies = Vector(this.lengthEv, charsetEv)
 
   /**
    * Note: use of MaybeJULong type. New Maybe type added which can be stored in
@@ -265,7 +265,7 @@ class OccursCountEv(expr: CompiledExpression[JLong], rd: ElementRuntimeData)
     expr,
     rd)
   with InfosetCachedEvaluatable[JLong] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
@@ -274,7 +274,7 @@ class OutputNewLineEv(expr: CompiledExpression[String], rd: TermRuntimeData)
     OutputNewLineCooker,
     rd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }
 
 class ChoiceDispatchKeyEv(expr: CompiledExpression[String], rd: TermRuntimeData)
@@ -283,5 +283,5 @@ class ChoiceDispatchKeyEv(expr: CompiledExpression[String], rd: TermRuntimeData)
     ChoiceDispatchKeyCooker,
     rd)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 }

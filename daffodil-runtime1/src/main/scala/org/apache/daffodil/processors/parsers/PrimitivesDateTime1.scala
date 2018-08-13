@@ -82,7 +82,8 @@ abstract class ConvertTextCalendarProcessorBase(
   }
 }
 
-case class ConvertTextCalendarParser(erd: ElementRuntimeData,
+case class ConvertTextCalendarParser(
+  erd: ElementRuntimeData,
   xsdType: String,
   prettyType: String,
   pattern: String,
@@ -92,7 +93,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   extends ConvertTextCalendarProcessorBase(erd, pattern)
   with TextPrimParser {
 
-  override lazy val runtimeDependencies = List(localeEv, calendarEv)
+  override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
 
   def parse(start: PState): Unit = {
     val node = start.simpleElement
@@ -178,7 +179,7 @@ case class ConvertBinaryCalendarSecMilliParser(
   lengthInBits: Int)
   extends PrimParser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
 
@@ -198,7 +199,7 @@ case class ConvertBinaryCalendarSecMilliParser(
     } catch {
       case e: IllegalArgumentException => {
         PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",
-            millisToAdd, e.getMessage())
+          millisToAdd, e.getMessage())
         return
       }
     }

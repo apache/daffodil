@@ -29,7 +29,7 @@ abstract class AssertPatternParserBase(
   testPattern: String,
   message: String)
   extends PrimParser {
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"

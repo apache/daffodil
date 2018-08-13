@@ -42,7 +42,7 @@ abstract class SequenceChildUnparser(
   val trd: TermRuntimeData)
   extends CombinatorUnparser(srd) {
 
-  override def runtimeDependencies = Nil
+  override def runtimeDependencies = Vector()
 }
 
 /**
@@ -67,7 +67,7 @@ abstract class RepeatingChildUnparser(
     childUnparser.unparse1(state)
   }
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def toString = "RepUnparser(" + childUnparser.toString + ")"
 

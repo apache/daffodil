@@ -47,7 +47,7 @@ class StringNoTruncateUnparser(
   erd: ElementRuntimeData)
   extends StringSpecifiedLengthUnparserBase(erd) {
 
-  override def runtimeDependencies: Seq[Evaluatable[AnyRef]] = Nil
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -110,7 +110,7 @@ class StringMaybeTruncateBitsUnparser(
     stringTruncationType,
     erd) {
 
-  override lazy val runtimeDependencies = List(targetLengthInBitsEv, charsetEv)
+  override lazy val runtimeDependencies = Vector(targetLengthInBitsEv, charsetEv)
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
     val cs = charsetEv.evaluate(state)
@@ -247,7 +247,7 @@ class StringMaybeTruncateCharactersUnparser(
     stringTruncationType,
     erd) {
 
-  override lazy val runtimeDependencies: Seq[Evaluatable[AnyRef]] = List(lengthInCharactersEv)
+  override lazy val runtimeDependencies = Vector(lengthInCharactersEv)
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream

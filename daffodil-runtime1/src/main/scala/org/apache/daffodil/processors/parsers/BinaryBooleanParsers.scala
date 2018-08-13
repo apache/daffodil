@@ -28,7 +28,8 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MaybeULong
 import passera.unsigned.ULong
 
-class BinaryBooleanParser(val e: ElementRuntimeData,
+class BinaryBooleanParser(
+  val e: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
   val lengthEv: Evaluatable[JLong],
@@ -52,7 +53,7 @@ class BinaryBooleanParser(val e: ElementRuntimeData,
   }
 
   override def context = e
-  override lazy val runtimeDependencies = List(lengthEv)
+  override lazy val runtimeDependencies = Vector(lengthEv)
 
   override def parse(start: PState): Unit = {
     val nBits = getBitLength(start)

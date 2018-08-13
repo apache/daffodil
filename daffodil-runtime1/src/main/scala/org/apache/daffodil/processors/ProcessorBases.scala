@@ -55,8 +55,8 @@ trait Processor
   with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
-  override def childProcessors: Seq[Processor]
-  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+  override def childProcessors: Vector[Processor]
+  def runtimeDependencies: Vector[Evaluatable[AnyRef]]
 
   var isInitialized: Boolean = false
 
@@ -85,7 +85,7 @@ trait Processor
  * Some (NoData) do not.
  */
 trait PrimProcessor extends Processor {
-  override def childProcessors: Seq[Processor] = Nil
+  override def childProcessors: Vector[Processor] = Vector()
 
   /**
    * True if alignment, bit/byte order, and other aspects of real data on the data stream
@@ -102,7 +102,7 @@ trait PrimProcessor extends Processor {
  * as evaluating DPath expressions.
  */
 trait PrimProcessorNoData extends Processor {
-  override def childProcessors: Seq[Processor] = Nil
+  override def childProcessors: Vector[Processor] = Vector()
 
   /**
    * False because NoData processors don't touch the data stream.

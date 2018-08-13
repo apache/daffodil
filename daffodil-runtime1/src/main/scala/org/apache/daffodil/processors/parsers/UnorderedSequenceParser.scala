@@ -26,10 +26,10 @@ class UnorderedSequenceParser(
   uoSeqParser: Parser)
   extends CombinatorParser(context) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def nom = "UnorderedSequence"
-  override lazy val childProcessors = Seq(uoSeqParser)
+  override lazy val childProcessors = Vector(uoSeqParser)
 
   //  def sort(elt: org.jdom2.Element, pstate: PState): Unit = {
   //    val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom2.Element]]

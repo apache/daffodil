@@ -21,7 +21,8 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors._
 import java.lang.Boolean.{ TRUE => JTrue, FALSE => JFalse }
 
-case class ConvertTextBooleanUnparser(erd: ElementRuntimeData,
+case class ConvertTextBooleanUnparser(
+  erd: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
   textBooleanFalseRepEv: TextBooleanFalseRepEv)
   extends TextPrimUnparser {
@@ -31,7 +32,7 @@ case class ConvertTextBooleanUnparser(erd: ElementRuntimeData,
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Seq(textBooleanTrueRepEv, textBooleanFalseRepEv)
+  override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
   def unparse(state: UState): Unit = {
 

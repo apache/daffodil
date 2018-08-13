@@ -45,7 +45,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
 final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: LengthInBitsEv)
   extends HexBinaryLengthParser(erd) {
 
-  override val runtimeDependencies = Seq(lengthEv)
+  override val runtimeDependencies = Vector(lengthEv)
 
   override def getLengthInBits(pstate: PState): Long = {
     lengthEv.evaluate(pstate).get
@@ -56,7 +56,7 @@ final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: Le
 final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
   extends HexBinaryLengthParser(erd) {
 
-  override val runtimeDependencies = Nil
+  override val runtimeDependencies = Vector()
 
   override def getLengthInBits(pstate: PState): Long = {
     pstate.bitLimit0b.get - pstate.bitPos0b

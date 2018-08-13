@@ -33,12 +33,13 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 
-sealed class StringDelimitedUnparser(override val context: ElementRuntimeData,
+sealed class StringDelimitedUnparser(
+  override val context: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
   isDelimRequired: Boolean)
   extends TextPrimUnparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(context)

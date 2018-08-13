@@ -27,13 +27,13 @@ import org.apache.daffodil.util.Maybe._
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends CombinatorUnparser(rd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def nom = "ComplexType"
 
   override def isEmpty = bodyUnparser.isEmpty
 
-  override lazy val childProcessors = Seq(bodyUnparser)
+  override lazy val childProcessors = Vector(bodyUnparser)
 
   def unparse(start: UState): Unit = {
     start.childIndexStack.push(1L) // one-based indexing
@@ -47,9 +47,9 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors: Seq[Processor] = eventUnparserMap.map { case (k, v) => v }.toSeq
+  override lazy val childProcessors = eventUnparserMap.map { case (k, v) => v }.toSeq.toVector
 
   def unparse(state: UState): Unit = {
 
@@ -84,9 +84,9 @@ class HiddenChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, branchUnparser
   extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "HiddenChoice"
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors: Seq[Processor] = Seq(branchUnparser)
+  override lazy val childProcessors = Vector(branchUnparser)
 
   def unparse(state: UState): Unit = {
     branchUnparser.unparse1(state)
@@ -111,9 +111,9 @@ class DelimiterStackUnparser(
         "</DelimiterStack>"
   }
 
-  override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
+  override lazy val childProcessors = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList
+  override lazy val runtimeDependencies = (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toVector
 
   def unparse(state: UState): Unit = {
     // Evaluate Delimiters
@@ -135,9 +135,9 @@ class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, ctxt: Ter
   extends CombinatorUnparser(ctxt) {
   override def nom = "EscapeSchemeStack"
 
-  override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
+  override lazy val childProcessors = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = Seq(escapeScheme)
+  override lazy val runtimeDependencies = Vector(escapeScheme)
 
   def unparse(state: UState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting

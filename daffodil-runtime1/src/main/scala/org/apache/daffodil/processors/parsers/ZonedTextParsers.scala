@@ -35,9 +35,9 @@ case class ConvertZonedCombinatorParser(
   converterParser: Parser)
   extends CombinatorParser(rd) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Seq(valueParser, converterParser)
+  override lazy val childProcessors = Vector(valueParser, converterParser)
 
   def parse(start: PState): Unit = {
     valueParser.parse1(start)
@@ -53,7 +53,7 @@ case class ConvertZonedNumberParser[S](
   nff: NumberFormatFactoryBase[S],
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData) extends TextPrimParser {
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def toString = "to(xs:" + helper.xsdType + ")"
 

@@ -164,7 +164,8 @@ import java.nio.charset.UnmappableCharacterException
  * the number of bits to characters.
  */
 
-class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+class OVCRetryUnparserSuspendableOperation(
+  override val rd: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
   extends SuspendableOperation {
 
@@ -194,14 +195,15 @@ class OVCRetryUnparserSuspendableOperation(override val rd: ElementRuntimeData,
   }
 }
 
-class OVCRetryUnparser(override val context: ElementRuntimeData,
+class OVCRetryUnparser(
+  override val context: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
   extends PrimUnparser
   with SuspendableUnparser {
 
-  override final def runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toList
+  override final def runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toSeq.toVector
 
-  final override lazy val childProcessors = List(vUnparser)
+  final override lazy val childProcessors = Vector(vUnparser)
 
   def suspendableOperation = new OVCRetryUnparserSuspendableOperation(
     context, maybeUnparserTargetLengthInBitsEv, vUnparser)
@@ -211,7 +213,7 @@ class OVCRetryUnparser(override val context: ElementRuntimeData,
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -227,7 +229,7 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
 class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData, maybeFixedLengthInBits: MaybeULong)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
@@ -256,7 +258,7 @@ class CaptureEndOfContentLengthUnparser(override val context: ElementRuntimeData
 class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -272,7 +274,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
 class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def unparse(state: UState) {
     val dos = state.dataOutputStream
@@ -294,7 +296,8 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
  * to retry this in order to get the target length used to compute the amount of
  * padding or the amount of unused space.
  */
-class TargetLengthOperation(override val rd: ElementRuntimeData,
+class TargetLengthOperation(
+  override val rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv)
   extends SuspendableOperation {
 
@@ -448,7 +451,7 @@ class ElementUnusedUnparser(
   extends PrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = List(targetLengthEv)
+  override lazy val runtimeDependencies = Vector(targetLengthEv)
 
   override def suspendableOperation =
     new ElementUnusedUnparserSuspendableOperation(
@@ -508,7 +511,8 @@ trait PaddingUnparserMixin
   }
 }
 
-class OnlyPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+class OnlyPaddingUnparserSuspendableOperation(
+  override val rd: ElementRuntimeData,
   override val targetLengthEv: Evaluatable[MaybeJULong],
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
@@ -530,14 +534,15 @@ class OnlyPaddingUnparser(
   extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = List(targetLengthEv)
+  override lazy val runtimeDependencies = Vector(targetLengthEv)
 
   override def suspendableOperation =
     new OnlyPaddingUnparserSuspendableOperation(
       context, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 }
 
-class NilLiteralCharacterUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+class NilLiteralCharacterUnparserSuspendableOperation(
+  override val rd: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
@@ -580,14 +585,15 @@ class NilLiteralCharacterUnparser(
   extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = List(targetLengthEv)
+  override lazy val runtimeDependencies = Vector(targetLengthEv)
 
   override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
     context, targetLengthEv, maybeLengthEv, maybeCharsetEv, literalNilChar)
 
 }
 
-class RightCenteredPaddingUnparserSuspendaableOperation(rd: ElementRuntimeData,
+class RightCenteredPaddingUnparserSuspendaableOperation(
+  rd: ElementRuntimeData,
   targetLengthEv: Evaluatable[MaybeJULong],
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
@@ -601,7 +607,8 @@ class RightCenteredPaddingUnparserSuspendaableOperation(rd: ElementRuntimeData,
   }
 }
 
-class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
+class RightCenteredPaddingUnparser(
+  rd: ElementRuntimeData,
   targetLengthEv: Evaluatable[MaybeJULong],
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
@@ -614,7 +621,8 @@ class RightCenteredPaddingUnparser(rd: ElementRuntimeData,
       rd, targetLengthEv, maybeLengthEv, maybeCharsetEv, maybeLiteralNilEv, maybePadChar)
 }
 
-class LeftCenteredPaddingUnparserSuspendableOperation(override val rd: ElementRuntimeData,
+class LeftCenteredPaddingUnparserSuspendableOperation(
+  override val rd: ElementRuntimeData,
   targetLengthEv: Evaluatable[MaybeJULong],
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
@@ -631,7 +639,8 @@ class LeftCenteredPaddingUnparserSuspendableOperation(override val rd: ElementRu
   }
 }
 
-class LeftCenteredPaddingUnparser(rd: ElementRuntimeData,
+class LeftCenteredPaddingUnparser(
+  rd: ElementRuntimeData,
   targetLengthEv: Evaluatable[MaybeJULong],
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],

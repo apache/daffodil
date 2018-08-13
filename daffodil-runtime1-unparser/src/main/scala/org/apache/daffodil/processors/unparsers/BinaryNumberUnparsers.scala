@@ -76,7 +76,7 @@ class BinaryIntegerKnownLengthUnparser(e: ElementRuntimeData, signed: Boolean, o
   extends BinaryIntegerBaseUnparser(e, signed)
   with HasKnownLengthInBits {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }
 
@@ -84,13 +84,13 @@ class BinaryIntegerRuntimeLengthUnparser(val e: ElementRuntimeData, signed: Bool
   extends BinaryIntegerBaseUnparser(e, signed)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = List(lengthEv)
+  override val runtimeDependencies = Vector(lengthEv)
 }
 
 class BinaryFloatUnparser(e: ElementRuntimeData)
   extends BinaryNumberBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 32
 
@@ -103,7 +103,7 @@ class BinaryFloatUnparser(e: ElementRuntimeData)
 class BinaryDoubleUnparser(e: ElementRuntimeData)
   extends BinaryNumberBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 64
 
@@ -116,7 +116,7 @@ class BinaryDecimalKnownLengthUnparser(e: ElementRuntimeData, signed: YesNo, bin
   extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
-  override lazy val runtimeDependencies = Nil
+  override lazy val runtimeDependencies = Vector()
 
 }
 
@@ -124,7 +124,7 @@ class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesN
   extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = List(lengthEv)
+  override val runtimeDependencies = Vector(lengthEv)
 }
 
 abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
