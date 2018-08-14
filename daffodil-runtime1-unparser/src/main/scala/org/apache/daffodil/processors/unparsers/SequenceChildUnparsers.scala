@@ -254,7 +254,6 @@ abstract class RepeatingChildUnparser(
     //
     val ock = erd.maybeOccursCountKind.get
     // System.err.println("Checking for events consistent with Array index:\n ==> Array Index Stack is:" + state.arrayIndexStack)
-    // val arrPos = state.arrayPos - 1 // because we advance after each unparse so this is the position of the next (non-existing) occurrence
 
     Assert.invariant(arrPos <= maxReps || !(ock eq Implicit))
 
