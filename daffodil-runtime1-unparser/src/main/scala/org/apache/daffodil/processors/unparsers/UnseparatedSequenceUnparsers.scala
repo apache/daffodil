@@ -128,7 +128,7 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
                   if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
                 }
 
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps)
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
                 unparser.endArrayOrOptional(erd, state)
               } else {
                 //
@@ -153,6 +153,7 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
               Assert.invariant(ev.isEnd && ev.isComplex)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
             }
           } else {
             // no event (state.inspect returned false)

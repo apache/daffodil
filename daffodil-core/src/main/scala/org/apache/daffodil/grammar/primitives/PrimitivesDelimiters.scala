@@ -80,57 +80,6 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(e
       ""
     }
   }
-
-  def getMatchedDelimiterInfo(remoteDelimRegex: Set[(String, String)], foundDelimiter: String,
-    delimiters: List[(List[String], String, String)]) = {
-    val matchedDelim = remoteDelimRegex.find {
-      case (delimRegex, _) => {
-        foundDelimiter.matches("(?s)^(" + delimRegex + ")$")
-      }
-    } match {
-      case Some((_, theValue)) => theValue
-      case None => Assert.impossibleCase()
-    }
-
-    val (remoteDelimValue, remoteElemName, remoteElemPath, _) =
-      {
-        val findResult = delimiters.map {
-          case (delimValueList, elemName, elemPath) => {
-            delimValueList.find(delim => delim == matchedDelim) match {
-              case Some(d) => (d, elemName, elemPath, true)
-              case None => (delimValueList.mkString(","), elemName, elemPath, false)
-            }
-          }
-        }.toSet.filter { x => x._4 == true }
-
-        if (findResult.size == 0) Assert.impossibleCase()
-        findResult.head
-      }
-    (remoteDelimValue, remoteElemName, remoteElemPath)
-  }
-
-  def getMatchedDelimiterInfo(
-    originalDelimRep: String,
-    delimiters: List[(List[String], String, String)]) = {
-
-    val (remoteDelimValue, remoteElemName, remoteElemPath, _) =
-      {
-        val findResult = delimiters.map {
-          case (delimValueList, elemName, elemPath) => {
-            val res = delimValueList.find(delim => delim == originalDelimRep) match {
-              case Some(d) => (d, elemName, elemPath, true)
-              case None => (delimValueList.mkString(","), elemName, elemPath, false)
-            }
-            res
-          }
-        }.toSet.filter { x => x._4 == true }
-
-        if (findResult.size == 0) Assert.impossibleCase()
-        findResult.head
-      }
-    (remoteDelimValue, remoteElemName, remoteElemPath)
-  }
-
 }
 
 // NOTE: LiteralNil still uses this as it can only be Static/Constant

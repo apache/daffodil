@@ -77,8 +77,6 @@ sealed trait RuntimeData
   val path: String
   val namespaces: NamespaceBinding
 
-  def immediateEnclosingElementRuntimeData: Option[ElementRuntimeData]
-  def immediateEnclosingTermRuntimeData: Maybe[TermRuntimeData]
   def variableMap: VariableMap
   override def toString = diagnosticDebugName
 
@@ -104,8 +102,6 @@ sealed abstract class TermRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
-  @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
-  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData],
   @TransientParam encodingInfoArg: => EncodingRuntimeData,
   @TransientParam dpathCompileInfoArg: => DPathCompileInfo,
   @TransientParam isRepresentedArg: => Boolean,
@@ -148,8 +144,6 @@ sealed abstract class TermRuntimeData(
    */
   def tunable = dpathCompileInfo.tunable
 
-  lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
-  lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
   lazy val encodingInfo = encodingInfoArg
   lazy val dpathCompileInfo = dpathCompileInfoArg
   lazy val isRepresented = isRepresentedArg
@@ -164,8 +158,6 @@ sealed abstract class TermRuntimeData(
 
   override def preSerialization: Unit = {
     super.preSerialization
-    immediateEnclosingElementRuntimeData
-    immediateEnclosingTermRuntimeData
     encodingInfo
     dpathCompileInfo
     isRepresented
@@ -195,8 +187,6 @@ sealed class NonTermRuntimeData(
   @TransientParam diagnosticDebugNameArg: => String,
   @TransientParam pathArg: => String,
   @TransientParam namespacesArg: => NamespaceBinding,
-  @TransientParam immediateEnclosingElementRuntimeDataArg: => Option[ElementRuntimeData],
-  @TransientParam immedEnclosingTermRuntimeDataArg: => Maybe[TermRuntimeData],
   @TransientParam tunableArg: => DaffodilTunables)
   extends RuntimeData
   with PreSerialization {
@@ -206,8 +196,6 @@ sealed class NonTermRuntimeData(
   lazy val diagnosticDebugName = diagnosticDebugNameArg
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
-  lazy val immediateEnclosingElementRuntimeData = immediateEnclosingElementRuntimeDataArg
-  lazy val immediateEnclosingTermRuntimeData = immedEnclosingTermRuntimeDataArg
   lazy val tunable = tunableArg
 
   override def preSerialization: Unit = {
@@ -217,8 +205,6 @@ sealed class NonTermRuntimeData(
     diagnosticDebugName
     path
     namespaces
-    immediateEnclosingElementRuntimeData
-    immediateEnclosingTermRuntimeData
     tunable
   }
   @throws(classOf[java.io.IOException])
@@ -252,7 +238,7 @@ final class SimpleTypeRuntimeData(
   @TransientParam fractionDigitsArg: => Option[java.math.BigDecimal],
   @TransientParam unionMemberTypesArg: => Seq[SimpleTypeRuntimeData],
   @TransientParam tunableArg: => DaffodilTunables) extends NonTermRuntimeData(variableMapArg, schemaFileLocationArg, diagnosticDebugNameArg,
-  pathArg, namespacesArg, None, None, tunableArg) {
+  pathArg, namespacesArg, tunableArg) {
 
   import OKOrError._
 
@@ -604,8 +590,6 @@ final class ElementRuntimeData(
    * all transient elements must be added to the preSerialization method below
    * to allow parser serialization/deserialization to work.
    */
-  @TransientParam parentArg: => Option[ElementRuntimeData],
-  @TransientParam parentTermArg: => Maybe[TermRuntimeData],
   @TransientParam childrenArg: => Seq[ElementRuntimeData],
   @TransientParam variableMapArg: => VariableMap,
   @TransientParam nextElementResolverArg: => NextElementResolver,
@@ -659,15 +643,13 @@ final class ElementRuntimeData(
   @TransientParam maybeFillByteEvArg: => Maybe[FillByteEv],
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
-  extends TermRuntimeData(parentArg, parentTermArg, encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
+  extends TermRuntimeData(encInfoArg, dpathElementCompileInfoArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg) {
 
   override def isRequiredScalar = !isArray && isRequiredOrOptional
 
-  lazy val parent = parentArg
-  lazy val parentTerm = parentTermArg
   lazy val children = childrenArg
   lazy val variableMap = variableMapArg
   lazy val nextElementResolver = nextElementResolverArg
@@ -704,8 +686,6 @@ final class ElementRuntimeData(
 
   override def preSerialization: Unit = {
     super.preSerialization
-    parent
-    parentTerm
     children
     variableMap
     nextElementResolver
@@ -744,8 +724,6 @@ final class ElementRuntimeData(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  lazy val rootERD: ElementRuntimeData = parent.map { _.rootERD }.getOrElse(this)
-
   final def childERDs = children
 
   def isSimpleType = optPrimType.isDefined
@@ -781,8 +759,6 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
-  @TransientParam erdArg: ElementRuntimeData,
-  @TransientParam trdArg: => TermRuntimeData,
   @TransientParam isRepresentedArg: => Boolean,
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
@@ -792,8 +768,6 @@ sealed abstract class ModelGroupRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends TermRuntimeData(
-    Some(erdArg),
-    Maybe(trdArg),
     encInfoArg, ciArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg,
     defaultBitOrderArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
@@ -810,8 +784,6 @@ sealed abstract class ModelGroupRuntimeData(
   lazy val path = pathArg
   lazy val namespaces = namespacesArg
   lazy val groupMembers = groupMembersArg
-  lazy val erd = erdArg
-  lazy val trd = trdArg
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -823,8 +795,6 @@ sealed abstract class ModelGroupRuntimeData(
     path
     namespaces
     groupMembers
-    erd
-    trd
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -845,8 +815,6 @@ final class SequenceRuntimeData(
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
-  @TransientParam erdArg: ElementRuntimeData,
-  @TransientParam trdArg: => TermRuntimeData,
   @TransientParam isRepresentedArg: => Boolean,
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
@@ -856,7 +824,7 @@ final class SequenceRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
+    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg,
     maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
@@ -876,8 +844,6 @@ final class ChoiceRuntimeData(
   @TransientParam namespacesArg: => NamespaceBinding,
   @TransientParam defaultBitOrderArg: => BitOrder,
   @TransientParam groupMembersArg: => Seq[TermRuntimeData],
-  @TransientParam erdArg: ElementRuntimeData,
-  @TransientParam trdArg: => TermRuntimeData,
   @TransientParam isRepresentedArg: => Boolean,
   @TransientParam couldHaveTextArg: => Boolean,
   @TransientParam alignmentValueInBitsArg: => Int,
@@ -887,7 +853,7 @@ final class ChoiceRuntimeData(
   @TransientParam maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
   @TransientParam maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv])
   extends ModelGroupRuntimeData(variableMapArg, encInfoArg, schemaFileLocationArg, ciArg, diagnosticDebugNameArg, pathArg, namespacesArg, defaultBitOrderArg, groupMembersArg,
-    erdArg, trdArg, isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
+    isRepresentedArg, couldHaveTextArg, alignmentValueInBitsArg, hasNoSkipRegionsArg, optIgnoreCaseArg, maybeFillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg)
 
@@ -908,8 +874,6 @@ final class VariableRuntimeData(
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    None,
-    None,
     tunableArg)
   with Serializable {
 

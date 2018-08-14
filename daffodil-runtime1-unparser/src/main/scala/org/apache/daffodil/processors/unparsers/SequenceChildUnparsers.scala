@@ -169,27 +169,14 @@ abstract class RepeatingChildUnparser(
                 // System.err.println("Stopping occurrences(1) of %s due to event %s".format(erd.namedQName, ev))
                 false // event not a start for this element
               }
-            } else if (ev.isEnd && ev.isComplex) {
-              val c = ev.asComplex
-              //ok. We've peeked ahead and found the end of the complex element
-              //that this sequence is the model group of.
-              val optParentRD = srd.immediateEnclosingElementRuntimeData
-              // FIXME: there's no reason to walk backpointer to immediateEnclosingElementRuntimeData
-              // as we just want that element's name, and we could precompute that and
-              // include it on the SequenceChildUnparser for this
-              optParentRD match {
-                case Some(e: ElementRuntimeData) => {
-                  Assert.invariant(c.runtimeData.namedQName =:= e.namedQName)
-                  // System.err.println("Stopping occurrences(2) of %s due to event %s".format(erd.namedQName, ev))
-                  false
-                }
-                case _ =>
-                  Assert.invariantFailed("Not end element for this sequence's containing element. Event %s, optParentRD %s.".format(
-                    ev, optParentRD))
-              }
             } else {
-              // end of simple element. We shouldUnparse on the start event.
-              // System.err.println("Stopping occurrences(3) of %s due to event %s".format(erd.namedQName, ev))
+              Assert.invariant(ev.isEnd)
+              // could be end of simple elemnet - we handle on the start event. Nothing to do.
+              // or could be end of complex event, i.e., we've peeked ahead and found the end of a complex element.
+              // It has to be the complex element that ultimately encloses this sequence.
+              // Though that's not a unique element given that this sequence could be inside
+              // a global group definition that is reused in muliple places.
+              // Nothing to do for complex type either.
               false
             }
           } else {
@@ -232,7 +219,7 @@ abstract class RepeatingChildUnparser(
   def checkFinalOccursCountBetweenMinAndMaxOccurs(
     state: UState,
     unparser: RepeatingChildUnparser,
-    numOccurrences: Int, maxReps: Long): Unit = {
+    numOccurrences: Int, maxReps: Long, arrPos: Long): Unit = {
     import OccursCountKind._
 
     val minReps = unparser.minRepeats(state)
@@ -254,7 +241,6 @@ abstract class RepeatingChildUnparser(
     //
     val ock = erd.maybeOccursCountKind.get
     // System.err.println("Checking for events consistent with Array index:\n ==> Array Index Stack is:" + state.arrayIndexStack)
-    val arrPos = state.arrayPos - 1 // because we advance after each unparse so this is the position of the next (non-existing) occurrence
 
     Assert.invariant(arrPos <= maxReps || !(ock eq Implicit))
 

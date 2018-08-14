@@ -118,19 +118,10 @@ abstract class OrderedSequenceParserBase(
               // different, or OCK=parsed.
               //
 
-              //
-              // The beforeArrayState will be assigned the priorState before the whole array
-              // This is the same object as the priorState before the first
-              // occurrence.
-              //
-              var beforeArrayState: PState.Mark = null
-
               var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
               var ais: ArrayIndexStatus = null
               var goAIS: GoArrayIndexStatus = null
-
-              var isFirstIteration = true
 
               while ({
                 ais = parser.arrayIndexStatus(min, max, pstate, resultOfTry)
@@ -142,46 +133,31 @@ abstract class OrderedSequenceParserBase(
 
                 //
                 // Saved state before an individual occurrence.
-                //
-                // On the first iteration this is the same as the beforeArrayState
-                // and by "same" we mean same object in the 'eq' sense.
-                //
-                // If we are in a second or subsequent iteration then an invariant is
-                // that this is NOT the same as the beforeArrayState.
-                //
                 // These should not leak as we iterate the occurrences.
                 // The lifetime of these is the parse attempt for a single occurrence
                 // only.
                 //
-                val priorState =
-                  if (isFirstIteration) {
-                    beforeArrayState = pstate.mark("before all occurrences")
-                    beforeArrayState
-                  } else {
-                    pstate.mark("before second/subsequent occurrence")
-                  }
+                val priorState = pstate.mark("before occurrence")
 
                 checkN(pstate) // check if arrayIndex exceeds tunable limit.
 
                 var markLeakCausedByException = false
                 var wasThrow = true
                 try {
+                  pstate.pushDiscriminator
                   resultOfTry =
                     parseOneWithPoU(parser, erd, pstate, priorState, goAIS, isBounded)
                   wasThrow = false
+                  pstate.popDiscriminator
                   //
                   // Now we handle the result of the parse attempt.
                   //
-
                   // check for consistency - failure comes with a PE in the PState.
                   Assert.invariant((pstate.processorStatus eq Success) ||
                     resultOfTry.isInstanceOf[FailedParseAttemptStatus])
 
                   resultOfTry match {
-                    //
-                    // These statuses for whole array/optional are not used
-                    // for PoU occurrences.
-                    //
+
                     case ParseAttemptStatus.Failed_EntireArray |
                       ParseAttemptStatus.Success_EndOfArray =>
                       Assert.invariantFailed("not valid return status for a PoU array/optional.")
@@ -197,10 +173,6 @@ abstract class OrderedSequenceParserBase(
                     }
                     case _: SuccessParseAttemptStatus => {
                       pstate.mpstate.moveOverOneGroupIndexOnly()
-                      //
-                      // Here we leave beforeArrayState alone. May still
-                      // need it later.
-                      //
                       wasLastChildZeroLength = resultOfTry eq ParseAttemptStatus.Success_ZeroLength
                     }
 
@@ -221,17 +193,7 @@ abstract class OrderedSequenceParserBase(
                           //
                           val Failure(cause) = pstate.processorStatus
 
-                          //
-                          // Discarding has to be done before resetting of an outer/earlier mark
-                          // because the InputDataStream marks are unwound in a stack manner. I.e., resetting
-                          // to an earlier one implicitly discards any nested within that.
-                          //
-                          // This was causing a problem when we didn't discard priorState until later, since it
-                          // would then try to discard the InputDataStream's mark, and find it had already been
-                          // discarded.
-                          //
-                          if (!isFirstIteration) pstate.discard(priorState)
-                          pstate.reset(beforeArrayState)
+                          pstate.discard(priorState)
                           pstate.setFailed(cause)
                           resultOfTry = ParseAttemptStatus.Failed_EntireArray
                         }
@@ -284,10 +246,9 @@ abstract class OrderedSequenceParserBase(
                   }
                 }
                 // if it wasn't reset, we discard priorState here.
-                if (!isFirstIteration && pstate.isInUse(priorState)) {
+                if (pstate.isInUse(priorState)) {
                   pstate.discard(priorState)
                 }
-
                 //
                 // advance array position.
                 // Done unconditionally, as some failures get converted into successes
@@ -296,14 +257,8 @@ abstract class OrderedSequenceParserBase(
                 // about to get poppped/cleared anyway.
                 //
                 pstate.mpstate.moveOverOneArrayIndexOnly()
-                isFirstIteration = false
 
               } // end while for each repeat
-
-              // if it wasn't reset or discarded, discard here.
-              if (pstate.isInUse(beforeArrayState)) {
-                pstate.discard(beforeArrayState)
-              }
 
             } // end match case hasPoU = true
 

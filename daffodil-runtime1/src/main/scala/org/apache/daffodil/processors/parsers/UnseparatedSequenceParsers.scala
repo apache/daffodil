@@ -118,8 +118,6 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
 
     Assert.invariant(erd.isArray || erd.isOptional) // not a PoU otherwise.
 
-    pstate.pushDiscriminator
-
     if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
 
     val posBefore = pstate.bitPos0b
@@ -160,7 +158,6 @@ class OrderedUnseparatedSequenceParser(rd: SequenceRuntimeData, childParsersArg:
           }
         }
       }
-    pstate.popDiscriminator
     res
   }
 

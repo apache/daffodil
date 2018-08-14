@@ -299,6 +299,15 @@ final class OrderedSeparatedSequenceParser(
 
       val bitPosBeforeSeparator = pstate.bitPos0b
 
+      //
+      // Note: Performance. All this conditional branch logic could in principle be hoisted
+      // out and decided at schema compile time, as what is being tested here is statically known.
+      //
+      // However, that's trading a few conditional branches for a virtual function call, and that
+      // might or might not be an improvement worth making. Not worth bothering with unless
+      // some profiling makes it look like this could help.
+      //
+
       // parse prefix sep if any
       val prefixSepSuccessful =
         if (spos eq SeparatorPosition.Prefix) {
@@ -341,8 +350,6 @@ final class OrderedSeparatedSequenceParser(
           // now we parse the child
           //
           val prevBitPosBeforeChild = pstate.bitPos0b
-
-          pstate.pushDiscriminator
 
           if (pstate.dataProc.isDefined) pstate.dataProc.get.beforeRepetition(pstate, this)
 
@@ -496,7 +503,6 @@ final class OrderedSeparatedSequenceParser(
                 result
               } // end if child success/fail
             } // end val res
-            pstate.popDiscriminator
             res
           } // end if postfix
         } // end if infix

@@ -30,12 +30,14 @@ object TestArrayOptionalElem {
   val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
   val runner1 = Runner(testDir1, "dpaext2.tdml")
   val rBack = Runner(testDir, "backtracking.tdml")
+  val runnerAC = Runner(testDir, "ArrayComb.tdml")
 
   @AfterClass def shutDown {
     runner.reset
     runner01.reset
     runner1.reset
     rBack.reset
+    runnerAC.reset
   }
 
 }
@@ -43,6 +45,10 @@ object TestArrayOptionalElem {
 class TestArrayOptionalElem {
 
   import TestArrayOptionalElem._
+
+  // DAFFODIL-1964
+  @Test def test_arrayComb1() = { runnerAC.runOneTest("arrayComb1") }
+  @Test def test_arrayComb2() = { runnerAC.runOneTest("arrayComb2") }
 
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
   @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
