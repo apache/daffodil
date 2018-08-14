@@ -169,16 +169,14 @@ abstract class RepeatingChildUnparser(
                 // System.err.println("Stopping occurrences(1) of %s due to event %s".format(erd.namedQName, ev))
                 false // event not a start for this element
               }
-            } else if (ev.isEnd && ev.isComplex) {
-              //ok. We've peeked ahead and found the end of a complex element.
+            } else {
+              Assert.invariant(ev.isEnd)
+              // could be end of simple elemnet - we handle on the start event. Nothing to do.
+              // or could be end of complex event, i.e., we've peeked ahead and found the end of a complex element.
               // It has to be the complex element that ultimately encloses this sequence.
               // Though that's not a unique element given that this sequence could be inside
               // a global group definition that is reused in muliple places.
-              //that this sequence is the model group of.
-              false
-            } else {
-              // end of simple element. We shouldUnparse on the start event.
-              // System.err.println("Stopping occurrences(3) of %s due to event %s".format(erd.namedQName, ev))
+              // Nothing to do for complex type either.
               false
             }
           } else {
