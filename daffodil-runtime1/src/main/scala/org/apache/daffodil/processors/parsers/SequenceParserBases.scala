@@ -118,13 +118,6 @@ abstract class OrderedSequenceParserBase(
               // different, or OCK=parsed.
               //
 
-              //
-              // The beforeArrayState will be assigned the priorState before the whole array
-              // This is the same object as the priorState before the first
-              // occurrence.
-              //
-              var beforeArrayState: PState.Mark = null
-
               var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
               var ais: ArrayIndexStatus = null
@@ -155,8 +148,7 @@ abstract class OrderedSequenceParserBase(
                 //
                 val priorState =
                   if (isFirstIteration) {
-                    beforeArrayState = pstate.mark("before all occurrences")
-                    beforeArrayState
+                    pstate.mark("before all occurrences")
                   } else {
                     pstate.mark("before second/subsequent occurrence")
                   }
@@ -166,9 +158,11 @@ abstract class OrderedSequenceParserBase(
                 var markLeakCausedByException = false
                 var wasThrow = true
                 try {
+                  pstate.pushDiscriminator
                   resultOfTry =
                     parseOneWithPoU(parser, erd, pstate, priorState, goAIS, isBounded)
                   wasThrow = false
+                  pstate.popDiscriminator
                   //
                   // Now we handle the result of the parse attempt.
                   //
@@ -231,7 +225,6 @@ abstract class OrderedSequenceParserBase(
                           // discarded.
                           //
                           if (!isFirstIteration) pstate.discard(priorState)
-                          pstate.reset(beforeArrayState)
                           pstate.setFailed(cause)
                           resultOfTry = ParseAttemptStatus.Failed_EntireArray
                         }
@@ -284,7 +277,7 @@ abstract class OrderedSequenceParserBase(
                   }
                 }
                 // if it wasn't reset, we discard priorState here.
-                if (!isFirstIteration && pstate.isInUse(priorState)) {
+                if (pstate.isInUse(priorState)) {
                   pstate.discard(priorState)
                 }
 
@@ -299,11 +292,6 @@ abstract class OrderedSequenceParserBase(
                 isFirstIteration = false
 
               } // end while for each repeat
-
-              // if it wasn't reset or discarded, discard here.
-              if (pstate.isInUse(beforeArrayState)) {
-                pstate.discard(beforeArrayState)
-              }
 
             } // end match case hasPoU = true
 
