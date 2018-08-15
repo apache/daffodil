@@ -53,7 +53,7 @@
         <r>
           <lang>de</lang>
           <variant>1996</variant>
-          <date>2013-03-01+00:00</date>
+          <date>2013-03-01</date>
         </r>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -112,7 +112,7 @@
         <tns:r>
           <lang>de</lang>
           <variant>1996</variant>
-          <date>2013-03-01+00:00</date>
+          <date>2013-03-01</date>
           <dateString>2013-03-01</dateString>
         </tns:r>
       </tdml:dfdlInfoset>
@@ -176,10 +176,10 @@
         <tns:r>
           <lang>de</lang>
           <variant>1996</variant>
-          <date>2013-03-01+00:00</date>
+          <date>2013-03-01</date>
           <lang2>en</lang2>
           <variant2>us</variant2>
-          <date2>2013-03-01+00:00</date2>
+          <date2>2013-03-01</date2>
           <dateString>2013-03-01</dateString>
         </tns:r>
       </tdml:dfdlInfoset>
