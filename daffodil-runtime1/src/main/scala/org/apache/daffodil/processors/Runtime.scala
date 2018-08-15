@@ -220,25 +220,28 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   }
 
   private def doParse(p: Parser, state: PState) {
+    var wasThrow = true
     try {
-      this.startElement(state, p)
-      p.parse1(state)
-      this.endElement(state, p)
-      //
-      // After the end of all processing, we still call things that ask for the
-      // ERD, and expect to find it on the processor.context. If we don't set
-      // this, then the processor.context is Nope (because it is set on the
-      // way into a parser, and unset back when a parser unwinds). We
-      // want it to do this wind/unwind, but here at the ultimate top
-      // level we want to defeat that final unwind
-      // so that subsequent use of the state can generally work and have a context.
-      //
-      state.setMaybeProcessor(Maybe(p))
+      try {
+        this.startElement(state, p)
+        p.parse1(state)
+        this.endElement(state, p)
+        //
+        // After the end of all processing, we still call things that ask for the
+        // ERD, and expect to find it on the processor.context. If we don't set
+        // this, then the processor.context is Nope (because it is set on the
+        // way into a parser, and unset back when a parser unwinds). We
+        // want it to do this wind/unwind, but here at the ultimate top
+        // level we want to defeat that final unwind
+        // so that subsequent use of the state can generally work and have a context.
+        //
+        state.setMaybeProcessor(Maybe(p))
 
-      /* Verify that all stacks are empty */
-      Assert.invariant(state.mpstate.arrayIndexStack.length == 1)
-      Assert.invariant(state.mpstate.groupIndexStack.length == 1)
-      Assert.invariant(state.mpstate.childIndexStack.length == 1)
+        wasThrow = false
+      } finally {
+        state.verifyFinalState(wasThrow)
+      }
+
     } catch {
       // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure"
       // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an
@@ -278,8 +281,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       }
     }
 
-    state.dataInputStream.inputSource.compact
-    state.dataInputStream.validateFinalStreamState
   }
 
   def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {

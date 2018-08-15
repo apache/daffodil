@@ -125,14 +125,20 @@ class MPState private () {
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
-  //var wasAnyArrayElementNonZeroLength = false
-  //var wasLastArrayElementZeroLength = true
-
   private def init {
     arrayIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)
     delimitersLocalIndexStack.push(-1)
+  }
+
+  def verifyFinalState(): Unit = {
+    // The current values of the top of these stacks might have
+    // changed, but the fact that they are just 1 deep should be restored.
+    Assert.invariant(arrayIndexStack.length == 1)
+    Assert.invariant(groupIndexStack.length == 1)
+    Assert.invariant(childIndexStack.length == 1)
+    Assert.invariant(delimitersLocalIndexStack.length == 1)
   }
 }
 
@@ -323,6 +329,26 @@ final class PState private (
   }
 
   override lazy val (regexMatchBuffer, regexMatchBitPositionBuffer) = dataProcArg.regexMatchState.get
+
+  /**
+   * Verify that the state is left where we expect it to be after
+   * a normal parse. I.e., stacks have been popped back to their original state,
+   * pools - all items returned, etc.
+   *
+   * If for some reason parsing ends with a throw (not supposed to, but just if)
+   * then all bets are off, so this must be called ONLY on a normal return from parse call.
+   * That is, the parse can succeed or fail with diagnostics, but it must have returned normally.
+   */
+  def verifyFinalState(wasThrow: Boolean): Unit = {
+    if (!wasThrow) {
+      Assert.invariant(this.discriminatorStack.length == 1)
+      mpstate.verifyFinalState()
+    }
+    // These we check regardless of throw or not.
+    markPool.finalCheck
+    dataInputStream.inputSource.compact // discard any storage that can be freed.
+    dataInputStream.validateFinalStreamState
+  }
 }
 
 object PState {
