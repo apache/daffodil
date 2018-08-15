@@ -84,4 +84,8 @@ class TestArrayOptionalElem {
   @Test def test_occursCountKindImplicitSeparators04() { runner.runOneTest("occursCountKindImplicitSeparators04") }
   @Test def test_occursCountKindImplicitSeparators05() { runner.runOneTest("occursCountKindImplicitSeparators05") }
   @Test def test_occursCountKindImplicitSeparatorsUnparser() { runner.runOneTest("occursCountKindImplicitSeparatorsUnparser") }
+
+  @Test def test_ambigSep1() { runner.runOneTest("ambigSep1") }
+  @Test def test_ambigSep2() { runner.runOneTest("ambigSep2") }
+
 }

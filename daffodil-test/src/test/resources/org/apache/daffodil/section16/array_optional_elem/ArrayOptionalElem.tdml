@@ -17,9 +17,12 @@
 -->
 
 <tdml:testSuite suiteName="Array-OptionalElemTests"
-  description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  description="Section 16 - Arrays and Optional Elements" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   defaultRoundTrip="true">
@@ -667,8 +670,68 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="ambigSep">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:sequence>
+                <!--
+                Point of this discriminator is to make sure it doesn't interfere
+                with the point-of-uncertainty associated with separated sequence
+                elements below. 
+                 -->
+                  <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator>{ fn:true() }</dfdl:discriminator>
+                  </xs:appinfo></xs:annotation>
+                </xs:sequence>
+                <xs:sequence dfdl:separator=":" dfdl:terminator="::"
+                   dfdl:separatorPosition="infix">
+                   <xs:element name="x" type="xs:int" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="ambigSep1" root="ambigSep"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="onePass"
+    description="test that separator can be prefix of terminator, yet the longest match works."
+    >
+    <tdml:document><![CDATA[1:2:3::]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ambigSep>
+          <a>
+            <x>1</x>
+            <x>2</x>
+            <x>3</x>
+          </a>
+        </ex:ambigSep>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="ambigSep2" root="ambigSep"
+    model="array-ockImplicitSeparators.dfdl.xsd"
+    roundTrip="onePass"
+    description="test that separator can be prefix of terminator, yet the longest match works."
+   >
+    <tdml:document><![CDATA[::]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ambigSep><a></a></ex:ambigSep>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
 
   <tdml:parserTestCase name="occursCountKindImplicitSeparators01a" root="te_root"
     model="array-ockImplicitSeparators.dfdl.xsd"
