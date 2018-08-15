@@ -53,7 +53,7 @@
           leadingSkip="0"
           lengthKind="implicit"
           lengthUnits="bytes"
-          occursCountKind="parsed"
+          occursCountKind="implicit"
           outputNewLine="%LF;"
           representation="text"
           separator=""

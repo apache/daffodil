@@ -983,7 +983,8 @@ more ignored input
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="nestedGroupRefs">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+          occursCountKind='parsed'/>
 
 		<xs:element name="root">
 			<xs:complexType>
@@ -1086,7 +1087,8 @@ A,B,C|D,E,F|G,H,I]]></tdml:document>
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="nestedGroupRefs2">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
+          occursCountKind='parsed'/>
 
 		<xs:element name="root">
 			<xs:complexType>

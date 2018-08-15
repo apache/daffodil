@@ -228,7 +228,8 @@
 
 
   <tdml:defineSchema name="hiddenElem">
-    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      occursCountKind='parsed'/>
     
     <xs:group name="hiddenData">
       <xs:sequence dfdl:separator="|">

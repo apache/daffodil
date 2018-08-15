@@ -22,7 +22,8 @@
   xmlns:ex="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
   <tdml:defineSchema name="s1">
-    <dfdl:format ref="ex:GeneralFormat" />
+    <dfdl:format ref="ex:GeneralFormat" 
+      occursCountKind='parsed'/>
 
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>
