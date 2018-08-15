@@ -277,7 +277,8 @@
   </parserTestCase>
   
   <defineSchema name="escapeSchemeExpressions">
-    <dfdl:format ref="tns:GeneralFormat" separatorPosition="infix" lengthKind="delimited"/> 
+    <dfdl:format ref="tns:GeneralFormat" separatorPosition="infix" lengthKind="delimited"
+      occursCountKind='parsed'/> 
 
     <dfdl:defineEscapeScheme name="fromData">
       <dfdl:escapeScheme escapeCharacter="{ /tns:e1/tns:escapeChar }"

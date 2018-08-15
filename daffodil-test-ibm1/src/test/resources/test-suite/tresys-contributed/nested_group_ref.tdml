@@ -23,8 +23,9 @@
 	xmlns:ex="http://example.com" xmlns="http://example.com"
 	xsi:schemaLocation="http://www.ibm.com/xmlns/dfdl/testData xsd/tdml.xsd">
 
-	<tdml:defineSchema name="nestedGroupRefs">
-		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+	<tdml:defineSchema name="nestedGroupRefs1">
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+          occursCountKind="parsed" />
 
 		<xs:element name="root">
 			<xs:complexType>
@@ -59,8 +60,8 @@
 
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="nestedGroupRefs" root="root"
-		model="nestedGroupRefs" description="Simple type defined in terms of primitive int.">
+	<tdml:parserTestCase name="nestedGroupRefs1" root="root"
+		model="nestedGroupRefs1" description="Simple type defined in terms of primitive int.">
 
 		<tdml:document><![CDATA[A,B,C|D,E,F|G,H,I
 A,B,C|D,E,F|G,H,I

@@ -55,7 +55,8 @@
   
   <tdml:defineSchema name="alignmentSchema">
     
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"
+      occursCountKind='parsed'/>
     
     <xs:element name="string32be" dfdl:representation="text" type="xs:string" dfdl:encoding="utf-32be" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes"
       dfdl:alignment="2" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0"/>
@@ -2023,7 +2024,7 @@
         Schema: alignmentSchema
           Root: e10
        Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
-                that follow them, or a SDE will be thrown.
+                that follow them, or a SDW will be issued.
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem" root="e10"
@@ -2049,7 +2050,7 @@
         Schema: alignmentSchema
           Root: e10a
        Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
-                that follow them, or a SDE will be thrown.
+                that follow them, or a SDW will be issued..
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem02" root="e10a"
@@ -2074,7 +2075,7 @@
         Schema: alignmentSchema
           Root: e10b
        Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
-                that follow them, or a SDE will be thrown.
+                that follow them, or a SDW will be issued.
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem03" root="e10b"
@@ -2098,7 +2099,7 @@
         Schema: alignmentSchema
           Root: e10c
        Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
-                that follow them, or a SDE will be thrown.
+                that follow them, or a SDW will be issued.
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem04" root="e10c"

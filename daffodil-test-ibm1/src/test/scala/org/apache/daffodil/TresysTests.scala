@@ -137,7 +137,7 @@ class TresysTests {
   // @Test def test_t3() { runnerMB.runOneTest("t3") }
   // @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
 
-  @Test def test_nested_group_refs() { runnerNG.runOneTest("nestedGroupRefs") }
+  @Test def test_nested_group_refs1() { runnerNG.runOneTest("nestedGroupRefs1") }
 
   @Test def test_AF000() { runnerAF.runOneTest("AF000") }
   @Test def test_AF001() { runnerAF.runOneTest("AF001") }
