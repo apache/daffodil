@@ -43,6 +43,13 @@
 		</daf:tunables>
 	</tdml:defineConfig>
 
+	<tdml:defineConfig name="cfg_smallMaxOccursBounds">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:maxOccursBounds>3</daf:maxOccursBounds>
+		</daf:tunables>
+	</tdml:defineConfig>
+
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
 		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
@@ -178,4 +185,39 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+
+
+
+	<tdml:defineSchema name="exceedMaxOccursBounds">
+		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+		<dfdl:format ref="ex:GeneralFormat" />
+
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="char" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="1" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase
+		name="maxOccursBoundsExceeded" root="root"
+		model="exceedMaxOccursBounds" description="Tunables - maxOccursBounds"
+		config="cfg_smallMaxOccursBounds">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1234</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:errors>
+			<tdml:error>Tunable Limit Exceeded</tdml:error>
+			<tdml:error>maxOccursBounds</tdml:error>
+			<tdml:error>3</tdml:error>
+			<tdml:error>char</tdml:error>
+		</tdml:errors>
+
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

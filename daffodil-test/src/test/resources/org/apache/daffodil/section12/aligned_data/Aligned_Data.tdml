@@ -750,7 +750,7 @@
     <tdml:document />
 
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Tunable Limit Exceeded Error</tdml:error>
       <tdml:error>Property leadingSkip</tdml:error>
       <tdml:error>is larger than limit</tdml:error>
     </tdml:errors>

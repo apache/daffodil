@@ -21,6 +21,7 @@ import java.io.PrintWriter
 import org.apache.daffodil.exceptions.UnsuppressableException
 import java.io.StringWriter
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
@@ -66,11 +67,12 @@ abstract class OrderedSequenceParserBase(
 
   protected def zeroLengthSpecialChecks(pstate: PState, wasLastChildZeroLength: Boolean): Unit
 
-  final protected def checkN(pstate: PState): Boolean = {
+  final protected def checkN(pstate: PState, childParser: RepeatingChildParser): Unit = {
     if (pstate.arrayPos > pstate.tunable.maxOccursBounds) {
-      PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", pstate.arrayPos, pstate.tunable.maxOccursBounds)
-      false
-    } else true
+      throw new TunableLimitExceededError(childParser.erd.schemaFileLocation,
+        "Array occurrences excceeds the maxOccursBounds tunable limit of %s",
+        pstate.tunable.maxOccursBounds)
+    }
   }
 
   /**
@@ -139,11 +141,11 @@ abstract class OrderedSequenceParserBase(
                 //
                 val priorState = pstate.mark("before occurrence")
 
-                checkN(pstate) // check if arrayIndex exceeds tunable limit.
-
                 var markLeakCausedByException = false
                 var wasThrow = true
                 try {
+                  checkN(pstate, parser) // check if arrayIndex exceeds tunable limit.
+
                   pstate.pushDiscriminator
                   resultOfTry =
                     parseOneWithPoU(parser, erd, pstate, priorState, goAIS, isBounded)
@@ -281,7 +283,7 @@ abstract class OrderedSequenceParserBase(
                 }
               }) {
 
-                checkN(pstate)
+                checkN(pstate, parser)
                 resultOfTry = parseOneWithoutPoU(parser, parser.trd, pstate)
                 resultOfTry match {
                   case ParseAttemptStatus.Success_EndOfArray => // ok, success will move on to next sequence child.
