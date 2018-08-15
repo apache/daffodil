@@ -691,13 +691,13 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val ibm4690PackedKnownLengthCalendar = prod("ibm4690PackedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateKnownLength | ibm4690PackedTimeKnownLength | ibm4690PackedDateTimeKnownLength
+    ibm4690PackedDateKnownLength || ibm4690PackedTimeKnownLength || ibm4690PackedDateTimeKnownLength
   }
   private lazy val ibm4690PackedRuntimeLengthCalendar = prod("ibm4690PackedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateRuntimeLength | ibm4690PackedTimeRuntimeLength | ibm4690PackedDateTimeRuntimeLength
+    ibm4690PackedDateRuntimeLength || ibm4690PackedTimeRuntimeLength || ibm4690PackedDateTimeRuntimeLength
   }
   private lazy val ibm4690PackedDelimitedLengthCalendar = prod("ibm4690PackedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed) {
-    ibm4690PackedDateDelimitedLength | ibm4690PackedTimeDelimitedLength | ibm4690PackedDateTimeDelimitedLength
+    ibm4690PackedDateDelimitedLength || ibm4690PackedTimeDelimitedLength || ibm4690PackedDateTimeDelimitedLength
   }
 
   // ibm4690Packed calendar with known length
@@ -734,13 +734,13 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val packedKnownLengthCalendar = prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateKnownLength | packedTimeKnownLength | packedDateTimeKnownLength
+    packedDateKnownLength || packedTimeKnownLength || packedDateTimeKnownLength
   }
   private lazy val packedRuntimeLengthCalendar = prod("packedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateRuntimeLength | packedTimeRuntimeLength | packedDateTimeRuntimeLength
+    packedDateRuntimeLength || packedTimeRuntimeLength || packedDateTimeRuntimeLength
   }
   private lazy val packedDelimitedLengthCalendar = prod("packedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
-    packedDateDelimitedLength | packedTimeDelimitedLength | packedDateTimeDelimitedLength
+    packedDateDelimitedLength || packedTimeDelimitedLength || packedDateTimeDelimitedLength
   }
 
   // Packed calendar with known length
