@@ -996,8 +996,8 @@
       <tdml:dfdlInfoset>
         <e_concat3>
           <one>-5000.0</one>
-          <two>2004-04-12T13:20:00.000000+00:00</two>
-          <concat>-5000.02004-04-12T13:20:00.000000+00:00</concat>
+          <two>2004-04-12T13:20:00.000000</two>
+          <concat>-5000.02004-04-12T13:20:00.000000</concat>
         </e_concat3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2157,7 +2157,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_yearfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <year>2034</year>
         </e_yearfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2178,7 +2178,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_yearfromdatetime2>
-          <date>0000-01-01T23:00:00.000000+00:00</date>
+          <date>0000-01-01T23:00:00.000000</date>
           <year>0</year>
         </e_yearfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2217,7 +2217,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_monthfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <month>12</month>
         </e_monthfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2256,7 +2256,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_dayfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <day>31</day>
         </e_dayfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2295,7 +2295,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_hoursfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <hours>23</hours>
         </e_hoursfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2334,7 +2334,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_minutesfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <minutes>0</minutes>
         </e_minutesfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2373,7 +2373,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_secondsfromdatetime2>
-          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <date>2034-12-31T23:00:00.000000</date>
           <seconds>0</seconds>
         </e_secondsfromdatetime2>
       </tdml:dfdlInfoset>
@@ -2394,7 +2394,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_secondsfromdatetime3>
-          <date>2014-07-19T23:00:05.180000+00:00</date>
+          <date>2014-07-19T23:00:05.180000</date>
           <seconds>5.18</seconds>
         </e_secondsfromdatetime3>
       </tdml:dfdlInfoset>
@@ -2415,14 +2415,14 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdatetime1>
-          <date>2013-04-01T11:53:06.000000+00:00</date>
+          <date>2013-04-01T11:53:06.000000</date>
           <year>2013</year>
           <month>4</month>
           <day>1</day>
           <hours>11</hours>
           <minutes>53</minutes>
           <seconds>6</seconds>
-          <timeZone>+00:00</timeZone>
+          <timeZone></timeZone>
         </e_xfromdatetime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2543,7 +2543,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_yearfromdate2>
-          <date>2034-12-31+00:00</date>
+          <date>2034-12-31</date>
           <year>2034</year>
         </e_yearfromdate2>
       </tdml:dfdlInfoset>
@@ -2564,7 +2564,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_yearfromdate2>
-          <date>0000-01-01+00:00</date>
+          <date>0000-01-01</date>
           <year>0</year>
         </e_yearfromdate2>
       </tdml:dfdlInfoset>
@@ -2603,7 +2603,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_monthfromdate2>
-          <date>2034-12-31+00:00</date>
+          <date>2034-12-31</date>
           <month>12</month>
         </e_monthfromdate2>
       </tdml:dfdlInfoset>
@@ -2642,7 +2642,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_dayfromdate2>
-          <date>2034-12-31+00:00</date>
+          <date>2034-12-31</date>
           <day>31</day>
         </e_dayfromdate2>
       </tdml:dfdlInfoset>
@@ -2665,11 +2665,11 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdate1>
-          <date>2000-12-31+00:00</date>
+          <date>2000-12-31</date>
           <year>2000</year>
           <month>12</month>
           <day>31</day>
-          <timeZone>+00:00</timeZone>
+          <timeZone></timeZone>
         </e_xfromdate1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2715,11 +2715,11 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdate1>
-          <date>-0020-04-08+00:00</date>
+          <date>-0020-04-08</date>
           <year>-20</year>
           <month>4</month>
           <day>8</day>
-          <timeZone>+00:00</timeZone>
+          <timeZone></timeZone>
         </e_xfromdate1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -6859,9 +6859,9 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime01>
-          <date>1996-03-31+00:00</date>
-          <time>04:55:30.000000+00:00</time>
-          <dateTime>1996-03-31T04:55:30.000000+00:00</dateTime>
+          <date>1996-03-31</date>
+          <time>04:55:30.000000</time>
+          <dateTime>1996-03-31T04:55:30.000000</dateTime>
         </dateTime01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -6884,9 +6884,9 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime01>
-          <date>1996-01-31+00:00</date>
-          <time>04:55:30.000000+00:00</time>
-          <dateTime>1996-01-31T04:55:30.000000+00:00</dateTime>
+          <date>1996-01-31</date>
+          <time>04:55:30.000000</time>
+          <dateTime>1996-01-31T04:55:30.000000</dateTime>
         </dateTime01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -8074,8 +8074,8 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime04>
-          <string>1998-03-04T12:30:34.123456+00:00</string>
-          <dateTime>1998-03-04T12:30:34.123456+00:00</dateTime>
+          <string>1998-03-04T12:30:34.123456</string>
+          <dateTime>1998-03-04T12:30:34.123456</dateTime>
         </dateTime04>
       </tdml:dfdlInfoset>
     </tdml:infoset>

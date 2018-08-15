@@ -58,6 +58,9 @@ class TestDFDLExpressionsDebug {
 
   import TestDFDLExpressionsDebug._
 
+  // DAFFODIL-1986
+  @Test def test_comparison_operators_46a() { runner.runOneTest("comparison_operators_46a") }
+
   //DFDL-1287
   @Test def test_internal_space_preserved4() { runner.runOneTest("internal_space_preserved4") }
   @Test def test_internal_space_not_preserved2() { runner.runOneTest("internal_space_not_preserved2") }

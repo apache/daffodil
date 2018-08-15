@@ -158,6 +158,9 @@ class TestDFDLExpressions {
   @Test def test_comparison_operators_45() { runner.runOneTest("comparison_operators_45") }
   @Test def test_comparison_operators_46() { runner.runOneTest("comparison_operators_46") }
 
+  // DAFFODIL-1986
+  // @Test def test_comparison_operators_46a() { runner.runOneTest("comparison_operators_46a") }
+
   // from XPath Spec Sec 10.4.6.1 Examples
   @Test def test_comparison_operators_47() { runner.runOneTest("comparison_operators_47") }
   @Test def test_comparison_operators_48() { runner.runOneTest("comparison_operators_48") }

@@ -38,7 +38,7 @@
           calendarLanguage="en"
           calendarObserveDST="yes"
           calendarPatternKind="implicit"
-          calendarTimeZone="UTC"
+          calendarTimeZone=""
           decimalSigned="yes"
           documentFinalTerminatorCanBeMissing="no"
           emptyValueDelimiterPolicy="both"
