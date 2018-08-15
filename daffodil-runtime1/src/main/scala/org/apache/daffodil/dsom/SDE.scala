@@ -122,6 +122,19 @@ class ValidationError(schemaContext: Maybe[SchemaFileLocation],
 
 }
 
+final class TunableLimitExceededError(
+  annotationContext: SchemaFileLocation,
+  kind: String,
+  args: Any*)
+  extends SchemaDefinitionDiagnosticBase(
+    Maybe(annotationContext),
+    Nope, None, None,
+    Maybe(kind), args: _*) {
+
+  override def isError = true
+  override def modeName = "Tunable Limit Exceeded"
+}
+
 abstract class SchemaDefinitionDiagnosticBase(
   sc: Maybe[SchemaFileLocation],
   runtimeContext: Maybe[ParseOrUnparseState],

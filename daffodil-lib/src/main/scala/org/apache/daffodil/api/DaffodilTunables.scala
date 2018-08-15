@@ -89,7 +89,7 @@ case class DaffodilTunables(
   val maxFieldContentLengthInBytes: Long = 1024 * 1024, // Can be as large as Int.MaxValue
   val defaultInitRegexMatchLimitInChars: Long = 32,
   val maxDataDumpSizeInBytes: Long = 256,
-  val maxOccursBounds: Long = 1024, // Can be as large as Int.MaxValue
+  val maxOccursBounds: Long = Int.MaxValue, // Can be as large as Int.MaxValue
   //
   // When unexpected text is found where a delimiter is expected, this is the maximum
   // number of bytes (characters) to display when the expected delimiter is a variable

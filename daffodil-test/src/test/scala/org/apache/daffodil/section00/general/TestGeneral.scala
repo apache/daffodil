@@ -99,5 +99,7 @@ class TestGeneral {
   @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_01() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_01") }
   @Test def test_unqualifiedPathStepPolicy_noNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_noNamespace_test_02") }
   @Test def test_unqualifiedPathStepPolicy_defaultNamespace_test_02() { tunables_runner.runOneTest("unqualifiedPathStepPolicy_defaultNamespace_test_02") }
+  
+  @Test def test_maxOccursBoundsExceeded() { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
 
 }

@@ -59,7 +59,7 @@ import org.apache.daffodil.processors.parsers.ParseError
 import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.api.TunableLimitExceededError
+import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.api.DaffodilTunables
 
 /**

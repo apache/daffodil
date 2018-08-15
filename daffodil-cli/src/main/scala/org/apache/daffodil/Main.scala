@@ -93,7 +93,6 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.parsers.DocumentBuilderFactory
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.api.TunableLimitExceededError
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.io.InputSourceDataInputStream
 
@@ -1343,10 +1342,6 @@ object Main extends Logging {
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
-      }
-      case e: TunableLimitExceededError => {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }

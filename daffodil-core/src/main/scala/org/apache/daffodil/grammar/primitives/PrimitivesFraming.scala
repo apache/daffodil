@@ -30,11 +30,14 @@ import org.apache.daffodil.processors.unparsers.MandatoryTextAlignmentUnparser
 import org.apache.daffodil.processors.unparsers.SkipRegionUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.dsom.TunableLimitExceededError
 
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 
-  e.schemaDefinitionUnless(skipLengthInBits < e.tunable.maxSkipLengthInBytes * 8,
-    "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, e.tunable.maxSkipLengthInBytes * 8)
+  if (skipLengthInBits > e.tunable.maxSkipLengthInBytes * 8) {
+    throw new TunableLimitExceededError(e.schemaFileLocation,
+      "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, e.tunable.maxSkipLengthInBytes * 8)
+  }
 
   final lazy val parser: Parser = new SkipRegionParser(skipLengthInBits, e.termRuntimeData)
   final lazy val unparser: Unparser = new SkipRegionUnparser(skipLengthInBits, e.termRuntimeData)

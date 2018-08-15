@@ -3048,7 +3048,7 @@
       <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint 201 is greater than limit 200</tdml:error>
+      <tdml:error>Tunable Limit Exceeded Error: Property binaryDecimalVirtualPoint 201 is greater than limit 200</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3058,7 +3058,7 @@
       <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint -201 is less than limit -200</tdml:error>
+      <tdml:error>Tunable Limit Exceeded Error: Property binaryDecimalVirtualPoint -201 is less than limit -200</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -28,6 +28,7 @@ import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
+import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives.AlignmentFill
 import org.apache.daffodil.grammar.primitives.BCDDecimalDelimitedEndOfData
@@ -913,9 +914,9 @@ trait ElementBaseGrammarMixin
 
       case PrimType.Decimal => {
         if (binaryDecimalVirtualPoint > tunable.maxBinaryDecimalVirtualPoint)
-          SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, tunable.maxBinaryDecimalVirtualPoint)
+          throw new TunableLimitExceededError(schemaFileLocation, "Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, tunable.maxBinaryDecimalVirtualPoint)
         if (binaryDecimalVirtualPoint < tunable.minBinaryDecimalVirtualPoint)
-          SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, tunable.minBinaryDecimalVirtualPoint)
+          throw new TunableLimitExceededError(schemaFileLocation, "Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, tunable.minBinaryDecimalVirtualPoint)
         if (binaryNumberKnownLengthInBits == -1 ||
           binaryNumberKnownLengthInBits > 8) byteOrderRaw // must have or SDE
 
