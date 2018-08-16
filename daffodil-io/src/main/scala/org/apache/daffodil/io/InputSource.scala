@@ -372,11 +372,11 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
     Assert.invariant(bucketIndex >= oldestBucketIndex && bucketIndex < buckets.length)
     buckets(bucketIndex.toInt).refCount -= 1 
 
-    if (bucketIndex == oldestBucketIndex && buckets(bucketIndex.toInt).refCount == 0) {
-      // We just freed the last reference to the oldest bucket. So try to
-      // release as many buckets as possible. Note that this might still not
-      // release anything if the oldest bucket contains the current byte
-      // position.
+    if (buckets(oldestBucketIndex.toInt).refCount == 0) {
+      // We just freed the last reference to the oldest bucket (or the oldest
+      // bucket happened to have no references). So try to release as many
+      // buckets as possible. Note that this might still not release anything
+      // if the oldest bucket contains the current byte position.
       releaseBuckets()
     }
   }
@@ -387,7 +387,7 @@ class BucketingInputSource(inputStream: java.io.InputStream, bucketSize: Int = 1
     if (!areDebugging) {
       // Look for old buckets that are no longer referenced by a mark (i.e.
       // refCount is zero), set them to null so they are garbage collected. Make
-      // sure not to not remove whatever bucket holds the current byte position,
+      // sure not to remove whatever bucket holds the current byte position,
       // even if there are no marks--we need to still read from that bucket.
       val (curBucketIndex, _) = bytePositionToIndicies(curBytePosition0b)
       while (oldestBucketIndex < curBucketIndex && buckets(oldestBucketIndex).refCount == 0) {
