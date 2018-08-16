@@ -104,9 +104,11 @@ do
 done
 
 echo "Creating Git tag..."
-git tag -as -m "Release v$VERSION-$PRE_RELEASE"  v$VERSION-$PRE_RELEASE
+git tag -as -u $PGP_SIGNING_KEY_ID -m "Release v$VERSION-$PRE_RELEASE"  v$VERSION-$PRE_RELEASE
 
-echo "Finished: $VERSION-$PRE_RELEASE output to $OUTPUT_DIR"
+echo ""
+echo ""
+echo "!!! Finished: $VERSION-$PRE_RELEASE output to $OUTPUT_DIR !!!"
 
 echo "Things to verify: "
 echo
