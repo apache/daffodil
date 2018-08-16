@@ -365,8 +365,8 @@ trait ElementRuntimeValuedPropertiesMixin
     val res: (LengthUnits, Long) =
       (lengthKind, impliedRepresentation, typeDef.typeNode) match {
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, maxLengthLong) // fixed length
-        case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
         case (Implicit, Text, String) => (lengthUnits, maxLengthLong) // fixed length
+        case (Implicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength) // fixed length
         case (Explicit, Text, String) => (lengthUnits, minLengthLong)
         case (Explicit, Binary, HexBinary) => (LengthUnits.Bytes, minLengthLong)
         case (Explicit, Text, AnySimpleType) => (lengthUnits, textOutputMinLength)

@@ -41,7 +41,12 @@ object TestDFDLExpressions {
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")
 
+    val testDir6 = "/org/apache/daffodil/section23/dfdl_expressions/"
+  val runner6 = Runner(testDir6, "expressions.tdml")
+
   val runner7 = Runner(testDir, "expressions2.tdml", compileAllTopLevel = true)
+
+
 
   @AfterClass def shutDown() {
     runner4.reset
@@ -1009,4 +1014,16 @@ class TestDFDLExpressions {
   // DFDL-1804
   @Test def test_traceComplex { runner7.runOneTest("traceComplex") }
 
+  //DFDL-1076
+  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+
+  // DFDL-1617 - should detect errors due to query-style expressions
+  @Test def test_query_style_01 { runner6.runOneTest("query_style_01") }
+  @Test def test_query_style_02 { runner6.runOneTest("query_style_02") }
+
+  //DFDL-1221
+  @Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
+
+  //DFDL-711
+  @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
 }

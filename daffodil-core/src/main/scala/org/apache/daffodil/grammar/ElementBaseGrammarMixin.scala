@@ -1369,14 +1369,14 @@ trait ElementBaseGrammarMixin
 
     /*
      *  When length kind is explicit, and length is a constant, it is an SDE if
- * the type is a type that uses dfdl:textOutputMinLength, and the length constant
- * is not greater than or equal to that value.
+     * the type is a type that uses dfdl:textOutputMinLength, and the length constant
+     * is not greater than or equal to that value.
      */
 
     val isTypeUsingTextOutputMinLength = typeDef.typeNode match {
       case s: NodeInfo.String.Kind => false
       case s: NodeInfo.HexBinary.Kind => false
-      case s: NodeInfo.AnySimpleType.Kind if (impliedRepresentation eq Representation.Binary) &&
+      case s: NodeInfo.AnySimpleType.Kind if (impliedRepresentation eq Representation.Text) &&
         this.textOutputMinLength > 0 => true
       case _ => false
     }

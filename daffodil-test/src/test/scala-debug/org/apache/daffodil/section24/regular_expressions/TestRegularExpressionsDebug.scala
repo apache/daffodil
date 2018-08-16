@@ -41,5 +41,4 @@ class TestRegularExpressionsDebug {
   @Test def test_testRegEx_06() { runner.runOneTest("testRegEx_06") }
   @Test def test_testRegEx_07() { runner.runOneTest("testRegEx_07") }
 
-  @Test def test_assertWithPattern1() { runner.runOneTest("testAssertWithPattern1") }
 }
