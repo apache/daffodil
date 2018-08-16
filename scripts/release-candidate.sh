@@ -17,61 +17,42 @@
 
 set -e
 
-if [ -n "$(git status --porcelain)" ]
-then
-	echo
-	echo "!!! Repository is not clean. Commit changes or clean repo before building release !!!"
-	echo
-	git status
-	exit
-fi
+command -v rpmbuild &> /dev/null || { echo -e "\n!!! rpmbuild command required !!!\n"; exit; }
+
+if [ -n "$(git status --porcelain)" ]; then { echo -e "\n!!! Repository is not clean. Commit changes or clean repo before building release !!!\n"; git status; exit; } fi
 
 VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
-if [[ $VERSION == *SNAPSHOT* ]]
-then
-	echo
-	echo "!!! SBT Version ($VERSION) should not contain SNAPSHOT for a release !!!"
-	echo
-	exit
-fi
+if [[ $VERSION == *SNAPSHOT* ]]; then echo -e "\n!!! SBT Version ($VERSION) should not contain SNAPSHOT for a release !!!\n"; exit; fi
 
 read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
-
-if [ -z "$PRE_RELEASE" ]
-then
-	echo
-	echo "!!! Pre Release label must not be empty !!!"
-	echo
-	exit
-fi
+if [ -z "$PRE_RELEASE" ]; then echo -e "\n!!! Pre Release label must not be empty !!!\n"; exit; fi
 
 read -e -p "Path to Apache dist directory: " APACHE_DIST
+DAFFODIL_DIST_ROOT="$APACHE_DIST/dev/incubator/daffodil/"
+DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_ROOT/$VERSION-$PRE_RELEASE
+if [ ! -d "$DAFFODIL_DIST_ROOT" ]; then echo -e "\n!!! Daffodil release root directory does not exist: $DAFFODIL_DIST_ROOT !!!\n"; exit; fi
+if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Output directory already exists: $DAFFODIL_RELEASE_DIR !!!\n"; exit; fi
 
-RELEASE_ROOT_DIR="$APACHE_DIST/dev/incubator/daffodil/"
-
-OUTPUT_DIR=$RELEASE_ROOT_DIR/$VERSION-$PRE_RELEASE
-
-if [ -d "$OUTPUT_DIR" ]
-then
-	echo
-	echo "!!! Output directory already exists: $OUTPUT_DIR !!!"
-	echo
-	exit
-fi
+read -e -p "Path to Apache Daffodil site directory: " DAFFODIL_SITE_DIR
+DAFFODIL_DOCS_DIR=$DAFFODIL_SITE/site/docs/$VERSION/
+if [ ! -d "$DAFFODIL_SITE_DIR" ]; then echo -e "\n!!! Daffodil site directory does not exist: $DAFFODIL_SITE_DIR !!!\n";  exit; fi
+if [ -d "$DAFFODIL_DOCS_DIR" ]; then echo -e "\n!!! Daffodil site doc version directory already exists: $DAFFODIL_DOCS_DIR !!!\n";  exit; fi
 
 read -p "Signing Key ID (long format): " PGP_SIGNING_KEY_ID
 read -p "Apache Username: " APACHE_USERNAME
 read -s -p "Apache Password: " APACHE_PASSWD
 
+
 echo
 echo
-echo "!!! Making release $VERSION-$PRE_RELEASE in $OUTPUT_DIR !!!"
+echo "!!! Making release $VERSION-$PRE_RELEASE in $DAFFODIL_RELEASE_DIR !!!"
 echo
 
-mkdir -p $OUTPUT_DIR/{src,bin}/
+mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
+mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
 
 echo "Creating Source Tarball..."
-git archive --format=zip --prefix=apache-daffodil-$VERSION-incubating-src/ HEAD > $OUTPUT_DIR/src/apache-daffodil-$VERSION-incubating-src.zip
+git archive --format=zip --prefix=apache-daffodil-$VERSION-incubating-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-daffodil-$VERSION-incubating-src.zip
 
 echo "Building Convenience Binaries and Publishing to Apache Repository..."
 sbt \
@@ -83,16 +64,22 @@ sbt \
   "+publishSigned" \
   "daffodil-cli/rpm:packageBin" \
   "daffodil-cli/universal:packageBin" \
-  "daffodil-cli/universal:packageZipTarball"
+  "daffodil-cli/universal:packageZipTarball" \
+  "daffodil-japi/genjavadoc:doc" \
+  "daffodil-sapi/doc" \
 
-cp daffodil-cli/target/universal/apache-daffodil-*.tgz $OUTPUT_DIR/bin/
-cp daffodil-cli/target/universal/apache-daffodil-*.zip $OUTPUT_DIR/bin/
-cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $OUTPUT_DIR/bin/
+cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
+cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
+cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
+
+cp -R daffodil-japi/target/scala-2.12/genjavadoc-api/* $DAFFODIL_DOCS_DIR/javadoc/
+cp -R daffodil-sapi/target/scala-2.12/api/* $DAFFODIL_DOCS_DIR/scaladoc/
+
 
 echo "Calculating Checksums..."
 for i in src/ bin/
 do
-    pushd $OUTPUT_DIR/$i > /dev/null
+    pushd $DAFFODIL_RELEASE_DIR/$i > /dev/null
     for file in *
     do
        sha1sum $file > $file.sha1
@@ -108,13 +95,14 @@ git tag -as -u $PGP_SIGNING_KEY_ID -m "Release v$VERSION-$PRE_RELEASE"  v$VERSIO
 
 echo ""
 echo ""
-echo "!!! Finished: $VERSION-$PRE_RELEASE output to $OUTPUT_DIR !!!"
+echo "!!! Finished: $VERSION-$PRE_RELEASE output to $DAFFODIL_RELEASE_DIR !!!"
 
 echo "Things to verify: "
 echo
-echo "- Files in $RELEASE_ROOT_DIR"
+echo "- Files in $DAFFODIL_RELEASE_DIR"
+echo "- Files in $DAFFODIL_DOCS_DIR"
 echo "- Staged published files at https://repository.apache.org/"
 echo "- Git tag created at v$VERSION-$PRE_RELEASE"
 echo
-echo "If that all looks corect, 'svn ci' the new files in $RELEASE_ROOT_DIR, close the published Nexus files, 'git push origin v$VERSION-$PRE_RELEASE', and start a VOTE"
+echo "If that all looks corect, 'svn ci' the new files in $DAFFODIL_RELEASE_DIR, close the published Nexus files, 'git push origin v$VERSION-$PRE_RELEASE', and start a VOTE"
 echo
