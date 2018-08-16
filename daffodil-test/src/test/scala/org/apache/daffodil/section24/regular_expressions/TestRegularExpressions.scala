@@ -49,4 +49,11 @@ class TestRegularExpressions {
   // @Test def test_testRegEx_05() { runner.runOneTest("testRegEx_05") }
   // @Test def test_testRegEx_06() { runner.runOneTest("testRegEx_06") }
   // @Test def test_testRegEx_07() { runner.runOneTest("testRegEx_07") }
+
+  // DFDL-922
+  @Test def test_testRegEx_08() { runner.runOneTest("testDFDL-922") }
+  @Test def test_testRegEx_09() { runner.runOneTest("testDFDL-922_2") }
+
+  // DAFFODIL-809
+  @Test def test_assertWithPattern1() { runner.runOneTest("testAssertWithPattern1") }
 }

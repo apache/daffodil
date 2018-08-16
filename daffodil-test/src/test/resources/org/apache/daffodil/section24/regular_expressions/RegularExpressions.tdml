@@ -207,15 +207,11 @@
 
    <tdml:parserTestCase name="testAssertWithPattern1" root="a1"
     model="RegularExpressions-Embedded.dfdl.xsd" 
-    description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
+    description="Test shows that inside a choice, an assert with pattern expressed on the element definition must be executed.">
     <tdml:document>1</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-         <a1>
-          <data_02>1</data_02>
-        </a1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Did not find 1 or 2 or 3</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="testRegEx_01" root="regExpr_01"

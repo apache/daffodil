@@ -37,7 +37,8 @@
 				textStandardDecimalSeparator="." textStandardExponentRep="e"
 				textNumberCheckPolicy="lax" textStandardInfinityRep="~"
 				textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown" textNumberRounding="pattern"
-				textStandardZeroRep="" textZonedSignStyle="asciiStandard" escapeSchemeRef=""/>
+				textStandardZeroRep="" textZonedSignStyle="asciiStandard" escapeSchemeRef=""
+                textOutputMinLength="0"/>
 		</xs:appinfo>
 	</xs:annotation>
 

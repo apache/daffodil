@@ -75,9 +75,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_diagnostics_02() { runner.runOneTest("diagnostics_02") }
   @Test def test_diagnostics_03() { runner.runOneTest("diagnostics_03") }
 
-  //DFDL-1221
-  @Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
-
   //DFDL-1035 - tests need better diagnostic
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
   @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
@@ -100,9 +97,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1059
   @Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   @Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
-
-  //DFDL-711
-  @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
 
   //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
