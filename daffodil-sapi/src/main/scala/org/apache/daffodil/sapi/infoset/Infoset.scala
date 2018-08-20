@@ -41,7 +41,7 @@ import org.apache.daffodil.dpath.NodeInfo
 
 /**
  * Abstract class used to determine how the infoset representation should be
- * input from a call to [[DataProcessor#unparse(input*]]. This uses a Cursor API, such
+ * input from a call to [[DataProcessor.unparse(input* DataProcessor.unparse]]. This uses a Cursor API, such
  * that each call to advance/inspect must update a cursor value, minimizing
  * allocations. Callers of advance/inspect are expected to copy out any
  * information from advanceAccessor and inspectAccessor if they need to retain
@@ -98,7 +98,7 @@ abstract class InfosetInputter extends SInfosetInputter {
 
 /**
  * Abstract class used to determine how the infoset representation should be
- * output from a call to [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]. The Daffodil core will call
+ * output from a call to [[DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse]]. The Daffodil core will call
  * the various methods of this class in an order appropriate to create an
  * infoset representation.
  *

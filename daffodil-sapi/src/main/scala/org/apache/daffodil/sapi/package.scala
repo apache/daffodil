@@ -41,8 +41,8 @@ package org.apache.daffodil
  *
  * <h4>Parse</h4>
  *
- * The [[DataProcessor#parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method accepts input data to parse in the form
- * of a [[io.InputSourceDataInputStream]] and an [[infoset.InfosetOutputter]]
+ * The [[DataProcessor.parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream* DataProcessor.parse]] method accepts input data to parse in the form
+ * of a [[io.InputSourceDataInputStream InputSourceDataInputStream]] and an [[infoset.InfosetOutputter InfosetOutputter]]
  * to determine the output representation of the infoset (e.g. Scala XML Nodes,
  * JDOM2 Documents, etc.):
  *
@@ -53,10 +53,10 @@ package org.apache.daffodil
  * val node = scalaOutputter.getResult
  * }}}
  *
- * The [[DataProcessor#parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]] method is thread-safe and may be called multiple
+ * The [[DataProcessor.parse(input:org\.apache\.daffodil\.sapi\.io\.InputSourceDataInputStream* DataProcessor.parse]] method is thread-safe and may be called multiple
  * times without the need to create other data processors. However,
- * [[infoset.InfosetOutputter]]'s are not thread safe, requiring a unique instance per
- * thread. An [[infoset.InfosetOutputter]] should call [[infoset.InfosetOutputter#reset]] before
+ * [[infoset.InfosetOutputter InfosetOutputter]]'s are not thread safe, requiring a unique instance per
+ * thread. An [[infoset.InfosetOutputter InfosetOutputter]] should call [[infoset.InfosetOutputter.reset InfosetOutputter.reset]] before
  * reuse (or a new one should be allocated). For example:
  *
  * {{{
@@ -66,7 +66,7 @@ package org.apache.daffodil
  *   val is = new InputSourceDataInputStream(new FileInputStream(f))
  *   val pr = dp.parse(is, scalaOutputter)
  *   val node = scalaOutputter.getResult
- * }}
+ * }
  * }}}
  *
  * One can repeat calls to parse() using the same InputSourceDataInputStream to continue parsing where the previous parse ended. For example:
@@ -80,12 +80,13 @@ package org.apache.daffodil
  *   val pr = dp.parse(is, jdomOutputter)
  *   ...
  *   keepParsing = !pr.location().isAtEnd() && !pr.isError()
+ * }
  * }}}
  *
  * <h4>Unparse</h4>
  *
  * The same [[DataProcessor]] used for parse can be used to unparse an infoset
- * via the [[DataProcessor#unparse(input*]] method. An [[infoset.InfosetInputter]]
+ * via the [[DataProcessor.unparse(input* DataProcessor.unparse]] method. An [[infoset.InfosetInputter InfosetInputter]]
  * provides the infoset to unparse, with the unparsed data written to the
  * provided java.nio.channels.WritableByteChannel. For example:
  *
@@ -102,7 +103,7 @@ package org.apache.daffodil
  * error, etc), these classes extend [[WithDiagnostics]], which is used to
  * determine if an error occurred, and any diagnostic information (see
  * [[Diagnostic]]) related to the step. Thus, before continuing, one must check
- * [[WithDiagnostics#isError]]. For example:
+ * [[WithDiagnostics.isError]]. For example:
  *
  * {{{
  * val pf = c.compile(file)

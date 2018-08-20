@@ -109,10 +109,10 @@ class Compiler private[sapi] () {
    * Compile DFDL schema file into a [[ProcessorFactory]]
    *
    * To allow jar-file packaging, (where schema files might be part of a jar),
-   * it is recommended to use [[Compiler#compileSource]] instead.
+   * it is recommended to use [[Compiler.compileSource]] instead.
    *
    * @param schemaFile DFDL schema file used to create a [[ProcessorFactory]].
-   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory.isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
   def compileFile(schemaFile: File): ProcessorFactory = {
@@ -125,7 +125,7 @@ class Compiler private[sapi] () {
    * Compile DFDL schema source into a [[ProcessorFactory]]
    *
    * @param uri URI of DFDL schema file used to create a [[ProcessorFactory]].
-   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory.isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
   def compileSource(uri: URI): ProcessorFactory = {
@@ -138,11 +138,11 @@ class Compiler private[sapi] () {
    * Reload a saved parser from a file
    *
    * To allow jar-file packaging, (where the savedParser might be part of a jar),
-   * it is recommended to use the other version of [[Compiler#reload(savedParser:java\.nio\.channels\.ReadableByteChannel)*]] where the argument is
+   * it is recommended to use the other version of [[Compiler.reload(savedParser:java\.nio\.channels\.ReadableByteChannel)* Compiler.reload]] where the argument is
    * a java.nio.channels.ReadableByteChannel for a saved parser.
    *
-   * @param savedParser file of a saved parser, created with [[DataProcessor#save]]
-   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
+   * @param savedParser file of a saved parser, created with [[DataProcessor.save]]
+   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor.isError]] before using it.
    * @throws InvalidParserException if the file is not a valid saved parser.
    */
   def reload(savedParser: File): DataProcessor = {
@@ -156,8 +156,8 @@ class Compiler private[sapi] () {
   /**
    * Reload a saved parser from a java.nio.channels.ReadableByteChannel
    *
-   * @param savedParser java.nio.channels.ReadableByteChannel of a saved parser, created with [[DataProcessor#save]]
-   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
+   * @param savedParser java.nio.channels.ReadableByteChannel of a saved parser, created with [[DataProcessor.save]]
+   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor.isError]] before using it.
    * @throws InvalidParserException if the file is not a valid saved parser.
    */
   def reload(savedParser: ReadableByteChannel): DataProcessor = {
@@ -267,7 +267,7 @@ class ProcessorFactory private[sapi] (pf: SProcessorFactory)
    * Create a [[DataProcessor]]
    *
    * @param path path to an element to use as the parsing root, relative to the distinguished root node. Currently, must be set to "/"
-   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
+   * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor.isError]] before using it.
    */
   def onPath(path: String) = {
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
@@ -280,7 +280,7 @@ class ProcessorFactory private[sapi] (pf: SProcessorFactory)
  * Abstract class that adds diagnostic information to classes that extend it.
  *
  * When a function returns a class that extend this, one should call
- * [[WithDiagnostics#isError]] on that class before performing any further
+ * [[WithDiagnostics.isError]] on that class before performing any further
  * actions. If an error exists, any use of that class, aside from those
  * functions in [[WithDiagnostics]], is invalid and will result in an
  * Exception.
@@ -305,7 +305,7 @@ abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics) {
   /**
    * Get the list of [[Diagnostic]]'s created during the construction of the parent object
    *
-   * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false.
+   * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics.isError]] is false.
    */
   def getDiagnostics: Seq[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) }
 }
@@ -401,7 +401,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   /**
    * Enable/disable debugging.
    *
-   * Before enabling, [[DataProcessor#setDebugger]] must be called with a non-null debugger.
+   * Before enabling, [[DataProcessor.setDebugger]] must be called with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */
@@ -461,7 +461,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   /**
    * Save the DataProcessor
    *
-   * The resulting output can be reloaded by [[Compiler#reload(savedParser:java\.nio\.channels\.ReadableByteChannel)*]].
+   * The resulting output can be reloaded by [[Compiler.reload(savedParser:java\.nio\.channels\.ReadableByteChannel)* Compiler.reload]].
    * @param output the byte channel to write the [[DataProcessor]] to
    */
   def save(output: WritableByteChannel): Unit = dp.save(output)
@@ -473,7 +473,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult.result()","2.2.0")
   def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
     val is = Channels.newInputStream(input)
     val dis = new InputSourceDataInputStream(is)
@@ -491,7 +491,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * @param input data to be parsed
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult.result()","2.2.0")
   def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
 
   /**
@@ -502,7 +502,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult.result()","2.2.0")
   def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
     val is = Channels.newInputStream(input)
     val dis = new InputSourceDataInputStream(is)
@@ -522,7 +522,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    * @param output the InfosetOutputter that will be used to output the infoset
    * @return an object which contains the result, and/or diagnostic information.
    */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
+  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult.result()","2.2.0")
   def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
 
   /**
@@ -565,7 +565,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
 }
 
 /**
- * Result of calling [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]], containing
+ * Result of calling [[DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse]], containing
  * any diagnostic information, and the final data location
  */
 class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[ScalaXMLInfosetOutputter])
@@ -620,7 +620,7 @@ class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[Scala
 }
 
 /**
- * Result of calling [[DataProcessor#unparse(input*]],
+ * Result of calling [[DataProcessor.unparse(input* DataProcessor.unparse]],
  * containing diagnostic information
  */
 class UnparseResult private[sapi] (ur: SUnparseResult)

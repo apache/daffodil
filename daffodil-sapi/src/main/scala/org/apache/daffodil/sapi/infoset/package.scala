@@ -19,10 +19,10 @@ package org.apache.daffodil.sapi
 
 /**
  * Defines various classes used control the representation of the infoset for parse and unparse. 
- * Classes that extend [[InfosetOutputter]] are provided to the [[DataProcessor#parse(input:java\.nio\.channels\.ReadableByteChannel,output:org\.apache\.daffodil\.sapi\.infoset\.InfosetOutputter)*]]
+ * Classes that extend [[InfosetOutputter]] are provided to the [[DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse]]
  * method to deteremine how to output an infoset. These classes are not
  * guaranteed to be thread-safe. Classes that extend [[InfosetInputter]] are
- * provided to the [[DataProcessor#unparse(input*]] method to determine how to read in
+ * provided to the [[DataProcessor.unparse(input* DataProcessor.unparse]] method to determine how to read in
  * an infoset. A new InfosetOutputter is required for each call to unparse().
  */
 

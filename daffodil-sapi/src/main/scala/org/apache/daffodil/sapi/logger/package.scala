@@ -38,8 +38,8 @@ package org.apache.daffodil.sapi
  * }}}
  *
  * One may also change the log level using [[Daffodil.setLoggingLevel]], which
- * defaults to [[LogLevel#Info]] if not set. For example, to change the log
- * level to [[LogLevel#Warning]]:
+ * defaults to [[LogLevel.Info]] if not set. For example, to change the log
+ * level to [[LogLevel.Warning]]:
  * {{{
  * Daffodil.setLoggingLevel(LogLevel.Warning);
  * }}}
