@@ -956,4 +956,48 @@
 
   </tdml:parserTestCase>
 
+
+  <tdml:defineSchema name="lengthPatternBinary">
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:element name="bin1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bin" type="xs:hexBinary" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:lengthKind="pattern" dfdl:lengthPattern="[\x00-\xFF]{0,80}" dfdl:encoding="ISO-8859-1">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:valueLength(., 'bytes') gt 0 }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="lengthPatternBinaryPatternLimit"
+    root="bin1" model="lengthPatternBinary" description="Section 12 lengthKind-pattern - DFDL-12-087R" >
+
+    <tdml:document>
+      <tdml:documentPart type="byte">6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</tdml:documentPart>
+      <tdml:documentPart type="byte">6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</tdml:documentPart>
+      <tdml:documentPart type="byte">6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</tdml:documentPart>
+      <tdml:documentPart type="byte">6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bin1>
+          <bin>6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</bin>
+          <bin>6162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970616263646566676869706162636465666768697061626364656667686970</bin>
+          <bin>61626364656667686970616263646566676869706162636465666768697061626364656667686970</bin>
+        </bin1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+
+
 </tdml:testSuite>
