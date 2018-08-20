@@ -571,7 +571,8 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
         regexMatchBitPositionBuffer.limit(regexMatchBufferLimit)
 
         val numDecoded = finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
-        val filledToLimit = regexMatchBuffer.position == regexMatchBuffer.limit
+        val potentiallyMoreData = regexMatchBuffer.position == regexMatchBuffer.limit
+
         regexMatchBuffer.flip
         regexMatchBitPositionBuffer.flip
 
@@ -583,13 +584,13 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
           val hitEnd = matcher.hitEnd
           val requireEnd = matcher.requireEnd
 
-          if (filledToLimit && ((isMatch && requireEnd) || (!isMatch && hitEnd))) {
-            // We filled the CharBuffer to its limit, so it's possible there
-            // is more data available. AND either 1) we got a match but more
-            // data could negate it or 2) we hit the end without getting a
-            // match but more data might result in a match. In either case,
-            // let's increase the match limit if possible, try to decode more
-            // data, and try the match again if we got more data.
+          if (potentiallyMoreData && (hitEnd || (isMatch && requireEnd))) {
+            // We filled the CharBuffer to its limit, so it's possible there is
+            // more data available AND either 1) we hit the end of the char
+            // buffer and more data might change the match or 2) we got a match
+            // but require the end and more data could negate the match. In
+            // either case, let's increase the match limit if possible, try to
+            // decode more data, and try the match again if we got more data.
             if (regexMatchBufferLimit == regexMatchBuffer.capacity) {
               // consumed too much data, just give up
               keepMatching = false

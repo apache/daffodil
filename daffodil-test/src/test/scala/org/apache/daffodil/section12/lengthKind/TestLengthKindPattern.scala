@@ -80,4 +80,6 @@ class TestLengthKindPattern {
   @Test def test_hexBinaryLengthKindPattern01() { runner.runOneTest("hexBinaryLengthKindPattern01") }
 
   @Test def test_lengthPatternEncodingErrorReplace() { runner.runOneTest("lengthPatternEncodingErrorReplace") }
+
+  @Test def test_lengthPatternBinaryPatternLimit() { runner.runOneTest("lengthPatternBinaryPatternLimit") }
 }
