@@ -79,7 +79,7 @@ abstract class LogWriter {
    *
    * The default implementation generates a log message based on the prefix,
    * suffix, message string, and log arguments, and passes the generated log
-   * message, level, and logId to [[LogWriter#write]].
+   * message, level, and logId to [[LogWriter.write]].
    *
    * Can be overridden if more control is needed over the logging mechanism and/or
    * log arguments are needed as separate entities.
