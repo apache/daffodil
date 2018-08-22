@@ -31,12 +31,28 @@ read -e -p "Path to Apache dist directory: " APACHE_DIST
 DAFFODIL_DIST_ROOT="$APACHE_DIST/dev/incubator/daffodil/"
 DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_ROOT/$VERSION-$PRE_RELEASE
 if [ ! -d "$DAFFODIL_DIST_ROOT" ]; then echo -e "\n!!! Daffodil release root directory does not exist: $DAFFODIL_DIST_ROOT !!!\n"; exit; fi
-if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Output directory already exists: $DAFFODIL_RELEASE_DIR !!!\n"; exit; fi
+if [ -d "$DAFFODIL_RELEASE_DIR" ]; then
+    read -p "\nOutput directory already exists: '$DAFFODIL_RELEASE_DIR'. Remove it? (Y/n)" REMOVE
+    if [[ -z "$REMOVE" || "$REMOVE" == "Y" ]]; then
+	rm -rf "$DAFFODIL_RELEASE_DIR"
+    else
+	echo "Exiting."
+	exit;
+    fi
+fi    
 
 read -e -p "Path to Apache Daffodil site directory: " DAFFODIL_SITE_DIR
-DAFFODIL_DOCS_DIR=$DAFFODIL_SITE/site/docs/$VERSION/
+DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION/
 if [ ! -d "$DAFFODIL_SITE_DIR" ]; then echo -e "\n!!! Daffodil site directory does not exist: $DAFFODIL_SITE_DIR !!!\n";  exit; fi
-if [ -d "$DAFFODIL_DOCS_DIR" ]; then echo -e "\n!!! Daffodil site doc version directory already exists: $DAFFODIL_DOCS_DIR !!!\n";  exit; fi
+if [ -d "$DAFFODIL_DOCS_DIR" ]; then
+    read -p "\nDaffodil site doc version directory already exists: '$DAFFODIL_DOCS_DIR'. Remove it? (Y/n)" REMOVE
+    if [[ -z "$REMOVE" || "$REMOVE" == "Y" ]]; then
+	rm -rf "$DAFFODIL_DOCS_DIR";
+    else
+	echo "Exiting."
+	exit;
+    fi
+fi
 
 read -p "Signing Key ID (long format): " PGP_SIGNING_KEY_ID
 read -p "Apache Username: " APACHE_USERNAME
@@ -48,7 +64,9 @@ echo
 echo "!!! Making release $VERSION-$PRE_RELEASE in $DAFFODIL_RELEASE_DIR !!!"
 echo
 
+echo "Create directories:  mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/"
 mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
+echo "Create directories:  mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/"
 mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
 
 echo "Creating Source Tarball..."
