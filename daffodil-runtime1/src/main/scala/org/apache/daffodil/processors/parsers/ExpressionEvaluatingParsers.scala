@@ -20,6 +20,7 @@ package org.apache.daffodil.processors.parsers
 import org.apache.daffodil.dpath.ParserDiscriminatorNonBlocking
 import org.apache.daffodil.dpath.ParserNonBlocking
 import org.apache.daffodil.dsom.CompiledExpression
+import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetSimpleElement
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -104,11 +105,12 @@ class NewVariableInstanceEndParser(
 }
 
 class AssertExpressionEvaluationParser(
-  msg: String,
-  discrim: Boolean, // are we a discriminator or not.
+  override val messageExpr: CompiledExpression[String],
+  override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
   expr: CompiledExpression[AnyRef])
-  extends ExpressionEvaluationParser(expr, decl) {
+  extends ExpressionEvaluationParser(expr, decl)
+  with AssertMessageEvaluationMixin {
 
   def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info)
@@ -140,8 +142,8 @@ class AssertExpressionEvaluationParser(
       if (testResult) {
         start.setDiscriminator(discrim)
       } else {
-        // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
-        val diag = new AssertionFailed(decl.schemaFileLocation, start, msg)
+        val message = getAssertFailureMessage(start)
+        val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
         start.setFailed(diag)
       }
     }

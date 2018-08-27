@@ -107,12 +107,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case None => TestKind.Expression
   }
 
-  private lazy val messageAttrib = getAttributeOption("message")
-
-  final lazy val message = messageAttrib match {
-    case None => "%s failed".format(testTxt)
-    case Some(s) => s
-  }
+  lazy val messageAttrib = getAttributeOption("message")
 
   final lazy val testTxt = {
     val rawTxt = (testKind, testBody, testAttrib, testPattern) match {

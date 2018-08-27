@@ -93,4 +93,8 @@ class TestAssertions {
   // JIRA DFDL-1672
   @Test def testNumberFormatErrorInExprRuntime() { runner.runOneTest("testNumberFormatErrorInExprRuntime") }
   @Test def testNumberFormatErrorInExprCompileTime() { runner.runOneTest("testNumberFormatErrorInExprCompileTime") }
+
+
+  @Test def test_assertWithMessageExpression_01() { runner.runOneTest("test_assertWithMessageExpression_01") }
+  @Test def test_assertWithMessageExpression_02() { runner.runOneTest("test_assertWithMessageExpression_02") }
 }
