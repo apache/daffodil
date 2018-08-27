@@ -24,19 +24,22 @@ import com.ibm.icu.util.TimeZone;
 import java.math.{ BigDecimal => JBigDecimal }
 
 import org.apache.daffodil.exceptions.Assert
-import scala.collection.mutable.ArraySeq
 import org.apache.daffodil.processors.parsers.TextCalendarConstants
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value
   val P_LESS_THAN_Q, P_GREATER_THAN_Q, P_EQUAL_Q, P_NOT_EQUAL_Q = Value
+
+  val fieldsForComparison = Array(
+    Calendar.EXTENDED_YEAR,
+    Calendar.MONTH,
+    Calendar.DAY_OF_MONTH,
+    Calendar.HOUR_OF_DAY,
+    Calendar.MINUTE,
+    Calendar.SECOND)
 }
 
 trait OrderedCalendar { self: DFDLCalendar =>
-  protected lazy val fields = ArraySeq(Calendar.EXTENDED_YEAR, Calendar.MONTH,
-    Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE,
-    Calendar.SECOND)
-
   import DFDLCalendarOrder._
 
   /**
@@ -89,23 +92,23 @@ trait OrderedCalendar { self: DFDLCalendar =>
     val qPrime = q.getNormalizedCalendar
 
     val res: DFDLCalendarOrder = {
-      if ((pHasTZ && qHasTZ) || (!pHasTZ && !qHasTZ)) { orderIgnoreTimeZone(pPrime, qPrime) }
+      if ((pHasTZ && qHasTZ) || (!pHasTZ && !qHasTZ)) { orderCompareFields(pPrime, qPrime) }
       else if (pHasTZ && !qHasTZ) {
         val qPlus = qPrime.getDateTimePlusFourteenHours
 
-        if (orderIgnoreTimeZone(pPrime, qPlus) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
+        if (orderCompareFields(pPrime, qPlus) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
         else {
           val qMinus = q.getDateTimeMinusFourteenHours
-          if (orderIgnoreTimeZone(pPrime, qMinus) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
+          if (orderCompareFields(pPrime, qMinus) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
           else { DFDLCalendarOrder.P_NOT_EQUAL_Q }
         }
       } else if (!pHasTZ && qHasTZ) {
         val pMinus = pPrime.getDateTimeMinusFourteenHours
 
-        if (orderIgnoreTimeZone(pMinus, qPrime) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
+        if (orderCompareFields(pMinus, qPrime) == DFDLCalendarOrder.P_LESS_THAN_Q) { DFDLCalendarOrder.P_LESS_THAN_Q }
         else {
           val pPlus = pPrime.getDateTimePlusFourteenHours
-          if (orderIgnoreTimeZone(pPlus, qPrime) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
+          if (orderCompareFields(pPlus, qPrime) == DFDLCalendarOrder.P_GREATER_THAN_Q) { DFDLCalendarOrder.P_GREATER_THAN_Q }
           else { DFDLCalendarOrder.P_NOT_EQUAL_Q }
         }
       } else { Assert.impossibleCase }
@@ -115,19 +118,20 @@ trait OrderedCalendar { self: DFDLCalendar =>
   }
 
   /**
-   * If P and Q either both have a time zone or both do not have a
-   * time zone, compare P and Q field by field from the year field
-   * down to the second field, and return a result as soon as it
-   * can be determined.
+   * This method does the actual comparison of calendars that have been
+   * normalized/modified according to the W3C specification in the order()
+   * method above, by comparing the existence and values of various calendar
+   * fields. Note that by the point this method is called the calendars should
+   * either not have a timezone or have been normalized to a UTC timezone, so
+   * the timezone field does not play a role in this comparison.
    */
-  private def orderIgnoreTimeZone(p: DFDLDateTime, q: DFDLDateTime): DFDLCalendarOrder = {
-    Assert.invariant((p.hasTimeZone && q.hasTimeZone) || (!p.hasTimeZone && !q.hasTimeZone))
+  private def orderCompareFields(p: DFDLDateTime, q: DFDLDateTime): DFDLCalendarOrder = {
+    Assert.invariant(!p.hasTimeZone || p.calendar.getTimeZone == TimeZone.GMT_ZONE)
+    Assert.invariant(!q.hasTimeZone || q.calendar.getTimeZone == TimeZone.GMT_ZONE)
 
-    val length = fields.length
-    for (i <- 0 to length) {
-      if (i == length) return DFDLCalendarOrder.P_EQUAL_Q
-
-      val field = fields(i)
+    val length = fieldsForComparison.length
+    for (i <- 0 until length) {
+      val field = fieldsForComparison(i)
 
       val hasPSubI = p.isFieldSet(field)
       val hasQSubI = q.isFieldSet(field)
@@ -286,12 +290,14 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   protected lazy val normalizedCalendar = normalizeCalendar(calendar)
 
   def getDateTimePlusFourteenHours: DFDLDateTime = {
+    Assert.invariant(!hasTimeZone)
     val adjustedCal = adjustTimeZone(normalizedCalendar, 14, 0)
     val dt = new DFDLDateTime(adjustedCal, parsedTZ)
     dt
   }
 
   def getDateTimeMinusFourteenHours: DFDLDateTime = {
+    Assert.invariant(!hasTimeZone)
     val adjustedCal = adjustTimeZone(normalizedCalendar, -14, 0)
     val dt = new DFDLDateTime(adjustedCal, parsedTZ)
     dt
