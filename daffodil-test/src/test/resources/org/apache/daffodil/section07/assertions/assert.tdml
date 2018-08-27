@@ -20,6 +20,7 @@
   xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
@@ -364,7 +365,8 @@
     description="Section 7 - negative test for assert expression - DFDL-7-043R">
     <tdml:document />
     <tdml:errors>
-      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion failed</tdml:error>
       <tdml:error>Parsed value was:</tdml:error>
       <tdml:error>43</tdml:error>
     </tdml:errors>
@@ -379,7 +381,8 @@
     model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
     <tdml:document><![CDATA[1:2;3,4.]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion failed</tdml:error>
       <tdml:error>Parsed value was:</tdml:error>
       <tdml:error><![CDATA[<seq_02><e1>1</e1><e2>2</e2><e3>3</e3><e4>4</e4></seq_02>]]></tdml:error>
     </tdml:errors>
@@ -394,7 +397,8 @@
     model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
     <tdml:document><![CDATA[1:2;3;4.]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Assertion failed</tdml:error>
       <tdml:error>Assertion failed for pattern '12345'</tdml:error>
       <!-- <tdml:error>\d:\d;\d,\d.</tdml:error> -->
     </tdml:errors>
@@ -1239,5 +1243,52 @@
   </tdml:errors>
  </tdml:parserTestCase>
  
+ 
+ <tdml:defineSchema name="assertsWithMessageExpression">
+  <dfdl:format
+   ref="ex:GeneralFormat"
+   lengthKind="delimited" />
+   
+  <xs:element name="e1">
+   <xs:complexType>
+    <xs:sequence>
+     <xs:element name="e2" type="xs:string">
+      <xs:annotation>
+       <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert message="{ fn:concat('Value was not 5 but was ', xs:int(.)) }">{ . eq '5' }</dfdl:assert>
+       </xs:appinfo>
+      </xs:annotation>
+     </xs:element>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:element>
+
+ </tdml:defineSchema>
+ 
+ <tdml:parserTestCase
+  name="test_assertWithMessageExpression_01"
+  root="e1"
+  model="assertsWithMessageExpression"
+ >
+  <tdml:document>4</tdml:document>
+  <tdml:errors>
+   <tdml:error>Assertion failed</tdml:error>
+   <tdml:error>Value was not 5 but was 4</tdml:error>
+  </tdml:errors>
+ </tdml:parserTestCase>
+ 
+ <tdml:parserTestCase
+  name="test_assertWithMessageExpression_02"
+  root="e1"
+  model="assertsWithMessageExpression"
+ >
+  <tdml:document>not a number</tdml:document>
+  <tdml:errors>
+   <tdml:error>Assertion failed</tdml:error>
+   <tdml:error>Assertion message expression evaluation failed</tdml:error>
+   <tdml:error>Cannot convert</tdml:error>
+   <tdml:error>not a number</tdml:error>
+  </tdml:errors>
+ </tdml:parserTestCase>
 
 </tdml:testSuite>

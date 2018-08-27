@@ -4271,7 +4271,7 @@
 
     <tdml:document>1</tdml:document>
     <tdml:errors>
-     <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+     <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4353,7 +4353,7 @@
 
     <tdml:document>12</tdml:document>
     <tdml:errors>
-     <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+     <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4402,7 +4402,7 @@
 
     <tdml:document>123456</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4432,7 +4432,7 @@
 
     <tdml:document>0.123456</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4478,7 +4478,7 @@
 
     <tdml:document>9.12345</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4558,7 +4558,7 @@
 
     <tdml:document>-6</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4573,7 +4573,7 @@
 
     <tdml:document>6</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4712,7 +4712,7 @@
 
     <tdml:document>501</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4727,7 +4727,7 @@
 
     <tdml:document>1</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4759,7 +4759,7 @@
 
     <tdml:document>YELLOW</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4791,7 +4791,7 @@
 
     <tdml:document>MONDAY</tdml:document>
     <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+      <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4827,7 +4827,7 @@
 
     <tdml:document><![CDATA[2014-03-24T03:45:30]]></tdml:document>
     <tdml:errors>
-     <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
+     <tdml:error>Assertion failed: Assertion failed for dfdl:checkConstraints(.)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

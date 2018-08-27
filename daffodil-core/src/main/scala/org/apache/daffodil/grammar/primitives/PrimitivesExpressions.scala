@@ -29,8 +29,6 @@ import org.apache.daffodil.Implicits._
 import org.apache.daffodil.processors.parsers.NewVariableInstanceStartParser
 import org.apache.daffodil.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.processors.parsers.AssertPatternParser
-import org.apache.daffodil.processors.parsers.DiscriminatorPatternParser
 import org.apache.daffodil.processors.parsers.NewVariableInstanceEndParser
 import org.apache.daffodil.processors.parsers.SetVariableParser
 import org.apache.daffodil.processors.parsers.IVCParser
@@ -44,12 +42,13 @@ import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.processors.parsers.AssertPatternParser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
   namespacesForNamespaceResolution: scala.xml.NamespaceBinding,
   scWherePropertyWasLocated: AnnotatedSchemaComponent,
-  msg: String,
+  msgOpt: Option[String],
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
   extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
@@ -57,10 +56,10 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   def this(
     decl: AnnotatedSchemaComponent,
     foundProp: Found,
-    msg: String,
+    msgOpt: Option[String],
     discrim: Boolean, // are we a discriminator or not.
     assertKindName: String) =
-    this(decl, foundProp.value, foundProp.location.namespaces, decl, msg, discrim, assertKindName)
+    this(decl, foundProp.value, foundProp.location.namespaces, decl, msgOpt, discrim, assertKindName)
 
   override val baseName = assertKindName
   override lazy val exprText = exprWithBraces
@@ -70,7 +69,16 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   override val forWhat = ForParser
 
-  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
+  lazy val msgExpr ={
+    if (msgOpt.isDefined) {
+      ExpressionCompilers.String.compileExpression(qn,
+      NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this)
+    } else {
+      new ConstantExpression[String](qn, NodeInfo.String, exprWithBraces + " failed")
+    }
+  }
+
+  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msgExpr, discrim, decl.runtimeData, expr)
 
   override def unparser: DaffodilUnparser = hasNoUnparser
 
@@ -80,7 +88,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.message, discrim, assertKindName)
+  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
@@ -102,7 +110,7 @@ case class InitiatedContent(
   extends AssertBase(decl,
     "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
     // always true. We're just an assertion that says an initiator was found.
-    "initiatedContent. This message should not be used.",
+    None,
     true,
     "initiatedContent") {
 }
@@ -163,7 +171,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def nodeKind: NodeInfo.Kind
 
-  private def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
+  protected def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
 
   lazy val expr = LV('expr) {
     ExpressionCompilers.AnyRef.compileExpression(qn,
@@ -254,38 +262,38 @@ case class InputValueCalc(e: ElementBase,
 //  }
 //}
 
-abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase)
-  extends Terminal(decl, true) {
+abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discrim: Boolean)
+  extends ExpressionEvaluatorBase(decl) {
+ 
+  override val baseName = if (discrim) "Discriminator" else "Assert"
+  override lazy val exprText = stmt.messageAttrib.get
+  override lazy val exprNamespaces = decl.namespaces
+  override lazy val exprComponent = decl
 
-  lazy val eName = decl.diagnosticDebugName
+  override def nodeKind = NodeInfo.String
+
   lazy val testPattern = {
     PatternChecker.checkPattern(stmt.testTxt, decl)
     stmt.testTxt
   }
 
+  lazy val msgExpr =
+    if (stmt.messageAttrib.isDefined) {
+      expr
+    } else {
+      new ConstantExpression[String](qn, NodeInfo.String, testPattern + " failed")
+    }
+
   override val forWhat = ForParser
 
-  def parser: DaffodilParser
+  lazy val parser: DaffodilParser = new AssertPatternParser(decl.termRuntimeData, discrim, testPattern, msgExpr)
 
   override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }
 
 case class AssertPatternPrim(term: Term, stmt: DFDLAssert)
-  extends AssertPatternPrimBase(term, stmt) {
+  extends AssertPatternPrimBase(term, stmt, false)
 
-  val kindString = "AssertPatternPrim"
 
-  lazy val parser: DaffodilParser = {
-    new AssertPatternParser(eName, kindString, term.termRuntimeData, testPattern, stmt.message)
-  }
-
-}
-
-case class DiscriminatorPatternPrim(term: Term, stmt: DFDLAssertionBase)
-  extends AssertPatternPrimBase(term, stmt) {
-
-  val kindString = "DiscriminatorPatternPrim"
-
-  lazy val parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, term.termRuntimeData, stmt.message)
-}
-
+case class DiscriminatorPatternPrim(term: Term, stmt: DFDLDiscriminator)
+  extends AssertPatternPrimBase(term, stmt, true)

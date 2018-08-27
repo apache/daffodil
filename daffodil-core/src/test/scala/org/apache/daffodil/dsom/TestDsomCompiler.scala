@@ -243,7 +243,7 @@ class TestDsomCompiler extends Logging {
     val Seq(b1, b2, _, b4) = st1.forElement(e1).annotationObjs // first one has 4 annotations
     assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getPropertyForUnitTest("alignmentUnits")) // first has alignmentUnits
     assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
-    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].message) // fourth is an assert with yadda message
+    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].messageAttrib.get) // fourth is an assert with yadda message
 
     // Explore define formats
     val Seq(df1, _) = sd.defineFormats // there are two
