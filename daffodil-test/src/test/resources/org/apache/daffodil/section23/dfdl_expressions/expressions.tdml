@@ -6029,11 +6029,11 @@ c]]></value>
     <tdml:document><![CDATA[2000-01-01T12:00:00,1999-12-31T23:00:00+00:00]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e35>
-          <dateTime1>2000-01-01T12:00:00.000000+00:00</dateTime1>
+        <e35a>
+          <dateTime1>2000-01-01T12:00:00.000000</dateTime1>
           <dateTime2>1999-12-31T23:00:00.000000+00:00</dateTime2>
-          <oneLTtwo>false</oneLTtwo>
-        </e35>
+          <oneLTtwo>true</oneLTtwo>
+        </e35a>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
