@@ -100,7 +100,6 @@ do
     pushd $DAFFODIL_RELEASE_DIR/$i > /dev/null
     for file in *
     do
-       sha1sum $file > $file.sha1
        sha256sum $file > $file.sha256
        sha512sum $file > $file.sha512
        gpg --default-key $PGP_SIGNING_KEY_ID --detach-sign --armor --output $file.asc $file
