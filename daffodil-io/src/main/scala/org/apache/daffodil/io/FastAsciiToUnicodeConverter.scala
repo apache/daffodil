@@ -25,18 +25,18 @@ import java.nio.ByteBuffer
 object FastAsciiToUnicodeConverter {
 
   def convert(bb: ByteBuffer) = {
-    val cb = ByteBuffer.allocate(2 * bb.limit)
+    val cb = ByteBuffer.allocate(2 * bb.limit())
     val cbChar = cb.asCharBuffer()
     //
     // Go after data in the largest chunks we can (Long)
     // so as to eliminate per-byte/char bounds checks
     //
-    val bbBytesOfWholeLongWords = ((bb.limit >> 3) << 3).toLong
-    val numBytesTrailingFragment = bb.limit - bbBytesOfWholeLongWords
+    val bbBytesOfWholeLongWords = ((bb.limit() >> 3) << 3).toLong
+    val numBytesTrailingFragment = bb.limit() - bbBytesOfWholeLongWords
 
     val bLong = bb.asLongBuffer()
     val cbLong = cb.asLongBuffer()
-    1 to bLong.limit foreach { i =>
+    1 to bLong.limit() foreach { i =>
       val bbl = bLong.get()
       val long1: Int = (bbl >> 32).toInt & 0xFFFFFFFF
       val long2: Int = bbl.toInt & 0xFFFFFFFF
@@ -47,7 +47,7 @@ object FastAsciiToUnicodeConverter {
     }
 
     1 to numBytesTrailingFragment.toInt foreach { j =>
-      val pos = bb.limit - j
+      val pos = bb.limit() - j
       val byte = bb.get(pos)
       val char = convertByte(byte)
       cbChar.put(pos, char)

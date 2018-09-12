@@ -661,7 +661,7 @@ sealed abstract class ListOfStringLiteralBase(
 
 sealed trait ListOfSingleCharacterMixin { self: ListOfStringLiteralBase =>
 
-  def cookCharacters(raw: String, context: ThrowsSDE, forUnparse: Boolean) = cook(raw, context, forUnparse).map { s => new JChar(s(0)) }
+  def cookCharacters(raw: String, context: ThrowsSDE, forUnparse: Boolean) = cook(raw, context, forUnparse).map { s => JChar.valueOf(s(0)) }
 }
 
 class ListOfStringLiteral(pn: String, allowByteEntities: Boolean)

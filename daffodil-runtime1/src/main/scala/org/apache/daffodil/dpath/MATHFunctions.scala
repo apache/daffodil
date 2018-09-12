@@ -26,12 +26,12 @@ case class MATHPow(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
     val exp = asDouble(arg2).doubleValue()
     if (exp.isInfinite && (base == 1 || base == -1)) {
       // java pow(+-1, +-inf) returns NaN, XPath says it should be 1.0
-      new JDouble(1.0)
+      JDouble.valueOf(1.0)
     } else if (exp.isNaN && base == 1) {
       // java pow(1, NaN) returns NaN, XPath says it should be 1.0
-      new JDouble(1.0)  
+      JDouble.valueOf(1.0)
     } else {
-      new JDouble(java.lang.Math.pow(base, exp))
+      JDouble.valueOf(java.lang.Math.pow(base, exp))
     }
   }
 }

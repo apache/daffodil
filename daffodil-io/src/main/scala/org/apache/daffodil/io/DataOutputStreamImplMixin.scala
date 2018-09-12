@@ -534,7 +534,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
     Assert.usage(bb.remaining() == numBytesForLengthInBits)
 
-    if (nFragBits > 0) bb.limit(bb.limit - 1) // last byte is the frag byte
+    if (nFragBits > 0) bb.limit(bb.limit() - 1) // last byte is the frag byte
     val nBytesWritten = putByteBuffer(bb, finfo) // output all but the frag byte if there is one.
     val nBitsWritten = nBytesWritten * 8
     if (nBytesWritten < nWholeBytes) {
@@ -542,8 +542,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     } else {
       val isFragWritten =
         if (nFragBits > 0) {
-          bb.limit(bb.limit + 1)
-          var fragByte: Long = Bits.asUnsignedByte(bb.get(bb.limit - 1))
+          bb.limit(bb.limit() + 1)
+          var fragByte: Long = Bits.asUnsignedByte(bb.get(bb.limit() - 1))
           if (finfo.bitOrder eq BitOrder.MostSignificantBitFirst) {
             // we need to shift the bits. We want the most significant bits of the byte
             fragByte = fragByte >>> (8 - nFragBits)
@@ -560,7 +560,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(isWritable)
     val nTransferred =
       if (bb.hasArray) {
-        putBytes(bb.array, bb.arrayOffset + bb.position, bb.remaining(), finfo)
+        putBytes(bb.array, bb.arrayOffset + bb.position(), bb.remaining(), finfo)
       } else {
         if (isEndOnByteBoundary) {
           val lengthInBytes = bb.remaining

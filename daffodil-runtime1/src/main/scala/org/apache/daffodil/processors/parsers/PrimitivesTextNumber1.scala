@@ -35,6 +35,7 @@ import org.apache.daffodil.util.MaybeDouble
 import org.apache.daffodil.util.MaybeDouble
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.RoundingMode
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.processors.Delimiter
 import org.apache.daffodil.processors.Dynamic
@@ -514,20 +515,20 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
     rounding match {
       case TextNumberRounding.Pattern => {
-        df.setRoundingMode(JBigDecimal.ROUND_HALF_EVEN)
+        df.setRoundingMode(RoundingMode.HALF_EVEN.ordinal())
       }
       case TextNumberRounding.Explicit => {
         val rm = roundingMode.get match {
-          case TextNumberRoundingMode.RoundCeiling => JBigDecimal.ROUND_CEILING
-          case TextNumberRoundingMode.RoundFloor => JBigDecimal.ROUND_FLOOR
-          case TextNumberRoundingMode.RoundDown => JBigDecimal.ROUND_DOWN
-          case TextNumberRoundingMode.RoundUp => JBigDecimal.ROUND_UP
-          case TextNumberRoundingMode.RoundHalfEven => JBigDecimal.ROUND_HALF_EVEN
-          case TextNumberRoundingMode.RoundHalfDown => JBigDecimal.ROUND_HALF_DOWN
-          case TextNumberRoundingMode.RoundHalfUp => JBigDecimal.ROUND_HALF_UP
-          case TextNumberRoundingMode.RoundUnnecessary => JBigDecimal.ROUND_UNNECESSARY
+          case TextNumberRoundingMode.RoundCeiling => RoundingMode.CEILING
+          case TextNumberRoundingMode.RoundFloor => RoundingMode.FLOOR
+          case TextNumberRoundingMode.RoundDown => RoundingMode.DOWN
+          case TextNumberRoundingMode.RoundUp => RoundingMode.UP
+          case TextNumberRoundingMode.RoundHalfEven => RoundingMode.HALF_EVEN
+          case TextNumberRoundingMode.RoundHalfDown => RoundingMode.HALF_DOWN
+          case TextNumberRoundingMode.RoundHalfUp => RoundingMode.HALF_UP
+          case TextNumberRoundingMode.RoundUnnecessary => RoundingMode.UNNECESSARY
         }
-        df.setRoundingMode(rm)
+        df.setRoundingMode(rm.ordinal())
         df.setRoundingIncrement(roundingIncrement.get)
       }
     }

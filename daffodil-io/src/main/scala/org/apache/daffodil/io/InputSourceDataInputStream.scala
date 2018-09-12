@@ -565,13 +565,13 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
       while (keepMatching) {
         // set the position to the last place data stopped decoding and increase
         // the limit so we can fill more data
-        regexMatchBuffer.position(regexMatchBuffer.limit)
+        regexMatchBuffer.position(regexMatchBuffer.limit())
         regexMatchBuffer.limit(regexMatchBufferLimit)
-        regexMatchBitPositionBuffer.position(regexMatchBitPositionBuffer.limit)
+        regexMatchBitPositionBuffer.position(regexMatchBitPositionBuffer.limit())
         regexMatchBitPositionBuffer.limit(regexMatchBufferLimit)
 
         val numDecoded = finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
-        val potentiallyMoreData = regexMatchBuffer.position == regexMatchBuffer.limit
+        val potentiallyMoreData = regexMatchBuffer.position() == regexMatchBuffer.limit()
 
         regexMatchBuffer.flip
         regexMatchBitPositionBuffer.flip
@@ -648,7 +648,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     Assert.usage(nBytesRequested >= 0)
     if (nBytesRequested == 0) return ByteBuffer.allocate(0).asReadOnlyBuffer()
 
-    val savedBytePosition = inputSource.position
+    val savedBytePosition = inputSource.position()
     val bytesToRead = Math.min(savedBytePosition, nBytesRequested).toInt
     val newBytePosition = savedBytePosition - bytesToRead
     inputSource.position(newBytePosition)
@@ -668,7 +668,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
     if (nBytesRequested == 0) return ByteBuffer.allocate(0).asReadOnlyBuffer()
 
-    val savedBytePosition = inputSource.position
+    val savedBytePosition = inputSource.position()
     // need to call areBytesAvailable first to ensure at least length bytes are
     // buffered if they exist
     val available = inputSource.areBytesAvailable(nBytesRequested)
@@ -768,8 +768,8 @@ class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) ex
         // we need to pick up decoding where we last left off if there are any
         // characters still cached. This location is found in the last element
         // of the bitPositions buffer
-        if (bitPositions.limit > 0) {
-          val lastFetchBitPositionEnd = bitPositions.get(bitPositions.limit - 1)
+        if (bitPositions.limit() > 0) {
+          val lastFetchBitPositionEnd = bitPositions.get(bitPositions.limit() - 1)
           dis.setBitPos0b(lastFetchBitPositionEnd)
         }
 
@@ -804,7 +804,7 @@ class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) ex
 
     val decodedChars = dis.cst.charIteratorState.decodedChars
     if (decodedChars.remaining >= 1) {
-      decodedChars.get(decodedChars.position)
+      decodedChars.get(decodedChars.position())
     } else if (dis.cst.charIteratorState.moreDataAvailable) {
       fetch()
       peek()
@@ -818,7 +818,7 @@ class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) ex
 
     val decodedChars = dis.cst.charIteratorState.decodedChars
     if (decodedChars.remaining >= 2) {
-      decodedChars.get(decodedChars.position + 1)
+      decodedChars.get(decodedChars.position() + 1)
     } else if (dis.cst.charIteratorState.moreDataAvailable) {
       fetch()
       peek2()

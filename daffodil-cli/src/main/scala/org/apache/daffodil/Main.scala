@@ -74,7 +74,6 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.util.InvalidJavaVersionException
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.infoset.NullInfosetOutputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
@@ -1353,10 +1352,6 @@ object Main extends Logging {
         nyiFound(e)
       }
       case e: TDMLException => {
-        log(LogLevel.Error, "%s", e.getMessage())
-        1
-      }
-      case e: InvalidJavaVersionException => {
         log(LogLevel.Error, "%s", e.getMessage())
         1
       }

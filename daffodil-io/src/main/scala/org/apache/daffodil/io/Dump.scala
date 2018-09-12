@@ -485,7 +485,7 @@ class DataDumper {
           //
           // Either way, we got our one character
           // how many bytes did it consume?
-          val nConsumedBytes = bb.position
+          val nConsumedBytes = bb.position()
           Assert.invariant(nConsumedBytes > 0)
           val char = cb.get(0)
           val nCols = charNColumns(char)

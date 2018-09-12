@@ -123,13 +123,13 @@ class TestDecoder {
     //
     assertTrue(decodeCR.isMalformed())
     assertEquals(3, decodeCR.length())
-    assertEquals(0, cb.position)
-    assertEquals(0, bb.position)
+    assertEquals(0, cb.position())
+    assertEquals(0, bb.position())
     //
     flushCR = decoder.flush(cb)
     assertEquals(CoderResult.UNDERFLOW, flushCR)
-    assertEquals(0, cb.position)
-    assertEquals(0, bb.position)
+    assertEquals(0, cb.position())
+    assertEquals(0, bb.position())
   }
 
   @Test def testDecoderWorkaround1 {
@@ -160,12 +160,12 @@ class TestDecoder {
     decodeCR = decoder.decode(bb, tempCB, true)
 
     assertTrue(decodeCR.isError)
-    assertEquals(0, tempCB.position)
-    assertEquals(0, bb.position)
+    assertEquals(0, tempCB.position())
+    assertEquals(0, bb.position())
 
     val flushCR = decoder.flush(cb)
-    assertEquals(0, tempCB.position)
-    assertEquals(0, bb.position)
+    assertEquals(0, tempCB.position())
+    assertEquals(0, bb.position())
 
     assertEquals(CoderResult.UNDERFLOW, flushCR)
     //
@@ -173,8 +173,8 @@ class TestDecoder {
     //
     assertTrue(decodeCR.isMalformed())
     assertEquals(3, decodeCR.length())
-    assertEquals(0, cb.position)
-    assertEquals(0, bb.position)
+    assertEquals(0, cb.position())
+    assertEquals(0, bb.position())
     //
 
   }
@@ -200,8 +200,8 @@ class TestDecoder {
   //    assertEquals(CoderResult.malformedForLength(1), decodeCR)
   //    val flushCR = decoder.flush(cb)
   //    assertEquals(CoderResult.UNDERFLOW, flushCR)
-  //    assertEquals(0, cb.position)
-  //    assertEquals(0, bb.position)
+  //    assertEquals(0, cb.position())
+  //    assertEquals(0, bb.position())
   //  }
   //
   //  @Test def testDecoder3 {
@@ -222,8 +222,8 @@ class TestDecoder {
   //    assertEquals(CoderResult.OVERFLOW, decodeCR)
   //    val flushCR = decoder.flush(cb)
   //    assertEquals(CoderResult.UNDERFLOW, flushCR)
-  //    assertEquals(1, cb.position)
-  //    assertEquals(1, bb.position)
+  //    assertEquals(1, cb.position())
+  //    assertEquals(1, bb.position())
   //    cb.flip
   //    assertEquals(decoder.unicodeReplacementChar, cb.get())
   //  }
@@ -244,8 +244,8 @@ class TestDecoder {
   //    assertEquals(CoderResult.UNDERFLOW, decodeCR)
   //    val flushCR = decoder.flush(cb)
   //    assertEquals(CoderResult.UNDERFLOW, flushCR)
-  //    assertEquals(1, cb.position)
-  //    assertEquals(3, bb.position)
+  //    assertEquals(1, cb.position())
+  //    assertEquals(3, bb.position())
   //    cb.flip
   //    assertEquals('日', cb.get())
   //  }

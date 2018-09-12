@@ -119,6 +119,7 @@ class Compiler private[japi] () {
    *
    * @param schemaFile DFDL schema file used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the schemaFile
    */
   @throws(classOf[java.io.IOException])
   def compileFile(schemaFile: File): ProcessorFactory = {
@@ -132,6 +133,7 @@ class Compiler private[japi] () {
    *
    * @param uri URI of DFDL schema file used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the uri
    */
   @throws(classOf[java.io.IOException])
   def compileSource(uri: URI): ProcessorFactory = {
@@ -454,6 +456,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    * Set validation mode
    *
    * @param mode mode to control validation
+   * @throws InvalidUsageException if mode is not a valid ValidateMode value
    */
   @throws(classOf[InvalidUsageException])
   def setValidationMode(mode: ValidationMode): Unit = {
@@ -491,7 +494,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    */
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
-  /*
+  /**
    * Parse input data with a specified length
    *
    * @param input data to be parsed
@@ -510,7 +513,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
     new ParseResult(pr, Maybe(output))
   }
 
-  /*
+  /**
    * Parse input data without specifying a length
    *
    * @param input data to be parsed

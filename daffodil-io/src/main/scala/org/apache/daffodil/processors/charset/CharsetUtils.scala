@@ -57,8 +57,8 @@ object CharsetUtils {
     val cb = CharBuffer.allocate(1)
     val cr = decoder.decode(bb, cb, true)
     if (cr.isOverflow && // This is the bug!
-      cb.position == 0 &&
-      bb.position == 0) true
+      cb.position() == 0 &&
+      bb.position() == 0) true
     else if (cr.isError) false // no bug
     //    else if (cr.isOverflow && // This is what *should* happen if CodingErrorAction.REPLACE is used.
     //      cb.position == 1 &&

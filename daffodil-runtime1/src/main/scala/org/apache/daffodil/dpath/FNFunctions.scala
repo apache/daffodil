@@ -25,7 +25,8 @@ import org.apache.daffodil.util.Maybe
 import Maybe._
 import org.apache.daffodil.exceptions._
 import com.ibm.icu.util.Calendar
-import scala.math.BigDecimal.RoundingMode
+import java.math.RoundingMode
+import java.math.MathContext
 import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.util.Numbers._
 import org.apache.daffodil.calendar.DFDLDateTime
@@ -400,7 +401,7 @@ trait FNRoundHalfToEvenKind {
   }
 
   private def round(value: JBigDecimal, precision: Int): JBigDecimal = {
-    val rounded = value.setScale(precision, JBigDecimal.ROUND_HALF_EVEN)
+    val rounded: JBigDecimal = value.setScale(precision, RoundingMode.HALF_EVEN)
     rounded
   }
 
@@ -683,8 +684,8 @@ case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOn
   override def computeValue(value: AnyRef, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
-      val bd = asBigDecimal(value).setScale(0, RoundingMode.CEILING)
-      bd.round(bd.mc)
+      val bd = asBigDecimal(value)
+      bd.round(new MathContext(0, RoundingMode.CEILING))
     }
     case NodeInfo.Float => asAnyRef(asFloat(value).floatValue().ceil)
     case NodeInfo.Double => asAnyRef(asDouble(value).floatValue().ceil)
@@ -697,8 +698,8 @@ case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
   override def computeValue(value: AnyRef, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
-      val bd = asBigDecimal(value).setScale(0, RoundingMode.FLOOR)
-      bd.round(bd.mc)
+      val bd = asBigDecimal(value)
+      bd.round(new MathContext(0, RoundingMode.FLOOR))
     }
     case NodeInfo.Float => asAnyRef(asFloat(value).floatValue().floor)
     case NodeInfo.Double => asAnyRef(asDouble(value).doubleValue().floor)

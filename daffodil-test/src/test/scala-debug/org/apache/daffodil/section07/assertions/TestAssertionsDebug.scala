@@ -43,4 +43,9 @@ class TestAssertionsDebug {
   
   //DFDL-1210: This test should be removed, an assert failing will no longer show the value
   @Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
+
+  //DFDL-2001
+  @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
+  @Test def test_testPatternUnicode() { runner.runOneTest("testPatternUnicode") }
+
 }

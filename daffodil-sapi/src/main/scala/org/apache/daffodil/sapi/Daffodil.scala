@@ -466,7 +466,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    */
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
-  /*
+  /**
    * Parse input data with a specified length
    *
    * @param input data to be parsed
@@ -485,7 +485,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
     new ParseResult(pr, Maybe(output))
   }
 
-  /*
+  /**
    * Parse input data without specifying a length
    *
    * @param input data to be parsed
