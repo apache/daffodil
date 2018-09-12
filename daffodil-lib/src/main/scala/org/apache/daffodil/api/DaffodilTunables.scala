@@ -130,16 +130,10 @@ case class DaffodilTunables(
   // enabled when debugging is enabled.
   val allowExternalPathExpressions: Boolean = false,
 
-  // A bug exists in Java 7 that causes unexpected behavior when decode errors
-  // occur in the specific ways that Daffodil decodes data. For this reason,
-  // Daffodil throws an exception when it detects that Daffodil is not running
-  // under Java 8 or has this decoder bug. However, there are some cases where
-  // a user has no choice but to run on Java 7. Setting this tunable to false
-  // will cause Daffodil to log a warning rather than throw an exception so
-  // that a user can run Daffodil on unsupported Java versions, with the
-  // understanding that it is not fully tested and behavior may not be well
-  // defined. This boolean is experimental and should only be used by those
-  // that fully understand the risks.
+  // Daffodil supports Java 7+. This is essentially all version of java that
+  // are in use, so we no longer have any unsupported java versions. This
+  // tunable no longer has any affect and is only kept for backwards
+  // compatability.
   val errorOnUnsupportedJavaVersion: Boolean = true,
 
   val maximumSimpleElementSizeInCharacters: Int = 1024 * 1024,

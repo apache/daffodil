@@ -105,7 +105,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Int. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JInt(value)
+    JInt.valueOf(value)
   }
   def asByte(n: AnyRef): JByte = {
     val value = n match {
@@ -122,7 +122,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Byte. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JByte(value)
+    JByte.valueOf(value)
   }
   def asShort(n: AnyRef): JShort = {
     val value = n match {
@@ -139,7 +139,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Short. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JShort(value)
+    JShort.valueOf(value)
   }
 
   def asLong(n: AnyRef): JLong = {
@@ -157,7 +157,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Long. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JLong(value)
+    JLong.valueOf(value)
   }
 
   /*
@@ -225,7 +225,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Float. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JFloat(value)
+    JFloat.valueOf(value)
   }
 
   /*
@@ -249,7 +249,7 @@ object Numbers {
       case _ => Assert.invariantFailed("Unsupported conversion to Double. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
-    new JDouble(value)
+    JDouble.valueOf(value)
   }
 
   /*
@@ -307,7 +307,7 @@ object Numbers {
   def asBoolean(n: Any): JBoolean = {
     n match {
       case bool: JBoolean => return bool
-      case b: Boolean => new JBoolean(b)
+      case b: Boolean => JBoolean.valueOf(b)
       case _ => Assert.invariantFailed("Unsupported conversion to Boolean. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
@@ -315,12 +315,12 @@ object Numbers {
 
   def asNumber(n: Any): JNumber = {
     n match {
-      case b: Byte => new JByte(b)
-      case s: Short => new JShort(s)
-      case i: Int => new JInt(i)
-      case l: Long => new JLong(l)
-      case f: Float => new JFloat(f)
-      case d: Double => new JDouble(d)
+      case b: Byte => JByte.valueOf(b)
+      case s: Short => JShort.valueOf(s)
+      case i: Int => JInt.valueOf(i)
+      case l: Long => JLong.valueOf(l)
+      case f: Float => JFloat.valueOf(f)
+      case d: Double => JDouble.valueOf(d)
       // case bi: BigInt => bi.bigInteger
       // case bd: BigDecimal => bd.bigDecimal
       case jn: JNumber => jn
@@ -334,7 +334,7 @@ object Numbers {
       // case bi: BigInt => bi.bigInteger
       // case bd: BigDecimal => bd.bigDecimal
       case ar: AnyRef => ar
-      case b: Boolean => new JBoolean(b)
+      case b: Boolean => JBoolean.valueOf(b)
       case _ => asNumber(n)
     }
   }

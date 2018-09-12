@@ -431,7 +431,7 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer)
   
   private val bb = byteBuffer.asReadOnlyBuffer
 
-  private val positionOffset = bb.position
+  private val positionOffset = bb.position()
 
   def areBytesAvailable(nBytes: Long): Boolean = {
     bb.remaining >= nBytes
@@ -460,7 +460,7 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer)
     }
   }
 
-  def position(): Long = bb.position - positionOffset
+  def position(): Long = bb.position() - positionOffset
 
   def position(bytePos0b: Long): Unit = bb.position((bytePos0b + positionOffset).toInt)
 

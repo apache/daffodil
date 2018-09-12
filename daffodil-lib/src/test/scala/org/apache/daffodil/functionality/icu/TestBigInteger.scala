@@ -58,7 +58,7 @@ class TestBigInteger {
     
     val df = new DecimalFormat(pattern, dfs)
     df.setParseStrict(false)
-    df.setRoundingMode(java.math.BigDecimal.ROUND_UNNECESSARY)
+    df.setRoundingMode(java.math.RoundingMode.UNNECESSARY.ordinal())
     df.setRoundingIncrement(0)
     df.setMaximumFractionDigits(0)
     df.setDecimalSeparatorAlwaysShown(false)

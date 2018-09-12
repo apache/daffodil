@@ -64,7 +64,7 @@ class ImplicitLengthEv(lengthValue: Long, rd: ElementRuntimeData)
 
   override val runtimeDependencies = Vector()
 
-  private val jLength = new JLong(lengthValue)
+  private val jLength = JLong.valueOf(lengthValue)
 
   override protected def compute(state: State): JLong = {
     jLength

@@ -67,7 +67,7 @@ object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mi
       //       case AlignmentUnits.Bits => i // TODO: implement units * Units.bits
       //       case AlignmentUnits.Bytes => i // * Units.bytes
       //     }
-      new JInt(i)
+      JInt.valueOf(i)
     } else self.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
   }
 }

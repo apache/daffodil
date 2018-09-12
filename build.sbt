@@ -119,12 +119,6 @@ lazy val commonSettings = Seq(
   mappings in (Compile, packageBin) += baseDirectory.value / ".." / "LICENSE" -> "META-INF/LICENSE",
   mappings in (Compile, packageBin) += baseDirectory.value / ".." / "NOTICE" -> "META-INF/NOTICE",
   homepage := Some(url("https://daffodil.apache.org")),
-  initialize := {
-    val _ = initialize.value
-    if (sys.props("java.specification.version") != "1.8") {
-      sys.error("Java 8 is required for this project.")
-    }
-  },
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",

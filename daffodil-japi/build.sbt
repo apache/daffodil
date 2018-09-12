@@ -34,7 +34,6 @@ sources in JavaDoc :=
 
 javacOptions in JavaDoc := Seq(
   "-Xdoclint:none",
-  "-quiet",
   "-windowtitle", "Apache Daffodil (incubating) " + version.value + " Java API",
   "-doctitle", "<h1>Apache Daffodil (incubating) " + version.value + " Java API</h1>"
 )

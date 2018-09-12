@@ -22,22 +22,22 @@ scala:
   - 2.12.6
   - 2.11.12
 jdk:
+  - oraclejdk7
   - oraclejdk8
+  - oraclejdk9
+  - oraclejdk10
+  - oraclejdk11
 sudo: required
 dist: trusty
 before_script:
   - unset _JAVA_OPTIONS
 script:
-  - sbt -J-Xms7g -J-Xmx7g ++$TRAVIS_SCALA_VERSION
-    compile
-    test:compile
-    it:compile
-    debug:compile
-    test
-    it:test
-    daffodil-cli/universal:packageBin
-    daffodil-cli/universal:packageZipTarball
-    daffodil-cli/rpm:packageBin
-    daffodil-japi/genjavadoc:doc
-    daffodil-sapi/doc
-    ratCheck
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION compile test:compile it:compile debug:compile || travis_terminate 1
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION test
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION it:test
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageBin
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/universal:packageZipTarball
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-cli/rpm:packageBin
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-japi/genjavadoc:doc
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION daffodil-sapi/doc
+  - sbt -J-Xms1g -J-Xmx5g ++$TRAVIS_SCALA_VERSION ratCheck

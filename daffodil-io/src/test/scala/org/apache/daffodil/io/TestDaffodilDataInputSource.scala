@@ -136,9 +136,9 @@ class TestBucketingInputSource {
     val bis = new BucketingInputSource(tis, 17)
     var i = 0
     while (i < 100) {
-      assertEquals(i, bis.position)
+      assertEquals(i, bis.position())
       assertEquals(i % 10, bis.get)
-      assertEquals(i + 1, bis.position)
+      assertEquals(i + 1, bis.position())
       i += 1
     }
   }
@@ -159,7 +159,7 @@ class TestBucketingInputSource {
       assertEquals(i, b(i))
       i += 1
     }
-    assertEquals(20, bis.position)
+    assertEquals(20, bis.position())
   }
  
   @Test def testBucketingInputSource3 {
@@ -239,11 +239,11 @@ class TestBucketingInputSource {
       i += 1
     }
     assertEquals(-1, bis.get) 
-    assertEquals(17, bis.position)
+    assertEquals(17, bis.position())
 
     bis.compact() // shouldn't do anything since first bucket is locked
     bis.position(2)
-    assertEquals(2, bis.position)
+    assertEquals(2, bis.position())
     bis.releasePosition(2)
     bis.compact() // should'nt do anything since cur pos is at the first bucket
     i = 2
@@ -270,9 +270,9 @@ class TestByteBufferInputSource {
     val bis = new ByteBufferInputSource(bb)
     var i = 0
     while (i < 30) {
-      assertEquals(i, bis.position)
+      assertEquals(i, bis.position())
       assertEquals(i % 10, bis.get)
-      assertEquals(i + 1, bis.position)
+      assertEquals(i + 1, bis.position())
       i += 1
     }
     assertEquals(-1, bis.get)
@@ -294,7 +294,7 @@ class TestByteBufferInputSource {
       assertEquals(i, b(i))
       i += 1
     }
-    assertEquals(20, bis.position)
+    assertEquals(20, bis.position())
   }
 
   @Test def testByteBufferInputSource3 {
@@ -370,11 +370,11 @@ class TestByteBufferInputSource {
       i += 1
     }
     assertEquals(-1, bis.get) 
-    assertEquals(17, bis.position)
+    assertEquals(17, bis.position())
 
     bis.compact() // shouldn't do anything since first bucket is locked
     bis.position(2)
-    assertEquals(2, bis.position)
+    assertEquals(2, bis.position())
     bis.releasePosition(2)
     bis.compact() // should'nt do anything since cur pos is at the first bucket
     i = 2

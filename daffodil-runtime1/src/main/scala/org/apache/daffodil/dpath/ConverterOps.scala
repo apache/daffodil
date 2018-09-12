@@ -25,7 +25,7 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.xml.XMLUtils
 
 case object BooleanToLong extends Converter {
-  override def computeValue(a: AnyRef, dstate: DState): AnyRef = new JLong(if (asBoolean(a) == true) 1L else 0L)
+  override def computeValue(a: AnyRef, dstate: DState): AnyRef = JLong.valueOf(if (asBoolean(a) == true) 1L else 0L)
 }
 
 case object BooleanToString extends Converter {

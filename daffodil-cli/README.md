@@ -25,7 +25,7 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 ## Requirements
 
-* JDK 1.8
+* JRE 7 or higher
 
 ## Getting Started
 
