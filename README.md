@@ -30,55 +30,49 @@ For more information about Daffodil, see https://daffodil.apache.org/.
 
 ## Getting Started
 
-To build Daffodil:
+[SBT](http://www.scala-sbt.org) is the officially supported tool to build
+Daffodil, run all tests, create packages, and more. Below are some of the more
+common commands used for Daffodil development.
+
+> Note that compiling and running all Daffodil tests works best with at least
+> 6GB of memory, more than is usually provided by default. We recommended that
+> you supply ``-mem 6144`` either as an sbt option (e.g. ``sbt -mem 6144
+> test``) or edit ``/etc/sbt/sbtopts`` to increase the available memory when
+> running the below commands.
+
+### Compile
 
 ```bash
-$ sbt clean package
+$ sbt compile
 ```
-To run all Daffodil tests:
+### Tests
+
+The following command runs all unit tests.
 
 ```bash
-# run all unit tests
 $ sbt test 
-# run all integration tests
+```
+
+The following command runs all command line interface tests.
+```bash
 $ sbt it:test
 ```
 
-To build the Daffodil command line interface:
+### Command Line Interface
+
+The following command creates Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
 
 ```bash 
 $ sbt daffodil-cli/stage
 ```
 
-The above will create Linux and Windows shell scripts in `daffodil-cli/target/universal/stage/bin/`. See the [Command Line Interface](https://daffodil.apache.org/cli/) documentation for details on its usage.
+### Apache RAT
 
-To run the Apache RAT checks:
+This following command generates an [Apache RAT](https://creadur.apache.org/rat/) report in ``target/rat.txt`` and errors if any unapproved licenses are found.
 
 ```bash
 $ sbt ratCheck
 ```
-
-This will generate a RAT report in ``target/rat.txt`` and will error if any unapproved licenses are found.
-
-### Debugging CLI Tests in Eclipse
-
-The CLI tests in daffodil-cli execute a daffodil script to perform tests.
-Before testing in Eclipse, you must first build that script by running ``sbt
-daffodil-cli/stage``. Additionally, because the tests spawn a sub-shell for
-executing the script, tests must be individually modified to make them
-debuggable in Eclipse--the idiom is:
-
-```scala
-  // tests all synthesize a command line into val cmd
-  val cmd = .....
-  // Instead of running the rest of the test, do these two lines:
-  val args = cmd.split(' ').tail // cmdline minus the daffodil program name.
-  Main.run(args) // Run Main directly, so we can debug.
-```
-
-Note that this does not perform the 'expect' checks, so you have to type the
-commands at the console pane, and inspect the output to see if it is what you
-want.
 
 ## Getting Help
 
