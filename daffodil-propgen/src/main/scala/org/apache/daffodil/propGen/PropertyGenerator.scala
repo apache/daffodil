@@ -493,9 +493,18 @@ object Currency {
   }
 
   def generateNonEnumInstantiation(propName: String, typeName: String) = {
-    val midTemplate = """  def EUR = convertToTYPE(cacheProperty("EUR").value)
-"""
     val converterName = getConverterTypeName(typeName)
+    val midTemplate = if (converterName != "QName") {
+"""  def EUR = convertToTYPE(cacheProperty("EUR").value)
+"""
+    } else {
+"""  def EUR = {
+    val cp = cacheProperty("EUR")
+    convertToTYPE(cp.value, cp.location)
+  }
+"""
+    }
+
     val mid =
       if (excludeRuntimeProperties(propName)) ""
       else {

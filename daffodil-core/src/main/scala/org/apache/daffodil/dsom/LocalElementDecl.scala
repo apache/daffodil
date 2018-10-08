@@ -19,9 +19,9 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 
-final class LocalElementDecl(
+sealed class LocalElementDecl(
   final override val xml: Node,
-  final override val parent: GroupDefLike,
+  final override val parent: SchemaComponent,
   final override val position: Int)
   extends ElementBase
   with LocalElementComponentMixin
@@ -29,5 +29,20 @@ final class LocalElementDecl(
   with NestingLexicalMixin {
 
   requiredEvaluations(minOccurs, maxOccurs)
+}
 
+/**
+ * A DetachedElement is similar to a LocalElement except it will have no
+ * representation in the infoset, acting only as a temporary element that can
+ * be parsed/unparsed. As an example, this is used as an element foar
+ * parsing/unparsing prefix lengths. No element exists in the infoset or in the
+ * schema to represent a prefix length (only a simple type), so a
+ * DetachedElementDecl is used as a place where properties related to the
+ * prefix simpel type can be accessed.
+ */
+final class DetachedElementDecl(
+  val detachedReference: ElementBase,
+  xml: Node,
+  parent: SchemaComponent)
+  extends LocalElementDecl(xml, parent, -1){
 }

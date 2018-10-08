@@ -279,8 +279,8 @@ trait Term
       case c: ChoiceTermBase => Some(c)
       case s: SequenceTermBase => Some(s)
       case d: SchemaDocument => {
-        // we must be the Root elementRef
-        Assert.invariant(this.isInstanceOf[Root])
+        // we must be the Root elementRef or a detatched node
+        Assert.invariant(this.isInstanceOf[Root] || this.isInstanceOf[DetachedElementDecl])
         None
       }
       case gr: GroupRef => gr.asModelGroup.immediatelyEnclosingModelGroup
@@ -571,7 +571,7 @@ trait Term
         val elementCouldHaveSuspensions =
           commonCouldHaveSuspensions ||
             !isKnownToBeTextAligned || // MandatoryTextAlignmentUnparser
-            (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // OVCRetryUnparser
+            (if (eb.isSimpleType) eb.isOutputValueCalc else false) || // SimpleTypeRetryUnparser
             eb.shouldAddFill || // ElementUnusedUnparser, RightFillUnparser
             eb.shouldCheckExcessLength || // ElementUnusedUnparser, RightFillUnparser
             eb.shouldAddPadding || // OnlyPaddingUnparser, RightCenteredPaddingUnparser, LeftCenteredPaddingUnparser

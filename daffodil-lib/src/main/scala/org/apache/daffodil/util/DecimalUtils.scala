@@ -115,17 +115,26 @@ object DecimalUtils {
     new JBigDecimal(packedToBigInteger(num, signCodes), scale)
   }
 
-  def packedFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int, signCodes: PackedSignCodes): Array[Byte] = {
-    val negative = (bigInt.signum != 1)
-    val inChars = bigInt.abs.toString.toCharArray
-    val numDigits = inChars.length
-    // Length required to fit all the digits of the number including sign nibble
+  def packedFromBigIntegerLength(absBigIntAsString: String, minLengthInBits: Int): (Int, Int) = {
+    Assert.invariant(absBigIntAsString(0) != '-')
+    val numDigits = absBigIntAsString.length
     val requiredBitLen = if (numDigits % 2 == 0) ((numDigits + 2) * 4) else ((numDigits + 1) * 4)
     val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
+    val numBytes = bitLen / 8
+    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits - 1) else (bitLen/4 - numDigits)
+    (numBytes, leadingZeros)
+  }
+
+  def packedFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int, signCodes: PackedSignCodes): Array[Byte] = {
+    val negative = (bigInt.signum != 1)
+    val inChars = bigInt.abs.toString
+    val numDigits = inChars.length
+
+    val (numBytes, leadingZeros) = packedFromBigIntegerLength(inChars, minLengthInBits)
+    val outArray = new Array[Byte](numBytes)
+
     var offset = 0
     var inPos = 0
-    val outArray = new Array[Byte](bitLen/8)
-    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits - 1) else (bitLen/4 - numDigits)
 
     // Add leading double zeros if necessary
     while ((offset * 2) < (leadingZeros - 1)) {
@@ -189,16 +198,25 @@ object DecimalUtils {
     new JBigDecimal(bcdToBigInteger(bcdNum), scale)
   }
 
-  def bcdFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int): Array[Byte] = {
-    val inChars = bigInt.toString.toCharArray
-    val numDigits = inChars.length
+  def bcdFromBigIntegerLength(absBigIntAsString: String, minLengthInBits: Int): (Int, Int) = {
+    val numDigits = absBigIntAsString.length
     // Need to have an even number of digits to fill out a complete byte
     val requiredBitLen = if (numDigits % 2 == 0) (numDigits * 4) else ((numDigits + 1) * 4)
     val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
+    val numBytes = (bitLen / 8)
+    val leadingZeros = bitLen/4 - numDigits
+    (numBytes, leadingZeros)
+  }
+
+  def bcdFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int): Array[Byte] = {
+    val inChars = bigInt.toString
+    val numDigits = inChars.length
+    
+    val (numBytes, leadingZeros) = bcdFromBigIntegerLength(inChars, minLengthInBits)
+    val outArray = new Array[Byte](numBytes)
+
     var offset = 0
     var inPos = 0
-    val outArray = new Array[Byte](bitLen/8)
-    val leadingZeros = bitLen/4 - inChars.length
 
     // Add leading double zeros if necessary
     while ((offset * 2) < (leadingZeros - 1)) {
@@ -287,17 +305,27 @@ object DecimalUtils {
     new JBigDecimal(ibm4690ToBigInteger(num), scale)
   }
 
+  def ibm4690FromBigIntegerLength(absBigIntAsString: String, minLengthInBits: Int, negative: Boolean): (Int, Int) = {
+    Assert.invariant(absBigIntAsString(0) != '-')
+    val numDigits = if (negative) absBigIntAsString.length + 1 else absBigIntAsString.length
+    val requiredBitLen = if (numDigits % 2 == 0) (numDigits * 4) else ((numDigits + 1) * 4)
+    val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
+    val numBytes = bitLen / 8
+    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits) else (bitLen/4 - (numDigits + 1))
+    (numBytes, leadingZeros) 
+  }
+
   def ibm4690FromBigInteger(bigInt: JBigInteger, minLengthInBits: Int): Array[Byte] = {
     val negative = (bigInt.signum != 1)
-    val inChars = bigInt.abs.toString.toCharArray
+    val inChars = bigInt.abs.toString
+    val numDigits = if (negative) inChars.length + 1 else inChars.length
+
+    val (numBytes, leadingZeros) = ibm4690FromBigIntegerLength(inChars, minLengthInBits, negative)
+    val outArray = new Array[Byte](numBytes)
+
     var wrote_negative = false
     var offset = 0
     var inPos = 0
-    val numDigits = if (negative) inChars.length + 1 else inChars.length
-    val requiredBitLen = if (numDigits % 2 == 0) (numDigits * 4) else ((numDigits + 1) * 4)
-    val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
-    val outArray = new Array[Byte](bitLen/8)
-    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits) else (bitLen/4 - (numDigits + 1))
 
     // Add leading double zeros if necessary
     while ((offset * 2) < (leadingZeros - 1)) {

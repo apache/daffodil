@@ -17,11 +17,16 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.infoset.RetryableException
-import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DISimple
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Maybe._
 
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
   extends PrimUnparser {
@@ -30,7 +35,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
 
   protected def getLengthInBits(state: UState): Long
 
-  override final def unparse(state: UState): Unit = {
+  override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
     val value = node.dataValue.asInstanceOf[Array[Byte]]
@@ -74,7 +79,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
   }
 }
 
-final class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData)
+class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRuntimeData)
   extends HexBinaryUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
@@ -98,5 +103,28 @@ final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val length
       }
     }
     l
+  }
+}
+
+final class HexBinaryLengthPrefixedUnparser(
+  erd: ElementRuntimeData,
+  override val prefixedLengthUnparser: Unparser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  minLengthInBytes: Long,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends HexBinaryMinLengthInBytesUnparser(minLengthInBytes, erd)
+  with KnownPrefixedLengthUnparserMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
+
+  override def getBitLength(state: ParseOrUnparseState): Int = {
+    val bits = getLengthInBits(state.asInstanceOf[UState])
+    bits.toInt
+  }
+
+  override def unparse(state: UState): Unit = {
+    unparsePrefixedLength(state)
+    super.unparse(state)
   }
 }

@@ -17,12 +17,14 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import java.lang.{ Long => JLong, Number => JNumber, Double => JDouble, Float => JFloat }
+
+import org.apache.daffodil.processors.ElementRuntimeData
+import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.schema.annotation.props.gen.YesNo
 
 class BinaryFloatParser(override val context: ElementRuntimeData)
   extends PrimParser {
@@ -63,10 +65,29 @@ class BinaryDecimalKnownLengthParser(e: ElementRuntimeData, signed: YesNo, binar
   with HasKnownLengthInBits {
 }
 
-class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
+class BinaryDecimalRuntimeLengthParser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lengthUnits: LengthUnits)
   extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 }
+
+class BinaryDecimalPrefixedLengthParser(
+  e: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  signed: YesNo,
+  binaryDecimalVirtualPoint: Int,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
+  with PrefixedLengthParserMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
+      
+  override def getBitLength(state: ParseOrUnparseState): Int = {
+    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
+  }
+}
+
 
 abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
   extends PrimParser {
@@ -91,7 +112,7 @@ abstract class BinaryDecimalParserBase(override val context: ElementRuntimeData,
   }
 }
 
-class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lUnits: LengthUnits)
+class BinaryIntegerRuntimeLengthParser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lengthUnits: LengthUnits)
   extends BinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 }
@@ -100,6 +121,24 @@ class BinaryIntegerKnownLengthParser(e: ElementRuntimeData, signed: Boolean, val
   extends BinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {
 }
+
+class BinaryIntegerPrefixedLengthParser(
+  e: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  signed: Boolean,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends BinaryIntegerBaseParser(e, signed)
+  with PrefixedLengthParserMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
+      
+  override def getBitLength(state: ParseOrUnparseState): Int = {
+    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
+  }
+}
+
 
 abstract class BinaryIntegerBaseParser(override val context: ElementRuntimeData, signed: Boolean)
   extends PrimParser {

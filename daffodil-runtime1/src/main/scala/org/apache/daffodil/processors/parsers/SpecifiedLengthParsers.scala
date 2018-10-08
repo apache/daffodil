@@ -17,18 +17,21 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.util.Numbers
+import java.lang.{ Long => JLong }
+import java.util.regex.Matcher
+
+import passera.unsigned.ULong
+
+import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.Success
-import org.apache.daffodil.util.OnStack
-import java.util.regex.Matcher
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.MaybeULong
-import passera.unsigned.ULong
-import org.apache.daffodil.equality._
-import java.lang.{ Long => JLong }
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.util.Numbers
+import org.apache.daffodil.util.OnStack
 
 sealed abstract class SpecifiedLengthParserBase(
   eParser: Parser,
@@ -138,6 +141,23 @@ class SpecifiedLengthImplicitParser(
   final override def getBitLength(s: PState): MaybeULong = MaybeULong(nBits)
 }
 
+class SpecifiedLengthPrefixedParser(
+  eParser: Parser,
+  erd: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends SpecifiedLengthParserBase(eParser, erd)
+  with PrefixedLengthParserMixin {
+
+  override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
+
+  final override def getBitLength(s: PState): MaybeULong = {
+    MaybeULong(getPrefixedLengthInBits(s))
+  }
+}
+
 /**
  * This is used when length is measured in characters, and couldn't be
  * converted to a computation on length in bits because a character is encoded as a variable number
@@ -215,6 +235,25 @@ final class SpecifiedLengthExplicitCharactersParser(
     nChars
   }
 
+}
+
+final class SpecifiedLengthPrefixedCharactersParser(
+  eParser: Parser,
+  erd: ElementRuntimeData,
+  override val prefixedLengthParser: Parser,
+  override val prefixedLengthERD: ElementRuntimeData,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends SpecifiedLengthCharactersParserBase(eParser, erd)
+  with PrefixedLengthParserMixin {
+
+  override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
+ 
+  override lazy val lengthUnits = LengthUnits.Characters
+   
+  def getCharLength(s: PState): Long = {
+    val nChars = getPrefixedLengthInUnits(s)
+    nChars
+  }
 }
 
 class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData)

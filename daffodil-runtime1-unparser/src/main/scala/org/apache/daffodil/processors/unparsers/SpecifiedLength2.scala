@@ -25,6 +25,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.SuspendableOperation
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.processors.charset.BitsCharset
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.LogLevel
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
@@ -164,14 +165,14 @@ import java.nio.charset.UnmappableCharacterException
  * the number of bits to characters.
  */
 
-class OVCRetryUnparserSuspendableOperation(
+class SimpleTypeRetryUnparserSuspendableOperation(
   override val rd: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
   extends SuspendableOperation {
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
     // Note that we cannot use a targetLengthInBitsEv to determine the
-    // knownLengthInBits. This is because even if an OVC element has fixed
+    // knownLengthInBits. This is because even if an OVC/Simple element has fixed
     // length, the result of the OVC might not actually write that many bits,
     // relying on padding and/or right fill to fill in the remaining bits
     //
@@ -195,7 +196,7 @@ class OVCRetryUnparserSuspendableOperation(
   }
 }
 
-class OVCRetryUnparser(
+class SimpleTypeRetryUnparser(
   override val context: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv], vUnparser: Unparser)
   extends PrimUnparser
@@ -205,7 +206,7 @@ class OVCRetryUnparser(
 
   final override lazy val childProcessors = Vector(vUnparser)
 
-  def suspendableOperation = new OVCRetryUnparserSuspendableOperation(
+  def suspendableOperation = new SimpleTypeRetryUnparserSuspendableOperation(
     context, maybeUnparserTargetLengthInBitsEv, vUnparser)
 
 }
@@ -698,3 +699,32 @@ class RightFillUnparser(
 
 }
 
+
+class PrefixLengthSuspendableOperation(
+  override val rd: ElementRuntimeData,
+  elem: DIElement,
+  plElem: DISimple,
+  override val lengthUnits: LengthUnits,
+  override val prefixedLengthAdjustmentInUnits: Long)
+  extends SuspendableOperation
+  with CalculatedPrefixedLengthUnparserMixin {
+
+  override val isReadOnly = true
+
+  override def toString = "prefix length for " + rd.diagnosticDebugName
+
+  /**
+   * This override indicates that this operation itself doesn't correspond
+   * to any bits in the unparsed data stream. It's just a computation.
+   */
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
+
+  override def test(ustate: UState): Boolean = {
+    elem.valueLength.maybeLengthInBits.isDefined
+  }
+
+  override def continuation(state: UState) {
+    val len = elem.valueLength.maybeLengthInBits.isDefined
+    assignPrefixLength(elem, plElem)
+  }
+}

@@ -32,6 +32,7 @@ import org.apache.daffodil.processors.InitiatorParseEv
 import org.apache.daffodil.processors.InitiatorUnparseEv
 import org.apache.daffodil.processors.OccursCountEv
 import org.apache.daffodil.processors.OutputNewLineEv
+import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.SeparatorParseEv
 import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.processors.TerminatorParseEv
@@ -307,7 +308,7 @@ trait ElementRuntimeValuedPropertiesMixin
     else None
   }
 
-  protected final lazy val optLengthConstant: Option[Long] = {
+  final lazy val optLengthConstant: Option[Long] = {
     if (maybeLengthEv.isDefined) {
       lengthEv.optConstant.map { _.longValue }
     } else None

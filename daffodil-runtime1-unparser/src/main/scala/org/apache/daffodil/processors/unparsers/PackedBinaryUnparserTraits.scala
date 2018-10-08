@@ -17,16 +17,21 @@
 
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.ElementRuntimeData
-import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.util.Maybe._
 import java.lang.{ Number => JNumber }
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
+
+import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.Infoset
+import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
-import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.processors.ParseOrUnparseState
+import org.apache.daffodil.processors.Processor
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.Maybe._
 
 trait PackedBinaryConversion {
   def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte]
@@ -42,9 +47,8 @@ abstract class PackedBinaryBaseUnparser(
   protected def getBitLength(s: ParseOrUnparseState): Int
 
   def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean
-
-  override def unparse(state: UState): Unit = {
-    val nBits = getBitLength(state)
+  
+  def getNumberToPut(state: UState): JNumber = {
     val node = state.currentInfosetNode.asSimple
 
     // Packed decimal calendars use the convert combinator which sets the string value of the calendar
@@ -58,8 +62,13 @@ abstract class PackedBinaryBaseUnparser(
     }
 
     val value = nodeValue.asInstanceOf[JNumber]
-    val dos = state.dataOutputStream
+    value
+  }
 
+  override def unparse(state: UState): Unit = {
+    val nBits = getBitLength(state)
+    val value = getNumberToPut(state)
+    val dos = state.dataOutputStream
     val res = putNumber(dos, value, nBits, state)
 
     if (!res) {
@@ -76,29 +85,36 @@ abstract class PackedBinaryDecimalBaseUnparser(
   binaryDecimalVirtualPoint: Int)
   extends PackedBinaryBaseUnparser(e) {
 
-  override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
-
+  override def getNumberToPut(ustate: UState): JNumber = {
+    val number = super.getNumberToPut(ustate)
     val bigDec = number.asInstanceOf[JBigDecimal]
-    if (bigDec.movePointRight(binaryDecimalVirtualPoint).scale != 0)
+    if (bigDec.movePointRight(binaryDecimalVirtualPoint).scale != 0) {
       e.schemaDefinitionError("Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d", bigDec, binaryDecimalVirtualPoint)
-
-      val packedNum = fromBigInteger(bigDec.unscaledValue, nBits)
-      dos.putByteArray(packedNum, packedNum.length * 8, finfo)
     }
+    bigDec.unscaledValue
+  }
+
+  override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+    val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
+    dos.putByteArray(packedNum, packedNum.length * 8, finfo)
+  }
 }
 
 abstract class PackedBinaryIntegerBaseUnparser(
   e: ElementRuntimeData)
   extends PackedBinaryBaseUnparser(e) {
 
+  override def getNumberToPut(ustate: UState): JNumber = { 
+    val number = super.getNumberToPut(ustate)
+    val bigInt = number.isInstanceOf[JBigInteger] match {
+      case true => number.asInstanceOf[JBigInteger]
+      case false => new JBigInteger(number.toString)
+    }
+    bigInt
+  }
+
   override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
-
-      val bigInt = number.isInstanceOf[JBigInteger] match {
-        case true => number.asInstanceOf[JBigInteger]
-        case false => new JBigInteger(number.toString)
-      }
-
-      val packedNum = fromBigInteger(bigInt, nBits)
-      dos.putByteArray(packedNum, packedNum.length * 8, finfo)
+    val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
+    dos.putByteArray(packedNum, packedNum.length * 8, finfo)
   }
 }
